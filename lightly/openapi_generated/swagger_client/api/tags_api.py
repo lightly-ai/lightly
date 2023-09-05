@@ -24,28 +24,56 @@ from pydantic import Field, StrictBool, StrictInt, StrictStr, conint, constr, va
 
 from typing import List, Optional, Union
 
-from lightly.openapi_generated.swagger_client.models.create_entity_response import CreateEntityResponse
-from lightly.openapi_generated.swagger_client.models.file_name_format import FileNameFormat
-from lightly.openapi_generated.swagger_client.models.file_output_format import FileOutputFormat
-from lightly.openapi_generated.swagger_client.models.filename_and_read_url import FilenameAndReadUrl
-from lightly.openapi_generated.swagger_client.models.initial_tag_create_request import InitialTagCreateRequest
-from lightly.openapi_generated.swagger_client.models.label_box_data_row import LabelBoxDataRow
-from lightly.openapi_generated.swagger_client.models.label_box_v4_data_row import LabelBoxV4DataRow
-from lightly.openapi_generated.swagger_client.models.label_studio_task import LabelStudioTask
+from lightly.openapi_generated.swagger_client.models.create_entity_response import (
+    CreateEntityResponse,
+)
+from lightly.openapi_generated.swagger_client.models.file_name_format import (
+    FileNameFormat,
+)
+from lightly.openapi_generated.swagger_client.models.file_output_format import (
+    FileOutputFormat,
+)
+from lightly.openapi_generated.swagger_client.models.filename_and_read_url import (
+    FilenameAndReadUrl,
+)
+from lightly.openapi_generated.swagger_client.models.initial_tag_create_request import (
+    InitialTagCreateRequest,
+)
+from lightly.openapi_generated.swagger_client.models.label_box_data_row import (
+    LabelBoxDataRow,
+)
+from lightly.openapi_generated.swagger_client.models.label_box_v4_data_row import (
+    LabelBoxV4DataRow,
+)
+from lightly.openapi_generated.swagger_client.models.label_studio_task import (
+    LabelStudioTask,
+)
 from lightly.openapi_generated.swagger_client.models.sama_task import SamaTask
-from lightly.openapi_generated.swagger_client.models.tag_arithmetics_request import TagArithmeticsRequest
-from lightly.openapi_generated.swagger_client.models.tag_arithmetics_response import TagArithmeticsResponse
-from lightly.openapi_generated.swagger_client.models.tag_bit_mask_response import TagBitMaskResponse
-from lightly.openapi_generated.swagger_client.models.tag_create_request import TagCreateRequest
+from lightly.openapi_generated.swagger_client.models.tag_arithmetics_request import (
+    TagArithmeticsRequest,
+)
+from lightly.openapi_generated.swagger_client.models.tag_arithmetics_response import (
+    TagArithmeticsResponse,
+)
+from lightly.openapi_generated.swagger_client.models.tag_bit_mask_response import (
+    TagBitMaskResponse,
+)
+from lightly.openapi_generated.swagger_client.models.tag_create_request import (
+    TagCreateRequest,
+)
 from lightly.openapi_generated.swagger_client.models.tag_data import TagData
-from lightly.openapi_generated.swagger_client.models.tag_update_request import TagUpdateRequest
-from lightly.openapi_generated.swagger_client.models.tag_upsize_request import TagUpsizeRequest
+from lightly.openapi_generated.swagger_client.models.tag_update_request import (
+    TagUpdateRequest,
+)
+from lightly.openapi_generated.swagger_client.models.tag_upsize_request import (
+    TagUpsizeRequest,
+)
 
 from lightly.openapi_generated.swagger_client.api_client import ApiClient
 from lightly.openapi_generated.swagger_client.api_response import ApiResponse
 from lightly.openapi_generated.swagger_client.exceptions import (  # noqa: F401
     ApiTypeError,
-    ApiValueError
+    ApiValueError,
 )
 
 
@@ -62,7 +90,14 @@ class TagsApi(object):
         self.api_client = api_client
 
     @validate_arguments
-    def create_initial_tag_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], initial_tag_create_request : InitialTagCreateRequest, **kwargs) -> CreateEntityResponse:  # noqa: E501
+    def create_initial_tag_by_dataset_id(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        initial_tag_create_request: InitialTagCreateRequest,
+        **kwargs
+    ) -> CreateEntityResponse:  # noqa: E501
         """create_initial_tag_by_dataset_id  # noqa: E501
 
         create the intitial tag for a dataset which then locks the dataset  # noqa: E501
@@ -87,13 +122,24 @@ class TagsApi(object):
                  returns the request thread.
         :rtype: CreateEntityResponse
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the create_initial_tag_by_dataset_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.create_initial_tag_by_dataset_id_with_http_info(dataset_id, initial_tag_create_request, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the create_initial_tag_by_dataset_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.create_initial_tag_by_dataset_id_with_http_info(
+            dataset_id, initial_tag_create_request, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def create_initial_tag_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], initial_tag_create_request : InitialTagCreateRequest, **kwargs) -> ApiResponse:  # noqa: E501
+    def create_initial_tag_by_dataset_id_with_http_info(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        initial_tag_create_request: InitialTagCreateRequest,
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """create_initial_tag_by_dataset_id  # noqa: E501
 
         create the intitial tag for a dataset which then locks the dataset  # noqa: E501
@@ -110,7 +156,7 @@ class TagsApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -134,76 +180,75 @@ class TagsApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'dataset_id',
-            'initial_tag_create_request'
-        ]
+        _all_params = ["dataset_id", "initial_tag_create_request"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method create_initial_tag_by_dataset_id" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['dataset_id']:
-            _path_params['datasetId'] = _params['dataset_id']
-
+        if _params["dataset_id"]:
+            _path_params["datasetId"] = _params["dataset_id"]
 
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
-        if _params['initial_tag_create_request'] is not None:
-            _body_params = _params['initial_tag_create_request']
+        if _params["initial_tag_create_request"] is not None:
+            _body_params = _params["initial_tag_create_request"]
 
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # set the HTTP header `Content-Type`
-        _content_types_list = _params.get('_content_type',
-            self.api_client.select_header_content_type(
-                ['application/json']))
+        _content_types_list = _params.get(
+            "_content_type",
+            self.api_client.select_header_content_type(["application/json"]),
+        )
         if _content_types_list:
-                _header_params['Content-Type'] = _content_types_list
+            _header_params["Content-Type"] = _content_types_list
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '201': "CreateEntityResponse",
-            '400': "ApiErrorResponse",
-            '401': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "201": "CreateEntityResponse",
+            "400": "ApiErrorResponse",
+            "401": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/datasets/{datasetId}/tags/initial', 'POST',
+            "/v1/datasets/{datasetId}/tags/initial",
+            "POST",
             _path_params,
             _query_params,
             _header_params,
@@ -212,15 +257,23 @@ class TagsApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def create_tag_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_create_request : TagCreateRequest, **kwargs) -> CreateEntityResponse:  # noqa: E501
+    def create_tag_by_dataset_id(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        tag_create_request: TagCreateRequest,
+        **kwargs
+    ) -> CreateEntityResponse:  # noqa: E501
         """create_tag_by_dataset_id  # noqa: E501
 
         create new tag for dataset  # noqa: E501
@@ -245,13 +298,24 @@ class TagsApi(object):
                  returns the request thread.
         :rtype: CreateEntityResponse
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the create_tag_by_dataset_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.create_tag_by_dataset_id_with_http_info(dataset_id, tag_create_request, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the create_tag_by_dataset_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.create_tag_by_dataset_id_with_http_info(
+            dataset_id, tag_create_request, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def create_tag_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_create_request : TagCreateRequest, **kwargs) -> ApiResponse:  # noqa: E501
+    def create_tag_by_dataset_id_with_http_info(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        tag_create_request: TagCreateRequest,
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """create_tag_by_dataset_id  # noqa: E501
 
         create new tag for dataset  # noqa: E501
@@ -268,7 +332,7 @@ class TagsApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -292,76 +356,75 @@ class TagsApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'dataset_id',
-            'tag_create_request'
-        ]
+        _all_params = ["dataset_id", "tag_create_request"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method create_tag_by_dataset_id" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['dataset_id']:
-            _path_params['datasetId'] = _params['dataset_id']
-
+        if _params["dataset_id"]:
+            _path_params["datasetId"] = _params["dataset_id"]
 
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
-        if _params['tag_create_request'] is not None:
-            _body_params = _params['tag_create_request']
+        if _params["tag_create_request"] is not None:
+            _body_params = _params["tag_create_request"]
 
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # set the HTTP header `Content-Type`
-        _content_types_list = _params.get('_content_type',
-            self.api_client.select_header_content_type(
-                ['application/json']))
+        _content_types_list = _params.get(
+            "_content_type",
+            self.api_client.select_header_content_type(["application/json"]),
+        )
         if _content_types_list:
-                _header_params['Content-Type'] = _content_types_list
+            _header_params["Content-Type"] = _content_types_list
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '201': "CreateEntityResponse",
-            '400': "ApiErrorResponse",
-            '401': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "201": "CreateEntityResponse",
+            "400": "ApiErrorResponse",
+            "401": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/datasets/{datasetId}/tags', 'POST',
+            "/v1/datasets/{datasetId}/tags",
+            "POST",
             _path_params,
             _query_params,
             _header_params,
@@ -370,15 +433,25 @@ class TagsApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def delete_tag_by_tag_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], **kwargs) -> None:  # noqa: E501
+    def delete_tag_by_tag_id(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        tag_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the tag")
+        ],
+        **kwargs
+    ) -> None:  # noqa: E501
         """delete_tag_by_tag_id  # noqa: E501
 
         delete a specific tag if its a leaf-tag (e.g is not a dependency of another tag)  # noqa: E501
@@ -403,13 +476,26 @@ class TagsApi(object):
                  returns the request thread.
         :rtype: None
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the delete_tag_by_tag_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.delete_tag_by_tag_id_with_http_info(dataset_id, tag_id, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the delete_tag_by_tag_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.delete_tag_by_tag_id_with_http_info(
+            dataset_id, tag_id, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def delete_tag_by_tag_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], **kwargs) -> ApiResponse:  # noqa: E501
+    def delete_tag_by_tag_id_with_http_info(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        tag_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the tag")
+        ],
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """delete_tag_by_tag_id  # noqa: E501
 
         delete a specific tag if its a leaf-tag (e.g is not a dependency of another tag)  # noqa: E501
@@ -426,7 +512,7 @@ class TagsApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -450,63 +536,61 @@ class TagsApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'dataset_id',
-            'tag_id'
-        ]
+        _all_params = ["dataset_id", "tag_id"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method delete_tag_by_tag_id" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['dataset_id']:
-            _path_params['datasetId'] = _params['dataset_id']
+        if _params["dataset_id"]:
+            _path_params["datasetId"] = _params["dataset_id"]
 
-        if _params['tag_id']:
-            _path_params['tagId'] = _params['tag_id']
-
+        if _params["tag_id"]:
+            _path_params["tagId"] = _params["tag_id"]
 
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/v1/datasets/{datasetId}/tags/{tagId}', 'DELETE',
+            "/v1/datasets/{datasetId}/tags/{tagId}",
+            "DELETE",
             _path_params,
             _query_params,
             _header_params,
@@ -515,15 +599,25 @@ class TagsApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def download_zip_of_samples_by_tag_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], **kwargs) -> bytearray:  # noqa: E501
+    def download_zip_of_samples_by_tag_id(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        tag_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the tag")
+        ],
+        **kwargs
+    ) -> bytearray:  # noqa: E501
         """download_zip_of_samples_by_tag_id  # noqa: E501
 
         Download a zip file of the samples of a tag. Limited to 1000 images  # noqa: E501
@@ -548,13 +642,26 @@ class TagsApi(object):
                  returns the request thread.
         :rtype: bytearray
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the download_zip_of_samples_by_tag_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.download_zip_of_samples_by_tag_id_with_http_info(dataset_id, tag_id, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the download_zip_of_samples_by_tag_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.download_zip_of_samples_by_tag_id_with_http_info(
+            dataset_id, tag_id, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def download_zip_of_samples_by_tag_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], **kwargs) -> ApiResponse:  # noqa: E501
+    def download_zip_of_samples_by_tag_id_with_http_info(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        tag_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the tag")
+        ],
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """download_zip_of_samples_by_tag_id  # noqa: E501
 
         Download a zip file of the samples of a tag. Limited to 1000 images  # noqa: E501
@@ -571,7 +678,7 @@ class TagsApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -595,70 +702,68 @@ class TagsApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'dataset_id',
-            'tag_id'
-        ]
+        _all_params = ["dataset_id", "tag_id"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method download_zip_of_samples_by_tag_id" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['dataset_id']:
-            _path_params['datasetId'] = _params['dataset_id']
+        if _params["dataset_id"]:
+            _path_params["datasetId"] = _params["dataset_id"]
 
-        if _params['tag_id']:
-            _path_params['tagId'] = _params['tag_id']
-
+        if _params["tag_id"]:
+            _path_params["tagId"] = _params["tag_id"]
 
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/zip', 'application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/zip", "application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '200': "bytearray",
-            '400': "ApiErrorResponse",
-            '401': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
-            '413': "ApiErrorResponse",
+            "200": "bytearray",
+            "400": "ApiErrorResponse",
+            "401": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
+            "413": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/datasets/{datasetId}/tags/{tagId}/export/zip', 'GET',
+            "/v1/datasets/{datasetId}/tags/{tagId}/export/zip",
+            "GET",
             _path_params,
             _query_params,
             _header_params,
@@ -667,15 +772,56 @@ class TagsApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def export_tag_to_basic_filenames(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], expires_in : Annotated[Optional[StrictInt], Field(description="If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. ")] = None, access_control : Annotated[Optional[StrictStr], Field(description="which access control name to be used")] = None, file_name_format : Optional[FileNameFormat] = None, include_meta_data : Annotated[Optional[StrictBool], Field(description="if true, will also include metadata")] = None, format : Optional[FileOutputFormat] = None, preview_example : Annotated[Optional[StrictBool], Field(description="if true, will generate a preview example of how the structure will look")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> str:  # noqa: E501
+    def export_tag_to_basic_filenames(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        tag_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the tag")
+        ],
+        expires_in: Annotated[
+            Optional[StrictInt],
+            Field(
+                description="If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. "
+            ),
+        ] = None,
+        access_control: Annotated[
+            Optional[StrictStr],
+            Field(description="which access control name to be used"),
+        ] = None,
+        file_name_format: Optional[FileNameFormat] = None,
+        include_meta_data: Annotated[
+            Optional[StrictBool],
+            Field(description="if true, will also include metadata"),
+        ] = None,
+        format: Optional[FileOutputFormat] = None,
+        preview_example: Annotated[
+            Optional[StrictBool],
+            Field(
+                description="if true, will generate a preview example of how the structure will look"
+            ),
+        ] = None,
+        page_size: Annotated[
+            Optional[conint(strict=True, ge=1)],
+            Field(
+                description="pagination size/limit of the number of samples to return"
+            ),
+        ] = None,
+        page_offset: Annotated[
+            Optional[conint(strict=True, ge=0)], Field(description="pagination offset")
+        ] = None,
+        **kwargs
+    ) -> str:  # noqa: E501
         """export_tag_to_basic_filenames  # noqa: E501
 
         Export the samples filenames of a specific tag   # noqa: E501
@@ -689,7 +835,7 @@ class TagsApi(object):
         :type dataset_id: str
         :param tag_id: ObjectId of the tag (required)
         :type tag_id: str
-        :param expires_in: If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. 
+        :param expires_in: If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely.
         :type expires_in: int
         :param access_control: which access control name to be used
         :type access_control: str
@@ -716,13 +862,67 @@ class TagsApi(object):
                  returns the request thread.
         :rtype: str
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the export_tag_to_basic_filenames_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.export_tag_to_basic_filenames_with_http_info(dataset_id, tag_id, expires_in, access_control, file_name_format, include_meta_data, format, preview_example, page_size, page_offset, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the export_tag_to_basic_filenames_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.export_tag_to_basic_filenames_with_http_info(
+            dataset_id,
+            tag_id,
+            expires_in,
+            access_control,
+            file_name_format,
+            include_meta_data,
+            format,
+            preview_example,
+            page_size,
+            page_offset,
+            **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def export_tag_to_basic_filenames_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], expires_in : Annotated[Optional[StrictInt], Field(description="If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. ")] = None, access_control : Annotated[Optional[StrictStr], Field(description="which access control name to be used")] = None, file_name_format : Optional[FileNameFormat] = None, include_meta_data : Annotated[Optional[StrictBool], Field(description="if true, will also include metadata")] = None, format : Optional[FileOutputFormat] = None, preview_example : Annotated[Optional[StrictBool], Field(description="if true, will generate a preview example of how the structure will look")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def export_tag_to_basic_filenames_with_http_info(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        tag_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the tag")
+        ],
+        expires_in: Annotated[
+            Optional[StrictInt],
+            Field(
+                description="If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. "
+            ),
+        ] = None,
+        access_control: Annotated[
+            Optional[StrictStr],
+            Field(description="which access control name to be used"),
+        ] = None,
+        file_name_format: Optional[FileNameFormat] = None,
+        include_meta_data: Annotated[
+            Optional[StrictBool],
+            Field(description="if true, will also include metadata"),
+        ] = None,
+        format: Optional[FileOutputFormat] = None,
+        preview_example: Annotated[
+            Optional[StrictBool],
+            Field(
+                description="if true, will generate a preview example of how the structure will look"
+            ),
+        ] = None,
+        page_size: Annotated[
+            Optional[conint(strict=True, ge=1)],
+            Field(
+                description="pagination size/limit of the number of samples to return"
+            ),
+        ] = None,
+        page_offset: Annotated[
+            Optional[conint(strict=True, ge=0)], Field(description="pagination offset")
+        ] = None,
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """export_tag_to_basic_filenames  # noqa: E501
 
         Export the samples filenames of a specific tag   # noqa: E501
@@ -736,7 +936,7 @@ class TagsApi(object):
         :type dataset_id: str
         :param tag_id: ObjectId of the tag (required)
         :type tag_id: str
-        :param expires_in: If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. 
+        :param expires_in: If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely.
         :type expires_in: int
         :param access_control: which access control name to be used
         :type access_control: str
@@ -755,7 +955,7 @@ class TagsApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -780,124 +980,157 @@ class TagsApi(object):
         _params = locals()
 
         _all_params = [
-            'dataset_id',
-            'tag_id',
-            'expires_in',
-            'access_control',
-            'file_name_format',
-            'include_meta_data',
-            'format',
-            'preview_example',
-            'page_size',
-            'page_offset'
+            "dataset_id",
+            "tag_id",
+            "expires_in",
+            "access_control",
+            "file_name_format",
+            "include_meta_data",
+            "format",
+            "preview_example",
+            "page_size",
+            "page_offset",
         ]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method export_tag_to_basic_filenames" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['dataset_id']:
-            _path_params['datasetId'] = _params['dataset_id']
+        if _params["dataset_id"]:
+            _path_params["datasetId"] = _params["dataset_id"]
 
-        if _params['tag_id']:
-            _path_params['tagId'] = _params['tag_id']
-
+        if _params["tag_id"]:
+            _path_params["tagId"] = _params["tag_id"]
 
         # process the query parameters
         _query_params = []
-        if _params.get('expires_in') is not None:  # noqa: E501
-            _query_params.append((
-                'expiresIn',
-                _params['expires_in'].value if hasattr(_params['expires_in'], 'value') else _params['expires_in']
-            ))
+        if _params.get("expires_in") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "expiresIn",
+                    _params["expires_in"].value
+                    if hasattr(_params["expires_in"], "value")
+                    else _params["expires_in"],
+                )
+            )
 
-        if _params.get('access_control') is not None:  # noqa: E501
-            _query_params.append((
-                'accessControl',
-                _params['access_control'].value if hasattr(_params['access_control'], 'value') else _params['access_control']
-            ))
+        if _params.get("access_control") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "accessControl",
+                    _params["access_control"].value
+                    if hasattr(_params["access_control"], "value")
+                    else _params["access_control"],
+                )
+            )
 
-        if _params.get('file_name_format') is not None:  # noqa: E501
-            _query_params.append((
-                'fileNameFormat',
-                _params['file_name_format'].value if hasattr(_params['file_name_format'], 'value') else _params['file_name_format']
-            ))
+        if _params.get("file_name_format") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "fileNameFormat",
+                    _params["file_name_format"].value
+                    if hasattr(_params["file_name_format"], "value")
+                    else _params["file_name_format"],
+                )
+            )
 
-        if _params.get('include_meta_data') is not None:  # noqa: E501
-            _query_params.append((
-                'includeMetaData',
-                _params['include_meta_data'].value if hasattr(_params['include_meta_data'], 'value') else _params['include_meta_data']
-            ))
+        if _params.get("include_meta_data") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "includeMetaData",
+                    _params["include_meta_data"].value
+                    if hasattr(_params["include_meta_data"], "value")
+                    else _params["include_meta_data"],
+                )
+            )
 
-        if _params.get('format') is not None:  # noqa: E501
-            _query_params.append((
-                'format',
-                _params['format'].value if hasattr(_params['format'], 'value') else _params['format']
-            ))
+        if _params.get("format") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "format",
+                    _params["format"].value
+                    if hasattr(_params["format"], "value")
+                    else _params["format"],
+                )
+            )
 
-        if _params.get('preview_example') is not None:  # noqa: E501
-            _query_params.append((
-                'previewExample',
-                _params['preview_example'].value if hasattr(_params['preview_example'], 'value') else _params['preview_example']
-            ))
+        if _params.get("preview_example") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "previewExample",
+                    _params["preview_example"].value
+                    if hasattr(_params["preview_example"], "value")
+                    else _params["preview_example"],
+                )
+            )
 
-        if _params.get('page_size') is not None:  # noqa: E501
-            _query_params.append((
-                'pageSize',
-                _params['page_size'].value if hasattr(_params['page_size'], 'value') else _params['page_size']
-            ))
+        if _params.get("page_size") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "pageSize",
+                    _params["page_size"].value
+                    if hasattr(_params["page_size"], "value")
+                    else _params["page_size"],
+                )
+            )
 
-        if _params.get('page_offset') is not None:  # noqa: E501
-            _query_params.append((
-                'pageOffset',
-                _params['page_offset'].value if hasattr(_params['page_offset'], 'value') else _params['page_offset']
-            ))
+        if _params.get("page_offset") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "pageOffset",
+                    _params["page_offset"].value
+                    if hasattr(_params["page_offset"], "value")
+                    else _params["page_offset"],
+                )
+            )
 
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['text/plain', 'application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["text/plain", "application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '200': "str",
-            '400': "ApiErrorResponse",
-            '401': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "200": "str",
+            "400": "ApiErrorResponse",
+            "401": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/datasets/{datasetId}/tags/{tagId}/export/basic/filenames', 'GET',
+            "/v1/datasets/{datasetId}/tags/{tagId}/export/basic/filenames",
+            "GET",
             _path_params,
             _query_params,
             _header_params,
@@ -906,15 +1139,41 @@ class TagsApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def export_tag_to_basic_filenames_and_read_urls(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], format : Optional[FileOutputFormat] = None, preview_example : Annotated[Optional[StrictBool], Field(description="if true, will generate a preview example of how the structure will look")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> List[FilenameAndReadUrl]:  # noqa: E501
+    def export_tag_to_basic_filenames_and_read_urls(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        tag_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the tag")
+        ],
+        format: Optional[FileOutputFormat] = None,
+        preview_example: Annotated[
+            Optional[StrictBool],
+            Field(
+                description="if true, will generate a preview example of how the structure will look"
+            ),
+        ] = None,
+        page_size: Annotated[
+            Optional[conint(strict=True, ge=1)],
+            Field(
+                description="pagination size/limit of the number of samples to return"
+            ),
+        ] = None,
+        page_offset: Annotated[
+            Optional[conint(strict=True, ge=0)], Field(description="pagination offset")
+        ] = None,
+        **kwargs
+    ) -> List[FilenameAndReadUrl]:  # noqa: E501
         """export_tag_to_basic_filenames_and_read_urls  # noqa: E501
 
         Export the samples filenames to map with their readURL.   # noqa: E501
@@ -947,13 +1206,48 @@ class TagsApi(object):
                  returns the request thread.
         :rtype: List[FilenameAndReadUrl]
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the export_tag_to_basic_filenames_and_read_urls_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.export_tag_to_basic_filenames_and_read_urls_with_http_info(dataset_id, tag_id, format, preview_example, page_size, page_offset, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the export_tag_to_basic_filenames_and_read_urls_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.export_tag_to_basic_filenames_and_read_urls_with_http_info(
+            dataset_id,
+            tag_id,
+            format,
+            preview_example,
+            page_size,
+            page_offset,
+            **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def export_tag_to_basic_filenames_and_read_urls_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], format : Optional[FileOutputFormat] = None, preview_example : Annotated[Optional[StrictBool], Field(description="if true, will generate a preview example of how the structure will look")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def export_tag_to_basic_filenames_and_read_urls_with_http_info(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        tag_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the tag")
+        ],
+        format: Optional[FileOutputFormat] = None,
+        preview_example: Annotated[
+            Optional[StrictBool],
+            Field(
+                description="if true, will generate a preview example of how the structure will look"
+            ),
+        ] = None,
+        page_size: Annotated[
+            Optional[conint(strict=True, ge=1)],
+            Field(
+                description="pagination size/limit of the number of samples to return"
+            ),
+        ] = None,
+        page_offset: Annotated[
+            Optional[conint(strict=True, ge=0)], Field(description="pagination offset")
+        ] = None,
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """export_tag_to_basic_filenames_and_read_urls  # noqa: E501
 
         Export the samples filenames to map with their readURL.   # noqa: E501
@@ -978,7 +1272,7 @@ class TagsApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -1003,96 +1297,113 @@ class TagsApi(object):
         _params = locals()
 
         _all_params = [
-            'dataset_id',
-            'tag_id',
-            'format',
-            'preview_example',
-            'page_size',
-            'page_offset'
+            "dataset_id",
+            "tag_id",
+            "format",
+            "preview_example",
+            "page_size",
+            "page_offset",
         ]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method export_tag_to_basic_filenames_and_read_urls" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['dataset_id']:
-            _path_params['datasetId'] = _params['dataset_id']
+        if _params["dataset_id"]:
+            _path_params["datasetId"] = _params["dataset_id"]
 
-        if _params['tag_id']:
-            _path_params['tagId'] = _params['tag_id']
-
+        if _params["tag_id"]:
+            _path_params["tagId"] = _params["tag_id"]
 
         # process the query parameters
         _query_params = []
-        if _params.get('format') is not None:  # noqa: E501
-            _query_params.append((
-                'format',
-                _params['format'].value if hasattr(_params['format'], 'value') else _params['format']
-            ))
+        if _params.get("format") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "format",
+                    _params["format"].value
+                    if hasattr(_params["format"], "value")
+                    else _params["format"],
+                )
+            )
 
-        if _params.get('preview_example') is not None:  # noqa: E501
-            _query_params.append((
-                'previewExample',
-                _params['preview_example'].value if hasattr(_params['preview_example'], 'value') else _params['preview_example']
-            ))
+        if _params.get("preview_example") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "previewExample",
+                    _params["preview_example"].value
+                    if hasattr(_params["preview_example"], "value")
+                    else _params["preview_example"],
+                )
+            )
 
-        if _params.get('page_size') is not None:  # noqa: E501
-            _query_params.append((
-                'pageSize',
-                _params['page_size'].value if hasattr(_params['page_size'], 'value') else _params['page_size']
-            ))
+        if _params.get("page_size") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "pageSize",
+                    _params["page_size"].value
+                    if hasattr(_params["page_size"], "value")
+                    else _params["page_size"],
+                )
+            )
 
-        if _params.get('page_offset') is not None:  # noqa: E501
-            _query_params.append((
-                'pageOffset',
-                _params['page_offset'].value if hasattr(_params['page_offset'], 'value') else _params['page_offset']
-            ))
+        if _params.get("page_offset") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "pageOffset",
+                    _params["page_offset"].value
+                    if hasattr(_params["page_offset"], "value")
+                    else _params["page_offset"],
+                )
+            )
 
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '200': "List[FilenameAndReadUrl]",
-            '400': "ApiErrorResponse",
-            '401': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "200": "List[FilenameAndReadUrl]",
+            "400": "ApiErrorResponse",
+            "401": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/datasets/{datasetId}/tags/{tagId}/export/basic/filenamesAndReadUrls', 'GET',
+            "/v1/datasets/{datasetId}/tags/{tagId}/export/basic/filenamesAndReadUrls",
+            "GET",
             _path_params,
             _query_params,
             _header_params,
@@ -1101,15 +1412,56 @@ class TagsApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def export_tag_to_label_box_data_rows(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], expires_in : Annotated[Optional[StrictInt], Field(description="If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. ")] = None, access_control : Annotated[Optional[StrictStr], Field(description="which access control name to be used")] = None, file_name_format : Optional[FileNameFormat] = None, include_meta_data : Annotated[Optional[StrictBool], Field(description="if true, will also include metadata")] = None, format : Optional[FileOutputFormat] = None, preview_example : Annotated[Optional[StrictBool], Field(description="if true, will generate a preview example of how the structure will look")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> List[LabelBoxDataRow]:  # noqa: E501
+    def export_tag_to_label_box_data_rows(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        tag_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the tag")
+        ],
+        expires_in: Annotated[
+            Optional[StrictInt],
+            Field(
+                description="If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. "
+            ),
+        ] = None,
+        access_control: Annotated[
+            Optional[StrictStr],
+            Field(description="which access control name to be used"),
+        ] = None,
+        file_name_format: Optional[FileNameFormat] = None,
+        include_meta_data: Annotated[
+            Optional[StrictBool],
+            Field(description="if true, will also include metadata"),
+        ] = None,
+        format: Optional[FileOutputFormat] = None,
+        preview_example: Annotated[
+            Optional[StrictBool],
+            Field(
+                description="if true, will generate a preview example of how the structure will look"
+            ),
+        ] = None,
+        page_size: Annotated[
+            Optional[conint(strict=True, ge=1)],
+            Field(
+                description="pagination size/limit of the number of samples to return"
+            ),
+        ] = None,
+        page_offset: Annotated[
+            Optional[conint(strict=True, ge=0)], Field(description="pagination offset")
+        ] = None,
+        **kwargs
+    ) -> List[LabelBoxDataRow]:  # noqa: E501
         """(Deprecated) export_tag_to_label_box_data_rows  # noqa: E501
 
         Deprecated. Please use V4 unless there is a specific need to use the LabelBox V3 API. Export samples of a tag as a json for importing into LabelBox as outlined here; https://docs.labelbox.com/v3/reference/image ```openapi\\+warning The image URLs are special in that the resource can be accessed by anyone in possession of said URL for the time specified by the expiresIn query param ```   # noqa: E501
@@ -1123,7 +1475,7 @@ class TagsApi(object):
         :type dataset_id: str
         :param tag_id: ObjectId of the tag (required)
         :type tag_id: str
-        :param expires_in: If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. 
+        :param expires_in: If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely.
         :type expires_in: int
         :param access_control: which access control name to be used
         :type access_control: str
@@ -1150,13 +1502,67 @@ class TagsApi(object):
                  returns the request thread.
         :rtype: List[LabelBoxDataRow]
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the export_tag_to_label_box_data_rows_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.export_tag_to_label_box_data_rows_with_http_info(dataset_id, tag_id, expires_in, access_control, file_name_format, include_meta_data, format, preview_example, page_size, page_offset, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the export_tag_to_label_box_data_rows_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.export_tag_to_label_box_data_rows_with_http_info(
+            dataset_id,
+            tag_id,
+            expires_in,
+            access_control,
+            file_name_format,
+            include_meta_data,
+            format,
+            preview_example,
+            page_size,
+            page_offset,
+            **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def export_tag_to_label_box_data_rows_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], expires_in : Annotated[Optional[StrictInt], Field(description="If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. ")] = None, access_control : Annotated[Optional[StrictStr], Field(description="which access control name to be used")] = None, file_name_format : Optional[FileNameFormat] = None, include_meta_data : Annotated[Optional[StrictBool], Field(description="if true, will also include metadata")] = None, format : Optional[FileOutputFormat] = None, preview_example : Annotated[Optional[StrictBool], Field(description="if true, will generate a preview example of how the structure will look")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def export_tag_to_label_box_data_rows_with_http_info(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        tag_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the tag")
+        ],
+        expires_in: Annotated[
+            Optional[StrictInt],
+            Field(
+                description="If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. "
+            ),
+        ] = None,
+        access_control: Annotated[
+            Optional[StrictStr],
+            Field(description="which access control name to be used"),
+        ] = None,
+        file_name_format: Optional[FileNameFormat] = None,
+        include_meta_data: Annotated[
+            Optional[StrictBool],
+            Field(description="if true, will also include metadata"),
+        ] = None,
+        format: Optional[FileOutputFormat] = None,
+        preview_example: Annotated[
+            Optional[StrictBool],
+            Field(
+                description="if true, will generate a preview example of how the structure will look"
+            ),
+        ] = None,
+        page_size: Annotated[
+            Optional[conint(strict=True, ge=1)],
+            Field(
+                description="pagination size/limit of the number of samples to return"
+            ),
+        ] = None,
+        page_offset: Annotated[
+            Optional[conint(strict=True, ge=0)], Field(description="pagination offset")
+        ] = None,
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """(Deprecated) export_tag_to_label_box_data_rows  # noqa: E501
 
         Deprecated. Please use V4 unless there is a specific need to use the LabelBox V3 API. Export samples of a tag as a json for importing into LabelBox as outlined here; https://docs.labelbox.com/v3/reference/image ```openapi\\+warning The image URLs are special in that the resource can be accessed by anyone in possession of said URL for the time specified by the expiresIn query param ```   # noqa: E501
@@ -1170,7 +1576,7 @@ class TagsApi(object):
         :type dataset_id: str
         :param tag_id: ObjectId of the tag (required)
         :type tag_id: str
-        :param expires_in: If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. 
+        :param expires_in: If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely.
         :type expires_in: int
         :param access_control: which access control name to be used
         :type access_control: str
@@ -1189,7 +1595,7 @@ class TagsApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -1211,129 +1617,165 @@ class TagsApi(object):
         :rtype: tuple(List[LabelBoxDataRow], status_code(int), headers(HTTPHeaderDict))
         """
 
-        warnings.warn("GET /v1/datasets/{datasetId}/tags/{tagId}/export/LabelBox/datarows is deprecated.", DeprecationWarning)
+        warnings.warn(
+            "GET /v1/datasets/{datasetId}/tags/{tagId}/export/LabelBox/datarows is deprecated.",
+            DeprecationWarning,
+        )
 
         _params = locals()
 
         _all_params = [
-            'dataset_id',
-            'tag_id',
-            'expires_in',
-            'access_control',
-            'file_name_format',
-            'include_meta_data',
-            'format',
-            'preview_example',
-            'page_size',
-            'page_offset'
+            "dataset_id",
+            "tag_id",
+            "expires_in",
+            "access_control",
+            "file_name_format",
+            "include_meta_data",
+            "format",
+            "preview_example",
+            "page_size",
+            "page_offset",
         ]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method export_tag_to_label_box_data_rows" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['dataset_id']:
-            _path_params['datasetId'] = _params['dataset_id']
+        if _params["dataset_id"]:
+            _path_params["datasetId"] = _params["dataset_id"]
 
-        if _params['tag_id']:
-            _path_params['tagId'] = _params['tag_id']
-
+        if _params["tag_id"]:
+            _path_params["tagId"] = _params["tag_id"]
 
         # process the query parameters
         _query_params = []
-        if _params.get('expires_in') is not None:  # noqa: E501
-            _query_params.append((
-                'expiresIn',
-                _params['expires_in'].value if hasattr(_params['expires_in'], 'value') else _params['expires_in']
-            ))
+        if _params.get("expires_in") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "expiresIn",
+                    _params["expires_in"].value
+                    if hasattr(_params["expires_in"], "value")
+                    else _params["expires_in"],
+                )
+            )
 
-        if _params.get('access_control') is not None:  # noqa: E501
-            _query_params.append((
-                'accessControl',
-                _params['access_control'].value if hasattr(_params['access_control'], 'value') else _params['access_control']
-            ))
+        if _params.get("access_control") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "accessControl",
+                    _params["access_control"].value
+                    if hasattr(_params["access_control"], "value")
+                    else _params["access_control"],
+                )
+            )
 
-        if _params.get('file_name_format') is not None:  # noqa: E501
-            _query_params.append((
-                'fileNameFormat',
-                _params['file_name_format'].value if hasattr(_params['file_name_format'], 'value') else _params['file_name_format']
-            ))
+        if _params.get("file_name_format") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "fileNameFormat",
+                    _params["file_name_format"].value
+                    if hasattr(_params["file_name_format"], "value")
+                    else _params["file_name_format"],
+                )
+            )
 
-        if _params.get('include_meta_data') is not None:  # noqa: E501
-            _query_params.append((
-                'includeMetaData',
-                _params['include_meta_data'].value if hasattr(_params['include_meta_data'], 'value') else _params['include_meta_data']
-            ))
+        if _params.get("include_meta_data") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "includeMetaData",
+                    _params["include_meta_data"].value
+                    if hasattr(_params["include_meta_data"], "value")
+                    else _params["include_meta_data"],
+                )
+            )
 
-        if _params.get('format') is not None:  # noqa: E501
-            _query_params.append((
-                'format',
-                _params['format'].value if hasattr(_params['format'], 'value') else _params['format']
-            ))
+        if _params.get("format") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "format",
+                    _params["format"].value
+                    if hasattr(_params["format"], "value")
+                    else _params["format"],
+                )
+            )
 
-        if _params.get('preview_example') is not None:  # noqa: E501
-            _query_params.append((
-                'previewExample',
-                _params['preview_example'].value if hasattr(_params['preview_example'], 'value') else _params['preview_example']
-            ))
+        if _params.get("preview_example") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "previewExample",
+                    _params["preview_example"].value
+                    if hasattr(_params["preview_example"], "value")
+                    else _params["preview_example"],
+                )
+            )
 
-        if _params.get('page_size') is not None:  # noqa: E501
-            _query_params.append((
-                'pageSize',
-                _params['page_size'].value if hasattr(_params['page_size'], 'value') else _params['page_size']
-            ))
+        if _params.get("page_size") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "pageSize",
+                    _params["page_size"].value
+                    if hasattr(_params["page_size"], "value")
+                    else _params["page_size"],
+                )
+            )
 
-        if _params.get('page_offset') is not None:  # noqa: E501
-            _query_params.append((
-                'pageOffset',
-                _params['page_offset'].value if hasattr(_params['page_offset'], 'value') else _params['page_offset']
-            ))
+        if _params.get("page_offset") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "pageOffset",
+                    _params["page_offset"].value
+                    if hasattr(_params["page_offset"], "value")
+                    else _params["page_offset"],
+                )
+            )
 
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '200': "List[LabelBoxDataRow]",
-            '400': "ApiErrorResponse",
-            '401': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "200": "List[LabelBoxDataRow]",
+            "400": "ApiErrorResponse",
+            "401": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/datasets/{datasetId}/tags/{tagId}/export/LabelBox/datarows', 'GET',
+            "/v1/datasets/{datasetId}/tags/{tagId}/export/LabelBox/datarows",
+            "GET",
             _path_params,
             _query_params,
             _header_params,
@@ -1342,15 +1784,56 @@ class TagsApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def export_tag_to_label_box_v4_data_rows(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], expires_in : Annotated[Optional[StrictInt], Field(description="If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. ")] = None, access_control : Annotated[Optional[StrictStr], Field(description="which access control name to be used")] = None, file_name_format : Optional[FileNameFormat] = None, include_meta_data : Annotated[Optional[StrictBool], Field(description="if true, will also include metadata")] = None, format : Optional[FileOutputFormat] = None, preview_example : Annotated[Optional[StrictBool], Field(description="if true, will generate a preview example of how the structure will look")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> List[LabelBoxV4DataRow]:  # noqa: E501
+    def export_tag_to_label_box_v4_data_rows(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        tag_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the tag")
+        ],
+        expires_in: Annotated[
+            Optional[StrictInt],
+            Field(
+                description="If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. "
+            ),
+        ] = None,
+        access_control: Annotated[
+            Optional[StrictStr],
+            Field(description="which access control name to be used"),
+        ] = None,
+        file_name_format: Optional[FileNameFormat] = None,
+        include_meta_data: Annotated[
+            Optional[StrictBool],
+            Field(description="if true, will also include metadata"),
+        ] = None,
+        format: Optional[FileOutputFormat] = None,
+        preview_example: Annotated[
+            Optional[StrictBool],
+            Field(
+                description="if true, will generate a preview example of how the structure will look"
+            ),
+        ] = None,
+        page_size: Annotated[
+            Optional[conint(strict=True, ge=1)],
+            Field(
+                description="pagination size/limit of the number of samples to return"
+            ),
+        ] = None,
+        page_offset: Annotated[
+            Optional[conint(strict=True, ge=0)], Field(description="pagination offset")
+        ] = None,
+        **kwargs
+    ) -> List[LabelBoxV4DataRow]:  # noqa: E501
         """export_tag_to_label_box_v4_data_rows  # noqa: E501
 
         Export samples of a tag as a json for importing into LabelBox as outlined here; https://docs.labelbox.com/v4/reference/image ```openapi\\+warning The image URLs are special in that the resource can be accessed by anyone in possession of said URL for the time specified by the expiresIn query param ```   # noqa: E501
@@ -1364,7 +1847,7 @@ class TagsApi(object):
         :type dataset_id: str
         :param tag_id: ObjectId of the tag (required)
         :type tag_id: str
-        :param expires_in: If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. 
+        :param expires_in: If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely.
         :type expires_in: int
         :param access_control: which access control name to be used
         :type access_control: str
@@ -1391,13 +1874,67 @@ class TagsApi(object):
                  returns the request thread.
         :rtype: List[LabelBoxV4DataRow]
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the export_tag_to_label_box_v4_data_rows_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.export_tag_to_label_box_v4_data_rows_with_http_info(dataset_id, tag_id, expires_in, access_control, file_name_format, include_meta_data, format, preview_example, page_size, page_offset, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the export_tag_to_label_box_v4_data_rows_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.export_tag_to_label_box_v4_data_rows_with_http_info(
+            dataset_id,
+            tag_id,
+            expires_in,
+            access_control,
+            file_name_format,
+            include_meta_data,
+            format,
+            preview_example,
+            page_size,
+            page_offset,
+            **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def export_tag_to_label_box_v4_data_rows_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], expires_in : Annotated[Optional[StrictInt], Field(description="If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. ")] = None, access_control : Annotated[Optional[StrictStr], Field(description="which access control name to be used")] = None, file_name_format : Optional[FileNameFormat] = None, include_meta_data : Annotated[Optional[StrictBool], Field(description="if true, will also include metadata")] = None, format : Optional[FileOutputFormat] = None, preview_example : Annotated[Optional[StrictBool], Field(description="if true, will generate a preview example of how the structure will look")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def export_tag_to_label_box_v4_data_rows_with_http_info(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        tag_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the tag")
+        ],
+        expires_in: Annotated[
+            Optional[StrictInt],
+            Field(
+                description="If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. "
+            ),
+        ] = None,
+        access_control: Annotated[
+            Optional[StrictStr],
+            Field(description="which access control name to be used"),
+        ] = None,
+        file_name_format: Optional[FileNameFormat] = None,
+        include_meta_data: Annotated[
+            Optional[StrictBool],
+            Field(description="if true, will also include metadata"),
+        ] = None,
+        format: Optional[FileOutputFormat] = None,
+        preview_example: Annotated[
+            Optional[StrictBool],
+            Field(
+                description="if true, will generate a preview example of how the structure will look"
+            ),
+        ] = None,
+        page_size: Annotated[
+            Optional[conint(strict=True, ge=1)],
+            Field(
+                description="pagination size/limit of the number of samples to return"
+            ),
+        ] = None,
+        page_offset: Annotated[
+            Optional[conint(strict=True, ge=0)], Field(description="pagination offset")
+        ] = None,
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """export_tag_to_label_box_v4_data_rows  # noqa: E501
 
         Export samples of a tag as a json for importing into LabelBox as outlined here; https://docs.labelbox.com/v4/reference/image ```openapi\\+warning The image URLs are special in that the resource can be accessed by anyone in possession of said URL for the time specified by the expiresIn query param ```   # noqa: E501
@@ -1411,7 +1948,7 @@ class TagsApi(object):
         :type dataset_id: str
         :param tag_id: ObjectId of the tag (required)
         :type tag_id: str
-        :param expires_in: If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. 
+        :param expires_in: If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely.
         :type expires_in: int
         :param access_control: which access control name to be used
         :type access_control: str
@@ -1430,7 +1967,7 @@ class TagsApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -1455,124 +1992,157 @@ class TagsApi(object):
         _params = locals()
 
         _all_params = [
-            'dataset_id',
-            'tag_id',
-            'expires_in',
-            'access_control',
-            'file_name_format',
-            'include_meta_data',
-            'format',
-            'preview_example',
-            'page_size',
-            'page_offset'
+            "dataset_id",
+            "tag_id",
+            "expires_in",
+            "access_control",
+            "file_name_format",
+            "include_meta_data",
+            "format",
+            "preview_example",
+            "page_size",
+            "page_offset",
         ]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method export_tag_to_label_box_v4_data_rows" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['dataset_id']:
-            _path_params['datasetId'] = _params['dataset_id']
+        if _params["dataset_id"]:
+            _path_params["datasetId"] = _params["dataset_id"]
 
-        if _params['tag_id']:
-            _path_params['tagId'] = _params['tag_id']
-
+        if _params["tag_id"]:
+            _path_params["tagId"] = _params["tag_id"]
 
         # process the query parameters
         _query_params = []
-        if _params.get('expires_in') is not None:  # noqa: E501
-            _query_params.append((
-                'expiresIn',
-                _params['expires_in'].value if hasattr(_params['expires_in'], 'value') else _params['expires_in']
-            ))
+        if _params.get("expires_in") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "expiresIn",
+                    _params["expires_in"].value
+                    if hasattr(_params["expires_in"], "value")
+                    else _params["expires_in"],
+                )
+            )
 
-        if _params.get('access_control') is not None:  # noqa: E501
-            _query_params.append((
-                'accessControl',
-                _params['access_control'].value if hasattr(_params['access_control'], 'value') else _params['access_control']
-            ))
+        if _params.get("access_control") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "accessControl",
+                    _params["access_control"].value
+                    if hasattr(_params["access_control"], "value")
+                    else _params["access_control"],
+                )
+            )
 
-        if _params.get('file_name_format') is not None:  # noqa: E501
-            _query_params.append((
-                'fileNameFormat',
-                _params['file_name_format'].value if hasattr(_params['file_name_format'], 'value') else _params['file_name_format']
-            ))
+        if _params.get("file_name_format") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "fileNameFormat",
+                    _params["file_name_format"].value
+                    if hasattr(_params["file_name_format"], "value")
+                    else _params["file_name_format"],
+                )
+            )
 
-        if _params.get('include_meta_data') is not None:  # noqa: E501
-            _query_params.append((
-                'includeMetaData',
-                _params['include_meta_data'].value if hasattr(_params['include_meta_data'], 'value') else _params['include_meta_data']
-            ))
+        if _params.get("include_meta_data") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "includeMetaData",
+                    _params["include_meta_data"].value
+                    if hasattr(_params["include_meta_data"], "value")
+                    else _params["include_meta_data"],
+                )
+            )
 
-        if _params.get('format') is not None:  # noqa: E501
-            _query_params.append((
-                'format',
-                _params['format'].value if hasattr(_params['format'], 'value') else _params['format']
-            ))
+        if _params.get("format") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "format",
+                    _params["format"].value
+                    if hasattr(_params["format"], "value")
+                    else _params["format"],
+                )
+            )
 
-        if _params.get('preview_example') is not None:  # noqa: E501
-            _query_params.append((
-                'previewExample',
-                _params['preview_example'].value if hasattr(_params['preview_example'], 'value') else _params['preview_example']
-            ))
+        if _params.get("preview_example") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "previewExample",
+                    _params["preview_example"].value
+                    if hasattr(_params["preview_example"], "value")
+                    else _params["preview_example"],
+                )
+            )
 
-        if _params.get('page_size') is not None:  # noqa: E501
-            _query_params.append((
-                'pageSize',
-                _params['page_size'].value if hasattr(_params['page_size'], 'value') else _params['page_size']
-            ))
+        if _params.get("page_size") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "pageSize",
+                    _params["page_size"].value
+                    if hasattr(_params["page_size"], "value")
+                    else _params["page_size"],
+                )
+            )
 
-        if _params.get('page_offset') is not None:  # noqa: E501
-            _query_params.append((
-                'pageOffset',
-                _params['page_offset'].value if hasattr(_params['page_offset'], 'value') else _params['page_offset']
-            ))
+        if _params.get("page_offset") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "pageOffset",
+                    _params["page_offset"].value
+                    if hasattr(_params["page_offset"], "value")
+                    else _params["page_offset"],
+                )
+            )
 
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '200': "List[LabelBoxV4DataRow]",
-            '400': "ApiErrorResponse",
-            '401': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "200": "List[LabelBoxV4DataRow]",
+            "400": "ApiErrorResponse",
+            "401": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/datasets/{datasetId}/tags/{tagId}/export/LabelBoxV4/datarows', 'GET',
+            "/v1/datasets/{datasetId}/tags/{tagId}/export/LabelBoxV4/datarows",
+            "GET",
             _path_params,
             _query_params,
             _header_params,
@@ -1581,15 +2151,56 @@ class TagsApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def export_tag_to_label_studio_tasks(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], expires_in : Annotated[Optional[StrictInt], Field(description="If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. ")] = None, access_control : Annotated[Optional[StrictStr], Field(description="which access control name to be used")] = None, file_name_format : Optional[FileNameFormat] = None, include_meta_data : Annotated[Optional[StrictBool], Field(description="if true, will also include metadata")] = None, format : Optional[FileOutputFormat] = None, preview_example : Annotated[Optional[StrictBool], Field(description="if true, will generate a preview example of how the structure will look")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> List[LabelStudioTask]:  # noqa: E501
+    def export_tag_to_label_studio_tasks(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        tag_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the tag")
+        ],
+        expires_in: Annotated[
+            Optional[StrictInt],
+            Field(
+                description="If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. "
+            ),
+        ] = None,
+        access_control: Annotated[
+            Optional[StrictStr],
+            Field(description="which access control name to be used"),
+        ] = None,
+        file_name_format: Optional[FileNameFormat] = None,
+        include_meta_data: Annotated[
+            Optional[StrictBool],
+            Field(description="if true, will also include metadata"),
+        ] = None,
+        format: Optional[FileOutputFormat] = None,
+        preview_example: Annotated[
+            Optional[StrictBool],
+            Field(
+                description="if true, will generate a preview example of how the structure will look"
+            ),
+        ] = None,
+        page_size: Annotated[
+            Optional[conint(strict=True, ge=1)],
+            Field(
+                description="pagination size/limit of the number of samples to return"
+            ),
+        ] = None,
+        page_offset: Annotated[
+            Optional[conint(strict=True, ge=0)], Field(description="pagination offset")
+        ] = None,
+        **kwargs
+    ) -> List[LabelStudioTask]:  # noqa: E501
         """export_tag_to_label_studio_tasks  # noqa: E501
 
         Export samples of a tag as a json for importing into LabelStudio as outlined here; https://labelstud.io/guide/tasks.html#Basic-Label-Studio-JSON-format ```openapi\\+warning The image URLs are special in that the resource can be accessed by anyone in possession of said URL for the time specified by the expiresIn query param ```   # noqa: E501
@@ -1603,7 +2214,7 @@ class TagsApi(object):
         :type dataset_id: str
         :param tag_id: ObjectId of the tag (required)
         :type tag_id: str
-        :param expires_in: If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. 
+        :param expires_in: If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely.
         :type expires_in: int
         :param access_control: which access control name to be used
         :type access_control: str
@@ -1630,13 +2241,67 @@ class TagsApi(object):
                  returns the request thread.
         :rtype: List[LabelStudioTask]
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the export_tag_to_label_studio_tasks_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.export_tag_to_label_studio_tasks_with_http_info(dataset_id, tag_id, expires_in, access_control, file_name_format, include_meta_data, format, preview_example, page_size, page_offset, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the export_tag_to_label_studio_tasks_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.export_tag_to_label_studio_tasks_with_http_info(
+            dataset_id,
+            tag_id,
+            expires_in,
+            access_control,
+            file_name_format,
+            include_meta_data,
+            format,
+            preview_example,
+            page_size,
+            page_offset,
+            **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def export_tag_to_label_studio_tasks_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], expires_in : Annotated[Optional[StrictInt], Field(description="If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. ")] = None, access_control : Annotated[Optional[StrictStr], Field(description="which access control name to be used")] = None, file_name_format : Optional[FileNameFormat] = None, include_meta_data : Annotated[Optional[StrictBool], Field(description="if true, will also include metadata")] = None, format : Optional[FileOutputFormat] = None, preview_example : Annotated[Optional[StrictBool], Field(description="if true, will generate a preview example of how the structure will look")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def export_tag_to_label_studio_tasks_with_http_info(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        tag_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the tag")
+        ],
+        expires_in: Annotated[
+            Optional[StrictInt],
+            Field(
+                description="If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. "
+            ),
+        ] = None,
+        access_control: Annotated[
+            Optional[StrictStr],
+            Field(description="which access control name to be used"),
+        ] = None,
+        file_name_format: Optional[FileNameFormat] = None,
+        include_meta_data: Annotated[
+            Optional[StrictBool],
+            Field(description="if true, will also include metadata"),
+        ] = None,
+        format: Optional[FileOutputFormat] = None,
+        preview_example: Annotated[
+            Optional[StrictBool],
+            Field(
+                description="if true, will generate a preview example of how the structure will look"
+            ),
+        ] = None,
+        page_size: Annotated[
+            Optional[conint(strict=True, ge=1)],
+            Field(
+                description="pagination size/limit of the number of samples to return"
+            ),
+        ] = None,
+        page_offset: Annotated[
+            Optional[conint(strict=True, ge=0)], Field(description="pagination offset")
+        ] = None,
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """export_tag_to_label_studio_tasks  # noqa: E501
 
         Export samples of a tag as a json for importing into LabelStudio as outlined here; https://labelstud.io/guide/tasks.html#Basic-Label-Studio-JSON-format ```openapi\\+warning The image URLs are special in that the resource can be accessed by anyone in possession of said URL for the time specified by the expiresIn query param ```   # noqa: E501
@@ -1650,7 +2315,7 @@ class TagsApi(object):
         :type dataset_id: str
         :param tag_id: ObjectId of the tag (required)
         :type tag_id: str
-        :param expires_in: If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. 
+        :param expires_in: If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely.
         :type expires_in: int
         :param access_control: which access control name to be used
         :type access_control: str
@@ -1669,7 +2334,7 @@ class TagsApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -1694,124 +2359,157 @@ class TagsApi(object):
         _params = locals()
 
         _all_params = [
-            'dataset_id',
-            'tag_id',
-            'expires_in',
-            'access_control',
-            'file_name_format',
-            'include_meta_data',
-            'format',
-            'preview_example',
-            'page_size',
-            'page_offset'
+            "dataset_id",
+            "tag_id",
+            "expires_in",
+            "access_control",
+            "file_name_format",
+            "include_meta_data",
+            "format",
+            "preview_example",
+            "page_size",
+            "page_offset",
         ]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method export_tag_to_label_studio_tasks" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['dataset_id']:
-            _path_params['datasetId'] = _params['dataset_id']
+        if _params["dataset_id"]:
+            _path_params["datasetId"] = _params["dataset_id"]
 
-        if _params['tag_id']:
-            _path_params['tagId'] = _params['tag_id']
-
+        if _params["tag_id"]:
+            _path_params["tagId"] = _params["tag_id"]
 
         # process the query parameters
         _query_params = []
-        if _params.get('expires_in') is not None:  # noqa: E501
-            _query_params.append((
-                'expiresIn',
-                _params['expires_in'].value if hasattr(_params['expires_in'], 'value') else _params['expires_in']
-            ))
+        if _params.get("expires_in") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "expiresIn",
+                    _params["expires_in"].value
+                    if hasattr(_params["expires_in"], "value")
+                    else _params["expires_in"],
+                )
+            )
 
-        if _params.get('access_control') is not None:  # noqa: E501
-            _query_params.append((
-                'accessControl',
-                _params['access_control'].value if hasattr(_params['access_control'], 'value') else _params['access_control']
-            ))
+        if _params.get("access_control") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "accessControl",
+                    _params["access_control"].value
+                    if hasattr(_params["access_control"], "value")
+                    else _params["access_control"],
+                )
+            )
 
-        if _params.get('file_name_format') is not None:  # noqa: E501
-            _query_params.append((
-                'fileNameFormat',
-                _params['file_name_format'].value if hasattr(_params['file_name_format'], 'value') else _params['file_name_format']
-            ))
+        if _params.get("file_name_format") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "fileNameFormat",
+                    _params["file_name_format"].value
+                    if hasattr(_params["file_name_format"], "value")
+                    else _params["file_name_format"],
+                )
+            )
 
-        if _params.get('include_meta_data') is not None:  # noqa: E501
-            _query_params.append((
-                'includeMetaData',
-                _params['include_meta_data'].value if hasattr(_params['include_meta_data'], 'value') else _params['include_meta_data']
-            ))
+        if _params.get("include_meta_data") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "includeMetaData",
+                    _params["include_meta_data"].value
+                    if hasattr(_params["include_meta_data"], "value")
+                    else _params["include_meta_data"],
+                )
+            )
 
-        if _params.get('format') is not None:  # noqa: E501
-            _query_params.append((
-                'format',
-                _params['format'].value if hasattr(_params['format'], 'value') else _params['format']
-            ))
+        if _params.get("format") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "format",
+                    _params["format"].value
+                    if hasattr(_params["format"], "value")
+                    else _params["format"],
+                )
+            )
 
-        if _params.get('preview_example') is not None:  # noqa: E501
-            _query_params.append((
-                'previewExample',
-                _params['preview_example'].value if hasattr(_params['preview_example'], 'value') else _params['preview_example']
-            ))
+        if _params.get("preview_example") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "previewExample",
+                    _params["preview_example"].value
+                    if hasattr(_params["preview_example"], "value")
+                    else _params["preview_example"],
+                )
+            )
 
-        if _params.get('page_size') is not None:  # noqa: E501
-            _query_params.append((
-                'pageSize',
-                _params['page_size'].value if hasattr(_params['page_size'], 'value') else _params['page_size']
-            ))
+        if _params.get("page_size") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "pageSize",
+                    _params["page_size"].value
+                    if hasattr(_params["page_size"], "value")
+                    else _params["page_size"],
+                )
+            )
 
-        if _params.get('page_offset') is not None:  # noqa: E501
-            _query_params.append((
-                'pageOffset',
-                _params['page_offset'].value if hasattr(_params['page_offset'], 'value') else _params['page_offset']
-            ))
+        if _params.get("page_offset") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "pageOffset",
+                    _params["page_offset"].value
+                    if hasattr(_params["page_offset"], "value")
+                    else _params["page_offset"],
+                )
+            )
 
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '200': "List[LabelStudioTask]",
-            '400': "ApiErrorResponse",
-            '401': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "200": "List[LabelStudioTask]",
+            "400": "ApiErrorResponse",
+            "401": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/datasets/{datasetId}/tags/{tagId}/export/LabelStudio/tasks', 'GET',
+            "/v1/datasets/{datasetId}/tags/{tagId}/export/LabelStudio/tasks",
+            "GET",
             _path_params,
             _query_params,
             _header_params,
@@ -1820,15 +2518,56 @@ class TagsApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def export_tag_to_sama_tasks(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], expires_in : Annotated[Optional[StrictInt], Field(description="If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. ")] = None, access_control : Annotated[Optional[StrictStr], Field(description="which access control name to be used")] = None, file_name_format : Optional[FileNameFormat] = None, include_meta_data : Annotated[Optional[StrictBool], Field(description="if true, will also include metadata")] = None, format : Optional[FileOutputFormat] = None, preview_example : Annotated[Optional[StrictBool], Field(description="if true, will generate a preview example of how the structure will look")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> List[SamaTask]:  # noqa: E501
+    def export_tag_to_sama_tasks(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        tag_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the tag")
+        ],
+        expires_in: Annotated[
+            Optional[StrictInt],
+            Field(
+                description="If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. "
+            ),
+        ] = None,
+        access_control: Annotated[
+            Optional[StrictStr],
+            Field(description="which access control name to be used"),
+        ] = None,
+        file_name_format: Optional[FileNameFormat] = None,
+        include_meta_data: Annotated[
+            Optional[StrictBool],
+            Field(description="if true, will also include metadata"),
+        ] = None,
+        format: Optional[FileOutputFormat] = None,
+        preview_example: Annotated[
+            Optional[StrictBool],
+            Field(
+                description="if true, will generate a preview example of how the structure will look"
+            ),
+        ] = None,
+        page_size: Annotated[
+            Optional[conint(strict=True, ge=1)],
+            Field(
+                description="pagination size/limit of the number of samples to return"
+            ),
+        ] = None,
+        page_offset: Annotated[
+            Optional[conint(strict=True, ge=0)], Field(description="pagination offset")
+        ] = None,
+        **kwargs
+    ) -> List[SamaTask]:  # noqa: E501
         """export_tag_to_sama_tasks  # noqa: E501
 
         Export samples of a tag as a json for importing into Sama as tasks with the upload form or via the API as outlined here; - https://docs.sama.com/reference/taskcreate - https://docs.sama.com/reference/createbatch  ```openapi\\+warning The image URLs are special in that the resource can be accessed by anyone in possession of said URL for the time specified by the expiresIn query param ```   # noqa: E501
@@ -1842,7 +2581,7 @@ class TagsApi(object):
         :type dataset_id: str
         :param tag_id: ObjectId of the tag (required)
         :type tag_id: str
-        :param expires_in: If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. 
+        :param expires_in: If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely.
         :type expires_in: int
         :param access_control: which access control name to be used
         :type access_control: str
@@ -1869,13 +2608,67 @@ class TagsApi(object):
                  returns the request thread.
         :rtype: List[SamaTask]
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the export_tag_to_sama_tasks_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.export_tag_to_sama_tasks_with_http_info(dataset_id, tag_id, expires_in, access_control, file_name_format, include_meta_data, format, preview_example, page_size, page_offset, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the export_tag_to_sama_tasks_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.export_tag_to_sama_tasks_with_http_info(
+            dataset_id,
+            tag_id,
+            expires_in,
+            access_control,
+            file_name_format,
+            include_meta_data,
+            format,
+            preview_example,
+            page_size,
+            page_offset,
+            **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def export_tag_to_sama_tasks_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], expires_in : Annotated[Optional[StrictInt], Field(description="If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. ")] = None, access_control : Annotated[Optional[StrictStr], Field(description="which access control name to be used")] = None, file_name_format : Optional[FileNameFormat] = None, include_meta_data : Annotated[Optional[StrictBool], Field(description="if true, will also include metadata")] = None, format : Optional[FileOutputFormat] = None, preview_example : Annotated[Optional[StrictBool], Field(description="if true, will generate a preview example of how the structure will look")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def export_tag_to_sama_tasks_with_http_info(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        tag_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the tag")
+        ],
+        expires_in: Annotated[
+            Optional[StrictInt],
+            Field(
+                description="If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. "
+            ),
+        ] = None,
+        access_control: Annotated[
+            Optional[StrictStr],
+            Field(description="which access control name to be used"),
+        ] = None,
+        file_name_format: Optional[FileNameFormat] = None,
+        include_meta_data: Annotated[
+            Optional[StrictBool],
+            Field(description="if true, will also include metadata"),
+        ] = None,
+        format: Optional[FileOutputFormat] = None,
+        preview_example: Annotated[
+            Optional[StrictBool],
+            Field(
+                description="if true, will generate a preview example of how the structure will look"
+            ),
+        ] = None,
+        page_size: Annotated[
+            Optional[conint(strict=True, ge=1)],
+            Field(
+                description="pagination size/limit of the number of samples to return"
+            ),
+        ] = None,
+        page_offset: Annotated[
+            Optional[conint(strict=True, ge=0)], Field(description="pagination offset")
+        ] = None,
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """export_tag_to_sama_tasks  # noqa: E501
 
         Export samples of a tag as a json for importing into Sama as tasks with the upload form or via the API as outlined here; - https://docs.sama.com/reference/taskcreate - https://docs.sama.com/reference/createbatch  ```openapi\\+warning The image URLs are special in that the resource can be accessed by anyone in possession of said URL for the time specified by the expiresIn query param ```   # noqa: E501
@@ -1889,7 +2682,7 @@ class TagsApi(object):
         :type dataset_id: str
         :param tag_id: ObjectId of the tag (required)
         :type tag_id: str
-        :param expires_in: If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. 
+        :param expires_in: If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely.
         :type expires_in: int
         :param access_control: which access control name to be used
         :type access_control: str
@@ -1908,7 +2701,7 @@ class TagsApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -1933,124 +2726,157 @@ class TagsApi(object):
         _params = locals()
 
         _all_params = [
-            'dataset_id',
-            'tag_id',
-            'expires_in',
-            'access_control',
-            'file_name_format',
-            'include_meta_data',
-            'format',
-            'preview_example',
-            'page_size',
-            'page_offset'
+            "dataset_id",
+            "tag_id",
+            "expires_in",
+            "access_control",
+            "file_name_format",
+            "include_meta_data",
+            "format",
+            "preview_example",
+            "page_size",
+            "page_offset",
         ]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method export_tag_to_sama_tasks" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['dataset_id']:
-            _path_params['datasetId'] = _params['dataset_id']
+        if _params["dataset_id"]:
+            _path_params["datasetId"] = _params["dataset_id"]
 
-        if _params['tag_id']:
-            _path_params['tagId'] = _params['tag_id']
-
+        if _params["tag_id"]:
+            _path_params["tagId"] = _params["tag_id"]
 
         # process the query parameters
         _query_params = []
-        if _params.get('expires_in') is not None:  # noqa: E501
-            _query_params.append((
-                'expiresIn',
-                _params['expires_in'].value if hasattr(_params['expires_in'], 'value') else _params['expires_in']
-            ))
+        if _params.get("expires_in") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "expiresIn",
+                    _params["expires_in"].value
+                    if hasattr(_params["expires_in"], "value")
+                    else _params["expires_in"],
+                )
+            )
 
-        if _params.get('access_control') is not None:  # noqa: E501
-            _query_params.append((
-                'accessControl',
-                _params['access_control'].value if hasattr(_params['access_control'], 'value') else _params['access_control']
-            ))
+        if _params.get("access_control") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "accessControl",
+                    _params["access_control"].value
+                    if hasattr(_params["access_control"], "value")
+                    else _params["access_control"],
+                )
+            )
 
-        if _params.get('file_name_format') is not None:  # noqa: E501
-            _query_params.append((
-                'fileNameFormat',
-                _params['file_name_format'].value if hasattr(_params['file_name_format'], 'value') else _params['file_name_format']
-            ))
+        if _params.get("file_name_format") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "fileNameFormat",
+                    _params["file_name_format"].value
+                    if hasattr(_params["file_name_format"], "value")
+                    else _params["file_name_format"],
+                )
+            )
 
-        if _params.get('include_meta_data') is not None:  # noqa: E501
-            _query_params.append((
-                'includeMetaData',
-                _params['include_meta_data'].value if hasattr(_params['include_meta_data'], 'value') else _params['include_meta_data']
-            ))
+        if _params.get("include_meta_data") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "includeMetaData",
+                    _params["include_meta_data"].value
+                    if hasattr(_params["include_meta_data"], "value")
+                    else _params["include_meta_data"],
+                )
+            )
 
-        if _params.get('format') is not None:  # noqa: E501
-            _query_params.append((
-                'format',
-                _params['format'].value if hasattr(_params['format'], 'value') else _params['format']
-            ))
+        if _params.get("format") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "format",
+                    _params["format"].value
+                    if hasattr(_params["format"], "value")
+                    else _params["format"],
+                )
+            )
 
-        if _params.get('preview_example') is not None:  # noqa: E501
-            _query_params.append((
-                'previewExample',
-                _params['preview_example'].value if hasattr(_params['preview_example'], 'value') else _params['preview_example']
-            ))
+        if _params.get("preview_example") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "previewExample",
+                    _params["preview_example"].value
+                    if hasattr(_params["preview_example"], "value")
+                    else _params["preview_example"],
+                )
+            )
 
-        if _params.get('page_size') is not None:  # noqa: E501
-            _query_params.append((
-                'pageSize',
-                _params['page_size'].value if hasattr(_params['page_size'], 'value') else _params['page_size']
-            ))
+        if _params.get("page_size") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "pageSize",
+                    _params["page_size"].value
+                    if hasattr(_params["page_size"], "value")
+                    else _params["page_size"],
+                )
+            )
 
-        if _params.get('page_offset') is not None:  # noqa: E501
-            _query_params.append((
-                'pageOffset',
-                _params['page_offset'].value if hasattr(_params['page_offset'], 'value') else _params['page_offset']
-            ))
+        if _params.get("page_offset") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "pageOffset",
+                    _params["page_offset"].value
+                    if hasattr(_params["page_offset"], "value")
+                    else _params["page_offset"],
+                )
+            )
 
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '200': "List[SamaTask]",
-            '400': "ApiErrorResponse",
-            '401': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "200": "List[SamaTask]",
+            "400": "ApiErrorResponse",
+            "401": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/datasets/{datasetId}/tags/{tagId}/export/Sama/tasks', 'GET',
+            "/v1/datasets/{datasetId}/tags/{tagId}/export/Sama/tasks",
+            "GET",
             _path_params,
             _query_params,
             _header_params,
@@ -2059,15 +2885,25 @@ class TagsApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def get_filenames_by_tag_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], **kwargs) -> List[str]:  # noqa: E501
+    def get_filenames_by_tag_id(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        tag_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the tag")
+        ],
+        **kwargs
+    ) -> List[str]:  # noqa: E501
         """(Deprecated) get_filenames_by_tag_id  # noqa: E501
 
         Get list of filenames by tag. Deprecated, please use  # noqa: E501
@@ -2092,13 +2928,26 @@ class TagsApi(object):
                  returns the request thread.
         :rtype: List[str]
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the get_filenames_by_tag_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.get_filenames_by_tag_id_with_http_info(dataset_id, tag_id, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the get_filenames_by_tag_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.get_filenames_by_tag_id_with_http_info(
+            dataset_id, tag_id, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def get_filenames_by_tag_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], **kwargs) -> ApiResponse:  # noqa: E501
+    def get_filenames_by_tag_id_with_http_info(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        tag_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the tag")
+        ],
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """(Deprecated) get_filenames_by_tag_id  # noqa: E501
 
         Get list of filenames by tag. Deprecated, please use  # noqa: E501
@@ -2115,7 +2964,7 @@ class TagsApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -2137,73 +2986,74 @@ class TagsApi(object):
         :rtype: tuple(List[str], status_code(int), headers(HTTPHeaderDict))
         """
 
-        warnings.warn("GET /v1/datasets/{datasetId}/tags/{tagId}/filenames is deprecated.", DeprecationWarning)
+        warnings.warn(
+            "GET /v1/datasets/{datasetId}/tags/{tagId}/filenames is deprecated.",
+            DeprecationWarning,
+        )
 
         _params = locals()
 
-        _all_params = [
-            'dataset_id',
-            'tag_id'
-        ]
+        _all_params = ["dataset_id", "tag_id"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method get_filenames_by_tag_id" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['dataset_id']:
-            _path_params['datasetId'] = _params['dataset_id']
+        if _params["dataset_id"]:
+            _path_params["datasetId"] = _params["dataset_id"]
 
-        if _params['tag_id']:
-            _path_params['tagId'] = _params['tag_id']
-
+        if _params["tag_id"]:
+            _path_params["tagId"] = _params["tag_id"]
 
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['text/plain', 'application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["text/plain", "application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '200': "List[str]",
-            '400': "ApiErrorResponse",
-            '401': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "200": "List[str]",
+            "400": "ApiErrorResponse",
+            "401": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/datasets/{datasetId}/tags/{tagId}/filenames', 'GET',
+            "/v1/datasets/{datasetId}/tags/{tagId}/filenames",
+            "GET",
             _path_params,
             _query_params,
             _header_params,
@@ -2212,15 +3062,25 @@ class TagsApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def get_tag_by_tag_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], **kwargs) -> TagData:  # noqa: E501
+    def get_tag_by_tag_id(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        tag_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the tag")
+        ],
+        **kwargs
+    ) -> TagData:  # noqa: E501
         """get_tag_by_tag_id  # noqa: E501
 
         Get information about a specific tag  # noqa: E501
@@ -2245,13 +3105,26 @@ class TagsApi(object):
                  returns the request thread.
         :rtype: TagData
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the get_tag_by_tag_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.get_tag_by_tag_id_with_http_info(dataset_id, tag_id, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the get_tag_by_tag_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.get_tag_by_tag_id_with_http_info(
+            dataset_id, tag_id, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def get_tag_by_tag_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], **kwargs) -> ApiResponse:  # noqa: E501
+    def get_tag_by_tag_id_with_http_info(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        tag_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the tag")
+        ],
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """get_tag_by_tag_id  # noqa: E501
 
         Get information about a specific tag  # noqa: E501
@@ -2268,7 +3141,7 @@ class TagsApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -2292,69 +3165,67 @@ class TagsApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'dataset_id',
-            'tag_id'
-        ]
+        _all_params = ["dataset_id", "tag_id"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method get_tag_by_tag_id" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['dataset_id']:
-            _path_params['datasetId'] = _params['dataset_id']
+        if _params["dataset_id"]:
+            _path_params["datasetId"] = _params["dataset_id"]
 
-        if _params['tag_id']:
-            _path_params['tagId'] = _params['tag_id']
-
+        if _params["tag_id"]:
+            _path_params["tagId"] = _params["tag_id"]
 
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '200': "TagData",
-            '400': "ApiErrorResponse",
-            '401': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "200": "TagData",
+            "400": "ApiErrorResponse",
+            "401": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/datasets/{datasetId}/tags/{tagId}', 'GET',
+            "/v1/datasets/{datasetId}/tags/{tagId}",
+            "GET",
             _path_params,
             _query_params,
             _header_params,
@@ -2363,15 +3234,22 @@ class TagsApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def get_tags_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], **kwargs) -> List[TagData]:  # noqa: E501
+    def get_tags_by_dataset_id(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        **kwargs
+    ) -> List[TagData]:  # noqa: E501
         """get_tags_by_dataset_id  # noqa: E501
 
         Get all tags of a dataset  # noqa: E501
@@ -2394,13 +3272,23 @@ class TagsApi(object):
                  returns the request thread.
         :rtype: List[TagData]
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the get_tags_by_dataset_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.get_tags_by_dataset_id_with_http_info(dataset_id, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the get_tags_by_dataset_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.get_tags_by_dataset_id_with_http_info(
+            dataset_id, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def get_tags_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], **kwargs) -> ApiResponse:  # noqa: E501
+    def get_tags_by_dataset_id_with_http_info(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """get_tags_by_dataset_id  # noqa: E501
 
         Get all tags of a dataset  # noqa: E501
@@ -2415,7 +3303,7 @@ class TagsApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -2439,65 +3327,64 @@ class TagsApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'dataset_id'
-        ]
+        _all_params = ["dataset_id"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method get_tags_by_dataset_id" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['dataset_id']:
-            _path_params['datasetId'] = _params['dataset_id']
-
+        if _params["dataset_id"]:
+            _path_params["datasetId"] = _params["dataset_id"]
 
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '200': "List[TagData]",
-            '400': "ApiErrorResponse",
-            '401': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "200": "List[TagData]",
+            "400": "ApiErrorResponse",
+            "401": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/datasets/{datasetId}/tags', 'GET',
+            "/v1/datasets/{datasetId}/tags",
+            "GET",
             _path_params,
             _query_params,
             _header_params,
@@ -2506,15 +3393,23 @@ class TagsApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def perform_tag_arithmetics(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_arithmetics_request : TagArithmeticsRequest, **kwargs) -> TagArithmeticsResponse:  # noqa: E501
+    def perform_tag_arithmetics(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        tag_arithmetics_request: TagArithmeticsRequest,
+        **kwargs
+    ) -> TagArithmeticsResponse:  # noqa: E501
         """perform_tag_arithmetics  # noqa: E501
 
         performs tag arithmetics to compute a new bitmask out of two existing tags and optionally create a tag for it  # noqa: E501
@@ -2539,13 +3434,24 @@ class TagsApi(object):
                  returns the request thread.
         :rtype: TagArithmeticsResponse
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the perform_tag_arithmetics_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.perform_tag_arithmetics_with_http_info(dataset_id, tag_arithmetics_request, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the perform_tag_arithmetics_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.perform_tag_arithmetics_with_http_info(
+            dataset_id, tag_arithmetics_request, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def perform_tag_arithmetics_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_arithmetics_request : TagArithmeticsRequest, **kwargs) -> ApiResponse:  # noqa: E501
+    def perform_tag_arithmetics_with_http_info(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        tag_arithmetics_request: TagArithmeticsRequest,
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """perform_tag_arithmetics  # noqa: E501
 
         performs tag arithmetics to compute a new bitmask out of two existing tags and optionally create a tag for it  # noqa: E501
@@ -2562,7 +3468,7 @@ class TagsApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -2586,76 +3492,75 @@ class TagsApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'dataset_id',
-            'tag_arithmetics_request'
-        ]
+        _all_params = ["dataset_id", "tag_arithmetics_request"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method perform_tag_arithmetics" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['dataset_id']:
-            _path_params['datasetId'] = _params['dataset_id']
-
+        if _params["dataset_id"]:
+            _path_params["datasetId"] = _params["dataset_id"]
 
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
-        if _params['tag_arithmetics_request'] is not None:
-            _body_params = _params['tag_arithmetics_request']
+        if _params["tag_arithmetics_request"] is not None:
+            _body_params = _params["tag_arithmetics_request"]
 
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # set the HTTP header `Content-Type`
-        _content_types_list = _params.get('_content_type',
-            self.api_client.select_header_content_type(
-                ['application/json']))
+        _content_types_list = _params.get(
+            "_content_type",
+            self.api_client.select_header_content_type(["application/json"]),
+        )
         if _content_types_list:
-                _header_params['Content-Type'] = _content_types_list
+            _header_params["Content-Type"] = _content_types_list
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '200': "TagArithmeticsResponse",
-            '400': "ApiErrorResponse",
-            '401': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "200": "TagArithmeticsResponse",
+            "400": "ApiErrorResponse",
+            "401": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/datasets/{datasetId}/tags/arithmetics', 'POST',
+            "/v1/datasets/{datasetId}/tags/arithmetics",
+            "POST",
             _path_params,
             _query_params,
             _header_params,
@@ -2664,15 +3569,23 @@ class TagsApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def perform_tag_arithmetics_bitmask(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_arithmetics_request : TagArithmeticsRequest, **kwargs) -> TagBitMaskResponse:  # noqa: E501
+    def perform_tag_arithmetics_bitmask(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        tag_arithmetics_request: TagArithmeticsRequest,
+        **kwargs
+    ) -> TagBitMaskResponse:  # noqa: E501
         """(Deprecated) perform_tag_arithmetics_bitmask  # noqa: E501
 
         Performs tag arithmetics to compute a new bitmask out of two existing tags. Does not create a new tag regardless if newTagName is provided  # noqa: E501
@@ -2697,13 +3610,24 @@ class TagsApi(object):
                  returns the request thread.
         :rtype: TagBitMaskResponse
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the perform_tag_arithmetics_bitmask_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.perform_tag_arithmetics_bitmask_with_http_info(dataset_id, tag_arithmetics_request, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the perform_tag_arithmetics_bitmask_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.perform_tag_arithmetics_bitmask_with_http_info(
+            dataset_id, tag_arithmetics_request, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def perform_tag_arithmetics_bitmask_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_arithmetics_request : TagArithmeticsRequest, **kwargs) -> ApiResponse:  # noqa: E501
+    def perform_tag_arithmetics_bitmask_with_http_info(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        tag_arithmetics_request: TagArithmeticsRequest,
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """(Deprecated) perform_tag_arithmetics_bitmask  # noqa: E501
 
         Performs tag arithmetics to compute a new bitmask out of two existing tags. Does not create a new tag regardless if newTagName is provided  # noqa: E501
@@ -2720,7 +3644,7 @@ class TagsApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -2742,80 +3666,82 @@ class TagsApi(object):
         :rtype: tuple(TagBitMaskResponse, status_code(int), headers(HTTPHeaderDict))
         """
 
-        warnings.warn("POST /v1/datasets/{datasetId}/tags/arithmetics/bitmask is deprecated.", DeprecationWarning)
+        warnings.warn(
+            "POST /v1/datasets/{datasetId}/tags/arithmetics/bitmask is deprecated.",
+            DeprecationWarning,
+        )
 
         _params = locals()
 
-        _all_params = [
-            'dataset_id',
-            'tag_arithmetics_request'
-        ]
+        _all_params = ["dataset_id", "tag_arithmetics_request"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method perform_tag_arithmetics_bitmask" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['dataset_id']:
-            _path_params['datasetId'] = _params['dataset_id']
-
+        if _params["dataset_id"]:
+            _path_params["datasetId"] = _params["dataset_id"]
 
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
-        if _params['tag_arithmetics_request'] is not None:
-            _body_params = _params['tag_arithmetics_request']
+        if _params["tag_arithmetics_request"] is not None:
+            _body_params = _params["tag_arithmetics_request"]
 
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # set the HTTP header `Content-Type`
-        _content_types_list = _params.get('_content_type',
-            self.api_client.select_header_content_type(
-                ['application/json']))
+        _content_types_list = _params.get(
+            "_content_type",
+            self.api_client.select_header_content_type(["application/json"]),
+        )
         if _content_types_list:
-                _header_params['Content-Type'] = _content_types_list
+            _header_params["Content-Type"] = _content_types_list
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '200': "TagBitMaskResponse",
-            '400': "ApiErrorResponse",
-            '401': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "200": "TagBitMaskResponse",
+            "400": "ApiErrorResponse",
+            "401": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/datasets/{datasetId}/tags/arithmetics/bitmask', 'POST',
+            "/v1/datasets/{datasetId}/tags/arithmetics/bitmask",
+            "POST",
             _path_params,
             _query_params,
             _header_params,
@@ -2824,15 +3750,28 @@ class TagsApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def update_tag_by_tag_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], tag_update_request : Annotated[TagUpdateRequest, Field(..., description="updated data for tag")], **kwargs) -> None:  # noqa: E501
+    def update_tag_by_tag_id(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        tag_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the tag")
+        ],
+        tag_update_request: Annotated[
+            TagUpdateRequest, Field(..., description="updated data for tag")
+        ],
+        **kwargs
+    ) -> None:  # noqa: E501
         """update_tag_by_tag_id  # noqa: E501
 
         update information about a specific tag  # noqa: E501
@@ -2859,13 +3798,29 @@ class TagsApi(object):
                  returns the request thread.
         :rtype: None
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the update_tag_by_tag_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.update_tag_by_tag_id_with_http_info(dataset_id, tag_id, tag_update_request, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the update_tag_by_tag_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.update_tag_by_tag_id_with_http_info(
+            dataset_id, tag_id, tag_update_request, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def update_tag_by_tag_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], tag_update_request : Annotated[TagUpdateRequest, Field(..., description="updated data for tag")], **kwargs) -> ApiResponse:  # noqa: E501
+    def update_tag_by_tag_id_with_http_info(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        tag_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the tag")
+        ],
+        tag_update_request: Annotated[
+            TagUpdateRequest, Field(..., description="updated data for tag")
+        ],
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """update_tag_by_tag_id  # noqa: E501
 
         update information about a specific tag  # noqa: E501
@@ -2884,7 +3839,7 @@ class TagsApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -2908,74 +3863,72 @@ class TagsApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'dataset_id',
-            'tag_id',
-            'tag_update_request'
-        ]
+        _all_params = ["dataset_id", "tag_id", "tag_update_request"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method update_tag_by_tag_id" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['dataset_id']:
-            _path_params['datasetId'] = _params['dataset_id']
+        if _params["dataset_id"]:
+            _path_params["datasetId"] = _params["dataset_id"]
 
-        if _params['tag_id']:
-            _path_params['tagId'] = _params['tag_id']
-
+        if _params["tag_id"]:
+            _path_params["tagId"] = _params["tag_id"]
 
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
-        if _params['tag_update_request'] is not None:
-            _body_params = _params['tag_update_request']
+        if _params["tag_update_request"] is not None:
+            _body_params = _params["tag_update_request"]
 
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # set the HTTP header `Content-Type`
-        _content_types_list = _params.get('_content_type',
-            self.api_client.select_header_content_type(
-                ['application/json']))
+        _content_types_list = _params.get(
+            "_content_type",
+            self.api_client.select_header_content_type(["application/json"]),
+        )
         if _content_types_list:
-                _header_params['Content-Type'] = _content_types_list
+            _header_params["Content-Type"] = _content_types_list
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/v1/datasets/{datasetId}/tags/{tagId}', 'PUT',
+            "/v1/datasets/{datasetId}/tags/{tagId}",
+            "PUT",
             _path_params,
             _query_params,
             _header_params,
@@ -2984,15 +3937,23 @@ class TagsApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def upsize_tags_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_upsize_request : TagUpsizeRequest, **kwargs) -> CreateEntityResponse:  # noqa: E501
+    def upsize_tags_by_dataset_id(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        tag_upsize_request: TagUpsizeRequest,
+        **kwargs
+    ) -> CreateEntityResponse:  # noqa: E501
         """upsize_tags_by_dataset_id  # noqa: E501
 
         Upsize all tags for the dataset to the current size of the dataset. Use this after adding more samples to a dataset with an initial-tag. | Creates a new tag holding all samples which are not yet in the initial-tag.   # noqa: E501
@@ -3017,13 +3978,24 @@ class TagsApi(object):
                  returns the request thread.
         :rtype: CreateEntityResponse
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the upsize_tags_by_dataset_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.upsize_tags_by_dataset_id_with_http_info(dataset_id, tag_upsize_request, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the upsize_tags_by_dataset_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.upsize_tags_by_dataset_id_with_http_info(
+            dataset_id, tag_upsize_request, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def upsize_tags_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_upsize_request : TagUpsizeRequest, **kwargs) -> ApiResponse:  # noqa: E501
+    def upsize_tags_by_dataset_id_with_http_info(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        tag_upsize_request: TagUpsizeRequest,
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """upsize_tags_by_dataset_id  # noqa: E501
 
         Upsize all tags for the dataset to the current size of the dataset. Use this after adding more samples to a dataset with an initial-tag. | Creates a new tag holding all samples which are not yet in the initial-tag.   # noqa: E501
@@ -3040,7 +4012,7 @@ class TagsApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -3064,76 +4036,75 @@ class TagsApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'dataset_id',
-            'tag_upsize_request'
-        ]
+        _all_params = ["dataset_id", "tag_upsize_request"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method upsize_tags_by_dataset_id" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['dataset_id']:
-            _path_params['datasetId'] = _params['dataset_id']
-
+        if _params["dataset_id"]:
+            _path_params["datasetId"] = _params["dataset_id"]
 
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
-        if _params['tag_upsize_request'] is not None:
-            _body_params = _params['tag_upsize_request']
+        if _params["tag_upsize_request"] is not None:
+            _body_params = _params["tag_upsize_request"]
 
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # set the HTTP header `Content-Type`
-        _content_types_list = _params.get('_content_type',
-            self.api_client.select_header_content_type(
-                ['application/json']))
+        _content_types_list = _params.get(
+            "_content_type",
+            self.api_client.select_header_content_type(["application/json"]),
+        )
         if _content_types_list:
-                _header_params['Content-Type'] = _content_types_list
+            _header_params["Content-Type"] = _content_types_list
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '201': "CreateEntityResponse",
-            '400': "ApiErrorResponse",
-            '401': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "201": "CreateEntityResponse",
+            "400": "ApiErrorResponse",
+            "401": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/datasets/{datasetId}/tags/upsize', 'POST',
+            "/v1/datasets/{datasetId}/tags/upsize",
+            "POST",
             _path_params,
             _query_params,
             _header_params,
@@ -3142,9 +4113,10 @@ class TagsApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )

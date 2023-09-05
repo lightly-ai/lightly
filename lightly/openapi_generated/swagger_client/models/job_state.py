@@ -20,9 +20,6 @@ from enum import Enum
 from aenum import no_arg  # type: ignore
 
 
-
-
-
 class JobState(str, Enum):
     """
     JobState
@@ -31,15 +28,13 @@ class JobState(str, Enum):
     """
     allowed enum values
     """
-    UNKNOWN = 'UNKNOWN'
-    WAITING = 'WAITING'
-    RUNNING = 'RUNNING'
-    FAILED = 'FAILED'
-    FINISHED = 'FINISHED'
+    UNKNOWN = "UNKNOWN"
+    WAITING = "WAITING"
+    RUNNING = "RUNNING"
+    FAILED = "FAILED"
+    FINISHED = "FINISHED"
 
     @classmethod
-    def from_json(cls, json_str: str) -> 'JobState':
+    def from_json(cls, json_str: str) -> "JobState":
         """Create an instance of JobState from a JSON string"""
         return JobState(json.loads(json_str))
-
-

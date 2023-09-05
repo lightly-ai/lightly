@@ -20,24 +20,19 @@ from enum import Enum
 from aenum import no_arg  # type: ignore
 
 
-
-
-
 class SamplePartialMode(str, Enum):
     """
-    ids: return only the id fileNames: return the id and fileName full: return all data 
+    ids: return only the id fileNames: return the id and fileName full: return all data
     """
 
     """
     allowed enum values
     """
-    IDS = 'ids'
-    FILENAMES = 'fileNames'
-    FULL = 'full'
+    IDS = "ids"
+    FILENAMES = "fileNames"
+    FULL = "full"
 
     @classmethod
-    def from_json(cls, json_str: str) -> 'SamplePartialMode':
+    def from_json(cls, json_str: str) -> "SamplePartialMode":
         """Create an instance of SamplePartialMode from a JSON string"""
         return SamplePartialMode(json.loads(json_str))
-
-

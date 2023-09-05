@@ -20,9 +20,6 @@ from enum import Enum
 from aenum import no_arg  # type: ignore
 
 
-
-
-
 class DockerRunArtifactType(str, Enum):
     """
     DockerRunArtifactType
@@ -31,18 +28,16 @@ class DockerRunArtifactType(str, Enum):
     """
     allowed enum values
     """
-    LOG = 'LOG'
-    MEMLOG = 'MEMLOG'
-    CHECKPOINT = 'CHECKPOINT'
-    REPORT_PDF = 'REPORT_PDF'
-    REPORT_JSON = 'REPORT_JSON'
-    CORRUPTNESS_CHECK_INFORMATION = 'CORRUPTNESS_CHECK_INFORMATION'
-    SEQUENCE_INFORMATION = 'SEQUENCE_INFORMATION'
-    RELEVANT_FILENAMES = 'RELEVANT_FILENAMES'
+    LOG = "LOG"
+    MEMLOG = "MEMLOG"
+    CHECKPOINT = "CHECKPOINT"
+    REPORT_PDF = "REPORT_PDF"
+    REPORT_JSON = "REPORT_JSON"
+    CORRUPTNESS_CHECK_INFORMATION = "CORRUPTNESS_CHECK_INFORMATION"
+    SEQUENCE_INFORMATION = "SEQUENCE_INFORMATION"
+    RELEVANT_FILENAMES = "RELEVANT_FILENAMES"
 
     @classmethod
-    def from_json(cls, json_str: str) -> 'DockerRunArtifactType':
+    def from_json(cls, json_str: str) -> "DockerRunArtifactType":
         """Create an instance of DockerRunArtifactType from a JSON string"""
         return DockerRunArtifactType(json.loads(json_str))
-
-

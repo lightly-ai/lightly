@@ -20,31 +20,55 @@ import json
 
 
 from typing import Optional
-from pydantic import Extra,  BaseModel, Field, constr, validator
+from pydantic import Extra, BaseModel, Field, constr, validator
 from lightly.openapi_generated.swagger_client.models.s3_region import S3Region
+
 
 class DatasourceConfigS3AllOf(BaseModel):
     """
     DatasourceConfigS3AllOf
     """
-    s3_region: S3Region = Field(..., alias="s3Region")
-    s3_access_key_id: constr(strict=True, min_length=1) = Field(..., alias="s3AccessKeyId", description="The accessKeyId of the credential you are providing Lightly to use")
-    s3_secret_access_key: constr(strict=True, min_length=1) = Field(..., alias="s3SecretAccessKey", description="The secretAccessKey of the credential you are providing Lightly to use")
-    s3_server_side_encryption_kms_key: Optional[constr(strict=True, min_length=1)] = Field(None, alias="s3ServerSideEncryptionKMSKey", description="If set, Lightly Worker will automatically set the headers to use server side encryption https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html with this value as the appropriate KMS key arn. This will encrypt the files created by Lightly (crops, frames, thumbnails) in the S3 bucket. ")
-    __properties = ["s3Region", "s3AccessKeyId", "s3SecretAccessKey", "s3ServerSideEncryptionKMSKey"]
 
-    @validator('s3_server_side_encryption_kms_key')
+    s3_region: S3Region = Field(..., alias="s3Region")
+    s3_access_key_id: constr(strict=True, min_length=1) = Field(
+        ...,
+        alias="s3AccessKeyId",
+        description="The accessKeyId of the credential you are providing Lightly to use",
+    )
+    s3_secret_access_key: constr(strict=True, min_length=1) = Field(
+        ...,
+        alias="s3SecretAccessKey",
+        description="The secretAccessKey of the credential you are providing Lightly to use",
+    )
+    s3_server_side_encryption_kms_key: Optional[
+        constr(strict=True, min_length=1)
+    ] = Field(
+        None,
+        alias="s3ServerSideEncryptionKMSKey",
+        description="If set, Lightly Worker will automatically set the headers to use server side encryption https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html with this value as the appropriate KMS key arn. This will encrypt the files created by Lightly (crops, frames, thumbnails) in the S3 bucket. ",
+    )
+    __properties = [
+        "s3Region",
+        "s3AccessKeyId",
+        "s3SecretAccessKey",
+        "s3ServerSideEncryptionKMSKey",
+    ]
+
+    @validator("s3_server_side_encryption_kms_key")
     def s3_server_side_encryption_kms_key_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if value is None:
             return value
 
         if not re.match(r"^arn:aws:kms:[a-zA-Z0-9-]*:[0-9]{12}:key.+$", value):
-            raise ValueError(r"must validate the regular expression /^arn:aws:kms:[a-zA-Z0-9-]*:[0-9]{12}:key.+$/")
+            raise ValueError(
+                r"must validate the regular expression /^arn:aws:kms:[a-zA-Z0-9-]*:[0-9]{12}:key.+$/"
+            )
         return value
 
     class Config:
         """Pydantic configuration"""
+
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -65,10 +89,7 @@ class DatasourceConfigS3AllOf(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias,
-                          exclude={
-                          },
-                          exclude_none=True)
+        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
         return _dict
 
     @classmethod
@@ -83,13 +104,19 @@ class DatasourceConfigS3AllOf(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in DatasourceConfigS3AllOf) in the input: " + str(obj))
+                raise ValueError(
+                    "Error due to additional fields (not defined in DatasourceConfigS3AllOf) in the input: "
+                    + str(obj)
+                )
 
-        _obj = DatasourceConfigS3AllOf.parse_obj({
-            "s3_region": obj.get("s3Region"),
-            "s3_access_key_id": obj.get("s3AccessKeyId"),
-            "s3_secret_access_key": obj.get("s3SecretAccessKey"),
-            "s3_server_side_encryption_kms_key": obj.get("s3ServerSideEncryptionKMSKey")
-        })
+        _obj = DatasourceConfigS3AllOf.parse_obj(
+            {
+                "s3_region": obj.get("s3Region"),
+                "s3_access_key_id": obj.get("s3AccessKeyId"),
+                "s3_secret_access_key": obj.get("s3SecretAccessKey"),
+                "s3_server_side_encryption_kms_key": obj.get(
+                    "s3ServerSideEncryptionKMSKey"
+                ),
+            }
+        )
         return _obj
-

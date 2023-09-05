@@ -24,16 +24,24 @@ from pydantic import Field, conint, conlist, constr, validator
 
 from typing import List, Optional
 
-from lightly.openapi_generated.swagger_client.models.create_entity_response import CreateEntityResponse
-from lightly.openapi_generated.swagger_client.models.prediction_singleton import PredictionSingleton
-from lightly.openapi_generated.swagger_client.models.prediction_task_schema import PredictionTaskSchema
-from lightly.openapi_generated.swagger_client.models.prediction_task_schemas import PredictionTaskSchemas
+from lightly.openapi_generated.swagger_client.models.create_entity_response import (
+    CreateEntityResponse,
+)
+from lightly.openapi_generated.swagger_client.models.prediction_singleton import (
+    PredictionSingleton,
+)
+from lightly.openapi_generated.swagger_client.models.prediction_task_schema import (
+    PredictionTaskSchema,
+)
+from lightly.openapi_generated.swagger_client.models.prediction_task_schemas import (
+    PredictionTaskSchemas,
+)
 
 from lightly.openapi_generated.swagger_client.api_client import ApiClient
 from lightly.openapi_generated.swagger_client.api_response import ApiResponse
 from lightly.openapi_generated.swagger_client.exceptions import (  # noqa: F401
     ApiTypeError,
-    ApiValueError
+    ApiValueError,
 )
 
 
@@ -50,7 +58,24 @@ class PredictionsApi(object):
         self.api_client = api_client
 
     @validate_arguments
-    def create_or_update_prediction_by_sample_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], sample_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the sample")], prediction_uuid_timestamp : Annotated[conint(strict=True, ge=0), Field(..., description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")], prediction_singleton : conlist(PredictionSingleton), **kwargs) -> CreateEntityResponse:  # noqa: E501
+    def create_or_update_prediction_by_sample_id(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        sample_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the sample")
+        ],
+        prediction_uuid_timestamp: Annotated[
+            conint(strict=True, ge=0),
+            Field(
+                ...,
+                description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ",
+            ),
+        ],
+        prediction_singleton: conlist(PredictionSingleton),
+        **kwargs
+    ) -> CreateEntityResponse:  # noqa: E501
         """create_or_update_prediction_by_sample_id  # noqa: E501
 
         Create/Update all the prediction singletons for a sampleId in the order/index of them being discovered   # noqa: E501
@@ -79,13 +104,38 @@ class PredictionsApi(object):
                  returns the request thread.
         :rtype: CreateEntityResponse
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the create_or_update_prediction_by_sample_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.create_or_update_prediction_by_sample_id_with_http_info(dataset_id, sample_id, prediction_uuid_timestamp, prediction_singleton, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the create_or_update_prediction_by_sample_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.create_or_update_prediction_by_sample_id_with_http_info(
+            dataset_id,
+            sample_id,
+            prediction_uuid_timestamp,
+            prediction_singleton,
+            **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def create_or_update_prediction_by_sample_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], sample_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the sample")], prediction_uuid_timestamp : Annotated[conint(strict=True, ge=0), Field(..., description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")], prediction_singleton : conlist(PredictionSingleton), **kwargs) -> ApiResponse:  # noqa: E501
+    def create_or_update_prediction_by_sample_id_with_http_info(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        sample_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the sample")
+        ],
+        prediction_uuid_timestamp: Annotated[
+            conint(strict=True, ge=0),
+            Field(
+                ...,
+                description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ",
+            ),
+        ],
+        prediction_singleton: conlist(PredictionSingleton),
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """create_or_update_prediction_by_sample_id  # noqa: E501
 
         Create/Update all the prediction singletons for a sampleId in the order/index of them being discovered   # noqa: E501
@@ -106,7 +156,7 @@ class PredictionsApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -131,86 +181,92 @@ class PredictionsApi(object):
         _params = locals()
 
         _all_params = [
-            'dataset_id',
-            'sample_id',
-            'prediction_uuid_timestamp',
-            'prediction_singleton'
+            "dataset_id",
+            "sample_id",
+            "prediction_uuid_timestamp",
+            "prediction_singleton",
         ]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method create_or_update_prediction_by_sample_id" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['dataset_id']:
-            _path_params['datasetId'] = _params['dataset_id']
+        if _params["dataset_id"]:
+            _path_params["datasetId"] = _params["dataset_id"]
 
-        if _params['sample_id']:
-            _path_params['sampleId'] = _params['sample_id']
-
+        if _params["sample_id"]:
+            _path_params["sampleId"] = _params["sample_id"]
 
         # process the query parameters
         _query_params = []
-        if _params.get('prediction_uuid_timestamp') is not None:  # noqa: E501
-            _query_params.append((
-                'predictionUUIDTimestamp',
-                _params['prediction_uuid_timestamp'].value if hasattr(_params['prediction_uuid_timestamp'], 'value') else _params['prediction_uuid_timestamp']
-            ))
+        if _params.get("prediction_uuid_timestamp") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "predictionUUIDTimestamp",
+                    _params["prediction_uuid_timestamp"].value
+                    if hasattr(_params["prediction_uuid_timestamp"], "value")
+                    else _params["prediction_uuid_timestamp"],
+                )
+            )
 
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
-        if _params['prediction_singleton'] is not None:
-            _body_params = _params['prediction_singleton']
+        if _params["prediction_singleton"] is not None:
+            _body_params = _params["prediction_singleton"]
 
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # set the HTTP header `Content-Type`
-        _content_types_list = _params.get('_content_type',
-            self.api_client.select_header_content_type(
-                ['application/json']))
+        _content_types_list = _params.get(
+            "_content_type",
+            self.api_client.select_header_content_type(["application/json"]),
+        )
         if _content_types_list:
-                _header_params['Content-Type'] = _content_types_list
+            _header_params["Content-Type"] = _content_types_list
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '201': "CreateEntityResponse",
-            '400': "ApiErrorResponse",
-            '401': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "201": "CreateEntityResponse",
+            "400": "ApiErrorResponse",
+            "401": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/datasets/{datasetId}/predictions/samples/{sampleId}', 'POST',
+            "/v1/datasets/{datasetId}/predictions/samples/{sampleId}",
+            "POST",
             _path_params,
             _query_params,
             _header_params,
@@ -219,15 +275,30 @@ class PredictionsApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def create_or_update_prediction_task_schema_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_uuid_timestamp : Annotated[conint(strict=True, ge=0), Field(..., description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")], prediction_task_schema : PredictionTaskSchema, **kwargs) -> CreateEntityResponse:  # noqa: E501
+    def create_or_update_prediction_task_schema_by_dataset_id(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        prediction_uuid_timestamp: Annotated[
+            conint(strict=True, ge=0),
+            Field(
+                ...,
+                description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ",
+            ),
+        ],
+        prediction_task_schema: PredictionTaskSchema,
+        **kwargs
+    ) -> CreateEntityResponse:  # noqa: E501
         """create_or_update_prediction_task_schema_by_dataset_id  # noqa: E501
 
         Creates/updates a prediction task schema with the task name  # noqa: E501
@@ -254,13 +325,33 @@ class PredictionsApi(object):
                  returns the request thread.
         :rtype: CreateEntityResponse
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the create_or_update_prediction_task_schema_by_dataset_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.create_or_update_prediction_task_schema_by_dataset_id_with_http_info(dataset_id, prediction_uuid_timestamp, prediction_task_schema, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the create_or_update_prediction_task_schema_by_dataset_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return (
+            self.create_or_update_prediction_task_schema_by_dataset_id_with_http_info(
+                dataset_id, prediction_uuid_timestamp, prediction_task_schema, **kwargs
+            )
+        )  # noqa: E501
 
     @validate_arguments
-    def create_or_update_prediction_task_schema_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_uuid_timestamp : Annotated[conint(strict=True, ge=0), Field(..., description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")], prediction_task_schema : PredictionTaskSchema, **kwargs) -> ApiResponse:  # noqa: E501
+    def create_or_update_prediction_task_schema_by_dataset_id_with_http_info(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        prediction_uuid_timestamp: Annotated[
+            conint(strict=True, ge=0),
+            Field(
+                ...,
+                description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ",
+            ),
+        ],
+        prediction_task_schema: PredictionTaskSchema,
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """create_or_update_prediction_task_schema_by_dataset_id  # noqa: E501
 
         Creates/updates a prediction task schema with the task name  # noqa: E501
@@ -279,7 +370,7 @@ class PredictionsApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -304,81 +395,88 @@ class PredictionsApi(object):
         _params = locals()
 
         _all_params = [
-            'dataset_id',
-            'prediction_uuid_timestamp',
-            'prediction_task_schema'
+            "dataset_id",
+            "prediction_uuid_timestamp",
+            "prediction_task_schema",
         ]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
-                    " to method create_or_update_prediction_task_schema_by_dataset_id" % _key
+                    " to method create_or_update_prediction_task_schema_by_dataset_id"
+                    % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['dataset_id']:
-            _path_params['datasetId'] = _params['dataset_id']
-
+        if _params["dataset_id"]:
+            _path_params["datasetId"] = _params["dataset_id"]
 
         # process the query parameters
         _query_params = []
-        if _params.get('prediction_uuid_timestamp') is not None:  # noqa: E501
-            _query_params.append((
-                'predictionUUIDTimestamp',
-                _params['prediction_uuid_timestamp'].value if hasattr(_params['prediction_uuid_timestamp'], 'value') else _params['prediction_uuid_timestamp']
-            ))
+        if _params.get("prediction_uuid_timestamp") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "predictionUUIDTimestamp",
+                    _params["prediction_uuid_timestamp"].value
+                    if hasattr(_params["prediction_uuid_timestamp"], "value")
+                    else _params["prediction_uuid_timestamp"],
+                )
+            )
 
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
-        if _params['prediction_task_schema'] is not None:
-            _body_params = _params['prediction_task_schema']
+        if _params["prediction_task_schema"] is not None:
+            _body_params = _params["prediction_task_schema"]
 
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # set the HTTP header `Content-Type`
-        _content_types_list = _params.get('_content_type',
-            self.api_client.select_header_content_type(
-                ['application/json']))
+        _content_types_list = _params.get(
+            "_content_type",
+            self.api_client.select_header_content_type(["application/json"]),
+        )
         if _content_types_list:
-                _header_params['Content-Type'] = _content_types_list
+            _header_params["Content-Type"] = _content_types_list
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '201': "CreateEntityResponse",
-            '400': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "201": "CreateEntityResponse",
+            "400": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/datasets/{datasetId}/predictions/tasks', 'POST',
+            "/v1/datasets/{datasetId}/predictions/tasks",
+            "POST",
             _path_params,
             _query_params,
             _header_params,
@@ -387,15 +485,32 @@ class PredictionsApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def get_prediction_by_sample_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], sample_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the sample")], prediction_uuid_timestamp : Annotated[conint(strict=True, ge=0), Field(..., description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")], **kwargs) -> List[PredictionSingleton]:  # noqa: E501
+    def get_prediction_by_sample_id(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        sample_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the sample")
+        ],
+        prediction_uuid_timestamp: Annotated[
+            conint(strict=True, ge=0),
+            Field(
+                ...,
+                description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ",
+            ),
+        ],
+        **kwargs
+    ) -> List[PredictionSingleton]:  # noqa: E501
         """get_prediction_by_sample_id  # noqa: E501
 
         Get all prediction singletons of a specific sample of a dataset  # noqa: E501
@@ -422,13 +537,33 @@ class PredictionsApi(object):
                  returns the request thread.
         :rtype: List[PredictionSingleton]
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the get_prediction_by_sample_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.get_prediction_by_sample_id_with_http_info(dataset_id, sample_id, prediction_uuid_timestamp, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the get_prediction_by_sample_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.get_prediction_by_sample_id_with_http_info(
+            dataset_id, sample_id, prediction_uuid_timestamp, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def get_prediction_by_sample_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], sample_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the sample")], prediction_uuid_timestamp : Annotated[conint(strict=True, ge=0), Field(..., description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")], **kwargs) -> ApiResponse:  # noqa: E501
+    def get_prediction_by_sample_id_with_http_info(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        sample_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the sample")
+        ],
+        prediction_uuid_timestamp: Annotated[
+            conint(strict=True, ge=0),
+            Field(
+                ...,
+                description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ",
+            ),
+        ],
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """get_prediction_by_sample_id  # noqa: E501
 
         Get all prediction singletons of a specific sample of a dataset  # noqa: E501
@@ -447,7 +582,7 @@ class PredictionsApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -471,76 +606,77 @@ class PredictionsApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'dataset_id',
-            'sample_id',
-            'prediction_uuid_timestamp'
-        ]
+        _all_params = ["dataset_id", "sample_id", "prediction_uuid_timestamp"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method get_prediction_by_sample_id" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['dataset_id']:
-            _path_params['datasetId'] = _params['dataset_id']
+        if _params["dataset_id"]:
+            _path_params["datasetId"] = _params["dataset_id"]
 
-        if _params['sample_id']:
-            _path_params['sampleId'] = _params['sample_id']
-
+        if _params["sample_id"]:
+            _path_params["sampleId"] = _params["sample_id"]
 
         # process the query parameters
         _query_params = []
-        if _params.get('prediction_uuid_timestamp') is not None:  # noqa: E501
-            _query_params.append((
-                'predictionUUIDTimestamp',
-                _params['prediction_uuid_timestamp'].value if hasattr(_params['prediction_uuid_timestamp'], 'value') else _params['prediction_uuid_timestamp']
-            ))
+        if _params.get("prediction_uuid_timestamp") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "predictionUUIDTimestamp",
+                    _params["prediction_uuid_timestamp"].value
+                    if hasattr(_params["prediction_uuid_timestamp"], "value")
+                    else _params["prediction_uuid_timestamp"],
+                )
+            )
 
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '200': "List[PredictionSingleton]",
-            '400': "ApiErrorResponse",
-            '401': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "200": "List[PredictionSingleton]",
+            "400": "ApiErrorResponse",
+            "401": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/datasets/{datasetId}/predictions/samples/{sampleId}', 'GET',
+            "/v1/datasets/{datasetId}/predictions/samples/{sampleId}",
+            "GET",
             _path_params,
             _query_params,
             _header_params,
@@ -549,15 +685,36 @@ class PredictionsApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def get_prediction_task_schema_by_task_name(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_uuid_timestamp : Annotated[conint(strict=True, ge=0), Field(..., description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")], task_name : Annotated[constr(strict=True, min_length=1), Field(..., description="The prediction task name for which one wants to list the predictions")], **kwargs) -> PredictionTaskSchema:  # noqa: E501
+    def get_prediction_task_schema_by_task_name(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        prediction_uuid_timestamp: Annotated[
+            conint(strict=True, ge=0),
+            Field(
+                ...,
+                description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ",
+            ),
+        ],
+        task_name: Annotated[
+            constr(strict=True, min_length=1),
+            Field(
+                ...,
+                description="The prediction task name for which one wants to list the predictions",
+            ),
+        ],
+        **kwargs
+    ) -> PredictionTaskSchema:  # noqa: E501
         """get_prediction_task_schema_by_task_name  # noqa: E501
 
         Get a prediction task schemas named taskName for a datasetId  # noqa: E501
@@ -584,13 +741,37 @@ class PredictionsApi(object):
                  returns the request thread.
         :rtype: PredictionTaskSchema
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the get_prediction_task_schema_by_task_name_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.get_prediction_task_schema_by_task_name_with_http_info(dataset_id, prediction_uuid_timestamp, task_name, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the get_prediction_task_schema_by_task_name_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.get_prediction_task_schema_by_task_name_with_http_info(
+            dataset_id, prediction_uuid_timestamp, task_name, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def get_prediction_task_schema_by_task_name_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_uuid_timestamp : Annotated[conint(strict=True, ge=0), Field(..., description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")], task_name : Annotated[constr(strict=True, min_length=1), Field(..., description="The prediction task name for which one wants to list the predictions")], **kwargs) -> ApiResponse:  # noqa: E501
+    def get_prediction_task_schema_by_task_name_with_http_info(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        prediction_uuid_timestamp: Annotated[
+            conint(strict=True, ge=0),
+            Field(
+                ...,
+                description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ",
+            ),
+        ],
+        task_name: Annotated[
+            constr(strict=True, min_length=1),
+            Field(
+                ...,
+                description="The prediction task name for which one wants to list the predictions",
+            ),
+        ],
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """get_prediction_task_schema_by_task_name  # noqa: E501
 
         Get a prediction task schemas named taskName for a datasetId  # noqa: E501
@@ -609,7 +790,7 @@ class PredictionsApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -633,76 +814,77 @@ class PredictionsApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'dataset_id',
-            'prediction_uuid_timestamp',
-            'task_name'
-        ]
+        _all_params = ["dataset_id", "prediction_uuid_timestamp", "task_name"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method get_prediction_task_schema_by_task_name" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['dataset_id']:
-            _path_params['datasetId'] = _params['dataset_id']
+        if _params["dataset_id"]:
+            _path_params["datasetId"] = _params["dataset_id"]
 
-        if _params['task_name']:
-            _path_params['taskName'] = _params['task_name']
-
+        if _params["task_name"]:
+            _path_params["taskName"] = _params["task_name"]
 
         # process the query parameters
         _query_params = []
-        if _params.get('prediction_uuid_timestamp') is not None:  # noqa: E501
-            _query_params.append((
-                'predictionUUIDTimestamp',
-                _params['prediction_uuid_timestamp'].value if hasattr(_params['prediction_uuid_timestamp'], 'value') else _params['prediction_uuid_timestamp']
-            ))
+        if _params.get("prediction_uuid_timestamp") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "predictionUUIDTimestamp",
+                    _params["prediction_uuid_timestamp"].value
+                    if hasattr(_params["prediction_uuid_timestamp"], "value")
+                    else _params["prediction_uuid_timestamp"],
+                )
+            )
 
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '200': "PredictionTaskSchema",
-            '400': "ApiErrorResponse",
-            '401': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "200": "PredictionTaskSchema",
+            "400": "ApiErrorResponse",
+            "401": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/datasets/{datasetId}/predictions/tasks/{taskName}', 'GET',
+            "/v1/datasets/{datasetId}/predictions/tasks/{taskName}",
+            "GET",
             _path_params,
             _query_params,
             _header_params,
@@ -711,15 +893,28 @@ class PredictionsApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def get_prediction_task_schemas_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, **kwargs) -> PredictionTaskSchemas:  # noqa: E501
+    def get_prediction_task_schemas_by_dataset_id(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        prediction_uuid_timestamp: Annotated[
+            Optional[conint(strict=True, ge=0)],
+            Field(
+                description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. "
+            ),
+        ] = None,
+        **kwargs
+    ) -> PredictionTaskSchemas:  # noqa: E501
         """get_prediction_task_schemas_by_dataset_id  # noqa: E501
 
         Get list of all the prediction task schemas for a datasetId at a specific predictionUUIDTimestamp. If no predictionUUIDTimestamp is set, it defaults to the newest  # noqa: E501
@@ -731,7 +926,7 @@ class PredictionsApi(object):
 
         :param dataset_id: ObjectId of the dataset (required)
         :type dataset_id: str
-        :param prediction_uuid_timestamp: The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. 
+        :param prediction_uuid_timestamp: The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset.
         :type prediction_uuid_timestamp: int
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -744,13 +939,29 @@ class PredictionsApi(object):
                  returns the request thread.
         :rtype: PredictionTaskSchemas
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the get_prediction_task_schemas_by_dataset_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.get_prediction_task_schemas_by_dataset_id_with_http_info(dataset_id, prediction_uuid_timestamp, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the get_prediction_task_schemas_by_dataset_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.get_prediction_task_schemas_by_dataset_id_with_http_info(
+            dataset_id, prediction_uuid_timestamp, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def get_prediction_task_schemas_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def get_prediction_task_schemas_by_dataset_id_with_http_info(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        prediction_uuid_timestamp: Annotated[
+            Optional[conint(strict=True, ge=0)],
+            Field(
+                description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. "
+            ),
+        ] = None,
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """get_prediction_task_schemas_by_dataset_id  # noqa: E501
 
         Get list of all the prediction task schemas for a datasetId at a specific predictionUUIDTimestamp. If no predictionUUIDTimestamp is set, it defaults to the newest  # noqa: E501
@@ -762,12 +973,12 @@ class PredictionsApi(object):
 
         :param dataset_id: ObjectId of the dataset (required)
         :type dataset_id: str
-        :param prediction_uuid_timestamp: The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. 
+        :param prediction_uuid_timestamp: The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset.
         :type prediction_uuid_timestamp: int
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -791,72 +1002,74 @@ class PredictionsApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'dataset_id',
-            'prediction_uuid_timestamp'
-        ]
+        _all_params = ["dataset_id", "prediction_uuid_timestamp"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method get_prediction_task_schemas_by_dataset_id" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['dataset_id']:
-            _path_params['datasetId'] = _params['dataset_id']
-
+        if _params["dataset_id"]:
+            _path_params["datasetId"] = _params["dataset_id"]
 
         # process the query parameters
         _query_params = []
-        if _params.get('prediction_uuid_timestamp') is not None:  # noqa: E501
-            _query_params.append((
-                'predictionUUIDTimestamp',
-                _params['prediction_uuid_timestamp'].value if hasattr(_params['prediction_uuid_timestamp'], 'value') else _params['prediction_uuid_timestamp']
-            ))
+        if _params.get("prediction_uuid_timestamp") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "predictionUUIDTimestamp",
+                    _params["prediction_uuid_timestamp"].value
+                    if hasattr(_params["prediction_uuid_timestamp"], "value")
+                    else _params["prediction_uuid_timestamp"],
+                )
+            )
 
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '200': "PredictionTaskSchemas",
-            '400': "ApiErrorResponse",
-            '401': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "200": "PredictionTaskSchemas",
+            "400": "ApiErrorResponse",
+            "401": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/datasets/{datasetId}/predictions/tasks', 'GET',
+            "/v1/datasets/{datasetId}/predictions/tasks",
+            "GET",
             _path_params,
             _query_params,
             _header_params,
@@ -865,15 +1078,35 @@ class PredictionsApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def get_predictions_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_uuid_timestamp : Annotated[conint(strict=True, ge=0), Field(..., description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")], task_name : Annotated[Optional[constr(strict=True, min_length=1)], Field(description="If provided, only gets all prediction singletons of all samples of a dataset that were yielded by a specific prediction task name")] = None, **kwargs) -> List[List]:  # noqa: E501
+    def get_predictions_by_dataset_id(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        prediction_uuid_timestamp: Annotated[
+            conint(strict=True, ge=0),
+            Field(
+                ...,
+                description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ",
+            ),
+        ],
+        task_name: Annotated[
+            Optional[constr(strict=True, min_length=1)],
+            Field(
+                description="If provided, only gets all prediction singletons of all samples of a dataset that were yielded by a specific prediction task name"
+            ),
+        ] = None,
+        **kwargs
+    ) -> List[List]:  # noqa: E501
         """get_predictions_by_dataset_id  # noqa: E501
 
         Get all prediction singletons of all samples of a dataset ordered by the sample mapping  # noqa: E501
@@ -900,13 +1133,36 @@ class PredictionsApi(object):
                  returns the request thread.
         :rtype: List[List]
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the get_predictions_by_dataset_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.get_predictions_by_dataset_id_with_http_info(dataset_id, prediction_uuid_timestamp, task_name, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the get_predictions_by_dataset_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.get_predictions_by_dataset_id_with_http_info(
+            dataset_id, prediction_uuid_timestamp, task_name, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def get_predictions_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_uuid_timestamp : Annotated[conint(strict=True, ge=0), Field(..., description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")], task_name : Annotated[Optional[constr(strict=True, min_length=1)], Field(description="If provided, only gets all prediction singletons of all samples of a dataset that were yielded by a specific prediction task name")] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def get_predictions_by_dataset_id_with_http_info(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        prediction_uuid_timestamp: Annotated[
+            conint(strict=True, ge=0),
+            Field(
+                ...,
+                description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ",
+            ),
+        ],
+        task_name: Annotated[
+            Optional[constr(strict=True, min_length=1)],
+            Field(
+                description="If provided, only gets all prediction singletons of all samples of a dataset that were yielded by a specific prediction task name"
+            ),
+        ] = None,
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """get_predictions_by_dataset_id  # noqa: E501
 
         Get all prediction singletons of all samples of a dataset ordered by the sample mapping  # noqa: E501
@@ -925,7 +1181,7 @@ class PredictionsApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -949,79 +1205,84 @@ class PredictionsApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'dataset_id',
-            'prediction_uuid_timestamp',
-            'task_name'
-        ]
+        _all_params = ["dataset_id", "prediction_uuid_timestamp", "task_name"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method get_predictions_by_dataset_id" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['dataset_id']:
-            _path_params['datasetId'] = _params['dataset_id']
-
+        if _params["dataset_id"]:
+            _path_params["datasetId"] = _params["dataset_id"]
 
         # process the query parameters
         _query_params = []
-        if _params.get('prediction_uuid_timestamp') is not None:  # noqa: E501
-            _query_params.append((
-                'predictionUUIDTimestamp',
-                _params['prediction_uuid_timestamp'].value if hasattr(_params['prediction_uuid_timestamp'], 'value') else _params['prediction_uuid_timestamp']
-            ))
+        if _params.get("prediction_uuid_timestamp") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "predictionUUIDTimestamp",
+                    _params["prediction_uuid_timestamp"].value
+                    if hasattr(_params["prediction_uuid_timestamp"], "value")
+                    else _params["prediction_uuid_timestamp"],
+                )
+            )
 
-        if _params.get('task_name') is not None:  # noqa: E501
-            _query_params.append((
-                'taskName',
-                _params['task_name'].value if hasattr(_params['task_name'], 'value') else _params['task_name']
-            ))
+        if _params.get("task_name") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "taskName",
+                    _params["task_name"].value
+                    if hasattr(_params["task_name"], "value")
+                    else _params["task_name"],
+                )
+            )
 
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '200': "List[List]",
-            '400': "ApiErrorResponse",
-            '401': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "200": "List[List]",
+            "400": "ApiErrorResponse",
+            "401": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/datasets/{datasetId}/predictions/samples', 'GET',
+            "/v1/datasets/{datasetId}/predictions/samples",
+            "GET",
             _path_params,
             _query_params,
             _header_params,
@@ -1030,9 +1291,10 @@ class PredictionsApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )

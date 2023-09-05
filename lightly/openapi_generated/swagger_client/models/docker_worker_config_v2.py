@@ -20,16 +20,26 @@ import json
 
 
 from typing import Optional
-from pydantic import Extra,  BaseModel, Field
-from lightly.openapi_generated.swagger_client.models.docker_worker_config_v2_docker import DockerWorkerConfigV2Docker
-from lightly.openapi_generated.swagger_client.models.docker_worker_config_v2_lightly import DockerWorkerConfigV2Lightly
-from lightly.openapi_generated.swagger_client.models.docker_worker_type import DockerWorkerType
-from lightly.openapi_generated.swagger_client.models.selection_config import SelectionConfig
+from pydantic import Extra, BaseModel, Field
+from lightly.openapi_generated.swagger_client.models.docker_worker_config_v2_docker import (
+    DockerWorkerConfigV2Docker,
+)
+from lightly.openapi_generated.swagger_client.models.docker_worker_config_v2_lightly import (
+    DockerWorkerConfigV2Lightly,
+)
+from lightly.openapi_generated.swagger_client.models.docker_worker_type import (
+    DockerWorkerType,
+)
+from lightly.openapi_generated.swagger_client.models.selection_config import (
+    SelectionConfig,
+)
+
 
 class DockerWorkerConfigV2(BaseModel):
     """
     DockerWorkerConfigV2
     """
+
     worker_type: DockerWorkerType = Field(..., alias="workerType")
     docker: Optional[DockerWorkerConfigV2Docker] = None
     lightly: Optional[DockerWorkerConfigV2Lightly] = None
@@ -38,6 +48,7 @@ class DockerWorkerConfigV2(BaseModel):
 
     class Config:
         """Pydantic configuration"""
+
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -58,19 +69,22 @@ class DockerWorkerConfigV2(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias,
-                          exclude={
-                          },
-                          exclude_none=True)
+        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of docker
         if self.docker:
-            _dict['docker' if by_alias else 'docker'] = self.docker.to_dict(by_alias=by_alias)
+            _dict["docker" if by_alias else "docker"] = self.docker.to_dict(
+                by_alias=by_alias
+            )
         # override the default output from pydantic by calling `to_dict()` of lightly
         if self.lightly:
-            _dict['lightly' if by_alias else 'lightly'] = self.lightly.to_dict(by_alias=by_alias)
+            _dict["lightly" if by_alias else "lightly"] = self.lightly.to_dict(
+                by_alias=by_alias
+            )
         # override the default output from pydantic by calling `to_dict()` of selection
         if self.selection:
-            _dict['selection' if by_alias else 'selection'] = self.selection.to_dict(by_alias=by_alias)
+            _dict["selection" if by_alias else "selection"] = self.selection.to_dict(
+                by_alias=by_alias
+            )
         return _dict
 
     @classmethod
@@ -85,13 +99,23 @@ class DockerWorkerConfigV2(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in DockerWorkerConfigV2) in the input: " + str(obj))
+                raise ValueError(
+                    "Error due to additional fields (not defined in DockerWorkerConfigV2) in the input: "
+                    + str(obj)
+                )
 
-        _obj = DockerWorkerConfigV2.parse_obj({
-            "worker_type": obj.get("workerType"),
-            "docker": DockerWorkerConfigV2Docker.from_dict(obj.get("docker")) if obj.get("docker") is not None else None,
-            "lightly": DockerWorkerConfigV2Lightly.from_dict(obj.get("lightly")) if obj.get("lightly") is not None else None,
-            "selection": SelectionConfig.from_dict(obj.get("selection")) if obj.get("selection") is not None else None
-        })
+        _obj = DockerWorkerConfigV2.parse_obj(
+            {
+                "worker_type": obj.get("workerType"),
+                "docker": DockerWorkerConfigV2Docker.from_dict(obj.get("docker"))
+                if obj.get("docker") is not None
+                else None,
+                "lightly": DockerWorkerConfigV2Lightly.from_dict(obj.get("lightly"))
+                if obj.get("lightly") is not None
+                else None,
+                "selection": SelectionConfig.from_dict(obj.get("selection"))
+                if obj.get("selection") is not None
+                else None,
+            }
+        )
         return _obj
-

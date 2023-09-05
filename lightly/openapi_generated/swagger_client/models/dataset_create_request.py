@@ -20,30 +20,38 @@ import json
 
 
 from typing import Optional
-from pydantic import Extra,  BaseModel, Field, constr, validator
-from lightly.openapi_generated.swagger_client.models.dataset_creator import DatasetCreator
+from pydantic import Extra, BaseModel, Field, constr, validator
+from lightly.openapi_generated.swagger_client.models.dataset_creator import (
+    DatasetCreator,
+)
 from lightly.openapi_generated.swagger_client.models.dataset_type import DatasetType
 from lightly.openapi_generated.swagger_client.models.image_type import ImageType
+
 
 class DatasetCreateRequest(BaseModel):
     """
     DatasetCreateRequest
     """
+
     name: constr(strict=True, min_length=3) = Field(...)
     type: Optional[DatasetType] = None
     img_type: Optional[ImageType] = Field(None, alias="imgType")
     creator: Optional[DatasetCreator] = None
-    parent_dataset_id: Optional[constr(strict=True)] = Field(None, alias="parentDatasetId", description="MongoDB ObjectId")
+    parent_dataset_id: Optional[constr(strict=True)] = Field(
+        None, alias="parentDatasetId", description="MongoDB ObjectId"
+    )
     __properties = ["name", "type", "imgType", "creator", "parentDatasetId"]
 
-    @validator('name')
+    @validator("name")
     def name_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^[a-zA-Z0-9][a-zA-Z0-9 _-]+$", value):
-            raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9][a-zA-Z0-9 _-]+$/")
+            raise ValueError(
+                r"must validate the regular expression /^[a-zA-Z0-9][a-zA-Z0-9 _-]+$/"
+            )
         return value
 
-    @validator('parent_dataset_id')
+    @validator("parent_dataset_id")
     def parent_dataset_id_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if value is None:
@@ -55,6 +63,7 @@ class DatasetCreateRequest(BaseModel):
 
     class Config:
         """Pydantic configuration"""
+
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -75,10 +84,7 @@ class DatasetCreateRequest(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias,
-                          exclude={
-                          },
-                          exclude_none=True)
+        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
         return _dict
 
     @classmethod
@@ -93,14 +99,18 @@ class DatasetCreateRequest(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in DatasetCreateRequest) in the input: " + str(obj))
+                raise ValueError(
+                    "Error due to additional fields (not defined in DatasetCreateRequest) in the input: "
+                    + str(obj)
+                )
 
-        _obj = DatasetCreateRequest.parse_obj({
-            "name": obj.get("name"),
-            "type": obj.get("type"),
-            "img_type": obj.get("imgType"),
-            "creator": obj.get("creator"),
-            "parent_dataset_id": obj.get("parentDatasetId")
-        })
+        _obj = DatasetCreateRequest.parse_obj(
+            {
+                "name": obj.get("name"),
+                "type": obj.get("type"),
+                "img_type": obj.get("imgType"),
+                "creator": obj.get("creator"),
+                "parent_dataset_id": obj.get("parentDatasetId"),
+            }
+        )
         return _obj
-

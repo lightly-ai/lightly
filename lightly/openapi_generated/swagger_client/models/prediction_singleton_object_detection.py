@@ -20,19 +20,47 @@ import json
 
 
 from typing import List, Optional, Union
-from pydantic import Extra,  BaseModel, Field, confloat, conint, conlist
-from lightly.openapi_generated.swagger_client.models.prediction_singleton_base import PredictionSingletonBase
+from pydantic import Extra, BaseModel, Field, confloat, conint, conlist
+from lightly.openapi_generated.swagger_client.models.prediction_singleton_base import (
+    PredictionSingletonBase,
+)
+
 
 class PredictionSingletonObjectDetection(PredictionSingletonBase):
     """
     PredictionSingletonObjectDetection
     """
-    bbox: conlist(Union[confloat(ge=0, strict=True), conint(ge=0, strict=True)], max_items=4, min_items=4) = Field(..., description="The bbox of where a prediction task yielded a finding. [x, y, width, height]")
-    probabilities: Optional[conlist(Union[confloat(le=1, ge=0, strict=True), conint(le=1, ge=0, strict=True)])] = Field(None, description="The probabilities of it being a certain category other than the one which was selected. The sum of all probabilities should equal 1.")
-    __properties = ["type", "taskName", "cropDatasetId", "cropSampleId", "categoryId", "score", "bbox", "probabilities"]
+
+    bbox: conlist(
+        Union[confloat(ge=0, strict=True), conint(ge=0, strict=True)],
+        max_items=4,
+        min_items=4,
+    ) = Field(
+        ...,
+        description="The bbox of where a prediction task yielded a finding. [x, y, width, height]",
+    )
+    probabilities: Optional[
+        conlist(
+            Union[confloat(le=1, ge=0, strict=True), conint(le=1, ge=0, strict=True)]
+        )
+    ] = Field(
+        None,
+        description="The probabilities of it being a certain category other than the one which was selected. The sum of all probabilities should equal 1.",
+    )
+    __properties = [
+        "type",
+        "taskName",
+        "cropDatasetId",
+        "cropSampleId",
+        "categoryId",
+        "score",
+        "bbox",
+        "probabilities",
+    ]
 
     class Config:
         """Pydantic configuration"""
+
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -53,10 +81,7 @@ class PredictionSingletonObjectDetection(PredictionSingletonBase):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias,
-                          exclude={
-                          },
-                          exclude_none=True)
+        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
         return _dict
 
     @classmethod
@@ -71,17 +96,21 @@ class PredictionSingletonObjectDetection(PredictionSingletonBase):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in PredictionSingletonObjectDetection) in the input: " + str(obj))
+                raise ValueError(
+                    "Error due to additional fields (not defined in PredictionSingletonObjectDetection) in the input: "
+                    + str(obj)
+                )
 
-        _obj = PredictionSingletonObjectDetection.parse_obj({
-            "type": obj.get("type"),
-            "task_name": obj.get("taskName"),
-            "crop_dataset_id": obj.get("cropDatasetId"),
-            "crop_sample_id": obj.get("cropSampleId"),
-            "category_id": obj.get("categoryId"),
-            "score": obj.get("score"),
-            "bbox": obj.get("bbox"),
-            "probabilities": obj.get("probabilities")
-        })
+        _obj = PredictionSingletonObjectDetection.parse_obj(
+            {
+                "type": obj.get("type"),
+                "task_name": obj.get("taskName"),
+                "crop_dataset_id": obj.get("cropDatasetId"),
+                "crop_sample_id": obj.get("cropSampleId"),
+                "category_id": obj.get("categoryId"),
+                "score": obj.get("score"),
+                "bbox": obj.get("bbox"),
+                "probabilities": obj.get("probabilities"),
+            }
+        )
         return _obj
-

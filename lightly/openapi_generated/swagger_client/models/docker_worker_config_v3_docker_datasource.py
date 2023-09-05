@@ -20,19 +20,24 @@ import json
 
 
 from typing import Optional
-from pydantic import Extra,  BaseModel, Field, StrictBool
+from pydantic import Extra, BaseModel, Field, StrictBool
+
 
 class DockerWorkerConfigV3DockerDatasource(BaseModel):
     """
     DockerWorkerConfigV3DockerDatasource
     """
+
     bypass_verify: Optional[StrictBool] = Field(None, alias="bypassVerify")
-    enable_datapool_update: Optional[StrictBool] = Field(None, alias="enableDatapoolUpdate")
+    enable_datapool_update: Optional[StrictBool] = Field(
+        None, alias="enableDatapoolUpdate"
+    )
     process_all: Optional[StrictBool] = Field(None, alias="processAll")
     __properties = ["bypassVerify", "enableDatapoolUpdate", "processAll"]
 
     class Config:
         """Pydantic configuration"""
+
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -53,10 +58,7 @@ class DockerWorkerConfigV3DockerDatasource(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias,
-                          exclude={
-                          },
-                          exclude_none=True)
+        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
         return _dict
 
     @classmethod
@@ -71,12 +73,16 @@ class DockerWorkerConfigV3DockerDatasource(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in DockerWorkerConfigV3DockerDatasource) in the input: " + str(obj))
+                raise ValueError(
+                    "Error due to additional fields (not defined in DockerWorkerConfigV3DockerDatasource) in the input: "
+                    + str(obj)
+                )
 
-        _obj = DockerWorkerConfigV3DockerDatasource.parse_obj({
-            "bypass_verify": obj.get("bypassVerify"),
-            "enable_datapool_update": obj.get("enableDatapoolUpdate"),
-            "process_all": obj.get("processAll")
-        })
+        _obj = DockerWorkerConfigV3DockerDatasource.parse_obj(
+            {
+                "bypass_verify": obj.get("bypassVerify"),
+                "enable_datapool_update": obj.get("enableDatapoolUpdate"),
+                "process_all": obj.get("processAll"),
+            }
+        )
         return _obj
-

@@ -20,9 +20,6 @@ from enum import Enum
 from aenum import no_arg  # type: ignore
 
 
-
-
-
 class DatasetCreator(str, Enum):
     """
     DatasetCreator
@@ -31,15 +28,13 @@ class DatasetCreator(str, Enum):
     """
     allowed enum values
     """
-    UNKNOWN = 'UNKNOWN'
-    USER_WEBAPP = 'USER_WEBAPP'
-    USER_PIP = 'USER_PIP'
-    USER_PIP_LIGHTLY_MAGIC = 'USER_PIP_LIGHTLY_MAGIC'
-    USER_WORKER = 'USER_WORKER'
+    UNKNOWN = "UNKNOWN"
+    USER_WEBAPP = "USER_WEBAPP"
+    USER_PIP = "USER_PIP"
+    USER_PIP_LIGHTLY_MAGIC = "USER_PIP_LIGHTLY_MAGIC"
+    USER_WORKER = "USER_WORKER"
 
     @classmethod
-    def from_json(cls, json_str: str) -> 'DatasetCreator':
+    def from_json(cls, json_str: str) -> "DatasetCreator":
         """Create an instance of DatasetCreator from a JSON string"""
         return DatasetCreator(json.loads(json_str))
-
-

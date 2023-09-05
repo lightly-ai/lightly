@@ -24,38 +24,88 @@ from pydantic import Field, StrictBool, StrictStr, conint, conlist, constr, vali
 
 from typing import List, Optional
 
-from lightly.openapi_generated.swagger_client.models.create_docker_worker_registry_entry_request import CreateDockerWorkerRegistryEntryRequest
-from lightly.openapi_generated.swagger_client.models.create_entity_response import CreateEntityResponse
-from lightly.openapi_generated.swagger_client.models.docker_authorization_request import DockerAuthorizationRequest
-from lightly.openapi_generated.swagger_client.models.docker_authorization_response import DockerAuthorizationResponse
-from lightly.openapi_generated.swagger_client.models.docker_license_information import DockerLicenseInformation
-from lightly.openapi_generated.swagger_client.models.docker_run_artifact_create_request import DockerRunArtifactCreateRequest
-from lightly.openapi_generated.swagger_client.models.docker_run_artifact_created_data import DockerRunArtifactCreatedData
-from lightly.openapi_generated.swagger_client.models.docker_run_create_request import DockerRunCreateRequest
-from lightly.openapi_generated.swagger_client.models.docker_run_data import DockerRunData
-from lightly.openapi_generated.swagger_client.models.docker_run_log_data import DockerRunLogData
-from lightly.openapi_generated.swagger_client.models.docker_run_scheduled_create_request import DockerRunScheduledCreateRequest
-from lightly.openapi_generated.swagger_client.models.docker_run_scheduled_data import DockerRunScheduledData
-from lightly.openapi_generated.swagger_client.models.docker_run_scheduled_state import DockerRunScheduledState
-from lightly.openapi_generated.swagger_client.models.docker_run_scheduled_update_request import DockerRunScheduledUpdateRequest
-from lightly.openapi_generated.swagger_client.models.docker_run_update_request import DockerRunUpdateRequest
-from lightly.openapi_generated.swagger_client.models.docker_user_stats import DockerUserStats
-from lightly.openapi_generated.swagger_client.models.docker_worker_authorization_request import DockerWorkerAuthorizationRequest
-from lightly.openapi_generated.swagger_client.models.docker_worker_config_create_request import DockerWorkerConfigCreateRequest
-from lightly.openapi_generated.swagger_client.models.docker_worker_config_data import DockerWorkerConfigData
-from lightly.openapi_generated.swagger_client.models.docker_worker_config_v2_create_request import DockerWorkerConfigV2CreateRequest
-from lightly.openapi_generated.swagger_client.models.docker_worker_config_v2_data import DockerWorkerConfigV2Data
-from lightly.openapi_generated.swagger_client.models.docker_worker_config_v3_create_request import DockerWorkerConfigV3CreateRequest
-from lightly.openapi_generated.swagger_client.models.docker_worker_config_v3_data import DockerWorkerConfigV3Data
-from lightly.openapi_generated.swagger_client.models.docker_worker_registry_entry_data import DockerWorkerRegistryEntryData
+from lightly.openapi_generated.swagger_client.models.create_docker_worker_registry_entry_request import (
+    CreateDockerWorkerRegistryEntryRequest,
+)
+from lightly.openapi_generated.swagger_client.models.create_entity_response import (
+    CreateEntityResponse,
+)
+from lightly.openapi_generated.swagger_client.models.docker_authorization_request import (
+    DockerAuthorizationRequest,
+)
+from lightly.openapi_generated.swagger_client.models.docker_authorization_response import (
+    DockerAuthorizationResponse,
+)
+from lightly.openapi_generated.swagger_client.models.docker_license_information import (
+    DockerLicenseInformation,
+)
+from lightly.openapi_generated.swagger_client.models.docker_run_artifact_create_request import (
+    DockerRunArtifactCreateRequest,
+)
+from lightly.openapi_generated.swagger_client.models.docker_run_artifact_created_data import (
+    DockerRunArtifactCreatedData,
+)
+from lightly.openapi_generated.swagger_client.models.docker_run_create_request import (
+    DockerRunCreateRequest,
+)
+from lightly.openapi_generated.swagger_client.models.docker_run_data import (
+    DockerRunData,
+)
+from lightly.openapi_generated.swagger_client.models.docker_run_log_data import (
+    DockerRunLogData,
+)
+from lightly.openapi_generated.swagger_client.models.docker_run_scheduled_create_request import (
+    DockerRunScheduledCreateRequest,
+)
+from lightly.openapi_generated.swagger_client.models.docker_run_scheduled_data import (
+    DockerRunScheduledData,
+)
+from lightly.openapi_generated.swagger_client.models.docker_run_scheduled_state import (
+    DockerRunScheduledState,
+)
+from lightly.openapi_generated.swagger_client.models.docker_run_scheduled_update_request import (
+    DockerRunScheduledUpdateRequest,
+)
+from lightly.openapi_generated.swagger_client.models.docker_run_update_request import (
+    DockerRunUpdateRequest,
+)
+from lightly.openapi_generated.swagger_client.models.docker_user_stats import (
+    DockerUserStats,
+)
+from lightly.openapi_generated.swagger_client.models.docker_worker_authorization_request import (
+    DockerWorkerAuthorizationRequest,
+)
+from lightly.openapi_generated.swagger_client.models.docker_worker_config_create_request import (
+    DockerWorkerConfigCreateRequest,
+)
+from lightly.openapi_generated.swagger_client.models.docker_worker_config_data import (
+    DockerWorkerConfigData,
+)
+from lightly.openapi_generated.swagger_client.models.docker_worker_config_v2_create_request import (
+    DockerWorkerConfigV2CreateRequest,
+)
+from lightly.openapi_generated.swagger_client.models.docker_worker_config_v2_data import (
+    DockerWorkerConfigV2Data,
+)
+from lightly.openapi_generated.swagger_client.models.docker_worker_config_v3_create_request import (
+    DockerWorkerConfigV3CreateRequest,
+)
+from lightly.openapi_generated.swagger_client.models.docker_worker_config_v3_data import (
+    DockerWorkerConfigV3Data,
+)
+from lightly.openapi_generated.swagger_client.models.docker_worker_registry_entry_data import (
+    DockerWorkerRegistryEntryData,
+)
 from lightly.openapi_generated.swagger_client.models.tag_data import TagData
-from lightly.openapi_generated.swagger_client.models.update_docker_worker_registry_entry_request import UpdateDockerWorkerRegistryEntryRequest
+from lightly.openapi_generated.swagger_client.models.update_docker_worker_registry_entry_request import (
+    UpdateDockerWorkerRegistryEntryRequest,
+)
 
 from lightly.openapi_generated.swagger_client.api_client import ApiClient
 from lightly.openapi_generated.swagger_client.api_response import ApiResponse
 from lightly.openapi_generated.swagger_client.exceptions import (  # noqa: F401
     ApiTypeError,
-    ApiValueError
+    ApiValueError,
 )
 
 
@@ -72,7 +122,17 @@ class DockerApi(object):
         self.api_client = api_client
 
     @validate_arguments
-    def cancel_scheduled_docker_run_state_by_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], scheduled_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker run")], **kwargs) -> None:  # noqa: E501
+    def cancel_scheduled_docker_run_state_by_id(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        scheduled_id: Annotated[
+            constr(strict=True),
+            Field(..., description="ObjectId of the docker worker run"),
+        ],
+        **kwargs
+    ) -> None:  # noqa: E501
         """cancel_scheduled_docker_run_state_by_id  # noqa: E501
 
         Cancel a scheduled run. This will fail if the state of the scheduled run is no longer OPEN (e.g when it is LOCKED)   # noqa: E501
@@ -97,13 +157,27 @@ class DockerApi(object):
                  returns the request thread.
         :rtype: None
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the cancel_scheduled_docker_run_state_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.cancel_scheduled_docker_run_state_by_id_with_http_info(dataset_id, scheduled_id, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the cancel_scheduled_docker_run_state_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.cancel_scheduled_docker_run_state_by_id_with_http_info(
+            dataset_id, scheduled_id, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def cancel_scheduled_docker_run_state_by_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], scheduled_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker run")], **kwargs) -> ApiResponse:  # noqa: E501
+    def cancel_scheduled_docker_run_state_by_id_with_http_info(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        scheduled_id: Annotated[
+            constr(strict=True),
+            Field(..., description="ObjectId of the docker worker run"),
+        ],
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """cancel_scheduled_docker_run_state_by_id  # noqa: E501
 
         Cancel a scheduled run. This will fail if the state of the scheduled run is no longer OPEN (e.g when it is LOCKED)   # noqa: E501
@@ -120,7 +194,7 @@ class DockerApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -144,63 +218,61 @@ class DockerApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'dataset_id',
-            'scheduled_id'
-        ]
+        _all_params = ["dataset_id", "scheduled_id"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method cancel_scheduled_docker_run_state_by_id" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['dataset_id']:
-            _path_params['datasetId'] = _params['dataset_id']
+        if _params["dataset_id"]:
+            _path_params["datasetId"] = _params["dataset_id"]
 
-        if _params['scheduled_id']:
-            _path_params['scheduledId'] = _params['scheduled_id']
-
+        if _params["scheduled_id"]:
+            _path_params["scheduledId"] = _params["scheduled_id"]
 
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/v1/datasets/{datasetId}/docker/worker/schedule/{scheduledId}', 'PUT',
+            "/v1/datasets/{datasetId}/docker/worker/schedule/{scheduledId}",
+            "PUT",
             _path_params,
             _query_params,
             _header_params,
@@ -209,15 +281,26 @@ class DockerApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def confirm_docker_run_artifact_creation(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], artifact_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the artifact of the docker run")], **kwargs) -> None:  # noqa: E501
+    def confirm_docker_run_artifact_creation(
+        self,
+        run_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the docker run")
+        ],
+        artifact_id: Annotated[
+            constr(strict=True),
+            Field(..., description="ObjectId of the artifact of the docker run"),
+        ],
+        **kwargs
+    ) -> None:  # noqa: E501
         """confirm_docker_run_artifact_creation  # noqa: E501
 
         confirm that the docker run artifact has been uploaded and is available  # noqa: E501
@@ -242,13 +325,27 @@ class DockerApi(object):
                  returns the request thread.
         :rtype: None
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the confirm_docker_run_artifact_creation_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.confirm_docker_run_artifact_creation_with_http_info(run_id, artifact_id, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the confirm_docker_run_artifact_creation_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.confirm_docker_run_artifact_creation_with_http_info(
+            run_id, artifact_id, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def confirm_docker_run_artifact_creation_with_http_info(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], artifact_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the artifact of the docker run")], **kwargs) -> ApiResponse:  # noqa: E501
+    def confirm_docker_run_artifact_creation_with_http_info(
+        self,
+        run_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the docker run")
+        ],
+        artifact_id: Annotated[
+            constr(strict=True),
+            Field(..., description="ObjectId of the artifact of the docker run"),
+        ],
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """confirm_docker_run_artifact_creation  # noqa: E501
 
         confirm that the docker run artifact has been uploaded and is available  # noqa: E501
@@ -265,7 +362,7 @@ class DockerApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -289,63 +386,61 @@ class DockerApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'run_id',
-            'artifact_id'
-        ]
+        _all_params = ["run_id", "artifact_id"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method confirm_docker_run_artifact_creation" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['run_id']:
-            _path_params['runId'] = _params['run_id']
+        if _params["run_id"]:
+            _path_params["runId"] = _params["run_id"]
 
-        if _params['artifact_id']:
-            _path_params['artifactId'] = _params['artifact_id']
-
+        if _params["artifact_id"]:
+            _path_params["artifactId"] = _params["artifact_id"]
 
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/v1/docker/runs/{runId}/artifacts/{artifactId}/confirmUpload', 'PUT',
+            "/v1/docker/runs/{runId}/artifacts/{artifactId}/confirmUpload",
+            "PUT",
             _path_params,
             _query_params,
             _header_params,
@@ -354,15 +449,18 @@ class DockerApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def create_docker_run(self, docker_run_create_request : DockerRunCreateRequest, **kwargs) -> CreateEntityResponse:  # noqa: E501
+    def create_docker_run(
+        self, docker_run_create_request: DockerRunCreateRequest, **kwargs
+    ) -> CreateEntityResponse:  # noqa: E501
         """create_docker_run  # noqa: E501
 
         Creates a new docker run database entry.  # noqa: E501
@@ -385,13 +483,19 @@ class DockerApi(object):
                  returns the request thread.
         :rtype: CreateEntityResponse
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the create_docker_run_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.create_docker_run_with_http_info(docker_run_create_request, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the create_docker_run_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.create_docker_run_with_http_info(
+            docker_run_create_request, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def create_docker_run_with_http_info(self, docker_run_create_request : DockerRunCreateRequest, **kwargs) -> ApiResponse:  # noqa: E501
+    def create_docker_run_with_http_info(
+        self, docker_run_create_request: DockerRunCreateRequest, **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """create_docker_run  # noqa: E501
 
         Creates a new docker run database entry.  # noqa: E501
@@ -406,7 +510,7 @@ class DockerApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -430,30 +534,28 @@ class DockerApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'docker_run_create_request'
-        ]
+        _all_params = ["docker_run_create_request"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method create_docker_run" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
@@ -463,39 +565,42 @@ class DockerApi(object):
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
-        if _params['docker_run_create_request'] is not None:
-            _body_params = _params['docker_run_create_request']
+        if _params["docker_run_create_request"] is not None:
+            _body_params = _params["docker_run_create_request"]
 
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # set the HTTP header `Content-Type`
-        _content_types_list = _params.get('_content_type',
-            self.api_client.select_header_content_type(
-                ['application/json']))
+        _content_types_list = _params.get(
+            "_content_type",
+            self.api_client.select_header_content_type(["application/json"]),
+        )
         if _content_types_list:
-                _header_params['Content-Type'] = _content_types_list
+            _header_params["Content-Type"] = _content_types_list
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '201': "CreateEntityResponse",
-            '400': "ApiErrorResponse",
-            '401': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "201": "CreateEntityResponse",
+            "400": "ApiErrorResponse",
+            "401": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/docker/runs', 'POST',
+            "/v1/docker/runs",
+            "POST",
             _path_params,
             _query_params,
             _header_params,
@@ -504,15 +609,23 @@ class DockerApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def create_docker_run_artifact(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], docker_run_artifact_create_request : DockerRunArtifactCreateRequest, **kwargs) -> DockerRunArtifactCreatedData:  # noqa: E501
+    def create_docker_run_artifact(
+        self,
+        run_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the docker run")
+        ],
+        docker_run_artifact_create_request: DockerRunArtifactCreateRequest,
+        **kwargs
+    ) -> DockerRunArtifactCreatedData:  # noqa: E501
         """create_docker_run_artifact  # noqa: E501
 
         creates a docker run artifact and returns the writeUrl and artifactId to upload and confirm  # noqa: E501
@@ -537,13 +650,24 @@ class DockerApi(object):
                  returns the request thread.
         :rtype: DockerRunArtifactCreatedData
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the create_docker_run_artifact_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.create_docker_run_artifact_with_http_info(run_id, docker_run_artifact_create_request, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the create_docker_run_artifact_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.create_docker_run_artifact_with_http_info(
+            run_id, docker_run_artifact_create_request, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def create_docker_run_artifact_with_http_info(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], docker_run_artifact_create_request : DockerRunArtifactCreateRequest, **kwargs) -> ApiResponse:  # noqa: E501
+    def create_docker_run_artifact_with_http_info(
+        self,
+        run_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the docker run")
+        ],
+        docker_run_artifact_create_request: DockerRunArtifactCreateRequest,
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """create_docker_run_artifact  # noqa: E501
 
         creates a docker run artifact and returns the writeUrl and artifactId to upload and confirm  # noqa: E501
@@ -560,7 +684,7 @@ class DockerApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -584,76 +708,75 @@ class DockerApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'run_id',
-            'docker_run_artifact_create_request'
-        ]
+        _all_params = ["run_id", "docker_run_artifact_create_request"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method create_docker_run_artifact" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['run_id']:
-            _path_params['runId'] = _params['run_id']
-
+        if _params["run_id"]:
+            _path_params["runId"] = _params["run_id"]
 
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
-        if _params['docker_run_artifact_create_request'] is not None:
-            _body_params = _params['docker_run_artifact_create_request']
+        if _params["docker_run_artifact_create_request"] is not None:
+            _body_params = _params["docker_run_artifact_create_request"]
 
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # set the HTTP header `Content-Type`
-        _content_types_list = _params.get('_content_type',
-            self.api_client.select_header_content_type(
-                ['application/json']))
+        _content_types_list = _params.get(
+            "_content_type",
+            self.api_client.select_header_content_type(["application/json"]),
+        )
         if _content_types_list:
-                _header_params['Content-Type'] = _content_types_list
+            _header_params["Content-Type"] = _content_types_list
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '201': "DockerRunArtifactCreatedData",
-            '400': "ApiErrorResponse",
-            '401': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "201": "DockerRunArtifactCreatedData",
+            "400": "ApiErrorResponse",
+            "401": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/docker/runs/{runId}/artifacts', 'POST',
+            "/v1/docker/runs/{runId}/artifacts",
+            "POST",
             _path_params,
             _query_params,
             _header_params,
@@ -662,15 +785,29 @@ class DockerApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def create_docker_run_scheduled_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], docker_run_scheduled_create_request : DockerRunScheduledCreateRequest, disable_config_validation : Annotated[Optional[StrictBool], Field(description="if set, disables the sanity check and validation where we check if the provided configuration can run on your datasource e.g     if predictions are used, we check that the bucket structure + tasks.json, schema.json are correct     if metadata is used, we check that the bucket structure + schema.json are correct     if relevantFilenamesFile is set, we check that the file exists ")] = None, **kwargs) -> CreateEntityResponse:  # noqa: E501
+    def create_docker_run_scheduled_by_dataset_id(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        docker_run_scheduled_create_request: DockerRunScheduledCreateRequest,
+        disable_config_validation: Annotated[
+            Optional[StrictBool],
+            Field(
+                description="if set, disables the sanity check and validation where we check if the provided configuration can run on your datasource e.g     if predictions are used, we check that the bucket structure + tasks.json, schema.json are correct     if metadata is used, we check that the bucket structure + schema.json are correct     if relevantFilenamesFile is set, we check that the file exists "
+            ),
+        ] = None,
+        **kwargs
+    ) -> CreateEntityResponse:  # noqa: E501
         """create_docker_run_scheduled_by_dataset_id  # noqa: E501
 
         Schedule a docker run by dataset id. With docker runs it's possible to process unlabeled images from a datasource and use active learning to select the most relevant samples for further processing and visualization in the web app   # noqa: E501
@@ -684,7 +821,7 @@ class DockerApi(object):
         :type dataset_id: str
         :param docker_run_scheduled_create_request: (required)
         :type docker_run_scheduled_create_request: DockerRunScheduledCreateRequest
-        :param disable_config_validation: if set, disables the sanity check and validation where we check if the provided configuration can run on your datasource e.g     if predictions are used, we check that the bucket structure + tasks.json, schema.json are correct     if metadata is used, we check that the bucket structure + schema.json are correct     if relevantFilenamesFile is set, we check that the file exists 
+        :param disable_config_validation: if set, disables the sanity check and validation where we check if the provided configuration can run on your datasource e.g     if predictions are used, we check that the bucket structure + tasks.json, schema.json are correct     if metadata is used, we check that the bucket structure + schema.json are correct     if relevantFilenamesFile is set, we check that the file exists
         :type disable_config_validation: bool
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -697,13 +834,33 @@ class DockerApi(object):
                  returns the request thread.
         :rtype: CreateEntityResponse
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the create_docker_run_scheduled_by_dataset_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.create_docker_run_scheduled_by_dataset_id_with_http_info(dataset_id, docker_run_scheduled_create_request, disable_config_validation, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the create_docker_run_scheduled_by_dataset_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.create_docker_run_scheduled_by_dataset_id_with_http_info(
+            dataset_id,
+            docker_run_scheduled_create_request,
+            disable_config_validation,
+            **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def create_docker_run_scheduled_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], docker_run_scheduled_create_request : DockerRunScheduledCreateRequest, disable_config_validation : Annotated[Optional[StrictBool], Field(description="if set, disables the sanity check and validation where we check if the provided configuration can run on your datasource e.g     if predictions are used, we check that the bucket structure + tasks.json, schema.json are correct     if metadata is used, we check that the bucket structure + schema.json are correct     if relevantFilenamesFile is set, we check that the file exists ")] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def create_docker_run_scheduled_by_dataset_id_with_http_info(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        docker_run_scheduled_create_request: DockerRunScheduledCreateRequest,
+        disable_config_validation: Annotated[
+            Optional[StrictBool],
+            Field(
+                description="if set, disables the sanity check and validation where we check if the provided configuration can run on your datasource e.g     if predictions are used, we check that the bucket structure + tasks.json, schema.json are correct     if metadata is used, we check that the bucket structure + schema.json are correct     if relevantFilenamesFile is set, we check that the file exists "
+            ),
+        ] = None,
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """create_docker_run_scheduled_by_dataset_id  # noqa: E501
 
         Schedule a docker run by dataset id. With docker runs it's possible to process unlabeled images from a datasource and use active learning to select the most relevant samples for further processing and visualization in the web app   # noqa: E501
@@ -717,12 +874,12 @@ class DockerApi(object):
         :type dataset_id: str
         :param docker_run_scheduled_create_request: (required)
         :type docker_run_scheduled_create_request: DockerRunScheduledCreateRequest
-        :param disable_config_validation: if set, disables the sanity check and validation where we check if the provided configuration can run on your datasource e.g     if predictions are used, we check that the bucket structure + tasks.json, schema.json are correct     if metadata is used, we check that the bucket structure + schema.json are correct     if relevantFilenamesFile is set, we check that the file exists 
+        :param disable_config_validation: if set, disables the sanity check and validation where we check if the provided configuration can run on your datasource e.g     if predictions are used, we check that the bucket structure + tasks.json, schema.json are correct     if metadata is used, we check that the bucket structure + schema.json are correct     if relevantFilenamesFile is set, we check that the file exists
         :type disable_config_validation: bool
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -747,81 +904,87 @@ class DockerApi(object):
         _params = locals()
 
         _all_params = [
-            'dataset_id',
-            'docker_run_scheduled_create_request',
-            'disable_config_validation'
+            "dataset_id",
+            "docker_run_scheduled_create_request",
+            "disable_config_validation",
         ]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method create_docker_run_scheduled_by_dataset_id" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['dataset_id']:
-            _path_params['datasetId'] = _params['dataset_id']
-
+        if _params["dataset_id"]:
+            _path_params["datasetId"] = _params["dataset_id"]
 
         # process the query parameters
         _query_params = []
-        if _params.get('disable_config_validation') is not None:  # noqa: E501
-            _query_params.append((
-                'disableConfigValidation',
-                _params['disable_config_validation'].value if hasattr(_params['disable_config_validation'], 'value') else _params['disable_config_validation']
-            ))
+        if _params.get("disable_config_validation") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "disableConfigValidation",
+                    _params["disable_config_validation"].value
+                    if hasattr(_params["disable_config_validation"], "value")
+                    else _params["disable_config_validation"],
+                )
+            )
 
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
-        if _params['docker_run_scheduled_create_request'] is not None:
-            _body_params = _params['docker_run_scheduled_create_request']
+        if _params["docker_run_scheduled_create_request"] is not None:
+            _body_params = _params["docker_run_scheduled_create_request"]
 
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # set the HTTP header `Content-Type`
-        _content_types_list = _params.get('_content_type',
-            self.api_client.select_header_content_type(
-                ['application/json']))
+        _content_types_list = _params.get(
+            "_content_type",
+            self.api_client.select_header_content_type(["application/json"]),
+        )
         if _content_types_list:
-                _header_params['Content-Type'] = _content_types_list
+            _header_params["Content-Type"] = _content_types_list
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '201': "CreateEntityResponse",
-            '400': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "201": "CreateEntityResponse",
+            "400": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/datasets/{datasetId}/docker/worker/schedule', 'POST',
+            "/v1/datasets/{datasetId}/docker/worker/schedule",
+            "POST",
             _path_params,
             _query_params,
             _header_params,
@@ -830,15 +993,20 @@ class DockerApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def create_docker_worker_config(self, docker_worker_config_create_request : DockerWorkerConfigCreateRequest, **kwargs) -> CreateEntityResponse:  # noqa: E501
+    def create_docker_worker_config(
+        self,
+        docker_worker_config_create_request: DockerWorkerConfigCreateRequest,
+        **kwargs
+    ) -> CreateEntityResponse:  # noqa: E501
         """create_docker_worker_config  # noqa: E501
 
         Creates a docker worker configuration.  # noqa: E501
@@ -861,13 +1029,21 @@ class DockerApi(object):
                  returns the request thread.
         :rtype: CreateEntityResponse
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the create_docker_worker_config_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.create_docker_worker_config_with_http_info(docker_worker_config_create_request, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the create_docker_worker_config_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.create_docker_worker_config_with_http_info(
+            docker_worker_config_create_request, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def create_docker_worker_config_with_http_info(self, docker_worker_config_create_request : DockerWorkerConfigCreateRequest, **kwargs) -> ApiResponse:  # noqa: E501
+    def create_docker_worker_config_with_http_info(
+        self,
+        docker_worker_config_create_request: DockerWorkerConfigCreateRequest,
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """create_docker_worker_config  # noqa: E501
 
         Creates a docker worker configuration.  # noqa: E501
@@ -882,7 +1058,7 @@ class DockerApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -906,30 +1082,28 @@ class DockerApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'docker_worker_config_create_request'
-        ]
+        _all_params = ["docker_worker_config_create_request"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method create_docker_worker_config" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
@@ -939,38 +1113,41 @@ class DockerApi(object):
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
-        if _params['docker_worker_config_create_request'] is not None:
-            _body_params = _params['docker_worker_config_create_request']
+        if _params["docker_worker_config_create_request"] is not None:
+            _body_params = _params["docker_worker_config_create_request"]
 
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # set the HTTP header `Content-Type`
-        _content_types_list = _params.get('_content_type',
-            self.api_client.select_header_content_type(
-                ['application/json']))
+        _content_types_list = _params.get(
+            "_content_type",
+            self.api_client.select_header_content_type(["application/json"]),
+        )
         if _content_types_list:
-                _header_params['Content-Type'] = _content_types_list
+            _header_params["Content-Type"] = _content_types_list
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '201': "CreateEntityResponse",
-            '400': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "201": "CreateEntityResponse",
+            "400": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/docker/worker/config', 'POST',
+            "/v1/docker/worker/config",
+            "POST",
             _path_params,
             _query_params,
             _header_params,
@@ -979,15 +1156,20 @@ class DockerApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def create_docker_worker_config_v2(self, docker_worker_config_v2_create_request : DockerWorkerConfigV2CreateRequest, **kwargs) -> CreateEntityResponse:  # noqa: E501
+    def create_docker_worker_config_v2(
+        self,
+        docker_worker_config_v2_create_request: DockerWorkerConfigV2CreateRequest,
+        **kwargs
+    ) -> CreateEntityResponse:  # noqa: E501
         """create_docker_worker_config_v2  # noqa: E501
 
         Creates a docker worker v2 configuration.  # noqa: E501
@@ -1010,13 +1192,21 @@ class DockerApi(object):
                  returns the request thread.
         :rtype: CreateEntityResponse
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the create_docker_worker_config_v2_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.create_docker_worker_config_v2_with_http_info(docker_worker_config_v2_create_request, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the create_docker_worker_config_v2_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.create_docker_worker_config_v2_with_http_info(
+            docker_worker_config_v2_create_request, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def create_docker_worker_config_v2_with_http_info(self, docker_worker_config_v2_create_request : DockerWorkerConfigV2CreateRequest, **kwargs) -> ApiResponse:  # noqa: E501
+    def create_docker_worker_config_v2_with_http_info(
+        self,
+        docker_worker_config_v2_create_request: DockerWorkerConfigV2CreateRequest,
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """create_docker_worker_config_v2  # noqa: E501
 
         Creates a docker worker v2 configuration.  # noqa: E501
@@ -1031,7 +1221,7 @@ class DockerApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -1055,30 +1245,28 @@ class DockerApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'docker_worker_config_v2_create_request'
-        ]
+        _all_params = ["docker_worker_config_v2_create_request"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method create_docker_worker_config_v2" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
@@ -1088,38 +1276,41 @@ class DockerApi(object):
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
-        if _params['docker_worker_config_v2_create_request'] is not None:
-            _body_params = _params['docker_worker_config_v2_create_request']
+        if _params["docker_worker_config_v2_create_request"] is not None:
+            _body_params = _params["docker_worker_config_v2_create_request"]
 
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # set the HTTP header `Content-Type`
-        _content_types_list = _params.get('_content_type',
-            self.api_client.select_header_content_type(
-                ['application/json']))
+        _content_types_list = _params.get(
+            "_content_type",
+            self.api_client.select_header_content_type(["application/json"]),
+        )
         if _content_types_list:
-                _header_params['Content-Type'] = _content_types_list
+            _header_params["Content-Type"] = _content_types_list
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '201': "CreateEntityResponse",
-            '400': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "201": "CreateEntityResponse",
+            "400": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/docker/worker/config/v2', 'POST',
+            "/v1/docker/worker/config/v2",
+            "POST",
             _path_params,
             _query_params,
             _header_params,
@@ -1128,15 +1319,20 @@ class DockerApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def create_docker_worker_config_v3(self, docker_worker_config_v3_create_request : DockerWorkerConfigV3CreateRequest, **kwargs) -> CreateEntityResponse:  # noqa: E501
+    def create_docker_worker_config_v3(
+        self,
+        docker_worker_config_v3_create_request: DockerWorkerConfigV3CreateRequest,
+        **kwargs
+    ) -> CreateEntityResponse:  # noqa: E501
         """create_docker_worker_config_v3  # noqa: E501
 
         Creates a docker worker v3 configuration.  # noqa: E501
@@ -1159,13 +1355,21 @@ class DockerApi(object):
                  returns the request thread.
         :rtype: CreateEntityResponse
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the create_docker_worker_config_v3_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.create_docker_worker_config_v3_with_http_info(docker_worker_config_v3_create_request, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the create_docker_worker_config_v3_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.create_docker_worker_config_v3_with_http_info(
+            docker_worker_config_v3_create_request, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def create_docker_worker_config_v3_with_http_info(self, docker_worker_config_v3_create_request : DockerWorkerConfigV3CreateRequest, **kwargs) -> ApiResponse:  # noqa: E501
+    def create_docker_worker_config_v3_with_http_info(
+        self,
+        docker_worker_config_v3_create_request: DockerWorkerConfigV3CreateRequest,
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """create_docker_worker_config_v3  # noqa: E501
 
         Creates a docker worker v3 configuration.  # noqa: E501
@@ -1180,7 +1384,7 @@ class DockerApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -1204,30 +1408,28 @@ class DockerApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'docker_worker_config_v3_create_request'
-        ]
+        _all_params = ["docker_worker_config_v3_create_request"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method create_docker_worker_config_v3" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
@@ -1237,38 +1439,41 @@ class DockerApi(object):
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
-        if _params['docker_worker_config_v3_create_request'] is not None:
-            _body_params = _params['docker_worker_config_v3_create_request']
+        if _params["docker_worker_config_v3_create_request"] is not None:
+            _body_params = _params["docker_worker_config_v3_create_request"]
 
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # set the HTTP header `Content-Type`
-        _content_types_list = _params.get('_content_type',
-            self.api_client.select_header_content_type(
-                ['application/json']))
+        _content_types_list = _params.get(
+            "_content_type",
+            self.api_client.select_header_content_type(["application/json"]),
+        )
         if _content_types_list:
-                _header_params['Content-Type'] = _content_types_list
+            _header_params["Content-Type"] = _content_types_list
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '201': "CreateEntityResponse",
-            '400': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "201": "CreateEntityResponse",
+            "400": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/docker/worker/config/v3', 'POST',
+            "/v1/docker/worker/config/v3",
+            "POST",
             _path_params,
             _query_params,
             _header_params,
@@ -1277,15 +1482,22 @@ class DockerApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def delete_docker_worker_registry_entry_by_id(self, worker_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker")], **kwargs) -> None:  # noqa: E501
+    def delete_docker_worker_registry_entry_by_id(
+        self,
+        worker_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the docker worker")
+        ],
+        **kwargs
+    ) -> None:  # noqa: E501
         """delete_docker_worker_registry_entry_by_id  # noqa: E501
 
         Deletes a worker registry entry by id.  # noqa: E501
@@ -1308,13 +1520,23 @@ class DockerApi(object):
                  returns the request thread.
         :rtype: None
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the delete_docker_worker_registry_entry_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.delete_docker_worker_registry_entry_by_id_with_http_info(worker_id, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the delete_docker_worker_registry_entry_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.delete_docker_worker_registry_entry_by_id_with_http_info(
+            worker_id, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def delete_docker_worker_registry_entry_by_id_with_http_info(self, worker_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker")], **kwargs) -> ApiResponse:  # noqa: E501
+    def delete_docker_worker_registry_entry_by_id_with_http_info(
+        self,
+        worker_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the docker worker")
+        ],
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """delete_docker_worker_registry_entry_by_id  # noqa: E501
 
         Deletes a worker registry entry by id.  # noqa: E501
@@ -1329,7 +1551,7 @@ class DockerApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -1353,59 +1575,58 @@ class DockerApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'worker_id'
-        ]
+        _all_params = ["worker_id"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method delete_docker_worker_registry_entry_by_id" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['worker_id']:
-            _path_params['workerId'] = _params['worker_id']
-
+        if _params["worker_id"]:
+            _path_params["workerId"] = _params["worker_id"]
 
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/v1/docker/worker/{workerId}', 'DELETE',
+            "/v1/docker/worker/{workerId}",
+            "DELETE",
             _path_params,
             _query_params,
             _header_params,
@@ -1414,15 +1635,18 @@ class DockerApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def get_docker_license_information(self, **kwargs) -> DockerLicenseInformation:  # noqa: E501
+    def get_docker_license_information(
+        self, **kwargs
+    ) -> DockerLicenseInformation:  # noqa: E501
         """get_docker_license_information  # noqa: E501
 
         Requests license information to run the container.  # noqa: E501
@@ -1443,13 +1667,19 @@ class DockerApi(object):
                  returns the request thread.
         :rtype: DockerLicenseInformation
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the get_docker_license_information_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.get_docker_license_information_with_http_info(**kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the get_docker_license_information_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.get_docker_license_information_with_http_info(
+            **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def get_docker_license_information_with_http_info(self, **kwargs) -> ApiResponse:  # noqa: E501
+    def get_docker_license_information_with_http_info(
+        self, **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """get_docker_license_information  # noqa: E501
 
         Requests license information to run the container.  # noqa: E501
@@ -1462,7 +1692,7 @@ class DockerApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -1486,29 +1716,28 @@ class DockerApi(object):
 
         _params = locals()
 
-        _all_params = [
-        ]
+        _all_params = []
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method get_docker_license_information" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
@@ -1518,28 +1747,30 @@ class DockerApi(object):
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '200': "DockerLicenseInformation",
-            '400': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "200": "DockerLicenseInformation",
+            "400": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/docker/licenseInformation', 'GET',
+            "/v1/docker/licenseInformation",
+            "GET",
             _path_params,
             _query_params,
             _header_params,
@@ -1548,15 +1779,26 @@ class DockerApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def get_docker_run_artifact_read_url_by_id(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], artifact_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the artifact of the docker run")], **kwargs) -> str:  # noqa: E501
+    def get_docker_run_artifact_read_url_by_id(
+        self,
+        run_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the docker run")
+        ],
+        artifact_id: Annotated[
+            constr(strict=True),
+            Field(..., description="ObjectId of the artifact of the docker run"),
+        ],
+        **kwargs
+    ) -> str:  # noqa: E501
         """get_docker_run_artifact_read_url_by_id  # noqa: E501
 
         Get the url of a specific docker runs artifact  # noqa: E501
@@ -1581,13 +1823,27 @@ class DockerApi(object):
                  returns the request thread.
         :rtype: str
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the get_docker_run_artifact_read_url_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.get_docker_run_artifact_read_url_by_id_with_http_info(run_id, artifact_id, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the get_docker_run_artifact_read_url_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.get_docker_run_artifact_read_url_by_id_with_http_info(
+            run_id, artifact_id, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def get_docker_run_artifact_read_url_by_id_with_http_info(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], artifact_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the artifact of the docker run")], **kwargs) -> ApiResponse:  # noqa: E501
+    def get_docker_run_artifact_read_url_by_id_with_http_info(
+        self,
+        run_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the docker run")
+        ],
+        artifact_id: Annotated[
+            constr(strict=True),
+            Field(..., description="ObjectId of the artifact of the docker run"),
+        ],
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """get_docker_run_artifact_read_url_by_id  # noqa: E501
 
         Get the url of a specific docker runs artifact  # noqa: E501
@@ -1604,7 +1860,7 @@ class DockerApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -1628,69 +1884,67 @@ class DockerApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'run_id',
-            'artifact_id'
-        ]
+        _all_params = ["run_id", "artifact_id"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method get_docker_run_artifact_read_url_by_id" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['run_id']:
-            _path_params['runId'] = _params['run_id']
+        if _params["run_id"]:
+            _path_params["runId"] = _params["run_id"]
 
-        if _params['artifact_id']:
-            _path_params['artifactId'] = _params['artifact_id']
-
+        if _params["artifact_id"]:
+            _path_params["artifactId"] = _params["artifact_id"]
 
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '200': "str",
-            '400': "ApiErrorResponse",
-            '401': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "200": "str",
+            "400": "ApiErrorResponse",
+            "401": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/docker/runs/{runId}/artifacts/{artifactId}/readurl', 'GET',
+            "/v1/docker/runs/{runId}/artifacts/{artifactId}/readurl",
+            "GET",
             _path_params,
             _query_params,
             _header_params,
@@ -1699,15 +1953,22 @@ class DockerApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def get_docker_run_by_id(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], **kwargs) -> DockerRunData:  # noqa: E501
+    def get_docker_run_by_id(
+        self,
+        run_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the docker run")
+        ],
+        **kwargs
+    ) -> DockerRunData:  # noqa: E501
         """get_docker_run_by_id  # noqa: E501
 
         Gets a docker run by docker run id.  # noqa: E501
@@ -1730,13 +1991,21 @@ class DockerApi(object):
                  returns the request thread.
         :rtype: DockerRunData
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the get_docker_run_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the get_docker_run_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
         return self.get_docker_run_by_id_with_http_info(run_id, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def get_docker_run_by_id_with_http_info(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], **kwargs) -> ApiResponse:  # noqa: E501
+    def get_docker_run_by_id_with_http_info(
+        self,
+        run_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the docker run")
+        ],
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """get_docker_run_by_id  # noqa: E501
 
         Gets a docker run by docker run id.  # noqa: E501
@@ -1751,7 +2020,7 @@ class DockerApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -1775,65 +2044,64 @@ class DockerApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'run_id'
-        ]
+        _all_params = ["run_id"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method get_docker_run_by_id" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['run_id']:
-            _path_params['runId'] = _params['run_id']
-
+        if _params["run_id"]:
+            _path_params["runId"] = _params["run_id"]
 
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '200': "DockerRunData",
-            '400': "ApiErrorResponse",
-            '401': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "200": "DockerRunData",
+            "400": "ApiErrorResponse",
+            "401": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/docker/runs/{runId}', 'GET',
+            "/v1/docker/runs/{runId}",
+            "GET",
             _path_params,
             _query_params,
             _header_params,
@@ -1842,15 +2110,23 @@ class DockerApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def get_docker_run_by_scheduled_id(self, scheduled_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker run")], **kwargs) -> DockerRunData:  # noqa: E501
+    def get_docker_run_by_scheduled_id(
+        self,
+        scheduled_id: Annotated[
+            constr(strict=True),
+            Field(..., description="ObjectId of the docker worker run"),
+        ],
+        **kwargs
+    ) -> DockerRunData:  # noqa: E501
         """get_docker_run_by_scheduled_id  # noqa: E501
 
         Retrieves the associated docker run of a scheduled run; returns the docker run by the id of the scheduled run which caused this docker run. If a scheduled docker run has not yet started being processed by a worker, a 404 will be returned.   # noqa: E501
@@ -1873,13 +2149,24 @@ class DockerApi(object):
                  returns the request thread.
         :rtype: DockerRunData
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the get_docker_run_by_scheduled_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.get_docker_run_by_scheduled_id_with_http_info(scheduled_id, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the get_docker_run_by_scheduled_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.get_docker_run_by_scheduled_id_with_http_info(
+            scheduled_id, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def get_docker_run_by_scheduled_id_with_http_info(self, scheduled_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker run")], **kwargs) -> ApiResponse:  # noqa: E501
+    def get_docker_run_by_scheduled_id_with_http_info(
+        self,
+        scheduled_id: Annotated[
+            constr(strict=True),
+            Field(..., description="ObjectId of the docker worker run"),
+        ],
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """get_docker_run_by_scheduled_id  # noqa: E501
 
         Retrieves the associated docker run of a scheduled run; returns the docker run by the id of the scheduled run which caused this docker run. If a scheduled docker run has not yet started being processed by a worker, a 404 will be returned.   # noqa: E501
@@ -1894,7 +2181,7 @@ class DockerApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -1918,65 +2205,64 @@ class DockerApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'scheduled_id'
-        ]
+        _all_params = ["scheduled_id"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method get_docker_run_by_scheduled_id" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['scheduled_id']:
-            _path_params['scheduledId'] = _params['scheduled_id']
-
+        if _params["scheduled_id"]:
+            _path_params["scheduledId"] = _params["scheduled_id"]
 
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '200': "DockerRunData",
-            '400': "ApiErrorResponse",
-            '401': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "200": "DockerRunData",
+            "400": "ApiErrorResponse",
+            "401": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/docker/runs/schedule/{scheduledId}', 'GET',
+            "/v1/docker/runs/schedule/{scheduledId}",
+            "GET",
             _path_params,
             _query_params,
             _header_params,
@@ -1985,15 +2271,26 @@ class DockerApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def get_docker_run_logs_by_id(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], cursor : Annotated[Optional[conint(strict=True, ge=0)], Field(description="the cursor of where the logs last were")] = None, **kwargs) -> DockerRunLogData:  # noqa: E501
+    def get_docker_run_logs_by_id(
+        self,
+        run_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the docker run")
+        ],
+        cursor: Annotated[
+            Optional[conint(strict=True, ge=0)],
+            Field(description="the cursor of where the logs last were"),
+        ] = None,
+        **kwargs
+    ) -> DockerRunLogData:  # noqa: E501
         """get_docker_run_logs_by_id  # noqa: E501
 
         Gets the logs of a docker run by docker run id.  # noqa: E501
@@ -2018,13 +2315,27 @@ class DockerApi(object):
                  returns the request thread.
         :rtype: DockerRunLogData
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the get_docker_run_logs_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.get_docker_run_logs_by_id_with_http_info(run_id, cursor, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the get_docker_run_logs_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.get_docker_run_logs_by_id_with_http_info(
+            run_id, cursor, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def get_docker_run_logs_by_id_with_http_info(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], cursor : Annotated[Optional[conint(strict=True, ge=0)], Field(description="the cursor of where the logs last were")] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def get_docker_run_logs_by_id_with_http_info(
+        self,
+        run_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the docker run")
+        ],
+        cursor: Annotated[
+            Optional[conint(strict=True, ge=0)],
+            Field(description="the cursor of where the logs last were"),
+        ] = None,
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """get_docker_run_logs_by_id  # noqa: E501
 
         Gets the logs of a docker run by docker run id.  # noqa: E501
@@ -2041,7 +2352,7 @@ class DockerApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -2065,72 +2376,74 @@ class DockerApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'run_id',
-            'cursor'
-        ]
+        _all_params = ["run_id", "cursor"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method get_docker_run_logs_by_id" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['run_id']:
-            _path_params['runId'] = _params['run_id']
-
+        if _params["run_id"]:
+            _path_params["runId"] = _params["run_id"]
 
         # process the query parameters
         _query_params = []
-        if _params.get('cursor') is not None:  # noqa: E501
-            _query_params.append((
-                'cursor',
-                _params['cursor'].value if hasattr(_params['cursor'], 'value') else _params['cursor']
-            ))
+        if _params.get("cursor") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "cursor",
+                    _params["cursor"].value
+                    if hasattr(_params["cursor"], "value")
+                    else _params["cursor"],
+                )
+            )
 
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '200': "DockerRunLogData",
-            '400': "ApiErrorResponse",
-            '401': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "200": "DockerRunLogData",
+            "400": "ApiErrorResponse",
+            "401": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/docker/runs/{runId}/logs', 'GET',
+            "/v1/docker/runs/{runId}/logs",
+            "GET",
             _path_params,
             _query_params,
             _header_params,
@@ -2139,15 +2452,22 @@ class DockerApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def get_docker_run_report_read_url_by_id(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], **kwargs) -> str:  # noqa: E501
+    def get_docker_run_report_read_url_by_id(
+        self,
+        run_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the docker run")
+        ],
+        **kwargs
+    ) -> str:  # noqa: E501
         """(Deprecated) get_docker_run_report_read_url_by_id  # noqa: E501
 
         Get the url of a specific docker runs report  # noqa: E501
@@ -2170,13 +2490,23 @@ class DockerApi(object):
                  returns the request thread.
         :rtype: str
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the get_docker_run_report_read_url_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.get_docker_run_report_read_url_by_id_with_http_info(run_id, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the get_docker_run_report_read_url_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.get_docker_run_report_read_url_by_id_with_http_info(
+            run_id, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def get_docker_run_report_read_url_by_id_with_http_info(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], **kwargs) -> ApiResponse:  # noqa: E501
+    def get_docker_run_report_read_url_by_id_with_http_info(
+        self,
+        run_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the docker run")
+        ],
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """(Deprecated) get_docker_run_report_read_url_by_id  # noqa: E501
 
         Get the url of a specific docker runs report  # noqa: E501
@@ -2191,7 +2521,7 @@ class DockerApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -2213,69 +2543,71 @@ class DockerApi(object):
         :rtype: tuple(str, status_code(int), headers(HTTPHeaderDict))
         """
 
-        warnings.warn("GET /v1/docker/runs/{runId}/readReportUrl is deprecated.", DeprecationWarning)
+        warnings.warn(
+            "GET /v1/docker/runs/{runId}/readReportUrl is deprecated.",
+            DeprecationWarning,
+        )
 
         _params = locals()
 
-        _all_params = [
-            'run_id'
-        ]
+        _all_params = ["run_id"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method get_docker_run_report_read_url_by_id" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['run_id']:
-            _path_params['runId'] = _params['run_id']
-
+        if _params["run_id"]:
+            _path_params["runId"] = _params["run_id"]
 
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '200': "str",
-            '400': "ApiErrorResponse",
-            '401': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "200": "str",
+            "400": "ApiErrorResponse",
+            "401": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/docker/runs/{runId}/readReportUrl', 'GET',
+            "/v1/docker/runs/{runId}/readReportUrl",
+            "GET",
             _path_params,
             _query_params,
             _header_params,
@@ -2284,15 +2616,22 @@ class DockerApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def get_docker_run_report_write_url_by_id(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], **kwargs) -> str:  # noqa: E501
+    def get_docker_run_report_write_url_by_id(
+        self,
+        run_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the docker run")
+        ],
+        **kwargs
+    ) -> str:  # noqa: E501
         """(Deprecated) get_docker_run_report_write_url_by_id  # noqa: E501
 
         Get the signed url to upload a report of a docker run  # noqa: E501
@@ -2315,13 +2654,23 @@ class DockerApi(object):
                  returns the request thread.
         :rtype: str
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the get_docker_run_report_write_url_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.get_docker_run_report_write_url_by_id_with_http_info(run_id, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the get_docker_run_report_write_url_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.get_docker_run_report_write_url_by_id_with_http_info(
+            run_id, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def get_docker_run_report_write_url_by_id_with_http_info(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], **kwargs) -> ApiResponse:  # noqa: E501
+    def get_docker_run_report_write_url_by_id_with_http_info(
+        self,
+        run_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the docker run")
+        ],
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """(Deprecated) get_docker_run_report_write_url_by_id  # noqa: E501
 
         Get the signed url to upload a report of a docker run  # noqa: E501
@@ -2336,7 +2685,7 @@ class DockerApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -2358,69 +2707,71 @@ class DockerApi(object):
         :rtype: tuple(str, status_code(int), headers(HTTPHeaderDict))
         """
 
-        warnings.warn("GET /v1/docker/runs/{runId}/writeReportUrl is deprecated.", DeprecationWarning)
+        warnings.warn(
+            "GET /v1/docker/runs/{runId}/writeReportUrl is deprecated.",
+            DeprecationWarning,
+        )
 
         _params = locals()
 
-        _all_params = [
-            'run_id'
-        ]
+        _all_params = ["run_id"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method get_docker_run_report_write_url_by_id" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['run_id']:
-            _path_params['runId'] = _params['run_id']
-
+        if _params["run_id"]:
+            _path_params["runId"] = _params["run_id"]
 
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '200': "str",
-            '400': "ApiErrorResponse",
-            '401': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "200": "str",
+            "400": "ApiErrorResponse",
+            "401": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/docker/runs/{runId}/writeReportUrl', 'GET',
+            "/v1/docker/runs/{runId}/writeReportUrl",
+            "GET",
             _path_params,
             _query_params,
             _header_params,
@@ -2429,15 +2780,22 @@ class DockerApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def get_docker_run_tags(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], **kwargs) -> List[TagData]:  # noqa: E501
+    def get_docker_run_tags(
+        self,
+        run_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the docker run")
+        ],
+        **kwargs
+    ) -> List[TagData]:  # noqa: E501
         """get_docker_run_tags  # noqa: E501
 
         Gets all tags which were created from a docker run by docker run id.  # noqa: E501
@@ -2460,13 +2818,21 @@ class DockerApi(object):
                  returns the request thread.
         :rtype: List[TagData]
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the get_docker_run_tags_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the get_docker_run_tags_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
         return self.get_docker_run_tags_with_http_info(run_id, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def get_docker_run_tags_with_http_info(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], **kwargs) -> ApiResponse:  # noqa: E501
+    def get_docker_run_tags_with_http_info(
+        self,
+        run_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the docker run")
+        ],
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """get_docker_run_tags  # noqa: E501
 
         Gets all tags which were created from a docker run by docker run id.  # noqa: E501
@@ -2481,7 +2847,7 @@ class DockerApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -2505,65 +2871,64 @@ class DockerApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'run_id'
-        ]
+        _all_params = ["run_id"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method get_docker_run_tags" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['run_id']:
-            _path_params['runId'] = _params['run_id']
-
+        if _params["run_id"]:
+            _path_params["runId"] = _params["run_id"]
 
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '200': "List[TagData]",
-            '400': "ApiErrorResponse",
-            '401': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "200": "List[TagData]",
+            "400": "ApiErrorResponse",
+            "401": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/docker/runs/{runId}/tags', 'GET',
+            "/v1/docker/runs/{runId}/tags",
+            "GET",
             _path_params,
             _query_params,
             _header_params,
@@ -2572,15 +2937,40 @@ class DockerApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def get_docker_runs(self, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, **kwargs) -> List[DockerRunData]:  # noqa: E501
+    def get_docker_runs(
+        self,
+        page_size: Annotated[
+            Optional[conint(strict=True, ge=1)],
+            Field(
+                description="pagination size/limit of the number of samples to return"
+            ),
+        ] = None,
+        page_offset: Annotated[
+            Optional[conint(strict=True, ge=0)], Field(description="pagination offset")
+        ] = None,
+        get_assets_of_team: Annotated[
+            Optional[StrictBool],
+            Field(
+                description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user"
+            ),
+        ] = None,
+        get_assets_of_team_inclusive_self: Annotated[
+            Optional[StrictBool],
+            Field(
+                description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user"
+            ),
+        ] = None,
+        **kwargs
+    ) -> List[DockerRunData]:  # noqa: E501
         """get_docker_runs  # noqa: E501
 
         Gets all docker runs for a user.  # noqa: E501
@@ -2609,13 +2999,45 @@ class DockerApi(object):
                  returns the request thread.
         :rtype: List[DockerRunData]
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the get_docker_runs_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.get_docker_runs_with_http_info(page_size, page_offset, get_assets_of_team, get_assets_of_team_inclusive_self, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the get_docker_runs_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.get_docker_runs_with_http_info(
+            page_size,
+            page_offset,
+            get_assets_of_team,
+            get_assets_of_team_inclusive_self,
+            **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def get_docker_runs_with_http_info(self, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def get_docker_runs_with_http_info(
+        self,
+        page_size: Annotated[
+            Optional[conint(strict=True, ge=1)],
+            Field(
+                description="pagination size/limit of the number of samples to return"
+            ),
+        ] = None,
+        page_offset: Annotated[
+            Optional[conint(strict=True, ge=0)], Field(description="pagination offset")
+        ] = None,
+        get_assets_of_team: Annotated[
+            Optional[StrictBool],
+            Field(
+                description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user"
+            ),
+        ] = None,
+        get_assets_of_team_inclusive_self: Annotated[
+            Optional[StrictBool],
+            Field(
+                description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user"
+            ),
+        ] = None,
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """get_docker_runs  # noqa: E501
 
         Gets all docker runs for a user.  # noqa: E501
@@ -2636,7 +3058,7 @@ class DockerApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -2661,32 +3083,32 @@ class DockerApi(object):
         _params = locals()
 
         _all_params = [
-            'page_size',
-            'page_offset',
-            'get_assets_of_team',
-            'get_assets_of_team_inclusive_self'
+            "page_size",
+            "page_offset",
+            "get_assets_of_team",
+            "get_assets_of_team_inclusive_self",
         ]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method get_docker_runs" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
@@ -2695,54 +3117,72 @@ class DockerApi(object):
 
         # process the query parameters
         _query_params = []
-        if _params.get('page_size') is not None:  # noqa: E501
-            _query_params.append((
-                'pageSize',
-                _params['page_size'].value if hasattr(_params['page_size'], 'value') else _params['page_size']
-            ))
+        if _params.get("page_size") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "pageSize",
+                    _params["page_size"].value
+                    if hasattr(_params["page_size"], "value")
+                    else _params["page_size"],
+                )
+            )
 
-        if _params.get('page_offset') is not None:  # noqa: E501
-            _query_params.append((
-                'pageOffset',
-                _params['page_offset'].value if hasattr(_params['page_offset'], 'value') else _params['page_offset']
-            ))
+        if _params.get("page_offset") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "pageOffset",
+                    _params["page_offset"].value
+                    if hasattr(_params["page_offset"], "value")
+                    else _params["page_offset"],
+                )
+            )
 
-        if _params.get('get_assets_of_team') is not None:  # noqa: E501
-            _query_params.append((
-                'getAssetsOfTeam',
-                _params['get_assets_of_team'].value if hasattr(_params['get_assets_of_team'], 'value') else _params['get_assets_of_team']
-            ))
+        if _params.get("get_assets_of_team") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "getAssetsOfTeam",
+                    _params["get_assets_of_team"].value
+                    if hasattr(_params["get_assets_of_team"], "value")
+                    else _params["get_assets_of_team"],
+                )
+            )
 
-        if _params.get('get_assets_of_team_inclusive_self') is not None:  # noqa: E501
-            _query_params.append((
-                'getAssetsOfTeamInclusiveSelf',
-                _params['get_assets_of_team_inclusive_self'].value if hasattr(_params['get_assets_of_team_inclusive_self'], 'value') else _params['get_assets_of_team_inclusive_self']
-            ))
+        if _params.get("get_assets_of_team_inclusive_self") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "getAssetsOfTeamInclusiveSelf",
+                    _params["get_assets_of_team_inclusive_self"].value
+                    if hasattr(_params["get_assets_of_team_inclusive_self"], "value")
+                    else _params["get_assets_of_team_inclusive_self"],
+                )
+            )
 
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '200': "List[DockerRunData]",
-            '400': "ApiErrorResponse",
-            '401': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "200": "List[DockerRunData]",
+            "400": "ApiErrorResponse",
+            "401": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/docker/runs', 'GET',
+            "/v1/docker/runs",
+            "GET",
             _path_params,
             _query_params,
             _header_params,
@@ -2751,15 +3191,31 @@ class DockerApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def get_docker_runs_count(self, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, **kwargs) -> str:  # noqa: E501
+    def get_docker_runs_count(
+        self,
+        get_assets_of_team: Annotated[
+            Optional[StrictBool],
+            Field(
+                description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user"
+            ),
+        ] = None,
+        get_assets_of_team_inclusive_self: Annotated[
+            Optional[StrictBool],
+            Field(
+                description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user"
+            ),
+        ] = None,
+        **kwargs
+    ) -> str:  # noqa: E501
         """get_docker_runs_count  # noqa: E501
 
         Gets the total count of the amount of runs existing for a user  # noqa: E501
@@ -2784,13 +3240,32 @@ class DockerApi(object):
                  returns the request thread.
         :rtype: str
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the get_docker_runs_count_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.get_docker_runs_count_with_http_info(get_assets_of_team, get_assets_of_team_inclusive_self, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the get_docker_runs_count_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.get_docker_runs_count_with_http_info(
+            get_assets_of_team, get_assets_of_team_inclusive_self, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def get_docker_runs_count_with_http_info(self, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def get_docker_runs_count_with_http_info(
+        self,
+        get_assets_of_team: Annotated[
+            Optional[StrictBool],
+            Field(
+                description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user"
+            ),
+        ] = None,
+        get_assets_of_team_inclusive_self: Annotated[
+            Optional[StrictBool],
+            Field(
+                description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user"
+            ),
+        ] = None,
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """get_docker_runs_count  # noqa: E501
 
         Gets the total count of the amount of runs existing for a user  # noqa: E501
@@ -2807,7 +3282,7 @@ class DockerApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -2831,31 +3306,28 @@ class DockerApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'get_assets_of_team',
-            'get_assets_of_team_inclusive_self'
-        ]
+        _all_params = ["get_assets_of_team", "get_assets_of_team_inclusive_self"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method get_docker_runs_count" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
@@ -2864,42 +3336,52 @@ class DockerApi(object):
 
         # process the query parameters
         _query_params = []
-        if _params.get('get_assets_of_team') is not None:  # noqa: E501
-            _query_params.append((
-                'getAssetsOfTeam',
-                _params['get_assets_of_team'].value if hasattr(_params['get_assets_of_team'], 'value') else _params['get_assets_of_team']
-            ))
+        if _params.get("get_assets_of_team") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "getAssetsOfTeam",
+                    _params["get_assets_of_team"].value
+                    if hasattr(_params["get_assets_of_team"], "value")
+                    else _params["get_assets_of_team"],
+                )
+            )
 
-        if _params.get('get_assets_of_team_inclusive_self') is not None:  # noqa: E501
-            _query_params.append((
-                'getAssetsOfTeamInclusiveSelf',
-                _params['get_assets_of_team_inclusive_self'].value if hasattr(_params['get_assets_of_team_inclusive_self'], 'value') else _params['get_assets_of_team_inclusive_self']
-            ))
+        if _params.get("get_assets_of_team_inclusive_self") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "getAssetsOfTeamInclusiveSelf",
+                    _params["get_assets_of_team_inclusive_self"].value
+                    if hasattr(_params["get_assets_of_team_inclusive_self"], "value")
+                    else _params["get_assets_of_team_inclusive_self"],
+                )
+            )
 
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['text/plain', 'application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["text/plain", "application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '200': "str",
-            '400': "ApiErrorResponse",
-            '401': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "200": "str",
+            "400": "ApiErrorResponse",
+            "401": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/docker/runs/count', 'GET',
+            "/v1/docker/runs/count",
+            "GET",
             _path_params,
             _query_params,
             _header_params,
@@ -2908,15 +3390,43 @@ class DockerApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def get_docker_runs_query_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, **kwargs) -> List[DockerRunData]:  # noqa: E501
+    def get_docker_runs_query_by_dataset_id(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        page_size: Annotated[
+            Optional[conint(strict=True, ge=1)],
+            Field(
+                description="pagination size/limit of the number of samples to return"
+            ),
+        ] = None,
+        page_offset: Annotated[
+            Optional[conint(strict=True, ge=0)], Field(description="pagination offset")
+        ] = None,
+        get_assets_of_team: Annotated[
+            Optional[StrictBool],
+            Field(
+                description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user"
+            ),
+        ] = None,
+        get_assets_of_team_inclusive_self: Annotated[
+            Optional[StrictBool],
+            Field(
+                description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user"
+            ),
+        ] = None,
+        **kwargs
+    ) -> List[DockerRunData]:  # noqa: E501
         """get_docker_runs_query_by_dataset_id  # noqa: E501
 
         Get all docker runs of a user by dataset id  # noqa: E501
@@ -2947,13 +3457,49 @@ class DockerApi(object):
                  returns the request thread.
         :rtype: List[DockerRunData]
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the get_docker_runs_query_by_dataset_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.get_docker_runs_query_by_dataset_id_with_http_info(dataset_id, page_size, page_offset, get_assets_of_team, get_assets_of_team_inclusive_self, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the get_docker_runs_query_by_dataset_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.get_docker_runs_query_by_dataset_id_with_http_info(
+            dataset_id,
+            page_size,
+            page_offset,
+            get_assets_of_team,
+            get_assets_of_team_inclusive_self,
+            **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def get_docker_runs_query_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def get_docker_runs_query_by_dataset_id_with_http_info(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        page_size: Annotated[
+            Optional[conint(strict=True, ge=1)],
+            Field(
+                description="pagination size/limit of the number of samples to return"
+            ),
+        ] = None,
+        page_offset: Annotated[
+            Optional[conint(strict=True, ge=0)], Field(description="pagination offset")
+        ] = None,
+        get_assets_of_team: Annotated[
+            Optional[StrictBool],
+            Field(
+                description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user"
+            ),
+        ] = None,
+        get_assets_of_team_inclusive_self: Annotated[
+            Optional[StrictBool],
+            Field(
+                description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user"
+            ),
+        ] = None,
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """get_docker_runs_query_by_dataset_id  # noqa: E501
 
         Get all docker runs of a user by dataset id  # noqa: E501
@@ -2976,7 +3522,7 @@ class DockerApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -3001,91 +3547,108 @@ class DockerApi(object):
         _params = locals()
 
         _all_params = [
-            'dataset_id',
-            'page_size',
-            'page_offset',
-            'get_assets_of_team',
-            'get_assets_of_team_inclusive_self'
+            "dataset_id",
+            "page_size",
+            "page_offset",
+            "get_assets_of_team",
+            "get_assets_of_team_inclusive_self",
         ]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method get_docker_runs_query_by_dataset_id" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['dataset_id']:
-            _path_params['datasetId'] = _params['dataset_id']
-
+        if _params["dataset_id"]:
+            _path_params["datasetId"] = _params["dataset_id"]
 
         # process the query parameters
         _query_params = []
-        if _params.get('page_size') is not None:  # noqa: E501
-            _query_params.append((
-                'pageSize',
-                _params['page_size'].value if hasattr(_params['page_size'], 'value') else _params['page_size']
-            ))
+        if _params.get("page_size") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "pageSize",
+                    _params["page_size"].value
+                    if hasattr(_params["page_size"], "value")
+                    else _params["page_size"],
+                )
+            )
 
-        if _params.get('page_offset') is not None:  # noqa: E501
-            _query_params.append((
-                'pageOffset',
-                _params['page_offset'].value if hasattr(_params['page_offset'], 'value') else _params['page_offset']
-            ))
+        if _params.get("page_offset") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "pageOffset",
+                    _params["page_offset"].value
+                    if hasattr(_params["page_offset"], "value")
+                    else _params["page_offset"],
+                )
+            )
 
-        if _params.get('get_assets_of_team') is not None:  # noqa: E501
-            _query_params.append((
-                'getAssetsOfTeam',
-                _params['get_assets_of_team'].value if hasattr(_params['get_assets_of_team'], 'value') else _params['get_assets_of_team']
-            ))
+        if _params.get("get_assets_of_team") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "getAssetsOfTeam",
+                    _params["get_assets_of_team"].value
+                    if hasattr(_params["get_assets_of_team"], "value")
+                    else _params["get_assets_of_team"],
+                )
+            )
 
-        if _params.get('get_assets_of_team_inclusive_self') is not None:  # noqa: E501
-            _query_params.append((
-                'getAssetsOfTeamInclusiveSelf',
-                _params['get_assets_of_team_inclusive_self'].value if hasattr(_params['get_assets_of_team_inclusive_self'], 'value') else _params['get_assets_of_team_inclusive_self']
-            ))
+        if _params.get("get_assets_of_team_inclusive_self") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "getAssetsOfTeamInclusiveSelf",
+                    _params["get_assets_of_team_inclusive_self"].value
+                    if hasattr(_params["get_assets_of_team_inclusive_self"], "value")
+                    else _params["get_assets_of_team_inclusive_self"],
+                )
+            )
 
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '200': "List[DockerRunData]",
-            '400': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "200": "List[DockerRunData]",
+            "400": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/docker/runs/query/datasetId/{datasetId}', 'GET',
+            "/v1/docker/runs/query/datasetId/{datasetId}",
+            "GET",
             _path_params,
             _query_params,
             _header_params,
@@ -3094,15 +3657,23 @@ class DockerApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def get_docker_runs_scheduled_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], state : Optional[DockerRunScheduledState] = None, **kwargs) -> List[DockerRunScheduledData]:  # noqa: E501
+    def get_docker_runs_scheduled_by_dataset_id(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        state: Optional[DockerRunScheduledState] = None,
+        **kwargs
+    ) -> List[DockerRunScheduledData]:  # noqa: E501
         """get_docker_runs_scheduled_by_dataset_id  # noqa: E501
 
         Get all scheduled docker runs by dataset id. If no state is specified, returns runs which have not yet finished (neither DONE or CANCELED).  # noqa: E501
@@ -3127,13 +3698,24 @@ class DockerApi(object):
                  returns the request thread.
         :rtype: List[DockerRunScheduledData]
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the get_docker_runs_scheduled_by_dataset_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.get_docker_runs_scheduled_by_dataset_id_with_http_info(dataset_id, state, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the get_docker_runs_scheduled_by_dataset_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.get_docker_runs_scheduled_by_dataset_id_with_http_info(
+            dataset_id, state, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def get_docker_runs_scheduled_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], state : Optional[DockerRunScheduledState] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def get_docker_runs_scheduled_by_dataset_id_with_http_info(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        state: Optional[DockerRunScheduledState] = None,
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """get_docker_runs_scheduled_by_dataset_id  # noqa: E501
 
         Get all scheduled docker runs by dataset id. If no state is specified, returns runs which have not yet finished (neither DONE or CANCELED).  # noqa: E501
@@ -3150,7 +3732,7 @@ class DockerApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -3174,71 +3756,73 @@ class DockerApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'dataset_id',
-            'state'
-        ]
+        _all_params = ["dataset_id", "state"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method get_docker_runs_scheduled_by_dataset_id" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['dataset_id']:
-            _path_params['datasetId'] = _params['dataset_id']
-
+        if _params["dataset_id"]:
+            _path_params["datasetId"] = _params["dataset_id"]
 
         # process the query parameters
         _query_params = []
-        if _params.get('state') is not None:  # noqa: E501
-            _query_params.append((
-                'state',
-                _params['state'].value if hasattr(_params['state'], 'value') else _params['state']
-            ))
+        if _params.get("state") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "state",
+                    _params["state"].value
+                    if hasattr(_params["state"], "value")
+                    else _params["state"],
+                )
+            )
 
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '200': "List[DockerRunScheduledData]",
-            '400': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "200": "List[DockerRunScheduledData]",
+            "400": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/datasets/{datasetId}/docker/worker/schedule', 'GET',
+            "/v1/datasets/{datasetId}/docker/worker/schedule",
+            "GET",
             _path_params,
             _query_params,
             _header_params,
@@ -3247,15 +3831,34 @@ class DockerApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def get_docker_runs_scheduled_by_state_and_labels(self, state : Optional[DockerRunScheduledState] = None, labels : Optional[conlist(StrictStr)] = None, version : Optional[StrictStr] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, **kwargs) -> List[DockerRunScheduledData]:  # noqa: E501
+    def get_docker_runs_scheduled_by_state_and_labels(
+        self,
+        state: Optional[DockerRunScheduledState] = None,
+        labels: Optional[conlist(StrictStr)] = None,
+        version: Optional[StrictStr] = None,
+        get_assets_of_team: Annotated[
+            Optional[StrictBool],
+            Field(
+                description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user"
+            ),
+        ] = None,
+        get_assets_of_team_inclusive_self: Annotated[
+            Optional[StrictBool],
+            Field(
+                description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user"
+            ),
+        ] = None,
+        **kwargs
+    ) -> List[DockerRunScheduledData]:  # noqa: E501
         """get_docker_runs_scheduled_by_state_and_labels  # noqa: E501
 
         Get all scheduled docker runs of the user. Additionally, you can filter by state.  Furthermore, you can filter by only providing labels and only return scheduled runs whose runsOn labels are included in the provided labels. Runs are filtered by the provided version parameter. Version parameter set to * returns all configs   # noqa: E501
@@ -3286,13 +3889,40 @@ class DockerApi(object):
                  returns the request thread.
         :rtype: List[DockerRunScheduledData]
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the get_docker_runs_scheduled_by_state_and_labels_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.get_docker_runs_scheduled_by_state_and_labels_with_http_info(state, labels, version, get_assets_of_team, get_assets_of_team_inclusive_self, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the get_docker_runs_scheduled_by_state_and_labels_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.get_docker_runs_scheduled_by_state_and_labels_with_http_info(
+            state,
+            labels,
+            version,
+            get_assets_of_team,
+            get_assets_of_team_inclusive_self,
+            **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def get_docker_runs_scheduled_by_state_and_labels_with_http_info(self, state : Optional[DockerRunScheduledState] = None, labels : Optional[conlist(StrictStr)] = None, version : Optional[StrictStr] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def get_docker_runs_scheduled_by_state_and_labels_with_http_info(
+        self,
+        state: Optional[DockerRunScheduledState] = None,
+        labels: Optional[conlist(StrictStr)] = None,
+        version: Optional[StrictStr] = None,
+        get_assets_of_team: Annotated[
+            Optional[StrictBool],
+            Field(
+                description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user"
+            ),
+        ] = None,
+        get_assets_of_team_inclusive_self: Annotated[
+            Optional[StrictBool],
+            Field(
+                description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user"
+            ),
+        ] = None,
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """get_docker_runs_scheduled_by_state_and_labels  # noqa: E501
 
         Get all scheduled docker runs of the user. Additionally, you can filter by state.  Furthermore, you can filter by only providing labels and only return scheduled runs whose runsOn labels are included in the provided labels. Runs are filtered by the provided version parameter. Version parameter set to * returns all configs   # noqa: E501
@@ -3315,7 +3945,7 @@ class DockerApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -3340,33 +3970,33 @@ class DockerApi(object):
         _params = locals()
 
         _all_params = [
-            'state',
-            'labels',
-            'version',
-            'get_assets_of_team',
-            'get_assets_of_team_inclusive_self'
+            "state",
+            "labels",
+            "version",
+            "get_assets_of_team",
+            "get_assets_of_team_inclusive_self",
         ]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method get_docker_runs_scheduled_by_state_and_labels" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
@@ -3375,60 +4005,82 @@ class DockerApi(object):
 
         # process the query parameters
         _query_params = []
-        if _params.get('state') is not None:  # noqa: E501
-            _query_params.append((
-                'state',
-                _params['state'].value if hasattr(_params['state'], 'value') else _params['state']
-            ))
+        if _params.get("state") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "state",
+                    _params["state"].value
+                    if hasattr(_params["state"], "value")
+                    else _params["state"],
+                )
+            )
 
-        if _params.get('labels') is not None:  # noqa: E501
-            _query_params.append((
-                'labels',
-                _params['labels'].value if hasattr(_params['labels'], 'value') else _params['labels']
-            ))
-            _collection_formats['labels'] = 'multi'
+        if _params.get("labels") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "labels",
+                    _params["labels"].value
+                    if hasattr(_params["labels"], "value")
+                    else _params["labels"],
+                )
+            )
+            _collection_formats["labels"] = "multi"
 
-        if _params.get('version') is not None:  # noqa: E501
-            _query_params.append((
-                'version',
-                _params['version'].value if hasattr(_params['version'], 'value') else _params['version']
-            ))
+        if _params.get("version") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "version",
+                    _params["version"].value
+                    if hasattr(_params["version"], "value")
+                    else _params["version"],
+                )
+            )
 
-        if _params.get('get_assets_of_team') is not None:  # noqa: E501
-            _query_params.append((
-                'getAssetsOfTeam',
-                _params['get_assets_of_team'].value if hasattr(_params['get_assets_of_team'], 'value') else _params['get_assets_of_team']
-            ))
+        if _params.get("get_assets_of_team") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "getAssetsOfTeam",
+                    _params["get_assets_of_team"].value
+                    if hasattr(_params["get_assets_of_team"], "value")
+                    else _params["get_assets_of_team"],
+                )
+            )
 
-        if _params.get('get_assets_of_team_inclusive_self') is not None:  # noqa: E501
-            _query_params.append((
-                'getAssetsOfTeamInclusiveSelf',
-                _params['get_assets_of_team_inclusive_self'].value if hasattr(_params['get_assets_of_team_inclusive_self'], 'value') else _params['get_assets_of_team_inclusive_self']
-            ))
+        if _params.get("get_assets_of_team_inclusive_self") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "getAssetsOfTeamInclusiveSelf",
+                    _params["get_assets_of_team_inclusive_self"].value
+                    if hasattr(_params["get_assets_of_team_inclusive_self"], "value")
+                    else _params["get_assets_of_team_inclusive_self"],
+                )
+            )
 
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '200': "List[DockerRunScheduledData]",
-            '400': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "200": "List[DockerRunScheduledData]",
+            "400": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/docker/worker/schedule', 'GET',
+            "/v1/docker/worker/schedule",
+            "GET",
             _path_params,
             _query_params,
             _header_params,
@@ -3437,15 +4089,35 @@ class DockerApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def get_docker_runs_scheduled_by_worker_id(self, worker_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker")], state : Optional[DockerRunScheduledState] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, **kwargs) -> List[DockerRunScheduledData]:  # noqa: E501
+    def get_docker_runs_scheduled_by_worker_id(
+        self,
+        worker_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the docker worker")
+        ],
+        state: Optional[DockerRunScheduledState] = None,
+        get_assets_of_team: Annotated[
+            Optional[StrictBool],
+            Field(
+                description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user"
+            ),
+        ] = None,
+        get_assets_of_team_inclusive_self: Annotated[
+            Optional[StrictBool],
+            Field(
+                description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user"
+            ),
+        ] = None,
+        **kwargs
+    ) -> List[DockerRunScheduledData]:  # noqa: E501
         """get_docker_runs_scheduled_by_worker_id  # noqa: E501
 
         Get all scheduled runs that might be picked up by the worker with that workerId.  # noqa: E501
@@ -3474,13 +4146,40 @@ class DockerApi(object):
                  returns the request thread.
         :rtype: List[DockerRunScheduledData]
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the get_docker_runs_scheduled_by_worker_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.get_docker_runs_scheduled_by_worker_id_with_http_info(worker_id, state, get_assets_of_team, get_assets_of_team_inclusive_self, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the get_docker_runs_scheduled_by_worker_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.get_docker_runs_scheduled_by_worker_id_with_http_info(
+            worker_id,
+            state,
+            get_assets_of_team,
+            get_assets_of_team_inclusive_self,
+            **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def get_docker_runs_scheduled_by_worker_id_with_http_info(self, worker_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker")], state : Optional[DockerRunScheduledState] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def get_docker_runs_scheduled_by_worker_id_with_http_info(
+        self,
+        worker_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the docker worker")
+        ],
+        state: Optional[DockerRunScheduledState] = None,
+        get_assets_of_team: Annotated[
+            Optional[StrictBool],
+            Field(
+                description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user"
+            ),
+        ] = None,
+        get_assets_of_team_inclusive_self: Annotated[
+            Optional[StrictBool],
+            Field(
+                description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user"
+            ),
+        ] = None,
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """get_docker_runs_scheduled_by_worker_id  # noqa: E501
 
         Get all scheduled runs that might be picked up by the worker with that workerId.  # noqa: E501
@@ -3501,7 +4200,7 @@ class DockerApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -3526,84 +4225,97 @@ class DockerApi(object):
         _params = locals()
 
         _all_params = [
-            'worker_id',
-            'state',
-            'get_assets_of_team',
-            'get_assets_of_team_inclusive_self'
+            "worker_id",
+            "state",
+            "get_assets_of_team",
+            "get_assets_of_team_inclusive_self",
         ]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method get_docker_runs_scheduled_by_worker_id" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['worker_id']:
-            _path_params['workerId'] = _params['worker_id']
-
+        if _params["worker_id"]:
+            _path_params["workerId"] = _params["worker_id"]
 
         # process the query parameters
         _query_params = []
-        if _params.get('state') is not None:  # noqa: E501
-            _query_params.append((
-                'state',
-                _params['state'].value if hasattr(_params['state'], 'value') else _params['state']
-            ))
+        if _params.get("state") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "state",
+                    _params["state"].value
+                    if hasattr(_params["state"], "value")
+                    else _params["state"],
+                )
+            )
 
-        if _params.get('get_assets_of_team') is not None:  # noqa: E501
-            _query_params.append((
-                'getAssetsOfTeam',
-                _params['get_assets_of_team'].value if hasattr(_params['get_assets_of_team'], 'value') else _params['get_assets_of_team']
-            ))
+        if _params.get("get_assets_of_team") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "getAssetsOfTeam",
+                    _params["get_assets_of_team"].value
+                    if hasattr(_params["get_assets_of_team"], "value")
+                    else _params["get_assets_of_team"],
+                )
+            )
 
-        if _params.get('get_assets_of_team_inclusive_self') is not None:  # noqa: E501
-            _query_params.append((
-                'getAssetsOfTeamInclusiveSelf',
-                _params['get_assets_of_team_inclusive_self'].value if hasattr(_params['get_assets_of_team_inclusive_self'], 'value') else _params['get_assets_of_team_inclusive_self']
-            ))
+        if _params.get("get_assets_of_team_inclusive_self") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "getAssetsOfTeamInclusiveSelf",
+                    _params["get_assets_of_team_inclusive_self"].value
+                    if hasattr(_params["get_assets_of_team_inclusive_self"], "value")
+                    else _params["get_assets_of_team_inclusive_self"],
+                )
+            )
 
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '200': "List[DockerRunScheduledData]",
-            '400': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "200": "List[DockerRunScheduledData]",
+            "400": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/docker/worker/{workerId}/schedule', 'GET',
+            "/v1/docker/worker/{workerId}/schedule",
+            "GET",
             _path_params,
             _query_params,
             _header_params,
@@ -3612,15 +4324,23 @@ class DockerApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def get_docker_worker_config_by_id(self, config_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker config")], **kwargs) -> DockerWorkerConfigData:  # noqa: E501
+    def get_docker_worker_config_by_id(
+        self,
+        config_id: Annotated[
+            constr(strict=True),
+            Field(..., description="ObjectId of the docker worker config"),
+        ],
+        **kwargs
+    ) -> DockerWorkerConfigData:  # noqa: E501
         """get_docker_worker_config_by_id  # noqa: E501
 
         Gets a docker worker configuration by id. It will try to return the config version but expects (and will fail if not) the config to be of v0   # noqa: E501
@@ -3643,13 +4363,24 @@ class DockerApi(object):
                  returns the request thread.
         :rtype: DockerWorkerConfigData
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the get_docker_worker_config_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.get_docker_worker_config_by_id_with_http_info(config_id, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the get_docker_worker_config_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.get_docker_worker_config_by_id_with_http_info(
+            config_id, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def get_docker_worker_config_by_id_with_http_info(self, config_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker config")], **kwargs) -> ApiResponse:  # noqa: E501
+    def get_docker_worker_config_by_id_with_http_info(
+        self,
+        config_id: Annotated[
+            constr(strict=True),
+            Field(..., description="ObjectId of the docker worker config"),
+        ],
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """get_docker_worker_config_by_id  # noqa: E501
 
         Gets a docker worker configuration by id. It will try to return the config version but expects (and will fail if not) the config to be of v0   # noqa: E501
@@ -3664,7 +4395,7 @@ class DockerApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -3688,64 +4419,63 @@ class DockerApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'config_id'
-        ]
+        _all_params = ["config_id"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method get_docker_worker_config_by_id" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['config_id']:
-            _path_params['configId'] = _params['config_id']
-
+        if _params["config_id"]:
+            _path_params["configId"] = _params["config_id"]
 
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '200': "DockerWorkerConfigData",
-            '400': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "200": "DockerWorkerConfigData",
+            "400": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/docker/worker/config/{configId}', 'GET',
+            "/v1/docker/worker/config/{configId}",
+            "GET",
             _path_params,
             _query_params,
             _header_params,
@@ -3754,15 +4484,23 @@ class DockerApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def get_docker_worker_config_v2_by_id(self, config_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker config")], **kwargs) -> DockerWorkerConfigV2Data:  # noqa: E501
+    def get_docker_worker_config_v2_by_id(
+        self,
+        config_id: Annotated[
+            constr(strict=True),
+            Field(..., description="ObjectId of the docker worker config"),
+        ],
+        **kwargs
+    ) -> DockerWorkerConfigV2Data:  # noqa: E501
         """get_docker_worker_config_v2_by_id  # noqa: E501
 
         Gets a docker worker configuration by id. It will try to return the config version but expects (and will fail if not) the config to be of v2   # noqa: E501
@@ -3785,13 +4523,24 @@ class DockerApi(object):
                  returns the request thread.
         :rtype: DockerWorkerConfigV2Data
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the get_docker_worker_config_v2_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.get_docker_worker_config_v2_by_id_with_http_info(config_id, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the get_docker_worker_config_v2_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.get_docker_worker_config_v2_by_id_with_http_info(
+            config_id, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def get_docker_worker_config_v2_by_id_with_http_info(self, config_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker config")], **kwargs) -> ApiResponse:  # noqa: E501
+    def get_docker_worker_config_v2_by_id_with_http_info(
+        self,
+        config_id: Annotated[
+            constr(strict=True),
+            Field(..., description="ObjectId of the docker worker config"),
+        ],
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """get_docker_worker_config_v2_by_id  # noqa: E501
 
         Gets a docker worker configuration by id. It will try to return the config version but expects (and will fail if not) the config to be of v2   # noqa: E501
@@ -3806,7 +4555,7 @@ class DockerApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -3830,64 +4579,63 @@ class DockerApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'config_id'
-        ]
+        _all_params = ["config_id"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method get_docker_worker_config_v2_by_id" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['config_id']:
-            _path_params['configId'] = _params['config_id']
-
+        if _params["config_id"]:
+            _path_params["configId"] = _params["config_id"]
 
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '200': "DockerWorkerConfigV2Data",
-            '400': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "200": "DockerWorkerConfigV2Data",
+            "400": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/docker/worker/config/v2/{configId}', 'GET',
+            "/v1/docker/worker/config/v2/{configId}",
+            "GET",
             _path_params,
             _query_params,
             _header_params,
@@ -3896,15 +4644,23 @@ class DockerApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def get_docker_worker_config_v3_by_id(self, config_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker config")], **kwargs) -> DockerWorkerConfigV3Data:  # noqa: E501
+    def get_docker_worker_config_v3_by_id(
+        self,
+        config_id: Annotated[
+            constr(strict=True),
+            Field(..., description="ObjectId of the docker worker config"),
+        ],
+        **kwargs
+    ) -> DockerWorkerConfigV3Data:  # noqa: E501
         """get_docker_worker_config_v3_by_id  # noqa: E501
 
         Gets a docker worker configuration by id. It will try to return the config version but requires the config to be of v3.   # noqa: E501
@@ -3927,13 +4683,24 @@ class DockerApi(object):
                  returns the request thread.
         :rtype: DockerWorkerConfigV3Data
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the get_docker_worker_config_v3_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.get_docker_worker_config_v3_by_id_with_http_info(config_id, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the get_docker_worker_config_v3_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.get_docker_worker_config_v3_by_id_with_http_info(
+            config_id, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def get_docker_worker_config_v3_by_id_with_http_info(self, config_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker config")], **kwargs) -> ApiResponse:  # noqa: E501
+    def get_docker_worker_config_v3_by_id_with_http_info(
+        self,
+        config_id: Annotated[
+            constr(strict=True),
+            Field(..., description="ObjectId of the docker worker config"),
+        ],
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """get_docker_worker_config_v3_by_id  # noqa: E501
 
         Gets a docker worker configuration by id. It will try to return the config version but requires the config to be of v3.   # noqa: E501
@@ -3948,7 +4715,7 @@ class DockerApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -3972,64 +4739,63 @@ class DockerApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'config_id'
-        ]
+        _all_params = ["config_id"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method get_docker_worker_config_v3_by_id" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['config_id']:
-            _path_params['configId'] = _params['config_id']
-
+        if _params["config_id"]:
+            _path_params["configId"] = _params["config_id"]
 
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '200': "DockerWorkerConfigV3Data",
-            '400': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "200": "DockerWorkerConfigV3Data",
+            "400": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/docker/worker/config/v3/{configId}', 'GET',
+            "/v1/docker/worker/config/v3/{configId}",
+            "GET",
             _path_params,
             _query_params,
             _header_params,
@@ -4038,15 +4804,18 @@ class DockerApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def get_docker_worker_configs(self, **kwargs) -> List[DockerWorkerConfigData]:  # noqa: E501
+    def get_docker_worker_configs(
+        self, **kwargs
+    ) -> List[DockerWorkerConfigData]:  # noqa: E501
         """get_docker_worker_configs  # noqa: E501
 
         Get docker worker configurations.  # noqa: E501
@@ -4067,13 +4836,17 @@ class DockerApi(object):
                  returns the request thread.
         :rtype: List[DockerWorkerConfigData]
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the get_docker_worker_configs_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the get_docker_worker_configs_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
         return self.get_docker_worker_configs_with_http_info(**kwargs)  # noqa: E501
 
     @validate_arguments
-    def get_docker_worker_configs_with_http_info(self, **kwargs) -> ApiResponse:  # noqa: E501
+    def get_docker_worker_configs_with_http_info(
+        self, **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """get_docker_worker_configs  # noqa: E501
 
         Get docker worker configurations.  # noqa: E501
@@ -4086,7 +4859,7 @@ class DockerApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -4110,29 +4883,28 @@ class DockerApi(object):
 
         _params = locals()
 
-        _all_params = [
-        ]
+        _all_params = []
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method get_docker_worker_configs" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
@@ -4142,28 +4914,30 @@ class DockerApi(object):
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '200': "List[DockerWorkerConfigData]",
-            '400': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "200": "List[DockerWorkerConfigData]",
+            "400": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/docker/worker/config', 'GET',
+            "/v1/docker/worker/config",
+            "GET",
             _path_params,
             _query_params,
             _header_params,
@@ -4172,15 +4946,31 @@ class DockerApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def get_docker_worker_registry_entries(self, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, **kwargs) -> List[DockerWorkerRegistryEntryData]:  # noqa: E501
+    def get_docker_worker_registry_entries(
+        self,
+        get_assets_of_team: Annotated[
+            Optional[StrictBool],
+            Field(
+                description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user"
+            ),
+        ] = None,
+        get_assets_of_team_inclusive_self: Annotated[
+            Optional[StrictBool],
+            Field(
+                description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user"
+            ),
+        ] = None,
+        **kwargs
+    ) -> List[DockerWorkerRegistryEntryData]:  # noqa: E501
         """get_docker_worker_registry_entries  # noqa: E501
 
         Returns all worker registry entries for a given user.  # noqa: E501
@@ -4205,13 +4995,32 @@ class DockerApi(object):
                  returns the request thread.
         :rtype: List[DockerWorkerRegistryEntryData]
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the get_docker_worker_registry_entries_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.get_docker_worker_registry_entries_with_http_info(get_assets_of_team, get_assets_of_team_inclusive_self, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the get_docker_worker_registry_entries_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.get_docker_worker_registry_entries_with_http_info(
+            get_assets_of_team, get_assets_of_team_inclusive_self, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def get_docker_worker_registry_entries_with_http_info(self, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def get_docker_worker_registry_entries_with_http_info(
+        self,
+        get_assets_of_team: Annotated[
+            Optional[StrictBool],
+            Field(
+                description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user"
+            ),
+        ] = None,
+        get_assets_of_team_inclusive_self: Annotated[
+            Optional[StrictBool],
+            Field(
+                description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user"
+            ),
+        ] = None,
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """get_docker_worker_registry_entries  # noqa: E501
 
         Returns all worker registry entries for a given user.  # noqa: E501
@@ -4228,7 +5037,7 @@ class DockerApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -4252,31 +5061,28 @@ class DockerApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'get_assets_of_team',
-            'get_assets_of_team_inclusive_self'
-        ]
+        _all_params = ["get_assets_of_team", "get_assets_of_team_inclusive_self"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method get_docker_worker_registry_entries" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
@@ -4285,41 +5091,51 @@ class DockerApi(object):
 
         # process the query parameters
         _query_params = []
-        if _params.get('get_assets_of_team') is not None:  # noqa: E501
-            _query_params.append((
-                'getAssetsOfTeam',
-                _params['get_assets_of_team'].value if hasattr(_params['get_assets_of_team'], 'value') else _params['get_assets_of_team']
-            ))
+        if _params.get("get_assets_of_team") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "getAssetsOfTeam",
+                    _params["get_assets_of_team"].value
+                    if hasattr(_params["get_assets_of_team"], "value")
+                    else _params["get_assets_of_team"],
+                )
+            )
 
-        if _params.get('get_assets_of_team_inclusive_self') is not None:  # noqa: E501
-            _query_params.append((
-                'getAssetsOfTeamInclusiveSelf',
-                _params['get_assets_of_team_inclusive_self'].value if hasattr(_params['get_assets_of_team_inclusive_self'], 'value') else _params['get_assets_of_team_inclusive_self']
-            ))
+        if _params.get("get_assets_of_team_inclusive_self") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "getAssetsOfTeamInclusiveSelf",
+                    _params["get_assets_of_team_inclusive_self"].value
+                    if hasattr(_params["get_assets_of_team_inclusive_self"], "value")
+                    else _params["get_assets_of_team_inclusive_self"],
+                )
+            )
 
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '200': "List[DockerWorkerRegistryEntryData]",
-            '400': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "200": "List[DockerWorkerRegistryEntryData]",
+            "400": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/docker/worker', 'GET',
+            "/v1/docker/worker",
+            "GET",
             _path_params,
             _query_params,
             _header_params,
@@ -4328,15 +5144,22 @@ class DockerApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def get_docker_worker_registry_entry_by_id(self, worker_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker")], **kwargs) -> DockerWorkerRegistryEntryData:  # noqa: E501
+    def get_docker_worker_registry_entry_by_id(
+        self,
+        worker_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the docker worker")
+        ],
+        **kwargs
+    ) -> DockerWorkerRegistryEntryData:  # noqa: E501
         """get_docker_worker_registry_entry_by_id  # noqa: E501
 
         Returns worker registry entry by id.  # noqa: E501
@@ -4359,13 +5182,23 @@ class DockerApi(object):
                  returns the request thread.
         :rtype: DockerWorkerRegistryEntryData
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the get_docker_worker_registry_entry_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.get_docker_worker_registry_entry_by_id_with_http_info(worker_id, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the get_docker_worker_registry_entry_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.get_docker_worker_registry_entry_by_id_with_http_info(
+            worker_id, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def get_docker_worker_registry_entry_by_id_with_http_info(self, worker_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker")], **kwargs) -> ApiResponse:  # noqa: E501
+    def get_docker_worker_registry_entry_by_id_with_http_info(
+        self,
+        worker_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the docker worker")
+        ],
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """get_docker_worker_registry_entry_by_id  # noqa: E501
 
         Returns worker registry entry by id.  # noqa: E501
@@ -4380,7 +5213,7 @@ class DockerApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -4404,64 +5237,63 @@ class DockerApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'worker_id'
-        ]
+        _all_params = ["worker_id"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method get_docker_worker_registry_entry_by_id" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['worker_id']:
-            _path_params['workerId'] = _params['worker_id']
-
+        if _params["worker_id"]:
+            _path_params["workerId"] = _params["worker_id"]
 
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '200': "DockerWorkerRegistryEntryData",
-            '400': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "200": "DockerWorkerRegistryEntryData",
+            "400": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/docker/worker/{workerId}', 'GET',
+            "/v1/docker/worker/{workerId}",
+            "GET",
             _path_params,
             _query_params,
             _header_params,
@@ -4470,15 +5302,18 @@ class DockerApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def post_docker_authorization_request(self, docker_authorization_request : DockerAuthorizationRequest, **kwargs) -> DockerAuthorizationResponse:  # noqa: E501
+    def post_docker_authorization_request(
+        self, docker_authorization_request: DockerAuthorizationRequest, **kwargs
+    ) -> DockerAuthorizationResponse:  # noqa: E501
         """post_docker_authorization_request  # noqa: E501
 
         Performs an authorization to run the container.  # noqa: E501
@@ -4501,13 +5336,19 @@ class DockerApi(object):
                  returns the request thread.
         :rtype: DockerAuthorizationResponse
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the post_docker_authorization_request_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.post_docker_authorization_request_with_http_info(docker_authorization_request, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the post_docker_authorization_request_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.post_docker_authorization_request_with_http_info(
+            docker_authorization_request, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def post_docker_authorization_request_with_http_info(self, docker_authorization_request : DockerAuthorizationRequest, **kwargs) -> ApiResponse:  # noqa: E501
+    def post_docker_authorization_request_with_http_info(
+        self, docker_authorization_request: DockerAuthorizationRequest, **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """post_docker_authorization_request  # noqa: E501
 
         Performs an authorization to run the container.  # noqa: E501
@@ -4522,7 +5363,7 @@ class DockerApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -4546,30 +5387,28 @@ class DockerApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'docker_authorization_request'
-        ]
+        _all_params = ["docker_authorization_request"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method post_docker_authorization_request" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
@@ -4579,38 +5418,41 @@ class DockerApi(object):
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
-        if _params['docker_authorization_request'] is not None:
-            _body_params = _params['docker_authorization_request']
+        if _params["docker_authorization_request"] is not None:
+            _body_params = _params["docker_authorization_request"]
 
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # set the HTTP header `Content-Type`
-        _content_types_list = _params.get('_content_type',
-            self.api_client.select_header_content_type(
-                ['application/json']))
+        _content_types_list = _params.get(
+            "_content_type",
+            self.api_client.select_header_content_type(["application/json"]),
+        )
         if _content_types_list:
-                _header_params['Content-Type'] = _content_types_list
+            _header_params["Content-Type"] = _content_types_list
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '200': "DockerAuthorizationResponse",
-            '400': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "200": "DockerAuthorizationResponse",
+            "400": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/docker/authorization', 'POST',
+            "/v1/docker/authorization",
+            "POST",
             _path_params,
             _query_params,
             _header_params,
@@ -4619,15 +5461,18 @@ class DockerApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def post_docker_usage_stats(self, docker_user_stats : DockerUserStats, **kwargs) -> None:  # noqa: E501
+    def post_docker_usage_stats(
+        self, docker_user_stats: DockerUserStats, **kwargs
+    ) -> None:  # noqa: E501
         """post_docker_usage_stats  # noqa: E501
 
         Adds a diagnostic entry of user stats.  # noqa: E501
@@ -4650,13 +5495,19 @@ class DockerApi(object):
                  returns the request thread.
         :rtype: None
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the post_docker_usage_stats_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.post_docker_usage_stats_with_http_info(docker_user_stats, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the post_docker_usage_stats_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.post_docker_usage_stats_with_http_info(
+            docker_user_stats, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def post_docker_usage_stats_with_http_info(self, docker_user_stats : DockerUserStats, **kwargs) -> ApiResponse:  # noqa: E501
+    def post_docker_usage_stats_with_http_info(
+        self, docker_user_stats: DockerUserStats, **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """post_docker_usage_stats  # noqa: E501
 
         Adds a diagnostic entry of user stats.  # noqa: E501
@@ -4671,7 +5522,7 @@ class DockerApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -4695,30 +5546,28 @@ class DockerApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'docker_user_stats'
-        ]
+        _all_params = ["docker_user_stats"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method post_docker_usage_stats" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
@@ -4728,33 +5577,36 @@ class DockerApi(object):
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
-        if _params['docker_user_stats'] is not None:
-            _body_params = _params['docker_user_stats']
+        if _params["docker_user_stats"] is not None:
+            _body_params = _params["docker_user_stats"]
 
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # set the HTTP header `Content-Type`
-        _content_types_list = _params.get('_content_type',
-            self.api_client.select_header_content_type(
-                ['application/json']))
+        _content_types_list = _params.get(
+            "_content_type",
+            self.api_client.select_header_content_type(["application/json"]),
+        )
         if _content_types_list:
-                _header_params['Content-Type'] = _content_types_list
+            _header_params["Content-Type"] = _content_types_list
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/v1/docker', 'POST',
+            "/v1/docker",
+            "POST",
             _path_params,
             _query_params,
             _header_params,
@@ -4763,15 +5615,20 @@ class DockerApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def post_docker_worker_authorization_request(self, docker_worker_authorization_request : DockerWorkerAuthorizationRequest, **kwargs) -> str:  # noqa: E501
+    def post_docker_worker_authorization_request(
+        self,
+        docker_worker_authorization_request: DockerWorkerAuthorizationRequest,
+        **kwargs
+    ) -> str:  # noqa: E501
         """post_docker_worker_authorization_request  # noqa: E501
 
         Performs an authorization to run the Lightly Worker.  # noqa: E501
@@ -4794,13 +5651,21 @@ class DockerApi(object):
                  returns the request thread.
         :rtype: str
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the post_docker_worker_authorization_request_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.post_docker_worker_authorization_request_with_http_info(docker_worker_authorization_request, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the post_docker_worker_authorization_request_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.post_docker_worker_authorization_request_with_http_info(
+            docker_worker_authorization_request, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def post_docker_worker_authorization_request_with_http_info(self, docker_worker_authorization_request : DockerWorkerAuthorizationRequest, **kwargs) -> ApiResponse:  # noqa: E501
+    def post_docker_worker_authorization_request_with_http_info(
+        self,
+        docker_worker_authorization_request: DockerWorkerAuthorizationRequest,
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """post_docker_worker_authorization_request  # noqa: E501
 
         Performs an authorization to run the Lightly Worker.  # noqa: E501
@@ -4815,7 +5680,7 @@ class DockerApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -4839,30 +5704,28 @@ class DockerApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'docker_worker_authorization_request'
-        ]
+        _all_params = ["docker_worker_authorization_request"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method post_docker_worker_authorization_request" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
@@ -4872,38 +5735,41 @@ class DockerApi(object):
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
-        if _params['docker_worker_authorization_request'] is not None:
-            _body_params = _params['docker_worker_authorization_request']
+        if _params["docker_worker_authorization_request"] is not None:
+            _body_params = _params["docker_worker_authorization_request"]
 
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['text/plain', 'application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["text/plain", "application/json"]
+        )  # noqa: E501
 
         # set the HTTP header `Content-Type`
-        _content_types_list = _params.get('_content_type',
-            self.api_client.select_header_content_type(
-                ['application/json']))
+        _content_types_list = _params.get(
+            "_content_type",
+            self.api_client.select_header_content_type(["application/json"]),
+        )
         if _content_types_list:
-                _header_params['Content-Type'] = _content_types_list
+            _header_params["Content-Type"] = _content_types_list
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '200': "str",
-            '400': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "200": "str",
+            "400": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/docker/workerAuthorization', 'POST',
+            "/v1/docker/workerAuthorization",
+            "POST",
             _path_params,
             _query_params,
             _header_params,
@@ -4912,15 +5778,26 @@ class DockerApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def register_docker_worker(self, create_docker_worker_registry_entry_request : CreateDockerWorkerRegistryEntryRequest, for_user_id : Annotated[Optional[StrictStr], Field(description="The userId for which we want to create the worker for. This is only allowed for users within the same team.")] = None, **kwargs) -> CreateEntityResponse:  # noqa: E501
+    def register_docker_worker(
+        self,
+        create_docker_worker_registry_entry_request: CreateDockerWorkerRegistryEntryRequest,
+        for_user_id: Annotated[
+            Optional[StrictStr],
+            Field(
+                description="The userId for which we want to create the worker for. This is only allowed for users within the same team."
+            ),
+        ] = None,
+        **kwargs
+    ) -> CreateEntityResponse:  # noqa: E501
         """register_docker_worker  # noqa: E501
 
         Registers a worker for a user. If a worker with the same name is passed that already exists, the same workerId will be returned  # noqa: E501
@@ -4945,13 +5822,27 @@ class DockerApi(object):
                  returns the request thread.
         :rtype: CreateEntityResponse
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the register_docker_worker_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.register_docker_worker_with_http_info(create_docker_worker_registry_entry_request, for_user_id, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the register_docker_worker_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.register_docker_worker_with_http_info(
+            create_docker_worker_registry_entry_request, for_user_id, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def register_docker_worker_with_http_info(self, create_docker_worker_registry_entry_request : CreateDockerWorkerRegistryEntryRequest, for_user_id : Annotated[Optional[StrictStr], Field(description="The userId for which we want to create the worker for. This is only allowed for users within the same team.")] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def register_docker_worker_with_http_info(
+        self,
+        create_docker_worker_registry_entry_request: CreateDockerWorkerRegistryEntryRequest,
+        for_user_id: Annotated[
+            Optional[StrictStr],
+            Field(
+                description="The userId for which we want to create the worker for. This is only allowed for users within the same team."
+            ),
+        ] = None,
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """register_docker_worker  # noqa: E501
 
         Registers a worker for a user. If a worker with the same name is passed that already exists, the same workerId will be returned  # noqa: E501
@@ -4968,7 +5859,7 @@ class DockerApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -4992,31 +5883,28 @@ class DockerApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'create_docker_worker_registry_entry_request',
-            'for_user_id'
-        ]
+        _all_params = ["create_docker_worker_registry_entry_request", "for_user_id"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method register_docker_worker" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
@@ -5025,45 +5913,52 @@ class DockerApi(object):
 
         # process the query parameters
         _query_params = []
-        if _params.get('for_user_id') is not None:  # noqa: E501
-            _query_params.append((
-                'forUserId',
-                _params['for_user_id'].value if hasattr(_params['for_user_id'], 'value') else _params['for_user_id']
-            ))
+        if _params.get("for_user_id") is not None:  # noqa: E501
+            _query_params.append(
+                (
+                    "forUserId",
+                    _params["for_user_id"].value
+                    if hasattr(_params["for_user_id"], "value")
+                    else _params["for_user_id"],
+                )
+            )
 
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
-        if _params['create_docker_worker_registry_entry_request'] is not None:
-            _body_params = _params['create_docker_worker_registry_entry_request']
+        if _params["create_docker_worker_registry_entry_request"] is not None:
+            _body_params = _params["create_docker_worker_registry_entry_request"]
 
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # set the HTTP header `Content-Type`
-        _content_types_list = _params.get('_content_type',
-            self.api_client.select_header_content_type(
-                ['application/json']))
+        _content_types_list = _params.get(
+            "_content_type",
+            self.api_client.select_header_content_type(["application/json"]),
+        )
         if _content_types_list:
-                _header_params['Content-Type'] = _content_types_list
+            _header_params["Content-Type"] = _content_types_list
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '201': "CreateEntityResponse",
-            '400': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "201": "CreateEntityResponse",
+            "400": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/docker/worker', 'POST',
+            "/v1/docker/worker",
+            "POST",
             _path_params,
             _query_params,
             _header_params,
@@ -5072,15 +5967,23 @@ class DockerApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def update_docker_run_by_id(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], docker_run_update_request : DockerRunUpdateRequest, **kwargs) -> None:  # noqa: E501
+    def update_docker_run_by_id(
+        self,
+        run_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the docker run")
+        ],
+        docker_run_update_request: DockerRunUpdateRequest,
+        **kwargs
+    ) -> None:  # noqa: E501
         """update_docker_run_by_id  # noqa: E501
 
         Updates a docker run database entry.  # noqa: E501
@@ -5105,13 +6008,24 @@ class DockerApi(object):
                  returns the request thread.
         :rtype: None
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the update_docker_run_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.update_docker_run_by_id_with_http_info(run_id, docker_run_update_request, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the update_docker_run_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.update_docker_run_by_id_with_http_info(
+            run_id, docker_run_update_request, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def update_docker_run_by_id_with_http_info(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], docker_run_update_request : DockerRunUpdateRequest, **kwargs) -> ApiResponse:  # noqa: E501
+    def update_docker_run_by_id_with_http_info(
+        self,
+        run_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the docker run")
+        ],
+        docker_run_update_request: DockerRunUpdateRequest,
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """update_docker_run_by_id  # noqa: E501
 
         Updates a docker run database entry.  # noqa: E501
@@ -5128,7 +6042,7 @@ class DockerApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -5152,70 +6066,69 @@ class DockerApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'run_id',
-            'docker_run_update_request'
-        ]
+        _all_params = ["run_id", "docker_run_update_request"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method update_docker_run_by_id" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['run_id']:
-            _path_params['runId'] = _params['run_id']
-
+        if _params["run_id"]:
+            _path_params["runId"] = _params["run_id"]
 
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
-        if _params['docker_run_update_request'] is not None:
-            _body_params = _params['docker_run_update_request']
+        if _params["docker_run_update_request"] is not None:
+            _body_params = _params["docker_run_update_request"]
 
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # set the HTTP header `Content-Type`
-        _content_types_list = _params.get('_content_type',
-            self.api_client.select_header_content_type(
-                ['application/json']))
+        _content_types_list = _params.get(
+            "_content_type",
+            self.api_client.select_header_content_type(["application/json"]),
+        )
         if _content_types_list:
-                _header_params['Content-Type'] = _content_types_list
+            _header_params["Content-Type"] = _content_types_list
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/v1/docker/runs/{runId}', 'PUT',
+            "/v1/docker/runs/{runId}",
+            "PUT",
             _path_params,
             _query_params,
             _header_params,
@@ -5224,15 +6137,24 @@ class DockerApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def update_docker_worker_config_by_id(self, config_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker config")], docker_worker_config_create_request : DockerWorkerConfigCreateRequest, **kwargs) -> None:  # noqa: E501
+    def update_docker_worker_config_by_id(
+        self,
+        config_id: Annotated[
+            constr(strict=True),
+            Field(..., description="ObjectId of the docker worker config"),
+        ],
+        docker_worker_config_create_request: DockerWorkerConfigCreateRequest,
+        **kwargs
+    ) -> None:  # noqa: E501
         """(Deprecated) update_docker_worker_config_by_id  # noqa: E501
 
         DEPRECATED, DONT USE. Updates a docker worker configuration by id.  # noqa: E501
@@ -5257,13 +6179,25 @@ class DockerApi(object):
                  returns the request thread.
         :rtype: None
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the update_docker_worker_config_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.update_docker_worker_config_by_id_with_http_info(config_id, docker_worker_config_create_request, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the update_docker_worker_config_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.update_docker_worker_config_by_id_with_http_info(
+            config_id, docker_worker_config_create_request, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def update_docker_worker_config_by_id_with_http_info(self, config_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker config")], docker_worker_config_create_request : DockerWorkerConfigCreateRequest, **kwargs) -> ApiResponse:  # noqa: E501
+    def update_docker_worker_config_by_id_with_http_info(
+        self,
+        config_id: Annotated[
+            constr(strict=True),
+            Field(..., description="ObjectId of the docker worker config"),
+        ],
+        docker_worker_config_create_request: DockerWorkerConfigCreateRequest,
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """(Deprecated) update_docker_worker_config_by_id  # noqa: E501
 
         DEPRECATED, DONT USE. Updates a docker worker configuration by id.  # noqa: E501
@@ -5280,7 +6214,7 @@ class DockerApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -5302,74 +6236,75 @@ class DockerApi(object):
         :rtype: None
         """
 
-        warnings.warn("PUT /v1/docker/worker/config/{configId} is deprecated.", DeprecationWarning)
+        warnings.warn(
+            "PUT /v1/docker/worker/config/{configId} is deprecated.", DeprecationWarning
+        )
 
         _params = locals()
 
-        _all_params = [
-            'config_id',
-            'docker_worker_config_create_request'
-        ]
+        _all_params = ["config_id", "docker_worker_config_create_request"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method update_docker_worker_config_by_id" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['config_id']:
-            _path_params['configId'] = _params['config_id']
-
+        if _params["config_id"]:
+            _path_params["configId"] = _params["config_id"]
 
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
-        if _params['docker_worker_config_create_request'] is not None:
-            _body_params = _params['docker_worker_config_create_request']
+        if _params["docker_worker_config_create_request"] is not None:
+            _body_params = _params["docker_worker_config_create_request"]
 
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # set the HTTP header `Content-Type`
-        _content_types_list = _params.get('_content_type',
-            self.api_client.select_header_content_type(
-                ['application/json']))
+        _content_types_list = _params.get(
+            "_content_type",
+            self.api_client.select_header_content_type(["application/json"]),
+        )
         if _content_types_list:
-                _header_params['Content-Type'] = _content_types_list
+            _header_params["Content-Type"] = _content_types_list
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/v1/docker/worker/config/{configId}', 'PUT',
+            "/v1/docker/worker/config/{configId}",
+            "PUT",
             _path_params,
             _query_params,
             _header_params,
@@ -5378,15 +6313,23 @@ class DockerApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def update_docker_worker_registry_entry_by_id(self, worker_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker")], update_docker_worker_registry_entry_request : UpdateDockerWorkerRegistryEntryRequest, **kwargs) -> None:  # noqa: E501
+    def update_docker_worker_registry_entry_by_id(
+        self,
+        worker_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the docker worker")
+        ],
+        update_docker_worker_registry_entry_request: UpdateDockerWorkerRegistryEntryRequest,
+        **kwargs
+    ) -> None:  # noqa: E501
         """update_docker_worker_registry_entry_by_id  # noqa: E501
 
         Updates the worker status by id.  # noqa: E501
@@ -5411,13 +6354,24 @@ class DockerApi(object):
                  returns the request thread.
         :rtype: None
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the update_docker_worker_registry_entry_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.update_docker_worker_registry_entry_by_id_with_http_info(worker_id, update_docker_worker_registry_entry_request, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the update_docker_worker_registry_entry_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.update_docker_worker_registry_entry_by_id_with_http_info(
+            worker_id, update_docker_worker_registry_entry_request, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def update_docker_worker_registry_entry_by_id_with_http_info(self, worker_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker")], update_docker_worker_registry_entry_request : UpdateDockerWorkerRegistryEntryRequest, **kwargs) -> ApiResponse:  # noqa: E501
+    def update_docker_worker_registry_entry_by_id_with_http_info(
+        self,
+        worker_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the docker worker")
+        ],
+        update_docker_worker_registry_entry_request: UpdateDockerWorkerRegistryEntryRequest,
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """update_docker_worker_registry_entry_by_id  # noqa: E501
 
         Updates the worker status by id.  # noqa: E501
@@ -5434,7 +6388,7 @@ class DockerApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -5458,70 +6412,69 @@ class DockerApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'worker_id',
-            'update_docker_worker_registry_entry_request'
-        ]
+        _all_params = ["worker_id", "update_docker_worker_registry_entry_request"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method update_docker_worker_registry_entry_by_id" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['worker_id']:
-            _path_params['workerId'] = _params['worker_id']
-
+        if _params["worker_id"]:
+            _path_params["workerId"] = _params["worker_id"]
 
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
-        if _params['update_docker_worker_registry_entry_request'] is not None:
-            _body_params = _params['update_docker_worker_registry_entry_request']
+        if _params["update_docker_worker_registry_entry_request"] is not None:
+            _body_params = _params["update_docker_worker_registry_entry_request"]
 
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # set the HTTP header `Content-Type`
-        _content_types_list = _params.get('_content_type',
-            self.api_client.select_header_content_type(
-                ['application/json']))
+        _content_types_list = _params.get(
+            "_content_type",
+            self.api_client.select_header_content_type(["application/json"]),
+        )
         if _content_types_list:
-                _header_params['Content-Type'] = _content_types_list
+            _header_params["Content-Type"] = _content_types_list
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/v1/docker/worker/{workerId}', 'PUT',
+            "/v1/docker/worker/{workerId}",
+            "PUT",
             _path_params,
             _query_params,
             _header_params,
@@ -5530,15 +6483,30 @@ class DockerApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def update_scheduled_docker_run_state_by_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], worker_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker")], scheduled_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker run")], docker_run_scheduled_update_request : DockerRunScheduledUpdateRequest, **kwargs) -> None:  # noqa: E501
+    def update_scheduled_docker_run_state_by_id(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        worker_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the docker worker")
+        ],
+        scheduled_id: Annotated[
+            constr(strict=True),
+            Field(..., description="ObjectId of the docker worker run"),
+        ],
+        docker_run_scheduled_update_request: DockerRunScheduledUpdateRequest,
+        **kwargs
+    ) -> None:  # noqa: E501
         """update_scheduled_docker_run_state_by_id  # noqa: E501
 
         Update the state of a scheduled run. This will fail if the state of the scheduled run is LOCKED.   # noqa: E501
@@ -5567,13 +6535,35 @@ class DockerApi(object):
                  returns the request thread.
         :rtype: None
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the update_scheduled_docker_run_state_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.update_scheduled_docker_run_state_by_id_with_http_info(dataset_id, worker_id, scheduled_id, docker_run_scheduled_update_request, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the update_scheduled_docker_run_state_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.update_scheduled_docker_run_state_by_id_with_http_info(
+            dataset_id,
+            worker_id,
+            scheduled_id,
+            docker_run_scheduled_update_request,
+            **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def update_scheduled_docker_run_state_by_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], worker_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker")], scheduled_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker run")], docker_run_scheduled_update_request : DockerRunScheduledUpdateRequest, **kwargs) -> ApiResponse:  # noqa: E501
+    def update_scheduled_docker_run_state_by_id_with_http_info(
+        self,
+        dataset_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the dataset")
+        ],
+        worker_id: Annotated[
+            constr(strict=True), Field(..., description="ObjectId of the docker worker")
+        ],
+        scheduled_id: Annotated[
+            constr(strict=True),
+            Field(..., description="ObjectId of the docker worker run"),
+        ],
+        docker_run_scheduled_update_request: DockerRunScheduledUpdateRequest,
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """update_scheduled_docker_run_state_by_id  # noqa: E501
 
         Update the state of a scheduled run. This will fail if the state of the scheduled run is LOCKED.   # noqa: E501
@@ -5594,7 +6584,7 @@ class DockerApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -5619,77 +6609,79 @@ class DockerApi(object):
         _params = locals()
 
         _all_params = [
-            'dataset_id',
-            'worker_id',
-            'scheduled_id',
-            'docker_run_scheduled_update_request'
+            "dataset_id",
+            "worker_id",
+            "scheduled_id",
+            "docker_run_scheduled_update_request",
         ]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method update_scheduled_docker_run_state_by_id" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['dataset_id']:
-            _path_params['datasetId'] = _params['dataset_id']
+        if _params["dataset_id"]:
+            _path_params["datasetId"] = _params["dataset_id"]
 
-        if _params['worker_id']:
-            _path_params['workerId'] = _params['worker_id']
+        if _params["worker_id"]:
+            _path_params["workerId"] = _params["worker_id"]
 
-        if _params['scheduled_id']:
-            _path_params['scheduledId'] = _params['scheduled_id']
-
+        if _params["scheduled_id"]:
+            _path_params["scheduledId"] = _params["scheduled_id"]
 
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
-        if _params['docker_run_scheduled_update_request'] is not None:
-            _body_params = _params['docker_run_scheduled_update_request']
+        if _params["docker_run_scheduled_update_request"] is not None:
+            _body_params = _params["docker_run_scheduled_update_request"]
 
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # set the HTTP header `Content-Type`
-        _content_types_list = _params.get('_content_type',
-            self.api_client.select_header_content_type(
-                ['application/json']))
+        _content_types_list = _params.get(
+            "_content_type",
+            self.api_client.select_header_content_type(["application/json"]),
+        )
         if _content_types_list:
-                _header_params['Content-Type'] = _content_types_list
+            _header_params["Content-Type"] = _content_types_list
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/v1/datasets/{datasetId}/docker/worker/{workerId}/schedule/{scheduledId}', 'PUT',
+            "/v1/datasets/{datasetId}/docker/worker/{workerId}/schedule/{scheduledId}",
+            "PUT",
             _path_params,
             _query_params,
             _header_params,
@@ -5698,9 +6690,10 @@ class DockerApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )

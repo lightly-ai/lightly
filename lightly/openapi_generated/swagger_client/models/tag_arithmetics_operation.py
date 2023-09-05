@@ -20,9 +20,6 @@ from enum import Enum
 from aenum import no_arg  # type: ignore
 
 
-
-
-
 class TagArithmeticsOperation(str, Enum):
     """
     The possible arithmetic operations that can be done between multiple tags.
@@ -31,13 +28,11 @@ class TagArithmeticsOperation(str, Enum):
     """
     allowed enum values
     """
-    UNION = 'UNION'
-    INTERSECTION = 'INTERSECTION'
-    DIFFERENCE = 'DIFFERENCE'
+    UNION = "UNION"
+    INTERSECTION = "INTERSECTION"
+    DIFFERENCE = "DIFFERENCE"
 
     @classmethod
-    def from_json(cls, json_str: str) -> 'TagArithmeticsOperation':
+    def from_json(cls, json_str: str) -> "TagArithmeticsOperation":
         """Create an instance of TagArithmeticsOperation from a JSON string"""
         return TagArithmeticsOperation(json.loads(json_str))
-
-

@@ -20,27 +20,36 @@ import json
 
 
 from typing import Optional
-from pydantic import Extra,  BaseModel, Field, constr, validator
+from pydantic import Extra, BaseModel, Field, constr, validator
+
 
 class DockerWorkerConfigV3DockerTraining(BaseModel):
     """
     DockerWorkerConfigV3DockerTraining
     """
-    task_name: Optional[constr(strict=True)] = Field(None, alias="taskName", description="Since we sometimes stitch together SelectionInputTask+ActiveLearningScoreType, they need to follow the same specs of ActiveLearningScoreType. However, this can be an empty string due to internal logic. ")
+
+    task_name: Optional[constr(strict=True)] = Field(
+        None,
+        alias="taskName",
+        description="Since we sometimes stitch together SelectionInputTask+ActiveLearningScoreType, they need to follow the same specs of ActiveLearningScoreType. However, this can be an empty string due to internal logic. ",
+    )
     __properties = ["taskName"]
 
-    @validator('task_name')
+    @validator("task_name")
     def task_name_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if value is None:
             return value
 
         if not re.match(r"^[a-zA-Z0-9_+=,.@:\/-]*$", value):
-            raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9_+=,.@:\/-]*$/")
+            raise ValueError(
+                r"must validate the regular expression /^[a-zA-Z0-9_+=,.@:\/-]*$/"
+            )
         return value
 
     class Config:
         """Pydantic configuration"""
+
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -61,10 +70,7 @@ class DockerWorkerConfigV3DockerTraining(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias,
-                          exclude={
-                          },
-                          exclude_none=True)
+        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
         return _dict
 
     @classmethod
@@ -79,10 +85,12 @@ class DockerWorkerConfigV3DockerTraining(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in DockerWorkerConfigV3DockerTraining) in the input: " + str(obj))
+                raise ValueError(
+                    "Error due to additional fields (not defined in DockerWorkerConfigV3DockerTraining) in the input: "
+                    + str(obj)
+                )
 
-        _obj = DockerWorkerConfigV3DockerTraining.parse_obj({
-            "task_name": obj.get("taskName")
-        })
+        _obj = DockerWorkerConfigV3DockerTraining.parse_obj(
+            {"task_name": obj.get("taskName")}
+        )
         return _obj
-

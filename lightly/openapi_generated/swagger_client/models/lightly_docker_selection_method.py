@@ -20,9 +20,6 @@ from enum import Enum
 from aenum import no_arg  # type: ignore
 
 
-
-
-
 class LightlyDockerSelectionMethod(str, Enum):
     """
     LightlyDockerSelectionMethod
@@ -31,12 +28,10 @@ class LightlyDockerSelectionMethod(str, Enum):
     """
     allowed enum values
     """
-    CORESET = 'coreset'
-    RANDOM = 'random'
+    CORESET = "coreset"
+    RANDOM = "random"
 
     @classmethod
-    def from_json(cls, json_str: str) -> 'LightlyDockerSelectionMethod':
+    def from_json(cls, json_str: str) -> "LightlyDockerSelectionMethod":
         """Create an instance of LightlyDockerSelectionMethod from a JSON string"""
         return LightlyDockerSelectionMethod(json.loads(json_str))
-
-

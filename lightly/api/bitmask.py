@@ -43,7 +43,7 @@ def _get_nonzero_bits(x: int) -> List[int]:
 def _invert(x: int, total_size: int) -> int:
     """Flips every bit of x as if x was an unsigned integer."""
     # use XOR of x and 0xFFFFFF to get the inverse
-    return x ^ (2**total_size - 1)
+    return x ^ (2 ** total_size - 1)
 
 
 def _union(x: int, y: int) -> int:

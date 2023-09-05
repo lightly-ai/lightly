@@ -19,19 +19,29 @@ import re  # noqa: F401
 import json
 
 
+from pydantic import Extra, BaseModel, Field, StrictStr, constr
 
-from pydantic import Extra,  BaseModel, Field, StrictStr, constr
 
 class DatasourceConfigGCSAllOf(BaseModel):
     """
     DatasourceConfigGCSAllOf
     """
-    gcs_project_id: constr(strict=True, min_length=1) = Field(..., alias="gcsProjectId", description="The projectId where you have your bucket configured")
-    gcs_credentials: StrictStr = Field(..., alias="gcsCredentials", description="this is the content of the credentials JSON file stringified which you downloaded from Google Cloud Platform")
+
+    gcs_project_id: constr(strict=True, min_length=1) = Field(
+        ...,
+        alias="gcsProjectId",
+        description="The projectId where you have your bucket configured",
+    )
+    gcs_credentials: StrictStr = Field(
+        ...,
+        alias="gcsCredentials",
+        description="this is the content of the credentials JSON file stringified which you downloaded from Google Cloud Platform",
+    )
     __properties = ["gcsProjectId", "gcsCredentials"]
 
     class Config:
         """Pydantic configuration"""
+
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -52,10 +62,7 @@ class DatasourceConfigGCSAllOf(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias,
-                          exclude={
-                          },
-                          exclude_none=True)
+        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
         return _dict
 
     @classmethod
@@ -70,11 +77,15 @@ class DatasourceConfigGCSAllOf(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in DatasourceConfigGCSAllOf) in the input: " + str(obj))
+                raise ValueError(
+                    "Error due to additional fields (not defined in DatasourceConfigGCSAllOf) in the input: "
+                    + str(obj)
+                )
 
-        _obj = DatasourceConfigGCSAllOf.parse_obj({
-            "gcs_project_id": obj.get("gcsProjectId"),
-            "gcs_credentials": obj.get("gcsCredentials")
-        })
+        _obj = DatasourceConfigGCSAllOf.parse_obj(
+            {
+                "gcs_project_id": obj.get("gcsProjectId"),
+                "gcs_credentials": obj.get("gcsCredentials"),
+            }
+        )
         return _obj
-

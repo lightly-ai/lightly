@@ -21,7 +21,7 @@ class SimMIM(nn.Module):
         self.backbone = masked_autoencoder.MAEBackbone.from_vit(vit)
 
         # the decoder is a simple linear layer
-        self.decoder = nn.Linear(vit.hidden_dim, vit.patch_size**2 * 3)
+        self.decoder = nn.Linear(vit.hidden_dim, vit.patch_size ** 2 * 3)
 
     def forward_encoder(self, images, batch_size, idx_mask):
         # pass all the tokens to the encoder, both masked and non masked ones

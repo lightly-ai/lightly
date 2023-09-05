@@ -20,20 +20,41 @@ import json
 
 
 from typing import Optional
-from pydantic import Extra,  BaseModel, Field, StrictBool, StrictStr, conint, constr, validator
+from pydantic import (
+    Extra,
+    BaseModel,
+    Field,
+    StrictBool,
+    StrictStr,
+    conint,
+    constr,
+    validator,
+)
+
 
 class DatasetEmbeddingData(BaseModel):
     """
     DatasetEmbeddingData
     """
+
     id: constr(strict=True) = Field(..., description="MongoDB ObjectId")
-    name: StrictStr = Field(..., description="name of the embedding chosen by the user calling writeCSVUrl")
-    is_processed: StrictBool = Field(..., alias="isProcessed", description="indicator whether embeddings have already been processed by a background worker")
-    created_at: conint(strict=True, ge=0) = Field(..., alias="createdAt", description="unix timestamp in milliseconds")
-    is2d: Optional[StrictBool] = Field(None, description="flag set by the background worker if the embedding is 2d")
+    name: StrictStr = Field(
+        ..., description="name of the embedding chosen by the user calling writeCSVUrl"
+    )
+    is_processed: StrictBool = Field(
+        ...,
+        alias="isProcessed",
+        description="indicator whether embeddings have already been processed by a background worker",
+    )
+    created_at: conint(strict=True, ge=0) = Field(
+        ..., alias="createdAt", description="unix timestamp in milliseconds"
+    )
+    is2d: Optional[StrictBool] = Field(
+        None, description="flag set by the background worker if the embedding is 2d"
+    )
     __properties = ["id", "name", "isProcessed", "createdAt", "is2d"]
 
-    @validator('id')
+    @validator("id")
     def id_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^[a-f0-9]{24}$", value):
@@ -42,6 +63,7 @@ class DatasetEmbeddingData(BaseModel):
 
     class Config:
         """Pydantic configuration"""
+
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -62,10 +84,7 @@ class DatasetEmbeddingData(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias,
-                          exclude={
-                          },
-                          exclude_none=True)
+        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
         return _dict
 
     @classmethod
@@ -80,14 +99,18 @@ class DatasetEmbeddingData(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in DatasetEmbeddingData) in the input: " + str(obj))
+                raise ValueError(
+                    "Error due to additional fields (not defined in DatasetEmbeddingData) in the input: "
+                    + str(obj)
+                )
 
-        _obj = DatasetEmbeddingData.parse_obj({
-            "id": obj.get("id"),
-            "name": obj.get("name"),
-            "is_processed": obj.get("isProcessed"),
-            "created_at": obj.get("createdAt"),
-            "is2d": obj.get("is2d")
-        })
+        _obj = DatasetEmbeddingData.parse_obj(
+            {
+                "id": obj.get("id"),
+                "name": obj.get("name"),
+                "is_processed": obj.get("isProcessed"),
+                "created_at": obj.get("createdAt"),
+                "is2d": obj.get("is2d"),
+            }
+        )
         return _obj
-

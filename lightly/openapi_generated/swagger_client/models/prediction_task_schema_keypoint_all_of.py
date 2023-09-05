@@ -20,18 +20,26 @@ import json
 
 
 from typing import List
-from pydantic import Extra,  BaseModel, Field, conlist
-from lightly.openapi_generated.swagger_client.models.prediction_task_schema_category_keypoints import PredictionTaskSchemaCategoryKeypoints
+from pydantic import Extra, BaseModel, Field, conlist
+from lightly.openapi_generated.swagger_client.models.prediction_task_schema_category_keypoints import (
+    PredictionTaskSchemaCategoryKeypoints,
+)
+
 
 class PredictionTaskSchemaKeypointAllOf(BaseModel):
     """
-    The schema for predictions or labels when doing keypoint detection 
+    The schema for predictions or labels when doing keypoint detection
     """
-    categories: conlist(PredictionTaskSchemaCategoryKeypoints) = Field(..., description="An array of the categories that exist for this prediction task. The id needs to be unique")
+
+    categories: conlist(PredictionTaskSchemaCategoryKeypoints) = Field(
+        ...,
+        description="An array of the categories that exist for this prediction task. The id needs to be unique",
+    )
     __properties = ["categories"]
 
     class Config:
         """Pydantic configuration"""
+
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -52,17 +60,14 @@ class PredictionTaskSchemaKeypointAllOf(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias,
-                          exclude={
-                          },
-                          exclude_none=True)
+        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of each item in categories (list)
         _items = []
         if self.categories:
             for _item in self.categories:
                 if _item:
                     _items.append(_item.to_dict(by_alias=by_alias))
-            _dict['categories' if by_alias else 'categories'] = _items
+            _dict["categories" if by_alias else "categories"] = _items
         return _dict
 
     @classmethod
@@ -77,10 +82,19 @@ class PredictionTaskSchemaKeypointAllOf(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in PredictionTaskSchemaKeypointAllOf) in the input: " + str(obj))
+                raise ValueError(
+                    "Error due to additional fields (not defined in PredictionTaskSchemaKeypointAllOf) in the input: "
+                    + str(obj)
+                )
 
-        _obj = PredictionTaskSchemaKeypointAllOf.parse_obj({
-            "categories": [PredictionTaskSchemaCategoryKeypoints.from_dict(_item) for _item in obj.get("categories")] if obj.get("categories") is not None else None
-        })
+        _obj = PredictionTaskSchemaKeypointAllOf.parse_obj(
+            {
+                "categories": [
+                    PredictionTaskSchemaCategoryKeypoints.from_dict(_item)
+                    for _item in obj.get("categories")
+                ]
+                if obj.get("categories") is not None
+                else None
+            }
+        )
         return _obj
-

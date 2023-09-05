@@ -20,18 +20,35 @@ import json
 
 
 from typing import List, Optional, Union
-from pydantic import Extra,  BaseModel, Field, confloat, conint, conlist
+from pydantic import Extra, BaseModel, Field, confloat, conint, conlist
+
 
 class PredictionSingletonObjectDetectionAllOf(BaseModel):
     """
     PredictionSingletonObjectDetectionAllOf
     """
-    bbox: conlist(Union[confloat(ge=0, strict=True), conint(ge=0, strict=True)], max_items=4, min_items=4) = Field(..., description="The bbox of where a prediction task yielded a finding. [x, y, width, height]")
-    probabilities: Optional[conlist(Union[confloat(le=1, ge=0, strict=True), conint(le=1, ge=0, strict=True)])] = Field(None, description="The probabilities of it being a certain category other than the one which was selected. The sum of all probabilities should equal 1.")
+
+    bbox: conlist(
+        Union[confloat(ge=0, strict=True), conint(ge=0, strict=True)],
+        max_items=4,
+        min_items=4,
+    ) = Field(
+        ...,
+        description="The bbox of where a prediction task yielded a finding. [x, y, width, height]",
+    )
+    probabilities: Optional[
+        conlist(
+            Union[confloat(le=1, ge=0, strict=True), conint(le=1, ge=0, strict=True)]
+        )
+    ] = Field(
+        None,
+        description="The probabilities of it being a certain category other than the one which was selected. The sum of all probabilities should equal 1.",
+    )
     __properties = ["bbox", "probabilities"]
 
     class Config:
         """Pydantic configuration"""
+
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -52,10 +69,7 @@ class PredictionSingletonObjectDetectionAllOf(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias,
-                          exclude={
-                          },
-                          exclude_none=True)
+        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
         return _dict
 
     @classmethod
@@ -70,11 +84,12 @@ class PredictionSingletonObjectDetectionAllOf(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in PredictionSingletonObjectDetectionAllOf) in the input: " + str(obj))
+                raise ValueError(
+                    "Error due to additional fields (not defined in PredictionSingletonObjectDetectionAllOf) in the input: "
+                    + str(obj)
+                )
 
-        _obj = PredictionSingletonObjectDetectionAllOf.parse_obj({
-            "bbox": obj.get("bbox"),
-            "probabilities": obj.get("probabilities")
-        })
+        _obj = PredictionSingletonObjectDetectionAllOf.parse_obj(
+            {"bbox": obj.get("bbox"), "probabilities": obj.get("probabilities")}
+        )
         return _obj
-

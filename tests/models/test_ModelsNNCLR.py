@@ -114,7 +114,7 @@ class TestNNCLR(unittest.TestCase):
             resnet = resnet_generator(model_name)
             model = NNCLR(get_backbone(resnet), **config).to(device)
 
-            for nn_size in [2**3, 2**8]:
+            for nn_size in [2 ** 3, 2 ** 8]:
                 nn_replacer = NNMemoryBankModule(size=nn_size)
 
                 with torch.no_grad():

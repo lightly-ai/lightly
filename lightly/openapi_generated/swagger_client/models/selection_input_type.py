@@ -20,9 +20,6 @@ from enum import Enum
 from aenum import no_arg  # type: ignore
 
 
-
-
-
 class SelectionInputType(str, Enum):
     """
     SelectionInputType
@@ -31,15 +28,13 @@ class SelectionInputType(str, Enum):
     """
     allowed enum values
     """
-    EMBEDDINGS = 'EMBEDDINGS'
-    SCORES = 'SCORES'
-    METADATA = 'METADATA'
-    PREDICTIONS = 'PREDICTIONS'
-    RANDOM = 'RANDOM'
+    EMBEDDINGS = "EMBEDDINGS"
+    SCORES = "SCORES"
+    METADATA = "METADATA"
+    PREDICTIONS = "PREDICTIONS"
+    RANDOM = "RANDOM"
 
     @classmethod
-    def from_json(cls, json_str: str) -> 'SelectionInputType':
+    def from_json(cls, json_str: str) -> "SelectionInputType":
         """Create an instance of SelectionInputType from a JSON string"""
         return SelectionInputType(json.loads(json_str))
-
-

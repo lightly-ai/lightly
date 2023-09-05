@@ -20,9 +20,6 @@ from enum import Enum
 from aenum import no_arg  # type: ignore
 
 
-
-
-
 class DockerWorkerState(str, Enum):
     """
     DockerWorkerState
@@ -31,14 +28,12 @@ class DockerWorkerState(str, Enum):
     """
     allowed enum values
     """
-    OFFLINE = 'OFFLINE'
-    CRASHED = 'CRASHED'
-    IDLE = 'IDLE'
-    BUSY = 'BUSY'
+    OFFLINE = "OFFLINE"
+    CRASHED = "CRASHED"
+    IDLE = "IDLE"
+    BUSY = "BUSY"
 
     @classmethod
-    def from_json(cls, json_str: str) -> 'DockerWorkerState':
+    def from_json(cls, json_str: str) -> "DockerWorkerState":
         """Create an instance of DockerWorkerState from a JSON string"""
         return DockerWorkerState(json.loads(json_str))
-
-

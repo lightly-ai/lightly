@@ -20,9 +20,6 @@ from enum import Enum
 from aenum import no_arg  # type: ignore
 
 
-
-
-
 class SelectionInputPredictionsName(str, Enum):
     """
     SelectionInputPredictionsName
@@ -31,12 +28,10 @@ class SelectionInputPredictionsName(str, Enum):
     """
     allowed enum values
     """
-    CLASS_DISTRIBUTION = 'CLASS_DISTRIBUTION'
-    CATEGORY_COUNT = 'CATEGORY_COUNT'
+    CLASS_DISTRIBUTION = "CLASS_DISTRIBUTION"
+    CATEGORY_COUNT = "CATEGORY_COUNT"
 
     @classmethod
-    def from_json(cls, json_str: str) -> 'SelectionInputPredictionsName':
+    def from_json(cls, json_str: str) -> "SelectionInputPredictionsName":
         """Create an instance of SelectionInputPredictionsName from a JSON string"""
         return SelectionInputPredictionsName(json.loads(json_str))
-
-

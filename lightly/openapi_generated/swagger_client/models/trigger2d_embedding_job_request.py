@@ -19,19 +19,25 @@ import re  # noqa: F401
 import json
 
 
+from pydantic import Extra, BaseModel, Field
+from lightly.openapi_generated.swagger_client.models.dimensionality_reduction_method import (
+    DimensionalityReductionMethod,
+)
 
-from pydantic import Extra,  BaseModel, Field
-from lightly.openapi_generated.swagger_client.models.dimensionality_reduction_method import DimensionalityReductionMethod
 
 class Trigger2dEmbeddingJobRequest(BaseModel):
     """
     Trigger2dEmbeddingJobRequest
     """
-    dimensionality_reduction_method: DimensionalityReductionMethod = Field(..., alias="dimensionalityReductionMethod")
+
+    dimensionality_reduction_method: DimensionalityReductionMethod = Field(
+        ..., alias="dimensionalityReductionMethod"
+    )
     __properties = ["dimensionalityReductionMethod"]
 
     class Config:
         """Pydantic configuration"""
+
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -52,10 +58,7 @@ class Trigger2dEmbeddingJobRequest(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias,
-                          exclude={
-                          },
-                          exclude_none=True)
+        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
         return _dict
 
     @classmethod
@@ -70,10 +73,16 @@ class Trigger2dEmbeddingJobRequest(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in Trigger2dEmbeddingJobRequest) in the input: " + str(obj))
+                raise ValueError(
+                    "Error due to additional fields (not defined in Trigger2dEmbeddingJobRequest) in the input: "
+                    + str(obj)
+                )
 
-        _obj = Trigger2dEmbeddingJobRequest.parse_obj({
-            "dimensionality_reduction_method": obj.get("dimensionalityReductionMethod")
-        })
+        _obj = Trigger2dEmbeddingJobRequest.parse_obj(
+            {
+                "dimensionality_reduction_method": obj.get(
+                    "dimensionalityReductionMethod"
+                )
+            }
+        )
         return _obj
-

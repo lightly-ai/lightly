@@ -20,17 +20,22 @@ import json
 
 
 from typing import Optional, Union
-from pydantic import Extra,  BaseModel, confloat, conint
+from pydantic import Extra, BaseModel, confloat, conint
+
 
 class DockerWorkerConfigV3LightlyCriterion(BaseModel):
     """
     DockerWorkerConfigV3LightlyCriterion
     """
-    temperature: Optional[Union[confloat(gt=0.0, strict=True), conint(gt=0, strict=True)]] = None
+
+    temperature: Optional[
+        Union[confloat(gt=0.0, strict=True), conint(gt=0, strict=True)]
+    ] = None
     __properties = ["temperature"]
 
     class Config:
         """Pydantic configuration"""
+
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -51,10 +56,7 @@ class DockerWorkerConfigV3LightlyCriterion(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias,
-                          exclude={
-                          },
-                          exclude_none=True)
+        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
         return _dict
 
     @classmethod
@@ -69,10 +71,12 @@ class DockerWorkerConfigV3LightlyCriterion(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in DockerWorkerConfigV3LightlyCriterion) in the input: " + str(obj))
+                raise ValueError(
+                    "Error due to additional fields (not defined in DockerWorkerConfigV3LightlyCriterion) in the input: "
+                    + str(obj)
+                )
 
-        _obj = DockerWorkerConfigV3LightlyCriterion.parse_obj({
-            "temperature": obj.get("temperature")
-        })
+        _obj = DockerWorkerConfigV3LightlyCriterion.parse_obj(
+            {"temperature": obj.get("temperature")}
+        )
         return _obj
-

@@ -20,9 +20,6 @@ from enum import Enum
 from aenum import no_arg  # type: ignore
 
 
-
-
-
 class JobStatusUploadMethod(str, Enum):
     """
     JobStatusUploadMethod
@@ -31,13 +28,11 @@ class JobStatusUploadMethod(str, Enum):
     """
     allowed enum values
     """
-    USER_WEBAPP = 'USER_WEBAPP'
-    USER_PIP = 'USER_PIP'
-    INTERNAL = 'INTERNAL'
+    USER_WEBAPP = "USER_WEBAPP"
+    USER_PIP = "USER_PIP"
+    INTERNAL = "INTERNAL"
 
     @classmethod
-    def from_json(cls, json_str: str) -> 'JobStatusUploadMethod':
+    def from_json(cls, json_str: str) -> "JobStatusUploadMethod":
         """Create an instance of JobStatusUploadMethod from a JSON string"""
         return JobStatusUploadMethod(json.loads(json_str))
-
-

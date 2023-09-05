@@ -24,17 +24,25 @@ from pydantic import Field, StrictStr, constr, validator
 
 from typing import List
 
-from lightly.openapi_generated.swagger_client.models.create_team_membership_request import CreateTeamMembershipRequest
-from lightly.openapi_generated.swagger_client.models.profile_basic_data import ProfileBasicData
-from lightly.openapi_generated.swagger_client.models.service_account_basic_data import ServiceAccountBasicData
+from lightly.openapi_generated.swagger_client.models.create_team_membership_request import (
+    CreateTeamMembershipRequest,
+)
+from lightly.openapi_generated.swagger_client.models.profile_basic_data import (
+    ProfileBasicData,
+)
+from lightly.openapi_generated.swagger_client.models.service_account_basic_data import (
+    ServiceAccountBasicData,
+)
 from lightly.openapi_generated.swagger_client.models.team_data import TeamData
-from lightly.openapi_generated.swagger_client.models.update_team_membership_request import UpdateTeamMembershipRequest
+from lightly.openapi_generated.swagger_client.models.update_team_membership_request import (
+    UpdateTeamMembershipRequest,
+)
 
 from lightly.openapi_generated.swagger_client.api_client import ApiClient
 from lightly.openapi_generated.swagger_client.api_response import ApiResponse
 from lightly.openapi_generated.swagger_client.exceptions import (  # noqa: F401
     ApiTypeError,
-    ApiValueError
+    ApiValueError,
 )
 
 
@@ -51,7 +59,14 @@ class TeamsApi(object):
         self.api_client = api_client
 
     @validate_arguments
-    def add_team_member(self, team_id : Annotated[constr(strict=True), Field(..., description="id of the team")], create_team_membership_request : CreateTeamMembershipRequest, **kwargs) -> None:  # noqa: E501
+    def add_team_member(
+        self,
+        team_id: Annotated[
+            constr(strict=True), Field(..., description="id of the team")
+        ],
+        create_team_membership_request: CreateTeamMembershipRequest,
+        **kwargs
+    ) -> None:  # noqa: E501
         """add_team_member  # noqa: E501
 
         Add a team member. One needs to be part of the team to do so.  # noqa: E501
@@ -76,13 +91,24 @@ class TeamsApi(object):
                  returns the request thread.
         :rtype: None
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the add_team_member_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.add_team_member_with_http_info(team_id, create_team_membership_request, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the add_team_member_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.add_team_member_with_http_info(
+            team_id, create_team_membership_request, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def add_team_member_with_http_info(self, team_id : Annotated[constr(strict=True), Field(..., description="id of the team")], create_team_membership_request : CreateTeamMembershipRequest, **kwargs) -> ApiResponse:  # noqa: E501
+    def add_team_member_with_http_info(
+        self,
+        team_id: Annotated[
+            constr(strict=True), Field(..., description="id of the team")
+        ],
+        create_team_membership_request: CreateTeamMembershipRequest,
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """add_team_member  # noqa: E501
 
         Add a team member. One needs to be part of the team to do so.  # noqa: E501
@@ -99,7 +125,7 @@ class TeamsApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -123,70 +149,69 @@ class TeamsApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'team_id',
-            'create_team_membership_request'
-        ]
+        _all_params = ["team_id", "create_team_membership_request"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method add_team_member" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['team_id']:
-            _path_params['teamId'] = _params['team_id']
-
+        if _params["team_id"]:
+            _path_params["teamId"] = _params["team_id"]
 
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
-        if _params['create_team_membership_request'] is not None:
-            _body_params = _params['create_team_membership_request']
+        if _params["create_team_membership_request"] is not None:
+            _body_params = _params["create_team_membership_request"]
 
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # set the HTTP header `Content-Type`
-        _content_types_list = _params.get('_content_type',
-            self.api_client.select_header_content_type(
-                ['application/json']))
+        _content_types_list = _params.get(
+            "_content_type",
+            self.api_client.select_header_content_type(["application/json"]),
+        )
         if _content_types_list:
-                _header_params['Content-Type'] = _content_types_list
+            _header_params["Content-Type"] = _content_types_list
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/v1/teams/{teamId}/members', 'POST',
+            "/v1/teams/{teamId}/members",
+            "POST",
             _path_params,
             _query_params,
             _header_params,
@@ -195,15 +220,23 @@ class TeamsApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def delete_team_member_by_id(self, team_id : Annotated[constr(strict=True), Field(..., description="id of the team")], user_id : Annotated[StrictStr, Field(..., description="id of the user")], **kwargs) -> None:  # noqa: E501
+    def delete_team_member_by_id(
+        self,
+        team_id: Annotated[
+            constr(strict=True), Field(..., description="id of the team")
+        ],
+        user_id: Annotated[StrictStr, Field(..., description="id of the user")],
+        **kwargs
+    ) -> None:  # noqa: E501
         """delete_team_member_by_id  # noqa: E501
 
         Deletes a member from a team. One needs to be part of the team to do so.  # noqa: E501
@@ -228,13 +261,24 @@ class TeamsApi(object):
                  returns the request thread.
         :rtype: None
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the delete_team_member_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.delete_team_member_by_id_with_http_info(team_id, user_id, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the delete_team_member_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.delete_team_member_by_id_with_http_info(
+            team_id, user_id, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def delete_team_member_by_id_with_http_info(self, team_id : Annotated[constr(strict=True), Field(..., description="id of the team")], user_id : Annotated[StrictStr, Field(..., description="id of the user")], **kwargs) -> ApiResponse:  # noqa: E501
+    def delete_team_member_by_id_with_http_info(
+        self,
+        team_id: Annotated[
+            constr(strict=True), Field(..., description="id of the team")
+        ],
+        user_id: Annotated[StrictStr, Field(..., description="id of the user")],
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """delete_team_member_by_id  # noqa: E501
 
         Deletes a member from a team. One needs to be part of the team to do so.  # noqa: E501
@@ -251,7 +295,7 @@ class TeamsApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -275,63 +319,61 @@ class TeamsApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'team_id',
-            'user_id'
-        ]
+        _all_params = ["team_id", "user_id"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method delete_team_member_by_id" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['team_id']:
-            _path_params['teamId'] = _params['team_id']
+        if _params["team_id"]:
+            _path_params["teamId"] = _params["team_id"]
 
-        if _params['user_id']:
-            _path_params['userId'] = _params['user_id']
-
+        if _params["user_id"]:
+            _path_params["userId"] = _params["user_id"]
 
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/v1/teams/{teamId}/members/{userId}', 'DELETE',
+            "/v1/teams/{teamId}/members/{userId}",
+            "DELETE",
             _path_params,
             _query_params,
             _header_params,
@@ -340,15 +382,22 @@ class TeamsApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def get_service_accounts_by_team_id(self, team_id : Annotated[constr(strict=True), Field(..., description="id of the team")], **kwargs) -> List[ServiceAccountBasicData]:  # noqa: E501
+    def get_service_accounts_by_team_id(
+        self,
+        team_id: Annotated[
+            constr(strict=True), Field(..., description="id of the team")
+        ],
+        **kwargs
+    ) -> List[ServiceAccountBasicData]:  # noqa: E501
         """get_service_accounts_by_team_id  # noqa: E501
 
         Get the service accounts of a team. One needs to be part of the team to do so.  # noqa: E501
@@ -371,13 +420,23 @@ class TeamsApi(object):
                  returns the request thread.
         :rtype: List[ServiceAccountBasicData]
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the get_service_accounts_by_team_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.get_service_accounts_by_team_id_with_http_info(team_id, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the get_service_accounts_by_team_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.get_service_accounts_by_team_id_with_http_info(
+            team_id, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def get_service_accounts_by_team_id_with_http_info(self, team_id : Annotated[constr(strict=True), Field(..., description="id of the team")], **kwargs) -> ApiResponse:  # noqa: E501
+    def get_service_accounts_by_team_id_with_http_info(
+        self,
+        team_id: Annotated[
+            constr(strict=True), Field(..., description="id of the team")
+        ],
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """get_service_accounts_by_team_id  # noqa: E501
 
         Get the service accounts of a team. One needs to be part of the team to do so.  # noqa: E501
@@ -392,7 +451,7 @@ class TeamsApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -416,65 +475,64 @@ class TeamsApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'team_id'
-        ]
+        _all_params = ["team_id"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method get_service_accounts_by_team_id" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['team_id']:
-            _path_params['teamId'] = _params['team_id']
-
+        if _params["team_id"]:
+            _path_params["teamId"] = _params["team_id"]
 
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '200': "List[ServiceAccountBasicData]",
-            '400': "ApiErrorResponse",
-            '401': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "200": "List[ServiceAccountBasicData]",
+            "400": "ApiErrorResponse",
+            "401": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/teams/{teamId}/serviceaccounts', 'GET',
+            "/v1/teams/{teamId}/serviceaccounts",
+            "GET",
             _path_params,
             _query_params,
             _header_params,
@@ -483,15 +541,22 @@ class TeamsApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def get_team_by_id(self, team_id : Annotated[constr(strict=True), Field(..., description="id of the team")], **kwargs) -> TeamData:  # noqa: E501
+    def get_team_by_id(
+        self,
+        team_id: Annotated[
+            constr(strict=True), Field(..., description="id of the team")
+        ],
+        **kwargs
+    ) -> TeamData:  # noqa: E501
         """get_team_by_id  # noqa: E501
 
         Get basic team information by ID.  # noqa: E501
@@ -514,13 +579,21 @@ class TeamsApi(object):
                  returns the request thread.
         :rtype: TeamData
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the get_team_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the get_team_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
         return self.get_team_by_id_with_http_info(team_id, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def get_team_by_id_with_http_info(self, team_id : Annotated[constr(strict=True), Field(..., description="id of the team")], **kwargs) -> ApiResponse:  # noqa: E501
+    def get_team_by_id_with_http_info(
+        self,
+        team_id: Annotated[
+            constr(strict=True), Field(..., description="id of the team")
+        ],
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """get_team_by_id  # noqa: E501
 
         Get basic team information by ID.  # noqa: E501
@@ -535,7 +608,7 @@ class TeamsApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -559,65 +632,64 @@ class TeamsApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'team_id'
-        ]
+        _all_params = ["team_id"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method get_team_by_id" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['team_id']:
-            _path_params['teamId'] = _params['team_id']
-
+        if _params["team_id"]:
+            _path_params["teamId"] = _params["team_id"]
 
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '200': "TeamData",
-            '400': "ApiErrorResponse",
-            '401': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "200": "TeamData",
+            "400": "ApiErrorResponse",
+            "401": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/teams/{teamId}', 'GET',
+            "/v1/teams/{teamId}",
+            "GET",
             _path_params,
             _query_params,
             _header_params,
@@ -626,15 +698,22 @@ class TeamsApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def get_team_members_by_id(self, team_id : Annotated[constr(strict=True), Field(..., description="id of the team")], **kwargs) -> List[ProfileBasicData]:  # noqa: E501
+    def get_team_members_by_id(
+        self,
+        team_id: Annotated[
+            constr(strict=True), Field(..., description="id of the team")
+        ],
+        **kwargs
+    ) -> List[ProfileBasicData]:  # noqa: E501
         """get_team_members_by_id  # noqa: E501
 
         Get the members of a team. One needs to be part of the team to do so.  # noqa: E501
@@ -657,13 +736,23 @@ class TeamsApi(object):
                  returns the request thread.
         :rtype: List[ProfileBasicData]
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the get_team_members_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.get_team_members_by_id_with_http_info(team_id, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the get_team_members_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.get_team_members_by_id_with_http_info(
+            team_id, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def get_team_members_by_id_with_http_info(self, team_id : Annotated[constr(strict=True), Field(..., description="id of the team")], **kwargs) -> ApiResponse:  # noqa: E501
+    def get_team_members_by_id_with_http_info(
+        self,
+        team_id: Annotated[
+            constr(strict=True), Field(..., description="id of the team")
+        ],
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """get_team_members_by_id  # noqa: E501
 
         Get the members of a team. One needs to be part of the team to do so.  # noqa: E501
@@ -678,7 +767,7 @@ class TeamsApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -702,65 +791,64 @@ class TeamsApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'team_id'
-        ]
+        _all_params = ["team_id"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method get_team_members_by_id" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['team_id']:
-            _path_params['teamId'] = _params['team_id']
-
+        if _params["team_id"]:
+            _path_params["teamId"] = _params["team_id"]
 
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {
-            '200': "List[ProfileBasicData]",
-            '400': "ApiErrorResponse",
-            '401': "ApiErrorResponse",
-            '403': "ApiErrorResponse",
-            '404': "ApiErrorResponse",
+            "200": "List[ProfileBasicData]",
+            "400": "ApiErrorResponse",
+            "401": "ApiErrorResponse",
+            "403": "ApiErrorResponse",
+            "404": "ApiErrorResponse",
         }
 
         return self.api_client.call_api(
-            '/v1/teams/{teamId}/members', 'GET',
+            "/v1/teams/{teamId}/members",
+            "GET",
             _path_params,
             _query_params,
             _header_params,
@@ -769,15 +857,24 @@ class TeamsApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )
 
     @validate_arguments
-    def update_team_member_by_id(self, team_id : Annotated[constr(strict=True), Field(..., description="id of the team")], user_id : Annotated[StrictStr, Field(..., description="id of the user")], update_team_membership_request : UpdateTeamMembershipRequest, **kwargs) -> None:  # noqa: E501
+    def update_team_member_by_id(
+        self,
+        team_id: Annotated[
+            constr(strict=True), Field(..., description="id of the team")
+        ],
+        user_id: Annotated[StrictStr, Field(..., description="id of the user")],
+        update_team_membership_request: UpdateTeamMembershipRequest,
+        **kwargs
+    ) -> None:  # noqa: E501
         """update_team_member_by_id  # noqa: E501
 
         Update the team membership of a user. One needs to be part of the team to do so.  # noqa: E501
@@ -804,13 +901,25 @@ class TeamsApi(object):
                  returns the request thread.
         :rtype: None
         """
-        kwargs['_return_http_data_only'] = True
-        if '_preload_content' in kwargs:
-            raise ValueError("Error! Please call the update_team_member_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.update_team_member_by_id_with_http_info(team_id, user_id, update_team_membership_request, **kwargs)  # noqa: E501
+        kwargs["_return_http_data_only"] = True
+        if "_preload_content" in kwargs:
+            raise ValueError(
+                "Error! Please call the update_team_member_by_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data"
+            )
+        return self.update_team_member_by_id_with_http_info(
+            team_id, user_id, update_team_membership_request, **kwargs
+        )  # noqa: E501
 
     @validate_arguments
-    def update_team_member_by_id_with_http_info(self, team_id : Annotated[constr(strict=True), Field(..., description="id of the team")], user_id : Annotated[StrictStr, Field(..., description="id of the user")], update_team_membership_request : UpdateTeamMembershipRequest, **kwargs) -> ApiResponse:  # noqa: E501
+    def update_team_member_by_id_with_http_info(
+        self,
+        team_id: Annotated[
+            constr(strict=True), Field(..., description="id of the team")
+        ],
+        user_id: Annotated[StrictStr, Field(..., description="id of the user")],
+        update_team_membership_request: UpdateTeamMembershipRequest,
+        **kwargs
+    ) -> ApiResponse:  # noqa: E501
         """update_team_member_by_id  # noqa: E501
 
         Update the team membership of a user. One needs to be part of the team to do so.  # noqa: E501
@@ -829,7 +938,7 @@ class TeamsApi(object):
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
-                                 be set to none and raw_data will store the 
+                                 be set to none and raw_data will store the
                                  HTTP response body without reading/decoding.
                                  Default is True.
         :type _preload_content: bool, optional
@@ -853,74 +962,72 @@ class TeamsApi(object):
 
         _params = locals()
 
-        _all_params = [
-            'team_id',
-            'user_id',
-            'update_team_membership_request'
-        ]
+        _all_params = ["team_id", "user_id", "update_team_membership_request"]
         _all_params.extend(
             [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers'
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
             ]
         )
 
         # validate the arguments
-        for _key, _val in _params['kwargs'].items():
+        for _key, _val in _params["kwargs"].items():
             if _key not in _all_params:
                 raise ApiTypeError(
                     "Got an unexpected keyword argument '%s'"
                     " to method update_team_member_by_id" % _key
                 )
             _params[_key] = _val
-        del _params['kwargs']
+        del _params["kwargs"]
 
         _collection_formats = {}
 
         # process the path parameters
         _path_params = {}
-        if _params['team_id']:
-            _path_params['teamId'] = _params['team_id']
+        if _params["team_id"]:
+            _path_params["teamId"] = _params["team_id"]
 
-        if _params['user_id']:
-            _path_params['userId'] = _params['user_id']
-
+        if _params["user_id"]:
+            _path_params["userId"] = _params["user_id"]
 
         # process the query parameters
         _query_params = []
         # process the header parameters
-        _header_params = dict(_params.get('_headers', {}))
+        _header_params = dict(_params.get("_headers", {}))
         # process the form parameters
         _form_params = []
         _files = {}
         # process the body parameter
         _body_params = None
-        if _params['update_team_membership_request'] is not None:
-            _body_params = _params['update_team_membership_request']
+        if _params["update_team_membership_request"] is not None:
+            _body_params = _params["update_team_membership_request"]
 
         # set the HTTP header `Accept`
-        _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
 
         # set the HTTP header `Content-Type`
-        _content_types_list = _params.get('_content_type',
-            self.api_client.select_header_content_type(
-                ['application/json']))
+        _content_types_list = _params.get(
+            "_content_type",
+            self.api_client.select_header_content_type(["application/json"]),
+        )
         if _content_types_list:
-                _header_params['Content-Type'] = _content_types_list
+            _header_params["Content-Type"] = _content_types_list
 
         # authentication setting
-        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+        _auth_settings = ["auth0Bearer", "ApiKeyAuth"]  # noqa: E501
 
         _response_types_map = {}
 
         return self.api_client.call_api(
-            '/v1/teams/{teamId}/members/{userId}', 'PUT',
+            "/v1/teams/{teamId}/members/{userId}",
+            "PUT",
             _path_params,
             _query_params,
             _header_params,
@@ -929,9 +1036,10 @@ class TeamsApi(object):
             files=_files,
             response_types_map=_response_types_map,
             auth_settings=_auth_settings,
-            async_req=_params.get('async_req'),
-            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
-            _preload_content=_params.get('_preload_content', True),
-            _request_timeout=_params.get('_request_timeout'),
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
             collection_formats=_collection_formats,
-            _request_auth=_params.get('_request_auth'))
+            _request_auth=_params.get("_request_auth"),
+        )

@@ -20,25 +20,43 @@ import json
 
 
 from typing import List, Union
-from pydantic import Extra,  BaseModel, Field, StrictFloat, StrictInt, conlist, constr, validator
+from pydantic import (
+    Extra,
+    BaseModel,
+    Field,
+    StrictFloat,
+    StrictInt,
+    conlist,
+    constr,
+    validator,
+)
+
 
 class ActiveLearningScoreCreateRequest(BaseModel):
     """
     ActiveLearningScoreCreateRequest
     """
-    score_type: constr(strict=True, min_length=1) = Field(..., alias="scoreType", description="Type of active learning score")
-    scores: conlist(Union[StrictFloat, StrictInt], min_items=1) = Field(..., description="Array of active learning scores")
+
+    score_type: constr(strict=True, min_length=1) = Field(
+        ..., alias="scoreType", description="Type of active learning score"
+    )
+    scores: conlist(Union[StrictFloat, StrictInt], min_items=1) = Field(
+        ..., description="Array of active learning scores"
+    )
     __properties = ["scoreType", "scores"]
 
-    @validator('score_type')
+    @validator("score_type")
     def score_type_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^[a-zA-Z0-9_+=,.@:\/-]*$", value):
-            raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9_+=,.@:\/-]*$/")
+            raise ValueError(
+                r"must validate the regular expression /^[a-zA-Z0-9_+=,.@:\/-]*$/"
+            )
         return value
 
     class Config:
         """Pydantic configuration"""
+
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -59,10 +77,7 @@ class ActiveLearningScoreCreateRequest(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias,
-                          exclude={
-                          },
-                          exclude_none=True)
+        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
         return _dict
 
     @classmethod
@@ -77,11 +92,12 @@ class ActiveLearningScoreCreateRequest(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in ActiveLearningScoreCreateRequest) in the input: " + str(obj))
+                raise ValueError(
+                    "Error due to additional fields (not defined in ActiveLearningScoreCreateRequest) in the input: "
+                    + str(obj)
+                )
 
-        _obj = ActiveLearningScoreCreateRequest.parse_obj({
-            "score_type": obj.get("scoreType"),
-            "scores": obj.get("scores")
-        })
+        _obj = ActiveLearningScoreCreateRequest.parse_obj(
+            {"score_type": obj.get("scoreType"), "scores": obj.get("scores")}
+        )
         return _obj
-

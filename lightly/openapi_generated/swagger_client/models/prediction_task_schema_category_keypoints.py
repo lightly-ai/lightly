@@ -20,20 +20,38 @@ import json
 
 
 from typing import List, Optional
-from pydantic import Extra,  BaseModel, Field, conint, conlist, constr
+from pydantic import Extra, BaseModel, Field, conint, conlist, constr
+
 
 class PredictionTaskSchemaCategoryKeypoints(BaseModel):
     """
     PredictionTaskSchemaCategoryKeypoints
     """
-    id: conint(strict=True, ge=0) = Field(..., description="The id of the category. Needs to be a positive integer but can be any integer (gaps are allowed, does not need to be sequential)")
-    name: constr(strict=True, min_length=1) = Field(..., description="The name of the category when it should be visualized")
-    keypoint_names: Optional[conlist(constr(strict=True, min_length=1))] = Field(None, alias="keypointNames", description="The names of the individual keypoints. E.g left-shoulder, right-shoulder, nose, etc. Must be of equal length as the number of keypoints of a keypoint detection. ")
-    keypoint_skeleton: Optional[conlist(conlist(conint(strict=True, ge=0), max_items=2, min_items=2))] = Field(None, alias="keypointSkeleton", description="The keypoint skeleton of a category. It is used to show the overall connectivity between keypoints. Each entry in the array describes a a single connection between two keypoints by their index. e.g [1,3],[2,4],[3,4] ")
+
+    id: conint(strict=True, ge=0) = Field(
+        ...,
+        description="The id of the category. Needs to be a positive integer but can be any integer (gaps are allowed, does not need to be sequential)",
+    )
+    name: constr(strict=True, min_length=1) = Field(
+        ..., description="The name of the category when it should be visualized"
+    )
+    keypoint_names: Optional[conlist(constr(strict=True, min_length=1))] = Field(
+        None,
+        alias="keypointNames",
+        description="The names of the individual keypoints. E.g left-shoulder, right-shoulder, nose, etc. Must be of equal length as the number of keypoints of a keypoint detection. ",
+    )
+    keypoint_skeleton: Optional[
+        conlist(conlist(conint(strict=True, ge=0), max_items=2, min_items=2))
+    ] = Field(
+        None,
+        alias="keypointSkeleton",
+        description="The keypoint skeleton of a category. It is used to show the overall connectivity between keypoints. Each entry in the array describes a a single connection between two keypoints by their index. e.g [1,3],[2,4],[3,4] ",
+    )
     __properties = ["id", "name", "keypointNames", "keypointSkeleton"]
 
     class Config:
         """Pydantic configuration"""
+
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -54,10 +72,7 @@ class PredictionTaskSchemaCategoryKeypoints(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias,
-                          exclude={
-                          },
-                          exclude_none=True)
+        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
         return _dict
 
     @classmethod
@@ -72,13 +87,17 @@ class PredictionTaskSchemaCategoryKeypoints(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in PredictionTaskSchemaCategoryKeypoints) in the input: " + str(obj))
+                raise ValueError(
+                    "Error due to additional fields (not defined in PredictionTaskSchemaCategoryKeypoints) in the input: "
+                    + str(obj)
+                )
 
-        _obj = PredictionTaskSchemaCategoryKeypoints.parse_obj({
-            "id": obj.get("id"),
-            "name": obj.get("name"),
-            "keypoint_names": obj.get("keypointNames"),
-            "keypoint_skeleton": obj.get("keypointSkeleton")
-        })
+        _obj = PredictionTaskSchemaCategoryKeypoints.parse_obj(
+            {
+                "id": obj.get("id"),
+                "name": obj.get("name"),
+                "keypoint_names": obj.get("keypointNames"),
+                "keypoint_skeleton": obj.get("keypointSkeleton"),
+            }
+        )
         return _obj
-

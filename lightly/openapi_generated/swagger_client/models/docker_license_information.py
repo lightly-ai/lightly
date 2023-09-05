@@ -19,20 +19,24 @@ import re  # noqa: F401
 import json
 
 
+from pydantic import Extra, BaseModel, Field, StrictBool, StrictStr, conint
 
-from pydantic import Extra,  BaseModel, Field, StrictBool, StrictStr, conint
 
 class DockerLicenseInformation(BaseModel):
     """
     DockerLicenseInformation
     """
+
     license_type: StrictStr = Field(..., alias="licenseType")
-    license_expiration_date: conint(strict=True, ge=0) = Field(..., alias="licenseExpirationDate", description="unix timestamp in milliseconds")
+    license_expiration_date: conint(strict=True, ge=0) = Field(
+        ..., alias="licenseExpirationDate", description="unix timestamp in milliseconds"
+    )
     license_is_valid: StrictBool = Field(..., alias="licenseIsValid")
     __properties = ["licenseType", "licenseExpirationDate", "licenseIsValid"]
 
     class Config:
         """Pydantic configuration"""
+
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -53,10 +57,7 @@ class DockerLicenseInformation(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias,
-                          exclude={
-                          },
-                          exclude_none=True)
+        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
         return _dict
 
     @classmethod
@@ -71,12 +72,16 @@ class DockerLicenseInformation(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in DockerLicenseInformation) in the input: " + str(obj))
+                raise ValueError(
+                    "Error due to additional fields (not defined in DockerLicenseInformation) in the input: "
+                    + str(obj)
+                )
 
-        _obj = DockerLicenseInformation.parse_obj({
-            "license_type": obj.get("licenseType"),
-            "license_expiration_date": obj.get("licenseExpirationDate"),
-            "license_is_valid": obj.get("licenseIsValid")
-        })
+        _obj = DockerLicenseInformation.parse_obj(
+            {
+                "license_type": obj.get("licenseType"),
+                "license_expiration_date": obj.get("licenseExpirationDate"),
+                "license_is_valid": obj.get("licenseIsValid"),
+            }
+        )
         return _obj
-

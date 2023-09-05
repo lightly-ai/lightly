@@ -94,14 +94,14 @@ class TestMAEDecoder(unittest.TestCase):
             embed_input_dim=128,
             hidden_dim=256,
             mlp_dim=256 * 4,
-            out_dim=3 * 32**2,
+            out_dim=3 * 32 ** 2,
         )
 
     def _test_forward(self, device, batch_size=8, seed=0):
         torch.manual_seed(seed)
         seq_length = 50
         embed_input_dim = 128
-        out_dim = 3 * 32**2
+        out_dim = 3 * 32 ** 2
         decoder = MAEDecoder(
             seq_length=seq_length,
             num_layers=2,

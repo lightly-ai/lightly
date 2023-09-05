@@ -20,20 +20,25 @@ import json
 
 
 from typing import Optional
-from pydantic import Extra,  BaseModel, Field
+from pydantic import Extra, BaseModel, Field
 from lightly.openapi_generated.swagger_client.models.creator import Creator
-from lightly.openapi_generated.swagger_client.models.docker_worker_config import DockerWorkerConfig
+from lightly.openapi_generated.swagger_client.models.docker_worker_config import (
+    DockerWorkerConfig,
+)
+
 
 class DockerWorkerConfigCreateRequest(BaseModel):
     """
     DockerWorkerConfigCreateRequest
     """
+
     config: DockerWorkerConfig = Field(...)
     creator: Optional[Creator] = None
     __properties = ["config", "creator"]
 
     class Config:
         """Pydantic configuration"""
+
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -54,13 +59,12 @@ class DockerWorkerConfigCreateRequest(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias,
-                          exclude={
-                          },
-                          exclude_none=True)
+        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of config
         if self.config:
-            _dict['config' if by_alias else 'config'] = self.config.to_dict(by_alias=by_alias)
+            _dict["config" if by_alias else "config"] = self.config.to_dict(
+                by_alias=by_alias
+            )
         return _dict
 
     @classmethod
@@ -75,11 +79,17 @@ class DockerWorkerConfigCreateRequest(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in DockerWorkerConfigCreateRequest) in the input: " + str(obj))
+                raise ValueError(
+                    "Error due to additional fields (not defined in DockerWorkerConfigCreateRequest) in the input: "
+                    + str(obj)
+                )
 
-        _obj = DockerWorkerConfigCreateRequest.parse_obj({
-            "config": DockerWorkerConfig.from_dict(obj.get("config")) if obj.get("config") is not None else None,
-            "creator": obj.get("creator")
-        })
+        _obj = DockerWorkerConfigCreateRequest.parse_obj(
+            {
+                "config": DockerWorkerConfig.from_dict(obj.get("config"))
+                if obj.get("config") is not None
+                else None,
+                "creator": obj.get("creator"),
+            }
+        )
         return _obj
-

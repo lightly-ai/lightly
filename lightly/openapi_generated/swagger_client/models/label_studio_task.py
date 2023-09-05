@@ -19,20 +19,26 @@ import re  # noqa: F401
 import json
 
 
+from pydantic import Extra, BaseModel, Field, StrictInt
+from lightly.openapi_generated.swagger_client.models.label_studio_task_data import (
+    LabelStudioTaskData,
+)
 
-from pydantic import Extra,  BaseModel, Field, StrictInt
-from lightly.openapi_generated.swagger_client.models.label_studio_task_data import LabelStudioTaskData
 
 class LabelStudioTask(BaseModel):
     """
     LabelStudioTask
     """
-    id: StrictInt = Field(..., description="The task_id for importing into LabelStudio.")
+
+    id: StrictInt = Field(
+        ..., description="The task_id for importing into LabelStudio."
+    )
     data: LabelStudioTaskData = Field(...)
     __properties = ["id", "data"]
 
     class Config:
         """Pydantic configuration"""
+
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -53,13 +59,10 @@ class LabelStudioTask(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias,
-                          exclude={
-                          },
-                          exclude_none=True)
+        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of data
         if self.data:
-            _dict['data' if by_alias else 'data'] = self.data.to_dict(by_alias=by_alias)
+            _dict["data" if by_alias else "data"] = self.data.to_dict(by_alias=by_alias)
         return _dict
 
     @classmethod
@@ -74,11 +77,17 @@ class LabelStudioTask(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in LabelStudioTask) in the input: " + str(obj))
+                raise ValueError(
+                    "Error due to additional fields (not defined in LabelStudioTask) in the input: "
+                    + str(obj)
+                )
 
-        _obj = LabelStudioTask.parse_obj({
-            "id": obj.get("id"),
-            "data": LabelStudioTaskData.from_dict(obj.get("data")) if obj.get("data") is not None else None
-        })
+        _obj = LabelStudioTask.parse_obj(
+            {
+                "id": obj.get("id"),
+                "data": LabelStudioTaskData.from_dict(obj.get("data"))
+                if obj.get("data") is not None
+                else None,
+            }
+        )
         return _obj
-

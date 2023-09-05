@@ -20,22 +20,32 @@ import json
 
 
 from typing import Optional
-from pydantic import Extra,  BaseModel, Field, StrictStr, conint, constr, validator
-from lightly.openapi_generated.swagger_client.models.docker_run_artifact_storage_location import DockerRunArtifactStorageLocation
-from lightly.openapi_generated.swagger_client.models.docker_run_artifact_type import DockerRunArtifactType
+from pydantic import Extra, BaseModel, Field, StrictStr, conint, constr, validator
+from lightly.openapi_generated.swagger_client.models.docker_run_artifact_storage_location import (
+    DockerRunArtifactStorageLocation,
+)
+from lightly.openapi_generated.swagger_client.models.docker_run_artifact_type import (
+    DockerRunArtifactType,
+)
+
 
 class DockerRunArtifactData(BaseModel):
     """
     DockerRunArtifactData
     """
+
     id: constr(strict=True) = Field(..., description="MongoDB ObjectId")
     type: DockerRunArtifactType = Field(...)
     file_name: StrictStr = Field(..., alias="fileName")
-    storage_location: Optional[DockerRunArtifactStorageLocation] = Field(None, alias="storageLocation")
-    created_at: Optional[conint(strict=True, ge=0)] = Field(None, alias="createdAt", description="unix timestamp in milliseconds")
+    storage_location: Optional[DockerRunArtifactStorageLocation] = Field(
+        None, alias="storageLocation"
+    )
+    created_at: Optional[conint(strict=True, ge=0)] = Field(
+        None, alias="createdAt", description="unix timestamp in milliseconds"
+    )
     __properties = ["id", "type", "fileName", "storageLocation", "createdAt"]
 
-    @validator('id')
+    @validator("id")
     def id_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^[a-f0-9]{24}$", value):
@@ -44,6 +54,7 @@ class DockerRunArtifactData(BaseModel):
 
     class Config:
         """Pydantic configuration"""
+
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -64,10 +75,7 @@ class DockerRunArtifactData(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias,
-                          exclude={
-                          },
-                          exclude_none=True)
+        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
         return _dict
 
     @classmethod
@@ -82,14 +90,18 @@ class DockerRunArtifactData(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in DockerRunArtifactData) in the input: " + str(obj))
+                raise ValueError(
+                    "Error due to additional fields (not defined in DockerRunArtifactData) in the input: "
+                    + str(obj)
+                )
 
-        _obj = DockerRunArtifactData.parse_obj({
-            "id": obj.get("id"),
-            "type": obj.get("type"),
-            "file_name": obj.get("fileName"),
-            "storage_location": obj.get("storageLocation"),
-            "created_at": obj.get("createdAt")
-        })
+        _obj = DockerRunArtifactData.parse_obj(
+            {
+                "id": obj.get("id"),
+                "type": obj.get("type"),
+                "file_name": obj.get("fileName"),
+                "storage_location": obj.get("storageLocation"),
+                "created_at": obj.get("createdAt"),
+            }
+        )
         return _obj
-

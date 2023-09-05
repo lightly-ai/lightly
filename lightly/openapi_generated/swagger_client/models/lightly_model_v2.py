@@ -20,9 +20,6 @@ from enum import Enum
 from aenum import no_arg  # type: ignore
 
 
-
-
-
 class LightlyModelV2(str, Enum):
     """
     LightlyModelV2
@@ -31,15 +28,13 @@ class LightlyModelV2(str, Enum):
     """
     allowed enum values
     """
-    RESNET_MINUS_18 = 'resnet-18'
-    RESNET_MINUS_34 = 'resnet-34'
-    RESNET_MINUS_50 = 'resnet-50'
-    RESNET_MINUS_101 = 'resnet-101'
-    RESNET_MINUS_152 = 'resnet-152'
+    RESNET_MINUS_18 = "resnet-18"
+    RESNET_MINUS_34 = "resnet-34"
+    RESNET_MINUS_50 = "resnet-50"
+    RESNET_MINUS_101 = "resnet-101"
+    RESNET_MINUS_152 = "resnet-152"
 
     @classmethod
-    def from_json(cls, json_str: str) -> 'LightlyModelV2':
+    def from_json(cls, json_str: str) -> "LightlyModelV2":
         """Create an instance of LightlyModelV2 from a JSON string"""
         return LightlyModelV2(json.loads(json_str))
-
-

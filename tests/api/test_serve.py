@@ -12,7 +12,10 @@ def test__translate_path(tmp_path: Path) -> None:
     assert serve._translate_path(
         path="/hello/world.txt", directories=[tmp_path]
     ) == str(tmp_file)
-    assert serve._translate_path(
-        path="/world.txt",
-        directories=[tmp_path / "hi", tmp_path / "hello"],
-    ) == str(tmp_file)
+    assert (
+        serve._translate_path(
+            path="/world.txt",
+            directories=[tmp_path / "hi", tmp_path / "hello"],
+        )
+        == str(tmp_file)
+    )

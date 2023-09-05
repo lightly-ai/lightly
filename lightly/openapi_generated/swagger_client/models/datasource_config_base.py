@@ -21,20 +21,28 @@ import lightly.openapi_generated.swagger_client.models
 
 
 from typing import Optional
-from pydantic import Extra,  BaseModel, Field, StrictStr, constr, validator
-from lightly.openapi_generated.swagger_client.models.datasource_purpose import DatasourcePurpose
+from pydantic import Extra, BaseModel, Field, StrictStr, constr, validator
+from lightly.openapi_generated.swagger_client.models.datasource_purpose import (
+    DatasourcePurpose,
+)
+
 
 class DatasourceConfigBase(BaseModel):
     """
     DatasourceConfigBase
     """
+
     id: Optional[constr(strict=True)] = Field(None, description="MongoDB ObjectId")
     purpose: DatasourcePurpose = Field(...)
     type: StrictStr = Field(...)
-    thumb_suffix: Optional[StrictStr] = Field(None, alias="thumbSuffix", description="the suffix of where to find the thumbnail image. If none is provided, the full image will be loaded where thumbnails would be loaded otherwise. - [filename]: represents the filename without the extension - [extension]: represents the files extension (e.g jpg, png, webp) ")
+    thumb_suffix: Optional[StrictStr] = Field(
+        None,
+        alias="thumbSuffix",
+        description="the suffix of where to find the thumbnail image. If none is provided, the full image will be loaded where thumbnails would be loaded otherwise. - [filename]: represents the filename without the extension - [extension]: represents the files extension (e.g jpg, png, webp) ",
+    )
     __properties = ["id", "purpose", "type", "thumbSuffix"]
 
-    @validator('id')
+    @validator("id")
     def id_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if value is None:
@@ -46,23 +54,24 @@ class DatasourceConfigBase(BaseModel):
 
     class Config:
         """Pydantic configuration"""
+
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
         extra = Extra.forbid
 
     # JSON field name that stores the object type
-    __discriminator_property_name = 'type'
+    __discriminator_property_name = "type"
 
     # discriminator mappings
     __discriminator_value_class_map = {
-        'DatasourceConfigAzure': 'DatasourceConfigAzure',
-        'DatasourceConfigGCS': 'DatasourceConfigGCS',
-        'DatasourceConfigLIGHTLY': 'DatasourceConfigLIGHTLY',
-        'DatasourceConfigLOCAL': 'DatasourceConfigLOCAL',
-        'DatasourceConfigOBS': 'DatasourceConfigOBS',
-        'DatasourceConfigS3': 'DatasourceConfigS3',
-        'DatasourceConfigS3DelegatedAccess': 'DatasourceConfigS3DelegatedAccess'
+        "DatasourceConfigAzure": "DatasourceConfigAzure",
+        "DatasourceConfigGCS": "DatasourceConfigGCS",
+        "DatasourceConfigLIGHTLY": "DatasourceConfigLIGHTLY",
+        "DatasourceConfigLOCAL": "DatasourceConfigLOCAL",
+        "DatasourceConfigOBS": "DatasourceConfigOBS",
+        "DatasourceConfigS3": "DatasourceConfigS3",
+        "DatasourceConfigS3DelegatedAccess": "DatasourceConfigS3DelegatedAccess",
     }
 
     @classmethod
@@ -83,28 +92,51 @@ class DatasourceConfigBase(BaseModel):
         return json.dumps(self.to_dict(by_alias=by_alias))
 
     @classmethod
-    def from_json(cls, json_str: str) -> Union(DatasourceConfigAzure, DatasourceConfigGCS, DatasourceConfigLIGHTLY, DatasourceConfigLOCAL, DatasourceConfigOBS, DatasourceConfigS3, DatasourceConfigS3DelegatedAccess):
+    def from_json(
+        cls, json_str: str
+    ) -> Union(
+        DatasourceConfigAzure,
+        DatasourceConfigGCS,
+        DatasourceConfigLIGHTLY,
+        DatasourceConfigLOCAL,
+        DatasourceConfigOBS,
+        DatasourceConfigS3,
+        DatasourceConfigS3DelegatedAccess,
+    ):
         """Create an instance of DatasourceConfigBase from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias,
-                          exclude={
-                          },
-                          exclude_none=True)
+        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
         return _dict
 
     @classmethod
-    def from_dict(cls, obj: dict) -> Union(DatasourceConfigAzure, DatasourceConfigGCS, DatasourceConfigLIGHTLY, DatasourceConfigLOCAL, DatasourceConfigOBS, DatasourceConfigS3, DatasourceConfigS3DelegatedAccess):
+    def from_dict(
+        cls, obj: dict
+    ) -> Union(
+        DatasourceConfigAzure,
+        DatasourceConfigGCS,
+        DatasourceConfigLIGHTLY,
+        DatasourceConfigLOCAL,
+        DatasourceConfigOBS,
+        DatasourceConfigS3,
+        DatasourceConfigS3DelegatedAccess,
+    ):
         """Create an instance of DatasourceConfigBase from a dict"""
         # look up the object type based on discriminator mapping
         object_type = cls.get_discriminator_value(obj)
         if object_type:
-            klass = getattr(lightly.openapi_generated.swagger_client.models, object_type)
+            klass = getattr(
+                lightly.openapi_generated.swagger_client.models, object_type
+            )
             return klass.from_dict(obj)
         else:
-            raise ValueError("DatasourceConfigBase failed to lookup discriminator value from " +
-                             json.dumps(obj) + ". Discriminator property name: " + cls.__discriminator_property_name +
-                             ", mapping: " + json.dumps(cls.__discriminator_value_class_map))
-
+            raise ValueError(
+                "DatasourceConfigBase failed to lookup discriminator value from "
+                + json.dumps(obj)
+                + ". Discriminator property name: "
+                + cls.__discriminator_property_name
+                + ", mapping: "
+                + json.dumps(cls.__discriminator_value_class_map)
+            )

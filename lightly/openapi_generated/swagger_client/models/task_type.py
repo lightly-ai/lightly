@@ -20,9 +20,6 @@ from enum import Enum
 from aenum import no_arg  # type: ignore
 
 
-
-
-
 class TaskType(str, Enum):
     """
     The type of the prediction or label task
@@ -31,15 +28,13 @@ class TaskType(str, Enum):
     """
     allowed enum values
     """
-    CLASSIFICATION = 'CLASSIFICATION'
-    OBJECT_DETECTION = 'OBJECT_DETECTION'
-    SEMANTIC_SEGMENTATION = 'SEMANTIC_SEGMENTATION'
-    INSTANCE_SEGMENTATION = 'INSTANCE_SEGMENTATION'
-    KEYPOINT_DETECTION = 'KEYPOINT_DETECTION'
+    CLASSIFICATION = "CLASSIFICATION"
+    OBJECT_DETECTION = "OBJECT_DETECTION"
+    SEMANTIC_SEGMENTATION = "SEMANTIC_SEGMENTATION"
+    INSTANCE_SEGMENTATION = "INSTANCE_SEGMENTATION"
+    KEYPOINT_DETECTION = "KEYPOINT_DETECTION"
 
     @classmethod
-    def from_json(cls, json_str: str) -> 'TaskType':
+    def from_json(cls, json_str: str) -> "TaskType":
         """Create an instance of TaskType from a JSON string"""
         return TaskType(json.loads(json_str))
-
-

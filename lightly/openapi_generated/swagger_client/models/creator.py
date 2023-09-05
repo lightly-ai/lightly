@@ -20,9 +20,6 @@ from enum import Enum
 from aenum import no_arg  # type: ignore
 
 
-
-
-
 class Creator(str, Enum):
     """
     Creator
@@ -31,15 +28,13 @@ class Creator(str, Enum):
     """
     allowed enum values
     """
-    UNKNOWN = 'UNKNOWN'
-    USER_WEBAPP = 'USER_WEBAPP'
-    USER_PIP = 'USER_PIP'
-    USER_PIP_LIGHTLY_MAGIC = 'USER_PIP_LIGHTLY_MAGIC'
-    USER_WORKER = 'USER_WORKER'
+    UNKNOWN = "UNKNOWN"
+    USER_WEBAPP = "USER_WEBAPP"
+    USER_PIP = "USER_PIP"
+    USER_PIP_LIGHTLY_MAGIC = "USER_PIP_LIGHTLY_MAGIC"
+    USER_WORKER = "USER_WORKER"
 
     @classmethod
-    def from_json(cls, json_str: str) -> 'Creator':
+    def from_json(cls, json_str: str) -> "Creator":
         """Create an instance of Creator from a JSON string"""
         return Creator(json.loads(json_str))
-
-

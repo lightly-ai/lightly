@@ -19,21 +19,45 @@ import re  # noqa: F401
 import json
 
 
+from pydantic import Extra, BaseModel, Field, StrictStr, constr
+from lightly.openapi_generated.swagger_client.models.datasource_config_base import (
+    DatasourceConfigBase,
+)
 
-from pydantic import Extra,  BaseModel, Field, StrictStr, constr
-from lightly.openapi_generated.swagger_client.models.datasource_config_base import DatasourceConfigBase
 
 class DatasourceConfigGCS(DatasourceConfigBase):
     """
     DatasourceConfigGCS
     """
-    full_path: StrictStr = Field(..., alias="fullPath", description="path includes the bucket name and the path within the bucket where you have stored your information")
-    gcs_project_id: constr(strict=True, min_length=1) = Field(..., alias="gcsProjectId", description="The projectId where you have your bucket configured")
-    gcs_credentials: StrictStr = Field(..., alias="gcsCredentials", description="this is the content of the credentials JSON file stringified which you downloaded from Google Cloud Platform")
-    __properties = ["id", "purpose", "type", "thumbSuffix", "fullPath", "gcsProjectId", "gcsCredentials"]
+
+    full_path: StrictStr = Field(
+        ...,
+        alias="fullPath",
+        description="path includes the bucket name and the path within the bucket where you have stored your information",
+    )
+    gcs_project_id: constr(strict=True, min_length=1) = Field(
+        ...,
+        alias="gcsProjectId",
+        description="The projectId where you have your bucket configured",
+    )
+    gcs_credentials: StrictStr = Field(
+        ...,
+        alias="gcsCredentials",
+        description="this is the content of the credentials JSON file stringified which you downloaded from Google Cloud Platform",
+    )
+    __properties = [
+        "id",
+        "purpose",
+        "type",
+        "thumbSuffix",
+        "fullPath",
+        "gcsProjectId",
+        "gcsCredentials",
+    ]
 
     class Config:
         """Pydantic configuration"""
+
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -54,10 +78,7 @@ class DatasourceConfigGCS(DatasourceConfigBase):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias,
-                          exclude={
-                          },
-                          exclude_none=True)
+        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
         return _dict
 
     @classmethod
@@ -72,16 +93,20 @@ class DatasourceConfigGCS(DatasourceConfigBase):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in DatasourceConfigGCS) in the input: " + str(obj))
+                raise ValueError(
+                    "Error due to additional fields (not defined in DatasourceConfigGCS) in the input: "
+                    + str(obj)
+                )
 
-        _obj = DatasourceConfigGCS.parse_obj({
-            "id": obj.get("id"),
-            "purpose": obj.get("purpose"),
-            "type": obj.get("type"),
-            "thumb_suffix": obj.get("thumbSuffix"),
-            "full_path": obj.get("fullPath"),
-            "gcs_project_id": obj.get("gcsProjectId"),
-            "gcs_credentials": obj.get("gcsCredentials")
-        })
+        _obj = DatasourceConfigGCS.parse_obj(
+            {
+                "id": obj.get("id"),
+                "purpose": obj.get("purpose"),
+                "type": obj.get("type"),
+                "thumb_suffix": obj.get("thumbSuffix"),
+                "full_path": obj.get("fullPath"),
+                "gcs_project_id": obj.get("gcsProjectId"),
+                "gcs_credentials": obj.get("gcsCredentials"),
+            }
+        )
         return _obj
-

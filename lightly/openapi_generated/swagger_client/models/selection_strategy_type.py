@@ -20,9 +20,6 @@ from enum import Enum
 from aenum import no_arg  # type: ignore
 
 
-
-
-
 class SelectionStrategyType(str, Enum):
     """
     SelectionStrategyType
@@ -31,15 +28,13 @@ class SelectionStrategyType(str, Enum):
     """
     allowed enum values
     """
-    DIVERSITY = 'DIVERSITY'
-    WEIGHTS = 'WEIGHTS'
-    THRESHOLD = 'THRESHOLD'
-    BALANCE = 'BALANCE'
-    SIMILARITY = 'SIMILARITY'
+    DIVERSITY = "DIVERSITY"
+    WEIGHTS = "WEIGHTS"
+    THRESHOLD = "THRESHOLD"
+    BALANCE = "BALANCE"
+    SIMILARITY = "SIMILARITY"
 
     @classmethod
-    def from_json(cls, json_str: str) -> 'SelectionStrategyType':
+    def from_json(cls, json_str: str) -> "SelectionStrategyType":
         """Create an instance of SelectionStrategyType from a JSON string"""
         return SelectionStrategyType(json.loads(json_str))
-
-

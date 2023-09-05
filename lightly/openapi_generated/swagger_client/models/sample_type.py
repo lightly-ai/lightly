@@ -20,9 +20,6 @@ from enum import Enum
 from aenum import no_arg  # type: ignore
 
 
-
-
-
 class SampleType(str, Enum):
     """
     Type of the sample (VideoFrame vs IMAGE vs CROP). Determined by the API!
@@ -31,13 +28,11 @@ class SampleType(str, Enum):
     """
     allowed enum values
     """
-    CROP = 'CROP'
-    IMAGE = 'IMAGE'
-    VIDEO_FRAME = 'VIDEO_FRAME'
+    CROP = "CROP"
+    IMAGE = "IMAGE"
+    VIDEO_FRAME = "VIDEO_FRAME"
 
     @classmethod
-    def from_json(cls, json_str: str) -> 'SampleType':
+    def from_json(cls, json_str: str) -> "SampleType":
         """Create an instance of SampleType from a JSON string"""
         return SampleType(json.loads(json_str))
-
-

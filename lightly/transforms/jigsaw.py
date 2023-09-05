@@ -70,5 +70,5 @@ class Jigsaw(object):
             )
         crops = [Image.fromarray(crop) for crop in crops]
         crops = torch.stack([self.transform(crop) for crop in crops])
-        crops = crops[np.random.permutation(self.n_grid**2)]
+        crops = crops[np.random.permutation(self.n_grid ** 2)]
         return crops

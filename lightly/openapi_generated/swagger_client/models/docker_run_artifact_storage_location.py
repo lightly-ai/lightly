@@ -20,9 +20,6 @@ from enum import Enum
 from aenum import no_arg  # type: ignore
 
 
-
-
-
 class DockerRunArtifactStorageLocation(str, Enum):
     """
     DockerRunArtifactStorageLocation
@@ -31,12 +28,10 @@ class DockerRunArtifactStorageLocation(str, Enum):
     """
     allowed enum values
     """
-    LIGHTLY = 'LIGHTLY'
-    DATASOURCE = 'DATASOURCE'
+    LIGHTLY = "LIGHTLY"
+    DATASOURCE = "DATASOURCE"
 
     @classmethod
-    def from_json(cls, json_str: str) -> 'DockerRunArtifactStorageLocation':
+    def from_json(cls, json_str: str) -> "DockerRunArtifactStorageLocation":
         """Create an instance of DockerRunArtifactStorageLocation from a JSON string"""
         return DockerRunArtifactStorageLocation(json.loads(json_str))
-
-

@@ -20,9 +20,6 @@ from enum import Enum
 from aenum import no_arg  # type: ignore
 
 
-
-
-
 class SelectionStrategyThresholdOperation(str, Enum):
     """
     SelectionStrategyThresholdOperation
@@ -31,14 +28,12 @@ class SelectionStrategyThresholdOperation(str, Enum):
     """
     allowed enum values
     """
-    SMALLER = 'SMALLER'
-    SMALLER_EQUAL = 'SMALLER_EQUAL'
-    BIGGER = 'BIGGER'
-    BIGGER_EQUAL = 'BIGGER_EQUAL'
+    SMALLER = "SMALLER"
+    SMALLER_EQUAL = "SMALLER_EQUAL"
+    BIGGER = "BIGGER"
+    BIGGER_EQUAL = "BIGGER_EQUAL"
 
     @classmethod
-    def from_json(cls, json_str: str) -> 'SelectionStrategyThresholdOperation':
+    def from_json(cls, json_str: str) -> "SelectionStrategyThresholdOperation":
         """Create an instance of SelectionStrategyThresholdOperation from a JSON string"""
         return SelectionStrategyThresholdOperation(json.loads(json_str))
-
-

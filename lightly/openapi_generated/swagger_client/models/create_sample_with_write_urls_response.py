@@ -19,19 +19,22 @@ import re  # noqa: F401
 import json
 
 
+from pydantic import Extra, BaseModel, Field, constr, validator
+from lightly.openapi_generated.swagger_client.models.sample_write_urls import (
+    SampleWriteUrls,
+)
 
-from pydantic import Extra,  BaseModel, Field, constr, validator
-from lightly.openapi_generated.swagger_client.models.sample_write_urls import SampleWriteUrls
 
 class CreateSampleWithWriteUrlsResponse(BaseModel):
     """
     CreateSampleWithWriteUrlsResponse
     """
+
     id: constr(strict=True) = Field(..., description="MongoDB ObjectId")
     sample_write_urls: SampleWriteUrls = Field(..., alias="sampleWriteUrls")
     __properties = ["id", "sampleWriteUrls"]
 
-    @validator('id')
+    @validator("id")
     def id_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^[a-f0-9]{24}$", value):
@@ -40,6 +43,7 @@ class CreateSampleWithWriteUrlsResponse(BaseModel):
 
     class Config:
         """Pydantic configuration"""
+
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -60,13 +64,12 @@ class CreateSampleWithWriteUrlsResponse(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias,
-                          exclude={
-                          },
-                          exclude_none=True)
+        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of sample_write_urls
         if self.sample_write_urls:
-            _dict['sampleWriteUrls' if by_alias else 'sample_write_urls'] = self.sample_write_urls.to_dict(by_alias=by_alias)
+            _dict[
+                "sampleWriteUrls" if by_alias else "sample_write_urls"
+            ] = self.sample_write_urls.to_dict(by_alias=by_alias)
         return _dict
 
     @classmethod
@@ -81,11 +84,19 @@ class CreateSampleWithWriteUrlsResponse(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in CreateSampleWithWriteUrlsResponse) in the input: " + str(obj))
+                raise ValueError(
+                    "Error due to additional fields (not defined in CreateSampleWithWriteUrlsResponse) in the input: "
+                    + str(obj)
+                )
 
-        _obj = CreateSampleWithWriteUrlsResponse.parse_obj({
-            "id": obj.get("id"),
-            "sample_write_urls": SampleWriteUrls.from_dict(obj.get("sampleWriteUrls")) if obj.get("sampleWriteUrls") is not None else None
-        })
+        _obj = CreateSampleWithWriteUrlsResponse.parse_obj(
+            {
+                "id": obj.get("id"),
+                "sample_write_urls": SampleWriteUrls.from_dict(
+                    obj.get("sampleWriteUrls")
+                )
+                if obj.get("sampleWriteUrls") is not None
+                else None,
+            }
+        )
         return _obj
-

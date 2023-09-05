@@ -14,10 +14,10 @@ class TestPMSNLoss:
         criterion = PMSNLoss()
         mean_anchor_probs = torch.Tensor([0.1, 0.3, 0.6])
         loss = criterion.regularization_loss(mean_anchor_probs=mean_anchor_probs)
-        norm = 1 / (1**0.25) + 1 / (2**0.25) + 1 / (3**0.25)
-        t0 = 1 / (1**0.25) / norm
-        t1 = 1 / (2**0.25) / norm
-        t2 = 1 / (3**0.25) / norm
+        norm = 1 / (1 ** 0.25) + 1 / (2 ** 0.25) + 1 / (3 ** 0.25)
+        t0 = 1 / (1 ** 0.25) / norm
+        t1 = 1 / (2 ** 0.25) / norm
+        t2 = 1 / (3 ** 0.25) / norm
         loss = criterion.regularization_loss(mean_anchor_probs=mean_anchor_probs)
         expected_loss = (
             t0 * math.log(t0 / 0.1) + t1 * math.log(t1 / 0.3) + t2 * math.log(t2 / 0.6)
@@ -85,10 +85,10 @@ def test__power_law_distribution() -> None:
         power_dist,
         torch.Tensor(
             [
-                1 / (1**0.5),
-                1 / (2**0.5),
-                1 / (3**0.5),
-                1 / (4**0.5),
+                1 / (1 ** 0.5),
+                1 / (2 ** 0.5),
+                1 / (3 ** 0.5),
+                1 / (4 ** 0.5),
             ]
         )
         / 2.784457050376173,

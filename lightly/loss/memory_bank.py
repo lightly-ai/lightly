@@ -39,7 +39,7 @@ class MemoryBankModule(torch.nn.Module):
 
     """
 
-    def __init__(self, size: int = 2**16):
+    def __init__(self, size: int = 2 ** 16):
         super(MemoryBankModule, self).__init__()
 
         if size < 0:

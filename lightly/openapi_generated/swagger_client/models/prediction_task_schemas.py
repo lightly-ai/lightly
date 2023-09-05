@@ -20,19 +20,28 @@ import json
 
 
 from typing import List
-from pydantic import Extra,  BaseModel, Field, conint, conlist
-from lightly.openapi_generated.swagger_client.models.prediction_task_schema import PredictionTaskSchema
+from pydantic import Extra, BaseModel, Field, conint, conlist
+from lightly.openapi_generated.swagger_client.models.prediction_task_schema import (
+    PredictionTaskSchema,
+)
+
 
 class PredictionTaskSchemas(BaseModel):
     """
     PredictionTaskSchemas
     """
-    prediction_uuid_timestamp: conint(strict=True, ge=0) = Field(..., alias="predictionUUIDTimestamp", description="unix timestamp in milliseconds")
+
+    prediction_uuid_timestamp: conint(strict=True, ge=0) = Field(
+        ...,
+        alias="predictionUUIDTimestamp",
+        description="unix timestamp in milliseconds",
+    )
     schemas: conlist(PredictionTaskSchema) = Field(...)
     __properties = ["predictionUUIDTimestamp", "schemas"]
 
     class Config:
         """Pydantic configuration"""
+
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -53,17 +62,14 @@ class PredictionTaskSchemas(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias,
-                          exclude={
-                          },
-                          exclude_none=True)
+        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of each item in schemas (list)
         _items = []
         if self.schemas:
             for _item in self.schemas:
                 if _item:
                     _items.append(_item.to_dict(by_alias=by_alias))
-            _dict['schemas' if by_alias else 'schemas'] = _items
+            _dict["schemas" if by_alias else "schemas"] = _items
         return _dict
 
     @classmethod
@@ -78,11 +84,20 @@ class PredictionTaskSchemas(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in PredictionTaskSchemas) in the input: " + str(obj))
+                raise ValueError(
+                    "Error due to additional fields (not defined in PredictionTaskSchemas) in the input: "
+                    + str(obj)
+                )
 
-        _obj = PredictionTaskSchemas.parse_obj({
-            "prediction_uuid_timestamp": obj.get("predictionUUIDTimestamp"),
-            "schemas": [PredictionTaskSchema.from_dict(_item) for _item in obj.get("schemas")] if obj.get("schemas") is not None else None
-        })
+        _obj = PredictionTaskSchemas.parse_obj(
+            {
+                "prediction_uuid_timestamp": obj.get("predictionUUIDTimestamp"),
+                "schemas": [
+                    PredictionTaskSchema.from_dict(_item)
+                    for _item in obj.get("schemas")
+                ]
+                if obj.get("schemas") is not None
+                else None,
+            }
+        )
         return _obj
-

@@ -30,7 +30,7 @@ class MAE(pl.LightningModule):
             embed_input_dim=vit.hidden_dim,
             hidden_dim=decoder_dim,
             mlp_dim=decoder_dim * 4,
-            out_dim=vit.patch_size**2 * 3,
+            out_dim=vit.patch_size ** 2 * 3,
             dropout=0,
             attention_dropout=0,
         )

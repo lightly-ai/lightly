@@ -63,7 +63,7 @@ from lightly.utils.benchmarking import BenchmarkModule
 logs_root_dir = os.path.join(os.getcwd(), "benchmark_logs")
 
 num_workers = 12
-memory_bank_size = 2**16
+memory_bank_size = 2 ** 16
 
 # set max_epochs to 800 for long run (takes around 10h on a single V100)
 max_epochs = 200
@@ -750,7 +750,7 @@ for model, results in bench_results.items():
     runtime = runtime.mean() / 60  # convert to min
     accuracy = np.array([result["max_accuracy"] for result in results])
     gpu_memory_usage = np.array([result["gpu_memory_usage"] for result in results])
-    gpu_memory_usage = gpu_memory_usage.max() / (1024**3)  # convert to gbyte
+    gpu_memory_usage = gpu_memory_usage.max() / (1024 ** 3)  # convert to gbyte
 
     if len(accuracy) > 1:
         accuracy_msg = f"{accuracy.mean():>8.3f} +- {accuracy.std():>4.3f}"

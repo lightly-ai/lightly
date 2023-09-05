@@ -20,22 +20,31 @@ import json
 
 
 from typing import List, Optional
-from pydantic import Extra,  BaseModel, Field, StrictStr, conlist
+from pydantic import Extra, BaseModel, Field, StrictStr, conlist
 from lightly.openapi_generated.swagger_client.models.creator import Creator
-from lightly.openapi_generated.swagger_client.models.shared_access_type import SharedAccessType
+from lightly.openapi_generated.swagger_client.models.shared_access_type import (
+    SharedAccessType,
+)
+
 
 class SharedAccessConfigCreateRequest(BaseModel):
     """
     SharedAccessConfigCreateRequest
     """
+
     access_type: SharedAccessType = Field(..., alias="accessType")
-    users: Optional[conlist(StrictStr)] = Field(None, description="List of users with access to the dataset.")
-    teams: Optional[conlist(StrictStr)] = Field(None, description="List of teams with access to the dataset.")
+    users: Optional[conlist(StrictStr)] = Field(
+        None, description="List of users with access to the dataset."
+    )
+    teams: Optional[conlist(StrictStr)] = Field(
+        None, description="List of teams with access to the dataset."
+    )
     creator: Optional[Creator] = None
     __properties = ["accessType", "users", "teams", "creator"]
 
     class Config:
         """Pydantic configuration"""
+
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -56,10 +65,7 @@ class SharedAccessConfigCreateRequest(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias,
-                          exclude={
-                          },
-                          exclude_none=True)
+        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
         return _dict
 
     @classmethod
@@ -74,13 +80,17 @@ class SharedAccessConfigCreateRequest(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in SharedAccessConfigCreateRequest) in the input: " + str(obj))
+                raise ValueError(
+                    "Error due to additional fields (not defined in SharedAccessConfigCreateRequest) in the input: "
+                    + str(obj)
+                )
 
-        _obj = SharedAccessConfigCreateRequest.parse_obj({
-            "access_type": obj.get("accessType"),
-            "users": obj.get("users"),
-            "teams": obj.get("teams"),
-            "creator": obj.get("creator")
-        })
+        _obj = SharedAccessConfigCreateRequest.parse_obj(
+            {
+                "access_type": obj.get("accessType"),
+                "users": obj.get("users"),
+                "teams": obj.get("teams"),
+                "creator": obj.get("creator"),
+            }
+        )
         return _obj
-

@@ -20,9 +20,6 @@ from enum import Enum
 from aenum import no_arg  # type: ignore
 
 
-
-
-
 class ImageType(str, Enum):
     """
     ImageType
@@ -31,13 +28,11 @@ class ImageType(str, Enum):
     """
     allowed enum values
     """
-    FULL = 'full'
-    THUMBNAIL = 'thumbnail'
-    META = 'meta'
+    FULL = "full"
+    THUMBNAIL = "thumbnail"
+    META = "meta"
 
     @classmethod
-    def from_json(cls, json_str: str) -> 'ImageType':
+    def from_json(cls, json_str: str) -> "ImageType":
         """Create an instance of ImageType from a JSON string"""
         return ImageType(json.loads(json_str))
-
-

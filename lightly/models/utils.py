@@ -427,7 +427,7 @@ def patchify(images: torch.Tensor, patch_size: int) -> torch.Tensor:
     num_patches = patch_h * patch_w
     patches = images.reshape(shape=(N, C, patch_h, patch_size, patch_w, patch_size))
     patches = torch.einsum("nchpwq->nhwpqc", patches)
-    patches = patches.reshape(shape=(N, num_patches, patch_size**2 * C))
+    patches = patches.reshape(shape=(N, num_patches, patch_size ** 2 * C))
     return patches
 
 
@@ -704,7 +704,7 @@ def get_1d_sincos_pos_embed_from_grid(
     assert embed_dim % 2 == 0
     omega = np.arange(embed_dim // 2, dtype=float)
     omega /= embed_dim / 2.0
-    omega = 1.0 / 10000**omega  # (D/2,)
+    omega = 1.0 / 10000 ** omega  # (D/2,)
 
     pos = pos.reshape(-1)  # (M,)
     out = np.einsum("m,d->md", pos, omega)  # (M, D/2), outer product

@@ -20,47 +20,61 @@ import json
 
 
 from typing import Optional
-from pydantic import Extra,  BaseModel, Field, constr, validator
-from lightly.openapi_generated.swagger_client.models.tag_arithmetics_operation import TagArithmeticsOperation
+from pydantic import Extra, BaseModel, Field, constr, validator
+from lightly.openapi_generated.swagger_client.models.tag_arithmetics_operation import (
+    TagArithmeticsOperation,
+)
 from lightly.openapi_generated.swagger_client.models.tag_creator import TagCreator
+
 
 class TagArithmeticsRequest(BaseModel):
     """
     TagArithmeticsRequest
     """
-    tag_id1: constr(strict=True) = Field(..., alias="tagId1", description="MongoDB ObjectId")
-    tag_id2: constr(strict=True) = Field(..., alias="tagId2", description="MongoDB ObjectId")
+
+    tag_id1: constr(strict=True) = Field(
+        ..., alias="tagId1", description="MongoDB ObjectId"
+    )
+    tag_id2: constr(strict=True) = Field(
+        ..., alias="tagId2", description="MongoDB ObjectId"
+    )
     operation: TagArithmeticsOperation = Field(...)
-    new_tag_name: Optional[constr(strict=True, min_length=3)] = Field(None, alias="newTagName", description="The name of the tag")
+    new_tag_name: Optional[constr(strict=True, min_length=3)] = Field(
+        None, alias="newTagName", description="The name of the tag"
+    )
     creator: Optional[TagCreator] = None
-    run_id: Optional[constr(strict=True)] = Field(None, alias="runId", description="MongoDB ObjectId")
+    run_id: Optional[constr(strict=True)] = Field(
+        None, alias="runId", description="MongoDB ObjectId"
+    )
     __properties = ["tagId1", "tagId2", "operation", "newTagName", "creator", "runId"]
 
-    @validator('tag_id1')
+    @validator("tag_id1")
     def tag_id1_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^[a-f0-9]{24}$", value):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
         return value
 
-    @validator('tag_id2')
+    @validator("tag_id2")
     def tag_id2_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^[a-f0-9]{24}$", value):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
         return value
 
-    @validator('new_tag_name')
+    @validator("new_tag_name")
     def new_tag_name_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if value is None:
             return value
 
         if not re.match(r"^[a-zA-Z0-9][a-zA-Z0-9 .:;=@_-]+$", value):
-            raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9][a-zA-Z0-9 .:;=@_-]+$/")
+            raise ValueError(
+                r"must validate the regular expression /^[a-zA-Z0-9][a-zA-Z0-9 .:;=@_-]+$/"
+            )
         return value
 
-    @validator('run_id')
+    @validator("run_id")
     def run_id_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if value is None:
@@ -72,6 +86,7 @@ class TagArithmeticsRequest(BaseModel):
 
     class Config:
         """Pydantic configuration"""
+
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -92,10 +107,7 @@ class TagArithmeticsRequest(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias,
-                          exclude={
-                          },
-                          exclude_none=True)
+        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
         return _dict
 
     @classmethod
@@ -110,15 +122,19 @@ class TagArithmeticsRequest(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in TagArithmeticsRequest) in the input: " + str(obj))
+                raise ValueError(
+                    "Error due to additional fields (not defined in TagArithmeticsRequest) in the input: "
+                    + str(obj)
+                )
 
-        _obj = TagArithmeticsRequest.parse_obj({
-            "tag_id1": obj.get("tagId1"),
-            "tag_id2": obj.get("tagId2"),
-            "operation": obj.get("operation"),
-            "new_tag_name": obj.get("newTagName"),
-            "creator": obj.get("creator"),
-            "run_id": obj.get("runId")
-        })
+        _obj = TagArithmeticsRequest.parse_obj(
+            {
+                "tag_id1": obj.get("tagId1"),
+                "tag_id2": obj.get("tagId2"),
+                "operation": obj.get("operation"),
+                "new_tag_name": obj.get("newTagName"),
+                "creator": obj.get("creator"),
+                "run_id": obj.get("runId"),
+            }
+        )
         return _obj
-

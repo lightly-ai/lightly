@@ -20,31 +20,49 @@ import json
 
 
 from typing import Optional
-from pydantic import Extra,  BaseModel, Field, StrictStr, conint, constr, validator
-from lightly.openapi_generated.swagger_client.models.job_result_type import JobResultType
+from pydantic import Extra, BaseModel, Field, StrictStr, conint, constr, validator
+from lightly.openapi_generated.swagger_client.models.job_result_type import (
+    JobResultType,
+)
 from lightly.openapi_generated.swagger_client.models.job_state import JobState
+
 
 class JobsData(BaseModel):
     """
     JobsData
     """
+
     id: constr(strict=True) = Field(..., description="MongoDB ObjectId")
     job_id: StrictStr = Field(..., alias="jobId")
     job_type: JobResultType = Field(..., alias="jobType")
-    dataset_id: Optional[constr(strict=True)] = Field(None, alias="datasetId", description="MongoDB ObjectId")
+    dataset_id: Optional[constr(strict=True)] = Field(
+        None, alias="datasetId", description="MongoDB ObjectId"
+    )
     status: JobState = Field(...)
-    finished_at: Optional[conint(strict=True, ge=0)] = Field(None, alias="finishedAt", description="unix timestamp in milliseconds")
-    created_at: conint(strict=True, ge=0) = Field(..., alias="createdAt", description="unix timestamp in milliseconds")
-    __properties = ["id", "jobId", "jobType", "datasetId", "status", "finishedAt", "createdAt"]
+    finished_at: Optional[conint(strict=True, ge=0)] = Field(
+        None, alias="finishedAt", description="unix timestamp in milliseconds"
+    )
+    created_at: conint(strict=True, ge=0) = Field(
+        ..., alias="createdAt", description="unix timestamp in milliseconds"
+    )
+    __properties = [
+        "id",
+        "jobId",
+        "jobType",
+        "datasetId",
+        "status",
+        "finishedAt",
+        "createdAt",
+    ]
 
-    @validator('id')
+    @validator("id")
     def id_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^[a-f0-9]{24}$", value):
             raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
         return value
 
-    @validator('dataset_id')
+    @validator("dataset_id")
     def dataset_id_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if value is None:
@@ -56,6 +74,7 @@ class JobsData(BaseModel):
 
     class Config:
         """Pydantic configuration"""
+
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -76,10 +95,7 @@ class JobsData(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias,
-                          exclude={
-                          },
-                          exclude_none=True)
+        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
         return _dict
 
     @classmethod
@@ -94,16 +110,20 @@ class JobsData(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in JobsData) in the input: " + str(obj))
+                raise ValueError(
+                    "Error due to additional fields (not defined in JobsData) in the input: "
+                    + str(obj)
+                )
 
-        _obj = JobsData.parse_obj({
-            "id": obj.get("id"),
-            "job_id": obj.get("jobId"),
-            "job_type": obj.get("jobType"),
-            "dataset_id": obj.get("datasetId"),
-            "status": obj.get("status"),
-            "finished_at": obj.get("finishedAt"),
-            "created_at": obj.get("createdAt")
-        })
+        _obj = JobsData.parse_obj(
+            {
+                "id": obj.get("id"),
+                "job_id": obj.get("jobId"),
+                "job_type": obj.get("jobType"),
+                "dataset_id": obj.get("datasetId"),
+                "status": obj.get("status"),
+                "finished_at": obj.get("finishedAt"),
+                "created_at": obj.get("createdAt"),
+            }
+        )
         return _obj
-

@@ -20,31 +20,39 @@ import json
 
 
 from typing import Optional
-from pydantic import Extra,  BaseModel, Field, constr, validator
+from pydantic import Extra, BaseModel, Field, constr, validator
 from lightly.openapi_generated.swagger_client.models.image_type import ImageType
 from lightly.openapi_generated.swagger_client.models.tag_creator import TagCreator
+
 
 class InitialTagCreateRequest(BaseModel):
     """
     InitialTagCreateRequest
     """
-    name: Optional[constr(strict=True, min_length=3)] = Field(None, description="The name of the tag")
+
+    name: Optional[constr(strict=True, min_length=3)] = Field(
+        None, description="The name of the tag"
+    )
     creator: Optional[TagCreator] = None
     img_type: ImageType = Field(..., alias="imgType")
-    run_id: Optional[constr(strict=True)] = Field(None, alias="runId", description="MongoDB ObjectId")
+    run_id: Optional[constr(strict=True)] = Field(
+        None, alias="runId", description="MongoDB ObjectId"
+    )
     __properties = ["name", "creator", "imgType", "runId"]
 
-    @validator('name')
+    @validator("name")
     def name_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if value is None:
             return value
 
         if not re.match(r"^[a-zA-Z0-9][a-zA-Z0-9 .:;=@_-]+$", value):
-            raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9][a-zA-Z0-9 .:;=@_-]+$/")
+            raise ValueError(
+                r"must validate the regular expression /^[a-zA-Z0-9][a-zA-Z0-9 .:;=@_-]+$/"
+            )
         return value
 
-    @validator('run_id')
+    @validator("run_id")
     def run_id_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if value is None:
@@ -56,6 +64,7 @@ class InitialTagCreateRequest(BaseModel):
 
     class Config:
         """Pydantic configuration"""
+
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -76,10 +85,7 @@ class InitialTagCreateRequest(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias,
-                          exclude={
-                          },
-                          exclude_none=True)
+        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
         return _dict
 
     @classmethod
@@ -94,13 +100,17 @@ class InitialTagCreateRequest(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in InitialTagCreateRequest) in the input: " + str(obj))
+                raise ValueError(
+                    "Error due to additional fields (not defined in InitialTagCreateRequest) in the input: "
+                    + str(obj)
+                )
 
-        _obj = InitialTagCreateRequest.parse_obj({
-            "name": obj.get("name"),
-            "creator": obj.get("creator"),
-            "img_type": obj.get("imgType"),
-            "run_id": obj.get("runId")
-        })
+        _obj = InitialTagCreateRequest.parse_obj(
+            {
+                "name": obj.get("name"),
+                "creator": obj.get("creator"),
+                "img_type": obj.get("imgType"),
+                "run_id": obj.get("runId"),
+            }
+        )
         return _obj
-

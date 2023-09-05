@@ -19,19 +19,25 @@ import re  # noqa: F401
 import json
 
 
+from pydantic import Extra, BaseModel, Field, StrictStr
 
-from pydantic import Extra,  BaseModel, Field, StrictStr
 
 class DatasourceRawSamplesPredictionsDataRow(BaseModel):
     """
     Filename and corresponding read url for a samples prediction in the datasource
     """
+
     file_name: StrictStr = Field(..., alias="fileName")
-    read_url: StrictStr = Field(..., alias="readUrl", description="A URL which allows anyone in possession of said URL to access the resource")
+    read_url: StrictStr = Field(
+        ...,
+        alias="readUrl",
+        description="A URL which allows anyone in possession of said URL to access the resource",
+    )
     __properties = ["fileName", "readUrl"]
 
     class Config:
         """Pydantic configuration"""
+
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -52,10 +58,7 @@ class DatasourceRawSamplesPredictionsDataRow(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias,
-                          exclude={
-                          },
-                          exclude_none=True)
+        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
         return _dict
 
     @classmethod
@@ -70,11 +73,12 @@ class DatasourceRawSamplesPredictionsDataRow(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in DatasourceRawSamplesPredictionsDataRow) in the input: " + str(obj))
+                raise ValueError(
+                    "Error due to additional fields (not defined in DatasourceRawSamplesPredictionsDataRow) in the input: "
+                    + str(obj)
+                )
 
-        _obj = DatasourceRawSamplesPredictionsDataRow.parse_obj({
-            "file_name": obj.get("fileName"),
-            "read_url": obj.get("readUrl")
-        })
+        _obj = DatasourceRawSamplesPredictionsDataRow.parse_obj(
+            {"file_name": obj.get("fileName"), "read_url": obj.get("readUrl")}
+        )
         return _obj
-

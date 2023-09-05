@@ -20,28 +20,38 @@ import json
 
 
 from typing import Optional
-from pydantic import Extra,  BaseModel, Field, constr, validator
-from lightly.openapi_generated.swagger_client.models.tag_change_data import TagChangeData
+from pydantic import Extra, BaseModel, Field, constr, validator
+from lightly.openapi_generated.swagger_client.models.tag_change_data import (
+    TagChangeData,
+)
 from lightly.openapi_generated.swagger_client.models.tag_creator import TagCreator
+
 
 class TagUpdateRequest(BaseModel):
     """
     TagUpdateRequest
     """
+
     update_creator: Optional[TagCreator] = Field(None, alias="updateCreator")
-    name: constr(strict=True, min_length=3) = Field(..., description="The name of the tag")
-    bit_mask_data: Optional[constr(strict=True)] = Field(None, alias="bitMaskData", description="BitMask as a base16 (hex) string")
+    name: constr(strict=True, min_length=3) = Field(
+        ..., description="The name of the tag"
+    )
+    bit_mask_data: Optional[constr(strict=True)] = Field(
+        None, alias="bitMaskData", description="BitMask as a base16 (hex) string"
+    )
     changes: Optional[TagChangeData] = None
     __properties = ["updateCreator", "name", "bitMaskData", "changes"]
 
-    @validator('name')
+    @validator("name")
     def name_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^[a-zA-Z0-9][a-zA-Z0-9 .:;=@_-]+$", value):
-            raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9][a-zA-Z0-9 .:;=@_-]+$/")
+            raise ValueError(
+                r"must validate the regular expression /^[a-zA-Z0-9][a-zA-Z0-9 .:;=@_-]+$/"
+            )
         return value
 
-    @validator('bit_mask_data')
+    @validator("bit_mask_data")
     def bit_mask_data_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if value is None:
@@ -53,6 +63,7 @@ class TagUpdateRequest(BaseModel):
 
     class Config:
         """Pydantic configuration"""
+
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -73,13 +84,12 @@ class TagUpdateRequest(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias,
-                          exclude={
-                          },
-                          exclude_none=True)
+        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of changes
         if self.changes:
-            _dict['changes' if by_alias else 'changes'] = self.changes.to_dict(by_alias=by_alias)
+            _dict["changes" if by_alias else "changes"] = self.changes.to_dict(
+                by_alias=by_alias
+            )
         return _dict
 
     @classmethod
@@ -94,13 +104,19 @@ class TagUpdateRequest(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in TagUpdateRequest) in the input: " + str(obj))
+                raise ValueError(
+                    "Error due to additional fields (not defined in TagUpdateRequest) in the input: "
+                    + str(obj)
+                )
 
-        _obj = TagUpdateRequest.parse_obj({
-            "update_creator": obj.get("updateCreator"),
-            "name": obj.get("name"),
-            "bit_mask_data": obj.get("bitMaskData"),
-            "changes": TagChangeData.from_dict(obj.get("changes")) if obj.get("changes") is not None else None
-        })
+        _obj = TagUpdateRequest.parse_obj(
+            {
+                "update_creator": obj.get("updateCreator"),
+                "name": obj.get("name"),
+                "bit_mask_data": obj.get("bitMaskData"),
+                "changes": TagChangeData.from_dict(obj.get("changes"))
+                if obj.get("changes") is not None
+                else None,
+            }
+        )
         return _obj
-

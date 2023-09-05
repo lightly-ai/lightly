@@ -19,23 +19,31 @@ import re  # noqa: F401
 import json
 
 
+from pydantic import Extra, BaseModel, Field, StrictStr, conint
+from lightly.openapi_generated.swagger_client.models.docker_run_log_level import (
+    DockerRunLogLevel,
+)
+from lightly.openapi_generated.swagger_client.models.docker_run_state import (
+    DockerRunState,
+)
 
-from pydantic import Extra,  BaseModel, Field, StrictStr, conint
-from lightly.openapi_generated.swagger_client.models.docker_run_log_level import DockerRunLogLevel
-from lightly.openapi_generated.swagger_client.models.docker_run_state import DockerRunState
 
 class DockerRunLogEntryData(BaseModel):
     """
     DockerRunLogEntryData
     """
+
     msg: StrictStr = Field(...)
-    ts: conint(strict=True, ge=0) = Field(..., description="unix timestamp in milliseconds")
+    ts: conint(strict=True, ge=0) = Field(
+        ..., description="unix timestamp in milliseconds"
+    )
     state: DockerRunState = Field(...)
     level: DockerRunLogLevel = Field(...)
     __properties = ["msg", "ts", "state", "level"]
 
     class Config:
         """Pydantic configuration"""
+
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -56,10 +64,7 @@ class DockerRunLogEntryData(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias,
-                          exclude={
-                          },
-                          exclude_none=True)
+        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
         return _dict
 
     @classmethod
@@ -74,13 +79,17 @@ class DockerRunLogEntryData(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in DockerRunLogEntryData) in the input: " + str(obj))
+                raise ValueError(
+                    "Error due to additional fields (not defined in DockerRunLogEntryData) in the input: "
+                    + str(obj)
+                )
 
-        _obj = DockerRunLogEntryData.parse_obj({
-            "msg": obj.get("msg"),
-            "ts": obj.get("ts"),
-            "state": obj.get("state"),
-            "level": obj.get("level")
-        })
+        _obj = DockerRunLogEntryData.parse_obj(
+            {
+                "msg": obj.get("msg"),
+                "ts": obj.get("ts"),
+                "state": obj.get("state"),
+                "level": obj.get("level"),
+            }
+        )
         return _obj
-

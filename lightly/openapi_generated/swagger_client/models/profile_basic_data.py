@@ -20,25 +20,41 @@ import json
 
 
 from typing import List, Optional
-from pydantic import Extra,  BaseModel, Field, StrictStr, conint, conlist
-from lightly.openapi_generated.swagger_client.models.team_basic_data import TeamBasicData
+from pydantic import Extra, BaseModel, Field, StrictStr, conint, conlist
+from lightly.openapi_generated.swagger_client.models.team_basic_data import (
+    TeamBasicData,
+)
+
 
 class ProfileBasicData(BaseModel):
     """
     ProfileBasicData
     """
+
     id: StrictStr = Field(...)
     nickname: Optional[StrictStr] = None
     name: Optional[StrictStr] = None
     given_name: Optional[StrictStr] = Field(None, alias="givenName")
     family_name: Optional[StrictStr] = Field(None, alias="familyName")
     email: Optional[StrictStr] = None
-    created_at: conint(strict=True, ge=0) = Field(..., alias="createdAt", description="unix timestamp in milliseconds")
+    created_at: conint(strict=True, ge=0) = Field(
+        ..., alias="createdAt", description="unix timestamp in milliseconds"
+    )
     teams: Optional[conlist(TeamBasicData)] = None
-    __properties = ["id", "nickname", "name", "givenName", "familyName", "email", "createdAt", "teams"]
+    __properties = [
+        "id",
+        "nickname",
+        "name",
+        "givenName",
+        "familyName",
+        "email",
+        "createdAt",
+        "teams",
+    ]
 
     class Config:
         """Pydantic configuration"""
+
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -59,17 +75,14 @@ class ProfileBasicData(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias,
-                          exclude={
-                          },
-                          exclude_none=True)
+        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of each item in teams (list)
         _items = []
         if self.teams:
             for _item in self.teams:
                 if _item:
                     _items.append(_item.to_dict(by_alias=by_alias))
-            _dict['teams' if by_alias else 'teams'] = _items
+            _dict["teams" if by_alias else "teams"] = _items
         return _dict
 
     @classmethod
@@ -84,17 +97,23 @@ class ProfileBasicData(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in ProfileBasicData) in the input: " + str(obj))
+                raise ValueError(
+                    "Error due to additional fields (not defined in ProfileBasicData) in the input: "
+                    + str(obj)
+                )
 
-        _obj = ProfileBasicData.parse_obj({
-            "id": obj.get("id"),
-            "nickname": obj.get("nickname"),
-            "name": obj.get("name"),
-            "given_name": obj.get("givenName"),
-            "family_name": obj.get("familyName"),
-            "email": obj.get("email"),
-            "created_at": obj.get("createdAt"),
-            "teams": [TeamBasicData.from_dict(_item) for _item in obj.get("teams")] if obj.get("teams") is not None else None
-        })
+        _obj = ProfileBasicData.parse_obj(
+            {
+                "id": obj.get("id"),
+                "nickname": obj.get("nickname"),
+                "name": obj.get("name"),
+                "given_name": obj.get("givenName"),
+                "family_name": obj.get("familyName"),
+                "email": obj.get("email"),
+                "created_at": obj.get("createdAt"),
+                "teams": [TeamBasicData.from_dict(_item) for _item in obj.get("teams")]
+                if obj.get("teams") is not None
+                else None,
+            }
+        )
         return _obj
-

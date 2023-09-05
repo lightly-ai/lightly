@@ -20,18 +20,31 @@ import json
 
 
 from typing import List, Optional
-from pydantic import Extra,  BaseModel, Field, conint, conlist, constr
+from pydantic import Extra, BaseModel, Field, conint, conlist, constr
+
 
 class PredictionTaskSchemaCategoryKeypointsAllOf(BaseModel):
     """
     The link between the categoryId and the name that should be used
     """
-    keypoint_names: Optional[conlist(constr(strict=True, min_length=1))] = Field(None, alias="keypointNames", description="The names of the individual keypoints. E.g left-shoulder, right-shoulder, nose, etc. Must be of equal length as the number of keypoints of a keypoint detection. ")
-    keypoint_skeleton: Optional[conlist(conlist(conint(strict=True, ge=0), max_items=2, min_items=2))] = Field(None, alias="keypointSkeleton", description="The keypoint skeleton of a category. It is used to show the overall connectivity between keypoints. Each entry in the array describes a a single connection between two keypoints by their index. e.g [1,3],[2,4],[3,4] ")
+
+    keypoint_names: Optional[conlist(constr(strict=True, min_length=1))] = Field(
+        None,
+        alias="keypointNames",
+        description="The names of the individual keypoints. E.g left-shoulder, right-shoulder, nose, etc. Must be of equal length as the number of keypoints of a keypoint detection. ",
+    )
+    keypoint_skeleton: Optional[
+        conlist(conlist(conint(strict=True, ge=0), max_items=2, min_items=2))
+    ] = Field(
+        None,
+        alias="keypointSkeleton",
+        description="The keypoint skeleton of a category. It is used to show the overall connectivity between keypoints. Each entry in the array describes a a single connection between two keypoints by their index. e.g [1,3],[2,4],[3,4] ",
+    )
     __properties = ["keypointNames", "keypointSkeleton"]
 
     class Config:
         """Pydantic configuration"""
+
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -52,10 +65,7 @@ class PredictionTaskSchemaCategoryKeypointsAllOf(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias,
-                          exclude={
-                          },
-                          exclude_none=True)
+        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
         return _dict
 
     @classmethod
@@ -70,11 +80,15 @@ class PredictionTaskSchemaCategoryKeypointsAllOf(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in PredictionTaskSchemaCategoryKeypointsAllOf) in the input: " + str(obj))
+                raise ValueError(
+                    "Error due to additional fields (not defined in PredictionTaskSchemaCategoryKeypointsAllOf) in the input: "
+                    + str(obj)
+                )
 
-        _obj = PredictionTaskSchemaCategoryKeypointsAllOf.parse_obj({
-            "keypoint_names": obj.get("keypointNames"),
-            "keypoint_skeleton": obj.get("keypointSkeleton")
-        })
+        _obj = PredictionTaskSchemaCategoryKeypointsAllOf.parse_obj(
+            {
+                "keypoint_names": obj.get("keypointNames"),
+                "keypoint_skeleton": obj.get("keypointSkeleton"),
+            }
+        )
         return _obj
-

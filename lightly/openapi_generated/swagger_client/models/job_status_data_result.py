@@ -20,19 +20,26 @@ import json
 
 
 from typing import Any, Optional
-from pydantic import Extra,  BaseModel, Field
-from lightly.openapi_generated.swagger_client.models.job_result_type import JobResultType
+from pydantic import Extra, BaseModel, Field
+from lightly.openapi_generated.swagger_client.models.job_result_type import (
+    JobResultType,
+)
+
 
 class JobStatusDataResult(BaseModel):
     """
     JobStatusDataResult
     """
+
     type: JobResultType = Field(...)
-    data: Optional[Any] = Field(None, description="Depending on the job type, this can be anything")
+    data: Optional[Any] = Field(
+        None, description="Depending on the job type, this can be anything"
+    )
     __properties = ["type", "data"]
 
     class Config:
         """Pydantic configuration"""
+
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -53,14 +60,11 @@ class JobStatusDataResult(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias,
-                          exclude={
-                          },
-                          exclude_none=True)
+        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
         # set to None if data (nullable) is None
         # and __fields_set__ contains the field
         if self.data is None and "data" in self.__fields_set__:
-            _dict['data' if by_alias else 'data'] = None
+            _dict["data" if by_alias else "data"] = None
 
         return _dict
 
@@ -76,11 +80,12 @@ class JobStatusDataResult(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in JobStatusDataResult) in the input: " + str(obj))
+                raise ValueError(
+                    "Error due to additional fields (not defined in JobStatusDataResult) in the input: "
+                    + str(obj)
+                )
 
-        _obj = JobStatusDataResult.parse_obj({
-            "type": obj.get("type"),
-            "data": obj.get("data")
-        })
+        _obj = JobStatusDataResult.parse_obj(
+            {"type": obj.get("type"), "data": obj.get("data")}
+        )
         return _obj
-

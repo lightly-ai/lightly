@@ -19,23 +19,29 @@ import re  # noqa: F401
 import json
 
 
-
-from pydantic import Extra,  BaseModel, Field, StrictStr, conint
-from lightly.openapi_generated.swagger_client.models.tag_change_data import TagChangeData
+from pydantic import Extra, BaseModel, Field, StrictStr, conint
+from lightly.openapi_generated.swagger_client.models.tag_change_data import (
+    TagChangeData,
+)
 from lightly.openapi_generated.swagger_client.models.tag_creator import TagCreator
+
 
 class TagChangeEntry(BaseModel):
     """
     TagChangeEntry
     """
+
     user_id: StrictStr = Field(..., alias="userId")
     creator: TagCreator = Field(...)
-    ts: conint(strict=True, ge=0) = Field(..., description="unix timestamp in milliseconds")
+    ts: conint(strict=True, ge=0) = Field(
+        ..., description="unix timestamp in milliseconds"
+    )
     changes: TagChangeData = Field(...)
     __properties = ["userId", "creator", "ts", "changes"]
 
     class Config:
         """Pydantic configuration"""
+
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -56,13 +62,12 @@ class TagChangeEntry(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias,
-                          exclude={
-                          },
-                          exclude_none=True)
+        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of changes
         if self.changes:
-            _dict['changes' if by_alias else 'changes'] = self.changes.to_dict(by_alias=by_alias)
+            _dict["changes" if by_alias else "changes"] = self.changes.to_dict(
+                by_alias=by_alias
+            )
         return _dict
 
     @classmethod
@@ -77,13 +82,19 @@ class TagChangeEntry(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in TagChangeEntry) in the input: " + str(obj))
+                raise ValueError(
+                    "Error due to additional fields (not defined in TagChangeEntry) in the input: "
+                    + str(obj)
+                )
 
-        _obj = TagChangeEntry.parse_obj({
-            "user_id": obj.get("userId"),
-            "creator": obj.get("creator"),
-            "ts": obj.get("ts"),
-            "changes": TagChangeData.from_dict(obj.get("changes")) if obj.get("changes") is not None else None
-        })
+        _obj = TagChangeEntry.parse_obj(
+            {
+                "user_id": obj.get("userId"),
+                "creator": obj.get("creator"),
+                "ts": obj.get("ts"),
+                "changes": TagChangeData.from_dict(obj.get("changes"))
+                if obj.get("changes") is not None
+                else None,
+            }
+        )
         return _obj
-

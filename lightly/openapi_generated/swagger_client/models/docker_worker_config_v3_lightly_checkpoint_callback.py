@@ -20,17 +20,24 @@ import json
 
 
 from typing import Optional
-from pydantic import Extra,  BaseModel, Field, StrictBool
+from pydantic import Extra, BaseModel, Field, StrictBool
+
 
 class DockerWorkerConfigV3LightlyCheckpointCallback(BaseModel):
     """
     DockerWorkerConfigV3LightlyCheckpointCallback
     """
-    save_last: Optional[StrictBool] = Field(None, alias="saveLast", description="If True, the checkpoint from the last epoch is saved.")
+
+    save_last: Optional[StrictBool] = Field(
+        None,
+        alias="saveLast",
+        description="If True, the checkpoint from the last epoch is saved.",
+    )
     __properties = ["saveLast"]
 
     class Config:
         """Pydantic configuration"""
+
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -51,10 +58,7 @@ class DockerWorkerConfigV3LightlyCheckpointCallback(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias,
-                          exclude={
-                          },
-                          exclude_none=True)
+        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
         return _dict
 
     @classmethod
@@ -69,10 +73,12 @@ class DockerWorkerConfigV3LightlyCheckpointCallback(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in DockerWorkerConfigV3LightlyCheckpointCallback) in the input: " + str(obj))
+                raise ValueError(
+                    "Error due to additional fields (not defined in DockerWorkerConfigV3LightlyCheckpointCallback) in the input: "
+                    + str(obj)
+                )
 
-        _obj = DockerWorkerConfigV3LightlyCheckpointCallback.parse_obj({
-            "save_last": obj.get("saveLast")
-        })
+        _obj = DockerWorkerConfigV3LightlyCheckpointCallback.parse_obj(
+            {"save_last": obj.get("saveLast")}
+        )
         return _obj
-

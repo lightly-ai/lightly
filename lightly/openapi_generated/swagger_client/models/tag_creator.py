@@ -20,9 +20,6 @@ from enum import Enum
 from aenum import no_arg  # type: ignore
 
 
-
-
-
 class TagCreator(str, Enum):
     """
     TagCreator
@@ -31,19 +28,17 @@ class TagCreator(str, Enum):
     """
     allowed enum values
     """
-    UNKNOWN = 'UNKNOWN'
-    USER_WEBAPP = 'USER_WEBAPP'
-    USER_PIP = 'USER_PIP'
-    USER_PIP_LIGHTLY_MAGIC = 'USER_PIP_LIGHTLY_MAGIC'
-    USER_WORKER = 'USER_WORKER'
-    SAMPLER_ACTIVE_LEARNING = 'SAMPLER_ACTIVE_LEARNING'
-    SAMPLER_CORAL = 'SAMPLER_CORAL'
-    SAMPLER_CORESET = 'SAMPLER_CORESET'
-    SAMPLER_RANDOM = 'SAMPLER_RANDOM'
+    UNKNOWN = "UNKNOWN"
+    USER_WEBAPP = "USER_WEBAPP"
+    USER_PIP = "USER_PIP"
+    USER_PIP_LIGHTLY_MAGIC = "USER_PIP_LIGHTLY_MAGIC"
+    USER_WORKER = "USER_WORKER"
+    SAMPLER_ACTIVE_LEARNING = "SAMPLER_ACTIVE_LEARNING"
+    SAMPLER_CORAL = "SAMPLER_CORAL"
+    SAMPLER_CORESET = "SAMPLER_CORESET"
+    SAMPLER_RANDOM = "SAMPLER_RANDOM"
 
     @classmethod
-    def from_json(cls, json_str: str) -> 'TagCreator':
+    def from_json(cls, json_str: str) -> "TagCreator":
         """Create an instance of TagCreator from a JSON string"""
         return TagCreator(json.loads(json_str))
-
-

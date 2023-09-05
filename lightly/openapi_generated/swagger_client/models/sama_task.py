@@ -20,13 +20,15 @@ import json
 
 
 from typing import Optional
-from pydantic import Extra,  BaseModel, Field, StrictInt
+from pydantic import Extra, BaseModel, Field, StrictInt
 from lightly.openapi_generated.swagger_client.models.sama_task_data import SamaTaskData
+
 
 class SamaTask(BaseModel):
     """
     SamaTask
     """
+
     priority: Optional[StrictInt] = None
     reserve_for: Optional[StrictInt] = None
     data: SamaTaskData = Field(...)
@@ -34,6 +36,7 @@ class SamaTask(BaseModel):
 
     class Config:
         """Pydantic configuration"""
+
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
@@ -54,13 +57,10 @@ class SamaTask(BaseModel):
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
-        _dict = self.dict(by_alias=by_alias,
-                          exclude={
-                          },
-                          exclude_none=True)
+        _dict = self.dict(by_alias=by_alias, exclude={}, exclude_none=True)
         # override the default output from pydantic by calling `to_dict()` of data
         if self.data:
-            _dict['data' if by_alias else 'data'] = self.data.to_dict(by_alias=by_alias)
+            _dict["data" if by_alias else "data"] = self.data.to_dict(by_alias=by_alias)
         return _dict
 
     @classmethod
@@ -75,12 +75,18 @@ class SamaTask(BaseModel):
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in SamaTask) in the input: " + str(obj))
+                raise ValueError(
+                    "Error due to additional fields (not defined in SamaTask) in the input: "
+                    + str(obj)
+                )
 
-        _obj = SamaTask.parse_obj({
-            "priority": obj.get("priority"),
-            "reserve_for": obj.get("reserve_for"),
-            "data": SamaTaskData.from_dict(obj.get("data")) if obj.get("data") is not None else None
-        })
+        _obj = SamaTask.parse_obj(
+            {
+                "priority": obj.get("priority"),
+                "reserve_for": obj.get("reserve_for"),
+                "data": SamaTaskData.from_dict(obj.get("data"))
+                if obj.get("data") is not None
+                else None,
+            }
+        )
         return _obj
-
