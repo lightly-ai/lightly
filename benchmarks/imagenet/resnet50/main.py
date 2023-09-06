@@ -99,7 +99,7 @@ def main(
         if epochs <= 0:
             print_rank_zero("Epochs <= 0, skipping pretraining.")
             if ckpt_path is not None:
-                model.load_state_dict(torch.load(ckpt_path)['state_dict'])
+                model.load_state_dict(torch.load(ckpt_path)["state_dict"])
         else:
             pretrain(
                 model=model,
