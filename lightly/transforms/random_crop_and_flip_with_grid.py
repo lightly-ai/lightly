@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, List, Tuple
+from typing import Tuple
 
 import torch
 import torchvision.transforms as T
@@ -28,7 +28,7 @@ class Location:
     vertical_flip: bool = False
 
 
-class RandomResizedCropWithLocation(T.RandomResizedCrop):
+class RandomResizedCropWithLocation(T.RandomResizedCrop):  # type: ignore
     """
     Do a random resized crop and return both the resulting image and the location. See base class.
 
@@ -59,7 +59,7 @@ class RandomResizedCropWithLocation(T.RandomResizedCrop):
         return img, location
 
 
-class RandomHorizontalFlipWithLocation(T.RandomHorizontalFlip):
+class RandomHorizontalFlipWithLocation(T.RandomHorizontalFlip):  # type: ignore
     """See base class."""
 
     def forward(
@@ -84,7 +84,7 @@ class RandomHorizontalFlipWithLocation(T.RandomHorizontalFlip):
         return img, location
 
 
-class RandomVerticalFlipWithLocation(T.RandomVerticalFlip):
+class RandomVerticalFlipWithLocation(T.RandomVerticalFlip):  # type: ignore
     """See base class."""
 
     def forward(
@@ -128,7 +128,7 @@ class RandomResizedCropAndFlip(nn.Module):
         hf_prob:
             The probability of applying horizontal flipping to the image.
         normalize:
-            A dictionary containing the mean and std values for normalizing the image.
+            A Dict[str, List[float]]ionary containing the mean and std values for normalizing the image.
     """
 
     def __init__(

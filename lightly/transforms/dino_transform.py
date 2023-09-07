@@ -1,4 +1,4 @@
-from typing import Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 import PIL
 import torchvision.transforms as T
@@ -90,7 +90,7 @@ class DINOTransform(MultiViewTransform):
         solarization:
             Probability to apply solarization on the second global view.
         normalize:
-            Dictionary with 'mean' and 'std' for torchvision.transforms.Normalize.
+            Dict[str, List[float]]ionary with 'mean' and 'std' for torchvision.transforms.Normalize.
 
     """
 
@@ -117,7 +117,7 @@ class DINOTransform(MultiViewTransform):
         kernel_scale: Optional[float] = None,
         sigmas: Tuple[float, float] = (0.1, 2),
         solarization_prob: float = 0.2,
-        normalize: Union[None, dict] = IMAGENET_NORMALIZE,
+        normalize: Union[None, Dict[str, List[float]]] = IMAGENET_NORMALIZE,
     ):
         # first global crop
         global_transform_0 = DINOViewTransform(
@@ -213,7 +213,7 @@ class DINOViewTransform:
         kernel_scale: Optional[float] = None,
         sigmas: Tuple[float, float] = (0.1, 2),
         solarization_prob: float = 0.2,
-        normalize: Union[None, dict] = IMAGENET_NORMALIZE,
+        normalize: Union[None, Dict[str, List[float]]] = IMAGENET_NORMALIZE,
     ):
         transform = [
             T.RandomResizedCrop(
@@ -262,4 +262,5 @@ class DINOViewTransform:
             The transformed image.
 
         """
-        return self.transform(image)
+        transformed: Tensor = self.transform(image)
+        return transformed

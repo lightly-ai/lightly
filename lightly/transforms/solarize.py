@@ -3,6 +3,7 @@
 
 import numpy as np
 from PIL import ImageOps
+from PIL.Image import Image
 
 
 class RandomSolarization(object):
@@ -22,7 +23,7 @@ class RandomSolarization(object):
         self.prob = prob
         self.threshold = threshold
 
-    def __call__(self, sample):
+    def __call__(self, sample: Image) -> Image:
         """Solarizes the given input image
 
         Args:

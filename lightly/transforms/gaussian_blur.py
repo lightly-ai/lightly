@@ -6,6 +6,7 @@ from warnings import warn
 
 import numpy as np
 from PIL import ImageFilter
+from PIL.Image import Image
 
 
 class GaussianBlur:
@@ -47,7 +48,7 @@ class GaussianBlur:
         self.prob = prob
         self.sigmas = sigmas
 
-    def __call__(self, sample):
+    def __call__(self, sample: Image) -> Image:
         """Blurs the image with a given probability.
 
         Args:
