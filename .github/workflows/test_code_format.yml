@@ -30,5 +30,7 @@ jobs:
       run: pip install -e '.[all]'
     - name: Run Format Check
       run: |
-        export LIGHTLY_SERVER_LOCATION="localhost:-1"
         make format-check
+    - name: Run Type Check
+      run: |
+        make type-check

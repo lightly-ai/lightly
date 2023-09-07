@@ -77,6 +77,7 @@ The framework is structured into the following modules:
 __name__ = "lightly"
 __version__ = "1.4.17"
 
+
 import os
 
 # see if torchvision vision transformer is available
@@ -91,13 +92,15 @@ except (
 ):
     _torchvision_vit_available = False
 
-if os.getenv("LIGHTLY_DID_VERSION_CHECK", "False") == "False":
-    os.environ["LIGHTLY_DID_VERSION_CHECK"] = "True"
-    import multiprocessing
+# TODO(Philipp, 09/23): Figure out how we can reenable this.
+# if os.getenv("LIGHTLY_DID_VERSION_CHECK", "False") == "False":
+#     os.environ["LIGHTLY_DID_VERSION_CHECK"] = "True"
+#     import multiprocessing
 
-    if multiprocessing.current_process().name == "MainProcess":
-        from lightly.api import _version_checking
+#     if multiprocessing.current_process().name == "MainProcess":
+#         from lightly.api import _version_checking
 
-        _version_checking.check_is_latest_version_in_background(
-            current_version=__version__
-        )
+#         _version_checking.check_is_latest_version_in_background(
+#             current_version=__version__
+#         )
+#         pass
