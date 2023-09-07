@@ -90,7 +90,7 @@ class DINOTransform(MultiViewTransform):
         solarization:
             Probability to apply solarization on the second global view.
         normalize:
-            Dict[str, List[float]]ionary with 'mean' and 'std' for torchvision.transforms.Normalize.
+            Dictionary with 'mean' and 'std' for torchvision.transforms.Normalize.
 
     """
 

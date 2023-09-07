@@ -52,7 +52,7 @@ class PIRLTransform(MultiViewTransform):
         n_grid:
             Sqrt of the number of grids in the jigsaw image.
         normalize:
-            Dict[str, List[float]]ionary with 'mean' and 'std' for torchvision.transforms.Normalize.
+            Dictionary with 'mean' and 'std' for torchvision.transforms.Normalize.
 
     """
 

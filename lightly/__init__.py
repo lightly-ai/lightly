@@ -104,4 +104,3 @@ if not TYPE_CHECKING and os.getenv("LIGHTLY_DID_VERSION_CHECK", "False") == "Fal
         _version_checking.check_is_latest_version_in_background(
             current_version=__version__
         )
-        pass

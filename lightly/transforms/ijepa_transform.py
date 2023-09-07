@@ -13,7 +13,7 @@ class IJEPATransform:
     Experimental: Support for I-JEPA is experimental, there might be breaking changes
     in the future.
 
-    - [0]: Joint-Embedding PreDict[str, List[float]]ive Architecture, 2023, https://arxiv.org/abs/2301.08243
+    - [0]: Joint-Embedding Predictive Architecture, 2023, https://arxiv.org/abs/2301.08243
     - [1]: https://github.com/facebookresearch/ijepa
 
     Attributes:
@@ -22,7 +22,7 @@ class IJEPATransform:
         min_scale:
             Minimum size of the randomized crop relative to the input_size.
         normalize:
-            Dict[str, List[float]]ionary with 'mean' and 'std' for torchvision.transforms.Normalize.
+            Dictionary with 'mean' and 'std' for torchvision.transforms.Normalize.
 
     """
 

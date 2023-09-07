@@ -73,7 +73,7 @@ class MSNTransform(MultiViewTransform):
         vf_prob:
             Probability that vertical flip is applied.
         normalize:
-            Dict[str, List[float]]ionary with 'mean' and 'std' for torchvision.transforms.Normalize.
+            Dictionary with 'mean' and 'std' for torchvision.transforms.Normalize.
     """
 
     def __init__(

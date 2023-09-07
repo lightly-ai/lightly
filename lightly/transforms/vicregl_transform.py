@@ -93,7 +93,7 @@ class VICRegLTransform(ImageGridTransform):
         random_gray_scale:
             Probability of conversion to grayscale.
         normalize:
-            Dict[str, List[float]]ionary with mean and standard deviation for normalization.
+            Dictionary with mean and standard deviation for normalization.
     """
 
     def __init__(

@@ -72,7 +72,7 @@ class SwaVTransform(MultiCropTranform):
             Tuple of min and max value from which the std of the gaussian kernel is sampled.
             Is ignored if `kernel_size` is set.
         normalize:
-            Dict[str, List[float]]ionary with 'mean' and 'std' for torchvision.transforms.Normalize.
+            Dictionary with 'mean' and 'std' for torchvision.transforms.Normalize.
 
     """
 

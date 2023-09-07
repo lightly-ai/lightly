@@ -128,7 +128,7 @@ class RandomResizedCropAndFlip(nn.Module):
         hf_prob:
             The probability of applying horizontal flipping to the image.
         normalize:
-            A Dict[str, List[float]]ionary containing the mean and std values for normalizing the image.
+            A Dictionary containing the mean and std values for normalizing the image.
     """
 
     def __init__(

@@ -69,7 +69,7 @@ class SimSiamTransform(MultiViewTransform):
             single number, images are rotated by a random angle in
             [-rr_degrees, +rr_degrees]. All rotations are counter-clockwise.
         normalize:
-            Dict[str, List[float]]ionary with 'mean' and 'std' for torchvision.transforms.Normalize.
+            Dictionary with 'mean' and 'std' for torchvision.transforms.Normalize.
 
     """
 
