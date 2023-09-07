@@ -7,31 +7,33 @@ can be combined with any lightly model.
 
 # Copyright (c) 2021. Lightly AG and its affiliates.
 # All Rights Reserved
+from typing import TYPE_CHECKING
 
-from lightly import _torchvision_vit_available
-from lightly.models.modules.heads import (
-    BarlowTwinsProjectionHead,
-    BYOLPredictionHead,
-    BYOLProjectionHead,
-    DINOProjectionHead,
-    MoCoProjectionHead,
-    NNCLRPredictionHead,
-    NNCLRProjectionHead,
-    SimCLRProjectionHead,
-    SimSiamPredictionHead,
-    SimSiamProjectionHead,
-    SMoGPredictionHead,
-    SMoGProjectionHead,
-    SMoGPrototypes,
-    SwaVProjectionHead,
-    SwaVPrototypes,
-)
-from lightly.models.modules.nn_memory_bank import NNMemoryBankModule
-
-if _torchvision_vit_available:
-    # Requires torchvision >=0.12
-    from lightly.models.modules.masked_autoencoder import (
-        MAEBackbone,
-        MAEDecoder,
-        MAEEncoder,
+if not TYPE_CHECKING:
+    from lightly import _torchvision_vit_available
+    from lightly.models.modules.heads import (
+        BarlowTwinsProjectionHead,
+        BYOLPredictionHead,
+        BYOLProjectionHead,
+        DINOProjectionHead,
+        MoCoProjectionHead,
+        NNCLRPredictionHead,
+        NNCLRProjectionHead,
+        SimCLRProjectionHead,
+        SimSiamPredictionHead,
+        SimSiamProjectionHead,
+        SMoGPredictionHead,
+        SMoGProjectionHead,
+        SMoGPrototypes,
+        SwaVProjectionHead,
+        SwaVPrototypes,
     )
+    from lightly.models.modules.nn_memory_bank import NNMemoryBankModule
+
+    if _torchvision_vit_available:
+        # Requires torchvision >=0.12
+        from lightly.models.modules.masked_autoencoder import (
+            MAEBackbone,
+            MAEDecoder,
+            MAEEncoder,
+        )

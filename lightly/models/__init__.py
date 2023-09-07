@@ -17,13 +17,15 @@ checkpoints.
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
+from typing import TYPE_CHECKING
 
-from lightly.models import utils
-from lightly.models.barlowtwins import BarlowTwins
-from lightly.models.byol import BYOL
-from lightly.models.moco import MoCo
-from lightly.models.nnclr import NNCLR
-from lightly.models.resnet import ResNetGenerator
-from lightly.models.simclr import SimCLR
-from lightly.models.simsiam import SimSiam
-from lightly.models.zoo import ZOO, checkpoints
+if not TYPE_CHECKING:
+    from lightly.models import utils
+    from lightly.models.barlowtwins import BarlowTwins
+    from lightly.models.byol import BYOL
+    from lightly.models.moco import MoCo
+    from lightly.models.nnclr import NNCLR
+    from lightly.models.resnet import ResNetGenerator
+    from lightly.models.simclr import SimCLR
+    from lightly.models.simsiam import SimSiam
+    from lightly.models.zoo import ZOO, checkpoints

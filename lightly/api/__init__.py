@@ -2,14 +2,17 @@
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
-from lightly.api import patch as _patch
-from lightly.api.api_workflow_artifacts import ArtifactNotExist
-from lightly.api.api_workflow_client import ApiWorkflowClient
-from lightly.openapi_generated.swagger_client.api_client import (
-    Configuration as _Configuration,
-)
+from typing import TYPE_CHECKING
 
-# Make ApiWorkflowClient and swagger classes picklable.
-_patch.make_swagger_configuration_picklable(
-    configuration_cls=_Configuration,
-)
+if not TYPE_CHECKING:
+    from lightly.api import patch as _patch
+    from lightly.api.api_workflow_artifacts import ArtifactNotExist
+    from lightly.api.api_workflow_client import ApiWorkflowClient
+    from lightly.openapi_generated.swagger_client.api_client import (
+        Configuration as _Configuration,
+    )
+
+    # Make ApiWorkflowClient and swagger classes picklable.
+    _patch.make_swagger_configuration_picklable(
+        configuration_cls=_Configuration,
+    )
