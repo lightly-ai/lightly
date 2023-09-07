@@ -2,7 +2,7 @@ import unittest
 
 from PIL import Image
 
-from lightly.transforms import GaussianBlur
+from lightly.transforms.gaussian_blur import GaussianBlur
 
 
 class TestGaussianBlur(unittest.TestCase):

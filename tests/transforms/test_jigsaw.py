@@ -2,7 +2,7 @@ import unittest
 
 from PIL import Image
 
-from lightly.transforms import Jigsaw
+from lightly.transforms.jigsaw import Jigsaw
 
 
 class TestJigsaw(unittest.TestCase):
