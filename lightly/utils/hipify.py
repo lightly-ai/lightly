@@ -1,6 +1,6 @@
 import copy
 import warnings
-from typing import Type
+from typing import Type, Union
 
 
 class bcolors:
@@ -14,15 +14,19 @@ class bcolors:
     UNDERLINE = "\033[4m"
 
 
-def _custom_formatwarning(msg, *args, **kwargs):
+def _custom_formatwarning(
+    message: Union[str, Warning],
+    category: Type[Warning],
+    filename: str,
+    lineno: int,
+    line: Union[str, None] = None,
+) -> str:
     # ignore everything except the message
-    return f"{bcolors.WARNING}{msg}{bcolors.WARNING}\n"
+    return f"{bcolors.WARNING}{message}{bcolors.WARNING}\n"
 
 
-def print_as_warning(message: str, warning_class: Type[Warning] = UserWarning):
+def print_as_warning(message: str, warning_class: Type[Warning] = UserWarning) -> None:
     old_format = copy.copy(warnings.formatwarning)
-
     warnings.formatwarning = _custom_formatwarning
     warnings.warn(message, warning_class)
-
     warnings.formatwarning = old_format
