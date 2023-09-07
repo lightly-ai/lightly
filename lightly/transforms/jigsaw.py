@@ -5,8 +5,8 @@ from typing import List
 
 import numpy as np
 import torch
-from PIL import Image
-from PIL.Image import Image
+from PIL import Image as Image
+from PIL.Image import Image as PILImage
 from torch import Tensor
 from torchvision import transforms as T
 
@@ -55,7 +55,7 @@ class Jigsaw(object):
         self.yy = np.reshape(yy * self.grid_size, (n_grid * n_grid,))
         self.xx = np.reshape(xx * self.grid_size, (n_grid * n_grid,))
 
-    def __call__(self, img: Image) -> Tensor:
+    def __call__(self, img: PILImage) -> Tensor:
         """Performs the Jigsaw augmentation
         Args:
             img:
@@ -67,7 +67,7 @@ class Jigsaw(object):
         r_x = np.random.randint(0, self.side + 1, self.n_grid * self.n_grid)
         r_y = np.random.randint(0, self.side + 1, self.n_grid * self.n_grid)
         img = np.asarray(img, np.uint8)
-        crops: List[Image] = []
+        crops: List[PILImage] = []
         for i in range(self.n_grid * self.n_grid):
             crops.append(
                 img[
