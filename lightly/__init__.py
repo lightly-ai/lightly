@@ -79,6 +79,7 @@ __version__ = "1.4.17"
 
 
 import os
+from typing import TYPE_CHECKING
 
 # see if torchvision vision transformer is available
 try:
@@ -92,15 +93,15 @@ except (
 ):
     _torchvision_vit_available = False
 
-# TODO(Philipp, 09/23): Figure out how we can reenable this.
-# if os.getenv("LIGHTLY_DID_VERSION_CHECK", "False") == "False":
-#     os.environ["LIGHTLY_DID_VERSION_CHECK"] = "True"
-#     import multiprocessing
 
-#     if multiprocessing.current_process().name == "MainProcess":
-#         from lightly.api import _version_checking
+if not TYPE_CHECKING and os.getenv("LIGHTLY_DID_VERSION_CHECK", "False") == "False":
+    os.environ["LIGHTLY_DID_VERSION_CHECK"] = "True"
+    import multiprocessing
 
-#         _version_checking.check_is_latest_version_in_background(
-#             current_version=__version__
-#         )
-#         pass
+    if multiprocessing.current_process().name == "MainProcess":
+        from lightly.api import _version_checking
+
+        _version_checking.check_is_latest_version_in_background(
+            current_version=__version__
+        )
+        pass
