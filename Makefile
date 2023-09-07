@@ -64,9 +64,8 @@ test-fast:
 	pytest tests
 
 ## check typing
-# TODO(Philipp, 09/23): Check benchmarks and examples once lightly is typed.
 type-check:
-	mypy lightly
+	mypy lightly tests
 
 # run format checks and tests
 static-checks: format-check type-check
