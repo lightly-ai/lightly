@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python: ["3.7", "3.10"]
+        python: ["3.7", "3.10.6"]
 
     steps:
     - name: Checkout Code
