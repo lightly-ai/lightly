@@ -130,6 +130,8 @@ class _DatasourcesMixin:
             >>> client.set_dataset_id_by_name("my-dataset")
             >>> client.download_raw_samples()
             [('image-1.png', 'https://......'), ('image-2.png', 'https://......')]
+
+        :meta private:  # Skip docstring generation
         """
         samples = self._download_raw_files(
             download_function=self._datasources_api.get_list_of_raw_samples_from_datasource_by_dataset_id,
@@ -198,6 +200,8 @@ class _DatasourcesMixin:
             >>> client.download_raw_predictions(task_name=task_name)
             [('.lightly/predictions/object-detection/image-1.json', 'https://......'),
              ('.lightly/predictions/object-detection/image-2.json', 'https://......')]
+
+        :meta private:  # Skip docstring generation
         """
         if run_id is not None and relevant_filenames_artifact_id is None:
             raise ValueError(
@@ -281,6 +285,8 @@ class _DatasourcesMixin:
             >>> client.download_raw_metadata()
             [('.lightly/metadata/object-detection/image-1.json', 'https://......'),
              ('.lightly/metadata/object-detection/image-2.json', 'https://......')]
+
+        :meta private:  # Skip docstring generation
         """
         if run_id is not None and relevant_filenames_artifact_id is None:
             raise ValueError(
@@ -370,6 +376,8 @@ class _DatasourcesMixin:
             >>> client.set_dataset_id_by_name("my-dataset")
             >>> client.get_processed_until_timestamp()
             1684750513
+
+        :meta private:  # Skip docstring generation
         """
         response: DatasourceProcessedUntilTimestampResponse = self._datasources_api.get_datasource_processed_until_timestamp_by_dataset_id(
             dataset_id=self.dataset_id
@@ -721,6 +729,7 @@ class _DatasourcesMixin:
             A read-url to the file. Note that a URL will be returned even if the file does not
             exist.
 
+        :meta private:  # Skip docstring generation
         """
         return self._datasources_api.get_prediction_file_read_url_from_datasource_by_dataset_id(
             dataset_id=self.dataset_id,
@@ -741,6 +750,7 @@ class _DatasourcesMixin:
             A read-url to the file. Note that a URL will be returned even if the file does not
             exist.
 
+        :meta private:  # Skip docstring generation
         """
         return self._datasources_api.get_metadata_file_read_url_from_datasource_by_dataset_id(
             dataset_id=self.dataset_id,
@@ -761,6 +771,7 @@ class _DatasourcesMixin:
             A read-url to the file. Note that a URL will be returned even if the file does not
             exist.
 
+        :meta private:  # Skip docstring generation
         """
         return self._datasources_api.get_custom_embedding_file_read_url_from_datasource_by_dataset_id(
             dataset_id=self.dataset_id,

@@ -207,6 +207,8 @@ class _ComputeWorkerMixin:
             >>> config_id = client.create_compute_worker_config(
             ...     selection_config=selection_config,
             ... )
+
+        :meta private:  # Skip docstring generation
         """
         if isinstance(selection_config, dict):
             selection = selection_config_from_dict(cfg=selection_config)

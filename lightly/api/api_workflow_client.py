@@ -218,6 +218,8 @@ class ApiWorkflowClient(
 
         Returns:
             Names of files in the current dataset.
+
+        :meta private:  # Skip docstring generation
         """
         filenames_on_server = self._mappings_api.get_sample_mappings_by_dataset_id(
             dataset_id=self.dataset_id, field="fileName"
@@ -247,6 +249,7 @@ class ApiWorkflowClient(
         Returns:
             The response of the put request.
 
+        :meta private:  # Skip docstring generation
         """
 
         # check to see if server side encryption for S3 is desired
