@@ -7,14 +7,14 @@ from lightly.transforms.byol_transform import (
 )
 
 
-def test_view_on_pil_image():
+def test_view_on_pil_image() -> None:
     single_view_transform = BYOLView1Transform(input_size=32)
     sample = Image.new("RGB", (100, 100))
     output = single_view_transform(sample)
     assert output.shape == (3, 32, 32)
 
 
-def test_multi_view_on_pil_image():
+def test_multi_view_on_pil_image() -> None:
     multi_view_transform = BYOLTransform(
         view_1_transform=BYOLView1Transform(input_size=32),
         view_2_transform=BYOLView2Transform(input_size=32),

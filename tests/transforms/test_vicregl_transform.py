@@ -3,14 +3,14 @@ from PIL import Image
 from lightly.transforms.vicregl_transform import VICRegLTransform, VICRegLViewTransform
 
 
-def test_view_on_pil_image():
+def test_view_on_pil_image() -> None:
     single_view_transform = VICRegLViewTransform()
     sample = Image.new("RGB", (100, 100))
     output = single_view_transform(sample)
     assert output.shape == (3, 100, 100)
 
 
-def test_multi_view_on_pil_image():
+def test_multi_view_on_pil_image() -> None:
     multi_view_transform = VICRegLTransform(
         global_crop_size=32,
         local_crop_size=8,

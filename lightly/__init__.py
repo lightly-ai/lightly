@@ -77,6 +77,7 @@ The framework is structured into the following modules:
 __name__ = "lightly"
 __version__ = "1.4.17"
 
+
 import os
 
 # see if torchvision vision transformer is available
@@ -90,6 +91,7 @@ except (
     ImportError,  # No installation or old version of torchvision
 ):
     _torchvision_vit_available = False
+
 
 if os.getenv("LIGHTLY_DID_VERSION_CHECK", "False") == "False":
     os.environ["LIGHTLY_DID_VERSION_CHECK"] = "True"

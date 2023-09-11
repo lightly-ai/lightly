@@ -1,10 +1,14 @@
 # Copyright (c) 2021. Lightly AG and its affiliates.
 # All Rights Reserved
 
+from typing import List
+
 import numpy as np
 import torch
-from PIL import Image
-from torchvision import transforms
+from PIL import Image as Image
+from PIL.Image import Image as PILImage
+from torch import Tensor
+from torchvision import transforms as T
 
 
 class Jigsaw(object):
@@ -34,7 +38,11 @@ class Jigsaw(object):
     """
 
     def __init__(
-        self, n_grid=3, img_size=255, crop_size=64, transform=transforms.ToTensor()
+        self,
+        n_grid: int = 3,
+        img_size: int = 255,
+        crop_size: int = 64,
+        transform: T.Compose = T.ToTensor(),
     ):
         self.n_grid = n_grid
         self.img_size = img_size
@@ -47,7 +55,7 @@ class Jigsaw(object):
         self.yy = np.reshape(yy * self.grid_size, (n_grid * n_grid,))
         self.xx = np.reshape(xx * self.grid_size, (n_grid * n_grid,))
 
-    def __call__(self, img):
+    def __call__(self, img: PILImage) -> Tensor:
         """Performs the Jigsaw augmentation
         Args:
             img:
@@ -59,7 +67,7 @@ class Jigsaw(object):
         r_x = np.random.randint(0, self.side + 1, self.n_grid * self.n_grid)
         r_y = np.random.randint(0, self.side + 1, self.n_grid * self.n_grid)
         img = np.asarray(img, np.uint8)
-        crops = []
+        crops: List[PILImage] = []
         for i in range(self.n_grid * self.n_grid):
             crops.append(
                 img[
@@ -68,7 +76,9 @@ class Jigsaw(object):
                     :,
                 ]
             )
-        crops = [Image.fromarray(crop) for crop in crops]
-        crops = torch.stack([self.transform(crop) for crop in crops])
-        crops = crops[np.random.permutation(self.n_grid**2)]
-        return crops
+        crop_images = [Image.fromarray(crop) for crop in crops]
+        crop_tensors: Tensor = torch.stack(
+            [self.transform(crop) for crop in crop_images]
+        )
+        permutation: List[int] = np.random.permutation(self.n_grid**2).tolist()
+        return crop_tensors[permutation]

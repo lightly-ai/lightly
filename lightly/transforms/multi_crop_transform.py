@@ -34,11 +34,11 @@ class MultiCropTranform(MultiViewTransform):
 
     def __init__(
         self,
-        crop_sizes: Tuple[int],
-        crop_counts: Tuple[int],
-        crop_min_scales: Tuple[float],
-        crop_max_scales: Tuple[float],
-        transforms,
+        crop_sizes: Tuple[int, ...],
+        crop_counts: Tuple[int, ...],
+        crop_min_scales: Tuple[float, ...],
+        crop_max_scales: Tuple[float, ...],
+        transforms: T.Compose,
     ):
         if len(crop_sizes) != len(crop_counts):
             raise ValueError(

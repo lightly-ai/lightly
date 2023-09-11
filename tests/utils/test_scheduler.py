@@ -7,7 +7,7 @@ from lightly.utils.scheduler import CosineWarmupScheduler, cosine_schedule
 
 
 class TestScheduler(unittest.TestCase):
-    def test_cosine_schedule(self):
+    def test_cosine_schedule(self) -> None:
         self.assertAlmostEqual(cosine_schedule(1, 10, 0.99, 1.0), 0.99030154, 6)
         self.assertAlmostEqual(cosine_schedule(95, 100, 0.7, 2.0), 1.99477063, 6)
         self.assertAlmostEqual(cosine_schedule(0, 1, 0.996, 1.0), 1.0, 6)
@@ -23,7 +23,7 @@ class TestScheduler(unittest.TestCase):
         ):
             cosine_schedule(11, 10, 0.0, 1.0)
 
-    def test_CosineWarmupScheduler(self):
+    def test_CosineWarmupScheduler(self) -> None:
         model = nn.Linear(10, 1)
         optimizer = torch.optim.SGD(
             model.parameters(), lr=1.0, momentum=0.0, weight_decay=0.0
@@ -63,7 +63,7 @@ class TestScheduler(unittest.TestCase):
         ):
             scheduler.step()
 
-    def test_CosineWarmupScheduler__warmup(self):
+    def test_CosineWarmupScheduler__warmup(self) -> None:
         model = nn.Linear(10, 1)
         optimizer = torch.optim.SGD(
             model.parameters(), lr=1.0, momentum=0.0, weight_decay=0.0
