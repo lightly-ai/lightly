@@ -8,6 +8,7 @@ from lightly.openapi_generated.swagger_client.models import (
     DatasourceConfigLOCAL,
     DatasourceConfigS3,
     DatasourceConfigS3DelegatedAccess,
+    DatasourcePurpose,
     DatasourceRawSamplesDataRow,
 )
 from lightly.openapi_generated.swagger_client.models.datasource_config_verify_data import (
@@ -239,19 +240,33 @@ def test_set_local_config(mocker: MockerFixture) -> None:
         web_server_location="http://localhost:1234",
         relative_path="path/to/my/data",
         thumbnail_suffix=".lightly/thumbnails/[filename]-thumb-[extension]",
+        purpose=DatasourcePurpose.INPUT,
     )
     kwargs = mocked_datasources_api.update_datasource_by_dataset_id.call_args[1]
     datasource_config = kwargs["datasource_config"].actual_instance
     assert isinstance(datasource_config, DatasourceConfigLOCAL)
+    assert datasource_config.type == "LOCAL"
+    assert datasource_config.web_server_location == "http://localhost:1234"
+    assert datasource_config.full_path == "path/to/my/data"
+    assert (
+        datasource_config.thumb_suffix
+        == ".lightly/thumbnails/[filename]-thumb-[extension]"
+    )
+    assert datasource_config.purpose == DatasourcePurpose.INPUT
 
-    client.set_local_config(
-        relative_path="path/to/my/data",
-        thumbnail_suffix=".lightly/thumbnails/[filename]-thumb-[extension]",
-    )
+    # Test defaults
+    client.set_local_config()
     kwargs = mocked_datasources_api.update_datasource_by_dataset_id.call_args[1]
     datasource_config = kwargs["datasource_config"].actual_instance
     assert isinstance(datasource_config, DatasourceConfigLOCAL)
+    assert datasource_config.type == "LOCAL"
     assert datasource_config.web_server_location == "http://localhost:3456"
+    assert datasource_config.full_path == ""
+    assert (
+        datasource_config.thumb_suffix
+        == ".lightly/thumbnails/[filename]_thumb.[extension]"
+    )
+    assert datasource_config.purpose == DatasourcePurpose.INPUT_OUTPUT
 
 
 def test_set_s3_config(mocker: MockerFixture) -> None:
