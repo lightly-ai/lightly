@@ -7,9 +7,10 @@ import csv
 import json
 import re
 from itertools import compress
-from typing import Dict, List, Tuple
+from typing import Any, Dict, List, Tuple, Union
 
 import numpy as np
+from numpy.typing import NDArray
 
 INVALID_FILENAME_CHARACTERS = [","]
 
@@ -22,7 +23,7 @@ def _is_valid_filename(filename: str) -> bool:
     return True
 
 
-def check_filenames(filenames: List[str]):
+def check_filenames(filenames: List[str]) -> None:
     """Raises an error if one of the filenames is misformatted
 
     Args:
@@ -35,7 +36,7 @@ def check_filenames(filenames: List[str]):
         raise ValueError(f"Invalid filename(s): {invalid_filenames}")
 
 
-def check_embeddings(path: str, remove_additional_columns: bool = False):
+def check_embeddings(path: str, remove_additional_columns: bool = False) -> None:
     """Raises an error if the embeddings csv file has not the correct format
 
     Use this check whenever you want to upload an embedding to the Lightly
@@ -118,8 +119,8 @@ def check_embeddings(path: str, remove_additional_columns: bool = False):
 
 
 def save_embeddings(
-    path: str, embeddings: np.ndarray, labels: List[int], filenames: List[str]
-):
+    path: str, embeddings: NDArray[np.float64], labels: List[int], filenames: List[str]
+) -> None:
     """Saves embeddings in a csv file in a Lightly compatible format.
 
     Creates a csv file at the location specified by path and saves embeddings,
@@ -167,7 +168,7 @@ def save_embeddings(
             writer.writerow([filename] + list(embedding) + [str(label)])
 
 
-def load_embeddings(path: str):
+def load_embeddings(path: str) -> Tuple[NDArray[np.float64], List[int], List[str]]:
     """Loads embeddings from a csv file in a Lightly compatible format.
 
     Args:
@@ -204,13 +205,13 @@ def load_embeddings(path: str):
 
     check_filenames(filenames)
 
-    embeddings = np.array(embeddings).astype(np.float32)
-    return embeddings, labels, filenames
+    embedding_array = np.array(embeddings).astype(np.float64)
+    return embedding_array, labels, filenames
 
 
 def load_embeddings_as_dict(
     path: str, embedding_name: str = "default", return_all: bool = False
-):
+) -> Union[Any, Tuple[Any, NDArray[np.float64], List[int], List[str]]]:
     """Loads embeddings from csv and store it in a dictionary for transfer.
 
     Loads embeddings to a dictionary which can be serialized and sent to the
@@ -245,10 +246,13 @@ def load_embeddings_as_dict(
     embeddings, labels, filenames = load_embeddings(path)
 
     # build dictionary
-    data = {"embeddingName": embedding_name, "embeddings": []}
-    for embedding, filename, label in zip(embeddings, filenames, labels):
-        item = {"fileName": filename, "value": embedding.tolist(), "label": label}
-        data["embeddings"].append(item)
+    data = {
+        "embeddingName": embedding_name,
+        "embeddings": [
+            {"fileName": filename, "value": embedding.tolist(), "label": label}
+            for embedding, filename, label in zip(embeddings, filenames, labels)
+        ],
+    }
 
     # return embeddings along with dictionary
     if return_all:
@@ -270,7 +274,9 @@ class COCO_ANNOTATION_KEYS:
     custom_metadata_image_id: str = "image_id"
 
 
-def format_custom_metadata(custom_metadata: List[Tuple[str, Dict]]):
+def format_custom_metadata(
+    custom_metadata: List[Tuple[str, Any]]
+) -> Dict[str, List[Any]]:
     """Transforms custom metadata into a format which can be handled by Lightly.
 
     Args:
@@ -293,7 +299,7 @@ def format_custom_metadata(custom_metadata: List[Tuple[str, Dict]]):
         >>> > }
 
     """
-    formatted = {
+    formatted: Dict[str, List[Any]] = {
         COCO_ANNOTATION_KEYS.images: [],
         COCO_ANNOTATION_KEYS.custom_metadata: [],
     }
@@ -315,7 +321,7 @@ def format_custom_metadata(custom_metadata: List[Tuple[str, Dict]]):
     return formatted
 
 
-def save_custom_metadata(path: str, custom_metadata: List[Tuple[str, Dict]]):
+def save_custom_metadata(path: str, custom_metadata: List[Tuple[str, Any]]) -> None:
     """Saves custom metadata in a .json.
 
     Args:
@@ -333,7 +339,7 @@ def save_custom_metadata(path: str, custom_metadata: List[Tuple[str, Dict]]):
 def save_tasks(
     path: str,
     tasks: List[str],
-):
+) -> None:
     """Saves a list of prediction task names in the right format.
 
     Args:
@@ -347,7 +353,7 @@ def save_tasks(
         json.dump(tasks, f)
 
 
-def save_schema(path: str, task_type: str, ids: List[int], names: List[str]):
+def save_schema(path: str, task_type: str, ids: List[int], names: List[str]) -> None:
     """Saves a prediction schema in the right format.
 
     Args:

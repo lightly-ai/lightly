@@ -3,7 +3,7 @@ import torch
 import lightly.transforms.random_crop_and_flip_with_grid as test_module
 
 
-def test_location_to_NxN_grid():
+def test_location_to_NxN_grid() -> None:
     # create a test instance of the Location class
     test_location = test_module.Location(
         left=10,

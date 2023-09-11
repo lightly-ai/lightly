@@ -4,7 +4,7 @@ from lightly.utils import version_compare
 
 
 class TestVersionCompare(unittest.TestCase):
-    def test_valid_versions(self):
+    def test_valid_versions(self) -> None:
         # general test of smaller than version numbers
         self.assertEqual(version_compare.version_compare("0.1.4", "1.2.0"), -1)
         self.assertEqual(version_compare.version_compare("1.1.0", "1.2.0"), -1)
@@ -16,7 +16,7 @@ class TestVersionCompare(unittest.TestCase):
         # test equal
         self.assertEqual(version_compare.version_compare("1.2.0", "1.2.0"), 0)
 
-    def test_invalid_versions(self):
+    def test_invalid_versions(self) -> None:
         with self.assertRaises(ValueError):
             version_compare.version_compare("1.2", "1.1.0")
 
