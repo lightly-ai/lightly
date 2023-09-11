@@ -44,7 +44,7 @@ class _PredictionsMixin:
           >>> )
           >>> client.create_or_update_prediction_task_schema(schema=schema)
 
-
+        :meta private:  # Skip docstring generation
         """
         self._predictions_api.create_or_update_prediction_task_schema_by_dataset_id(
             prediction_task_schema=schema,
@@ -71,6 +71,8 @@ class _PredictionsMixin:
 
             prediction_singletons:
                 Predictions to be uploaded for the designated sample.
+
+        :meta private:  # Skip docstring generation
         """
         self._predictions_api.create_or_update_prediction_by_sample_id(
             prediction_singleton=prediction_singletons,

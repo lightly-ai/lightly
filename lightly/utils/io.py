@@ -262,7 +262,10 @@ def load_embeddings_as_dict(
 
 
 class COCO_ANNOTATION_KEYS:
-    """Enum of coco annotation keys complemented with a key for custom metadata."""
+    """Enum of coco annotation keys complemented with a key for custom metadata.
+
+    :meta private:  # Skip docstring generation
+    """
 
     # image keys
     images: str = "images"
@@ -298,6 +301,7 @@ def format_custom_metadata(
         >>> >   'metadata': [{'image_id': 0, 'number_of_people': 1}, {'image_id': 1, 'number_of_people': 3}]
         >>> > }
 
+    :meta private:  # Skip docstring generation
     """
     formatted: Dict[str, List[Any]] = {
         COCO_ANNOTATION_KEYS.images: [],
@@ -330,6 +334,7 @@ def save_custom_metadata(path: str, custom_metadata: List[Tuple[str, Any]]) -> N
         custom_metadata:
             List of tuples (filename, metadata) where metadata is a dictionary.
 
+    :meta private:  # Skip docstring generation
     """
     formatted = format_custom_metadata(custom_metadata)
     with open(path, "w") as f:
