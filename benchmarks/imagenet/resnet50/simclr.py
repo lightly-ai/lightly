@@ -1,12 +1,10 @@
 import math
-from typing import Dict, List, Tuple, Union
+from typing import List, Tuple
 
 import torch
 from pytorch_lightning import LightningModule
 from torch import Tensor
 from torch.nn import Identity
-from torch.optim import Optimizer
-from torch.optim.lr_scheduler import LRScheduler
 from torchvision.models import resnet50
 
 from lightly.loss.ntx_ent_loss import NTXentLoss
@@ -33,8 +31,7 @@ class SimCLR(LightningModule):
         self.online_classifier = OnlineLinearClassifier(num_classes=num_classes)
 
     def forward(self, x: Tensor) -> Tensor:
-        out: Tensor = self.backbone(x)
-        return out
+        return self.backbone(x)
 
     def training_step(
         self, batch: Tuple[List[Tensor], Tensor, List[str]], batch_idx: int
@@ -52,8 +49,7 @@ class SimCLR(LightningModule):
             (features.detach(), targets.repeat(len(views))), batch_idx
         )
         self.log_dict(cls_log, sync_dist=True, batch_size=len(targets))
-        overall_loss: Tensor = loss + cls_loss
-        return overall_loss
+        return loss + cls_loss
 
     def validation_step(
         self, batch: Tuple[Tensor, Tensor, List[str]], batch_idx: int
@@ -66,9 +62,7 @@ class SimCLR(LightningModule):
         self.log_dict(cls_log, prog_bar=True, sync_dist=True, batch_size=len(targets))
         return cls_loss
 
-    def configure_optimizers(
-        self,
-    ) -> Tuple[List[Optimizer], List[Dict[str, Union[str, LRScheduler]]]]:
+    def configure_optimizers(self):
         # Don't use weight decay for batch norm, bias parameters, and classification
         # head to improve performance.
         params, params_no_weight_decay = get_weight_decay_parameters(
@@ -99,9 +93,7 @@ class SimCLR(LightningModule):
             # https://github.com/google-research/simclr/blob/2fc637bdd6a723130db91b377ac15151e01e4fc2/README.md?plain=1#L103
             weight_decay=1e-6,
         )
-        assert self.trainer.max_epochs is not None
-        assert self.trainer.estimated_stepping_batches is not None
-        scheduler: Dict[str, Union[str, LRScheduler]] = {
+        scheduler = {
             "scheduler": CosineWarmupScheduler(
                 optimizer=optimizer,
                 warmup_epochs=int(

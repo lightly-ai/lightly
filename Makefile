@@ -67,9 +67,10 @@ test-fast:
 type-check:
 	mypy lightly tests
 
-# run format checks and tests
+## run format checks
 static-checks: format-check type-check
 
+## run format checks and tests
 all-checks: static-checks test
 
 ## build source and wheel package
