@@ -717,7 +717,7 @@ class VICRegProjectionHead(ProjectionHead):
             (hidden_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU())
             for _ in range(num_layers - 2) # Exclude first and last layer.
         ]
-        super(BarlowTwinsProjectionHead, self).__init__(
+        super(VICRegProjectionHead, self).__init__(
             [
                 (input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),
                 *hidden_layers,
