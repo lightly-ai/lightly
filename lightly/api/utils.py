@@ -24,7 +24,7 @@ RETRY_MAX_BACKOFF = 32
 RETRY_MAX_RETRIES = 5
 
 
-def retry(func, *args, **kwargs):
+def retry(func, *args, **kwargs):  # type: ignore
     """Repeats a function until it completes successfully or fails too often.
 
     Args:
