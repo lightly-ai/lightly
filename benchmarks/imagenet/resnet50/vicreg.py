@@ -70,6 +70,8 @@ class VICReg(LightningModule):
         params, params_no_weight_decay = get_weight_decay_parameters(
             [self.backbone, self.projection_head]
         )
+        global_batch_size = self.batch_size_per_device * self.trainer.world_size
+        base_lr = _get_base_learning_rate(global_batch_size=global_batch_size)
         optimizer = LARS(
             [
                 {"name": "vicreg", "params": params},
@@ -86,7 +88,7 @@ class VICReg(LightningModule):
             ],
             # Linear learning rate scaling with a base learning rate of 0.2.
             # See https://arxiv.org/pdf/2105.04906.pdf for details.
-            lr=0.2 * self.batch_size_per_device * self.trainer.world_size / 256,
+            lr=base_lr * global_batch_size / 256,
             momentum=0.9,
             weight_decay=1e-6,
         )
@@ -108,3 +110,19 @@ class VICReg(LightningModule):
 
 # VICReg transform
 transform = VICRegTransform()
+
+
+def _get_base_learning_rate(global_batch_size: int) -> float:
+    """Returns the base learning rate for training 100 epochs with a given batch size.
+
+    This follows section C.4 in https://arxiv.org/pdf/2105.04906.pdf.
+
+    """
+    if global_batch_size == 128:
+        return 0.8
+    elif global_batch_size == 256:
+        return 0.5
+    elif global_batch_size == 512:
+        return 0.4
+    else:
+        return 0.3
