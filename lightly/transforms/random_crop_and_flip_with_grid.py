@@ -28,7 +28,7 @@ class Location:
     vertical_flip: bool = False
 
 
-class RandomResizedCropWithLocation(T.RandomResizedCrop):  # type: ignore
+class RandomResizedCropWithLocation(T.RandomResizedCrop):  # type: ignore[misc] # Class cannot subclass "RandomResizedCrop" (has type "Any")
     """
     Do a random resized crop and return both the resulting image and the location. See base class.
 
@@ -59,7 +59,7 @@ class RandomResizedCropWithLocation(T.RandomResizedCrop):  # type: ignore
         return img, location
 
 
-class RandomHorizontalFlipWithLocation(T.RandomHorizontalFlip):  # type: ignore
+class RandomHorizontalFlipWithLocation(T.RandomHorizontalFlip):  # type: ignore[misc] # Class cannot subclass "RandomHorizontalFlip" (has type "Any")
     """See base class."""
 
     def forward(
@@ -84,7 +84,7 @@ class RandomHorizontalFlipWithLocation(T.RandomHorizontalFlip):  # type: ignore
         return img, location
 
 
-class RandomVerticalFlipWithLocation(T.RandomVerticalFlip):  # type: ignore
+class RandomVerticalFlipWithLocation(T.RandomVerticalFlip):  # type: ignore[misc] # Class cannot subclass "RandomVerticalFlip" (has type "Any")
     """See base class."""
 
     def forward(
@@ -128,7 +128,7 @@ class RandomResizedCropAndFlip(nn.Module):
         hf_prob:
             The probability of applying horizontal flipping to the image.
         normalize:
-            A Dictionary containing the mean and std values for normalizing the image.
+            A dictionary containing the mean and std values for normalizing the image.
     """
 
     def __init__(
