@@ -124,6 +124,8 @@ class _TagsMixin:
             >>> tag = client.get_tag_by_name("cool-tag")
             >>> client.get_filenames_in_tag(tag_data=tag)
             ['image-1.png', 'image-2.png']
+
+        :meta private:  # Skip docstring generation
         """
 
         if exclude_parent_tag:
