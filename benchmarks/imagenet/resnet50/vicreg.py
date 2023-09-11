@@ -7,7 +7,7 @@ from torch.nn import Identity
 from torchvision.models import resnet50
 
 from lightly.loss.vicreg_loss import VICRegLoss
-from lightly.models.modules.heads import BarlowTwinsProjectionHead
+from lightly.models.modules.heads import VICRegProjectionHead
 from lightly.models.utils import get_weight_decay_parameters
 from lightly.transforms.vicreg_transform import VICRegTransform
 from lightly.utils.benchmarking import OnlineLinearClassifier
@@ -25,7 +25,7 @@ class VICReg(LightningModule):
         resnet.fc = Identity()  # Ignore classification head
         self.backbone = resnet
         # VICReg uses Barlow Twins projection head.
-        self.projection_head = BarlowTwinsProjectionHead()
+        self.projection_head = VICRegProjectionHead(num_layers=2)
         self.criterion = VICRegLoss()
 
         self.online_classifier = OnlineLinearClassifier(num_classes=num_classes)
