@@ -516,7 +516,7 @@ class _DatasourcesMixin:
 
     def set_local_config(
         self,
-        relative_path: str,
+        relative_path: str = "",
         web_server_location: Optional[str] = "http://localhost:3456",
         thumbnail_suffix: Optional[
             str
