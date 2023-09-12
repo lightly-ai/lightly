@@ -3,7 +3,7 @@
 Hardware recommendations
 ========================
 
-Lightly worker is usually run on dedicated hardware
+The Lightly Worker is usually run on dedicated hardware
 or in the cloud on a compute instance
 which is specifically spun up to run Lightly Worker standalone.
 Our recommendations on the hardware requirements of this compute instance are
@@ -42,7 +42,7 @@ Finding the compute speed bottleneck
 ------------------------------------
 
 Usually, the compute speed is limited by one of three potential bottlenecks.
-Different steps of the Lightly worker use these resources to a different extent.
+Different steps of the Lightly Worker use these resources to a different extent.
 Thus the bottleneck changes throughout the run. The bottlenecks are:
 
 - data read speed: I/O

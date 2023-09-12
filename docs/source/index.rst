@@ -18,16 +18,16 @@ Documentation
           please follow
           `Lightly Worker documentation <https://docs.lightly.ai/>`_.
 
-Lightly is a computer vision framework for self-supervised learning.
+Lightly SSL is a computer vision framework for self-supervised learning.
 
-With Lightly you can train deep learning models using self-supervision. 
+With Lightly SSL you can train deep learning models using self-supervision. 
 This means, that you don’t require any labels to train a model. 
-Lightly has been built to help you understand and work with large unlabeled 
+Lightly SSL has been built to help you understand and work with large unlabeled 
 datasets. It is built on top of PyTorch and therefore fully compatible with 
 other frameworks such as Fast.ai.
 
 
-Lightly
+Lightly AI
 -------
 
 - `Homepage <https://www.lightly.ai>`_

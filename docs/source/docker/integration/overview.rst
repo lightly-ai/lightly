@@ -1,6 +1,6 @@
 Integration
 ===================================
-Here you learn how to integrate the Lightly worker into data pre-processing pipelines.
+Here you learn how to integrate the Lightly Worker into data pre-processing pipelines.
 
 
 .. toctree::

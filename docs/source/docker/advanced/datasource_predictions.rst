@@ -3,9 +3,9 @@
 Add Predictions to a Datasource
 ===============================
 
-Lightly can not only use images you provided in a datasource, but also predictions of a ML model on your images.
+Lightly Worker can not only use images you provided in a datasource, but also predictions of a ML model on your images.
 They are used for active learning for selecting images based on the objects in them.
-Furthermore, object detection predictions can be used running Lightly on object level.
+Furthermore, object detection predictions can be used running Lightly Worker on object level.
 By providing the predictions in the datasource,
 you have full control over them and they scale well to millions of samples.
 Furthermore, if you add new samples to your datasource, you can simultaneously
@@ -62,8 +62,8 @@ and an object detection task). All of the files are explained in the next sectio
 
 Prediction Tasks
 ----------------
-To let Lightly know what kind of prediction tasks you want to work with, Lightly
-needs to know their names. It's very easy to let Lightly know which tasks exist:
+To let the Lightly Worker know what kind of prediction tasks you want to work with, the Lightly Worker
+needs to know their names. It's very easy to let the Lightly Worker know which tasks exist:
 simply add a `tasks.json` in your lightly bucket stored at the subdirectory `.lightly/predictions/`.
 
 The `tasks.json` file must include a list of your task names which must match name
@@ -116,7 +116,7 @@ we can specify which subfolders contain relevant predictions in the `tasks.json`
 
 Prediction Schema
 -----------------
-For Lightly it's required to store a prediction schema. The schema defines the
+It's required to store a prediction schema. The schema defines the
 format of the predictions and helps the Lightly Platform to correctly identify 
 and display classes. It also helps to prevent errors as all predictions which 
 are loaded are validated against this schema.
@@ -127,7 +127,7 @@ all the categories and their corresponding ids. For other tasks, such as keypoin
 detection, it can be useful to store additional information like which keypoints 
 are connected with each other by an edge.
 
-You can provide all this information to Lightly by adding a `schema.json` to the 
+You can provide all this information to the Lightly Worker by adding a `schema.json` to the 
 directory of the respective task. The schema.json file must have a key `categories` 
 with a corresponding list of categories following the COCO annotation format.
 It must also have a key `task_type` indicating the type of the predictions. 
@@ -167,10 +167,10 @@ The three classes are sunny, clouded, and rainy.
 
 Prediction Files
 ----------------
-Lightly requires a **single prediction file per image**. The file should be a .json
+The Lightly Worker requires a **single prediction file per image**. The file should be a .json
 following the format defined under :ref:`prediction-format` and stored in the subdirectory
 `.lightly/predictions/${TASK_NAME}` in the storage bucket the dataset was configured with.
-In order to make sure Lightly can match the predictions to the correct source image,
+In order to make sure the Lightly Worker can match the predictions to the correct source image,
 it's necessary to follow the naming convention:
 
 .. code-block:: bash
@@ -189,7 +189,7 @@ it's necessary to follow the naming convention:
 
 Prediction Files for Videos
 ---------------------------
-When working with videos, Lightly requires a prediction file per frame. Lightly
+When working with videos, the Lightly Worker requires a prediction file per frame. Lightly
 uses a naming convention to identify frames: The filename of a frame consists of
 the video filename, the video format, and the frame number (padded to the length
 of the number of frames in the video) separated by hyphens. For example, for a
@@ -363,7 +363,7 @@ belonging to that category. Optionally, a list of probabilities can be provided
 containing a probability for each category, indicating the likeliness that the
 segment belongs to that category.
 
-To kickstart using Lightly with semantic segmentation predictions we created an 
+To kickstart using the Lightly Worker with semantic segmentation predictions we created an 
 example script that takes model predictions and converts them to the correct 
 format :download:`semantic_segmentation_inference.py <code_examples/semantic_segmentation_inference.py>` 
 
@@ -403,13 +403,13 @@ following function:
 
 Segmentation models oftentimes output a probability for each pixel and category.
 Storing such probabilities can quickly result in large file sizes if the input
-images have a high resolution. To reduce storage requirements, Lightly expects 
+images have a high resolution. To reduce storage requirements, Lightly Worker expects 
 only a single score or probability per segmentation. If you have scores or 
 probabilities for each pixel in the image, you have to first aggregate them 
 into a single score/probability. We recommend to take either the median or mean 
 score/probability over all pixels within the segmentation mask. The example
 below shows how pixelwise segmentation predictions can be converted to the 
-format required by Lightly.
+format required by the Lightly Worker.
 
 .. code-block:: python
 
@@ -522,7 +522,7 @@ Don't forget to change these 2 parameters at the top of the script.
 Creating Prediction Files for Videos
 -------------------------------------
 
-Lightly expects one prediction file per frame in a video. Predictions can be 
+The Lightly Worker expects one prediction file per frame in a video. Predictions can be 
 created following the Python example code below. Make sure that `PyAV <https://pyav.org/>`_ 
 is installed on your system for it to work correctly.
 

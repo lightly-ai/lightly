@@ -26,8 +26,8 @@ The Lightly Worker follows a train, embed, select workflow:
 
 
 The Lightly Worker can be easily triggered from your Python code. There are various parameters you can
-configure and we also expose the full configuration of the lightly self-supervised learning framework.
-You can use the Lightly Worker to train a self-supervised model instead of using the Lightly Python framework.
+configure and we also expose the full configuration of the Lightly self-supervised learning framework.
+You can use the Lightly Worker to train a self-supervised model instead of using the Lightly SSL framework.
 
 Using Docker
 -------------
@@ -56,8 +56,8 @@ Here, we quickly explain the most important parts of the typical **docker run** 
 Start the Lightly Worker Docker
 --------------------------------
 
-Before we jump into the details of how to submit jobs, we need to start the Lightly image in
-worker mode (as outlined in :ref:`docker-setup`).
+Before we jump into the details of how to submit jobs, we need to start the
+Lightly Worker docker container in worker mode (as outlined in :ref:`docker-setup`).
 
 
 **This is how you start your Lightly Worker:**
@@ -115,7 +115,7 @@ make sure to specify the `dataset_id` in the constructor.
 INPUT bucket
 ^^^^^^^^^^^^
 
-The `INPUT` bucket is where Lightly reads your input data from. You must specify it and you must provide Lightly `LIST` and `READ` access to it.
+The `INPUT` bucket is where the Lightly Worker reads your input data from. You must specify it and you must provide Lightly `LIST` and `READ` access to it.
 
 LIGHTLY bucket
 ^^^^^^^^^^^^^^
@@ -129,7 +129,7 @@ The `LIGHTLY` bucket is used for many purposes:
 - Saving thumbnails of images for a more responsive Lightly Platform.
 - Saving images of cropped out objects, if you use the object-level workflow. See also :ref:`docker-object-level`.
 - Saving frames of videos, if your input consists of videos.
-- Providing the relevant filenames file if you want to to run the lightly worker only on a subset of input files: See also :ref:`specifying_relevant_files`.
+- Providing the relevant filenames file if you want to to run the Lightly Worker only on a subset of input files: See also :ref:`specifying_relevant_files`.
 - Providing predictions for running the object level workflow or as additional information for the selection process. See also :ref:`docker-datasource-predictions`.
 - Providing metadata as additional information for the selection process. See also :ref:`docker-datasource-metadata`.
 
@@ -351,8 +351,9 @@ epochs on the input images before embedding the images and selecting from them.
     )
 
 You may not always want to train for exactly 100 epochs with the default settings.
-The Lightly worker is a wrapper around the lightly Python package.
-Hence, for training and embedding the user can access all the settings from the lightly command-line tool.
+The Lightly Worker is a wrapper around the Lightly SSL Python package.
+Hence, for training and embedding the user can access and set all the settings
+known from the Lightly SSL Python package.
 
 Here are some of the most common parameters for the **lightly_config**
 you might want to change:
@@ -364,7 +365,7 @@ you might want to change:
 
 .. code-block:: python
     :emphasize-lines: 24, 35
-    :caption: Accessing the lightly parameters from Python
+    :caption: Setting the Lightly SSL parameters from Python
 
     scheduled_run_id = client.schedule_compute_worker_run(
         worker_config={

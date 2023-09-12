@@ -3,7 +3,7 @@
 Distributed Training
 ====================
 
-Lightly supports training your model on multiple GPUs using Pytorch Lightning
+Lightly SSL supports training your model on multiple GPUs using Pytorch Lightning
 and Distributed Data Parallel (DDP) training. You can find reference
 implementations for all our models in the :ref:`models` section.
 
