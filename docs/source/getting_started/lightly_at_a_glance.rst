@@ -9,7 +9,7 @@ neighbors, similarity search, transfer learning, or data analytics.
 
 
 How Lightly SSL Works
------------------
+---------------------
 The flexible design of Lightly SSL makes it easy to integrate in your Python code. Lightly SSL is built
 completely around PyTorch and the different pieces can be put together to fit *your* requirements.
 
@@ -222,7 +222,7 @@ Furthermore, the ResNet backbone can be used for transfer and few-shot learning.
     Lightly SSL automatically returns the enumerated labels as a list.
 
 Lightly SSL in Three Lines
-----------------------------------------
+--------------------------
 
 Lightly SSL also offers an easy-to-use interface. The following lines show how the package can 
 be used to train a model with self-supervision and create embeddings with only three lines

@@ -25,7 +25,7 @@ project = "lightly"
 copyright_year = "2020-<script>document.write((new Date()).getFullYear())</script>"
 copyright = "Lightly AG"
 website_url = "https://www.lightly.ai/"
-author = "Philipp Wirth, Igor Susmelj, Guarin Flück, Malte Ebner, Jeremy A. Prescott"
+author = "Lightly Team"
 
 # The full version, including alpha/beta/rc tags
 release = lightly.__version__
