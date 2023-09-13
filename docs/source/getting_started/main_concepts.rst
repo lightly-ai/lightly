@@ -11,10 +11,10 @@ and a schema of how they interact. The expressions in **bold** are explained fur
 below.
 
 .. figure:: images/lightly_overview.png
-    :align: center
-    :alt: Lightly SSL Overview
+   :align: center
+   :alt: Lightly SSL Overview
 
-    Overview of the different concepts used by the Lightly SSL package and how they interact.
+   Overview of the different concepts used by the Lightly SSL package and how they interact.
 
 * **Dataset**
    In Lightly SSL, datasets are accessed through :py:class:`~lightly.data.dataset.LightlyDataset`.

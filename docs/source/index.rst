@@ -5,17 +5,18 @@
 
 
 .. image:: ../logos/lightly_SSL_logo_crop.png
-  :width: 600
-  :alt: Lightly
+   :width: 600
+   :align: center
+   :alt: Lightly
 
 
 Documentation
 ===================================
 
 .. note:: These pages document the Lightly self-supervised learning library.
-          If you are looking for Lightly Worker Solution to easily process millions
-          of samples and run powerful active learning algorithms on your data
-          please follow
+          If you are looking for the Lightly Worker Solution to easily process millions
+          of samples and run powerful `active learning algorithms <https://docs.lightly.ai/docs/selection>`_
+          on your data, please follow the
           `Lightly Worker documentation <https://docs.lightly.ai/>`_.
 
 Lightly SSL is a computer vision framework for self-supervised learning.
@@ -28,12 +29,11 @@ other frameworks such as Fast.ai.
 
 
 Lightly AI
--------
+----------
 
 - `Homepage <https://www.lightly.ai>`_
-- `Web-App <https://app.lightly.ai>`_
-- `Documentation <https://docs.lightly.ai/self-supervised-learning/>`_
-- `Lightly Solution Documentation (Lightly Worker & API) <https://docs.lightly.ai/>`_
+- `Lightly Worker Solution Documentation (Lightly Worker & API) <https://docs.lightly.ai/>`_
+- `Lightly Platform <https://app.lightly.ai>`_
 - `Github <https://github.com/lightly-ai/lightly>`_
 - `Discord <https://discord.gg/xvNJW94>`_ (We have weekly paper sessions!)
 
