@@ -25,7 +25,7 @@ the CLI.
 
 
 Check the installation of Lightly SSL
------------------------------------
+-------------------------------------
 To see if the Lightly SSL command-line tool was installed correctly, you can run the
 following command which will print the version of the installed Lightly SSL package:
 

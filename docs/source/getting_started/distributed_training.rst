@@ -12,7 +12,7 @@ Training with multiple gpus is also available from the command line: :ref:`cli-t
 For details on distributed training we recommend the following pages:
 
 - `Pytorch Distributed Overview <https://pytorch.org/tutorials/beginner/dist_overview.html>`_
-- `Pytorch Lightning Multi-GPU Training <https://pytorch-lightning.readthedocs.io/en/stable/advanced/multi_gpu.html>`_
+- `Pytorch Lightning Multi-GPU Training <https://lightning.ai/docs/pytorch/stable/accelerators/gpu_intermediate.html>`_
 
 
 There are different levels of synchronization for distributed training. One can
