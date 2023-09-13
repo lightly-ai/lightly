@@ -82,6 +82,7 @@ def knn_eval(
             metric_callback,
         ],
         strategy="ddp_find_unused_parameters_true",
+        num_sanity_val_steps=0,
     )
     trainer.fit(
         model=classifier,

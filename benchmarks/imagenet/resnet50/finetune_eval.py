@@ -82,7 +82,7 @@ def finetune_eval(
         shuffle=True,
         num_workers=num_workers,
         drop_last=True,
-        persistent_workers=True,
+        persistent_workers=False,
     )
 
     # Setup validation data.
@@ -100,7 +100,7 @@ def finetune_eval(
         batch_size=batch_size_per_device,
         shuffle=False,
         num_workers=num_workers,
-        persistent_workers=True,
+        persistent_workers=False,
     )
 
     # Train linear classifier.
@@ -117,6 +117,7 @@ def finetune_eval(
         logger=TensorBoardLogger(save_dir=str(log_dir), name="finetune_eval"),
         precision=precision,
         strategy="ddp_find_unused_parameters_true",
+        num_sanity_val_steps=0,
     )
     classifier = FinetuneLinearClassifier(
         model=model,
