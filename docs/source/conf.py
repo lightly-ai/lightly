@@ -98,7 +98,7 @@ html_static_path = ["_static"]
 
 html_favicon = "favicon.png"
 
-html_logo = "../logos/lightly_logo_crop_white_text.png"
+html_logo = "../logos/lightly_SSL_logo_crop_white_text.png"
 
 # Exposes variables so that they can be used by django
 html_context = {

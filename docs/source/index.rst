@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 
-.. image:: ../logos/lightly_logo_crop.png
+.. image:: ../logos/lightly_SSL_logo_crop.png
   :width: 600
   :alt: Lightly
 
