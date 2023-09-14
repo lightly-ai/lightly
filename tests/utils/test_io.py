@@ -10,15 +10,15 @@ from lightly.utils import io
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
 
 
-class TestCLICrop(MockedApiWorkflowSetup):
-    def test_save_metadata(self):
+class TestCLICrop(MockedApiWorkflowSetup):  # type: ignore[misc]
+    def test_save_metadata(self) -> None:
         metadata = [("filename.jpg", {"random_metadata": 42})]
         metadata_filepath = tempfile.mktemp(".json", "metadata")
         io.save_custom_metadata(metadata_filepath, metadata)
 
 
 class TestEmbeddingsIO(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         # correct embedding file as created through lightly
         self.embeddings_path = tempfile.mktemp(".csv", "embeddings")
         embeddings = np.random.rand(32, 2)
@@ -26,10 +26,10 @@ class TestEmbeddingsIO(unittest.TestCase):
         filenames = [f"img_{i}.jpg" for i in range(len(embeddings))]
         io.save_embeddings(self.embeddings_path, embeddings, labels, filenames)
 
-    def test_valid_embeddings(self):
+    def test_valid_embeddings(self) -> None:
         io.check_embeddings(self.embeddings_path)
 
-    def test_whitespace_in_embeddings(self):
+    def test_whitespace_in_embeddings(self) -> None:
         # should fail because there whitespaces in the header columns
         lines = [
             "filenames, embedding_0,embedding_1,labels\n",
@@ -41,7 +41,7 @@ class TestEmbeddingsIO(unittest.TestCase):
             io.check_embeddings(self.embeddings_path)
         self.assertTrue("must not contain whitespaces" in str(context.exception))
 
-    def test_no_labels_in_embeddings(self):
+    def test_no_labels_in_embeddings(self) -> None:
         # should fail because there is no `labels` column in the header
         lines = ["filenames,embedding_0,embedding_1\n", "img_1.jpg,0.351,0.1231"]
         with open(self.embeddings_path, "w") as f:
@@ -50,7 +50,7 @@ class TestEmbeddingsIO(unittest.TestCase):
             io.check_embeddings(self.embeddings_path)
         self.assertTrue("has no `labels` column" in str(context.exception))
 
-    def test_no_empty_rows_in_embeddings(self):
+    def test_no_empty_rows_in_embeddings(self) -> None:
         # should fail because there are empty rows in the embeddings file
         lines = [
             "filenames,embedding_0,embedding_1,labels\n",
@@ -62,7 +62,7 @@ class TestEmbeddingsIO(unittest.TestCase):
             io.check_embeddings(self.embeddings_path)
         self.assertTrue("must not have empty rows" in str(context.exception))
 
-    def test_embeddings_extra_rows(self):
+    def test_embeddings_extra_rows(self) -> None:
         rows = [
             ["filenames", "embedding_0", "embedding_1", "labels", "selected", "masked"],
             ["image_0.jpg", "3.4", "0.23", "0", "1", "0"],
@@ -79,7 +79,7 @@ class TestEmbeddingsIO(unittest.TestCase):
             for row_read, row_original in zip(csv_reader, rows):
                 self.assertListEqual(row_read, row_original[:-2])
 
-    def test_embeddings_extra_rows_special_order(self):
+    def test_embeddings_extra_rows_special_order(self) -> None:
         input_rows = [
             ["filenames", "embedding_0", "embedding_1", "masked", "labels", "selected"],
             ["image_0.jpg", "3.4", "0.23", "0", "1", "0"],
@@ -101,7 +101,7 @@ class TestEmbeddingsIO(unittest.TestCase):
             for row_read, row_original in zip(csv_reader, correct_output_rows):
                 self.assertListEqual(row_read, row_original)
 
-    def test_save_tasks(self):
+    def test_save_tasks(self) -> None:
         tasks = [
             "task1",
             "task2",
@@ -113,7 +113,7 @@ class TestEmbeddingsIO(unittest.TestCase):
                 loaded = json.load(f)
         self.assertListEqual(tasks, loaded)
 
-    def test_save_schema(self):
+    def test_save_schema(self) -> None:
         description = "classification"
         ids = [1, 2, 3, 4]
         names = ["name1", "name2", "name3", "name4"]
@@ -132,7 +132,7 @@ class TestEmbeddingsIO(unittest.TestCase):
                 loaded = json.load(f)
         self.assertListEqual(sorted(expected_format), sorted(loaded))
 
-    def test_save_schema_different(self):
+    def test_save_schema_different(self) -> None:
         with self.assertRaises(ValueError):
             io.save_schema(
                 "name_doesnt_matter",
