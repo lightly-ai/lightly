@@ -1,5 +1,5 @@
 
-![Lightly Logo](docs/logos/lightly_logo_crop.png)
+![Lightly SSL self-supervised learning Logo](docs/logos/lightly_SSL_logo_crop.png)
 
 ![GitHub](https://img.shields.io/github/license/lightly-ai/lightly)
 ![Unit Tests](https://github.com/lightly-ai/lightly/workflows/Unit%20Tests/badge.svg)
@@ -7,19 +7,21 @@
 [![Downloads](https://static.pepy.tech/badge/lightly)](https://pepy.tech/project/lightly)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-Lightly is a computer vision framework for self-supervised learning.
+Lightly SSL is a computer vision framework for self-supervised learning.
 
 - [Documentation](https://docs.lightly.ai/self-supervised-learning/)
 - [Github](https://github.com/lightly-ai/lightly)
 - [Discord](https://discord.gg/xvNJW94) (We have weekly paper sessions!)
 
-We also built a whole platform on top, with additional features for active learning
-and data curation. If you're interested in the platform, check out [lightly.ai](https://www.lightly.ai).
+We've also built a whole platform on top, with additional features for active learning
+and [data curation](https://docs.lightly.ai/docs/what-is-lightly). If you're interested in the
+Lightly Worker Solution to easily process millions of samples and run [powerful algorithms](https://docs.lightly.ai/docs/selection)
+on your data, check out [lightly.ai](https://www.lightly.ai). It's free to get started!
 
 
 ## Features
 
-This framework offers the following features:
+This self-supervised learning framework offers the following features:
 
 - Modular framework, which exposes low-level building blocks such as loss functions and
   model heads.

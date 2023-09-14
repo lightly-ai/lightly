@@ -6,18 +6,18 @@ Main Concepts
 Self-Supervised Learning
 ------------------------
 
-The figure below shows an overview of the different concepts used by the Lightly package
+The figure below shows an overview of the different concepts used by the Lightly SSL package
 and a schema of how they interact. The expressions in **bold** are explained further
 below.
 
 .. figure:: images/lightly_overview.png
-    :align: center
-    :alt: Lightly Overview
+   :align: center
+   :alt: Lightly SSL Overview
 
-    Overview of the different concepts used by the Lightly package and how they interact.
+   Overview of the different concepts used by the Lightly SSL package and how they interact.
 
 * **Dataset**
-   In Lightly, datasets are accessed through :py:class:`~lightly.data.dataset.LightlyDataset`.
+   In Lightly SSL, datasets are accessed through :py:class:`~lightly.data.dataset.LightlyDataset`.
    You can create a :py:class:`~lightly.data.dataset.LightlyDataset` from a directory of
    images or videos, or directly from a `torchvision dataset <https://pytorch.org/vision/stable/datasets.html>`_.
    You can learn more about this in our tutorial: 
@@ -36,7 +36,7 @@ below.
 
 * **Collate Function**
    The collate function aggregates the views of multiple images into a single batch.
-   You can use the default collate function. Lightly also provides a  
+   You can use the default collate function. Lightly SSL also provides a  
    :py:class:`~lightly.data.multi_view_collate.MultiViewCollate`
 
 * **Dataloader**
@@ -56,7 +56,7 @@ below.
    They project the outputs of the backbone, commonly called *embeddings*,
    *representations*, or *features*, into a new space in which the loss is calculated.
    This has been found to be hugely beneficial instead of directly calculating the loss
-   on the embeddings. Lightly provides common :py:mod:`~lightly.models.modules.heads`
+   on the embeddings. Lightly SSL provides common :py:mod:`~lightly.models.modules.heads`
    that can be added to any backbone.
 
 * **Model**
@@ -71,17 +71,17 @@ below.
    * :ref:`sphx_glr_tutorials_package_tutorial_simsiam_esa.py`
 
 * **Loss**
-   The loss function plays a crucial role in self-supervised learning. Lightly provides
+   The loss function plays a crucial role in self-supervised learning. Lightly SSL provides
    common loss functions in the :py:mod:`~lightly.loss` module.
 
 * **Optimizer**
-   With Lightly, you can use any `PyTorch optimizer <https://pytorch.org/docs/stable/optim.html>`_
+   With Lightly SSL, you can use any `PyTorch optimizer <https://pytorch.org/docs/stable/optim.html>`_
    to train your model.
 
 * **Training**
    The model can either be trained using a plain `PyTorch training loop <https://pytorch.org/tutorials/beginner/introyt/trainingyt.html>`_
    or with a dedicated framework such as `PyTorch Lightning <https://www.pytorchlightning.ai/index.html>`_.
-   Lightly lets you choose what is best for you. Check out our :ref:`models <models>` and
+   Lightly SSL lets you choose what is best for you. Check out our :ref:`models <models>` and
    `tutorials <https://docs.lightly.ai/self-supervised-learning/tutorials/package.html>`_
    sections on how to train models with PyTorch or PyTorch Lightning.
 

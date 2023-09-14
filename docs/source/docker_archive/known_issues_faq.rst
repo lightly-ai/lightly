@@ -43,7 +43,7 @@ Try to install `nvidia-docker` following the guide
 `here <https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker>`_.
 
 
-Shared Memory Error when running Lightly Docker
+Shared Memory Error when running Lightly Worker
 -----------------------------------------------
 
 The following error message appears when the docker runtime has not enough
