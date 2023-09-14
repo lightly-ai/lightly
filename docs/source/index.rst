@@ -14,10 +14,11 @@ Documentation
 ===================================
 
 .. note:: These pages document the Lightly self-supervised learning library.
-          If you are looking for the Lightly Worker Solution to easily process millions
-          of samples and run powerful `active learning algorithms <https://docs.lightly.ai/docs/selection>`_
-          on your data, please follow the
-          `Lightly Worker documentation <https://docs.lightly.ai/>`_.
+          If you are looking for the Lightly Worker Solution with
+          advanced `active learning algorithms <https://docs.lightly.ai/docs/selection>`_ and
+          `selection strategies <https://docs.lightly.ai/docs/selection>`_ to select the best samples
+          within millions of unlabeled images or video frames stored in your cloud storage or locally,
+          please follow our `Lightly Worker documentation <https://docs.lightly.ai/>`_.
 
 Lightly SSL is a computer vision framework for self-supervised learning.
 
