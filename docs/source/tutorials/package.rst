@@ -3,11 +3,11 @@
 Python Package
 ===================================
 
-With the lightly framework you can use the power of self-supervised learning
+With the Lightly SSL framework you can use the power of self-supervised learning
 for computervision with ease. Here we show you tutorials to help you work with
 the Python library.
 
-Since lightly is built on top of `PyTorch <https://pytorch.org/tutorials/>`_ 
+Since Lightly SSL is built on top of `PyTorch <https://pytorch.org/tutorials/>`_ 
 and `PyTorch Lightning <https://github.com/PyTorchLightning/pytorch-lightning>`_ 
 you might want to have a look at the two frameworks to understand basic concepts.
 

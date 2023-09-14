@@ -204,7 +204,7 @@ You can reproduce the benchmarks using the following script:
 Next Steps
 ----------
 
-Now that you understand the performance of the different lightly methods how about
+Now that you understand the performance of the different Lightly SSL methods how about
 looking into a tutorial to implement your favorite model?
 
 - :ref:`input-structure-label`

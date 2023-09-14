@@ -143,7 +143,7 @@ workers for data fetching :code:`lightly.loader.num_workers` there might be not 
 To solve this problem we need to reduce the number of workers or 
 increase the shared memory for the docker runtime. 
 
-Lightly determines the number of CPU cores available and sets the number
+Lightly Worker determines the number of CPU cores available and sets the number
 of workers to the same number. If you have a machine with many cores but not so much
 memory (e.g. less than 2 GB of memory per core) it can happen that you run out 
 of memory and you rather want to reduce
@@ -298,7 +298,7 @@ a section about the `credHelpers` they might overrule the authentication.
 The `credHelpers` can overrule the key for certain URLs. This can lead to 
 permission errors pulling the docker image. 
 
-The Lightly docker images are hosted in the European location. Therefore,
+The Lightly Worker docker images are hosted in the European location. Therefore,
 it's important that pulling from the `eu.gcr.io` domain is using 
 the provided credentials.
 
@@ -314,7 +314,7 @@ There are two ways to solve the problem:
         cat container-credentials.json | docker login -u _json_key --password-stdin https://eu.gcr.io
 
 - You can work with two configs. We recommend creating a dedicated folder
-  for the Lightly docker config.
+  for the Lightly Worker docker config.
 
     .. code-block:: console
 
@@ -324,5 +324,5 @@ There are two ways to solve the problem:
 
         docker --config ~/.docker_lightly/ pull  eu.gcr.io/boris-250909/lightly/worker:latest
 
-Whenever you're pulling a new image (e.g. updating Lightly) you would need to 
+Whenever you're pulling a new image (e.g. updating Lightly Worker) you would need to 
 pass it the corresponding config using the `--config` parameter.

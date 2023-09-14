@@ -2,7 +2,7 @@
 
 Object Level
 ============
-Lightly does not only work on full images but also on an object level. This
+The Lightly Worker does not only work on full images but also on an object level. This
 workflow is especially useful for datasets containing small objects or multiple
 objects in each image and provides the following benefits over the full image
 workflow:
@@ -21,7 +21,7 @@ workflow:
 
 Prerequisites
 -------------
-In order to use the object level workflow with Lightly, you will need the
+In order to use the object level workflow with the Lightly Worker, you will need the
 following things:
 
 - The installed Lightly Worker (see :ref:`docker-setup`)
@@ -31,13 +31,13 @@ following things:
 
 .. note::
 
-    If you don't have any predictions available, you can use the Lightly pretagging
+    If you don't have any predictions available, you can use the Lightly Worker pretagging
     model. See :ref:`Pretagging <object-level-pretagging>` for more information.
 
 
 Predictions
 -----------
-Lightly needs to know which objects to process. This information is provided
+The Lightly Worker needs to know which objects to process. This information is provided
 by uploading a set of object predictions to the datasource (see :ref:`docker-datasource-predictions`).
 Let's say we are working with a dataset containing different types of vehicles
 and used an object detection model to find possible vehicle objects in the
@@ -170,7 +170,7 @@ code to sping up a Lightly Worker
 
 Padding
 -------
-Lightly makes it possible to add a padding around your bounding boxes. This allows
+The Lightly Worker makes it possible to add a padding around your bounding boxes. This allows
 for better visualization of the cropped images in the web-app and can improve the
 embeddings of the objects as the embedding model sees the objects in context. To add
 padding, simply specify `object_level.padding=X` where `X` is the padding relative
@@ -239,9 +239,9 @@ properties of your dataset and reveal things like:
 
 These hidden biases are hard to find in a dataset if you only rely on full
 images or the coarse vehicle type predicted by the object detection model.
-Lightly helps you to identify them quickly and assists you in monitoring and
+The Lightly Worker helps you to identify them quickly and assists you in monitoring and
 improving the quality of your dataset. After an initial exploration you can now
-take further steps to enhance the dataset using one of the workflows Lightly
+take further steps to enhance the dataset using one of the workflows the Lightly Worker
 provides:
 
 - Select a subset of your data using our :ref:`Sampling Algorithms <plaform-sampling>`
@@ -252,7 +252,7 @@ provides:
 Multiple Object Level Runs
 --------------------------
 You can run multiple object level workflows using the same dataset. To start a
-new run, please select your original full image dataset in the Lightly Web App
+new run, please select your original full image dataset in the Lightly Platform
 and schedule a new run from there. If you are running the Lightly Worker from Python or
 over the API, you have to set the `dataset_id` configuration option to the id of 
 the original full image dataset. In both cases make sure that the run is *not*
@@ -261,7 +261,7 @@ started from the crops dataset as this is not supported!
 You can control to which crops dataset the newly selected object crops are
 uploaded by setting the `object_level.crop_dataset_name` configuration option.
 By default this option is not set and if you did not specify it in the first run,
-you can also omit it in future runs. In this case Lightly will automatically 
+you can also omit it in future runs. In this case the Lightly Worker will automatically 
 find the existing crops dataset and add the new crops to it. If you want to
 upload the crops to a new dataset or have set a custom crop dataset name in a
 previous run, then set the `object_level.crop_dataset_name` option to a new

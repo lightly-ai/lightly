@@ -213,7 +213,7 @@ can process the video directly so we require only 6.4 MBytes of storage. This me
 
    * - Metric
      - ffmpeg extracted frames
-     - Lightly using video
+     - Lightly Worker using video
      - Reduction
    * - Storage Consumption
      - 447 MBytes + 6.4 MBytes
