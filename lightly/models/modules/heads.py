@@ -694,7 +694,6 @@ class TiCoProjectionHead(ProjectionHead):
         )
 
 
-
 class VICRegProjectionHead(ProjectionHead):
     """Projection head used for VICReg.
 
@@ -715,7 +714,7 @@ class VICRegProjectionHead(ProjectionHead):
     ):
         hidden_layers = [
             (hidden_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU())
-            for _ in range(num_layers - 2) # Exclude first and last layer.
+            for _ in range(num_layers - 2)  # Exclude first and last layer.
         ]
         super(VICRegProjectionHead, self).__init__(
             [
