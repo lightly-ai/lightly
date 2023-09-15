@@ -259,7 +259,6 @@ class _UploadEmbeddingsMixin:
                     f"The filenames in the embedding file and "
                     f"the filenames on the server do not align"
                 )
-            io_utils.check_filenames(filenames)
 
             rows_without_header_ordered = self._order_list_by_filenames(
                 filenames, rows_without_header
