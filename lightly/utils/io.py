@@ -12,29 +12,6 @@ from typing import Any, Dict, List, Tuple, Union
 import numpy as np
 from numpy.typing import NDArray
 
-INVALID_FILENAME_CHARACTERS = [","]
-
-
-def _is_valid_filename(filename: str) -> bool:
-    """Returns False if the filename is misformatted."""
-    for character in INVALID_FILENAME_CHARACTERS:
-        if character in filename:
-            return False
-    return True
-
-
-def check_filenames(filenames: List[str]) -> None:
-    """Raises an error if one of the filenames is misformatted
-
-    Args:
-        filenames:
-            A list of string being filenames
-
-    """
-    invalid_filenames = [f for f in filenames if not _is_valid_filename(f)]
-    if len(invalid_filenames) > 0:
-        raise ValueError(f"Invalid filename(s): {invalid_filenames}")
-
 
 def check_embeddings(path: str, remove_additional_columns: bool = False) -> None:
     """Raises an error if the embeddings csv file has not the correct format
@@ -147,7 +124,6 @@ def save_embeddings(
         >>>     labels,
         >>>     filenames)
     """
-    check_filenames(filenames)
 
     n_embeddings = len(embeddings)
     n_filenames = len(filenames)
@@ -202,8 +178,6 @@ def load_embeddings(path: str) -> Tuple[NDArray[np.float64], List[int], List[str
             labels.append(int(row[-1]))
             # read embeddings
             embeddings.append(row[1:-1])
-
-    check_filenames(filenames)
 
     embedding_array = np.array(embeddings).astype(np.float64)
     return embedding_array, labels, filenames
