@@ -24,7 +24,6 @@ class VICReg(LightningModule):
         resnet = resnet50()
         resnet.fc = Identity()  # Ignore classification head
         self.backbone = resnet
-        # VICReg uses Barlow Twins projection head.
         self.projection_head = VICRegProjectionHead(num_layers=2)
         self.criterion = VICRegLoss()
 
