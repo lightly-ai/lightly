@@ -10,7 +10,7 @@ from torch import nn
 from lightly.loss.vicreg_loss import VICRegLoss
 
 ## The projection head is the same as the Barlow Twins one
-from lightly.models.modules import BarlowTwinsProjectionHead
+from lightly.models.modules.heads import VICRegProjectionHead
 from lightly.transforms.vicreg_transform import VICRegTransform
 
 
@@ -19,7 +19,12 @@ class VICReg(pl.LightningModule):
         super().__init__()
         resnet = torchvision.models.resnet18()
         self.backbone = nn.Sequential(*list(resnet.children())[:-1])
-        self.projection_head = BarlowTwinsProjectionHead(512, 2048, 2048)
+        self.projection_head = VICRegProjectionHead(
+            input_dim=512,
+            hidden_dim=2048,
+            output_dim=2048,
+            num_layers=2,
+        )
         self.criterion = VICRegLoss()
 
     def forward(self, x):
