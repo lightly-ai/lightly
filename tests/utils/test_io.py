@@ -163,9 +163,9 @@ def test_save_and_load_embeddings(tmp_path: Path) -> None:
 
 
 def test_save_and_load_embeddings__filename_with_comma(tmp_path: Path) -> None:
-    embeddings = np.random.rand(2, 32)
-    labels = [0, 1]
-    filenames = ["img,1.jpg", "img_2.jpg"]
+    embeddings = np.random.rand(4, 32)
+    labels = [0, 1, 2, 3]
+    filenames = ["img,1.jpg", '",img,.jpg', ',"img".jpg', ',"img\n".jpg']
 
     io.save_embeddings(
         path=str(tmp_path / "embeddings.csv"),
