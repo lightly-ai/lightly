@@ -14,6 +14,7 @@ import linear_eval
 import simclr
 import swav
 import torch
+import vicreg
 from pytorch_lightning import LightningModule, Trainer
 from pytorch_lightning.callbacks import (
     DeviceStatsMonitor,
@@ -58,6 +59,7 @@ METHODS = {
     "dino": {"model": dino.DINO, "transform": dino.transform},
     "simclr": {"model": simclr.SimCLR, "transform": simclr.transform},
     "swav": {"model": swav.SwAV, "transform": swav.transform},
+    "vicreg": {"model": vicreg.VICReg, "transform": vicreg.transform},
 }
 
 
