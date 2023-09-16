@@ -63,7 +63,7 @@ class TiCo(LightningModule):
         # Forward pass and loss calculation.
         views, targets = batch[0], batch[1]
         teacher_features_0, teacher_projections_0 = self.forward_teacher(views[0])
-        student_predictions_0 = self.forward_student(views[0])
+        student_predictions_0 = self.forward_student(views[1])
 
         loss = self.criterion(teacher_projections_0, student_predictions_0)
 
@@ -100,9 +100,9 @@ class TiCo(LightningModule):
         )
         optimizer = LARS(
             [
-                {"name": "byol", "params": params},
+                {"name": "tico", "params": params},
                 {
-                    "name": "byol_no_weight_decay",
+                    "name": "tico_no_weight_decay",
                     "params": params_no_weight_decay,
                     "weight_decay": 0.0,
                 },
