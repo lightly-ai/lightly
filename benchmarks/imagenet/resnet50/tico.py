@@ -63,9 +63,9 @@ class TiCo(LightningModule):
         # Forward pass and loss calculation.
         views, targets = batch[0], batch[1]
         teacher_features_0, teacher_projections_0 = self.forward_teacher(views[0])
-        student_predictions_0 = self.forward_student(views[1])
+        student_projections_0 = self.forward_student(views[1])
 
-        loss = self.criterion(teacher_projections_0, student_predictions_0)
+        loss = self.criterion(teacher_projections_0, student_projections_0)
 
         self.log(
             "train_loss", loss, prog_bar=True, sync_dist=True, batch_size=len(targets)
@@ -115,9 +115,9 @@ class TiCo(LightningModule):
             # Settings follow original code for 100 epochs which are slightly different
             # from the paper, see:
             # https://github.com/deepmind/deepmind-research/blob/f5de0ede8430809180254ee957abf36ed62579ef/byol/configs/byol.py#L21-L23
-            lr=0.45 * self.batch_size_per_device * self.trainer.world_size / 256,
+            lr=0.2 * self.batch_size_per_device * self.trainer.world_size / 256,
             momentum=0.9,
-            weight_decay=1e-6,
+            weight_decay=1.5e-6,
         )
         scheduler = {
             "scheduler": CosineWarmupScheduler(
