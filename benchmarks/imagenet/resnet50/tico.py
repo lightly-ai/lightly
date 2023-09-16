@@ -65,25 +65,7 @@ class TiCo(LightningModule):
         teacher_features, teacher_projections = self.forward_teacher(views[0])
         student_projections = self.forward_student(views[1])
 
-        transformative_invariance_loss, covariance_contrast_loss = self.criterion(
-            teacher_projections, student_projections
-        )
-        loss = transformative_invariance_loss, covariance_contrast_loss
-        self.log(
-            "trans_loss",
-            transformative_invariance_loss,
-            prog_bar=True,
-            sync_dist=True,
-            batch_size=len(targets),
-        )
-
-        self.log(
-            "cov_loss",
-            covariance_contrast_loss,
-            prog_bar=True,
-            sync_dist=True,
-            batch_size=len(targets),
-        )
+        loss = self.criterion(teacher_projections, student_projections)
 
         self.log(
             "train_loss", loss, prog_bar=True, sync_dist=True, batch_size=len(targets)

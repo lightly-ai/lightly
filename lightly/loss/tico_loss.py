@@ -110,13 +110,13 @@ class TiCoLoss(torch.nn.Module):
         # compute loss
         C = self.beta * self.C + (1 - self.beta) * B
 
-        transformative_invariance_loss = -(z_a * z_b).sum(dim=1).mean()
+        transformative_invariance_loss = 1.0 - (z_a * z_b).sum(dim=1).mean()
         covariance_contrast_loss = self.rho * (torch.mm(z_a, C) * z_a).sum(dim=1).mean()
 
-        # loss = transformative_invariance_loss + covariance_contrast_loss
+        loss = transformative_invariance_loss + covariance_contrast_loss
 
         # update covariance matrix
         if update_covariance_matrix:
             self.C = C.detach()
 
-        return transformative_invariance_loss, covariance_contrast_loss
+        return loss
