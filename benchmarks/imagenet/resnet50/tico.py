@@ -62,10 +62,28 @@ class TiCo(LightningModule):
 
         # Forward pass and loss calculation.
         views, targets = batch[0], batch[1]
-        teacher_features_0, teacher_projections_0 = self.forward_teacher(views[0])
-        student_projections_0 = self.forward_student(views[1])
+        teacher_features, teacher_projections = self.forward_teacher(views[0])
+        student_projections = self.forward_student(views[1])
 
-        loss = self.criterion(teacher_projections_0, student_projections_0)
+        transformative_invariance_loss, covariance_contrast_loss = self.criterion(
+            teacher_projections, student_projections
+        )
+        loss = transformative_invariance_loss, covariance_contrast_loss
+        self.log(
+            "trans_loss",
+            transformative_invariance_loss,
+            prog_bar=True,
+            sync_dist=True,
+            batch_size=len(targets),
+        )
+
+        self.log(
+            "cov_loss",
+            covariance_contrast_loss,
+            prog_bar=True,
+            sync_dist=True,
+            batch_size=len(targets),
+        )
 
         self.log(
             "train_loss", loss, prog_bar=True, sync_dist=True, batch_size=len(targets)
@@ -73,7 +91,7 @@ class TiCo(LightningModule):
 
         # Online linear evaluation.
         cls_loss, cls_log = self.online_classifier.training_step(
-            (teacher_features_0.detach(), targets), batch_idx
+            (teacher_features.detach(), targets), batch_idx
         )
         self.log_dict(cls_log, sync_dist=True, batch_size=len(targets))
         return loss + cls_loss
