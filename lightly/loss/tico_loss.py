@@ -20,7 +20,7 @@ class TiCoLoss(torch.nn.Module):
                 Defaults to 0.9 [0].
             rho:
                 Weight for the covariance term of the loss
-                Defaults to 20.0 [0].
+                Defaults to 8.0 [0].
             gather_distributed:
                 If True then the cross-correlation matrices from all gpus are
                 gathered and summed before the loss calculation.
@@ -44,7 +44,7 @@ class TiCoLoss(torch.nn.Module):
     def __init__(
         self,
         beta: float = 0.9,
-        rho: float = 20.0,
+        rho: float = 8.0,
         gather_distributed: bool = False,
     ):
         super(TiCoLoss, self).__init__()
