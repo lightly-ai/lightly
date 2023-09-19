@@ -2150,7 +2150,7 @@ class DockerApi(object):
     def get_docker_run_report_read_url_by_id(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], **kwargs) -> str:  # noqa: E501
         """(Deprecated) get_docker_run_report_read_url_by_id  # noqa: E501
 
-        Get the url of a specific docker runs report  # noqa: E501
+        DEPRECATED, use getDockerRunArtifactReadUrlById - Get the url of a specific docker runs report  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -2179,7 +2179,7 @@ class DockerApi(object):
     def get_docker_run_report_read_url_by_id_with_http_info(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], **kwargs) -> ApiResponse:  # noqa: E501
         """(Deprecated) get_docker_run_report_read_url_by_id  # noqa: E501
 
-        Get the url of a specific docker runs report  # noqa: E501
+        DEPRECATED, use getDockerRunArtifactReadUrlById - Get the url of a specific docker runs report  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -2295,7 +2295,7 @@ class DockerApi(object):
     def get_docker_run_report_write_url_by_id(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], **kwargs) -> str:  # noqa: E501
         """(Deprecated) get_docker_run_report_write_url_by_id  # noqa: E501
 
-        Get the signed url to upload a report of a docker run  # noqa: E501
+        DEPRECATED, use createDockerRunArtifact - Get the signed url to upload a report of a docker run  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -2324,7 +2324,7 @@ class DockerApi(object):
     def get_docker_run_report_write_url_by_id_with_http_info(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], **kwargs) -> ApiResponse:  # noqa: E501
         """(Deprecated) get_docker_run_report_write_url_by_id  # noqa: E501
 
-        Get the signed url to upload a report of a docker run  # noqa: E501
+        DEPRECATED, use createDockerRunArtifact - Get the signed url to upload a report of a docker run  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 

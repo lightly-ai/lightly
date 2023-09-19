@@ -102,10 +102,25 @@ class SampleData(BaseModel):
         if self.thumb_name is None and "thumb_name" in self.__fields_set__:
             _dict['thumbName' if by_alias else 'thumb_name'] = None
 
+        # set to None if exif (nullable) is None
+        # and __fields_set__ contains the field
+        if self.exif is None and "exif" in self.__fields_set__:
+            _dict['exif' if by_alias else 'exif'] = None
+
         # set to None if custom_meta_data (nullable) is None
         # and __fields_set__ contains the field
         if self.custom_meta_data is None and "custom_meta_data" in self.__fields_set__:
             _dict['customMetaData' if by_alias else 'custom_meta_data'] = None
+
+        # set to None if video_frame_data (nullable) is None
+        # and __fields_set__ contains the field
+        if self.video_frame_data is None and "video_frame_data" in self.__fields_set__:
+            _dict['videoFrameData' if by_alias else 'video_frame_data'] = None
+
+        # set to None if crop_data (nullable) is None
+        # and __fields_set__ contains the field
+        if self.crop_data is None and "crop_data" in self.__fields_set__:
+            _dict['cropData' if by_alias else 'crop_data'] = None
 
         return _dict
 

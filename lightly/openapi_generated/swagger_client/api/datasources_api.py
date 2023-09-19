@@ -54,10 +54,10 @@ class DatasourcesApi(object):
         self.api_client = api_client
 
     @validate_arguments
-    def get_custom_embedding_file_read_url_from_datasource_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], file_name : Annotated[constr(strict=True, min_length=4), Field(..., description="The name of the csv file within the embeddings folder to get the readUrl for")], **kwargs) -> str:  # noqa: E501
+    def get_custom_embedding_file_read_url_from_datasource_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], file_name : Annotated[constr(strict=True, min_length=4), Field(..., description="The name of the csv file within the embeddings folder to get the GET readUrl for")], **kwargs) -> str:  # noqa: E501
         """get_custom_embedding_file_read_url_from_datasource_by_dataset_id  # noqa: E501
 
-        Get the ReadURL of a custom embedding csv file within the embeddings folder (e.g myCustomEmbedding.csv)  # noqa: E501
+        Get the GET ReadURL of a custom embedding csv file within the embeddings folder (e.g myCustomEmbedding.csv)  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -66,7 +66,7 @@ class DatasourcesApi(object):
 
         :param dataset_id: ObjectId of the dataset (required)
         :type dataset_id: str
-        :param file_name: The name of the csv file within the embeddings folder to get the readUrl for (required)
+        :param file_name: The name of the csv file within the embeddings folder to get the GET readUrl for (required)
         :type file_name: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -85,10 +85,10 @@ class DatasourcesApi(object):
         return self.get_custom_embedding_file_read_url_from_datasource_by_dataset_id_with_http_info(dataset_id, file_name, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def get_custom_embedding_file_read_url_from_datasource_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], file_name : Annotated[constr(strict=True, min_length=4), Field(..., description="The name of the csv file within the embeddings folder to get the readUrl for")], **kwargs) -> ApiResponse:  # noqa: E501
+    def get_custom_embedding_file_read_url_from_datasource_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], file_name : Annotated[constr(strict=True, min_length=4), Field(..., description="The name of the csv file within the embeddings folder to get the GET readUrl for")], **kwargs) -> ApiResponse:  # noqa: E501
         """get_custom_embedding_file_read_url_from_datasource_by_dataset_id  # noqa: E501
 
-        Get the ReadURL of a custom embedding csv file within the embeddings folder (e.g myCustomEmbedding.csv)  # noqa: E501
+        Get the GET ReadURL of a custom embedding csv file within the embeddings folder (e.g myCustomEmbedding.csv)  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -97,7 +97,7 @@ class DatasourcesApi(object):
 
         :param dataset_id: ObjectId of the dataset (required)
         :type dataset_id: str
-        :param file_name: The name of the csv file within the embeddings folder to get the readUrl for (required)
+        :param file_name: The name of the csv file within the embeddings folder to get the GET readUrl for (required)
         :type file_name: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -209,9 +209,9 @@ class DatasourcesApi(object):
 
     @validate_arguments
     def get_datasource_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], purpose : Annotated[Optional[DatasourcePurpose], Field(description="Which datasource with which purpose we want to get. Defaults to INPUT_OUTPUT")] = None, **kwargs) -> DatasourceConfig:  # noqa: E501
-        """get_datasource_by_dataset_id  # noqa: E501
+        """(Deprecated) get_datasource_by_dataset_id  # noqa: E501
 
-        Get the datasource of a dataset  # noqa: E501
+        DEPRECATED - use getDatasourcesByDatasetId. Get the datasource of a dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -240,9 +240,9 @@ class DatasourcesApi(object):
 
     @validate_arguments
     def get_datasource_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], purpose : Annotated[Optional[DatasourcePurpose], Field(description="Which datasource with which purpose we want to get. Defaults to INPUT_OUTPUT")] = None, **kwargs) -> ApiResponse:  # noqa: E501
-        """get_datasource_by_dataset_id  # noqa: E501
+        """(Deprecated) get_datasource_by_dataset_id  # noqa: E501
 
-        Get the datasource of a dataset  # noqa: E501
+        DEPRECATED - use getDatasourcesByDatasetId. Get the datasource of a dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -277,6 +277,8 @@ class DatasourcesApi(object):
                  returns the request thread.
         :rtype: tuple(DatasourceConfig, status_code(int), headers(HTTPHeaderDict))
         """
+
+        warnings.warn("GET /v1/datasets/{datasetId}/datasource is deprecated.", DeprecationWarning)
 
         _params = locals()
 
@@ -632,6 +634,160 @@ class DatasourcesApi(object):
 
         return self.api_client.call_api(
             '/v1/datasets/{datasetId}/datasource/all', 'GET',
+            _path_params,
+            _query_params,
+            _header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            response_types_map=_response_types_map,
+            auth_settings=_auth_settings,
+            async_req=_params.get('async_req'),
+            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _preload_content=_params.get('_preload_content', True),
+            _request_timeout=_params.get('_request_timeout'),
+            collection_formats=_collection_formats,
+            _request_auth=_params.get('_request_auth'))
+
+    @validate_arguments
+    def get_head_file_read_url_from_datasource_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], file_name : Annotated[constr(strict=True, min_length=1), Field(..., description="The name of the file within the the datasource to get a HEAD readUrl or GET readURL")], **kwargs) -> str:  # noqa: E501
+        """get_head_file_read_url_from_datasource_by_dataset_id  # noqa: E501
+
+        Get a HEAD ReadURL of a file within datasources. Can only be used for HEAD request, no GET requests.  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+
+        >>> thread = api.get_head_file_read_url_from_datasource_by_dataset_id(dataset_id, file_name, async_req=True)
+        >>> result = thread.get()
+
+        :param dataset_id: ObjectId of the dataset (required)
+        :type dataset_id: str
+        :param file_name: The name of the file within the the datasource to get a HEAD readUrl or GET readURL (required)
+        :type file_name: str
+        :param async_req: Whether to execute the request asynchronously.
+        :type async_req: bool, optional
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :return: Returns the result object.
+                 If the method is called asynchronously,
+                 returns the request thread.
+        :rtype: str
+        """
+        kwargs['_return_http_data_only'] = True
+        if '_preload_content' in kwargs:
+            raise ValueError("Error! Please call the get_head_file_read_url_from_datasource_by_dataset_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
+        return self.get_head_file_read_url_from_datasource_by_dataset_id_with_http_info(dataset_id, file_name, **kwargs)  # noqa: E501
+
+    @validate_arguments
+    def get_head_file_read_url_from_datasource_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], file_name : Annotated[constr(strict=True, min_length=1), Field(..., description="The name of the file within the the datasource to get a HEAD readUrl or GET readURL")], **kwargs) -> ApiResponse:  # noqa: E501
+        """get_head_file_read_url_from_datasource_by_dataset_id  # noqa: E501
+
+        Get a HEAD ReadURL of a file within datasources. Can only be used for HEAD request, no GET requests.  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+
+        >>> thread = api.get_head_file_read_url_from_datasource_by_dataset_id_with_http_info(dataset_id, file_name, async_req=True)
+        >>> result = thread.get()
+
+        :param dataset_id: ObjectId of the dataset (required)
+        :type dataset_id: str
+        :param file_name: The name of the file within the the datasource to get a HEAD readUrl or GET readURL (required)
+        :type file_name: str
+        :param async_req: Whether to execute the request asynchronously.
+        :type async_req: bool, optional
+        :param _preload_content: if False, the ApiResponse.data will
+                                 be set to none and raw_data will store the 
+                                 HTTP response body without reading/decoding.
+                                 Default is True.
+        :type _preload_content: bool, optional
+        :param _return_http_data_only: response data instead of ApiResponse
+                                       object with status code, headers, etc
+        :type _return_http_data_only: bool, optional
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the authentication
+                              in the spec for a single request.
+        :type _request_auth: dict, optional
+        :type _content_type: string, optional: force content-type for the request
+        :return: Returns the result object.
+                 If the method is called asynchronously,
+                 returns the request thread.
+        :rtype: tuple(str, status_code(int), headers(HTTPHeaderDict))
+        """
+
+        _params = locals()
+
+        _all_params = [
+            'dataset_id',
+            'file_name'
+        ]
+        _all_params.extend(
+            [
+                'async_req',
+                '_return_http_data_only',
+                '_preload_content',
+                '_request_timeout',
+                '_request_auth',
+                '_content_type',
+                '_headers'
+            ]
+        )
+
+        # validate the arguments
+        for _key, _val in _params['kwargs'].items():
+            if _key not in _all_params:
+                raise ApiTypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method get_head_file_read_url_from_datasource_by_dataset_id" % _key
+                )
+            _params[_key] = _val
+        del _params['kwargs']
+
+        _collection_formats = {}
+
+        # process the path parameters
+        _path_params = {}
+        if _params['dataset_id']:
+            _path_params['datasetId'] = _params['dataset_id']
+
+
+        # process the query parameters
+        _query_params = []
+        if _params.get('file_name') is not None:  # noqa: E501
+            _query_params.append((
+                'fileName',
+                _params['file_name'].value if hasattr(_params['file_name'], 'value') else _params['file_name']
+            ))
+
+        # process the header parameters
+        _header_params = dict(_params.get('_headers', {}))
+        # process the form parameters
+        _form_params = []
+        _files = {}
+        # process the body parameter
+        _body_params = None
+        # set the HTTP header `Accept`
+        _header_params['Accept'] = self.api_client.select_header_accept(
+            ['application/json'])  # noqa: E501
+
+        # authentication setting
+        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+
+        _response_types_map = {
+            '200': "str",
+            '400': "ApiErrorResponse",
+            '401': "ApiErrorResponse",
+            '403': "ApiErrorResponse",
+            '404': "ApiErrorResponse",
+        }
+
+        return self.api_client.call_api(
+            '/v1/datasets/{datasetId}/datasource/fileHEAD', 'GET',
             _path_params,
             _query_params,
             _header_params,
@@ -1297,10 +1453,10 @@ class DatasourcesApi(object):
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def get_metadata_file_read_url_from_datasource_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], file_name : Annotated[constr(strict=True, min_length=5), Field(..., description="The name of the file within the metadata folder to get the readUrl for")], **kwargs) -> str:  # noqa: E501
+    def get_metadata_file_read_url_from_datasource_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], file_name : Annotated[constr(strict=True, min_length=5), Field(..., description="The name of the file within the metadata folder to get the GET readUrl for")], **kwargs) -> str:  # noqa: E501
         """get_metadata_file_read_url_from_datasource_by_dataset_id  # noqa: E501
 
-        Get the ReadURL of a file within the metadata folder (e.g. my_image.json or my_video-099-mp4.json)  # noqa: E501
+        Get the GET ReadURL of a file within the metadata folder (e.g. my_image.json or my_video-099-mp4.json)  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -1309,7 +1465,7 @@ class DatasourcesApi(object):
 
         :param dataset_id: ObjectId of the dataset (required)
         :type dataset_id: str
-        :param file_name: The name of the file within the metadata folder to get the readUrl for (required)
+        :param file_name: The name of the file within the metadata folder to get the GET readUrl for (required)
         :type file_name: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -1328,10 +1484,10 @@ class DatasourcesApi(object):
         return self.get_metadata_file_read_url_from_datasource_by_dataset_id_with_http_info(dataset_id, file_name, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def get_metadata_file_read_url_from_datasource_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], file_name : Annotated[constr(strict=True, min_length=5), Field(..., description="The name of the file within the metadata folder to get the readUrl for")], **kwargs) -> ApiResponse:  # noqa: E501
+    def get_metadata_file_read_url_from_datasource_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], file_name : Annotated[constr(strict=True, min_length=5), Field(..., description="The name of the file within the metadata folder to get the GET readUrl for")], **kwargs) -> ApiResponse:  # noqa: E501
         """get_metadata_file_read_url_from_datasource_by_dataset_id  # noqa: E501
 
-        Get the ReadURL of a file within the metadata folder (e.g. my_image.json or my_video-099-mp4.json)  # noqa: E501
+        Get the GET ReadURL of a file within the metadata folder (e.g. my_image.json or my_video-099-mp4.json)  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -1340,7 +1496,7 @@ class DatasourcesApi(object):
 
         :param dataset_id: ObjectId of the dataset (required)
         :type dataset_id: str
-        :param file_name: The name of the file within the metadata folder to get the readUrl for (required)
+        :param file_name: The name of the file within the metadata folder to get the GET readUrl for (required)
         :type file_name: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -1451,10 +1607,10 @@ class DatasourcesApi(object):
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def get_prediction_file_read_url_from_datasource_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], file_name : Annotated[constr(strict=True, min_length=4), Field(..., description="The name of the file within the prediction folder to get the readUrl for")], **kwargs) -> str:  # noqa: E501
+    def get_prediction_file_read_url_from_datasource_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], file_name : Annotated[constr(strict=True, min_length=4), Field(..., description="The name of the file within the prediction folder to get the GET readUrl for")], **kwargs) -> str:  # noqa: E501
         """get_prediction_file_read_url_from_datasource_by_dataset_id  # noqa: E501
 
-        Get the ReadURL of a file within the predictions folder (e.g tasks.json or my_classification_task/schema.json)  # noqa: E501
+        Get the GET ReadURL of a file within the predictions folder (e.g tasks.json or my_classification_task/schema.json)  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -1463,7 +1619,7 @@ class DatasourcesApi(object):
 
         :param dataset_id: ObjectId of the dataset (required)
         :type dataset_id: str
-        :param file_name: The name of the file within the prediction folder to get the readUrl for (required)
+        :param file_name: The name of the file within the prediction folder to get the GET readUrl for (required)
         :type file_name: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -1482,10 +1638,10 @@ class DatasourcesApi(object):
         return self.get_prediction_file_read_url_from_datasource_by_dataset_id_with_http_info(dataset_id, file_name, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def get_prediction_file_read_url_from_datasource_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], file_name : Annotated[constr(strict=True, min_length=4), Field(..., description="The name of the file within the prediction folder to get the readUrl for")], **kwargs) -> ApiResponse:  # noqa: E501
+    def get_prediction_file_read_url_from_datasource_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], file_name : Annotated[constr(strict=True, min_length=4), Field(..., description="The name of the file within the prediction folder to get the GET readUrl for")], **kwargs) -> ApiResponse:  # noqa: E501
         """get_prediction_file_read_url_from_datasource_by_dataset_id  # noqa: E501
 
-        Get the ReadURL of a file within the predictions folder (e.g tasks.json or my_classification_task/schema.json)  # noqa: E501
+        Get the GET ReadURL of a file within the predictions folder (e.g tasks.json or my_classification_task/schema.json)  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -1494,7 +1650,7 @@ class DatasourcesApi(object):
 
         :param dataset_id: ObjectId of the dataset (required)
         :type dataset_id: str
-        :param file_name: The name of the file within the prediction folder to get the readUrl for (required)
+        :param file_name: The name of the file within the prediction folder to get the GET readUrl for (required)
         :type file_name: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -1605,7 +1761,7 @@ class DatasourcesApi(object):
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def get_prediction_file_write_url_from_datasource_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], file_name : Annotated[constr(strict=True, min_length=4), Field(..., description="The name of the file within the prediction folder to get the readUrl for")], **kwargs) -> str:  # noqa: E501
+    def get_prediction_file_write_url_from_datasource_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], file_name : Annotated[constr(strict=True, min_length=4), Field(..., description="The name of the file within the prediction folder to get the GET readUrl for")], **kwargs) -> str:  # noqa: E501
         """get_prediction_file_write_url_from_datasource_by_dataset_id  # noqa: E501
 
         Get the WriteURL of a file within the predictions folder (e.g tasks.json or my_classification_task/schema.json)  # noqa: E501
@@ -1617,7 +1773,7 @@ class DatasourcesApi(object):
 
         :param dataset_id: ObjectId of the dataset (required)
         :type dataset_id: str
-        :param file_name: The name of the file within the prediction folder to get the readUrl for (required)
+        :param file_name: The name of the file within the prediction folder to get the GET readUrl for (required)
         :type file_name: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -1636,7 +1792,7 @@ class DatasourcesApi(object):
         return self.get_prediction_file_write_url_from_datasource_by_dataset_id_with_http_info(dataset_id, file_name, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def get_prediction_file_write_url_from_datasource_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], file_name : Annotated[constr(strict=True, min_length=4), Field(..., description="The name of the file within the prediction folder to get the readUrl for")], **kwargs) -> ApiResponse:  # noqa: E501
+    def get_prediction_file_write_url_from_datasource_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], file_name : Annotated[constr(strict=True, min_length=4), Field(..., description="The name of the file within the prediction folder to get the GET readUrl for")], **kwargs) -> ApiResponse:  # noqa: E501
         """get_prediction_file_write_url_from_datasource_by_dataset_id  # noqa: E501
 
         Get the WriteURL of a file within the predictions folder (e.g tasks.json or my_classification_task/schema.json)  # noqa: E501
@@ -1648,7 +1804,7 @@ class DatasourcesApi(object):
 
         :param dataset_id: ObjectId of the dataset (required)
         :type dataset_id: str
-        :param file_name: The name of the file within the prediction folder to get the readUrl for (required)
+        :param file_name: The name of the file within the prediction folder to get the GET readUrl for (required)
         :type file_name: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
