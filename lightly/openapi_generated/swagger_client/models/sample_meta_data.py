@@ -66,6 +66,16 @@ class SampleMetaData(BaseModel):
                           exclude={
                           },
                           exclude_none=True)
+        # set to None if custom (nullable) is None
+        # and __fields_set__ contains the field
+        if self.custom is None and "custom" in self.__fields_set__:
+            _dict['custom' if by_alias else 'custom'] = None
+
+        # set to None if dynamic (nullable) is None
+        # and __fields_set__ contains the field
+        if self.dynamic is None and "dynamic" in self.__fields_set__:
+            _dict['dynamic' if by_alias else 'dynamic'] = None
+
         return _dict
 
     @classmethod

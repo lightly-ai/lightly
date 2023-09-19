@@ -51,7 +51,7 @@ class TeamsApi(object):
         self.api_client = api_client
 
     @validate_arguments
-    def add_team_member(self, team_id : Annotated[constr(strict=True), Field(..., description="id of the team")], create_team_membership_request : CreateTeamMembershipRequest, **kwargs) -> None:  # noqa: E501
+    def add_team_member(self, team_id : Annotated[constr(strict=True), Field(..., description="id of the team")], create_team_membership_request : CreateTeamMembershipRequest, **kwargs) -> str:  # noqa: E501
         """add_team_member  # noqa: E501
 
         Add a team member. One needs to be part of the team to do so.  # noqa: E501
@@ -74,7 +74,7 @@ class TeamsApi(object):
         :return: Returns the result object.
                  If the method is called asynchronously,
                  returns the request thread.
-        :rtype: None
+        :rtype: str
         """
         kwargs['_return_http_data_only'] = True
         if '_preload_content' in kwargs:
@@ -118,7 +118,7 @@ class TeamsApi(object):
         :return: Returns the result object.
                  If the method is called asynchronously,
                  returns the request thread.
-        :rtype: None
+        :rtype: tuple(str, status_code(int), headers(HTTPHeaderDict))
         """
 
         _params = locals()
@@ -171,7 +171,7 @@ class TeamsApi(object):
 
         # set the HTTP header `Accept`
         _header_params['Accept'] = self.api_client.select_header_accept(
-            ['application/json'])  # noqa: E501
+            ['text/plain', 'application/json'])  # noqa: E501
 
         # set the HTTP header `Content-Type`
         _content_types_list = _params.get('_content_type',
@@ -183,7 +183,13 @@ class TeamsApi(object):
         # authentication setting
         _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
 
-        _response_types_map = {}
+        _response_types_map = {
+            '200': "str",
+            '400': "ApiErrorResponse",
+            '401': "ApiErrorResponse",
+            '403': "ApiErrorResponse",
+            '404': "ApiErrorResponse",
+        }
 
         return self.api_client.call_api(
             '/v1/teams/{teamId}/members', 'POST',

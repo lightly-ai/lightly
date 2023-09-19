@@ -524,9 +524,9 @@ class TagsApi(object):
 
     @validate_arguments
     def download_zip_of_samples_by_tag_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], **kwargs) -> bytearray:  # noqa: E501
-        """download_zip_of_samples_by_tag_id  # noqa: E501
+        """(Deprecated) download_zip_of_samples_by_tag_id  # noqa: E501
 
-        Download a zip file of the samples of a tag. Limited to 1000 images  # noqa: E501
+        DEPRECATED - Download a zip file of the samples of a tag. Limited to 1000 images  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -555,9 +555,9 @@ class TagsApi(object):
 
     @validate_arguments
     def download_zip_of_samples_by_tag_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], **kwargs) -> ApiResponse:  # noqa: E501
-        """download_zip_of_samples_by_tag_id  # noqa: E501
+        """(Deprecated) download_zip_of_samples_by_tag_id  # noqa: E501
 
-        Download a zip file of the samples of a tag. Limited to 1000 images  # noqa: E501
+        DEPRECATED - Download a zip file of the samples of a tag. Limited to 1000 images  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -592,6 +592,8 @@ class TagsApi(object):
                  returns the request thread.
         :rtype: tuple(bytearray, status_code(int), headers(HTTPHeaderDict))
         """
+
+        warnings.warn("GET /v1/datasets/{datasetId}/tags/{tagId}/export/zip is deprecated.", DeprecationWarning)
 
         _params = locals()
 
@@ -1112,7 +1114,7 @@ class TagsApi(object):
     def export_tag_to_label_box_data_rows(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], expires_in : Annotated[Optional[StrictInt], Field(description="If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. ")] = None, access_control : Annotated[Optional[StrictStr], Field(description="which access control name to be used")] = None, file_name_format : Optional[FileNameFormat] = None, include_meta_data : Annotated[Optional[StrictBool], Field(description="if true, will also include metadata")] = None, format : Optional[FileOutputFormat] = None, preview_example : Annotated[Optional[StrictBool], Field(description="if true, will generate a preview example of how the structure will look")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> List[LabelBoxDataRow]:  # noqa: E501
         """(Deprecated) export_tag_to_label_box_data_rows  # noqa: E501
 
-        Deprecated. Please use V4 unless there is a specific need to use the LabelBox V3 API. Export samples of a tag as a json for importing into LabelBox as outlined here; https://docs.labelbox.com/v3/reference/image ```openapi\\+warning The image URLs are special in that the resource can be accessed by anyone in possession of said URL for the time specified by the expiresIn query param ```   # noqa: E501
+        DEPRECATED - Please use V4 unless there is a specific need to use the LabelBox V3 API. Export samples of a tag as a json for importing into LabelBox as outlined here; https://docs.labelbox.com/v3/reference/image ```openapi\\+warning The image URLs are special in that the resource can be accessed by anyone in possession of said URL for the time specified by the expiresIn query param ```   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -1159,7 +1161,7 @@ class TagsApi(object):
     def export_tag_to_label_box_data_rows_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], expires_in : Annotated[Optional[StrictInt], Field(description="If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. ")] = None, access_control : Annotated[Optional[StrictStr], Field(description="which access control name to be used")] = None, file_name_format : Optional[FileNameFormat] = None, include_meta_data : Annotated[Optional[StrictBool], Field(description="if true, will also include metadata")] = None, format : Optional[FileOutputFormat] = None, preview_example : Annotated[Optional[StrictBool], Field(description="if true, will generate a preview example of how the structure will look")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> ApiResponse:  # noqa: E501
         """(Deprecated) export_tag_to_label_box_data_rows  # noqa: E501
 
-        Deprecated. Please use V4 unless there is a specific need to use the LabelBox V3 API. Export samples of a tag as a json for importing into LabelBox as outlined here; https://docs.labelbox.com/v3/reference/image ```openapi\\+warning The image URLs are special in that the resource can be accessed by anyone in possession of said URL for the time specified by the expiresIn query param ```   # noqa: E501
+        DEPRECATED - Please use V4 unless there is a specific need to use the LabelBox V3 API. Export samples of a tag as a json for importing into LabelBox as outlined here; https://docs.labelbox.com/v3/reference/image ```openapi\\+warning The image URLs are special in that the resource can be accessed by anyone in possession of said URL for the time specified by the expiresIn query param ```   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -2070,7 +2072,7 @@ class TagsApi(object):
     def get_filenames_by_tag_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], **kwargs) -> List[str]:  # noqa: E501
         """(Deprecated) get_filenames_by_tag_id  # noqa: E501
 
-        Get list of filenames by tag. Deprecated, please use  # noqa: E501
+        DEPRECATED, please use exportTagToBasicFilenames - Get list of filenames by tag.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -2101,7 +2103,7 @@ class TagsApi(object):
     def get_filenames_by_tag_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], **kwargs) -> ApiResponse:  # noqa: E501
         """(Deprecated) get_filenames_by_tag_id  # noqa: E501
 
-        Get list of filenames by tag. Deprecated, please use  # noqa: E501
+        DEPRECATED, please use exportTagToBasicFilenames - Get list of filenames by tag.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -2675,7 +2677,7 @@ class TagsApi(object):
     def perform_tag_arithmetics_bitmask(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_arithmetics_request : TagArithmeticsRequest, **kwargs) -> TagBitMaskResponse:  # noqa: E501
         """(Deprecated) perform_tag_arithmetics_bitmask  # noqa: E501
 
-        Performs tag arithmetics to compute a new bitmask out of two existing tags. Does not create a new tag regardless if newTagName is provided  # noqa: E501
+        DEPRECATED, use performTagArithmetics - Performs tag arithmetics to compute a new bitmask out of two existing tags. Does not create a new tag regardless if newTagName is provided  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -2706,7 +2708,7 @@ class TagsApi(object):
     def perform_tag_arithmetics_bitmask_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_arithmetics_request : TagArithmeticsRequest, **kwargs) -> ApiResponse:  # noqa: E501
         """(Deprecated) perform_tag_arithmetics_bitmask  # noqa: E501
 
-        Performs tag arithmetics to compute a new bitmask out of two existing tags. Does not create a new tag regardless if newTagName is provided  # noqa: E501
+        DEPRECATED, use performTagArithmetics - Performs tag arithmetics to compute a new bitmask out of two existing tags. Does not create a new tag regardless if newTagName is provided  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
