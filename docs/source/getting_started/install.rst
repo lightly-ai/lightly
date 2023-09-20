@@ -35,4 +35,4 @@ If you want to work with video files you need to additionally install
 Next Steps
 ------------
 
-Check out our tutorial: :ref:`lightly-tutorials` 
+Start with one of our tutorials: :ref:`input-structure-label`
