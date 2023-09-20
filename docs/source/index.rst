@@ -59,8 +59,12 @@ Lightly AI
    :maxdepth: 1
    :caption: Tutorials
 
-   tutorials/package.rst
-   tutorials/platform.rst
+   tutorials/structure_your_input.rst
+   tutorials/package/tutorial_moco_memory_bank.rst
+   tutorials/package/tutorial_simclr_clothing.rst
+   tutorials/package/tutorial_simsiam_esa.rst
+   tutorials/package/tutorial_custom_augmentations.rst
+   tutorials/package/tutorial_pretrain_detectron2.rst
 
 .. toctree::
    :maxdepth: 1
