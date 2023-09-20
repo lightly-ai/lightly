@@ -90,7 +90,6 @@ below.
    The embeddings, also often called representations or features, can then be used for
    tasks such as identifying similar images or creating a diverse subset from your data:
 
-   * :ref:`lightly-tutorial-sunflowers`
    * :ref:`lightly-simsiam-tutorial-4`
 
 * **Pre-Trained Backbone**
