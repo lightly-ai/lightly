@@ -5,7 +5,7 @@ from typing import Sequence
 
 
 def get_server(
-    paths: Sequence[str],
+    paths: Sequence[Path],
     host: str,
     port: int,
 ):
