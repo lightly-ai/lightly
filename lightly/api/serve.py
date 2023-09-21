@@ -1,11 +1,10 @@
-import re
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
 from typing import Sequence
 
 
 def get_server(
-    paths: Sequence[str],
+    paths: Sequence[Path],
     host: str,
     port: int,
 ):
@@ -33,6 +32,12 @@ def get_server(
     class _LocalDatasourceRequestHandler(SimpleHTTPRequestHandler):
         def translate_path(self, path: str) -> str:
             return _translate_path(path=path, directories=paths)
+
+        def do_OPTIONS(self) -> None:
+            self.send_response(204)
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+            self.end_headers()
 
     return HTTPServer((host, port), _LocalDatasourceRequestHandler)
 
