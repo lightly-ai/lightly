@@ -34,9 +34,10 @@ def get_server(
             return _translate_path(path=path, directories=paths)
 
         def do_OPTIONS(self) -> None:
+            self.send_response(204)
             self.send_header("Access-Control-Allow-Origin", "*")
             self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-            self.send_response(204)
+            self.end_headers()
 
     return HTTPServer((host, port), _LocalDatasourceRequestHandler)
 
