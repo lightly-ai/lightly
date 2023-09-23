@@ -9,6 +9,7 @@ from typing import Any, List, Optional, Sequence, Tuple, Union, cast
 import omegaconf
 from omegaconf import DictConfig
 from pytorch_lightning import LightningModule, Trainer
+from pytorch_lightning.callbacks.callback import Callback
 from torch import Tensor
 from torch.nn import Module
 from torch.optim import Optimizer
@@ -99,10 +100,10 @@ class BaseEmbedding(LightningModule):
             A trained encoder, ready for embedding datasets.
 
         """
-        trainer_callbacks = []
+        trainer_callbacks: List[Callback] = []
 
         checkpoint_cb = callbacks.create_checkpoint_callback(
-            **checkpoint_callback_config
+            **checkpoint_callback_config  # type: ignore[misc]
         )
         trainer_callbacks.append(checkpoint_cb)
 
