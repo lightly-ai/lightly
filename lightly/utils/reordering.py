@@ -1,7 +1,9 @@
-from typing import List, Sized
+from typing import Any, List
 
 
-def sort_items_by_keys(keys: List[any], items: List[any], sorted_keys: List[any]):
+def sort_items_by_keys(
+    keys: List[Any], items: List[Any], sorted_keys: List[Any]
+) -> List[Any]:
     """Sorts the items in the same order as the sorted keys.
 
     Args:

@@ -17,6 +17,7 @@ from torch.utils.data import DataLoader
 
 from lightly.data.dataset import LightlyDataset
 from lightly.embedding import callbacks
+from lightly.utils.benchmarking import BenchmarkModule
 
 
 class BaseEmbedding(LightningModule):
@@ -24,7 +25,7 @@ class BaseEmbedding(LightningModule):
 
     def __init__(
         self,
-        model: Module,
+        model: BenchmarkModule,
         criterion: Module,
         optimizer: Optimizer,
         dataloader: DataLoader[LightlyDataset],
@@ -125,6 +126,6 @@ class BaseEmbedding(LightningModule):
         if checkpoint_cb.best_model_path != "":
             self.checkpoint = os.path.join(self.cwd, checkpoint_cb.best_model_path)
 
-    def embed(self, *args: Any, **kwargs: Any) -> None:
+    def embed(self, *args: Any, **kwargs: Any) -> Any:
         """Must be implemented by classes which inherit from BaseEmbedding."""
         raise NotImplementedError()
