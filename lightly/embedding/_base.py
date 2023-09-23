@@ -4,25 +4,32 @@
 # All Rights Reserved
 import copy
 import os
-from torch.nn import Module
-from torch import Tensor
-from torch.optim import Optimizer
-from torch.optim.lr_scheduler import LRScheduler
-from torch.utils.data import DataLoader
-from lightly.data.dataset import LightlyDataset
-from typing import cast, Sequence, Tuple, Union, Optional, Any, List
+from typing import Any, List, Optional, Sequence, Tuple, Union, cast
 
 import omegaconf
 from omegaconf import DictConfig
 from pytorch_lightning import LightningModule, Trainer
+from torch import Tensor
+from torch.nn import Module
+from torch.optim import Optimizer
+from torch.optim.lr_scheduler import LRScheduler
+from torch.utils.data import DataLoader
 
+from lightly.data.dataset import LightlyDataset
 from lightly.embedding import callbacks
 
 
 class BaseEmbedding(LightningModule):
     """All trainable embeddings must inherit from BaseEmbedding."""
 
-    def __init__(self, model: Module, criterion: Module, optimizer: Optimizer, dataloader: DataLoader[LightlyDataset], scheduler: Optional[LRScheduler]=None) -> None:
+    def __init__(
+        self,
+        model: Module,
+        criterion: Module,
+        optimizer: Optimizer,
+        dataloader: DataLoader[LightlyDataset],
+        scheduler: Optional[LRScheduler] = None,
+    ) -> None:
         """Constructor
 
         Args:
@@ -45,7 +52,9 @@ class BaseEmbedding(LightningModule):
     def forward(self, x0: Tensor, x1: Tensor) -> Tensor:
         return cast(Tensor, self.model(x0, x1))
 
-    def training_step(self, batch: Tuple[List[Tensor], Tensor, List[str]], batch_idx: int) -> Tensor:
+    def training_step(
+        self, batch: Tuple[List[Tensor], Tensor, List[str]], batch_idx: int
+    ) -> Tensor:
         # get the two image transformations
         (x0, x1), _, _ = batch
         # forward pass of the transformations
@@ -56,7 +65,9 @@ class BaseEmbedding(LightningModule):
         self.log("loss", loss)
         return cast(Tensor, loss)
 
-    def configure_optimizers(self) -> Union[Optimizer, Tuple[Sequence[Optimizer], Sequence[LRScheduler]]]:
+    def configure_optimizers(
+        self,
+    ) -> Union[Optimizer, Tuple[Sequence[Optimizer], Sequence[LRScheduler]]]:
         if self.scheduler is None:
             return self.optimizer
         else:
