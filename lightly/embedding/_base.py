@@ -4,6 +4,13 @@
 # All Rights Reserved
 import copy
 import os
+from torch.nn import Module
+from torch import Tensor
+from torch.optim import Optimizer
+from torch.optim.lr_scheduler import LRScheduler
+from torch.utils.data import DataLoader
+from lightly.data.dataset import LightlyDataset
+from typing import cast, Sequence, Tuple, Union, Optional, Any, List
 
 import omegaconf
 from omegaconf import DictConfig
@@ -15,7 +22,7 @@ from lightly.embedding import callbacks
 class BaseEmbedding(LightningModule):
     """All trainable embeddings must inherit from BaseEmbedding."""
 
-    def __init__(self, model, criterion, optimizer, dataloader, scheduler=None):
+    def __init__(self, model: Module, criterion: Module, optimizer: Optimizer, dataloader: DataLoader[LightlyDataset], scheduler: Optional[LRScheduler]=None) -> None:
         """Constructor
 
         Args:
@@ -32,13 +39,13 @@ class BaseEmbedding(LightningModule):
         self.optimizer = optimizer
         self.dataloader = dataloader
         self.scheduler = scheduler
-        self.checkpoint = None
+        self.checkpoint: Optional[str] = None
         self.cwd = os.getcwd()
 
-    def forward(self, x0, x1):
-        return self.model(x0, x1)
+    def forward(self, x0: Tensor, x1: Tensor) -> Tensor:
+        return cast(Tensor, self.model(x0, x1))
 
-    def training_step(self, batch, batch_idx):
+    def training_step(self, batch: Tuple[List[Tensor], Tensor, List[str]], batch_idx: int) -> Tensor:
         # get the two image transformations
         (x0, x1), _, _ = batch
         # forward pass of the transformations
@@ -47,15 +54,15 @@ class BaseEmbedding(LightningModule):
         loss = self.criterion(y0, y1)
         # log loss and return
         self.log("loss", loss)
-        return loss
+        return cast(Tensor, loss)
 
-    def configure_optimizers(self):
+    def configure_optimizers(self) -> Union[Optimizer, Tuple[Sequence[Optimizer], Sequence[LRScheduler]]]:
         if self.scheduler is None:
             return self.optimizer
         else:
             return [self.optimizer], [self.scheduler]
 
-    def train_dataloader(self):
+    def train_dataloader(self) -> DataLoader[LightlyDataset]:
         return self.dataloader
 
     def train_embedding(
@@ -63,7 +70,7 @@ class BaseEmbedding(LightningModule):
         trainer_config: DictConfig,
         checkpoint_callback_config: DictConfig,
         summary_callback_config: DictConfig,
-    ):
+    ) -> None:
         """Train the model on the provided dataset.
 
         Args:
@@ -100,14 +107,13 @@ class BaseEmbedding(LightningModule):
         if "weights_summary" in trainer_config_copy:
             with omegaconf.open_dict(trainer_config_copy):
                 del trainer_config_copy["weights_summary"]
-
-        trainer = Trainer(**trainer_config_copy, callbacks=trainer_callbacks)
+        trainer = Trainer(**trainer_config_copy, callbacks=trainer_callbacks)  # type: ignore[misc]
 
         trainer.fit(self)
 
         if checkpoint_cb.best_model_path != "":
             self.checkpoint = os.path.join(self.cwd, checkpoint_cb.best_model_path)
 
-    def embed(self, *args, **kwargs):
+    def embed(self, *args: Any, **kwargs: Any) -> None:
         """Must be implemented by classes which inherit from BaseEmbedding."""
         raise NotImplementedError()
