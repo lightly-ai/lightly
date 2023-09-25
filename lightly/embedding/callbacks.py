@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 
 from omegaconf import DictConfig
 from pytorch_lightning.callbacks import ModelCheckpoint, ModelSummary
@@ -7,10 +8,10 @@ from lightly.utils.hipify import print_as_warning
 
 
 def create_checkpoint_callback(
-    save_last=False,
-    save_top_k=0,
-    monitor="loss",
-    dirpath=None,
+    save_last: bool = False,
+    save_top_k: int = 0,
+    monitor: str = "loss",
+    dirpath: Optional[str] = None,
 ) -> ModelCheckpoint:
     """Initializes the checkpoint callback.
 
@@ -44,7 +45,7 @@ def create_summary_callback(
     if weights_summary not in [None, "None"]:
         return _create_summary_callback_deprecated(weights_summary)
     else:
-        return _create_summary_callback(**summary_callback_config)
+        return _create_summary_callback(summary_callback_config["max_depth"])
 
 
 def _create_summary_callback(max_depth: int) -> ModelSummary:
