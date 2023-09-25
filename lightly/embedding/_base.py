@@ -4,7 +4,7 @@
 # All Rights Reserved
 import copy
 import os
-from typing import Any, List, Optional, Sequence, Tuple, Union, cast
+from typing import Any, List, Optional, Sequence, Tuple, Union
 
 import omegaconf
 from omegaconf import DictConfig
@@ -52,7 +52,8 @@ class BaseEmbedding(LightningModule):
         self.cwd = os.getcwd()
 
     def forward(self, x0: Tensor, x1: Tensor) -> Tensor:
-        return cast(Tensor, self.model(x0, x1))
+        embedding: Tensor = self.model(x0, x1)
+        return embedding
 
     def training_step(
         self, batch: Tuple[List[Tensor], Tensor, List[str]], batch_idx: int
@@ -62,10 +63,10 @@ class BaseEmbedding(LightningModule):
         # forward pass of the transformations
         y0, y1 = self(x0, x1)
         # calculate loss
-        loss = self.criterion(y0, y1)
+        loss: Tensor = self.criterion(y0, y1)
         # log loss and return
         self.log("loss", loss)
-        return cast(Tensor, loss)
+        return loss
 
     def configure_optimizers(
         self,

@@ -9,6 +9,9 @@ from typing import Any, List, Optional, Tuple, cast
 import numpy as np
 import numpy.typing as npt
 import torch
+from numpy.typing import NDArray
+from torch.nn import Module
+from torch.optim import Optimizer
 from torch.optim.lr_scheduler import LRScheduler
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -64,8 +67,8 @@ class SelfSupervisedEmbedding(BaseEmbedding):
     def __init__(
         self,
         model: BenchmarkModule,
-        criterion: torch.nn.Module,
-        optimizer: torch.optim.Optimizer,
+        criterion: Module,
+        optimizer: Optimizer,
         dataloader: DataLoader[LightlyDataset],
         scheduler: Optional[LRScheduler] = None,
     ) -> None:
@@ -77,7 +80,7 @@ class SelfSupervisedEmbedding(BaseEmbedding):
         self,
         dataloader: DataLoader[LightlyDataset],
         device: Optional[torch.device] = None,
-    ) -> Tuple[npt.NDArray[Any], List[int], List[str]]:
+    ) -> Tuple[NDArray[np.float_], List[int], List[str]]:
         """Embeds images in a vector space.
 
         Args:
@@ -112,8 +115,8 @@ class SelfSupervisedEmbedding(BaseEmbedding):
         pbar = tqdm(total=len(dataset), unit="imgs")
 
         efficiency = 0.0
-        embeddings = []
-        labels = []
+        embeddings_list: List[NDArray[np.float_]] = []
+        labels_list: List[NDArray[np.int_]] = []
         with torch.no_grad():
             start_timepoint = time.time()
             for image_batch, label_batch, filename_batch in dataloader:
@@ -131,8 +134,8 @@ class SelfSupervisedEmbedding(BaseEmbedding):
                 embedding_batch = self.model.backbone(image_batch)
                 embedding_batch = embedding_batch.detach().reshape(batch_size, -1)
 
-                embeddings.append(embedding_batch.cpu().numpy())
-                labels.append(label_batch.cpu().numpy())
+                embeddings_list.append(embedding_batch.cpu().numpy())
+                labels_list.append(label_batch.cpu().numpy())
 
                 finished_timepoint = time.time()
 
@@ -147,9 +150,13 @@ class SelfSupervisedEmbedding(BaseEmbedding):
                 pbar.update(batch_size)
 
         sorted_filenames = dataset.get_filenames()
-        sorted_embeddings = sort_items_by_keys(filenames, embeddings, sorted_filenames)
-        sorted_labels = sort_items_by_keys(filenames, labels, sorted_filenames)
+        sorted_embeddings = sort_items_by_keys(
+            keys=filenames, items=embeddings_list, sorted_keys=sorted_filenames
+        )
+        sorted_labels = sort_items_by_keys(
+            keys=filenames, items=labels_list, sorted_keys=sorted_filenames
+        )
         embeddings = np.stack(sorted_embeddings)
         labels = np.stack(sorted_labels).tolist()
 
-        return cast(npt.NDArray[Any], embeddings), labels, sorted_filenames
+        return embeddings, labels, sorted_filenames
