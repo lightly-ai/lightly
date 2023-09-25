@@ -82,8 +82,8 @@ below.
    The model can either be trained using a plain `PyTorch training loop <https://pytorch.org/tutorials/beginner/introyt/trainingyt.html>`_
    or with a dedicated framework such as `PyTorch Lightning <https://www.pytorchlightning.ai/index.html>`_.
    Lightly SSL lets you choose what is best for you. Check out our :ref:`models <models>` and
-   `tutorials <https://docs.lightly.ai/self-supervised-learning/tutorials/package.html>`_
-   sections on how to train models with PyTorch or PyTorch Lightning.
+   :ref:`tutorials <input-structure-label>` sections on how to train models with PyTorch
+   or PyTorch Lightning.
 
 * **Image Embeddings**
    During the training process, the model learns to create compact embeddings from images.
