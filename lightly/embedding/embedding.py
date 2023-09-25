@@ -114,8 +114,8 @@ class SelfSupervisedEmbedding(BaseEmbedding):
         pbar = tqdm(total=len(dataset), unit="imgs")
 
         efficiency = 0.0
-        embeddings_list: List[NDArray[np.float_]] = []
-        labels_list: List[NDArray[np.int_]] = []
+        embeddings: List[NDArray[np.float_]] = []
+        labels: List[int] = []
         with torch.no_grad():
             start_timepoint = time.time()
             for image_batch, label_batch, filename_batch in dataloader:
@@ -133,8 +133,8 @@ class SelfSupervisedEmbedding(BaseEmbedding):
                 embedding_batch = self.model.backbone(image_batch)
                 embedding_batch = embedding_batch.detach().reshape(batch_size, -1)
 
-                embeddings_list.append(embedding_batch.cpu().numpy())
-                labels_list.append(label_batch.cpu().numpy())
+                embeddings.extend(embedding_batch.cpu().numpy())
+                labels.extend(label_batch.cpu().tolist())
 
                 finished_timepoint = time.time()
 
@@ -150,12 +150,12 @@ class SelfSupervisedEmbedding(BaseEmbedding):
 
         sorted_filenames = dataset.get_filenames()
         sorted_embeddings = sort_items_by_keys(
-            keys=filenames, items=embeddings_list, sorted_keys=sorted_filenames
+            keys=filenames,
+            items=embeddings,
+            sorted_keys=sorted_filenames,
         )
         sorted_labels = sort_items_by_keys(
-            keys=filenames, items=labels_list, sorted_keys=sorted_filenames
+            keys=filenames, items=labels, sorted_keys=sorted_filenames
         )
-        embeddings = np.stack(sorted_embeddings)
-        labels = np.stack(sorted_labels).tolist()
 
-        return embeddings, labels, sorted_filenames
+        return np.stack(sorted_embeddings), sorted_labels, sorted_filenames
