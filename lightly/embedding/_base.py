@@ -103,8 +103,8 @@ class BaseEmbedding(LightningModule):
         """
         trainer_callbacks: List[Callback] = []
 
-        checkpoint_cb = callbacks.create_checkpoint_callback(
-            **checkpoint_callback_config  # type: ignore[misc]
+        checkpoint_cb = callbacks.create_checkpoint_callback(  # type: ignore[misc]
+            **checkpoint_callback_config
         )
         trainer_callbacks.append(checkpoint_cb)
 
