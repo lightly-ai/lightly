@@ -11,7 +11,7 @@ import torch
 from numpy.typing import NDArray
 from torch.nn import Module
 from torch.optim import Optimizer
-from torch.optim.lr_scheduler import LRScheduler
+from torch.optim.lr_scheduler import _LRScheduler
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
@@ -69,7 +69,7 @@ class SelfSupervisedEmbedding(BaseEmbedding):
         criterion: Module,
         optimizer: Optimizer,
         dataloader: DataLoader[LightlyDataset],
-        scheduler: Optional[LRScheduler] = None,
+        scheduler: Optional[_LRScheduler] = None,
     ) -> None:
         super(SelfSupervisedEmbedding, self).__init__(
             model, criterion, optimizer, dataloader, scheduler

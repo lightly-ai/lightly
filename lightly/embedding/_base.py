@@ -13,7 +13,7 @@ from pytorch_lightning.callbacks.callback import Callback
 from torch import Tensor
 from torch.nn import Module
 from torch.optim import Optimizer
-from torch.optim.lr_scheduler import LRScheduler
+from torch.optim.lr_scheduler import _LRScheduler
 from torch.utils.data import DataLoader
 
 from lightly.data.dataset import LightlyDataset
@@ -30,7 +30,7 @@ class BaseEmbedding(LightningModule):
         criterion: Module,
         optimizer: Optimizer,
         dataloader: DataLoader[LightlyDataset],
-        scheduler: Optional[LRScheduler] = None,
+        scheduler: Optional[_LRScheduler] = None,
     ) -> None:
         """Constructor
 
@@ -70,7 +70,7 @@ class BaseEmbedding(LightningModule):
 
     def configure_optimizers(
         self,
-    ) -> Union[Optimizer, Tuple[Sequence[Optimizer], Sequence[LRScheduler]]]:
+    ) -> Union[Optimizer, Tuple[Sequence[Optimizer], Sequence[_LRScheduler]]]:
         if self.scheduler is None:
             return self.optimizer
         else:
