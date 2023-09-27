@@ -281,13 +281,13 @@ class TestDatasourcesMixin:
         self, mocker: MockerFixture
     ) -> None:
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
-        client.get_processed_until_timestamp = mocker.MagicMock(return_value=0)
+        client.get_processed_until_timestamp = mocker.MagicMock(return_value=2)
         mocker.patch("time.time", return_value=5)
         client.download_raw_samples = mocker.MagicMock()
         client.update_processed_until_timestamp = mocker.MagicMock()
         client.download_new_raw_samples()
         client.download_raw_samples.assert_called_once_with(
-            from_=0,
+            from_=3,
             to=5,
             relevant_filenames_file_name=None,
             use_redirected_read_url=False,
