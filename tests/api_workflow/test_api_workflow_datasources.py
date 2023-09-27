@@ -37,8 +37,10 @@ class TestDatasourcesMixin:
             ],
         )
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
-        client._datasources_api.get_list_of_raw_samples_from_datasource_by_dataset_id = mocker.MagicMock(
-            side_effect=[response]
+        mocker.patch.object(
+            client._datasources_api,
+            "get_list_of_raw_samples_from_datasource_by_dataset_id",
+            side_effect=[response],
         )
         assert client.download_raw_samples() == [("file1", "url1"), ("file2", "url2")]
 
@@ -52,8 +54,10 @@ class TestDatasourcesMixin:
             ],
         )
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
-        client._datasources_api.get_list_of_raw_samples_predictions_from_datasource_by_dataset_id = mocker.MagicMock(
-            side_effect=[response]
+        mocker.patch.object(
+            client._datasources_api,
+            "get_list_of_raw_samples_predictions_from_datasource_by_dataset_id",
+            side_effect=[response],
         )
         assert client.download_raw_predictions(task_name="task") == [
             ("file1", "url1"),
@@ -78,8 +82,10 @@ class TestDatasourcesMixin:
             ],
         )
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
-        client._datasources_api.get_list_of_raw_samples_predictions_from_datasource_by_dataset_id = mocker.MagicMock(
-            side_effect=[response_1, response_2]
+        mocker.patch.object(
+            client._datasources_api,
+            "get_list_of_raw_samples_predictions_from_datasource_by_dataset_id",
+            side_effect=[response_1, response_2],
         )
         assert list(client.download_raw_predictions_iter(task_name="task")) == [
             ("file1", "url1"),
@@ -118,8 +124,10 @@ class TestDatasourcesMixin:
             ],
         )
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
-        client._datasources_api.get_list_of_raw_samples_predictions_from_datasource_by_dataset_id = mocker.MagicMock(
-            side_effect=[response]
+        mocker.patch.object(
+            client._datasources_api,
+            "get_list_of_raw_samples_predictions_from_datasource_by_dataset_id",
+            side_effect=[response],
         )
         assert list(
             client.download_raw_predictions_iter(
@@ -166,8 +174,10 @@ class TestDatasourcesMixin:
             ],
         )
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
-        client._datasources_api.get_list_of_raw_samples_metadata_from_datasource_by_dataset_id = mocker.MagicMock(
-            side_effect=[response]
+        mocker.patch.object(
+            client._datasources_api,
+            "get_list_of_raw_samples_metadata_from_datasource_by_dataset_id",
+            side_effect=[response],
         )
         assert client.download_raw_metadata() == [
             ("file1", "url1"),
@@ -192,8 +202,10 @@ class TestDatasourcesMixin:
             ],
         )
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
-        client._datasources_api.get_list_of_raw_samples_metadata_from_datasource_by_dataset_id = mocker.MagicMock(
-            side_effect=[response_1, response_2]
+        mocker.patch.object(
+            client._datasources_api,
+            "get_list_of_raw_samples_metadata_from_datasource_by_dataset_id",
+            side_effect=[response_1, response_2],
         )
         assert list(client.download_raw_metadata_iter()) == [
             ("file1", "url1"),
@@ -229,8 +241,10 @@ class TestDatasourcesMixin:
             ],
         )
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
-        client._datasources_api.get_list_of_raw_samples_metadata_from_datasource_by_dataset_id = mocker.MagicMock(
-            side_effect=[response]
+        mocker.patch.object(
+            client._datasources_api,
+            "get_list_of_raw_samples_metadata_from_datasource_by_dataset_id",
+            side_effect=[response],
         )
         assert list(
             client.download_raw_metadata_iter(
@@ -266,8 +280,8 @@ class TestDatasourcesMixin:
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
         client.get_processed_until_timestamp = mocker.MagicMock(return_value=2)
         mocker.patch("time.time", return_value=5)
-        client.download_raw_samples = mocker.MagicMock()
-        client.update_processed_until_timestamp = mocker.MagicMock()
+        mocker.patch.object(client, "download_raw_samples")
+        mocker.patch.object(client, "update_processed_until_timestamp")
         client.download_new_raw_samples()
         client.download_raw_samples.assert_called_once_with(
             from_=2 + 1,
@@ -283,8 +297,8 @@ class TestDatasourcesMixin:
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
         client.get_processed_until_timestamp = mocker.MagicMock(return_value=2)
         mocker.patch("time.time", return_value=5)
-        client.download_raw_samples = mocker.MagicMock()
-        client.update_processed_until_timestamp = mocker.MagicMock()
+        mocker.patch.object(client, "download_raw_samples")
+        mocker.patch.object(client, "update_processed_until_timestamp")
         client.download_new_raw_samples()
         client.download_raw_samples.assert_called_once_with(
             from_=3,
@@ -296,10 +310,12 @@ class TestDatasourcesMixin:
 
     def test_get_processed_until_timestamp(self, mocker: MockerFixture) -> None:
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
-        client._datasources_api.get_datasource_processed_until_timestamp_by_dataset_id = mocker.MagicMock(
+        mocker.patch.object(
+            client._datasources_api,
+            "get_datasource_processed_until_timestamp_by_dataset_id",
             return_value=DatasourceProcessedUntilTimestampResponse(
                 processedUntilTimestamp=5
-            )
+            ),
         )
         assert client.get_processed_until_timestamp() == 5
         client._datasources_api.get_datasource_processed_until_timestamp_by_dataset_id.assert_called_once_with(
@@ -308,8 +324,9 @@ class TestDatasourcesMixin:
 
     def test_update_processed_until_timestamp(self, mocker: MockerFixture) -> None:
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
-        client._datasources_api.update_datasource_processed_until_timestamp_by_dataset_id = (
-            mocker.MagicMock()
+        mocker.patch.object(
+            client._datasources_api,
+            "update_datasource_processed_until_timestamp_by_dataset_id",
         )
         client.update_processed_until_timestamp(timestamp=10)
         kwargs = client._datasources_api.update_datasource_processed_until_timestamp_by_dataset_id.call_args[
@@ -325,7 +342,10 @@ class TestDatasourcesMixin:
 
     def test_set_azure_config(self, mocker: MockerFixture) -> None:
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
-        client._datasources_api.update_datasource_by_dataset_id = mocker.MagicMock()
+        mocker.patch.object(
+            client._datasources_api,
+            "update_datasource_by_dataset_id",
+        )
         client.set_azure_config(
             container_name="my-container/name",
             account_name="my-account-name",
@@ -339,7 +359,10 @@ class TestDatasourcesMixin:
 
     def test_set_gcs_config(self, mocker: MockerFixture) -> None:
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
-        client._datasources_api.update_datasource_by_dataset_id = mocker.MagicMock()
+        mocker.patch.object(
+            client._datasources_api,
+            "update_datasource_by_dataset_id",
+        )
         client.set_gcs_config(
             resource_path="gs://my-bucket/my-dataset",
             project_id="my-project-id",
@@ -353,7 +376,10 @@ class TestDatasourcesMixin:
 
     def test_set_local_config(self, mocker: MockerFixture) -> None:
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
-        client._datasources_api.update_datasource_by_dataset_id = mocker.MagicMock()
+        mocker.patch.object(
+            client._datasources_api,
+            "update_datasource_by_dataset_id",
+        )
         client.set_local_config(
             web_server_location="http://localhost:1234",
             relative_path="path/to/my/data",
@@ -388,7 +414,10 @@ class TestDatasourcesMixin:
 
     def test_set_s3_config(self, mocker: MockerFixture) -> None:
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
-        client._datasources_api.update_datasource_by_dataset_id = mocker.MagicMock()
+        mocker.patch.object(
+            client._datasources_api,
+            "update_datasource_by_dataset_id",
+        )
         client.set_s3_config(
             resource_path="s3://my-bucket/my-dataset",
             thumbnail_suffix=".lightly/thumbnails/[filename]-thumb-[extension]",
@@ -403,7 +432,10 @@ class TestDatasourcesMixin:
 
     def test_set_s3_delegated_access_config(self, mocker: MockerFixture) -> None:
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
-        client._datasources_api.update_datasource_by_dataset_id = mocker.MagicMock()
+        mocker.patch.object(
+            client._datasources_api,
+            "update_datasource_by_dataset_id",
+        )
         client.set_s3_delegated_access_config(
             resource_path="s3://my-bucket/my-dataset",
             thumbnail_suffix=".lightly/thumbnails/[filename]-thumb-[extension]",
@@ -419,8 +451,10 @@ class TestDatasourcesMixin:
 
     def test_get_prediction_read_url(self, mocker: MockerFixture) -> None:
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
-        client._datasources_api.get_prediction_file_read_url_from_datasource_by_dataset_id = mocker.MagicMock(
-            return_value="read-url"
+        mocker.patch.object(
+            client._datasources_api,
+            "get_prediction_file_read_url_from_datasource_by_dataset_id",
+            return_value="read-url",
         )
         assert client.get_prediction_read_url(filename="test.json") == "read-url"
         client._datasources_api.get_prediction_file_read_url_from_datasource_by_dataset_id.assert_called_once_with(
@@ -429,8 +463,10 @@ class TestDatasourcesMixin:
 
     def test_get_custom_embedding_read_url(self, mocker: MockerFixture) -> None:
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
-        client._datasources_api.get_custom_embedding_file_read_url_from_datasource_by_dataset_id = mocker.MagicMock(
-            return_value="read-url"
+        mocker.patch.object(
+            client._datasources_api,
+            "get_custom_embedding_file_read_url_from_datasource_by_dataset_id",
+            return_value="read-url",
         )
         assert (
             client.get_custom_embedding_read_url(filename="embeddings.csv")
