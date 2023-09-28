@@ -880,6 +880,12 @@ def _sample_unseen_and_valid(
     relevant_filenames_file_name: Optional[str],
     listed_filenames: Set[str],
 ) -> bool:
+    # Note: These checks are not in the API because of two reasons. 1) Checking if all
+    # entries in the relevant filenames file are valid is too expensive. We would have
+    # to iterate over all entries in the file when scheduling a new run. As the file
+    # can be arbitrarily large, this is not feasible. 2) Checking for duplicate entries
+    # in the API is also too expensive as the API would have to maintain a list of all
+    # seen filenames in memory.
     if sample.file_name.startswith("/"):
         warnings.warn(
             UserWarning(
