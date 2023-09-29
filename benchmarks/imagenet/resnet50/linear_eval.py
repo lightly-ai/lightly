@@ -59,7 +59,7 @@ def linear_eval(
         shuffle=True,
         num_workers=num_workers,
         drop_last=True,
-        persistent_workers=True,
+        persistent_workers=False,
     )
 
     # Setup validation data.
@@ -77,7 +77,7 @@ def linear_eval(
         batch_size=batch_size_per_device,
         shuffle=False,
         num_workers=num_workers,
-        persistent_workers=True,
+        persistent_workers=False,
     )
 
     # Train linear classifier.
@@ -94,6 +94,7 @@ def linear_eval(
         logger=TensorBoardLogger(save_dir=str(log_dir), name="linear_eval"),
         precision=precision,
         strategy="ddp_find_unused_parameters_true",
+        num_sanity_val_steps=0,
     )
     classifier = LinearClassifier(
         model=model,

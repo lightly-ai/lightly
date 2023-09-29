@@ -1153,7 +1153,7 @@ class SamplesApi(object):
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def get_samples_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], file_name : Annotated[Optional[StrictStr], Field(description="filter the samples by filename")] = None, sort_by : Annotated[Optional[SampleSortBy], Field(description="sort the samples")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> List[SampleData]:  # noqa: E501
+    def get_samples_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], file_name : Annotated[Optional[StrictStr], Field(description="DEPRECATED, use without and filter yourself - Filter the samples by filename")] = None, sort_by : Annotated[Optional[SampleSortBy], Field(description="sort the samples")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> List[SampleData]:  # noqa: E501
         """get_samples_by_dataset_id  # noqa: E501
 
         Get all samples of a dataset  # noqa: E501
@@ -1165,7 +1165,7 @@ class SamplesApi(object):
 
         :param dataset_id: ObjectId of the dataset (required)
         :type dataset_id: str
-        :param file_name: filter the samples by filename
+        :param file_name: DEPRECATED, use without and filter yourself - Filter the samples by filename
         :type file_name: str
         :param sort_by: sort the samples
         :type sort_by: SampleSortBy
@@ -1190,7 +1190,7 @@ class SamplesApi(object):
         return self.get_samples_by_dataset_id_with_http_info(dataset_id, file_name, sort_by, page_size, page_offset, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def get_samples_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], file_name : Annotated[Optional[StrictStr], Field(description="filter the samples by filename")] = None, sort_by : Annotated[Optional[SampleSortBy], Field(description="sort the samples")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def get_samples_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], file_name : Annotated[Optional[StrictStr], Field(description="DEPRECATED, use without and filter yourself - Filter the samples by filename")] = None, sort_by : Annotated[Optional[SampleSortBy], Field(description="sort the samples")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> ApiResponse:  # noqa: E501
         """get_samples_by_dataset_id  # noqa: E501
 
         Get all samples of a dataset  # noqa: E501
@@ -1202,7 +1202,7 @@ class SamplesApi(object):
 
         :param dataset_id: ObjectId of the dataset (required)
         :type dataset_id: str
-        :param file_name: filter the samples by filename
+        :param file_name: DEPRECATED, use without and filter yourself - Filter the samples by filename
         :type file_name: str
         :param sort_by: sort the samples
         :type sort_by: SampleSortBy

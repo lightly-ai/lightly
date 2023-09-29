@@ -4,11 +4,7 @@ import tempfile
 import numpy as np
 
 from lightly.utils import io as io_utils
-from lightly.utils.io import INVALID_FILENAME_CHARACTERS
-from tests.api_workflow.mocked_api_workflow_client import (
-    N_FILES_ON_SERVER,
-    MockedApiWorkflowSetup,
-)
+from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
 
 
 class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):
@@ -79,15 +75,6 @@ class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):
         n_data = len(self.api_workflow_client._mappings_api.sample_names)
         with self.assertRaises(ValueError):
             self.t_ester_upload_embedding(n_data=n_data, special_name_first_sample=True)
-
-    def test_upload_comma_filenames(self):
-        n_data = len(self.api_workflow_client._mappings_api.sample_names)
-        for invalid_char in INVALID_FILENAME_CHARACTERS:
-            with self.subTest(msg=f"invalid_char: {invalid_char}"):
-                with self.assertRaises(ValueError):
-                    self.t_ester_upload_embedding(
-                        n_data=n_data, special_char_in_first_filename=invalid_char
-                    )
 
     def test_set_embedding_id_default(self):
         self.api_workflow_client.set_embedding_id_to_latest()

@@ -694,6 +694,37 @@ class TiCoProjectionHead(ProjectionHead):
         )
 
 
+class VICRegProjectionHead(ProjectionHead):
+    """Projection head used for VICReg.
+
+    "The projector network has three linear layers, each with 8192 output
+    units. The first two layers of the projector are followed by a batch
+    normalization layer and rectified linear units." [0]
+
+    [0]: 2022, VICReg, https://arxiv.org/pdf/2105.04906.pdf
+
+    """
+
+    def __init__(
+        self,
+        input_dim: int = 2048,
+        hidden_dim: int = 8192,
+        output_dim: int = 8192,
+        num_layers: int = 3,
+    ):
+        hidden_layers = [
+            (hidden_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU())
+            for _ in range(num_layers - 2)  # Exclude first and last layer.
+        ]
+        super(VICRegProjectionHead, self).__init__(
+            [
+                (input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),
+                *hidden_layers,
+                (hidden_dim, output_dim, None, None),
+            ]
+        )
+
+
 class VicRegLLocalProjectionHead(ProjectionHead):
     """Projection head used for the local head of VICRegL.
 

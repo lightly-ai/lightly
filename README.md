@@ -1,5 +1,5 @@
 
-![Lightly Logo](docs/logos/lightly_logo_crop.png)
+![Lightly SSL self-supervised learning Logo](docs/logos/lightly_SSL_logo_crop.png)
 
 ![GitHub](https://img.shields.io/github/license/lightly-ai/lightly)
 ![Unit Tests](https://github.com/lightly-ai/lightly/workflows/Unit%20Tests/badge.svg)
@@ -7,19 +7,21 @@
 [![Downloads](https://static.pepy.tech/badge/lightly)](https://pepy.tech/project/lightly)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-Lightly is a computer vision framework for self-supervised learning.
+Lightly SSL is a computer vision framework for self-supervised learning.
 
 - [Documentation](https://docs.lightly.ai/self-supervised-learning/)
 - [Github](https://github.com/lightly-ai/lightly)
 - [Discord](https://discord.gg/xvNJW94) (We have weekly paper sessions!)
 
-We also built a whole platform on top, with additional features for active learning
-and data curation. If you're interested in the platform, check out [lightly.ai](https://www.lightly.ai).
+We've also built a whole platform on top, with additional features for active learning
+and [data curation](https://docs.lightly.ai/docs/what-is-lightly). If you're interested in the
+Lightly Worker Solution to easily process millions of samples and run [powerful algorithms](https://docs.lightly.ai/docs/selection)
+on your data, check out [lightly.ai](https://www.lightly.ai). It's free to get started!
 
 
 ## Features
 
-This framework offers the following features:
+This self-supervised learning framework offers the following features:
 
 - Modular framework, which exposes low-level building blocks such as loss functions and
   model heads.
@@ -283,6 +285,7 @@ Training a model takes around 4 days for 100 epochs (35 min per epoch), includin
 | SimCLR* + DCL  | Res50    |        256 |    100 |        65.1 |          73.5 |     49.6 |      [link](https://tensorboard.dev/experiment/k4ZonZ77QzmBkc0lXswQlg/) |       [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_dcl_2023-07-04_16-51-40/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt) |
 | SimCLR* + DCLW | Res50    |        256 |    100 |        64.5 |          73.2 |     48.5 |      [link](https://tensorboard.dev/experiment/TrALnpwFQ4OkZV3uvaX7wQ/) |       [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_dclw_2023-07-07_14-57-13/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt) |
 | SwAV           | Res50    |        256 |    100 |        67.2 |          75.4 |     49.5 |      [link](https://tensorboard.dev/experiment/Ipx4Oxl5Qkqm5Sl5kWyKKg) |       [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_swav_2023-05-25_08-29-14/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt) |
+| VICReg         | Res50    |        256 |    100 |        63.0 |          73.7 |     46.3 |      [link](https://tensorboard.dev/experiment/qH5uywJbTJSzgCEfxc7yUw) |       [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_vicreg_2023-09-11_10-53-08/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt) |
 
 *\*We use square root learning rate scaling instead of linear scaling as it yields
 better results for smaller batch sizes. See Appendix B.1 in [SimCLR paper](https://arxiv.org/abs/2002.05709).*

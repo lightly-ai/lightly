@@ -14,6 +14,7 @@ import linear_eval
 import simclr
 import swav
 import torch
+import vicreg
 from pytorch_lightning import LightningModule, Trainer
 from pytorch_lightning.callbacks import (
     DeviceStatsMonitor,
@@ -58,6 +59,7 @@ METHODS = {
     "dino": {"model": dino.DINO, "transform": dino.transform},
     "simclr": {"model": simclr.SimCLR, "transform": simclr.transform},
     "swav": {"model": swav.SwAV, "transform": swav.transform},
+    "vicreg": {"model": vicreg.VICReg, "transform": vicreg.transform},
 }
 
 
@@ -189,7 +191,7 @@ def pretrain(
         shuffle=True,
         num_workers=num_workers,
         drop_last=True,
-        persistent_workers=True,
+        persistent_workers=False,
     )
 
     # Setup validation data.
@@ -207,7 +209,7 @@ def pretrain(
         batch_size=batch_size_per_device,
         shuffle=False,
         num_workers=num_workers,
-        persistent_workers=True,
+        persistent_workers=False,
     )
 
     # Train model.
@@ -227,6 +229,7 @@ def pretrain(
         precision=precision,
         strategy="ddp_find_unused_parameters_true",
         sync_batchnorm=True,
+        num_sanity_val_steps=0,
     )
 
     trainer.fit(

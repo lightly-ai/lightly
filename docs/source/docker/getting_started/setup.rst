@@ -7,7 +7,7 @@ Setup
 Analytics
 ^^^^^^^^^
 
-The Lightly worker currently reports usage metrics to our analytics software 
+The Lightly Worker currently reports usage metrics to our analytics software 
 (we use mixpanel) which uses https encrypted GET and POST requests to https://api.mixpanel.com. 
 The transmitted data includes information about crashes and the number of samples 
 that have been filtered. However, **the data does not include input / output samples**, 
@@ -22,7 +22,7 @@ The licensing and account management is done through the :ref:`ref-authenticatio
 obtained from the Lightly Platform (https://app.lightly.ai). 
 
 The token will be used to authenticate your account. 
-The authentication happens at every run of the worker. Make sure the Lightly worker
+The authentication happens at every run of the worker. Make sure the Lightly Worker
 has a working internet connection and has access to https://api.lightly.ai.
 
 
@@ -78,9 +78,9 @@ In short, installing the Docker image consists of the following steps:
     a :code:`container-credentials.json` file from your account manager.
 
 2. Authenticate your docker account
-    To be able to download docker images of Lightly you need to log in with these credentials. 
+    To be able to download docker images of the Lightly Worker you need to log in with these credentials. 
 
-    The following command will authenticate yourself to gain access to the Lightly docker images. 
+    The following command will authenticate yourself to gain access to the Lightly Worker docker images. 
     We assume :code:`container-credentials.json` is in your current directory.
 
     .. code-block:: console
@@ -123,7 +123,7 @@ In short, installing the Docker image consists of the following steps:
 Update the Lightly Worker
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-To update the Lightly worker we simply need to pull the latest docker image.
+To update the Lightly Worker we simply need to pull the latest docker image.
 
 .. code-block:: console
 
@@ -140,7 +140,7 @@ Don't forget to tag the image again after pulling it.
           instead of `latest`. We follow semantic versioning standards. 
 
 
-Furthermore, we always recommend using the latest version of the lightly pip package 
+Furthermore, we always recommend using the latest version of the Lightly SSL python package 
 alongside the latest version of the Lightly Worker. You can update the 
 pip package using the following command.
 
@@ -153,7 +153,7 @@ pip package using the following command.
 Sanity Check
 ^^^^^^^^^^^^
 
-**Next**, verify that the Lightly worker is installed correctly by running the following command:
+**Next**, verify that the Lightly Worker is installed correctly by running the following command:
 
 .. code-block:: console
 
@@ -172,7 +172,7 @@ You should see an output similar to this one:
 Register the Lightly Worker
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-**Finally**, start the Lightly worker in waiting mode. In this mode, the worker will long-poll
+**Finally**, start the Lightly Worker in waiting mode. In this mode, the worker will long-poll
 the Lightly API for new jobs to process. To do so, a worker first needs to be registered.
 
 

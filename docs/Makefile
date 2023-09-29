@@ -60,20 +60,6 @@ download-noplot:
 	unzip $(ZIPOPTS) $(DATADIR)/resources.zip  -d $(DOCKERSOURCE);\
 	unzip $(ZIPOPTS) $(DATADIR)/resources.zip  -d $(DOCKER_ARCHIVE_SOURCE); \
 
-	# pizza dataset
-	@if [ ! -d $(PLATFORMSOURCE)/pizzas/salami ]; then \
-		wget -N https://storage.googleapis.com/datasets_boris/pizzas.zip -P $(DATADIR);\
-		unzip $(ZIPOPTS) $(DATADIR)/pizzas.zip  -d $(PLATFORMSOURCE);\
-		mkdir -p $(PLATFORMSOURCE)/pizzas/margherita;\
-		mkdir -p $(PLATFORMSOURCE)/pizzas/salami;\
-		mv $(PLATFORMSOURCE)/pizzas/margherita*.jpg $(PLATFORMSOURCE)/pizzas/margherita;\
-		mv $(PLATFORMSOURCE)/pizzas/salami*.jpg $(PLATFORMSOURCE)/pizzas/salami;\
-	fi
-
-	# sunflowers dataset
-	@if [ ! -f $(DATADIR)/Sunflowers.zip ]; then \
-		wget -N https://storage.googleapis.com/datasets_boris/Sunflowers.zip -P $(DATADIR);\
-	fi
 
 # Download also the datasets needed for the tutorials
 download: download-noplot
