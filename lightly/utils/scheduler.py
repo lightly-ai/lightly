@@ -1,11 +1,16 @@
 import warnings
+from typing import Optional
 
 import numpy as np
 import torch
 
 
 def cosine_schedule(
-    step: int, max_steps: int, start_value: float, end_value: float
+    step: int,
+    max_steps: int,
+    start_value: float,
+    end_value: float,
+    period: Optional[int] = None,
 ) -> float:
     """Use cosine decay to gradually modify start_value to reach target end_value during
     iterations.
@@ -19,6 +24,9 @@ def cosine_schedule(
             Starting value.
         end_value:
             Target value.
+        period (optional):
+            The number of steps over which the cosine function completes its half-cycle.
+            If not provided, it defaults to max_steps.
 
     Returns:
         Cosine decay value.
@@ -28,7 +36,7 @@ def cosine_schedule(
         raise ValueError("Current step number can't be negative")
     if max_steps < 1:
         raise ValueError("Total step number must be >= 1")
-    if step > max_steps:
+    if not period and step > max_steps:
         warnings.warn(
             f"Current step number {step} exceeds max_steps {max_steps}.",
             category=RuntimeWarning,
@@ -37,6 +45,11 @@ def cosine_schedule(
     if max_steps == 1:
         # Avoid division by zero
         decay = end_value
+    elif period:  # "cycle" based on period, if provided
+        decay = (
+            end_value
+            - (end_value - start_value) * (np.cos(2 * np.pi * step / period) + 1) / 2
+        )
     elif step == max_steps:
         # Special case for Pytorch Lightning which updates LR scheduler also for epoch
         # after last training epoch.
