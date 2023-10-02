@@ -47,9 +47,7 @@ def cosine_schedule(
     if period is not None:  # "cycle" based on period, if provided
         decay = (
             end_value
-            - (end_value - start_value)
-            * (np.cos(2 * np.pi * step / period) + 1)
-            / 2
+            - (end_value - start_value) * (np.cos(2 * np.pi * step / period) + 1) / 2
         )
     elif max_steps == 1:
         # Avoid division by zero
@@ -65,7 +63,7 @@ def cosine_schedule(
             * (np.cos(np.pi * step / (max_steps - 1)) + 1)
             / 2
         )
-    return decay
+    return float(decay)
 
 
 class CosineWarmupScheduler(torch.optim.lr_scheduler.LambdaLR):
@@ -100,12 +98,14 @@ class CosineWarmupScheduler(torch.optim.lr_scheduler.LambdaLR):
         last_epoch: int = -1,
         start_value: float = 1.0,
         end_value: float = 0.001,
+        period: Optional[int] = None,
         verbose: bool = False,
     ) -> None:
         self.warmup_epochs = warmup_epochs
         self.max_epochs = max_epochs
         self.start_value = start_value
         self.end_value = end_value
+        self.period = period
         super().__init__(
             optimizer=optimizer,
             lr_lambda=self.scale_lr,
@@ -127,6 +127,14 @@ class CosineWarmupScheduler(torch.optim.lr_scheduler.LambdaLR):
         """
         if epoch < self.warmup_epochs:
             return self.start_value * (epoch + 1) / self.warmup_epochs
+        elif self.period is not None:
+            return cosine_schedule(
+                step=epoch - self.warmup_epochs,
+                max_steps=1,
+                start_value=self.start_value,
+                end_value=self.end_value,
+                period=self.period,
+            )
         else:
             return cosine_schedule(
                 step=epoch - self.warmup_epochs,
