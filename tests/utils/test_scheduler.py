@@ -23,6 +23,14 @@ class TestScheduler(unittest.TestCase):
         ):
             cosine_schedule(11, 10, 0.0, 1.0)
 
+    def test_cosine_schedule__period(self) -> None:
+        self.assertAlmostEqual(cosine_schedule(0, 1, 0, 1.0, period=10), 0.0, 6)
+        self.assertAlmostEqual(cosine_schedule(3, 1, 0, 2.0, period=10), 1.30901706, 6)
+        self.assertAlmostEqual(cosine_schedule(10, 1, 0, 1.0, period=10), 0.0, 6)
+        self.assertAlmostEqual(cosine_schedule(15, 1, 0, 1.0, period=10), 1.0, 6)
+        with self.assertRaises(ValueError):
+            cosine_schedule(1, 10, 0.0, 1.0, period=-1)
+
     def test_CosineWarmupScheduler(self) -> None:
         model = nn.Linear(10, 1)
         optimizer = torch.optim.SGD(
