@@ -25,7 +25,7 @@ def cosine_schedule(
         end_value:
             Target value.
         period (optional):
-            The number of steps over which the cosine function completes its half-cycle.
+            The number of steps over which the cosine function completes a full cycle.
             If not provided, it defaults to max_steps.
 
     Returns:
@@ -36,20 +36,24 @@ def cosine_schedule(
         raise ValueError("Current step number can't be negative")
     if max_steps < 1:
         raise ValueError("Total step number must be >= 1")
-    if not period and step > max_steps:
+    if period is None and step > max_steps:
         warnings.warn(
             f"Current step number {step} exceeds max_steps {max_steps}.",
             category=RuntimeWarning,
         )
+    if period is not None and period <= 0:
+        raise ValueError("Period must be >= 1")
 
-    if max_steps == 1:
-        # Avoid division by zero
-        decay = end_value
-    elif period:  # "cycle" based on period, if provided
+    if period is not None:  # "cycle" based on period, if provided
         decay = (
             end_value
-            - (end_value - start_value) * (np.cos(2 * np.pi * step / period) + 1) / 2
+            - (end_value - start_value)
+            * (np.cos(2 * np.pi * step / period) + 1)
+            / 2
         )
+    elif max_steps == 1:
+        # Avoid division by zero
+        decay = end_value
     elif step == max_steps:
         # Special case for Pytorch Lightning which updates LR scheduler also for epoch
         # after last training epoch.
