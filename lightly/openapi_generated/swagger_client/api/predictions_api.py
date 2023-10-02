@@ -53,7 +53,7 @@ class PredictionsApi(object):
     def create_or_update_prediction_by_sample_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], sample_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the sample")], prediction_uuid_timestamp : Annotated[conint(strict=True, ge=0), Field(..., description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")], prediction_singleton : conlist(PredictionSingleton), **kwargs) -> CreateEntityResponse:  # noqa: E501
         """create_or_update_prediction_by_sample_id  # noqa: E501
 
-        Create/Update all the prediction singletons for a sampleId in the order/index of them being discovered   # noqa: E501
+        Create/Update all the prediction singletons per taskName for a sampleId in the order/index of them being discovered   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -88,7 +88,7 @@ class PredictionsApi(object):
     def create_or_update_prediction_by_sample_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], sample_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the sample")], prediction_uuid_timestamp : Annotated[conint(strict=True, ge=0), Field(..., description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")], prediction_singleton : conlist(PredictionSingleton), **kwargs) -> ApiResponse:  # noqa: E501
         """create_or_update_prediction_by_sample_id  # noqa: E501
 
-        Create/Update all the prediction singletons for a sampleId in the order/index of them being discovered   # noqa: E501
+        Create/Update all the prediction singletons per taskName for a sampleId in the order/index of them being discovered   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 

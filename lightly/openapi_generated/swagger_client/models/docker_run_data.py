@@ -20,7 +20,7 @@ import json
 
 
 from typing import List, Optional
-from pydantic import Extra,  BaseModel, Field, StrictStr, conint, conlist, constr, validator
+from pydantic import Extra,  BaseModel, Field, StrictBool, StrictStr, conint, conlist, constr, validator
 from lightly.openapi_generated.swagger_client.models.docker_run_artifact_data import DockerRunArtifactData
 from lightly.openapi_generated.swagger_client.models.docker_run_state import DockerRunState
 
@@ -32,6 +32,7 @@ class DockerRunData(BaseModel):
     user_id: StrictStr = Field(..., alias="userId")
     docker_version: StrictStr = Field(..., alias="dockerVersion")
     state: DockerRunState = Field(...)
+    archived: Optional[StrictBool] = Field(None, description="if the run is archived")
     dataset_id: Optional[constr(strict=True)] = Field(None, alias="datasetId", description="MongoDB ObjectId")
     config_id: Optional[constr(strict=True)] = Field(None, alias="configId", description="MongoDB ObjectId")
     scheduled_id: Optional[constr(strict=True)] = Field(None, alias="scheduledId", description="MongoDB ObjectId")
@@ -39,7 +40,7 @@ class DockerRunData(BaseModel):
     last_modified_at: conint(strict=True, ge=0) = Field(..., alias="lastModifiedAt", description="unix timestamp in milliseconds")
     message: Optional[StrictStr] = Field(None, description="last message sent to the docker run")
     artifacts: Optional[conlist(DockerRunArtifactData)] = Field(None, description="list of artifacts that were created for a run")
-    __properties = ["id", "userId", "dockerVersion", "state", "datasetId", "configId", "scheduledId", "createdAt", "lastModifiedAt", "message", "artifacts"]
+    __properties = ["id", "userId", "dockerVersion", "state", "archived", "datasetId", "configId", "scheduledId", "createdAt", "lastModifiedAt", "message", "artifacts"]
 
     @validator('id')
     def id_validate_regular_expression(cls, value):
@@ -132,6 +133,7 @@ class DockerRunData(BaseModel):
             "user_id": obj.get("userId"),
             "docker_version": obj.get("dockerVersion"),
             "state": obj.get("state"),
+            "archived": obj.get("archived"),
             "dataset_id": obj.get("datasetId"),
             "config_id": obj.get("configId"),
             "scheduled_id": obj.get("scheduledId"),
