@@ -44,6 +44,7 @@ def cosine_schedule(
     if period is not None and period <= 0:
         raise ValueError("Period must be >= 1")
 
+    decay: float
     if period is not None:  # "cycle" based on period, if provided
         decay = (
             end_value
@@ -63,7 +64,7 @@ def cosine_schedule(
             * (np.cos(np.pi * step / (max_steps - 1)) + 1)
             / 2
         )
-    return float(decay)
+    return decay
 
 
 class CosineWarmupScheduler(torch.optim.lr_scheduler.LambdaLR):
