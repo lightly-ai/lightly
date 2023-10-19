@@ -1,4 +1,5 @@
 import os
+import warnings
 
 from lightly.api import download
 from lightly.openapi_generated.swagger_client.models import (
@@ -145,6 +146,10 @@ class _ArtifactsMixin:
     ) -> None:
         """Download the report in json format from a run.
 
+        DEPRECATED: This method is deprecated and will be removed in the future. Use
+        download_compute_worker_run_report_v2_json to download the new report_v2.json
+        instead.
+
         Args:
             run:
                 Run from which to download the report.
@@ -171,9 +176,57 @@ class _ArtifactsMixin:
             >>> client.download_compute_worker_run_report_json(run=run, output_path="report.json")
 
         """
+        warnings.warn(
+            DeprecationWarning(
+                "This method downloads the deprecated report.json file and will be "
+                "removed in the future. Use download_compute_worker_run_report_v2_json "
+                "to download the new report_v2.json file instead."
+            )
+        )
         self._download_compute_worker_run_artifact_by_type(
             run=run,
             artifact_type=DockerRunArtifactType.REPORT_JSON,
+            output_path=output_path,
+            timeout=timeout,
+        )
+
+    def download_compute_worker_run_report_v2_json(
+        self,
+        run: DockerRunData,
+        output_path: str,
+        timeout: int = 60,
+    ) -> None:
+        """Download the report in json format from a run.
+
+        Args:
+            run:
+                Run from which to download the report.
+            output_path:
+                Path where report will be saved.
+            timeout:
+                Timeout in seconds after which download is interrupted.
+
+        Raises:
+            ArtifactNotExist:
+                If the run has no report artifact or the report has not yet been
+                uploaded.
+
+        Examples:
+            >>> # schedule run
+            >>> scheduled_run_id = client.schedule_compute_worker_run(...)
+            >>>
+            >>> # wait until run completed
+            >>> for run_info in client.compute_worker_run_info_generator(scheduled_run_id=scheduled_run_id):
+            >>>     pass
+            >>>
+            >>> # download checkpoint
+            >>> run = client.get_compute_worker_run_from_scheduled_run(scheduled_run_id=scheduled_run_id)
+            >>> client.download_compute_worker_run_report_v2_json(run=run, output_path="report_v2.json")
+
+        """
+        self._download_compute_worker_run_artifact_by_type(
+            run=run,
+            artifact_type=DockerRunArtifactType.REPORT_V2_JSON,
             output_path=output_path,
             timeout=timeout,
         )
