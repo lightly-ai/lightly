@@ -50,6 +50,8 @@ from lightly.openapi_generated.swagger_client.exceptions import ApiException
 # import models into sdk package
 from lightly.openapi_generated.swagger_client.models.active_learning_score_create_request import ActiveLearningScoreCreateRequest
 from lightly.openapi_generated.swagger_client.models.active_learning_score_data import ActiveLearningScoreData
+from lightly.openapi_generated.swagger_client.models.active_learning_score_types_v2_data import ActiveLearningScoreTypesV2Data
+from lightly.openapi_generated.swagger_client.models.active_learning_score_v2_data import ActiveLearningScoreV2Data
 from lightly.openapi_generated.swagger_client.models.api_error_code import ApiErrorCode
 from lightly.openapi_generated.swagger_client.models.api_error_response import ApiErrorResponse
 from lightly.openapi_generated.swagger_client.models.async_task_data import AsyncTaskData
