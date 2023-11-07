@@ -28,8 +28,9 @@ class PredictionSingletonKeypointDetection(PredictionSingletonBase):
     PredictionSingletonKeypointDetection
     """
     keypoints: conlist(Union[confloat(ge=0, strict=True), conint(ge=0, strict=True)], min_items=3) = Field(..., description="[x1, y2, s1, ..., xk, yk, sk] as outlined by https://docs.lightly.ai/docs/prediction-format#keypoint-detection ")
+    bbox: Optional[conlist(Union[confloat(ge=0, strict=True), conint(ge=0, strict=True)], max_items=4, min_items=4)] = Field(None, description="The bbox of where a prediction task yielded a finding. [x, y, width, height]")
     probabilities: Optional[conlist(Union[confloat(le=1, ge=0, strict=True), conint(le=1, ge=0, strict=True)])] = Field(None, description="The probabilities of it being a certain category other than the one which was selected. The sum of all probabilities should equal 1.")
-    __properties = ["type", "taskName", "cropDatasetId", "cropSampleId", "categoryId", "score", "keypoints", "probabilities"]
+    __properties = ["type", "taskName", "cropDatasetId", "cropSampleId", "categoryId", "score", "keypoints", "bbox", "probabilities"]
 
     class Config:
         """Pydantic configuration"""
@@ -81,6 +82,7 @@ class PredictionSingletonKeypointDetection(PredictionSingletonBase):
             "category_id": obj.get("categoryId"),
             "score": obj.get("score"),
             "keypoints": obj.get("keypoints"),
+            "bbox": obj.get("bbox"),
             "probabilities": obj.get("probabilities")
         })
         return _obj
