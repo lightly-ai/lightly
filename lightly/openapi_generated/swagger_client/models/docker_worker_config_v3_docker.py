@@ -45,7 +45,8 @@ class DockerWorkerConfigV3Docker(BaseModel):
     relevant_filenames_file: Optional[StrictStr] = Field(None, alias="relevantFilenamesFile")
     selected_sequence_length: Optional[conint(strict=True, ge=1)] = Field(None, alias="selectedSequenceLength")
     upload_report: Optional[StrictBool] = Field(None, alias="uploadReport")
-    __properties = ["checkpoint", "checkpointRunId", "corruptnessCheck", "datasource", "embeddings", "enableTraining", "training", "normalizeEmbeddings", "numProcesses", "numThreads", "outputImageFormat", "pretagging", "pretaggingUpload", "relevantFilenamesFile", "selectedSequenceLength", "uploadReport"]
+    shutdown_when_job_finished: Optional[StrictBool] = Field(None, alias="shutdownWhenJobFinished")
+    __properties = ["checkpoint", "checkpointRunId", "corruptnessCheck", "datasource", "embeddings", "enableTraining", "training", "normalizeEmbeddings", "numProcesses", "numThreads", "outputImageFormat", "pretagging", "pretaggingUpload", "relevantFilenamesFile", "selectedSequenceLength", "uploadReport", "shutdownWhenJobFinished"]
 
     @validator('checkpoint_run_id')
     def checkpoint_run_id_validate_regular_expression(cls, value):
@@ -124,7 +125,8 @@ class DockerWorkerConfigV3Docker(BaseModel):
             "pretagging_upload": obj.get("pretaggingUpload"),
             "relevant_filenames_file": obj.get("relevantFilenamesFile"),
             "selected_sequence_length": obj.get("selectedSequenceLength"),
-            "upload_report": obj.get("uploadReport")
+            "upload_report": obj.get("uploadReport"),
+            "shutdown_when_job_finished": obj.get("shutdownWhenJobFinished")
         })
         return _obj
 

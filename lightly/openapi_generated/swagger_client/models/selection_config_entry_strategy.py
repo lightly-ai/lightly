@@ -20,7 +20,7 @@ import json
 
 
 from typing import Any, Dict, Optional, Union
-from pydantic import Extra,  BaseModel, Field, StrictFloat, StrictInt, confloat, conint
+from pydantic import Extra,  BaseModel, Field, StrictFloat, StrictInt
 from lightly.openapi_generated.swagger_client.models.selection_strategy_threshold_operation import SelectionStrategyThresholdOperation
 from lightly.openapi_generated.swagger_client.models.selection_strategy_type import SelectionStrategyType
 
@@ -29,12 +29,11 @@ class SelectionConfigEntryStrategy(BaseModel):
     SelectionConfigEntryStrategy
     """
     type: SelectionStrategyType = Field(...)
-    strength: Optional[Union[confloat(le=1000000000, ge=-1000000000, strict=True), conint(le=1000000000, ge=-1000000000, strict=True)]] = Field(None, description="The relative strength of this strategy compared to other strategies. The default value is 1.0, which is set in the worker for backwards compatibility. The minimum and maximum values of +-10^9 are used to prevent numerical issues. ")
     stopping_condition_minimum_distance: Optional[Union[StrictFloat, StrictInt]] = None
     threshold: Optional[Union[StrictFloat, StrictInt]] = None
     operation: Optional[SelectionStrategyThresholdOperation] = None
     target: Optional[Dict[str, Any]] = None
-    __properties = ["type", "strength", "stopping_condition_minimum_distance", "threshold", "operation", "target"]
+    __properties = ["type", "stopping_condition_minimum_distance", "threshold", "operation", "target"]
 
     class Config:
         """Pydantic configuration"""
@@ -80,7 +79,6 @@ class SelectionConfigEntryStrategy(BaseModel):
 
         _obj = SelectionConfigEntryStrategy.parse_obj({
             "type": obj.get("type"),
-            "strength": obj.get("strength"),
             "stopping_condition_minimum_distance": obj.get("stopping_condition_minimum_distance"),
             "threshold": obj.get("threshold"),
             "operation": obj.get("operation"),
