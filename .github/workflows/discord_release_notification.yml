@@ -1,0 +1,37 @@
+name: Discord Release Notification
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  notify-discord:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Send Notification to Discord
+      env:
+        DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+      # We truncate the description at the models section (starting with ### Models)
+      # to keep the message short.
+      # We have also have to format the release description for it to be valid JSON.
+      # This is done by piping the description to jq.
+      run: |
+          DESCRIPTION=$(echo '${{ github.event.release.body }}' | awk '/### Models/{exit}1' | jq -aRs .)
+          curl -H "Content-Type: application/json" \
+               -X POST \
+               -d @- \
+               "${DISCORD_WEBHOOK}" << EOF
+          {
+            "username": "Lightly",
+            "avatar_url": "https://avatars.githubusercontent.com/u/50146475",
+            "content": "Lightly ${{ github.event.release.tag_name }} has been released!",
+            "embeds": [
+              {
+                "title": "${{ github.event.release.name }}",
+                "url": "${{ github.event.release.html_url }}",
+                "color": 5814783,
+                "description": $DESCRIPTION
+              }
+            ]
+          }
+          EOF
