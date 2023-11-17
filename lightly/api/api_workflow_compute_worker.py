@@ -635,7 +635,7 @@ class _ComputeWorkerMixin:
 
 
 def selection_config_from_dict(cfg: Dict[str, Any]) -> SelectionConfigV3:
-    """Recursively converts selection config from dict to a SelectionConfig instance."""
+    """Recursively converts selection config from dict to a SelectionConfigV3 instance."""
     strategies = []
     for entry in cfg.get("strategies", []):
         new_entry = copy.deepcopy(entry)
