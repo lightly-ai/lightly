@@ -43,6 +43,18 @@ from lightly.openapi_generated.swagger_client.models import (
     SelectionStrategyType,
     TagData,
 )
+from lightly.openapi_generated.swagger_client.models.selection_config_v3 import (
+    SelectionConfigV3,
+)
+from lightly.openapi_generated.swagger_client.models.selection_config_v3_entry import (
+    SelectionConfigV3Entry,
+)
+from lightly.openapi_generated.swagger_client.models.selection_config_v3_entry_input import (
+    SelectionConfigV3EntryInput,
+)
+from lightly.openapi_generated.swagger_client.models.selection_config_v3_entry_strategy import (
+    SelectionConfigV3EntryStrategy,
+)
 from lightly.openapi_generated.swagger_client.rest import ApiException
 from tests.api_workflow import utils
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
@@ -101,16 +113,16 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
                     "batch_size": 64,
                 },
             },
-            selection_config=SelectionConfig(
+            selection_config=SelectionConfigV3(
                 n_samples=20,
                 strategies=[
-                    SelectionConfigEntry(
-                        input=SelectionConfigEntryInput(
+                    SelectionConfigV3Entry(
+                        input=SelectionConfigV3EntryInput(
                             type=SelectionInputType.EMBEDDINGS,
                             dataset_id=utils.generate_id(),
                             tag_name="some-tag-name",
                         ),
-                        strategy=SelectionConfigEntryStrategy(
+                        strategy=SelectionConfigV3EntryStrategy(
                             type=SelectionStrategyType.SIMILARITY,
                         ),
                     )
