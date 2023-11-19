@@ -3,7 +3,12 @@
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
+from __future__ import annotations
+
+from typing import Optional, Tuple
+
 import numpy as np
+from numpy.typing import NDArray
 
 
 class PCA(object):
@@ -18,11 +23,11 @@ class PCA(object):
 
     def __init__(self, n_components: int = 2, eps: float = 1e-10):
         self.n_components = n_components
-        self.mean = None
-        self.w = None
+        self.mean: Optional[NDArray[np.float32]] = None
+        self.w: Optional[NDArray[np.float32]] = None
         self.eps = eps
 
-    def fit(self, X: np.ndarray):
+    def fit(self, X: NDArray[np.float32]) -> PCA:
         """Fits PCA to data in X.
 
         Args:
@@ -35,7 +40,7 @@ class PCA(object):
         """
         X = X.astype(np.float32)
         self.mean = X.mean(axis=0)
-        X = X - self.mean + self.eps
+        X = X - self.mean + self.eps  # type: ignore
         cov = np.cov(X.T) / X.shape[0]
         v, w = np.linalg.eig(cov)
         idx = v.argsort()[::-1]
@@ -43,7 +48,7 @@ class PCA(object):
         self.w = w
         return self
 
-    def transform(self, X: np.ndarray):
+    def transform(self, X: NDArray[np.float32]) -> NDArray[np.float32]:
         """Uses PCA to transform data in X.
 
         Args:
@@ -53,13 +58,22 @@ class PCA(object):
         Returns:
             Numpy array of n x p datapoints where p <= d.
 
+        Raises:
+            ValueError: If PCA was not fitted before.
         """
+        if self.mean is None or self.w is None:
+            raise ValueError("PCA not fitted yet. Call fit() before transform().")
         X = X.astype(np.float32)
         X = X - self.mean + self.eps
-        return X.dot(self.w)[:, : self.n_components]
+        transformed = X.dot(self.w)[:, : self.n_components]
+        return np.asarray(transformed, dtype=np.float32)
 
 
-def fit_pca(embeddings: np.ndarray, n_components: int = 2, fraction: float = None):
+def fit_pca(
+    embeddings: NDArray[np.float32],
+    n_components: int = 2,
+    fraction: Optional[float] = None,
+) -> PCA:
     """Fits PCA to randomly selected subset of embeddings.
 
     For large datasets, it can be unfeasible to perform PCA on the whole data.

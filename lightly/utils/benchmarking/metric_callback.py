@@ -39,7 +39,7 @@ class MetricCallback(Callback):
         >>> max_val_acc = max(metric_callback.val_metrics["val_acc"])
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.train_metrics: Dict[str, List[float]] = {}
         self.val_metrics: Dict[str, List[float]] = {}
