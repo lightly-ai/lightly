@@ -21,14 +21,11 @@ from pydantic import validate_arguments, ValidationError
 from typing_extensions import Annotated
 
 from pydantic import Field, conint, constr, validator
-from pydantic import Field, conint, constr, validator
 
 from typing import List, Optional
 
 from lightly.openapi_generated.swagger_client.models.active_learning_score_create_request import ActiveLearningScoreCreateRequest
 from lightly.openapi_generated.swagger_client.models.active_learning_score_data import ActiveLearningScoreData
-from lightly.openapi_generated.swagger_client.models.active_learning_score_types_v2_data import ActiveLearningScoreTypesV2Data
-from lightly.openapi_generated.swagger_client.models.active_learning_score_v2_data import ActiveLearningScoreV2Data
 from lightly.openapi_generated.swagger_client.models.active_learning_score_types_v2_data import ActiveLearningScoreTypesV2Data
 from lightly.openapi_generated.swagger_client.models.active_learning_score_v2_data import ActiveLearningScoreV2Data
 from lightly.openapi_generated.swagger_client.models.create_entity_response import CreateEntityResponse
@@ -56,7 +53,6 @@ class ScoresApi(object):
 
     @validate_arguments
     def create_or_update_active_learning_score_by_tag_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], active_learning_score_create_request : ActiveLearningScoreCreateRequest, **kwargs) -> CreateEntityResponse:  # noqa: E501
-        """(Deprecated) create_or_update_active_learning_score_by_tag_id  # noqa: E501
         """(Deprecated) create_or_update_active_learning_score_by_tag_id  # noqa: E501
 
         Create or update active learning score object by tag id  # noqa: E501
@@ -90,7 +86,6 @@ class ScoresApi(object):
 
     @validate_arguments
     def create_or_update_active_learning_score_by_tag_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], active_learning_score_create_request : ActiveLearningScoreCreateRequest, **kwargs) -> ApiResponse:  # noqa: E501
-        """(Deprecated) create_or_update_active_learning_score_by_tag_id  # noqa: E501
         """(Deprecated) create_or_update_active_learning_score_by_tag_id  # noqa: E501
 
         Create or update active learning score object by tag id  # noqa: E501
@@ -130,8 +125,6 @@ class ScoresApi(object):
                  returns the request thread.
         :rtype: tuple(CreateEntityResponse, status_code(int), headers(HTTPHeaderDict))
         """
-
-        warnings.warn("POST /v1/datasets/{datasetId}/tags/{tagId}/scores is deprecated.", DeprecationWarning)
 
         warnings.warn("POST /v1/datasets/{datasetId}/tags/{tagId}/scores is deprecated.", DeprecationWarning)
 
@@ -409,7 +402,6 @@ class ScoresApi(object):
     @validate_arguments
     def get_active_learning_score_by_score_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], score_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the scores")], **kwargs) -> ActiveLearningScoreData:  # noqa: E501
         """(Deprecated) get_active_learning_score_by_score_id  # noqa: E501
-        """(Deprecated) get_active_learning_score_by_score_id  # noqa: E501
 
         Get active learning score object by id  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -442,7 +434,6 @@ class ScoresApi(object):
 
     @validate_arguments
     def get_active_learning_score_by_score_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], score_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the scores")], **kwargs) -> ApiResponse:  # noqa: E501
-        """(Deprecated) get_active_learning_score_by_score_id  # noqa: E501
         """(Deprecated) get_active_learning_score_by_score_id  # noqa: E501
 
         Get active learning score object by id  # noqa: E501
@@ -482,8 +473,6 @@ class ScoresApi(object):
                  returns the request thread.
         :rtype: tuple(ActiveLearningScoreData, status_code(int), headers(HTTPHeaderDict))
         """
-
-        warnings.warn("GET /v1/datasets/{datasetId}/tags/{tagId}/scores/{scoreId} is deprecated.", DeprecationWarning)
 
         warnings.warn("GET /v1/datasets/{datasetId}/tags/{tagId}/scores/{scoreId} is deprecated.", DeprecationWarning)
 
@@ -574,7 +563,6 @@ class ScoresApi(object):
     @validate_arguments
     def get_active_learning_scores_by_tag_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], **kwargs) -> List[TagActiveLearningScoresData]:  # noqa: E501
         """(Deprecated) get_active_learning_scores_by_tag_id  # noqa: E501
-        """(Deprecated) get_active_learning_scores_by_tag_id  # noqa: E501
 
         Get all scoreIds for the given tag  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -605,7 +593,6 @@ class ScoresApi(object):
 
     @validate_arguments
     def get_active_learning_scores_by_tag_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], **kwargs) -> ApiResponse:  # noqa: E501
-        """(Deprecated) get_active_learning_scores_by_tag_id  # noqa: E501
         """(Deprecated) get_active_learning_scores_by_tag_id  # noqa: E501
 
         Get all scoreIds for the given tag  # noqa: E501
@@ -643,8 +630,6 @@ class ScoresApi(object):
                  returns the request thread.
         :rtype: tuple(List[TagActiveLearningScoresData], status_code(int), headers(HTTPHeaderDict))
         """
-
-        warnings.warn("GET /v1/datasets/{datasetId}/tags/{tagId}/scores is deprecated.", DeprecationWarning)
 
         warnings.warn("GET /v1/datasets/{datasetId}/tags/{tagId}/scores is deprecated.", DeprecationWarning)
 
