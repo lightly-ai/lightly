@@ -371,9 +371,7 @@ class SMoGPrototypes(nn.Module):
             mask = assignments == assigned_class
             group_features[assigned_class] = self.beta * self.group_features[
                 assigned_class
-            ] + (1 - self.beta) * x[mask].mean(
-                axis=0
-            )  # type: ignore
+            ] + (1 - self.beta) * x[mask].mean(dim=0)
 
         return group_features
 
