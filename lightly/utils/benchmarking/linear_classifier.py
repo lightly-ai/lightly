@@ -1,15 +1,9 @@
-from typing import Dict, List, Tuple, Union
+from typing import Any, Dict, List, Tuple, Union
 
 from pytorch_lightning import LightningModule
 from torch import Tensor
 from torch.nn import CrossEntropyLoss, Linear, Module
 from torch.optim import SGD, Optimizer
-
-# Try to import the new LRScheduler from torch 2.0.
-try:
-    from torch.optim.lr_scheduler import LRScheduler
-except ImportError:
-    from torch.optim.lr_scheduler import _LRScheduler as LRScheduler
 
 from lightly.models.utils import activate_requires_grad, deactivate_requires_grad
 from lightly.utils.benchmarking.topk import mean_topk_accuracy
@@ -104,7 +98,7 @@ class LinearClassifier(LightningModule):
         return output
 
     def shared_step(
-        self, batch: Tuple[Tensor, Tensor], batch_idx: int
+        self, batch: Tuple[Tensor, ...], batch_idx: int
     ) -> Tuple[Tensor, Dict[int, Tensor]]:
         images, targets = batch[0], batch[1]
         predictions = self.forward(images)
@@ -113,7 +107,7 @@ class LinearClassifier(LightningModule):
         topk = mean_topk_accuracy(predicted_labels, targets, k=self.topk)
         return loss, topk
 
-    def training_step(self, batch: Tuple[Tensor, Tensor], batch_idx: int) -> Tensor:
+    def training_step(self, batch: Tuple[Tensor, ...], batch_idx: int) -> Tensor:
         loss, topk = self.shared_step(batch=batch, batch_idx=batch_idx)
         batch_size = len(batch[1])
         log_dict = {f"train_top{k}": acc for k, acc in topk.items()}
@@ -123,7 +117,7 @@ class LinearClassifier(LightningModule):
         self.log_dict(log_dict, sync_dist=True, batch_size=batch_size)
         return loss
 
-    def validation_step(self, batch: Tuple[Tensor, Tensor], batch_idx: int) -> Tensor:
+    def validation_step(self, batch: Tuple[Tensor, ...], batch_idx: int) -> Tensor:
         loss, topk = self.shared_step(batch=batch, batch_idx=batch_idx)
         batch_size = len(batch[1])
         log_dict = {f"val_top{k}": acc for k, acc in topk.items()}
@@ -133,7 +127,7 @@ class LinearClassifier(LightningModule):
 
     def configure_optimizers(
         self,
-    ) -> Tuple[List[Optimizer], List[Dict[str, Union[LRScheduler, str]]]]:
+    ) -> Tuple[List[Optimizer], List[Dict[str, Union[Any, str]]]]:
         parameters = list(self.classification_head.parameters())
         if not self.freeze_model:
             parameters += self.model.parameters()
