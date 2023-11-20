@@ -43,18 +43,7 @@ from lightly.openapi_generated.swagger_client.models import (
     SelectionStrategyType,
     TagData,
 )
-from lightly.openapi_generated.swagger_client.models import (
-    SelectionConfigV3,
-)
-from lightly.openapi_generated.swagger_client.models import (
-    SelectionConfigV3Entry,
-)
-from lightly.openapi_generated.swagger_client.models import (
-    SelectionConfigV3EntryInput,
-)
-from lightly.openapi_generated.swagger_client.models import (
-    SelectionConfigV3EntryStrategy,
-)
+
 from lightly.openapi_generated.swagger_client.rest import ApiException
 from tests.api_workflow import utils
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
@@ -219,7 +208,9 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
             n_samples=1,
             strategies=[
                 SelectionConfigV3Entry(
-                    input=SelectionConfigV3EntryInput(type=SelectionInputType.EMBEDDINGS),
+                    input=SelectionConfigV3EntryInput(
+                        type=SelectionInputType.EMBEDDINGS
+                    ),
                     strategy=SelectionConfigV3EntryStrategy(
                         type=SelectionStrategyType.DIVERSITY,
                         stopping_condition_minimum_distance=-1,
