@@ -40,7 +40,8 @@ class PCA(object):
         """
         X = X.astype(np.float32)
         self.mean = X.mean(axis=0)
-        X = X - self.mean + self.eps  # type: ignore
+        assert self.mean is not None
+        X = X - self.mean + self.eps
         cov = np.cov(X.T) / X.shape[0]
         v, w = np.linalg.eig(cov)
         idx = v.argsort()[::-1]
