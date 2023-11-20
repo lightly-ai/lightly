@@ -10,7 +10,7 @@ import torch
 from lightly.loss.memory_bank import MemoryBankModule
 
 
-class NNMemoryBankModule(MemoryBankModule):  # type: ignore # Cannot subclass type Any.
+class NNMemoryBankModule(MemoryBankModule):
     """Nearest Neighbour Memory Bank implementation
 
     This class implements a nearest neighbour memory bank as described in the
