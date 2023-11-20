@@ -43,7 +43,6 @@ from lightly.openapi_generated.swagger_client.models import (
     SelectionStrategyType,
     TagData,
 )
-
 from lightly.openapi_generated.swagger_client.rest import ApiException
 from tests.api_workflow import utils
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
