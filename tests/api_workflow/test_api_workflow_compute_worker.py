@@ -43,16 +43,16 @@ from lightly.openapi_generated.swagger_client.models import (
     SelectionStrategyType,
     TagData,
 )
-from lightly.openapi_generated.swagger_client.models.selection_config_v3 import (
+from lightly.openapi_generated.swagger_client.models import (
     SelectionConfigV3,
 )
-from lightly.openapi_generated.swagger_client.models.selection_config_v3_entry import (
+from lightly.openapi_generated.swagger_client.models import (
     SelectionConfigV3Entry,
 )
-from lightly.openapi_generated.swagger_client.models.selection_config_v3_entry_input import (
+from lightly.openapi_generated.swagger_client.models import (
     SelectionConfigV3EntryInput,
 )
-from lightly.openapi_generated.swagger_client.models.selection_config_v3_entry_strategy import (
+from lightly.openapi_generated.swagger_client.models import (
     SelectionConfigV3EntryStrategy,
 )
 from lightly.openapi_generated.swagger_client.rest import ApiException
