@@ -66,8 +66,8 @@ class PCA(object):
             raise ValueError("PCA not fitted yet. Call fit() before transform().")
         X = X.astype(np.float32)
         X = X - self.mean + self.eps
-        transformed = X.dot(self.w)[:, : self.n_components]
-        return np.asarray(transformed, dtype=np.float32)
+        transformed: NDArray[np.float32] = X.dot(self.w)[:, : self.n_components]
+        return np.asarray(transformed)
 
 
 def fit_pca(
