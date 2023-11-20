@@ -60,7 +60,7 @@ class MetricCallback(Callback):
         self, metrics_dict: Dict[str, List[float]], trainer: Trainer
     ) -> None:
         for name, value in trainer.callback_metrics.items():
-            if isinstance(value, float) or (  # type: ignore # We can't rely on PyTorchLightning's type annotations.
+            if isinstance(value, float) or (
                 isinstance(value, Tensor) and value.numel() == 1
             ):
                 metrics_dict.setdefault(name, []).append(float(value))
