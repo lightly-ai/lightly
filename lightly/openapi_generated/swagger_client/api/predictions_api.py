@@ -50,24 +50,24 @@ class PredictionsApi(object):
         self.api_client = api_client
 
     @validate_arguments
-    def create_or_update_prediction_by_sample_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], sample_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the sample")], prediction_uuid_timestamp : Annotated[conint(strict=True, ge=0), Field(..., description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")], prediction_singleton : conlist(PredictionSingleton), **kwargs) -> CreateEntityResponse:  # noqa: E501
+    def create_or_update_prediction_by_sample_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], sample_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the sample")], prediction_singleton : conlist(PredictionSingleton), prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, **kwargs) -> CreateEntityResponse:  # noqa: E501
         """create_or_update_prediction_by_sample_id  # noqa: E501
 
         Create/Update all the prediction singletons per taskName for a sampleId in the order/index of them being discovered   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.create_or_update_prediction_by_sample_id(dataset_id, sample_id, prediction_uuid_timestamp, prediction_singleton, async_req=True)
+        >>> thread = api.create_or_update_prediction_by_sample_id(dataset_id, sample_id, prediction_singleton, prediction_uuid_timestamp, async_req=True)
         >>> result = thread.get()
 
         :param dataset_id: ObjectId of the dataset (required)
         :type dataset_id: str
         :param sample_id: ObjectId of the sample (required)
         :type sample_id: str
-        :param prediction_uuid_timestamp: The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset.  (required)
-        :type prediction_uuid_timestamp: int
         :param prediction_singleton: (required)
         :type prediction_singleton: List[PredictionSingleton]
+        :param prediction_uuid_timestamp: Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. 
+        :type prediction_uuid_timestamp: int
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _request_timeout: timeout setting for this request. If one
@@ -82,27 +82,27 @@ class PredictionsApi(object):
         kwargs['_return_http_data_only'] = True
         if '_preload_content' in kwargs:
             raise ValueError("Error! Please call the create_or_update_prediction_by_sample_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.create_or_update_prediction_by_sample_id_with_http_info(dataset_id, sample_id, prediction_uuid_timestamp, prediction_singleton, **kwargs)  # noqa: E501
+        return self.create_or_update_prediction_by_sample_id_with_http_info(dataset_id, sample_id, prediction_singleton, prediction_uuid_timestamp, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def create_or_update_prediction_by_sample_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], sample_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the sample")], prediction_uuid_timestamp : Annotated[conint(strict=True, ge=0), Field(..., description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")], prediction_singleton : conlist(PredictionSingleton), **kwargs) -> ApiResponse:  # noqa: E501
+    def create_or_update_prediction_by_sample_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], sample_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the sample")], prediction_singleton : conlist(PredictionSingleton), prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, **kwargs) -> ApiResponse:  # noqa: E501
         """create_or_update_prediction_by_sample_id  # noqa: E501
 
         Create/Update all the prediction singletons per taskName for a sampleId in the order/index of them being discovered   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.create_or_update_prediction_by_sample_id_with_http_info(dataset_id, sample_id, prediction_uuid_timestamp, prediction_singleton, async_req=True)
+        >>> thread = api.create_or_update_prediction_by_sample_id_with_http_info(dataset_id, sample_id, prediction_singleton, prediction_uuid_timestamp, async_req=True)
         >>> result = thread.get()
 
         :param dataset_id: ObjectId of the dataset (required)
         :type dataset_id: str
         :param sample_id: ObjectId of the sample (required)
         :type sample_id: str
-        :param prediction_uuid_timestamp: The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset.  (required)
-        :type prediction_uuid_timestamp: int
         :param prediction_singleton: (required)
         :type prediction_singleton: List[PredictionSingleton]
+        :param prediction_uuid_timestamp: Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. 
+        :type prediction_uuid_timestamp: int
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
@@ -133,8 +133,8 @@ class PredictionsApi(object):
         _all_params = [
             'dataset_id',
             'sample_id',
-            'prediction_uuid_timestamp',
-            'prediction_singleton'
+            'prediction_singleton',
+            'prediction_uuid_timestamp'
         ]
         _all_params.extend(
             [
@@ -227,22 +227,22 @@ class PredictionsApi(object):
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def create_or_update_prediction_task_schema_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_uuid_timestamp : Annotated[conint(strict=True, ge=0), Field(..., description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")], prediction_task_schema : PredictionTaskSchema, **kwargs) -> CreateEntityResponse:  # noqa: E501
+    def create_or_update_prediction_task_schema_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_task_schema : PredictionTaskSchema, prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, **kwargs) -> CreateEntityResponse:  # noqa: E501
         """create_or_update_prediction_task_schema_by_dataset_id  # noqa: E501
 
         Creates/updates a prediction task schema with the task name  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.create_or_update_prediction_task_schema_by_dataset_id(dataset_id, prediction_uuid_timestamp, prediction_task_schema, async_req=True)
+        >>> thread = api.create_or_update_prediction_task_schema_by_dataset_id(dataset_id, prediction_task_schema, prediction_uuid_timestamp, async_req=True)
         >>> result = thread.get()
 
         :param dataset_id: ObjectId of the dataset (required)
         :type dataset_id: str
-        :param prediction_uuid_timestamp: The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset.  (required)
-        :type prediction_uuid_timestamp: int
         :param prediction_task_schema: (required)
         :type prediction_task_schema: PredictionTaskSchema
+        :param prediction_uuid_timestamp: Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. 
+        :type prediction_uuid_timestamp: int
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _request_timeout: timeout setting for this request. If one
@@ -257,25 +257,25 @@ class PredictionsApi(object):
         kwargs['_return_http_data_only'] = True
         if '_preload_content' in kwargs:
             raise ValueError("Error! Please call the create_or_update_prediction_task_schema_by_dataset_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.create_or_update_prediction_task_schema_by_dataset_id_with_http_info(dataset_id, prediction_uuid_timestamp, prediction_task_schema, **kwargs)  # noqa: E501
+        return self.create_or_update_prediction_task_schema_by_dataset_id_with_http_info(dataset_id, prediction_task_schema, prediction_uuid_timestamp, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def create_or_update_prediction_task_schema_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_uuid_timestamp : Annotated[conint(strict=True, ge=0), Field(..., description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")], prediction_task_schema : PredictionTaskSchema, **kwargs) -> ApiResponse:  # noqa: E501
+    def create_or_update_prediction_task_schema_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_task_schema : PredictionTaskSchema, prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, **kwargs) -> ApiResponse:  # noqa: E501
         """create_or_update_prediction_task_schema_by_dataset_id  # noqa: E501
 
         Creates/updates a prediction task schema with the task name  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.create_or_update_prediction_task_schema_by_dataset_id_with_http_info(dataset_id, prediction_uuid_timestamp, prediction_task_schema, async_req=True)
+        >>> thread = api.create_or_update_prediction_task_schema_by_dataset_id_with_http_info(dataset_id, prediction_task_schema, prediction_uuid_timestamp, async_req=True)
         >>> result = thread.get()
 
         :param dataset_id: ObjectId of the dataset (required)
         :type dataset_id: str
-        :param prediction_uuid_timestamp: The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset.  (required)
-        :type prediction_uuid_timestamp: int
         :param prediction_task_schema: (required)
         :type prediction_task_schema: PredictionTaskSchema
+        :param prediction_uuid_timestamp: Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. 
+        :type prediction_uuid_timestamp: int
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
@@ -305,8 +305,8 @@ class PredictionsApi(object):
 
         _all_params = [
             'dataset_id',
-            'prediction_uuid_timestamp',
-            'prediction_task_schema'
+            'prediction_task_schema',
+            'prediction_uuid_timestamp'
         ]
         _all_params.extend(
             [
@@ -395,22 +395,22 @@ class PredictionsApi(object):
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def get_prediction_task_schema_by_task_name(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_uuid_timestamp : Annotated[conint(strict=True, ge=0), Field(..., description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")], task_name : Annotated[constr(strict=True, min_length=1), Field(..., description="The prediction task name for which one wants to list the predictions")], **kwargs) -> PredictionTaskSchema:  # noqa: E501
+    def get_prediction_task_schema_by_task_name(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], task_name : Annotated[constr(strict=True, min_length=1), Field(..., description="The prediction task name for which one wants to list the predictions")], prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, **kwargs) -> PredictionTaskSchema:  # noqa: E501
         """get_prediction_task_schema_by_task_name  # noqa: E501
 
         Get a prediction task schemas named taskName for a datasetId  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.get_prediction_task_schema_by_task_name(dataset_id, prediction_uuid_timestamp, task_name, async_req=True)
+        >>> thread = api.get_prediction_task_schema_by_task_name(dataset_id, task_name, prediction_uuid_timestamp, async_req=True)
         >>> result = thread.get()
 
         :param dataset_id: ObjectId of the dataset (required)
         :type dataset_id: str
-        :param prediction_uuid_timestamp: The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset.  (required)
-        :type prediction_uuid_timestamp: int
         :param task_name: The prediction task name for which one wants to list the predictions (required)
         :type task_name: str
+        :param prediction_uuid_timestamp: Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. 
+        :type prediction_uuid_timestamp: int
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _request_timeout: timeout setting for this request. If one
@@ -425,25 +425,25 @@ class PredictionsApi(object):
         kwargs['_return_http_data_only'] = True
         if '_preload_content' in kwargs:
             raise ValueError("Error! Please call the get_prediction_task_schema_by_task_name_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.get_prediction_task_schema_by_task_name_with_http_info(dataset_id, prediction_uuid_timestamp, task_name, **kwargs)  # noqa: E501
+        return self.get_prediction_task_schema_by_task_name_with_http_info(dataset_id, task_name, prediction_uuid_timestamp, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def get_prediction_task_schema_by_task_name_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_uuid_timestamp : Annotated[conint(strict=True, ge=0), Field(..., description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")], task_name : Annotated[constr(strict=True, min_length=1), Field(..., description="The prediction task name for which one wants to list the predictions")], **kwargs) -> ApiResponse:  # noqa: E501
+    def get_prediction_task_schema_by_task_name_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], task_name : Annotated[constr(strict=True, min_length=1), Field(..., description="The prediction task name for which one wants to list the predictions")], prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, **kwargs) -> ApiResponse:  # noqa: E501
         """get_prediction_task_schema_by_task_name  # noqa: E501
 
         Get a prediction task schemas named taskName for a datasetId  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.get_prediction_task_schema_by_task_name_with_http_info(dataset_id, prediction_uuid_timestamp, task_name, async_req=True)
+        >>> thread = api.get_prediction_task_schema_by_task_name_with_http_info(dataset_id, task_name, prediction_uuid_timestamp, async_req=True)
         >>> result = thread.get()
 
         :param dataset_id: ObjectId of the dataset (required)
         :type dataset_id: str
-        :param prediction_uuid_timestamp: The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset.  (required)
-        :type prediction_uuid_timestamp: int
         :param task_name: The prediction task name for which one wants to list the predictions (required)
         :type task_name: str
+        :param prediction_uuid_timestamp: Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. 
+        :type prediction_uuid_timestamp: int
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
@@ -473,8 +473,8 @@ class PredictionsApi(object):
 
         _all_params = [
             'dataset_id',
-            'prediction_uuid_timestamp',
-            'task_name'
+            'task_name',
+            'prediction_uuid_timestamp'
         ]
         _all_params.extend(
             [
@@ -557,7 +557,7 @@ class PredictionsApi(object):
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def get_prediction_task_schemas_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, **kwargs) -> PredictionTaskSchemas:  # noqa: E501
+    def get_prediction_task_schemas_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, **kwargs) -> PredictionTaskSchemas:  # noqa: E501
         """get_prediction_task_schemas_by_dataset_id  # noqa: E501
 
         Get list of all the prediction task schemas for a datasetId at a specific predictionUUIDTimestamp. If no predictionUUIDTimestamp is set, it defaults to the newest  # noqa: E501
@@ -569,7 +569,7 @@ class PredictionsApi(object):
 
         :param dataset_id: ObjectId of the dataset (required)
         :type dataset_id: str
-        :param prediction_uuid_timestamp: The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. 
+        :param prediction_uuid_timestamp: Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. 
         :type prediction_uuid_timestamp: int
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -588,7 +588,7 @@ class PredictionsApi(object):
         return self.get_prediction_task_schemas_by_dataset_id_with_http_info(dataset_id, prediction_uuid_timestamp, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def get_prediction_task_schemas_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def get_prediction_task_schemas_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, **kwargs) -> ApiResponse:  # noqa: E501
         """get_prediction_task_schemas_by_dataset_id  # noqa: E501
 
         Get list of all the prediction task schemas for a datasetId at a specific predictionUUIDTimestamp. If no predictionUUIDTimestamp is set, it defaults to the newest  # noqa: E501
@@ -600,7 +600,7 @@ class PredictionsApi(object):
 
         :param dataset_id: ObjectId of the dataset (required)
         :type dataset_id: str
-        :param prediction_uuid_timestamp: The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. 
+        :param prediction_uuid_timestamp: Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. 
         :type prediction_uuid_timestamp: int
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -711,7 +711,7 @@ class PredictionsApi(object):
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def get_predictions_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_uuid_timestamp : Annotated[conint(strict=True, ge=0), Field(..., description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")], task_name : Annotated[Optional[constr(strict=True, min_length=1)], Field(description="If provided, only gets all prediction singletons of all samples of a dataset that were yielded by a specific prediction task name")] = None, **kwargs) -> List[List]:  # noqa: E501
+    def get_predictions_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, task_name : Annotated[Optional[constr(strict=True, min_length=1)], Field(description="If provided, only gets all prediction singletons of all samples of a dataset that were yielded by a specific prediction task name")] = None, **kwargs) -> List[List]:  # noqa: E501
         """get_predictions_by_dataset_id  # noqa: E501
 
         Get all prediction singletons of all samples of a dataset ordered by the sample mapping  # noqa: E501
@@ -723,7 +723,7 @@ class PredictionsApi(object):
 
         :param dataset_id: ObjectId of the dataset (required)
         :type dataset_id: str
-        :param prediction_uuid_timestamp: The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset.  (required)
+        :param prediction_uuid_timestamp: Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. 
         :type prediction_uuid_timestamp: int
         :param task_name: If provided, only gets all prediction singletons of all samples of a dataset that were yielded by a specific prediction task name
         :type task_name: str
@@ -744,7 +744,7 @@ class PredictionsApi(object):
         return self.get_predictions_by_dataset_id_with_http_info(dataset_id, prediction_uuid_timestamp, task_name, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def get_predictions_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_uuid_timestamp : Annotated[conint(strict=True, ge=0), Field(..., description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")], task_name : Annotated[Optional[constr(strict=True, min_length=1)], Field(description="If provided, only gets all prediction singletons of all samples of a dataset that were yielded by a specific prediction task name")] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def get_predictions_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, task_name : Annotated[Optional[constr(strict=True, min_length=1)], Field(description="If provided, only gets all prediction singletons of all samples of a dataset that were yielded by a specific prediction task name")] = None, **kwargs) -> ApiResponse:  # noqa: E501
         """get_predictions_by_dataset_id  # noqa: E501
 
         Get all prediction singletons of all samples of a dataset ordered by the sample mapping  # noqa: E501
@@ -756,7 +756,7 @@ class PredictionsApi(object):
 
         :param dataset_id: ObjectId of the dataset (required)
         :type dataset_id: str
-        :param prediction_uuid_timestamp: The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset.  (required)
+        :param prediction_uuid_timestamp: Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. 
         :type prediction_uuid_timestamp: int
         :param task_name: If provided, only gets all prediction singletons of all samples of a dataset that were yielded by a specific prediction task name
         :type task_name: str
@@ -876,7 +876,7 @@ class PredictionsApi(object):
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def get_predictions_by_sample_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], sample_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the sample")], prediction_uuid_timestamp : Annotated[conint(strict=True, ge=0), Field(..., description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")], **kwargs) -> List[PredictionSingleton]:  # noqa: E501
+    def get_predictions_by_sample_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], sample_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the sample")], prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, **kwargs) -> List[PredictionSingleton]:  # noqa: E501
         """get_predictions_by_sample_id  # noqa: E501
 
         Get all prediction singletons of all tasks for a specific sample of a dataset  # noqa: E501
@@ -890,7 +890,7 @@ class PredictionsApi(object):
         :type dataset_id: str
         :param sample_id: ObjectId of the sample (required)
         :type sample_id: str
-        :param prediction_uuid_timestamp: The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset.  (required)
+        :param prediction_uuid_timestamp: Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. 
         :type prediction_uuid_timestamp: int
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -909,7 +909,7 @@ class PredictionsApi(object):
         return self.get_predictions_by_sample_id_with_http_info(dataset_id, sample_id, prediction_uuid_timestamp, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def get_predictions_by_sample_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], sample_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the sample")], prediction_uuid_timestamp : Annotated[conint(strict=True, ge=0), Field(..., description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")], **kwargs) -> ApiResponse:  # noqa: E501
+    def get_predictions_by_sample_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], sample_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the sample")], prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, **kwargs) -> ApiResponse:  # noqa: E501
         """get_predictions_by_sample_id  # noqa: E501
 
         Get all prediction singletons of all tasks for a specific sample of a dataset  # noqa: E501
@@ -923,7 +923,7 @@ class PredictionsApi(object):
         :type dataset_id: str
         :param sample_id: ObjectId of the sample (required)
         :type sample_id: str
-        :param prediction_uuid_timestamp: The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset.  (required)
+        :param prediction_uuid_timestamp: Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. 
         :type prediction_uuid_timestamp: int
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional

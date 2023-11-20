@@ -34,11 +34,12 @@ class SelectionConfigV3EntryStrategy(BaseModel):
     threshold: Optional[Union[StrictFloat, StrictInt]] = None
     operation: Optional[SelectionStrategyThresholdOperation] = None
     target: Optional[Dict[str, Any]] = None
+    num_nearest_neighbors: Optional[Union[confloat(ge=2, strict=True), conint(ge=2, strict=True)]] = Field(None, alias="numNearestNeighbors", description="It is the number of nearest datapoints used to compute the typicality of each sample. ")
     stopping_condition_minimum_typicality: Optional[Union[confloat(gt=0, strict=True), conint(gt=0, strict=True)]] = Field(None, alias="stoppingConditionMinimumTypicality", description="It is the minimal allowed typicality of the selected samples. When the typicality of the selected samples reaches this, the selection stops. It should be  a number between 0 and 1. ")
     strength: Optional[Union[confloat(le=1000000000, ge=-1000000000, strict=True), conint(le=1000000000, ge=-1000000000, strict=True)]] = Field(None, description="The relative strength of this strategy compared to other strategies. The default value is 1.0, which is set in the worker for backwards compatibility. The minimum and maximum values of +-10^9 are used to prevent numerical issues. ")
     stopping_condition_max_sum: Optional[Union[confloat(ge=0.0, strict=True), conint(ge=0, strict=True)]] = Field(None, alias="stoppingConditionMaxSum", description="When the sum of inputs reaches this, the selection stops. Only compatible with the WEIGHTS strategy. Similar to the stopping_condition_minimum_distance for the DIVERSITY strategy. ")
     target_range: Optional[SelectionConfigV3EntryStrategyAllOfTargetRange] = Field(None, alias="targetRange")
-    __properties = ["type", "stopping_condition_minimum_distance", "threshold", "operation", "target", "stoppingConditionMinimumTypicality", "strength", "stoppingConditionMaxSum", "targetRange"]
+    __properties = ["type", "stopping_condition_minimum_distance", "threshold", "operation", "target", "numNearestNeighbors", "stoppingConditionMinimumTypicality", "strength", "stoppingConditionMaxSum", "targetRange"]
 
     class Config:
         """Pydantic configuration"""
@@ -91,6 +92,7 @@ class SelectionConfigV3EntryStrategy(BaseModel):
             "threshold": obj.get("threshold"),
             "operation": obj.get("operation"),
             "target": obj.get("target"),
+            "num_nearest_neighbors": obj.get("numNearestNeighbors"),
             "stopping_condition_minimum_typicality": obj.get("stoppingConditionMinimumTypicality"),
             "strength": obj.get("strength"),
             "stopping_condition_max_sum": obj.get("stoppingConditionMaxSum"),

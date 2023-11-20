@@ -36,6 +36,7 @@ class SelectionStrategyType(str, Enum):
     THRESHOLD = 'THRESHOLD'
     BALANCE = 'BALANCE'
     SIMILARITY = 'SIMILARITY'
+    TYPICALITY = 'TYPICALITY'
 
     @classmethod
     def from_json(cls, json_str: str) -> 'SelectionStrategyType':
