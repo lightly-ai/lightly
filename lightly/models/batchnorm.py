@@ -4,9 +4,11 @@
 # All Rights Reserved
 
 from __future__ import annotations
+
+from typing import Any
+
 import torch
 import torch.nn as nn
-from typing import Any, Optional, Tuple
 
 
 class SplitBatchNorm(nn.BatchNorm2d):
@@ -63,10 +65,11 @@ class SplitBatchNorm(nn.BatchNorm2d):
                 self.eps,
             ).view(N, C, H, W)
         else:
+            assert self.running_mean is not None and self.running_var is not None
             result = nn.functional.batch_norm(
                 input,
-                self.running_mean[: self.num_features], # type: ignore
-                self.running_var[: self.num_features], # type: ignore
+                self.running_mean[: self.num_features],
+                self.running_var[: self.num_features],
                 self.weight,
                 self.bias,
                 False,

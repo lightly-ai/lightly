@@ -74,7 +74,7 @@ class BasicBlock(nn.Module):
             Tensor of shape bsz x channels x W x H
         """
 
-        out = self.conv1(x)
+        out: torch.Tensor = self.conv1(x)
         out = self.bn1(out)
         out = F.relu(out)
 
@@ -84,7 +84,7 @@ class BasicBlock(nn.Module):
         out += self.shortcut(x)
         out = F.relu(out)
 
-        return out # type: ignore
+        return out
 
 
 class Bottleneck(nn.Module):
@@ -144,7 +144,7 @@ class Bottleneck(nn.Module):
             Tensor of shape bsz x channels x W x H
         """
 
-        out = self.conv1(x)
+        out: torch.Tensor = self.conv1(x)
         out = self.bn1(out)
         out = F.relu(out)
 
@@ -158,7 +158,7 @@ class Bottleneck(nn.Module):
         out += self.shortcut(x)
         out = F.relu(out)
 
-        return out # type: ignore
+        return out
 
 
 class ResNet(nn.Module):
@@ -209,7 +209,14 @@ class ResNet(nn.Module):
         )
         self.linear = nn.Linear(self.base * 8 * block.expansion, num_classes)
 
-    def _make_layer(self, block: type[BasicBlock], planes: int, num_layers: int, stride: int, num_splits: int) -> nn.Sequential:
+    def _make_layer(
+        self,
+        block: type[BasicBlock],
+        planes: int,
+        num_layers: int,
+        stride: int,
+        num_splits: int,
+    ) -> nn.Sequential:
         strides = [stride] + [1] * (num_layers - 1)
         layers = []
         for stride in strides:
@@ -287,8 +294,8 @@ def ResNetGenerator(
         )
 
     return ResNet(
-        **model_params[name], # type: ignore
+        **model_params[name],  # type: ignore # Cannot unpack dict to type "ResNet".
         width=width,
         num_classes=num_classes,
-        num_splits=num_splits
+        num_splits=num_splits,
     )

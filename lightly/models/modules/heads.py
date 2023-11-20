@@ -31,11 +31,12 @@ class ProjectionHead(nn.Module):
 
     """
 
-    def __init__(self, blocks: List[Tuple[int, int, Optional[nn.Module], Optional[nn.Module]]]) -> None:
-
+    def __init__(
+        self, blocks: List[Tuple[int, int, Optional[nn.Module], Optional[nn.Module]]]
+    ) -> None:
         super(ProjectionHead, self).__init__()
 
-        layers: List[nn.Module] = []  
+        layers: List[nn.Module] = []
         for input_dim, output_dim, batch_norm, non_linearity in blocks:
             use_bias = not bool(batch_norm)
             layers.append(nn.Linear(input_dim, output_dim, bias=use_bias))
@@ -53,7 +54,8 @@ class ProjectionHead(nn.Module):
                 Input of shape bsz x num_ftrs.
 
         """
-        return self.layers(x) # type: ignore
+        projection: torch.Tensor = self.layers(x)
+        return projection
 
 
 class BarlowTwinsProjectionHead(ProjectionHead):
@@ -369,7 +371,9 @@ class SMoGPrototypes(nn.Module):
             mask = assignments == assigned_class
             group_features[assigned_class] = self.beta * self.group_features[
                 assigned_class
-            ] + (1 - self.beta) * x[mask].mean(axis=0) # type: ignore
+            ] + (1 - self.beta) * x[mask].mean(
+                axis=0
+            )  # type: ignore
 
         return group_features
 
@@ -523,7 +527,9 @@ class SwaVPrototypes(nn.Module):
         )
         self.n_steps_frozen_prototypes = n_steps_frozen_prototypes
 
-    def forward(self, x: torch.Tensor, step: Optional[int]=None) -> Union[torch.Tensor, List[torch.Tensor]]:
+    def forward(
+        self, x: torch.Tensor, step: Optional[int] = None
+    ) -> Union[torch.Tensor, List[torch.Tensor]]:
         self._freeze_prototypes_if_required(step)
         out = []
         for layer in self.heads:
@@ -535,7 +541,7 @@ class SwaVPrototypes(nn.Module):
         for layer in self.heads:
             utils.normalize_weight(layer.weight)
 
-    def _freeze_prototypes_if_required(self, step: Optional[int]=None) -> None:
+    def _freeze_prototypes_if_required(self, step: Optional[int] = None) -> None:
         if self.n_steps_frozen_prototypes > 0:
             if step is None:
                 raise ValueError(
@@ -602,8 +608,9 @@ class DINOProjectionHead(ProjectionHead):
         self.freeze_last_layer = freeze_last_layer
         self.last_layer = nn.Linear(bottleneck_dim, output_dim, bias=False)
         self.last_layer = nn.utils.weight_norm(self.last_layer)
-        self.last_layer.weight_g.data.fill_(1) # type: ignore
-        
+        # Tell mypy this is ok because fill_ is overloaded.
+        self.last_layer.weight_g.data.fill_(1)  # type: ignore
+
         # Option to normalize last layer.
         if norm_last_layer:
             self.last_layer.weight_g.requires_grad = False
