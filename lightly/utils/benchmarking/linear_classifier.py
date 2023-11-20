@@ -1,9 +1,15 @@
-from typing import Any, Dict, List, Tuple
+from typing import Dict, List, Tuple, Union
 
 from pytorch_lightning import LightningModule
 from torch import Tensor
 from torch.nn import CrossEntropyLoss, Linear, Module
-from torch.optim import SGD
+from torch.optim import SGD, Optimizer
+
+# Try to import the new LRScheduler from torch 2.0.
+try:
+    from torch.optim.lr_scheduler import LRScheduler
+except ImportError:
+    from torch.optim.lr_scheduler import _LRScheduler as LRScheduler
 
 from lightly.models.utils import activate_requires_grad, deactivate_requires_grad
 from lightly.utils.benchmarking.topk import mean_topk_accuracy
@@ -125,7 +131,9 @@ class LinearClassifier(LightningModule):
         self.log_dict(log_dict, prog_bar=True, sync_dist=True, batch_size=batch_size)
         return loss
 
-    def configure_optimizers(self) -> Tuple[List[Any], List[Dict[str, Any]]]:
+    def configure_optimizers(
+        self,
+    ) -> Tuple[List[Optimizer], List[Dict[str, Union[LRScheduler, str]]]]:
         parameters = list(self.classification_head.parameters())
         if not self.freeze_model:
             parameters += self.model.parameters()
