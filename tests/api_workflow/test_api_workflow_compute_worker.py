@@ -33,10 +33,10 @@ from lightly.openapi_generated.swagger_client.models import (
     DockerWorkerConfigV3LightlyLoader,
     DockerWorkerState,
     DockerWorkerType,
-    SelectionConfig,
-    SelectionConfigEntry,
-    SelectionConfigEntryInput,
-    SelectionConfigEntryStrategy,
+    SelectionConfigV3,
+    SelectionConfigV3Entry,
+    SelectionConfigV3EntryInput,
+    SelectionConfigV3EntryStrategy,
     SelectionInputPredictionsName,
     SelectionInputType,
     SelectionStrategyThresholdOperation,
@@ -215,43 +215,43 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
         return obj_api
 
     def test_selection_config(self):
-        selection_config = SelectionConfig(
+        selection_config = SelectionConfigV3(
             n_samples=1,
             strategies=[
-                SelectionConfigEntry(
-                    input=SelectionConfigEntryInput(type=SelectionInputType.EMBEDDINGS),
-                    strategy=SelectionConfigEntryStrategy(
+                SelectionConfigV3Entry(
+                    input=SelectionConfigV3EntryInput(type=SelectionInputType.EMBEDDINGS),
+                    strategy=SelectionConfigV3EntryStrategy(
                         type=SelectionStrategyType.DIVERSITY,
                         stopping_condition_minimum_distance=-1,
                     ),
                 ),
-                SelectionConfigEntry(
-                    input=SelectionConfigEntryInput(
+                SelectionConfigV3Entry(
+                    input=SelectionConfigV3EntryInput(
                         type=SelectionInputType.SCORES,
                         task="my-classification-task",
                         score="uncertainty_margin",
                     ),
-                    strategy=SelectionConfigEntryStrategy(
+                    strategy=SelectionConfigV3EntryStrategy(
                         type=SelectionStrategyType.WEIGHTS
                     ),
                 ),
-                SelectionConfigEntry(
-                    input=SelectionConfigEntryInput(
+                SelectionConfigV3Entry(
+                    input=SelectionConfigV3EntryInput(
                         type=SelectionInputType.METADATA, key="lightly.sharpness"
                     ),
-                    strategy=SelectionConfigEntryStrategy(
+                    strategy=SelectionConfigV3EntryStrategy(
                         type=SelectionStrategyType.THRESHOLD,
                         threshold=20,
                         operation=SelectionStrategyThresholdOperation.BIGGER_EQUAL,
                     ),
                 ),
-                SelectionConfigEntry(
-                    input=SelectionConfigEntryInput(
+                SelectionConfigV3Entry(
+                    input=SelectionConfigV3EntryInput(
                         type=SelectionInputType.PREDICTIONS,
                         task="my_object_detection_task",
                         name=SelectionInputPredictionsName.CLASS_DISTRIBUTION,
                     ),
-                    strategy=SelectionConfigEntryStrategy(
+                    strategy=SelectionConfigV3EntryStrategy(
                         type=SelectionStrategyType.BALANCE,
                         target={"Ambulance": 0.2, "Bus": 0.4},
                     ),
