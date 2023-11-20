@@ -31,12 +31,11 @@ class ProjectionHead(nn.Module):
 
     """
 
-    def __init__(
-        self, blocks: List[Tuple[int, int, Optional[nn.Module], Optional[nn.Module]]]
-    ):
+    def __init__(self, blocks: List[Tuple[int, int, Optional[nn.Module], Optional[nn.Module]]]) -> None:
+
         super(ProjectionHead, self).__init__()
 
-        layers = []
+        layers: List[nn.Module] = []  
         for input_dim, output_dim, batch_norm, non_linearity in blocks:
             use_bias = not bool(batch_norm)
             layers.append(nn.Linear(input_dim, output_dim, bias=use_bias))
@@ -46,7 +45,7 @@ class ProjectionHead(nn.Module):
                 layers.append(non_linearity)
         self.layers = nn.Sequential(*layers)
 
-    def forward(self, x: torch.Tensor):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Computes one forward pass through the projection head.
 
         Args:
@@ -54,7 +53,7 @@ class ProjectionHead(nn.Module):
                 Input of shape bsz x num_ftrs.
 
         """
-        return self.layers(x)
+        return self.layers(x) # type: ignore
 
 
 class BarlowTwinsProjectionHead(ProjectionHead):
@@ -353,7 +352,7 @@ class SMoGPrototypes(nn.Module):
         logits = torch.mm(x, group_features.t())
         return logits / temperature
 
-    def get_updated_group_features(self, x: torch.Tensor) -> None:
+    def get_updated_group_features(self, x: torch.Tensor) -> torch.Tensor:
         """Performs the synchronous momentum update of the group vectors.
 
         Args:
@@ -370,7 +369,7 @@ class SMoGPrototypes(nn.Module):
             mask = assignments == assigned_class
             group_features[assigned_class] = self.beta * self.group_features[
                 assigned_class
-            ] + (1 - self.beta) * x[mask].mean(axis=0)
+            ] + (1 - self.beta) * x[mask].mean(axis=0) # type: ignore
 
         return group_features
 
@@ -379,14 +378,14 @@ class SMoGPrototypes(nn.Module):
         self.group_features.data = x.to(self.group_features.device)
 
     @torch.no_grad()
-    def assign_groups(self, x: torch.Tensor) -> torch.LongTensor:
+    def assign_groups(self, x: torch.Tensor) -> torch.Tensor:
         """Assigns each representation in x to a group based on cosine similarity.
 
         Args:
             Tensor of shape bsz x dim.
 
         Returns:
-            LongTensor of shape bsz indicating group assignments.
+            Tensor of shape bsz indicating group assignments.
 
         """
         return torch.argmax(self.forward(x, self.group_features), dim=-1)
@@ -524,19 +523,19 @@ class SwaVPrototypes(nn.Module):
         )
         self.n_steps_frozen_prototypes = n_steps_frozen_prototypes
 
-    def forward(self, x, step=None) -> Union[torch.Tensor, List[torch.Tensor]]:
+    def forward(self, x: torch.Tensor, step: Optional[int]=None) -> Union[torch.Tensor, List[torch.Tensor]]:
         self._freeze_prototypes_if_required(step)
         out = []
         for layer in self.heads:
             out.append(layer(x))
         return out[0] if self._is_single_prototype else out
 
-    def normalize(self):
+    def normalize(self) -> None:
         """Normalizes the prototypes so that they are on the unit sphere."""
         for layer in self.heads:
             utils.normalize_weight(layer.weight)
 
-    def _freeze_prototypes_if_required(self, step):
+    def _freeze_prototypes_if_required(self, step: Optional[int]=None) -> None:
         if self.n_steps_frozen_prototypes > 0:
             if step is None:
                 raise ValueError(
@@ -601,22 +600,22 @@ class DINOProjectionHead(ProjectionHead):
         )
         self.apply(self._init_weights)
         self.freeze_last_layer = freeze_last_layer
-        self.last_layer = nn.utils.weight_norm(
-            nn.Linear(bottleneck_dim, output_dim, bias=False)
-        )
-        self.last_layer.weight_g.data.fill_(1)
+        self.last_layer = nn.Linear(bottleneck_dim, output_dim, bias=False)
+        self.last_layer = nn.utils.weight_norm(self.last_layer)
+        self.last_layer.weight_g.data.fill_(1) # type: ignore
+        
         # Option to normalize last layer.
         if norm_last_layer:
             self.last_layer.weight_g.requires_grad = False
 
-    def cancel_last_layer_gradients(self, current_epoch: int):
+    def cancel_last_layer_gradients(self, current_epoch: int) -> None:
         """Cancel last layer gradients to stabilize the training."""
         if current_epoch >= self.freeze_last_layer:
             return
         for param in self.last_layer.parameters():
             param.grad = None
 
-    def _init_weights(self, module):
+    def _init_weights(self, module: nn.Module) -> None:
         """Initializes layers with a truncated normal distribution."""
         if isinstance(module, nn.Linear):
             utils._no_grad_trunc_normal(

@@ -4,6 +4,7 @@
 # All Rights Reserved
 
 import functools
+from typing import Optional, Tuple, Union
 
 import torch
 
@@ -55,7 +56,7 @@ class MemoryBankModule(torch.nn.Module):
         )
 
     @torch.no_grad()
-    def _init_memory_bank(self, dim: int):
+    def _init_memory_bank(self, dim: int) -> None:
         """Initialize the memory bank if it's empty
 
         Args:
@@ -67,12 +68,12 @@ class MemoryBankModule(torch.nn.Module):
         # we could use register buffers like in the moco repo
         # https://github.com/facebookresearch/moco but we don't
         # want to pollute our checkpoints
-        self.bank = torch.randn(dim, self.size).type_as(self.bank)
+        self.bank = torch.randn(dim, self.size).type_as(self.bank) # type: ignore
         self.bank = torch.nn.functional.normalize(self.bank, dim=0)
-        self.bank_ptr = torch.zeros(1).type_as(self.bank_ptr)
+        self.bank_ptr = torch.zeros(1).type_as(self.bank_ptr) # type: ignore
 
     @torch.no_grad()
-    def _dequeue_and_enqueue(self, batch: torch.Tensor):
+    def _dequeue_and_enqueue(self, batch: torch.Tensor) -> None:
         """Dequeue the oldest batch and add the latest one
 
         Args:
@@ -91,8 +92,8 @@ class MemoryBankModule(torch.nn.Module):
             self.bank_ptr[0] = ptr + batch_size
 
     def forward(
-        self, output: torch.Tensor, labels: torch.Tensor = None, update: bool = False
-    ):
+        self, output: torch.Tensor, labels: Optional[torch.Tensor] = None, update: bool = False
+    ) -> Union[Tuple[torch.Tensor, Optional[torch.Tensor]], torch.Tensor]:
         """Query memory bank for additional negative samples
 
         Args:

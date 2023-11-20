@@ -10,6 +10,7 @@ run for example on a microcontroller with 100kBytes of storage.
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
+from __future__ import annotations
 
 from typing import List
 
@@ -62,7 +63,7 @@ class BasicBlock(nn.Module):
                 get_norm_layer(self.expansion * planes, num_splits),
             )
 
-    def forward(self, x: torch.Tensor):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Forward pass through basic ResNet block.
 
         Args:
@@ -83,7 +84,7 @@ class BasicBlock(nn.Module):
         out += self.shortcut(x)
         out = F.relu(out)
 
-        return out
+        return out # type: ignore
 
 
 class Bottleneck(nn.Module):
@@ -132,7 +133,7 @@ class Bottleneck(nn.Module):
                 get_norm_layer(self.expansion * planes, num_splits),
             )
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Forward pass through bottleneck ResNet block.
 
         Args:
@@ -157,7 +158,7 @@ class Bottleneck(nn.Module):
         out += self.shortcut(x)
         out = F.relu(out)
 
-        return out
+        return out # type: ignore
 
 
 class ResNet(nn.Module):
@@ -179,7 +180,7 @@ class ResNet(nn.Module):
 
     def __init__(
         self,
-        block: nn.Module = BasicBlock,
+        block: type[BasicBlock] = BasicBlock,
         layers: List[int] = [2, 2, 2, 2],
         num_classes: int = 10,
         width: float = 1.0,
@@ -208,15 +209,15 @@ class ResNet(nn.Module):
         )
         self.linear = nn.Linear(self.base * 8 * block.expansion, num_classes)
 
-    def _make_layer(self, block, planes, layers, stride, num_splits):
-        strides = [stride] + [1] * (layers - 1)
+    def _make_layer(self, block: type[BasicBlock], planes: int, num_layers: int, stride: int, num_splits: int) -> nn.Sequential:
+        strides = [stride] + [1] * (num_layers - 1)
         layers = []
         for stride in strides:
             layers.append(block(self.in_planes, planes, stride, num_splits))
             self.in_planes = planes * block.expansion
         return nn.Sequential(*layers)
 
-    def forward(self, x: torch.Tensor):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Forward pass through ResNet.
 
         Args:
@@ -243,7 +244,7 @@ def ResNetGenerator(
     width: float = 1,
     num_classes: int = 10,
     num_splits: int = 0,
-):
+) -> ResNet:
     """Builds and returns the specified ResNet.
 
     Args:
@@ -286,7 +287,7 @@ def ResNetGenerator(
         )
 
     return ResNet(
-        **model_params[name],
+        **model_params[name], # type: ignore
         width=width,
         num_classes=num_classes,
         num_splits=num_splits

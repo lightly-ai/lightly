@@ -3,8 +3,10 @@
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
+from __future__ import annotations
 import torch
 import torch.nn as nn
+from typing import Any, Optional, Tuple
 
 
 class SplitBatchNorm(nn.BatchNorm2d):
@@ -21,7 +23,7 @@ class SplitBatchNorm(nn.BatchNorm2d):
 
     """
 
-    def __init__(self, num_features, num_splits, **kw):
+    def __init__(self, num_features: int, num_splits: int, **kw: Any) -> None:
         super().__init__(num_features, **kw)
         self.num_splits = num_splits
         self.register_buffer(
@@ -29,9 +31,10 @@ class SplitBatchNorm(nn.BatchNorm2d):
         )
         self.register_buffer("running_var", torch.ones(num_features * self.num_splits))
 
-    def train(self, mode=True):
+    def train(self, mode: bool = True) -> SplitBatchNorm:
         # lazily collate stats when we are going to use them
         if (self.training is True) and (mode is False):
+            assert self.running_mean is not None and self.running_var is not None
             self.running_mean = torch.mean(
                 self.running_mean.view(self.num_splits, self.num_features), dim=0
             ).repeat(self.num_splits)
@@ -41,7 +44,7 @@ class SplitBatchNorm(nn.BatchNorm2d):
 
         return super().train(mode)
 
-    def forward(self, input):
+    def forward(self, input: torch.Tensor) -> torch.Tensor:
         """Computes the SplitBatchNorm on the input."""
         # get input shape
         N, C, H, W = input.shape
@@ -62,8 +65,8 @@ class SplitBatchNorm(nn.BatchNorm2d):
         else:
             result = nn.functional.batch_norm(
                 input,
-                self.running_mean[: self.num_features],
-                self.running_var[: self.num_features],
+                self.running_mean[: self.num_features], # type: ignore
+                self.running_var[: self.num_features], # type: ignore
                 self.weight,
                 self.bias,
                 False,
@@ -74,7 +77,7 @@ class SplitBatchNorm(nn.BatchNorm2d):
         return result
 
 
-def get_norm_layer(num_features: int, num_splits: int, **kw):
+def get_norm_layer(num_features: int, num_splits: int, **kw: Any) -> nn.Module:
     """Utility to switch between BatchNorm2d and SplitBatchNorm."""
     if num_splits > 0:
         return SplitBatchNorm(num_features, num_splits)

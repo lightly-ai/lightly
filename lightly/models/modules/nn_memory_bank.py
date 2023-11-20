@@ -3,6 +3,7 @@
 # Copyright (c) 2021. Lightly AG and its affiliates.
 # All Rights Reserved
 
+from typing import Optional
 import torch
 
 from lightly.loss.memory_bank import MemoryBankModule
@@ -40,7 +41,7 @@ class NNMemoryBankModule(MemoryBankModule):
     def __init__(self, size: int = 2**16):
         super(NNMemoryBankModule, self).__init__(size)
 
-    def forward(self, output: torch.Tensor, update: bool = False):
+    def forward(self, output: torch.Tensor, labels: Optional[torch.Tensor] = None, update: bool = False) -> torch.Tensor:
         """Returns nearest neighbour of output tensor from memory bank
 
         Args:
@@ -50,7 +51,7 @@ class NNMemoryBankModule(MemoryBankModule):
         """
 
         output, bank = super(NNMemoryBankModule, self).forward(output, update=update)
-        bank = bank.to(output.device).t()
+        bank = bank.to(output.device).t() # type: ignore
 
         output_normed = torch.nn.functional.normalize(output, dim=1)
         bank_normed = torch.nn.functional.normalize(bank, dim=1)
