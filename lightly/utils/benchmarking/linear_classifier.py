@@ -1,9 +1,9 @@
-from typing import Dict, Tuple
+from typing import Any, Dict, List, Tuple, Union
 
 from pytorch_lightning import LightningModule
 from torch import Tensor
 from torch.nn import CrossEntropyLoss, Linear, Module
-from torch.optim import SGD
+from torch.optim import SGD, Optimizer
 
 from lightly.models.utils import activate_requires_grad, deactivate_requires_grad
 from lightly.utils.benchmarking.topk import mean_topk_accuracy
@@ -94,9 +94,12 @@ class LinearClassifier(LightningModule):
 
     def forward(self, images: Tensor) -> Tensor:
         features = self.model.forward(images).flatten(start_dim=1)
-        return self.classification_head(features)
+        output: Tensor = self.classification_head(features)
+        return output
 
-    def shared_step(self, batch, batch_idx) -> Tuple[Tensor, Dict[int, Tensor]]:
+    def shared_step(
+        self, batch: Tuple[Tensor, ...], batch_idx: int
+    ) -> Tuple[Tensor, Dict[int, Tensor]]:
         images, targets = batch[0], batch[1]
         predictions = self.forward(images)
         loss = self.criterion(predictions, targets)
@@ -104,7 +107,7 @@ class LinearClassifier(LightningModule):
         topk = mean_topk_accuracy(predicted_labels, targets, k=self.topk)
         return loss, topk
 
-    def training_step(self, batch, batch_idx) -> Tensor:
+    def training_step(self, batch: Tuple[Tensor, ...], batch_idx: int) -> Tensor:
         loss, topk = self.shared_step(batch=batch, batch_idx=batch_idx)
         batch_size = len(batch[1])
         log_dict = {f"train_top{k}": acc for k, acc in topk.items()}
@@ -114,7 +117,7 @@ class LinearClassifier(LightningModule):
         self.log_dict(log_dict, sync_dist=True, batch_size=batch_size)
         return loss
 
-    def validation_step(self, batch, batch_idx) -> Tensor:
+    def validation_step(self, batch: Tuple[Tensor, ...], batch_idx: int) -> Tensor:
         loss, topk = self.shared_step(batch=batch, batch_idx=batch_idx)
         batch_size = len(batch[1])
         log_dict = {f"val_top{k}": acc for k, acc in topk.items()}
@@ -122,7 +125,9 @@ class LinearClassifier(LightningModule):
         self.log_dict(log_dict, prog_bar=True, sync_dist=True, batch_size=batch_size)
         return loss
 
-    def configure_optimizers(self):
+    def configure_optimizers(
+        self,
+    ) -> Tuple[List[Optimizer], List[Dict[str, Union[Any, str]]]]:
         parameters = list(self.classification_head.parameters())
         if not self.freeze_model:
             parameters += self.model.parameters()
@@ -136,7 +141,7 @@ class LinearClassifier(LightningModule):
             "scheduler": CosineWarmupScheduler(
                 optimizer=optimizer,
                 warmup_epochs=0,
-                max_epochs=self.trainer.estimated_stepping_batches,
+                max_epochs=int(self.trainer.estimated_stepping_batches),
             ),
             "interval": "step",
         }
