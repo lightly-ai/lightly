@@ -6,6 +6,7 @@
 from typing import Optional, Tuple, Union
 
 import torch
+from torch import Tensor
 
 
 class MemoryBankModule(torch.nn.Module):
@@ -26,8 +27,8 @@ class MemoryBankModule(torch.nn.Module):
         >>>     def __init__(self, memory_bank_size: int = 2 ** 16):
         >>>         super(MyLossFunction, self).__init__(memory_bank_size)
         >>>
-        >>>     def forward(self, output: torch.Tensor,
-        >>>                 labels: torch.Tensor = None):
+        >>>     def forward(self, output: Tensor,
+        >>>                 labels: Tensor = None):
         >>>
         >>>         output, negatives = super(
         >>>             MyLossFunction, self).forward(output)
@@ -67,12 +68,12 @@ class MemoryBankModule(torch.nn.Module):
         # we could use register buffers like in the moco repo
         # https://github.com/facebookresearch/moco but we don't
         # want to pollute our checkpoints
-        bank: torch.Tensor = torch.randn(dim, self.size).type_as(self.bank)
-        self.bank: torch.Tensor = torch.nn.functional.normalize(bank, dim=0)
-        self.bank_ptr: torch.Tensor = torch.zeros(1).type_as(self.bank_ptr)
+        bank: Tensor = torch.randn(dim, self.size).type_as(self.bank)
+        self.bank: Tensor = torch.nn.functional.normalize(bank, dim=0)
+        self.bank_ptr: Tensor = torch.zeros(1).type_as(self.bank_ptr)
 
     @torch.no_grad()
-    def _dequeue_and_enqueue(self, batch: torch.Tensor) -> None:
+    def _dequeue_and_enqueue(self, batch: Tensor) -> None:
         """Dequeue the oldest batch and add the latest one
 
         Args:
@@ -92,10 +93,10 @@ class MemoryBankModule(torch.nn.Module):
 
     def forward(
         self,
-        output: torch.Tensor,
-        labels: Optional[torch.Tensor] = None,
+        output: Tensor,
+        labels: Optional[Tensor] = None,
         update: bool = False,
-    ) -> Union[Tuple[torch.Tensor, Optional[torch.Tensor]], torch.Tensor]:
+    ) -> Union[Tuple[Tensor, Optional[Tensor]], Tensor]:
         """Query memory bank for additional negative samples
 
         Args:

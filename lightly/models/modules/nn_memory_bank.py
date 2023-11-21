@@ -6,6 +6,7 @@
 from typing import Optional
 
 import torch
+from torch import Tensor
 
 from lightly.loss.memory_bank import MemoryBankModule
 
@@ -43,12 +44,11 @@ class NNMemoryBankModule(MemoryBankModule):
             raise ValueError(f"Memory bank size must be positive, got {size}.")
         super(NNMemoryBankModule, self).__init__(size)
 
-    def forward(
+    def forward(  # type: ignore[override] # TODO(Philipp, 11/23): Fix signature to match parent class.
         self,
-        output: torch.Tensor,
-        labels: Optional[torch.Tensor] = None,
+        output: Tensor,
         update: bool = False,
-    ) -> torch.Tensor:
+    ) -> Tensor:
         """Returns nearest neighbour of output tensor from memory bank
 
         Args:

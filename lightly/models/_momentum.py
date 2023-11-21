@@ -8,6 +8,7 @@ from typing import Iterable, Tuple
 
 import torch
 import torch.nn as nn
+from torch import Tensor
 from torch.nn.parameter import Parameter
 
 
@@ -46,7 +47,7 @@ class _MomentumEncoderMixin:
     >>>         # initialize momentum_backbone and momentum_projection_head
     >>>         self._init_momentum_encoder()
     >>>
-    >>>     def forward(self, x: torch.Tensor):
+    >>>     def forward(self, x: Tensor):
     >>>
     >>>         # do the momentum update
     >>>         self._momentum_update(0.999)
@@ -89,16 +90,14 @@ class _MomentumEncoderMixin:
         )
 
     @torch.no_grad()
-    def _batch_shuffle(self, batch: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+    def _batch_shuffle(self, batch: Tensor) -> Tuple[Tensor, Tensor]:
         """Returns the shuffled batch and the indices to undo."""
         batch_size = batch.shape[0]
         shuffle = torch.randperm(batch_size, device=batch.device)
         return batch[shuffle], shuffle
 
     @torch.no_grad()
-    def _batch_unshuffle(
-        self, batch: torch.Tensor, shuffle: torch.Tensor
-    ) -> torch.Tensor:
+    def _batch_unshuffle(self, batch: Tensor, shuffle: Tensor) -> Tensor:
         """Returns the unshuffled batch."""
         unshuffle = torch.argsort(shuffle)
         return batch[unshuffle]

@@ -7,6 +7,7 @@ from typing import List, Optional, Tuple, Union
 
 import torch
 import torch.nn as nn
+from torch import Tensor
 
 from lightly.models import utils
 
@@ -46,7 +47,7 @@ class ProjectionHead(nn.Module):
                 layers.append(non_linearity)
         self.layers = nn.Sequential(*layers)
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def forward(self, x: Tensor) -> Tensor:
         """Computes one forward pass through the projection head.
 
         Args:
@@ -54,7 +55,7 @@ class ProjectionHead(nn.Module):
                 Input of shape bsz x num_ftrs.
 
         """
-        projection: torch.Tensor = self.layers(x)
+        projection: Tensor = self.layers(x)
         return projection
 
 
@@ -325,7 +326,7 @@ class SMoGPrototypes(nn.Module):
 
     def __init__(
         self,
-        group_features: torch.Tensor,
+        group_features: Tensor,
         beta: float,
     ):
         super(SMoGPrototypes, self).__init__()
@@ -333,8 +334,8 @@ class SMoGPrototypes(nn.Module):
         self.beta = beta
 
     def forward(
-        self, x: torch.Tensor, group_features: torch.Tensor, temperature: float = 0.1
-    ) -> torch.Tensor:
+        self, x: Tensor, group_features: Tensor, temperature: float = 0.1
+    ) -> Tensor:
         """Computes the logits for given model outputs and group features.
 
         Args:
@@ -354,7 +355,7 @@ class SMoGPrototypes(nn.Module):
         logits = torch.mm(x, group_features.t())
         return logits / temperature
 
-    def get_updated_group_features(self, x: torch.Tensor) -> torch.Tensor:
+    def get_updated_group_features(self, x: Tensor) -> Tensor:
         """Performs the synchronous momentum update of the group vectors.
 
         Args:
@@ -375,12 +376,12 @@ class SMoGPrototypes(nn.Module):
 
         return group_features
 
-    def set_group_features(self, x: torch.Tensor) -> None:
+    def set_group_features(self, x: Tensor) -> None:
         """Sets the group features and asserts they don't require gradient."""
         self.group_features.data = x.to(self.group_features.device)
 
     @torch.no_grad()
-    def assign_groups(self, x: torch.Tensor) -> torch.Tensor:
+    def assign_groups(self, x: Tensor) -> Tensor:
         """Assigns each representation in x to a group based on cosine similarity.
 
         Args:
@@ -526,8 +527,8 @@ class SwaVPrototypes(nn.Module):
         self.n_steps_frozen_prototypes = n_steps_frozen_prototypes
 
     def forward(
-        self, x: torch.Tensor, step: Optional[int] = None
-    ) -> Union[torch.Tensor, List[torch.Tensor]]:
+        self, x: Tensor, step: Optional[int] = None
+    ) -> Union[Tensor, List[Tensor]]:
         self._freeze_prototypes_if_required(step)
         out = []
         for layer in self.heads:
@@ -633,7 +634,7 @@ class DINOProjectionHead(ProjectionHead):
             if module.bias is not None:
                 nn.init.constant_(module.bias, 0)
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def forward(self, x: Tensor) -> Tensor:
         """Computes one forward pass through the head."""
         x = self.layers(x)
         # l2 normalization

@@ -14,9 +14,9 @@ from __future__ import annotations
 
 from typing import List
 
-import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch import Tensor
 
 from lightly.models.batchnorm import get_norm_layer
 
@@ -63,7 +63,7 @@ class BasicBlock(nn.Module):
                 get_norm_layer(self.expansion * planes, num_splits),
             )
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def forward(self, x: Tensor) -> Tensor:
         """Forward pass through basic ResNet block.
 
         Args:
@@ -74,7 +74,7 @@ class BasicBlock(nn.Module):
             Tensor of shape bsz x channels x W x H
         """
 
-        out: torch.Tensor = self.conv1(x)
+        out: Tensor = self.conv1(x)
         out = self.bn1(out)
         out = F.relu(out)
 
@@ -133,7 +133,7 @@ class Bottleneck(nn.Module):
                 get_norm_layer(self.expansion * planes, num_splits),
             )
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def forward(self, x: Tensor) -> Tensor:
         """Forward pass through bottleneck ResNet block.
 
         Args:
@@ -144,7 +144,7 @@ class Bottleneck(nn.Module):
             Tensor of shape bsz x channels x W x H
         """
 
-        out: torch.Tensor = self.conv1(x)
+        out: Tensor = self.conv1(x)
         out = self.bn1(out)
         out = F.relu(out)
 
@@ -224,7 +224,7 @@ class ResNet(nn.Module):
             self.in_planes = planes * block.expansion
         return nn.Sequential(*layers)
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def forward(self, x: Tensor) -> Tensor:
         """Forward pass through ResNet.
 
         Args:
