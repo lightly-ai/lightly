@@ -40,7 +40,7 @@ from lightly.openapi_generated.swagger_client.models import (
     SelectionInputPredictionsName,
     SelectionInputType,
     SelectionStrategyThresholdOperation,
-    SelectionStrategyType,
+    SelectionStrategyTypeV3,
     TagData,
 )
 from lightly.openapi_generated.swagger_client.rest import ApiException
@@ -111,7 +111,7 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
                             tag_name="some-tag-name",
                         ),
                         strategy=SelectionConfigV3EntryStrategy(
-                            type=SelectionStrategyType.SIMILARITY,
+                            type=SelectionStrategyTypeV3.SIMILARITY,
                         ),
                     )
                 ],
@@ -211,7 +211,7 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
                         type=SelectionInputType.EMBEDDINGS
                     ),
                     strategy=SelectionConfigV3EntryStrategy(
-                        type=SelectionStrategyType.DIVERSITY,
+                        type=SelectionStrategyTypeV3.DIVERSITY,
                         stopping_condition_minimum_distance=-1,
                     ),
                 ),
@@ -222,7 +222,7 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
                         score="uncertainty_margin",
                     ),
                     strategy=SelectionConfigV3EntryStrategy(
-                        type=SelectionStrategyType.WEIGHTS
+                        type=SelectionStrategyTypeV3.WEIGHTS
                     ),
                 ),
                 SelectionConfigV3Entry(
@@ -230,7 +230,7 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
                         type=SelectionInputType.METADATA, key="lightly.sharpness"
                     ),
                     strategy=SelectionConfigV3EntryStrategy(
-                        type=SelectionStrategyType.THRESHOLD,
+                        type=SelectionStrategyTypeV3.THRESHOLD,
                         threshold=20,
                         operation=SelectionStrategyThresholdOperation.BIGGER_EQUAL,
                     ),
@@ -242,7 +242,7 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
                         name=SelectionInputPredictionsName.CLASS_DISTRIBUTION,
                     ),
                     strategy=SelectionConfigV3EntryStrategy(
-                        type=SelectionStrategyType.BALANCE,
+                        type=SelectionStrategyTypeV3.BALANCE,
                         target={"Ambulance": 0.2, "Bus": 0.4},
                     ),
                 ),
