@@ -1,5 +1,6 @@
 """ Bounding Box Utils """
 
+from __future__ import annotations
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
@@ -43,7 +44,7 @@ class BoundingBox:
 
         if clip_values:
 
-            def clip_to_0_1(value):
+            def clip_to_0_1(value: float) -> float:
                 return min(1, max(0, value))
 
             x0 = clip_to_0_1(x0)
@@ -75,7 +76,7 @@ class BoundingBox:
         self.y1 = y1
 
     @classmethod
-    def from_x_y_w_h(cls, x: float, y: float, w: float, h: float):
+    def from_x_y_w_h(cls, x: float, y: float, w: float, h: float) -> BoundingBox:
         """Helper to convert from bounding box format with width and height.
 
         Examples:
@@ -85,7 +86,9 @@ class BoundingBox:
         return cls(x, y, x + w, y + h)
 
     @classmethod
-    def from_yolo_label(cls, x_center: float, y_center: float, w: float, h: float):
+    def from_yolo_label(
+        cls, x_center: float, y_center: float, w: float, h: float
+    ) -> BoundingBox:
         """Helper to convert from yolo label format
         x_center, y_center, w, h --> x0, y0, x1, y1
 
@@ -102,16 +105,16 @@ class BoundingBox:
         )
 
     @property
-    def width(self):
+    def width(self) -> float:
         """Returns the width of the bounding box relative to the image size."""
         return self.x1 - self.x0
 
     @property
-    def height(self):
+    def height(self) -> float:
         """Returns the height of the bounding box relative to the image size."""
         return self.y1 - self.y0
 
     @property
-    def area(self):
+    def area(self) -> float:
         """Returns the area of the bounding box relative to the area of the image."""
         return self.width * self.height
