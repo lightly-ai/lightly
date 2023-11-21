@@ -3,7 +3,10 @@
 # Copyright (c) 2021. Lightly AG and its affiliates.
 # All Rights Reserved
 
+from typing import Optional
+
 import torch
+from torch import Tensor
 
 from lightly.loss.memory_bank import MemoryBankModule
 
@@ -19,8 +22,7 @@ class NNMemoryBankModule(MemoryBankModule):
 
     Attributes:
         size:
-            Number of keys the memory bank can store. If set to 0,
-            memory bank is not used.
+            Number of keys the memory bank can store.
 
     Examples:
         >>> model = NNCLR(backbone)
@@ -38,9 +40,15 @@ class NNMemoryBankModule(MemoryBankModule):
     """
 
     def __init__(self, size: int = 2**16):
+        if size <= 0:
+            raise ValueError(f"Memory bank size must be positive, got {size}.")
         super(NNMemoryBankModule, self).__init__(size)
 
-    def forward(self, output: torch.Tensor, update: bool = False):
+    def forward(  # type: ignore[override] # TODO(Philipp, 11/23): Fix signature to match parent class.
+        self,
+        output: Tensor,
+        update: bool = False,
+    ) -> Tensor:
         """Returns nearest neighbour of output tensor from memory bank
 
         Args:
@@ -50,6 +58,7 @@ class NNMemoryBankModule(MemoryBankModule):
         """
 
         output, bank = super(NNMemoryBankModule, self).forward(output, update=update)
+        assert bank is not None
         bank = bank.to(output.device).t()
 
         output_normed = torch.nn.functional.normalize(output, dim=1)
