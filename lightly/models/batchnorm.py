@@ -25,6 +25,9 @@ class SplitBatchNorm(nn.BatchNorm2d):
 
     """
 
+    running_mean: torch.Tensor
+    running_var: torch.Tensor
+
     def __init__(self, num_features: int, num_splits: int, **kw: Any) -> None:
         super().__init__(num_features, **kw)
         self.num_splits = num_splits
@@ -36,7 +39,6 @@ class SplitBatchNorm(nn.BatchNorm2d):
     def train(self, mode: bool = True) -> SplitBatchNorm:
         # lazily collate stats when we are going to use them
         if (self.training is True) and (mode is False):
-            assert self.running_mean is not None and self.running_var is not None
             self.running_mean = torch.mean(
                 self.running_mean.view(self.num_splits, self.num_features), dim=0
             ).repeat(self.num_splits)
@@ -65,7 +67,6 @@ class SplitBatchNorm(nn.BatchNorm2d):
                 self.eps,
             ).view(N, C, H, W)
         else:
-            assert self.running_mean is not None and self.running_var is not None
             result = nn.functional.batch_norm(
                 input,
                 self.running_mean[: self.num_features],

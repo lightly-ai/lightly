@@ -6,7 +6,6 @@
 from typing import Optional, Tuple, Union
 
 import torch
-from torch import Tensor
 
 
 class MemoryBankModule(torch.nn.Module):
@@ -68,9 +67,9 @@ class MemoryBankModule(torch.nn.Module):
         # we could use register buffers like in the moco repo
         # https://github.com/facebookresearch/moco but we don't
         # want to pollute our checkpoints
-        bank: Tensor = torch.randn(dim, self.size).type_as(self.bank)
-        self.bank: Tensor = torch.nn.functional.normalize(bank, dim=0)
-        self.bank_ptr: Tensor = torch.zeros(1).type_as(self.bank_ptr)
+        bank: torch.Tensor = torch.randn(dim, self.size).type_as(self.bank)
+        self.bank: torch.Tensor = torch.nn.functional.normalize(bank, dim=0)
+        self.bank_ptr: torch.Tensor = torch.zeros(1).type_as(self.bank_ptr)
 
     @torch.no_grad()
     def _dequeue_and_enqueue(self, batch: torch.Tensor) -> None:
