@@ -292,6 +292,8 @@ See the [benchmarking scripts](./benchmarks/imagenet/resnet50/) for details.
 *\*We use square root learning rate scaling instead of linear scaling as it yields
 better results for smaller batch sizes. See Appendix B.1 in the [SimCLR paper](https://arxiv.org/abs/2002.05709).*
 
+### ImageNet100
+[ImageNet100 benchmarks](https://docs.lightly.ai/self-supervised-learning/getting_started/benchmarks.html#imagenet100)
 
 
 ### Imagenette

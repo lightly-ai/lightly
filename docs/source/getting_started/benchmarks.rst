@@ -41,7 +41,7 @@ Evaluation settings are based on the following papers:
 
 Found a missing model? Track the progress of our planned benchmarks on `GitHub <https://github.com/lightly-ai/lightly/issues/1197>`_.
 
-Imagenet100
+ImageNet100
 -----------
 
 - `Dataset <https://image-net.org/download.php>`_
