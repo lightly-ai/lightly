@@ -22,10 +22,10 @@ from lightly.openapi_generated.swagger_client.models import (
     DockerWorkerConfigV3Lightly,
     DockerWorkerRegistryEntryData,
     DockerWorkerType,
-    SelectionConfig,
-    SelectionConfigEntry,
-    SelectionConfigEntryInput,
-    SelectionConfigEntryStrategy,
+    SelectionConfigV3,
+    SelectionConfigV3Entry,
+    SelectionConfigV3EntryInput,
+    SelectionConfigV3EntryStrategy,
     TagData,
 )
 from lightly.openapi_generated.swagger_client.rest import ApiException
@@ -175,7 +175,7 @@ class _ComputeWorkerMixin:
         self,
         worker_config: Optional[Dict[str, Any]] = None,
         lightly_config: Optional[Dict[str, Any]] = None,
-        selection_config: Optional[Union[Dict[str, Any], SelectionConfig]] = None,
+        selection_config: Optional[Union[Dict[str, Any], SelectionConfigV3]] = None,
     ) -> str:
         """Creates a new configuration for a Lightly Worker run.
 
@@ -269,7 +269,7 @@ class _ComputeWorkerMixin:
         self,
         worker_config: Optional[Dict[str, Any]] = None,
         lightly_config: Optional[Dict[str, Any]] = None,
-        selection_config: Optional[Union[Dict[str, Any], SelectionConfig]] = None,
+        selection_config: Optional[Union[Dict[str, Any], SelectionConfigV3]] = None,
         priority: str = DockerRunScheduledPriority.MID,
         runs_on: Optional[List[str]] = None,
     ) -> str:
@@ -634,17 +634,17 @@ class _ComputeWorkerMixin:
         return tags_in_dataset
 
 
-def selection_config_from_dict(cfg: Dict[str, Any]) -> SelectionConfig:
-    """Recursively converts selection config from dict to a SelectionConfig instance."""
+def selection_config_from_dict(cfg: Dict[str, Any]) -> SelectionConfigV3:
+    """Recursively converts selection config from dict to a SelectionConfigV3 instance."""
     strategies = []
     for entry in cfg.get("strategies", []):
         new_entry = copy.deepcopy(entry)
-        new_entry["input"] = SelectionConfigEntryInput(**entry["input"])
-        new_entry["strategy"] = SelectionConfigEntryStrategy(**entry["strategy"])
-        strategies.append(SelectionConfigEntry(**new_entry))
+        new_entry["input"] = SelectionConfigV3EntryInput(**entry["input"])
+        new_entry["strategy"] = SelectionConfigV3EntryStrategy(**entry["strategy"])
+        strategies.append(SelectionConfigV3Entry(**new_entry))
     new_cfg = copy.deepcopy(cfg)
     new_cfg["strategies"] = strategies
-    return SelectionConfig(**new_cfg)
+    return SelectionConfigV3(**new_cfg)
 
 
 _T = TypeVar("_T")

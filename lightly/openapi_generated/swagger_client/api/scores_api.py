@@ -22,7 +22,7 @@ from typing_extensions import Annotated
 
 from pydantic import Field, conint, constr, validator
 
-from typing import List
+from typing import List, Optional
 
 from lightly.openapi_generated.swagger_client.models.active_learning_score_create_request import ActiveLearningScoreCreateRequest
 from lightly.openapi_generated.swagger_client.models.active_learning_score_data import ActiveLearningScoreData
@@ -220,24 +220,24 @@ class ScoresApi(object):
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def create_or_update_active_learning_v2_score_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_uuid_timestamp : Annotated[conint(strict=True, ge=0), Field(..., description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")], task_name : Annotated[constr(strict=True, min_length=1), Field(..., description="The prediction task name for which one wants to list the predictions")], active_learning_score_create_request : ActiveLearningScoreCreateRequest, **kwargs) -> CreateEntityResponse:  # noqa: E501
+    def create_or_update_active_learning_v2_score_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], task_name : Annotated[constr(strict=True, min_length=1), Field(..., description="The prediction task name for which one wants to list the predictions")], active_learning_score_create_request : ActiveLearningScoreCreateRequest, prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, **kwargs) -> CreateEntityResponse:  # noqa: E501
         """create_or_update_active_learning_v2_score_by_dataset_id  # noqa: E501
 
         Create or update active learning score object for a dataset, taskName, predictionUUIDTimestamp  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.create_or_update_active_learning_v2_score_by_dataset_id(dataset_id, prediction_uuid_timestamp, task_name, active_learning_score_create_request, async_req=True)
+        >>> thread = api.create_or_update_active_learning_v2_score_by_dataset_id(dataset_id, task_name, active_learning_score_create_request, prediction_uuid_timestamp, async_req=True)
         >>> result = thread.get()
 
         :param dataset_id: ObjectId of the dataset (required)
         :type dataset_id: str
-        :param prediction_uuid_timestamp: The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset.  (required)
-        :type prediction_uuid_timestamp: int
         :param task_name: The prediction task name for which one wants to list the predictions (required)
         :type task_name: str
         :param active_learning_score_create_request: (required)
         :type active_learning_score_create_request: ActiveLearningScoreCreateRequest
+        :param prediction_uuid_timestamp: Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. 
+        :type prediction_uuid_timestamp: int
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _request_timeout: timeout setting for this request. If one
@@ -252,27 +252,27 @@ class ScoresApi(object):
         kwargs['_return_http_data_only'] = True
         if '_preload_content' in kwargs:
             raise ValueError("Error! Please call the create_or_update_active_learning_v2_score_by_dataset_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.create_or_update_active_learning_v2_score_by_dataset_id_with_http_info(dataset_id, prediction_uuid_timestamp, task_name, active_learning_score_create_request, **kwargs)  # noqa: E501
+        return self.create_or_update_active_learning_v2_score_by_dataset_id_with_http_info(dataset_id, task_name, active_learning_score_create_request, prediction_uuid_timestamp, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def create_or_update_active_learning_v2_score_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_uuid_timestamp : Annotated[conint(strict=True, ge=0), Field(..., description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")], task_name : Annotated[constr(strict=True, min_length=1), Field(..., description="The prediction task name for which one wants to list the predictions")], active_learning_score_create_request : ActiveLearningScoreCreateRequest, **kwargs) -> ApiResponse:  # noqa: E501
+    def create_or_update_active_learning_v2_score_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], task_name : Annotated[constr(strict=True, min_length=1), Field(..., description="The prediction task name for which one wants to list the predictions")], active_learning_score_create_request : ActiveLearningScoreCreateRequest, prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, **kwargs) -> ApiResponse:  # noqa: E501
         """create_or_update_active_learning_v2_score_by_dataset_id  # noqa: E501
 
         Create or update active learning score object for a dataset, taskName, predictionUUIDTimestamp  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.create_or_update_active_learning_v2_score_by_dataset_id_with_http_info(dataset_id, prediction_uuid_timestamp, task_name, active_learning_score_create_request, async_req=True)
+        >>> thread = api.create_or_update_active_learning_v2_score_by_dataset_id_with_http_info(dataset_id, task_name, active_learning_score_create_request, prediction_uuid_timestamp, async_req=True)
         >>> result = thread.get()
 
         :param dataset_id: ObjectId of the dataset (required)
         :type dataset_id: str
-        :param prediction_uuid_timestamp: The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset.  (required)
-        :type prediction_uuid_timestamp: int
         :param task_name: The prediction task name for which one wants to list the predictions (required)
         :type task_name: str
         :param active_learning_score_create_request: (required)
         :type active_learning_score_create_request: ActiveLearningScoreCreateRequest
+        :param prediction_uuid_timestamp: Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. 
+        :type prediction_uuid_timestamp: int
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
@@ -302,9 +302,9 @@ class ScoresApi(object):
 
         _all_params = [
             'dataset_id',
-            'prediction_uuid_timestamp',
             'task_name',
-            'active_learning_score_create_request'
+            'active_learning_score_create_request',
+            'prediction_uuid_timestamp'
         ]
         _all_params.extend(
             [
@@ -338,16 +338,16 @@ class ScoresApi(object):
 
         # process the query parameters
         _query_params = []
-        if _params.get('prediction_uuid_timestamp') is not None:  # noqa: E501
-            _query_params.append((
-                'predictionUUIDTimestamp',
-                _params['prediction_uuid_timestamp'].value if hasattr(_params['prediction_uuid_timestamp'], 'value') else _params['prediction_uuid_timestamp']
-            ))
-
         if _params.get('task_name') is not None:  # noqa: E501
             _query_params.append((
                 'taskName',
                 _params['task_name'].value if hasattr(_params['task_name'], 'value') else _params['task_name']
+            ))
+
+        if _params.get('prediction_uuid_timestamp') is not None:  # noqa: E501
+            _query_params.append((
+                'predictionUUIDTimestamp',
+                _params['prediction_uuid_timestamp'].value if hasattr(_params['prediction_uuid_timestamp'], 'value') else _params['prediction_uuid_timestamp']
             ))
 
         # process the header parameters
@@ -865,7 +865,7 @@ class ScoresApi(object):
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def get_active_learning_v2_scores_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_uuid_timestamp : Annotated[conint(strict=True, ge=0), Field(..., description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")], **kwargs) -> List[ActiveLearningScoreTypesV2Data]:  # noqa: E501
+    def get_active_learning_v2_scores_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, **kwargs) -> List[ActiveLearningScoreTypesV2Data]:  # noqa: E501
         """get_active_learning_v2_scores_by_dataset_id  # noqa: E501
 
         Get all AL score types by datasetId and predictionUUIDTimestamp  # noqa: E501
@@ -877,7 +877,7 @@ class ScoresApi(object):
 
         :param dataset_id: ObjectId of the dataset (required)
         :type dataset_id: str
-        :param prediction_uuid_timestamp: The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset.  (required)
+        :param prediction_uuid_timestamp: Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. 
         :type prediction_uuid_timestamp: int
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -896,7 +896,7 @@ class ScoresApi(object):
         return self.get_active_learning_v2_scores_by_dataset_id_with_http_info(dataset_id, prediction_uuid_timestamp, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def get_active_learning_v2_scores_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_uuid_timestamp : Annotated[conint(strict=True, ge=0), Field(..., description="The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")], **kwargs) -> ApiResponse:  # noqa: E501
+    def get_active_learning_v2_scores_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, **kwargs) -> ApiResponse:  # noqa: E501
         """get_active_learning_v2_scores_by_dataset_id  # noqa: E501
 
         Get all AL score types by datasetId and predictionUUIDTimestamp  # noqa: E501
@@ -908,7 +908,7 @@ class ScoresApi(object):
 
         :param dataset_id: ObjectId of the dataset (required)
         :type dataset_id: str
-        :param prediction_uuid_timestamp: The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset.  (required)
+        :param prediction_uuid_timestamp: Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. 
         :type prediction_uuid_timestamp: int
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
