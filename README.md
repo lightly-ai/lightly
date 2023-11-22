@@ -268,6 +268,16 @@ tuned for maximum accuracy. For detailed results and more information about the 
 
 ### ImageNet1k
 
+[ImageNet1k benchmarks](https://docs.lightly.ai/self-supervised-learning/getting_started/benchmarks.html#imagenet1k)
+
+> **Note**: Evaluation settings are based on these papers:
+> * Linear: [SimCLR](https://arxiv.org/abs/2002.05709)
+> * Finetune: [SimCLR](https://arxiv.org/abs/2002.05709)
+> * KNN: [InstDisc](https://arxiv.org/abs/1805.01978)
+> 
+> See the [benchmarking scripts](./benchmarks/imagenet/resnet50/) for details.
+
+
 | Model          | Backbone | Batch Size | Epochs | Linear Top1 | Finetune Top1 | kNN Top1 | Tensorboard | Checkpoint |
 |----------------|----------|------------|--------|-------------|---------------|----------|-------------|------------|
 | BarlowTwins    | Res50    |        256 |    100 |        62.9 |          72.6 |     45.6 |      [link](https://tensorboard.dev/experiment/NxyNRiQsQjWZ82I9b0PvKg/) |       [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_barlowtwins_2023-08-18_00-11-03/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt) |
@@ -286,46 +296,12 @@ better results for smaller batch sizes. See Appendix B.1 in the [SimCLR paper](h
 
 ### Imagenette
 
-| Model       | Backbone | Batch Size | Epochs | kNN Top1 |
-|-------------|----------|------------|--------|----------|
-| BarlowTwins | Res18    |        256 |    800 |    0.852 |
-| BYOL        | Res18    |        256 |    800 |    0.887 |
-| DCL         | Res18    |        256 |    800 |    0.861 |
-| DCLW        | Res18    |        256 |    800 |    0.865 |
-| DINO        | Res18    |        256 |    800 |    0.888 |
-| FastSiam    | Res18    |        256 |    800 |    0.873 |
-| MAE         | ViT-S    |        256 |    800 |    0.610 |
-| MSN         | ViT-S    |        256 |    800 |    0.828 |
-| Moco        | Res18    |        256 |    800 |    0.874 |
-| NNCLR       | Res18    |        256 |    800 |    0.884 |
-| PMSN        | ViT-S    |        256 |    800 |    0.822 |
-| SimCLR      | Res18    |        256 |    800 |    0.889 |
-| SimMIM      | ViT-B32  |        256 |    800 |    0.343 |
-| SimSiam     | Res18    |        256 |    800 |    0.872 |
-| SwaV        | Res18    |        256 |    800 |    0.902 |
-| SwaVQueue   | Res18    |        256 |    800 |    0.890 |
-| SMoG        | Res18    |        256 |    800 |    0.788 |
-| TiCo        | Res18    |        256 |    800 |    0.856 |
-| VICReg      | Res18    |        256 |    800 |    0.845 |
-| VICRegL     | Res18    |        256 |    800 |    0.778 |
+[Imagenette benchmarks](https://docs.lightly.ai/self-supervised-learning/getting_started/benchmarks.html#imagenette)
 
 
 ### CIFAR-10
 
-| Model       | Backbone | Batch Size | Epochs | KNN Top1 |
-|-------------|----------|------------|--------|----------|
-| BarlowTwins | Res18    |        512 |    800 |    0.859 |
-| BYOL        | Res18    |        512 |    800 |    0.910 |
-| DCL         | Res18    |        512 |    800 |    0.874 |
-| DCLW        | Res18    |        512 |    800 |    0.871 |
-| DINO        | Res18    |        512 |    800 |    0.848 |
-| FastSiam    | Res18    |        512 |    800 |    0.902 |
-| Moco        | Res18    |        512 |    800 |    0.899 |
-| NNCLR       | Res18    |        512 |    800 |    0.892 |
-| SimCLR      | Res18    |        512 |    800 |    0.879 |
-| SimSiam     | Res18    |        512 |    800 |    0.904 |
-| SwaV        | Res18    |        512 |    800 |    0.884 |
-| SMoG        | Res18    |        512 |    800 |    0.800 |
+[CIFAR-10 benchmarks](https://docs.lightly.ai/self-supervised-learning/getting_started/benchmarks.html#cifar-10)
 
 
 ## Terminology

@@ -47,13 +47,13 @@ Imagenet100
 - `Dataset <https://image-net.org/download.php>`_
 - :download:`Code <benchmarks/imagenet100_benchmark.py>`
 
-Imagenet100 is a subset of the popular ImageNet-1k dataset. It consists of 100 classes
+Imagenet100 is a subset of the popular ImageNet1k dataset. It consists of 100 classes
 with 1300 training and 50 validation images per class. We train the
 self-supervised models from scratch on the training data. At the end of every
 epoch we embed all training images and use the features for a kNN classifier 
 with k=20 on the test set. The reported kNN Top 1 is the max accuracy
 over all epochs the model reached. All experiments use the same ResNet-18 backbone and
-the default ImageNet-1k training parameters from the respective papers.
+the default ImageNet1k training parameters from the respective papers.
 
 The following experiments have been conducted on a system with single A6000 GPU.
 Training a model takes between 20 and 30 hours, including kNN evaluation.
@@ -79,13 +79,14 @@ Imagenette
 - `Dataset <https://github.com/fastai/imagenette>`_
 - :download:`Code <benchmarks/imagenette_benchmark.py>`
 
+Imagenette is a subset of 10 easily classified classes from ImageNet.
 For our benchmarks we use the 160px version of the Imagenette dataset and
 resize the input images to 128 pixels during training.
 We train the self-supervised models from scratch on the training data. At the end of every
 epoch we embed all training images and use the features for a kNN classifier 
 with k=20 on the test set. The reported kNN Top 1 is the max accuracy
 over all epochs the model reached. All experiments use the same ResNet-18 backbone and
-the default ImageNet-1k training parameters from the respective papers.
+the default ImageNet1k training parameters from the respective papers.
 
 The following experiments have been conducted on a system with single A6000 GPU.
 Training a model takes three to five hours, including kNN evaluation.
