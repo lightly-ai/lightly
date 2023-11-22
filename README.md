@@ -270,12 +270,12 @@ tuned for maximum accuracy. For detailed results and more information about the 
 
 [ImageNet1k benchmarks](https://docs.lightly.ai/self-supervised-learning/getting_started/benchmarks.html#imagenet1k)
 
-> **Note**: Evaluation settings are based on these papers:
-> * Linear: [SimCLR](https://arxiv.org/abs/2002.05709)
-> * Finetune: [SimCLR](https://arxiv.org/abs/2002.05709)
-> * KNN: [InstDisc](https://arxiv.org/abs/1805.01978)
-> 
-> See the [benchmarking scripts](./benchmarks/imagenet/resnet50/) for details.
+**Note**: Evaluation settings are based on these papers:
+ * Linear: [SimCLR](https://arxiv.org/abs/2002.05709)
+ * Finetune: [SimCLR](https://arxiv.org/abs/2002.05709)
+ * KNN: [InstDisc](https://arxiv.org/abs/1805.01978)
+ 
+See the [benchmarking scripts](./benchmarks/imagenet/resnet50/) for details.
 
 
 | Model          | Backbone | Batch Size | Epochs | Linear Top1 | Finetune Top1 | kNN Top1 | Tensorboard | Checkpoint |
