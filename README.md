@@ -262,23 +262,13 @@ We provide multi-GPU training examples with distributed gather and synchronized 
 ## Benchmarks
 
 Implemented models and their performance on various datasets. Hyperparameters are not
-tuned for maximum accuracy. For detailed results and more info about the benchmarks click
+tuned for maximum accuracy. For detailed results and more information about the benchmarks click
 [here](https://docs.lightly.ai/self-supervised-learning/getting_started/benchmarks.html).
 
 
-### Imagenet
+### ImageNet1k
 
-The following experiments have been conducted on a system with 2x4090 GPUs. 
-Training a model takes around 4 days for 100 epochs (35 min per epoch), including kNN, linear probing, and fine-tuning evaluation.
-
-> **Note**: Evaluation settings are based on these papers:
-> * Linear: [SimCLR](https://arxiv.org/abs/2002.05709)
-> * Finetune: [SimCLR](https://arxiv.org/abs/2002.05709)
-> * KNN: [InstDisc](https://arxiv.org/abs/1805.01978)
-> 
-> See the [benchmarking scripts](./benchmarks/imagenet/resnet50/) for details.
-
-| Model          | Backbone | Batch Size | Epochs | Linear Top1 | Finetune Top1 | KNN Top1 | Tensorboard | Checkpoint |
+| Model          | Backbone | Batch Size | Epochs | Linear Top1 | Finetune Top1 | kNN Top1 | Tensorboard | Checkpoint |
 |----------------|----------|------------|--------|-------------|---------------|----------|-------------|------------|
 | BarlowTwins    | Res50    |        256 |    100 |        62.9 |          72.6 |     45.6 |      [link](https://tensorboard.dev/experiment/NxyNRiQsQjWZ82I9b0PvKg/) |       [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_barlowtwins_2023-08-18_00-11-03/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt) |
 | BYOL           | Res50    |        256 |    100 |        62.4 |          74.0 |     45.6 |      [link](https://tensorboard.dev/experiment/Z0iG2JLaTJe5nuBD7DK1bg) |       [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_byol_2023-07-10_10-37-32/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt) |
@@ -290,13 +280,13 @@ Training a model takes around 4 days for 100 epochs (35 min per epoch), includin
 | VICReg         | Res50    |        256 |    100 |        63.0 |          73.7 |     46.3 |      [link](https://tensorboard.dev/experiment/qH5uywJbTJSzgCEfxc7yUw) |       [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_vicreg_2023-09-11_10-53-08/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt) |
 
 *\*We use square root learning rate scaling instead of linear scaling as it yields
-better results for smaller batch sizes. See Appendix B.1 in [SimCLR paper](https://arxiv.org/abs/2002.05709).*
+better results for smaller batch sizes. See Appendix B.1 in the [SimCLR paper](https://arxiv.org/abs/2002.05709).*
 
 
 
-### ImageNette
+### Imagenette
 
-| Model       | Backbone | Batch Size | Epochs | KNN Top1 |
+| Model       | Backbone | Batch Size | Epochs | kNN Top1 |
 |-------------|----------|------------|--------|----------|
 | BarlowTwins | Res18    |        256 |    800 |    0.852 |
 | BYOL        | Res18    |        256 |    800 |    0.887 |
@@ -320,7 +310,7 @@ better results for smaller batch sizes. See Appendix B.1 in [SimCLR paper](https
 | VICRegL     | Res18    |        256 |    800 |    0.778 |
 
 
-### Cifar10
+### CIFAR-10
 
 | Model       | Backbone | Batch Size | Epochs | KNN Top1 |
 |-------------|----------|------------|--------|----------|
