@@ -46,9 +46,15 @@ class MoCoV2(LightningModule):
         features = self.forward(x).flatten(start_dim=1)
         projections = self.projection_head(features)
         features = batch_unshuffle(
-            batch=features, shuffle=shuffle, distributed=self.trainer.num_devices > 1
+            batch=features,
+            shuffle=shuffle,
+            distributed=self.trainer.num_devices > 1,
         )
-        projections = batch_unshuffle(batch=projections, shuffle=shuffle)
+        projections = batch_unshuffle(
+            batch=projections,
+            shuffle=shuffle,
+            distributed=self.trainer.num_devices > 1,
+        )
         return features, projections
 
     def forward_query_encoder(self, x: Tensor) -> Tensor:
