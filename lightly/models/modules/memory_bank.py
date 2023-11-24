@@ -10,7 +10,6 @@ import torch
 from torch import Tensor
 from torch.nn import Module
 
-
 from lightly.models import utils
 
 
