@@ -4,7 +4,7 @@
 # All Rights Reserved
 
 import warnings
-from typing import Sequence, Union
+from typing import Sequence, Tuple, Union
 
 import torch
 from torch import Tensor
@@ -72,11 +72,13 @@ class MemoryBankModule(Module):
         self.size = size_tuple
         self.gather_distributed = gather_distributed
         self.feature_dim_first = feature_dim_first
+        self.bank: Tensor
         self.register_buffer(
             "bank",
             tensor=torch.empty(size=self.size, dtype=torch.float),
             persistent=False,
         )
+        self.bank_ptr: Tensor
         self.register_buffer(
             "bank_ptr",
             tensor=torch.empty(1, dtype=torch.long),
@@ -97,7 +99,7 @@ class MemoryBankModule(Module):
             self._init_memory_bank(dim=None)
 
     @torch.no_grad()
-    def _init_memory_bank(self, dim: Union[Sequence[int], None]):
+    def _init_memory_bank(self, dim: Union[Sequence[int], None]) -> None:
         """Initialize the memory bank if it's empty.
 
         Args:
@@ -116,7 +118,7 @@ class MemoryBankModule(Module):
         self.bank_ptr = torch.zeros(1).type_as(self.bank_ptr)
 
     @torch.no_grad()
-    def _dequeue_and_enqueue(self, batch: Tensor):
+    def _dequeue_and_enqueue(self, batch: Tensor) -> None:
         """Dequeue the oldest batch and add the latest one
 
         Args:
@@ -141,7 +143,7 @@ class MemoryBankModule(Module):
         output: Tensor,
         labels: Union[Tensor, None] = None,
         update: bool = False,
-    ):
+    ) -> Tuple[Tensor, Union[Tensor, None]]:
         """Query memory bank for additional negative samples
 
         Args:
