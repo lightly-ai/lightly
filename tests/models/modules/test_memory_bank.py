@@ -6,11 +6,11 @@ from lightly.models.modules.memory_bank import MemoryBankModule
 
 
 class TestNTXentLoss(unittest.TestCase):
-    def test_init__negative_size(self):
+    def test_init__negative_size(self) -> None:
         with self.assertRaises(ValueError):
             MemoryBankModule(size=-1)
 
-    def test_forward_easy(self):
+    def test_forward_easy(self) -> None:
         bsz = 3
         dim, size = 2, 9
         n = 33 * bsz
@@ -35,7 +35,7 @@ class TestNTXentLoss(unittest.TestCase):
 
             ptr = (ptr + bsz) % size
 
-    def test_forward(self):
+    def test_forward(self) -> None:
         bsz = 3
         dim, size = 2, 10
         n = 33 * bsz
@@ -48,7 +48,7 @@ class TestNTXentLoss(unittest.TestCase):
             _, _ = memory_bank(output)
 
     @unittest.skipUnless(torch.cuda.is_available(), "cuda not available")
-    def test_forward__cuda(self):
+    def test_forward__cuda(self) -> None:
         bsz = 3
         dim, size = 2, 10
         n = 33 * bsz
