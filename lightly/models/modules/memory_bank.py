@@ -151,6 +151,8 @@ class MemoryBankModule(Module):
                 The output of the model.
             labels:
                 Should always be None, will be ignored.
+            update:
+                If True, the memory bank will be updated with the current output.
 
         Returns:
             The output if the memory bank is of size 0, otherwise the output
