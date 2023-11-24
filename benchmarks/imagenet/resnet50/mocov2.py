@@ -131,7 +131,7 @@ class MoCoV2(LightningModule):
             "scheduler": CosineWarmupScheduler(
                 optimizer=optimizer,
                 warmup_epochs=0,
-                max_epochs=self.trainer.estimated_stepping_batches,
+                max_epochs=int(self.trainer.estimated_stepping_batches),
             ),
             "interval": "step",
         }
