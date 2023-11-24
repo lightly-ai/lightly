@@ -156,12 +156,12 @@ class SwAV(LightningModule):
         scheduler = {
             "scheduler": CosineWarmupScheduler(
                 optimizer=optimizer,
-                warmup_epochs=(
+                warmup_epochs=int(
                     self.trainer.estimated_stepping_batches
                     / self.trainer.max_epochs
                     * 10
                 ),
-                max_epochs=self.trainer.estimated_stepping_batches,
+                max_epochs=int(self.trainer.estimated_stepping_batches),
                 end_value=0.0006
                 * (self.batch_size_per_device * self.trainer.world_size)
                 / 256,

@@ -1,7 +1,8 @@
-from typing import List, Union
+from typing import List, Sequence, Union
 
 from PIL.Image import Image
 from torch import Tensor
+from torchvision import transforms as T
 
 
 class MultiViewTransform:
@@ -13,7 +14,7 @@ class MultiViewTransform:
 
     """
 
-    def __init__(self, transforms):
+    def __init__(self, transforms: Sequence[T.Compose]):
         self.transforms = transforms
 
     def __call__(self, image: Union[Tensor, Image]) -> Union[List[Tensor], List[Image]]:

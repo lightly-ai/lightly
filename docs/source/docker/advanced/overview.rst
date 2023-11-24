@@ -1,6 +1,6 @@
 Advanced
 ===================================
-Here you learn more advanced usage patterns of Lightly Docker.
+Here you learn more advanced usage patterns of Lightly Worker.
 
 
 .. toctree::

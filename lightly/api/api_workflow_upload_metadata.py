@@ -67,6 +67,7 @@ class _UploadCustomMetadataMixin:
             If there are no annotations for a filename, the custom metadata
             is None instead.
 
+        :meta private:  # Skip docstring generation
         """
 
         # The mapping is filename -> image_id -> custom_metadata
@@ -141,6 +142,7 @@ class _UploadCustomMetadataMixin:
             max_workers:
                 Maximum number of concurrent threads during upload.
 
+        :meta private:  # Skip docstring generation
         """
 
         self.verify_custom_metadata_format(custom_metadata)
@@ -241,7 +243,7 @@ class _UploadCustomMetadataMixin:
             >>>     [entry],
             >>> )
 
-
+        :meta private:  # Skip docstring generation
         """
         config_set_request = ConfigurationSetRequest(name=name, configs=configs)
         resp = self._metadata_configurations_api.create_meta_data_configuration(

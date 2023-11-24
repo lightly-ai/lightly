@@ -12,7 +12,7 @@ from lightly.loss.pmsn_loss import PMSNCustomLoss, PMSNLoss
 class TestPMSNLoss:
     def test_regularization_loss(self) -> None:
         criterion = PMSNLoss()
-        mean_anchor_probs = torch.Tensor([0.1, 0.3, 0.6]).log()
+        mean_anchor_probs = torch.Tensor([0.1, 0.3, 0.6])
         loss = criterion.regularization_loss(mean_anchor_probs=mean_anchor_probs)
         norm = 1 / (1**0.25) + 1 / (2**0.25) + 1 / (3**0.25)
         t0 = 1 / (1**0.25) / norm
@@ -45,7 +45,7 @@ class TestPMSNLoss:
 class TestPMSNCustomLoss:
     def test_regularization_loss(self) -> None:
         criterion = PMSNCustomLoss(target_distribution=_uniform_distribution)
-        mean_anchor_probs = torch.Tensor([0.1, 0.3, 0.6]).log()
+        mean_anchor_probs = torch.Tensor([0.1, 0.3, 0.6])
         loss = criterion.regularization_loss(mean_anchor_probs=mean_anchor_probs)
         expected_loss = (
             1

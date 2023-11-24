@@ -2150,7 +2150,7 @@ class DockerApi(object):
     def get_docker_run_report_read_url_by_id(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], **kwargs) -> str:  # noqa: E501
         """(Deprecated) get_docker_run_report_read_url_by_id  # noqa: E501
 
-        Get the url of a specific docker runs report  # noqa: E501
+        DEPRECATED, use getDockerRunArtifactReadUrlById - Get the url of a specific docker runs report  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -2179,7 +2179,7 @@ class DockerApi(object):
     def get_docker_run_report_read_url_by_id_with_http_info(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], **kwargs) -> ApiResponse:  # noqa: E501
         """(Deprecated) get_docker_run_report_read_url_by_id  # noqa: E501
 
-        Get the url of a specific docker runs report  # noqa: E501
+        DEPRECATED, use getDockerRunArtifactReadUrlById - Get the url of a specific docker runs report  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -2295,7 +2295,7 @@ class DockerApi(object):
     def get_docker_run_report_write_url_by_id(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], **kwargs) -> str:  # noqa: E501
         """(Deprecated) get_docker_run_report_write_url_by_id  # noqa: E501
 
-        Get the signed url to upload a report of a docker run  # noqa: E501
+        DEPRECATED, use createDockerRunArtifact - Get the signed url to upload a report of a docker run  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -2324,7 +2324,7 @@ class DockerApi(object):
     def get_docker_run_report_write_url_by_id_with_http_info(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], **kwargs) -> ApiResponse:  # noqa: E501
         """(Deprecated) get_docker_run_report_write_url_by_id  # noqa: E501
 
-        Get the signed url to upload a report of a docker run  # noqa: E501
+        DEPRECATED, use createDockerRunArtifact - Get the signed url to upload a report of a docker run  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -2580,14 +2580,14 @@ class DockerApi(object):
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def get_docker_runs(self, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, **kwargs) -> List[DockerRunData]:  # noqa: E501
+    def get_docker_runs(self, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, show_archived : Annotated[Optional[StrictBool], Field(description="if this flag is true, we also get the archived assets")] = None, **kwargs) -> List[DockerRunData]:  # noqa: E501
         """get_docker_runs  # noqa: E501
 
         Gets all docker runs for a user.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.get_docker_runs(page_size, page_offset, get_assets_of_team, get_assets_of_team_inclusive_self, async_req=True)
+        >>> thread = api.get_docker_runs(page_size, page_offset, get_assets_of_team, get_assets_of_team_inclusive_self, show_archived, async_req=True)
         >>> result = thread.get()
 
         :param page_size: pagination size/limit of the number of samples to return
@@ -2598,6 +2598,8 @@ class DockerApi(object):
         :type get_assets_of_team: bool
         :param get_assets_of_team_inclusive_self: if this flag is true, we get the relevant asset of the team of the user including the assets of the user
         :type get_assets_of_team_inclusive_self: bool
+        :param show_archived: if this flag is true, we also get the archived assets
+        :type show_archived: bool
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _request_timeout: timeout setting for this request. If one
@@ -2612,17 +2614,17 @@ class DockerApi(object):
         kwargs['_return_http_data_only'] = True
         if '_preload_content' in kwargs:
             raise ValueError("Error! Please call the get_docker_runs_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.get_docker_runs_with_http_info(page_size, page_offset, get_assets_of_team, get_assets_of_team_inclusive_self, **kwargs)  # noqa: E501
+        return self.get_docker_runs_with_http_info(page_size, page_offset, get_assets_of_team, get_assets_of_team_inclusive_self, show_archived, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def get_docker_runs_with_http_info(self, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def get_docker_runs_with_http_info(self, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, show_archived : Annotated[Optional[StrictBool], Field(description="if this flag is true, we also get the archived assets")] = None, **kwargs) -> ApiResponse:  # noqa: E501
         """get_docker_runs  # noqa: E501
 
         Gets all docker runs for a user.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.get_docker_runs_with_http_info(page_size, page_offset, get_assets_of_team, get_assets_of_team_inclusive_self, async_req=True)
+        >>> thread = api.get_docker_runs_with_http_info(page_size, page_offset, get_assets_of_team, get_assets_of_team_inclusive_self, show_archived, async_req=True)
         >>> result = thread.get()
 
         :param page_size: pagination size/limit of the number of samples to return
@@ -2633,6 +2635,8 @@ class DockerApi(object):
         :type get_assets_of_team: bool
         :param get_assets_of_team_inclusive_self: if this flag is true, we get the relevant asset of the team of the user including the assets of the user
         :type get_assets_of_team_inclusive_self: bool
+        :param show_archived: if this flag is true, we also get the archived assets
+        :type show_archived: bool
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
@@ -2664,7 +2668,8 @@ class DockerApi(object):
             'page_size',
             'page_offset',
             'get_assets_of_team',
-            'get_assets_of_team_inclusive_self'
+            'get_assets_of_team_inclusive_self',
+            'show_archived'
         ]
         _all_params.extend(
             [
@@ -2719,6 +2724,12 @@ class DockerApi(object):
                 _params['get_assets_of_team_inclusive_self'].value if hasattr(_params['get_assets_of_team_inclusive_self'], 'value') else _params['get_assets_of_team_inclusive_self']
             ))
 
+        if _params.get('show_archived') is not None:  # noqa: E501
+            _query_params.append((
+                'showArchived',
+                _params['show_archived'].value if hasattr(_params['show_archived'], 'value') else _params['show_archived']
+            ))
+
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
         # process the form parameters
@@ -2759,20 +2770,22 @@ class DockerApi(object):
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def get_docker_runs_count(self, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, **kwargs) -> str:  # noqa: E501
+    def get_docker_runs_count(self, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, show_archived : Annotated[Optional[StrictBool], Field(description="if this flag is true, we also get the archived assets")] = None, **kwargs) -> str:  # noqa: E501
         """get_docker_runs_count  # noqa: E501
 
         Gets the total count of the amount of runs existing for a user  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.get_docker_runs_count(get_assets_of_team, get_assets_of_team_inclusive_self, async_req=True)
+        >>> thread = api.get_docker_runs_count(get_assets_of_team, get_assets_of_team_inclusive_self, show_archived, async_req=True)
         >>> result = thread.get()
 
         :param get_assets_of_team: if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user
         :type get_assets_of_team: bool
         :param get_assets_of_team_inclusive_self: if this flag is true, we get the relevant asset of the team of the user including the assets of the user
         :type get_assets_of_team_inclusive_self: bool
+        :param show_archived: if this flag is true, we also get the archived assets
+        :type show_archived: bool
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _request_timeout: timeout setting for this request. If one
@@ -2787,23 +2800,25 @@ class DockerApi(object):
         kwargs['_return_http_data_only'] = True
         if '_preload_content' in kwargs:
             raise ValueError("Error! Please call the get_docker_runs_count_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.get_docker_runs_count_with_http_info(get_assets_of_team, get_assets_of_team_inclusive_self, **kwargs)  # noqa: E501
+        return self.get_docker_runs_count_with_http_info(get_assets_of_team, get_assets_of_team_inclusive_self, show_archived, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def get_docker_runs_count_with_http_info(self, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def get_docker_runs_count_with_http_info(self, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, show_archived : Annotated[Optional[StrictBool], Field(description="if this flag is true, we also get the archived assets")] = None, **kwargs) -> ApiResponse:  # noqa: E501
         """get_docker_runs_count  # noqa: E501
 
         Gets the total count of the amount of runs existing for a user  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.get_docker_runs_count_with_http_info(get_assets_of_team, get_assets_of_team_inclusive_self, async_req=True)
+        >>> thread = api.get_docker_runs_count_with_http_info(get_assets_of_team, get_assets_of_team_inclusive_self, show_archived, async_req=True)
         >>> result = thread.get()
 
         :param get_assets_of_team: if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user
         :type get_assets_of_team: bool
         :param get_assets_of_team_inclusive_self: if this flag is true, we get the relevant asset of the team of the user including the assets of the user
         :type get_assets_of_team_inclusive_self: bool
+        :param show_archived: if this flag is true, we also get the archived assets
+        :type show_archived: bool
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
@@ -2833,7 +2848,8 @@ class DockerApi(object):
 
         _all_params = [
             'get_assets_of_team',
-            'get_assets_of_team_inclusive_self'
+            'get_assets_of_team_inclusive_self',
+            'show_archived'
         ]
         _all_params.extend(
             [
@@ -2874,6 +2890,12 @@ class DockerApi(object):
             _query_params.append((
                 'getAssetsOfTeamInclusiveSelf',
                 _params['get_assets_of_team_inclusive_self'].value if hasattr(_params['get_assets_of_team_inclusive_self'], 'value') else _params['get_assets_of_team_inclusive_self']
+            ))
+
+        if _params.get('show_archived') is not None:  # noqa: E501
+            _query_params.append((
+                'showArchived',
+                _params['show_archived'].value if hasattr(_params['show_archived'], 'value') else _params['show_archived']
             ))
 
         # process the header parameters

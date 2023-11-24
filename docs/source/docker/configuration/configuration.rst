@@ -38,7 +38,7 @@ The following are parameters which can be passed to the container:
   token: ''
 
   worker:
-    # If specified, the docker is started as a worker on the Lightly platform.
+    # If specified, the docker is started as a worker on the Lightly Platform.
     worker_id: ''
     # If True, the worker notifies that it is online even though another worker
     # with the same worker_id is already online.
@@ -89,12 +89,12 @@ The following are parameters which can be passed to the container:
   # shortest edge to x or to resize the image to (height, width), use =-1 for no 
   # resizing (default). This only affects the output size of the images dumped to 
   # the output folder with dump_dataset=True. To change the size of images 
-  # uploaded to the lightly platform or your cloud bucket please use the 
+  # uploaded to the lightly Platform or your cloud bucket please use the 
   # lightly.resize option instead.
   output_image_size: -1
   output_image_format: 'png'
 
-  # Upload the dataset to the Lightly platform.
+  # Upload the dataset to the Lightly Platform.
   upload_dataset: False
 
   # pretagging
@@ -134,14 +134,14 @@ The following are parameters which can be passed to the container:
     name:
     # If True keeps backup of all previous data pool states.
     keep_history: True
-    # Dataset id from Lightly platform where the datapool should be hosted.
+    # Dataset id from Lightly Platform where the datapool should be hosted.
     dataset_id:
 
   # datasource
   # By default only new samples in the datasource are processed. Set process_all 
   # to True to reprocess all samples in the datasource.
   datasource:
-    # Dataset id from the Lightly platform.
+    # Dataset id from the Lightly Platform.
     dataset_id:
     # Set to True to reprocess all samples in the datasource.
     process_all: False
@@ -192,7 +192,7 @@ The following are parameters which can be passed to the container:
   # optional deterministic unique output subdirectory for run, in place of timestamp
   run_directory:
 
-To get an overview of all possible configuration parameters of Lightly, 
+To get an overview of all possible configuration parameters of the Lightly Worker, 
 please check out :ref:`ref-cli-config-default`
 
 Choosing the Right Parameters

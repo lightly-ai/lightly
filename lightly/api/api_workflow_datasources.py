@@ -1,93 +1,22 @@
 import time
 import warnings
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, Iterator, List, Optional, Set, Tuple, Union
 
 import tqdm
 
 from lightly.openapi_generated.swagger_client.models import (
     DatasourceConfig,
-    DatasourceConfigVerifyDataErrors,
     DatasourceProcessedUntilTimestampRequest,
     DatasourceProcessedUntilTimestampResponse,
     DatasourcePurpose,
     DatasourceRawSamplesData,
 )
+from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_data_row import (
+    DatasourceRawSamplesDataRow,
+)
 
 
 class _DatasourcesMixin:
-    def _download_raw_files(
-        self,
-        download_function: Union[
-            "DatasourcesApi.get_list_of_raw_samples_from_datasource_by_dataset_id",
-            "DatasourcesApi.get_list_of_raw_samples_predictions_from_datasource_by_dataset_id",
-            "DatasourcesApi.get_list_of_raw_samples_metadata_from_datasource_by_dataset_id",
-        ],
-        from_: int = 0,
-        to: Optional[int] = None,
-        relevant_filenames_file_name: Optional[str] = None,
-        use_redirected_read_url: bool = False,
-        progress_bar: Optional[tqdm.tqdm] = None,
-        **kwargs,
-    ) -> List[Tuple[str, str]]:
-        if to is None:
-            to = int(time.time())
-        relevant_filenames_kwargs = (
-            {"relevant_filenames_file_name": relevant_filenames_file_name}
-            if relevant_filenames_file_name
-            else dict()
-        )
-
-        response: DatasourceRawSamplesData = download_function(
-            dataset_id=self.dataset_id,
-            var_from=from_,
-            to=to,
-            use_redirected_read_url=use_redirected_read_url,
-            **relevant_filenames_kwargs,
-            **kwargs,
-        )
-        cursor = response.cursor
-        samples = response.data
-        if progress_bar is not None:
-            progress_bar.update(len(response.data))
-        while response.has_more:
-            response: DatasourceRawSamplesData = download_function(
-                dataset_id=self.dataset_id,
-                cursor=cursor,
-                use_redirected_read_url=use_redirected_read_url,
-                **relevant_filenames_kwargs,
-                **kwargs,
-            )
-            cursor = response.cursor
-            samples.extend(response.data)
-            if progress_bar is not None:
-                progress_bar.update(len(response.data))
-        sample_map = {}
-        for idx, s in enumerate(samples):
-            if s.file_name.startswith("/"):
-                warnings.warn(
-                    UserWarning(
-                        f"Absolute file paths like {s.file_name} are not supported"
-                        f" in relevant filenames file {relevant_filenames_file_name} due to blob storage"
-                    )
-                )
-            elif s.file_name.startswith(("./", "../")):
-                warnings.warn(
-                    UserWarning(
-                        f"Using dot notation ('./', '../') like in {s.file_name} is not supported"
-                        f" in relevant filenames file {relevant_filenames_file_name} due to blob storage"
-                    )
-                )
-            elif s.file_name in sample_map:
-                warnings.warn(
-                    UserWarning(
-                        f"Duplicate filename {s.file_name} in relevant"
-                        f" filenames file {relevant_filenames_file_name}"
-                    )
-                )
-            else:
-                sample_map[s.file_name] = s.read_url
-        return [(file_name, read_url) for file_name, read_url in sample_map.items()]
-
     def download_raw_samples(
         self,
         from_: int = 0,
@@ -131,8 +60,10 @@ class _DatasourcesMixin:
             >>> client.set_dataset_id_by_name("my-dataset")
             >>> client.download_raw_samples()
             [('image-1.png', 'https://......'), ('image-2.png', 'https://......')]
+
+        :meta private:  # Skip docstring generation
         """
-        samples = self._download_raw_files(
+        return self._download_raw_files(
             download_function=self._datasources_api.get_list_of_raw_samples_from_datasource_by_dataset_id,
             from_=from_,
             to=to,
@@ -140,7 +71,6 @@ class _DatasourcesMixin:
             use_redirected_read_url=use_redirected_read_url,
             progress_bar=progress_bar,
         )
-        return samples
 
     def download_raw_predictions(
         self,
@@ -153,6 +83,36 @@ class _DatasourcesMixin:
         use_redirected_read_url: bool = False,
         progress_bar: Optional[tqdm.tqdm] = None,
     ) -> List[Tuple[str, str]]:
+        """Downloads all prediction filenames and read urls from the datasource.
+
+        See `download_raw_predictions_iter` for details.
+
+        :meta private:  # Skip docstring generation
+        """
+        return list(
+            self.download_raw_predictions_iter(
+                task_name=task_name,
+                from_=from_,
+                to=to,
+                relevant_filenames_file_name=relevant_filenames_file_name,
+                run_id=run_id,
+                relevant_filenames_artifact_id=relevant_filenames_artifact_id,
+                use_redirected_read_url=use_redirected_read_url,
+                progress_bar=progress_bar,
+            )
+        )
+
+    def download_raw_predictions_iter(
+        self,
+        task_name: str,
+        from_: int = 0,
+        to: Optional[int] = None,
+        relevant_filenames_file_name: Optional[str] = None,
+        run_id: Optional[str] = None,
+        relevant_filenames_artifact_id: Optional[str] = None,
+        use_redirected_read_url: bool = False,
+        progress_bar: Optional[tqdm.tqdm] = None,
+    ) -> Iterator[Tuple[str, str]]:
         """Downloads prediction filenames and read urls from the datasource.
 
         Only samples with timestamp between `from_` (inclusive) and `to` (inclusive)
@@ -188,7 +148,7 @@ class _DatasourcesMixin:
                 retrieved.
 
         Returns:
-            A list of (filename, url) tuples where each tuple represents a sample.
+            An iterator of (filename, url) tuples where each tuple represents a sample.
 
         Examples:
             >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
@@ -196,9 +156,11 @@ class _DatasourcesMixin:
             >>> # Already created some Lightly Worker runs with this dataset
             >>> task_name = "object-detection"
             >>> client.set_dataset_id_by_name("my-dataset")
-            >>> client.download_raw_predictions(task_name=task_name)
+            >>> list(client.download_raw_predictions(task_name=task_name))
             [('.lightly/predictions/object-detection/image-1.json', 'https://......'),
              ('.lightly/predictions/object-detection/image-2.json', 'https://......')]
+
+        :meta private:  # Skip docstring generation
         """
         if run_id is not None and relevant_filenames_artifact_id is None:
             raise ValueError(
@@ -217,7 +179,7 @@ class _DatasourcesMixin:
                 "relevant_filenames_artifact_id"
             ] = relevant_filenames_artifact_id
 
-        samples = self._download_raw_files(
+        yield from self._download_raw_files_iter(
             download_function=self._datasources_api.get_list_of_raw_samples_predictions_from_datasource_by_dataset_id,
             from_=from_,
             to=to,
@@ -227,7 +189,6 @@ class _DatasourcesMixin:
             progress_bar=progress_bar,
             **relevant_filenames_kwargs,
         )
-        return samples
 
     def download_raw_metadata(
         self,
@@ -239,6 +200,34 @@ class _DatasourcesMixin:
         use_redirected_read_url: bool = False,
         progress_bar: Optional[tqdm.tqdm] = None,
     ) -> List[Tuple[str, str]]:
+        """Downloads all metadata filenames and read urls from the datasource.
+
+        See `download_raw_metadata_iter` for details.
+
+        :meta private:  # Skip docstring generation
+        """
+        return list(
+            self.download_raw_metadata_iter(
+                from_=from_,
+                to=to,
+                run_id=run_id,
+                relevant_filenames_artifact_id=relevant_filenames_artifact_id,
+                relevant_filenames_file_name=relevant_filenames_file_name,
+                use_redirected_read_url=use_redirected_read_url,
+                progress_bar=progress_bar,
+            )
+        )
+
+    def download_raw_metadata_iter(
+        self,
+        from_: int = 0,
+        to: Optional[int] = None,
+        run_id: Optional[str] = None,
+        relevant_filenames_artifact_id: Optional[str] = None,
+        relevant_filenames_file_name: Optional[str] = None,
+        use_redirected_read_url: bool = False,
+        progress_bar: Optional[tqdm.tqdm] = None,
+    ) -> Iterator[Tuple[str, str]]:
         """Downloads all metadata filenames and read urls from the datasource.
 
         Only samples with timestamp between `from_` (inclusive) and `to` (inclusive)
@@ -272,16 +261,18 @@ class _DatasourcesMixin:
                 retrieved.
 
         Returns:
-            A list of (filename, url) tuples where each tuple represents a sample.
+            An iterator of (filename, url) tuples where each tuple represents a sample.
 
         Examples:
             >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
             >>>
             >>> # Already created some Lightly Worker runs with this dataset
             >>> client.set_dataset_id_by_name("my-dataset")
-            >>> client.download_raw_metadata()
+            >>> list(client.download_raw_metadata_iter())
             [('.lightly/metadata/object-detection/image-1.json', 'https://......'),
              ('.lightly/metadata/object-detection/image-2.json', 'https://......')]
+
+        :meta private:  # Skip docstring generation
         """
         if run_id is not None and relevant_filenames_artifact_id is None:
             raise ValueError(
@@ -300,8 +291,8 @@ class _DatasourcesMixin:
                 "relevant_filenames_artifact_id"
             ] = relevant_filenames_artifact_id
 
-        samples = self._download_raw_files(
-            self._datasources_api.get_list_of_raw_samples_metadata_from_datasource_by_dataset_id,
+        yield from self._download_raw_files_iter(
+            download_function=self._datasources_api.get_list_of_raw_samples_metadata_from_datasource_by_dataset_id,
             from_=from_,
             to=to,
             relevant_filenames_file_name=relevant_filenames_file_name,
@@ -309,7 +300,6 @@ class _DatasourcesMixin:
             progress_bar=progress_bar,
             **relevant_filenames_kwargs,
         )
-        return samples
 
     def download_new_raw_samples(
         self,
@@ -371,6 +361,8 @@ class _DatasourcesMixin:
             >>> client.set_dataset_id_by_name("my-dataset")
             >>> client.get_processed_until_timestamp()
             1684750513
+
+        :meta private:  # Skip docstring generation
         """
         response: DatasourceProcessedUntilTimestampResponse = self._datasources_api.get_datasource_processed_until_timestamp_by_dataset_id(
             dataset_id=self.dataset_id
@@ -449,7 +441,6 @@ class _DatasourcesMixin:
             purpose:
                 Datasource purpose, determines if datasource is read only (INPUT)
                 or can be written to as well (LIGHTLY, INPUT_OUTPUT).
-                The latter is required when Lightly extracts frames from input videos.
 
         """
         # TODO: Use DatasourceConfigAzure once we switch/update the api generator.
@@ -499,7 +490,6 @@ class _DatasourcesMixin:
             purpose:
                 Datasource purpose, determines if datasource is read only (INPUT)
                 or can be written to as well (LIGHTLY, INPUT_OUTPUT).
-                The latter is required when Lightly extracts frames from input videos.
 
         """
         # TODO: Use DatasourceConfigGCS once we switch/update the api generator.
@@ -519,10 +509,12 @@ class _DatasourcesMixin:
 
     def set_local_config(
         self,
-        resource_path: str,
+        relative_path: str = "",
+        web_server_location: Optional[str] = "http://localhost:3456",
         thumbnail_suffix: Optional[
             str
         ] = ".lightly/thumbnails/[filename]_thumb.[extension]",
+        purpose: str = DatasourcePurpose.INPUT_OUTPUT,
     ) -> None:
         """Sets the local configuration for the datasource of the current dataset.
 
@@ -530,22 +522,29 @@ class _DatasourcesMixin:
         server in our docs: https://docs.lightly.ai/getting_started/dataset_creation/dataset_creation_local_server.html
 
         Args:
-            resource_path:
-                Url to your local file server, for example: "http://localhost:1234/path/to/my/data".
+            relative_path:
+                Relative path from the mount root, for example: "path/to/my/data".
+            web_server_location:
+                Location of your local file server. Defaults to "http://localhost:3456".
             thumbnail_suffix:
                 Where to save thumbnails of the images in the dataset, for
                 example ".lightly/thumbnails/[filename]_thumb.[extension]".
                 Set to None to disable thumbnails and use the full images from the
                 datasource instead.
+            purpose:
+                Datasource purpose, determines if datasource is read only (INPUT)
+                or can be written to as well (LIGHTLY, INPUT_OUTPUT).
+
         """
         # TODO: Use DatasourceConfigLocal once we switch/update the api generator.
         self._datasources_api.update_datasource_by_dataset_id(
             datasource_config=DatasourceConfig.from_dict(
                 {
                     "type": "LOCAL",
-                    "fullPath": resource_path,
+                    "webServerLocation": web_server_location,
+                    "fullPath": relative_path,
                     "thumbSuffix": thumbnail_suffix,
-                    "purpose": DatasourcePurpose.INPUT_OUTPUT,
+                    "purpose": purpose,
                 }
             ),
             dataset_id=self.dataset_id,
@@ -584,7 +583,6 @@ class _DatasourcesMixin:
             purpose:
                 Datasource purpose, determines if datasource is read only (INPUT)
                 or can be written to as well (LIGHTLY, INPUT_OUTPUT).
-                The latter is required when Lightly extracts frames from input videos.
 
         """
         # TODO: Use DatasourceConfigS3 once we switch/update the api generator.
@@ -636,7 +634,6 @@ class _DatasourcesMixin:
             purpose:
                 Datasource purpose, determines if datasource is read only (INPUT)
                 or can be written to as well (LIGHTLY, INPUT_OUTPUT).
-                The latter is required when Lightly extracts frames from input videos.
 
         """
         # TODO: Use DatasourceConfigS3 once we switch/update the api generator.
@@ -685,7 +682,7 @@ class _DatasourcesMixin:
             purpose:
                 Datasource purpose, determines if datasource is read only (INPUT)
                 or can be written to as well (LIGHTLY, INPUT_OUTPUT).
-                The latter is required when Lightly extracts frames from input videos.
+
         """
         # TODO: Use DatasourceConfigOBS once we switch/update the api generator.
         self._datasources_api.update_datasource_by_dataset_id(
@@ -706,7 +703,7 @@ class _DatasourcesMixin:
     def get_prediction_read_url(
         self,
         filename: str,
-    ):
+    ) -> str:
         """Returns a read-url for .lightly/predictions/{filename}.
 
         Args:
@@ -717,6 +714,7 @@ class _DatasourcesMixin:
             A read-url to the file. Note that a URL will be returned even if the file does not
             exist.
 
+        :meta private:  # Skip docstring generation
         """
         return self._datasources_api.get_prediction_file_read_url_from_datasource_by_dataset_id(
             dataset_id=self.dataset_id,
@@ -726,7 +724,7 @@ class _DatasourcesMixin:
     def get_metadata_read_url(
         self,
         filename: str,
-    ):
+    ) -> str:
         """Returns a read-url for .lightly/metadata/{filename}.
 
         Args:
@@ -737,6 +735,7 @@ class _DatasourcesMixin:
             A read-url to the file. Note that a URL will be returned even if the file does not
             exist.
 
+        :meta private:  # Skip docstring generation
         """
         return self._datasources_api.get_metadata_file_read_url_from_datasource_by_dataset_id(
             dataset_id=self.dataset_id,
@@ -757,6 +756,7 @@ class _DatasourcesMixin:
             A read-url to the file. Note that a URL will be returned even if the file does not
             exist.
 
+        :meta private:  # Skip docstring generation
         """
         return self._datasources_api.get_custom_embedding_file_read_url_from_datasource_by_dataset_id(
             dataset_id=self.dataset_id,
@@ -790,3 +790,123 @@ class _DatasourcesMixin:
         return self._datasources_api.verify_datasource_by_dataset_id(
             dataset_id=self.dataset_id,
         ).to_dict()
+
+    def _download_raw_files(
+        self,
+        download_function: Union[
+            "DatasourcesApi.get_list_of_raw_samples_from_datasource_by_dataset_id",
+            "DatasourcesApi.get_list_of_raw_samples_predictions_from_datasource_by_dataset_id",
+            "DatasourcesApi.get_list_of_raw_samples_metadata_from_datasource_by_dataset_id",
+        ],
+        from_: int = 0,
+        to: Optional[int] = None,
+        relevant_filenames_file_name: Optional[str] = None,
+        use_redirected_read_url: bool = False,
+        progress_bar: Optional[tqdm.tqdm] = None,
+        **kwargs,
+    ) -> List[Tuple[str, str]]:
+        return list(
+            self._download_raw_files_iter(
+                download_function=download_function,
+                from_=from_,
+                to=to,
+                relevant_filenames_file_name=relevant_filenames_file_name,
+                use_redirected_read_url=use_redirected_read_url,
+                progress_bar=progress_bar,
+                **kwargs,
+            )
+        )
+
+    def _download_raw_files_iter(
+        self,
+        download_function: Union[
+            "DatasourcesApi.get_list_of_raw_samples_from_datasource_by_dataset_id",
+            "DatasourcesApi.get_list_of_raw_samples_predictions_from_datasource_by_dataset_id",
+            "DatasourcesApi.get_list_of_raw_samples_metadata_from_datasource_by_dataset_id",
+        ],
+        from_: int = 0,
+        to: Optional[int] = None,
+        relevant_filenames_file_name: Optional[str] = None,
+        use_redirected_read_url: bool = False,
+        progress_bar: Optional[tqdm.tqdm] = None,
+        **kwargs,
+    ) -> Iterator[Tuple[str, str]]:
+        if to is None:
+            to = int(time.time())
+        relevant_filenames_kwargs = (
+            {"relevant_filenames_file_name": relevant_filenames_file_name}
+            if relevant_filenames_file_name
+            else dict()
+        )
+
+        listed_filenames = set()
+
+        def get_samples(
+            response: DatasourceRawSamplesData,
+        ) -> Iterator[Tuple[str, str]]:
+            for sample in response.data:
+                if _sample_unseen_and_valid(
+                    sample=sample,
+                    relevant_filenames_file_name=relevant_filenames_file_name,
+                    listed_filenames=listed_filenames,
+                ):
+                    listed_filenames.add(sample.file_name)
+                    yield sample.file_name, sample.read_url
+                if progress_bar is not None:
+                    progress_bar.update(1)
+
+        response: DatasourceRawSamplesData = download_function(
+            dataset_id=self.dataset_id,
+            var_from=from_,
+            to=to,
+            use_redirected_read_url=use_redirected_read_url,
+            **relevant_filenames_kwargs,
+            **kwargs,
+        )
+        yield from get_samples(response=response)
+        while response.has_more:
+            response: DatasourceRawSamplesData = download_function(
+                dataset_id=self.dataset_id,
+                cursor=response.cursor,
+                use_redirected_read_url=use_redirected_read_url,
+                **relevant_filenames_kwargs,
+                **kwargs,
+            )
+            yield from get_samples(response=response)
+
+
+def _sample_unseen_and_valid(
+    sample: DatasourceRawSamplesDataRow,
+    relevant_filenames_file_name: Optional[str],
+    listed_filenames: Set[str],
+) -> bool:
+    # Note: We want to remove these checks eventually. Absolute paths and relative paths
+    # with dot notation should be handled either in the API or the Worker. Duplicate
+    # filenames should be handled in the Worker as handling it in the API would require
+    # too much memory.
+    if sample.file_name.startswith("/"):
+        warnings.warn(
+            UserWarning(
+                f"Absolute file paths like {sample.file_name} are not supported"
+                f" in relevant filenames file {relevant_filenames_file_name} due to blob storage"
+            )
+        )
+        return False
+    elif sample.file_name.startswith(("./", "../")):
+        warnings.warn(
+            UserWarning(
+                f"Using dot notation ('./', '../') like in {sample.file_name} is not supported"
+                f" in relevant filenames file {relevant_filenames_file_name} due to blob storage"
+            )
+        )
+        return False
+    elif sample.file_name in listed_filenames:
+        warnings.warn(
+            UserWarning(
+                f"Duplicate filename {sample.file_name} in relevant"
+                f" filenames file {relevant_filenames_file_name}"
+            )
+        )
+        return False
+    else:
+        return True

@@ -8,7 +8,11 @@ from torch import nn
 
 from lightly.loss import BarlowTwinsLoss
 from lightly.models.modules import BarlowTwinsProjectionHead
-from lightly.transforms.simclr_transform import SimCLRTransform
+from lightly.transforms.byol_transform import (
+    BYOLTransform,
+    BYOLView1Transform,
+    BYOLView2Transform,
+)
 
 
 class BarlowTwins(nn.Module):
@@ -30,7 +34,12 @@ model = BarlowTwins(backbone)
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
 
-transform = SimCLRTransform(input_size=32)
+# BarlowTwins uses BYOL augmentations.
+# We disable resizing and gaussian blur for cifar10.
+transform = BYOLTransform(
+    view_1_transform=BYOLView1Transform(input_size=32, gaussian_blur=0.0),
+    view_2_transform=BYOLView2Transform(input_size=32, gaussian_blur=0.0),
+)
 dataset = torchvision.datasets.CIFAR10(
     "datasets/cifar10", download=True, transform=transform
 )

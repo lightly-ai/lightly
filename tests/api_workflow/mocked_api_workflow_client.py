@@ -36,7 +36,9 @@ from lightly.openapi_generated.swagger_client.models import (
     DatasetData,
     DatasetEmbeddingData,
     DatasourceConfig,
+    DatasourceConfigAzure,
     DatasourceConfigBase,
+    DatasourceConfigLOCAL,
     DatasourceProcessedUntilTimestampRequest,
     DatasourceProcessedUntilTimestampResponse,
     DatasourceRawSamplesData,
@@ -657,11 +659,14 @@ class MockedDatasourcesApi(DatasourcesApi):
         self.reset()
 
     def reset(self):
-        local_datasource = DatasourceConfigBase(
-            type="LOCAL", full_path="", purpose="INPUT_OUTPUT"
+        local_datasource = DatasourceConfigLOCAL(
+            type="LOCAL",
+            full_path="",
+            web_server_location="https://localhost:1234",
+            purpose="INPUT_OUTPUT",
         ).to_dict()
         azure_datasource = DatasourceConfigBase(
-            type="AZURE", full_path="", purpose="INPUT_OUTPUT"
+            type="AZURE", purpose="INPUT_OUTPUT"
         ).to_dict()
 
         self._datasources = {
@@ -982,14 +987,6 @@ class MockedComputeWorkerApi(DockerApi):
         raise NotImplementedError()
 
 
-class MockedVersioningApi(VersioningApi):
-    def get_latest_pip_version(self, **kwargs):
-        return "1.2.8"
-
-    def get_minimum_compatible_pip_version(self, **kwargs):
-        return "1.2.1"
-
-
 class MockedQuotaApi(QuotaApi):
     def get_quota_maximum_dataset_size(self, **kwargs):
         return "60000"
@@ -1032,7 +1029,6 @@ class MockedApiWorkflowClient(ApiWorkflowClient):
     n_embedding_rows_on_server = N_FILES_ON_SERVER
 
     def __init__(self, *args, **kwargs):
-        lightly.api.version_checking.VersioningApi = MockedVersioningApi
         ApiWorkflowClient.__init__(self, *args, **kwargs)
 
         self._selection_api = MockedSamplingsApi(api_client=self.api_client)

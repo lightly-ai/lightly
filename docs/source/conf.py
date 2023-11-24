@@ -22,10 +22,10 @@ import lightly
 # -- Project information -----------------------------------------------------
 
 project = "lightly"
-copyright_year = "2020"
+copyright_year = "2020-<script>document.write((new Date()).getFullYear())</script>"
 copyright = "Lightly AG"
 website_url = "https://www.lightly.ai/"
-author = "Philipp Wirth, Igor Susmelj"
+author = "Lightly Team"
 
 # The full version, including alpha/beta/rc tags
 release = lightly.__version__
@@ -98,7 +98,7 @@ html_static_path = ["_static"]
 
 html_favicon = "favicon.png"
 
-html_logo = "../logos/lightly_logo_crop_white_text.png"
+html_logo = "../logos/lightly_SSL_logo_crop_white_text.png"
 
 # Exposes variables so that they can be used by django
 html_context = {

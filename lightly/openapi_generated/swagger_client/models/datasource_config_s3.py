@@ -20,7 +20,7 @@ import json
 
 
 from typing import Optional
-from pydantic import Extra,  BaseModel, Field, constr, validator
+from pydantic import Extra,  BaseModel, Field, StrictStr, constr, validator
 from lightly.openapi_generated.swagger_client.models.datasource_config_base import DatasourceConfigBase
 from lightly.openapi_generated.swagger_client.models.s3_region import S3Region
 
@@ -28,11 +28,12 @@ class DatasourceConfigS3(DatasourceConfigBase):
     """
     DatasourceConfigS3
     """
+    full_path: StrictStr = Field(..., alias="fullPath", description="path includes the bucket name and the path within the bucket where you have stored your information")
     s3_region: S3Region = Field(..., alias="s3Region")
     s3_access_key_id: constr(strict=True, min_length=1) = Field(..., alias="s3AccessKeyId", description="The accessKeyId of the credential you are providing Lightly to use")
     s3_secret_access_key: constr(strict=True, min_length=1) = Field(..., alias="s3SecretAccessKey", description="The secretAccessKey of the credential you are providing Lightly to use")
     s3_server_side_encryption_kms_key: Optional[constr(strict=True, min_length=1)] = Field(None, alias="s3ServerSideEncryptionKMSKey", description="If set, Lightly Worker will automatically set the headers to use server side encryption https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html with this value as the appropriate KMS key arn. This will encrypt the files created by Lightly (crops, frames, thumbnails) in the S3 bucket. ")
-    __properties = ["id", "purpose", "type", "fullPath", "thumbSuffix", "s3Region", "s3AccessKeyId", "s3SecretAccessKey", "s3ServerSideEncryptionKMSKey"]
+    __properties = ["id", "purpose", "type", "thumbSuffix", "fullPath", "s3Region", "s3AccessKeyId", "s3SecretAccessKey", "s3ServerSideEncryptionKMSKey"]
 
     @validator('s3_server_side_encryption_kms_key')
     def s3_server_side_encryption_kms_key_validate_regular_expression(cls, value):
@@ -90,8 +91,8 @@ class DatasourceConfigS3(DatasourceConfigBase):
             "id": obj.get("id"),
             "purpose": obj.get("purpose"),
             "type": obj.get("type"),
-            "full_path": obj.get("fullPath"),
             "thumb_suffix": obj.get("thumbSuffix"),
+            "full_path": obj.get("fullPath"),
             "s3_region": obj.get("s3Region"),
             "s3_access_key_id": obj.get("s3AccessKeyId"),
             "s3_secret_access_key": obj.get("s3SecretAccessKey"),

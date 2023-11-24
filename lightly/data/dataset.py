@@ -9,13 +9,11 @@ from typing import Any, Callable, Dict, List, Union
 
 import torchvision.datasets as datasets
 from PIL import Image
-from torch._C import Value
 from torchvision import transforms
 from torchvision.datasets.vision import StandardTransform, VisionDataset
 
 from lightly.data._helpers import DatasetFolder, _load_dataset_from_folder
 from lightly.data._video import VideoDataset
-from lightly.utils.io import check_filenames
 
 
 def _get_filename_by_index(dataset, index):
@@ -176,11 +174,6 @@ class LightlyDataset:
         self.index_to_filename = _get_filename_by_index
         if index_to_filename is not None:
             self.index_to_filename = index_to_filename
-
-        # if created from an input directory with filenames, check if they
-        # are valid
-        if input_dir:
-            check_filenames(self.get_filenames())
 
     @classmethod
     def from_torch_dataset(cls, dataset, transform=None, index_to_filename=None):

@@ -31,7 +31,10 @@ class _UploadEmbeddingsMixin:
         return reader
 
     def set_embedding_id_to_latest(self) -> None:
-        """Sets the embedding ID in the API client to the latest embedding ID in the current dataset."""
+        """Sets the embedding ID in the API client to the latest embedding ID in the current dataset.
+
+        :meta private:  # Skip docstring generation
+        """
         embeddings_on_server: List[
             DatasetEmbeddingData
         ] = self._embeddings_api.get_embeddings_by_dataset_id(
@@ -104,6 +107,7 @@ class _UploadEmbeddingsMixin:
                 The name of the embedding. If an embedding with such a name already exists on the server,
                 the upload is aborted.
 
+        :meta private:  # Skip docstring generation
         """
         io_utils.check_embeddings(
             path_to_embeddings_csv, remove_additional_columns=True
@@ -185,6 +189,7 @@ class _UploadEmbeddingsMixin:
                 If the number of columns in the local embeddings file and that of the remote
                 embeddings file mismatch.
 
+        :meta private:  # Skip docstring generation
         """
 
         # read embedding from API
@@ -254,7 +259,6 @@ class _UploadEmbeddingsMixin:
                     f"The filenames in the embedding file and "
                     f"the filenames on the server do not align"
                 )
-            io_utils.check_filenames(filenames)
 
             rows_without_header_ordered = self._order_list_by_filenames(
                 filenames, rows_without_header

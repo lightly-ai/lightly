@@ -1,4 +1,4 @@
-from typing import Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 from lightly.transforms.simclr_transform import SimCLRTransform
 from lightly.transforms.utils import IMAGENET_NORMALIZE
@@ -83,7 +83,7 @@ class MoCoV1Transform(SimCLRTransform):
         hf_prob: float = 0.5,
         rr_prob: float = 0.0,
         rr_degrees: Union[None, float, Tuple[float, float]] = None,
-        normalize: dict = IMAGENET_NORMALIZE,
+        normalize: Dict[str, List[float]] = IMAGENET_NORMALIZE,
     ):
         super().__init__(
             input_size=input_size,

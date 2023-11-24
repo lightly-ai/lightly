@@ -1,4 +1,4 @@
-from typing import List, Tuple, Union
+from typing import List, Sequence, Union
 
 import torchvision.transforms as T
 from PIL.Image import Image
@@ -19,7 +19,7 @@ class ImageGridTransform:
             grids.
     """
 
-    def __init__(self, transforms):
+    def __init__(self, transforms: Sequence[T.Compose]):
         self.transforms = transforms
 
     def __call__(self, image: Union[Tensor, Image]) -> Union[List[Tensor], List[Image]]:
