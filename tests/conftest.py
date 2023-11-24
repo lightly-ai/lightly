@@ -41,7 +41,7 @@ def pytest_collection_modifyitems(config, items):
             item.add_marker(skip_slow)
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="module", autouse=True)
 def mock_versioning_api():
     """Fixture that is applied to all tests and mocks the versioning API.
 
@@ -56,17 +56,17 @@ def mock_versioning_api():
         should be compatible with all future versions.
     """
 
-    def mock_get_latest_pip_version(current_version: str) -> str:
+    def mock_get_latest_pip_version(current_version: str, **kwargs) -> str:
         return current_version
 
     # NOTE(guarin, 2/6/23): Cannot use pytest mocker fixture here because it has not
-    # a "session" scope and it is not possible to use a fixture that has a tigher scope
+    # a "module" scope and it is not possible to use a fixture that has a tighter scope
     # inside a fixture with a wider scope.
     with mock.patch(
-        "lightly.api.version_checking.VersioningApi.get_latest_pip_version",
+        "lightly.api._version_checking.VersioningApi.get_latest_pip_version",
         new=mock_get_latest_pip_version,
     ), mock.patch(
-        "lightly.api.version_checking.VersioningApi.get_minimum_compatible_pip_version",
+        "lightly.api._version_checking.VersioningApi.get_minimum_compatible_pip_version",
         return_value="1.0.0",
     ):
         yield

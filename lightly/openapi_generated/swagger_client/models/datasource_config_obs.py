@@ -20,17 +20,18 @@ import json
 
 
 
-from pydantic import Extra,  BaseModel, Field, constr, validator
+from pydantic import Extra,  BaseModel, Field, StrictStr, constr, validator
 from lightly.openapi_generated.swagger_client.models.datasource_config_base import DatasourceConfigBase
 
 class DatasourceConfigOBS(DatasourceConfigBase):
     """
     DatasourceConfigOBS
     """
+    full_path: StrictStr = Field(..., alias="fullPath", description="path includes the bucket name and the path within the bucket where you have stored your information")
     obs_endpoint: constr(strict=True, min_length=1) = Field(..., alias="obsEndpoint", description="The Object Storage Service (OBS) endpoint to use of your S3 compatible cloud storage provider")
     obs_access_key_id: constr(strict=True, min_length=1) = Field(..., alias="obsAccessKeyId", description="The Access Key Id of the credential you are providing Lightly to use")
     obs_secret_access_key: constr(strict=True, min_length=1) = Field(..., alias="obsSecretAccessKey", description="The Secret Access Key of the credential you are providing Lightly to use")
-    __properties = ["id", "purpose", "type", "fullPath", "thumbSuffix", "obsEndpoint", "obsAccessKeyId", "obsSecretAccessKey"]
+    __properties = ["id", "purpose", "type", "thumbSuffix", "fullPath", "obsEndpoint", "obsAccessKeyId", "obsSecretAccessKey"]
 
     @validator('obs_endpoint')
     def obs_endpoint_validate_regular_expression(cls, value):
@@ -85,8 +86,8 @@ class DatasourceConfigOBS(DatasourceConfigBase):
             "id": obj.get("id"),
             "purpose": obj.get("purpose"),
             "type": obj.get("type"),
-            "full_path": obj.get("fullPath"),
             "thumb_suffix": obj.get("thumbSuffix"),
+            "full_path": obj.get("fullPath"),
             "obs_endpoint": obj.get("obsEndpoint"),
             "obs_access_key_id": obj.get("obsAccessKeyId"),
             "obs_secret_access_key": obj.get("obsSecretAccessKey")

@@ -3,14 +3,14 @@
 Self-supervised learning
 ========================
 
-Lightly is a computer vision framework for training deep learning models using self-supervised learning.
+Lightly SSL is a computer vision framework for training deep learning models using self-supervised learning.
 The framework can be used for a wide range of useful applications such as finding the nearest 
 neighbors, similarity search, transfer learning, or data analytics.
 
 
-How Lightly Works
------------------
-The flexible design of Lightly makes it easy to integrate in your Python code. Lightly is built
+How Lightly SSL Works
+---------------------
+The flexible design of Lightly SSL makes it easy to integrate in your Python code. Lightly SSL is built
 completely around PyTorch and the different pieces can be put together to fit *your* requirements.
 
 Data and Transformations
@@ -219,12 +219,12 @@ Furthermore, the ResNet backbone can be used for transfer and few-shot learning.
     Self-supervised learning does not require labels for a model to be trained on. Lightly,
     however, supports the use of additional labels. For example, if you train a model
     on a folder 'cats' with subfolders 'Maine Coon', 'Bengal' and 'British Shorthair'
-    Lightly automatically returns the enumerated labels as a list.
+    Lightly SSL automatically returns the enumerated labels as a list.
 
-Lightly in Three Lines
-----------------------------------------
+Lightly SSL in Three Lines
+--------------------------
 
-Lightly also offers an easy-to-use interface. The following lines show how the package can 
+Lightly SSL also offers an easy-to-use interface. The following lines show how the package can 
 be used to train a model with self-supervision and create embeddings with only three lines
 of code.
 

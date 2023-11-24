@@ -1,8 +1,6 @@
-from typing import Tuple, Union
+from typing import Dict, List, Tuple, Union
 
 import torchvision.transforms as T
-from PIL.Image import Image
-from torch import Tensor
 
 from lightly.transforms.jigsaw import Jigsaw
 from lightly.transforms.multi_view_transform import MultiViewTransform
@@ -71,7 +69,7 @@ class PIRLTransform(MultiViewTransform):
         random_gray_scale: float = 0.2,
         hf_prob: float = 0.5,
         n_grid: int = 3,
-        normalize: Union[None, dict] = IMAGENET_NORMALIZE,
+        normalize: Union[None, Dict[str, List[float]]] = IMAGENET_NORMALIZE,
     ):
         if isinstance(input_size, tuple):
             input_size_ = max(input_size)
@@ -79,13 +77,17 @@ class PIRLTransform(MultiViewTransform):
             input_size_ = input_size
 
         # Cropping and normalisation for non-transformed image
-        no_augment = T.Compose(
-            [
-                T.RandomResizedCrop(size=input_size, scale=(min_scale, 1.0)),
-                T.ToTensor(),
-                T.Normalize(mean=normalize["mean"], std=normalize["std"]),
-            ]
-        )
+        transforms_no_augment = [
+            T.RandomResizedCrop(size=input_size, scale=(min_scale, 1.0)),
+            T.ToTensor(),
+        ]
+
+        if normalize is not None:
+            transforms_no_augment.append(
+                T.Normalize(mean=normalize["mean"], std=normalize["std"])
+            )
+
+        no_augment = T.Compose(transforms_no_augment)
 
         color_jitter = T.ColorJitter(
             brightness=cj_strength * cj_bright,
@@ -95,21 +97,21 @@ class PIRLTransform(MultiViewTransform):
         )
 
         # Transform for transformed jigsaw image
-        transform = [
+        transforms = [
             T.RandomHorizontalFlip(p=hf_prob),
             T.RandomApply([color_jitter], p=cj_prob),
             T.RandomGrayscale(p=random_gray_scale),
             T.ToTensor(),
         ]
 
-        if normalize:
-            transform += [T.Normalize(mean=normalize["mean"], std=normalize["std"])]
+        if normalize is not None:
+            transforms.append(T.Normalize(mean=normalize["mean"], std=normalize["std"]))
 
         jigsaw = Jigsaw(
             n_grid=n_grid,
             img_size=input_size_,
             crop_size=int(input_size_ // n_grid),
-            transform=T.Compose(transform),
+            transform=T.Compose(transforms),
         )
 
         super().__init__([no_augment, jigsaw])

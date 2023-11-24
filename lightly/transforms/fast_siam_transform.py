@@ -1,4 +1,4 @@
-from typing import Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 from lightly.transforms.multi_view_transform import MultiViewTransform
 from lightly.transforms.simsiam_transform import SimSiamViewTransform
@@ -89,7 +89,7 @@ class FastSiamTransform(MultiViewTransform):
         hf_prob: float = 0.5,
         rr_prob: float = 0.0,
         rr_degrees: Union[None, float, Tuple[float, float]] = None,
-        normalize: Union[None, dict] = IMAGENET_NORMALIZE,
+        normalize: Union[None, Dict[str, List[float]]] = IMAGENET_NORMALIZE,
     ):
         transforms = [
             SimSiamViewTransform(

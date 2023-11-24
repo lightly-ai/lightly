@@ -23,24 +23,24 @@ from aenum import no_arg  # type: ignore
 
 
 
-class AnnotationState(str, Enum):
+class SelectionStrategyTypeV3(str, Enum):
     """
-    AnnotationState
+    SelectionStrategyTypeV3
     """
 
     """
     allowed enum values
     """
-    DRAFT = 'DRAFT'
-    OFFER_REQUESTED = 'OFFER_REQUESTED'
-    OFFER_RETURNED = 'OFFER_RETURNED'
-    ACCEPTED = 'ACCEPTED'
-    ACTIVE = 'ACTIVE'
-    COMPLETED = 'COMPLETED'
+    DIVERSITY = 'DIVERSITY'
+    WEIGHTS = 'WEIGHTS'
+    THRESHOLD = 'THRESHOLD'
+    BALANCE = 'BALANCE'
+    SIMILARITY = 'SIMILARITY'
+    TYPICALITY = 'TYPICALITY'
 
     @classmethod
-    def from_json(cls, json_str: str) -> 'AnnotationState':
-        """Create an instance of AnnotationState from a JSON string"""
-        return AnnotationState(json.loads(json_str))
+    def from_json(cls, json_str: str) -> 'SelectionStrategyTypeV3':
+        """Create an instance of SelectionStrategyTypeV3 from a JSON string"""
+        return SelectionStrategyTypeV3(json.loads(json_str))
 
 

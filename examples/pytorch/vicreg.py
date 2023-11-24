@@ -7,7 +7,7 @@ from lightly.loss import VICRegLoss
 
 ## The projection head is the same as the Barlow Twins one
 from lightly.loss.vicreg_loss import VICRegLoss
-from lightly.models.modules import BarlowTwinsProjectionHead
+from lightly.models.modules.heads import VICRegProjectionHead
 from lightly.transforms.vicreg_transform import VICRegTransform
 
 
@@ -15,7 +15,12 @@ class VICReg(nn.Module):
     def __init__(self, backbone):
         super().__init__()
         self.backbone = backbone
-        self.projection_head = BarlowTwinsProjectionHead(512, 2048, 2048)
+        self.projection_head = VICRegProjectionHead(
+            input_dim=512,
+            hidden_dim=2048,
+            output_dim=2048,
+            num_layers=2,
+        )
 
     def forward(self, x):
         x = self.backbone(x).flatten(start_dim=1)

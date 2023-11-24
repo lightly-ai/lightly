@@ -39,6 +39,8 @@ class _SelectionMixin:
                 and score arrays. The length of each score array must match samples
                 in the designated tag.
             query_tag_id: ID of the desired tag.
+
+        :meta private:  # Skip docstring generation
         """
         # iterate over all available score types and upload them
         for score_type, score_values in al_scores.items():
@@ -79,6 +81,7 @@ class _SelectionMixin:
                 When `initial-tag` does not exist in the dataset.
                 When the selection task fails.
 
+        :meta private:  # Skip docstring generation
         """
 
         warnings.warn(

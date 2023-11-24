@@ -68,7 +68,9 @@ class PMSNLoss(MSNLoss):
             exponent=self.power_law_exponent,
             device=mean_anchor_probs.device,
         )
-        loss = F.kl_div(input=mean_anchor_probs, target=power_dist, reduction="sum")
+        loss = F.kl_div(
+            input=mean_anchor_probs.log(), target=power_dist, reduction="sum"
+        )
         return loss
 
 
@@ -139,7 +141,9 @@ class PMSNCustomLoss(MSNLoss):
         target_dist = self.target_distribution(mean_anchor_probs).to(
             mean_anchor_probs.device
         )
-        loss = F.kl_div(input=mean_anchor_probs, target=target_dist, reduction="sum")
+        loss = F.kl_div(
+            input=mean_anchor_probs.log(), target=target_dist, reduction="sum"
+        )
         return loss
 
 

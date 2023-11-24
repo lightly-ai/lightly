@@ -75,46 +75,31 @@ The framework is structured into the following modules:
 # All Rights Reserved
 
 __name__ = "lightly"
-__version__ = "1.4.12"
+__version__ = "1.4.22"
+
 
 import os
 
+# see if torchvision vision transformer is available
 try:
-    # See (https://github.com/PyTorchLightning/pytorch-lightning)
-    # This variable is injected in the __builtins__ by the build
-    # process. It used to enable importing subpackages of skimage when
-    # the binaries are not built
-    __LIGHTLY_SETUP__
-except NameError:
-    __LIGHTLY_SETUP__ = False
+    import torchvision.models.vision_transformer
+
+    _torchvision_vit_available = True
+except (
+    RuntimeError,  # Different CUDA versions for torch and torchvision
+    OSError,  # Different CUDA versions for torch and torchvision (old)
+    ImportError,  # No installation or old version of torchvision
+):
+    _torchvision_vit_available = False
 
 
-if __LIGHTLY_SETUP__:
-    # setting up lightly
-    msg = f"Partial import of {__name__}=={__version__} during build process."
-    print(msg)
-else:
-    # see if torchvision vision transformer is available
-    try:
-        import torchvision.models.vision_transformer
+if os.getenv("LIGHTLY_DID_VERSION_CHECK", "False") == "False":
+    os.environ["LIGHTLY_DID_VERSION_CHECK"] = "True"
+    import multiprocessing
 
-        _torchvision_vit_available = True
-    except (
-        RuntimeError,  # Different CUDA versions for torch and torchvision
-        OSError,  # Different CUDA versions for torch and torchvision (old)
-        ImportError,  # No installation or old version of torchvision
-    ):
-        _torchvision_vit_available = False
+    if multiprocessing.current_process().name == "MainProcess":
+        from lightly.api import _version_checking
 
-    if os.getenv("LIGHTLY_DID_VERSION_CHECK", "False") == "False":
-        os.environ["LIGHTLY_DID_VERSION_CHECK"] = "True"
-        from multiprocessing import current_process
-
-        if current_process().name == "MainProcess":
-            from lightly.api.version_checking import is_latest_version
-
-            try:
-                is_latest_version(current_version=__version__)
-            except Exception:
-                # Version check should never break the package.
-                pass
+        _version_checking.check_is_latest_version_in_background(
+            current_version=__version__
+        )

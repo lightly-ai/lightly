@@ -19,16 +19,16 @@ import re  # noqa: F401
 import json
 
 
-from typing import Optional, Union
-from pydantic import Extra,  BaseModel, Field, StrictFloat, StrictInt, conint
+from typing import List
+from pydantic import Extra,  BaseModel, Field, conlist
+from lightly.openapi_generated.swagger_client.models.selection_config_entry import SelectionConfigEntry
 
-class AnnotationOfferData(BaseModel):
+class SelectionConfigAllOf(BaseModel):
     """
-    AnnotationOfferData
+    SelectionConfigAllOf
     """
-    cost: Optional[Union[StrictFloat, StrictInt]] = None
-    completed_by: Optional[conint(strict=True, ge=0)] = Field(None, alias="completedBy", description="unix timestamp in milliseconds")
-    __properties = ["cost", "completedBy"]
+    strategies: conlist(SelectionConfigEntry, min_items=1) = Field(...)
+    __properties = ["strategies"]
 
     class Config:
         """Pydantic configuration"""
@@ -46,8 +46,8 @@ class AnnotationOfferData(BaseModel):
         return json.dumps(self.to_dict(by_alias=by_alias))
 
     @classmethod
-    def from_json(cls, json_str: str) -> AnnotationOfferData:
-        """Create an instance of AnnotationOfferData from a JSON string"""
+    def from_json(cls, json_str: str) -> SelectionConfigAllOf:
+        """Create an instance of SelectionConfigAllOf from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self, by_alias: bool = False):
@@ -56,25 +56,31 @@ class AnnotationOfferData(BaseModel):
                           exclude={
                           },
                           exclude_none=True)
+        # override the default output from pydantic by calling `to_dict()` of each item in strategies (list)
+        _items = []
+        if self.strategies:
+            for _item in self.strategies:
+                if _item:
+                    _items.append(_item.to_dict(by_alias=by_alias))
+            _dict['strategies' if by_alias else 'strategies'] = _items
         return _dict
 
     @classmethod
-    def from_dict(cls, obj: dict) -> AnnotationOfferData:
-        """Create an instance of AnnotationOfferData from a dict"""
+    def from_dict(cls, obj: dict) -> SelectionConfigAllOf:
+        """Create an instance of SelectionConfigAllOf from a dict"""
         if obj is None:
             return None
 
         if not isinstance(obj, dict):
-            return AnnotationOfferData.parse_obj(obj)
+            return SelectionConfigAllOf.parse_obj(obj)
 
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in AnnotationOfferData) in the input: " + str(obj))
+                raise ValueError("Error due to additional fields (not defined in SelectionConfigAllOf) in the input: " + str(obj))
 
-        _obj = AnnotationOfferData.parse_obj({
-            "cost": obj.get("cost"),
-            "completed_by": obj.get("completedBy")
+        _obj = SelectionConfigAllOf.parse_obj({
+            "strategies": [SelectionConfigEntry.from_dict(_item) for _item in obj.get("strategies")] if obj.get("strategies") is not None else None
         })
         return _obj
 

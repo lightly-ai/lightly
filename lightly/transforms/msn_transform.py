@@ -1,4 +1,4 @@
-from typing import Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 import torchvision.transforms as T
 from PIL.Image import Image
@@ -96,7 +96,7 @@ class MSNTransform(MultiViewTransform):
         random_gray_scale: float = 0.2,
         hf_prob: float = 0.5,
         vf_prob: float = 0.0,
-        normalize: dict = IMAGENET_NORMALIZE,
+        normalize: Dict[str, List[float]] = IMAGENET_NORMALIZE,
     ):
         random_view_transform = MSNViewTransform(
             crop_size=random_size,
@@ -150,7 +150,7 @@ class MSNViewTransform:
         random_gray_scale: float = 0.2,
         hf_prob: float = 0.5,
         vf_prob: float = 0.0,
-        normalize: dict = IMAGENET_NORMALIZE,
+        normalize: Dict[str, List[float]] = IMAGENET_NORMALIZE,
     ):
         color_jitter = T.ColorJitter(
             brightness=cj_strength * cj_bright,
@@ -183,4 +183,5 @@ class MSNViewTransform:
             The transformed image.
 
         """
-        return self.transform(image)
+        transformed: Tensor = self.transform(image)
+        return transformed

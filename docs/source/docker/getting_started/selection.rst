@@ -3,7 +3,7 @@
 Selection
 =========
 
-Lightly allows you to specify the subset to be selected based on several objectives.
+The Lightly Worker allows you to specify the subset to be selected based on several objectives.
 
 E.g. you can specify that the images in the subset should be visually diverse, be images the model struggles with (active learning),
 should only be sharp images, or have a certain distribution of classes, e.g. be 50% from sunny, 30% from cloudy and 20% from rainy weather.
@@ -13,12 +13,12 @@ Each of these objectives is defined by a `strategy`. A strategy consists of two 
 - The :code:`input` defines which data the objective is defined on. This data is either a scalar number or a vector for each sample in the dataset.
 - The :code:`strategy` itself defines the objective to apply on the input data.
 
-Lightly allows you to specify several objectives at the same time. The algorithms try to fulfil all objectives simultaneously.
+The Lightly Worker allows you to specify several objectives at the same time. The algorithms try to fulfil all objectives simultaneously.
 
-Lightly's data selection algorithms support four types of input:
+Lightly Worker's data selection algorithms support four types of input:
 
 - **Embeddings** computed using `our open source framework for self-supervised learning <https://github.com/lightly-ai/lightly>`_
-- **Lightly metadata** are metadata of images like the sharpness and computed out of the images themselves by Lightly.
+- **Lightly metadata** are metadata of images like the sharpness and computed out of the images themselves by the Lightly Worker.
 - (Optional)  :ref:`Model predictions <docker-datasource-predictions>` such as classifications, object detections or segmentations
 - (Optional) :ref:`Custom metadata <docker-datasource-metadata>` can be anything you can encode in a json file (from numbers to categorical strings)
 
@@ -96,7 +96,7 @@ The input can be one of the following:
 
     .. tab:: EMBEDDINGS
 
-        The `lightly OSS framework for self supervised learning <https://github.com/lightly-ai/lightly>`_ is used to compute the embeddings.
+        The `Lightly OSS framework for self supervised learning <https://github.com/lightly-ai/lightly>`_ is used to compute the embeddings.
         They are a vector of numbers for each sample.
         
         You can define embeddings as input using:
@@ -213,7 +213,7 @@ The input can be one of the following:
 
         - **Numerical** vs. **Categorical** values
 
-            Not all metadata types can be used in all selection strategies. Lightly differentiates between numerical and categorical metadata.
+            Not all metadata types can be used in all selection strategies. The Lightly Worker differentiates between numerical and categorical metadata.
 
             **Numerical** metadata are numbers (int, float), e.g. `lightly.sharpness` or `weather.temperature`. It is usually real-valued.
             
@@ -539,7 +539,7 @@ In the next step, all other strategies are applied in parallel.
           from "my_weather_classification_task" for one strategy combined with predictions from
           "my_object_detection_task" from another strategy.
 
-The Lightly optimizer tries to fulfil all strategies as good as possible. 
+The Lightly Worker optimizer tries to fulfil all strategies as good as possible. 
 **Potential reasons why your objectives were not satisfied:**
 
 - **Tradeoff between different objectives.**
@@ -558,12 +558,12 @@ The Lightly optimizer tries to fulfil all strategies as good as possible.
 Selection on object level
 -------------------------
 
-Lightly supports doing selection on :ref:`docker-object-level`.
+The Lightly Worker supports doing selection on :ref:`docker-object-level`.
 
 While embeddings are fully available, there are some limitations regarding the usage of METADATA and predictions for SCORES and PREDICTIONS as input:
 
 - When using the object level workflow, the object detections used to create the object crops out of the images are available and can be used for both the SCORES and PREDICTIONS input. However, predictions from other tasks are NOT available at the moment.
 
-- Lightly metadata is generated on the fly for the object crops and can thus be used for selection. However, other metadata is on image level and thus NOT available at the moment.
+- The Lightly Worker generates metadata on the fly for the object crops and can thus be used for selection. However, other metadata is on image level and thus NOT available at the moment.
 
 If your use case would profit from using image-level data for object-level selection, please reach out to us.

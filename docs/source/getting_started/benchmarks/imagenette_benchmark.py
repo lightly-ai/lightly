@@ -89,6 +89,9 @@ from lightly.loss import (
 from lightly.models import modules, utils
 from lightly.models.modules import heads, masked_autoencoder, memory_bank
 from lightly.transforms import (
+    BYOLTransform,
+    BYOLView1Transform,
+    BYOLView2Transform,
     DINOTransform,
     FastSiamTransform,
     MAETransform,
@@ -152,6 +155,12 @@ else:
 
 path_to_train = "/datasets/imagenette2-160/train/"
 path_to_test = "/datasets/imagenette2-160/val/"
+
+# Use BYOL augmentations
+byol_transform = BYOLTransform(
+    view_1_transform=BYOLView1Transform(input_size=input_size),
+    view_2_transform=BYOLView2Transform(input_size=input_size),
+)
 
 # Use SimCLR augmentations
 simclr_transform = SimCLRTransform(
@@ -243,8 +252,8 @@ def create_dataset_train_ssl(model):
             Model class for which to select the transform.
     """
     model_to_transform = {
-        BarlowTwinsModel: simclr_transform,
-        BYOLModel: simclr_transform,
+        BarlowTwinsModel: byol_transform,
+        BYOLModel: byol_transform,
         DCL: simclr_transform,
         DCLW: simclr_transform,
         DINOModel: dino_transform,
@@ -260,7 +269,7 @@ def create_dataset_train_ssl(model):
         SwaVModel: swav_transform,
         SwaVQueueModel: swav_transform,
         SMoGModel: smog_transform,
-        TiCoModel: simclr_transform,
+        TiCoModel: byol_transform,
         VICRegModel: vicreg_transform,
         VICRegLModel: vicregl_transform,
     }

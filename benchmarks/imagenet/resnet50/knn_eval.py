@@ -10,6 +10,7 @@ from torchvision import transforms as T
 from lightly.data import LightlyDataset
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils.benchmarking import KNNClassifier, MetricCallback
+from lightly.utils.dist import print_rank_zero
 
 
 def knn_eval(
@@ -34,7 +35,7 @@ def knn_eval(
     References:
        - [0]: InstDict, 2018, https://arxiv.org/abs/1805.01978
     """
-    print("Running KNN evaluation...")
+    print_rank_zero("Running KNN evaluation...")
 
     # Setup training data.
     transform = T.Compose(
@@ -81,6 +82,7 @@ def knn_eval(
             metric_callback,
         ],
         strategy="ddp_find_unused_parameters_true",
+        num_sanity_val_steps=0,
     )
     trainer.fit(
         model=classifier,
@@ -88,4 +90,4 @@ def knn_eval(
         val_dataloaders=val_dataloader,
     )
     for metric in ["val_top1", "val_top5"]:
-        print(f"knn {metric}: {max(metric_callback.val_metrics[metric])}")
+        print_rank_zero(f"knn {metric}: {max(metric_callback.val_metrics[metric])}")

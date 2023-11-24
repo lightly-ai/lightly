@@ -8,7 +8,7 @@ Docker Archive
     Please switch to our `new documentation page <https://docs.lightly.ai/docs>`_ instead.
 
 We all know that sometimes when working with ML data we deal with really BIG datasets. The cloud solution is great for exploration, prototyping
-and an easy way to work with lightly. But there is more!
+and an easy way to work with Lightly. But there is more!
 
 .. figure:: images/lightly_docker_overview.png
     :align: center
@@ -50,7 +50,7 @@ We worked hard to make this happen and are very proud to present you with the fo
 
   * Check for exact duplicates and report them
 
-  * We expose the full lightly framework config
+  * We expose the full Lightly SSL framework config
 
 * Automated reporting of the datasets for each run
 

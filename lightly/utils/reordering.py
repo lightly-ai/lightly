@@ -1,7 +1,12 @@
-from typing import List, Sized
+from typing import List, Sequence, TypeVar
+
+_K = TypeVar("_K")
+_V = TypeVar("_V")
 
 
-def sort_items_by_keys(keys: List[any], items: List[any], sorted_keys: List[any]):
+def sort_items_by_keys(
+    keys: Sequence[_K], items: Sequence[_V], sorted_keys: Sequence[_K]
+) -> List[_V]:
     """Sorts the items in the same order as the sorted keys.
 
     Args:

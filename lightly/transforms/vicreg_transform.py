@@ -1,4 +1,4 @@
-from typing import Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 import torchvision.transforms as T
 from PIL.Image import Image
@@ -97,7 +97,7 @@ class VICRegTransform(MultiViewTransform):
         hf_prob: float = 0.5,
         rr_prob: float = 0.0,
         rr_degrees: Union[None, float, Tuple[float, float]] = None,
-        normalize: Union[None, dict] = IMAGENET_NORMALIZE,
+        normalize: Union[None, Dict[str, List[float]]] = IMAGENET_NORMALIZE,
     ):
         view_transform = VICRegViewTransform(
             input_size=input_size,
@@ -142,7 +142,7 @@ class VICRegViewTransform:
         hf_prob: float = 0.5,
         rr_prob: float = 0.0,
         rr_degrees: Union[None, float, Tuple[float, float]] = None,
-        normalize: Union[None, dict] = IMAGENET_NORMALIZE,
+        normalize: Union[None, Dict[str, List[float]]] = IMAGENET_NORMALIZE,
     ):
         color_jitter = T.ColorJitter(
             brightness=cj_strength * cj_bright,
@@ -178,4 +178,5 @@ class VICRegViewTransform:
             The transformed image.
 
         """
-        return self.transform(image)
+        transformed: Tensor = self.transform(image)
+        return transformed

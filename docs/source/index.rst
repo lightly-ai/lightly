@@ -4,36 +4,37 @@
    contain the root `toctree` directive.
 
 
-.. image:: ../logos/lightly_logo_crop.png
-  :width: 600
-  :alt: Lightly
+.. image:: ../logos/lightly_SSL_logo_crop.png
+   :width: 600
+   :align: center
+   :alt: Lightly SSL Self-Supervised Learning
 
 
 Documentation
 ===================================
 
 .. note:: These pages document the Lightly self-supervised learning library.
-          If you are looking for Lightly Worker Solution to easily process millions
-          of samples and run powerful active learning algorithms on your data
-          please follow
-          `Lightly Worker documentation <https://docs.lightly.ai/>`_.
+          If you are looking for the Lightly Worker Solution with
+          advanced `active learning algorithms <https://docs.lightly.ai/docs/selection>`_ and
+          `selection strategies <https://docs.lightly.ai/docs/selection>`_ to select the best samples
+          within millions of unlabeled images or video frames stored in your cloud storage or locally,
+          please follow our `Lightly Worker documentation <https://docs.lightly.ai/>`_.
 
-Lightly is a computer vision framework for self-supervised learning.
+Lightly SSL is a computer vision framework for self-supervised learning.
 
-With Lightly you can train deep learning models using self-supervision. 
+With Lightly SSL you can train deep learning models using self-supervision. 
 This means, that you don’t require any labels to train a model. 
-Lightly has been built to help you understand and work with large unlabeled 
+Lightly SSL has been built to help you understand and work with large unlabeled 
 datasets. It is built on top of PyTorch and therefore fully compatible with 
 other frameworks such as Fast.ai.
 
 
-Lightly
--------
+Lightly AI
+----------
 
 - `Homepage <https://www.lightly.ai>`_
-- `Web-App <https://app.lightly.ai>`_
-- `Documentation <https://docs.lightly.ai/self-supervised-learning/>`_
-- `Lightly Solution Documentation (Lightly Worker & API) <https://docs.lightly.ai/>`_
+- `Lightly Worker Solution Documentation <https://docs.lightly.ai/>`_
+- `Lightly Platform <https://app.lightly.ai>`_
 - `Github <https://github.com/lightly-ai/lightly>`_
 - `Discord <https://discord.gg/xvNJW94>`_ (We have weekly paper sessions!)
 
@@ -58,8 +59,12 @@ Lightly
    :maxdepth: 1
    :caption: Tutorials
 
-   tutorials/package.rst
-   tutorials/platform.rst
+   tutorials/structure_your_input.rst
+   tutorials/package/tutorial_moco_memory_bank.rst
+   tutorials/package/tutorial_simclr_clothing.rst
+   tutorials/package/tutorial_simsiam_esa.rst
+   tutorials/package/tutorial_custom_augmentations.rst
+   tutorials/package/tutorial_pretrain_detectron2.rst
 
 .. toctree::
    :maxdepth: 1

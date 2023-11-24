@@ -1,4 +1,4 @@
-from typing import Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 import torchvision.transforms as T
 from PIL.Image import Image
@@ -88,7 +88,7 @@ class SMoGTransform(MultiViewTransform):
         cj_sat: float = 0.4,
         cj_hue: float = 0.2,
         random_gray_scale: float = 0.2,
-        normalize: Union[None, dict] = IMAGENET_NORMALIZE,
+        normalize: Union[None, Dict[str, List[float]]] = IMAGENET_NORMALIZE,
     ):
         transforms = []
         for i in range(len(crop_sizes)):
@@ -137,7 +137,7 @@ class SmoGViewTransform:
         cj_sat: float = 0.4,
         cj_hue: float = 0.2,
         random_gray_scale: float = 0.2,
-        normalize: Union[None, dict] = IMAGENET_NORMALIZE,
+        normalize: Union[None, Dict[str, List[float]]] = IMAGENET_NORMALIZE,
     ):
         color_jitter = T.ColorJitter(
             brightness=cj_strength * cj_bright,
@@ -175,4 +175,5 @@ class SmoGViewTransform:
             The transformed image.
 
         """
-        return self.transform(image)
+        transformed: Tensor = self.transform(image)
+        return transformed

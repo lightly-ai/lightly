@@ -33,14 +33,14 @@ from lightly.openapi_generated.swagger_client.models import (
     DockerWorkerConfigV3LightlyLoader,
     DockerWorkerState,
     DockerWorkerType,
-    SelectionConfig,
-    SelectionConfigEntry,
-    SelectionConfigEntryInput,
-    SelectionConfigEntryStrategy,
+    SelectionConfigV3,
+    SelectionConfigV3Entry,
+    SelectionConfigV3EntryInput,
+    SelectionConfigV3EntryStrategy,
     SelectionInputPredictionsName,
     SelectionInputType,
     SelectionStrategyThresholdOperation,
-    SelectionStrategyType,
+    SelectionStrategyTypeV3,
     TagData,
 )
 from lightly.openapi_generated.swagger_client.rest import ApiException
@@ -101,17 +101,17 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
                     "batch_size": 64,
                 },
             },
-            selection_config=SelectionConfig(
+            selection_config=SelectionConfigV3(
                 n_samples=20,
                 strategies=[
-                    SelectionConfigEntry(
-                        input=SelectionConfigEntryInput(
+                    SelectionConfigV3Entry(
+                        input=SelectionConfigV3EntryInput(
                             type=SelectionInputType.EMBEDDINGS,
                             dataset_id=utils.generate_id(),
                             tag_name="some-tag-name",
                         ),
-                        strategy=SelectionConfigEntryStrategy(
-                            type=SelectionStrategyType.SIMILARITY,
+                        strategy=SelectionConfigV3EntryStrategy(
+                            type=SelectionStrategyTypeV3.SIMILARITY,
                         ),
                     )
                 ],
@@ -203,44 +203,46 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
         return obj_api
 
     def test_selection_config(self):
-        selection_config = SelectionConfig(
+        selection_config = SelectionConfigV3(
             n_samples=1,
             strategies=[
-                SelectionConfigEntry(
-                    input=SelectionConfigEntryInput(type=SelectionInputType.EMBEDDINGS),
-                    strategy=SelectionConfigEntryStrategy(
-                        type=SelectionStrategyType.DIVERSITY,
+                SelectionConfigV3Entry(
+                    input=SelectionConfigV3EntryInput(
+                        type=SelectionInputType.EMBEDDINGS
+                    ),
+                    strategy=SelectionConfigV3EntryStrategy(
+                        type=SelectionStrategyTypeV3.DIVERSITY,
                         stopping_condition_minimum_distance=-1,
                     ),
                 ),
-                SelectionConfigEntry(
-                    input=SelectionConfigEntryInput(
+                SelectionConfigV3Entry(
+                    input=SelectionConfigV3EntryInput(
                         type=SelectionInputType.SCORES,
                         task="my-classification-task",
                         score="uncertainty_margin",
                     ),
-                    strategy=SelectionConfigEntryStrategy(
-                        type=SelectionStrategyType.WEIGHTS
+                    strategy=SelectionConfigV3EntryStrategy(
+                        type=SelectionStrategyTypeV3.WEIGHTS
                     ),
                 ),
-                SelectionConfigEntry(
-                    input=SelectionConfigEntryInput(
+                SelectionConfigV3Entry(
+                    input=SelectionConfigV3EntryInput(
                         type=SelectionInputType.METADATA, key="lightly.sharpness"
                     ),
-                    strategy=SelectionConfigEntryStrategy(
-                        type=SelectionStrategyType.THRESHOLD,
+                    strategy=SelectionConfigV3EntryStrategy(
+                        type=SelectionStrategyTypeV3.THRESHOLD,
                         threshold=20,
                         operation=SelectionStrategyThresholdOperation.BIGGER_EQUAL,
                     ),
                 ),
-                SelectionConfigEntry(
-                    input=SelectionConfigEntryInput(
+                SelectionConfigV3Entry(
+                    input=SelectionConfigV3EntryInput(
                         type=SelectionInputType.PREDICTIONS,
                         task="my_object_detection_task",
                         name=SelectionInputPredictionsName.CLASS_DISTRIBUTION,
                     ),
-                    strategy=SelectionConfigEntryStrategy(
-                        type=SelectionStrategyType.BALANCE,
+                    strategy=SelectionConfigV3EntryStrategy(
+                        type=SelectionStrategyTypeV3.BALANCE,
                         target={"Ambulance": 0.2, "Bus": 0.4},
                     ),
                 ),

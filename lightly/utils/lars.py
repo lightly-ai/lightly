@@ -1,5 +1,8 @@
+from typing import Any, Callable, Dict, Optional, Union
+
 import torch
-from torch.optim.optimizer import Optimizer, required
+from torch import Tensor
+from torch.optim.optimizer import Optimizer, required  # type: ignore[attr-defined]
 
 
 class LARS(Optimizer):
@@ -65,7 +68,7 @@ class LARS(Optimizer):
 
     def __init__(
         self,
-        params,
+        params: Any,
         lr: float = required,
         momentum: float = 0,
         dampening: float = 0,
@@ -95,14 +98,14 @@ class LARS(Optimizer):
 
         super().__init__(params, defaults)
 
-    def __setstate__(self, state):
+    def __setstate__(self, state: Dict[str, Any]) -> None:
         super().__setstate__(state)
 
         for group in self.param_groups:
             group.setdefault("nesterov", False)
 
     @torch.no_grad()
-    def step(self, closure=None):
+    def step(self, closure: Optional[Callable[[], float]] = None) -> Optional[float]:
         """Performs a single optimization step.
 
         Args:

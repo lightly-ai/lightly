@@ -27,9 +27,10 @@ class DatasourceConfigGCS(DatasourceConfigBase):
     """
     DatasourceConfigGCS
     """
+    full_path: StrictStr = Field(..., alias="fullPath", description="path includes the bucket name and the path within the bucket where you have stored your information")
     gcs_project_id: constr(strict=True, min_length=1) = Field(..., alias="gcsProjectId", description="The projectId where you have your bucket configured")
     gcs_credentials: StrictStr = Field(..., alias="gcsCredentials", description="this is the content of the credentials JSON file stringified which you downloaded from Google Cloud Platform")
-    __properties = ["id", "purpose", "type", "fullPath", "thumbSuffix", "gcsProjectId", "gcsCredentials"]
+    __properties = ["id", "purpose", "type", "thumbSuffix", "fullPath", "gcsProjectId", "gcsCredentials"]
 
     class Config:
         """Pydantic configuration"""
@@ -77,8 +78,8 @@ class DatasourceConfigGCS(DatasourceConfigBase):
             "id": obj.get("id"),
             "purpose": obj.get("purpose"),
             "type": obj.get("type"),
-            "full_path": obj.get("fullPath"),
             "thumb_suffix": obj.get("thumbSuffix"),
+            "full_path": obj.get("fullPath"),
             "gcs_project_id": obj.get("gcsProjectId"),
             "gcs_credentials": obj.get("gcsCredentials")
         })
