@@ -74,7 +74,7 @@ class MemoryBankModule(Module):
         self.bank: Tensor
         self.register_buffer(
             "bank",
-            tensor=torch.empty(size=self.size, dtype=torch.float),
+            tensor=torch.empty(size=size_tuple, dtype=torch.float),
             persistent=False,
         )
         self.bank_ptr: Tensor
@@ -94,24 +94,18 @@ class MemoryBankModule(Module):
                 ),
                 UserWarning,
             )
-        else:
-            self._init_memory_bank(dim=None)
+        elif len(size_tuple) > 1:
+            self._init_memory_bank(size=size_tuple)
 
     @torch.no_grad()
-    def _init_memory_bank(self, dim: Union[Sequence[int], None]) -> None:
-        """Initialize the memory bank if it's empty.
+    def _init_memory_bank(self, size: Tuple[int, ...]) -> None:
+        """Initialize the memory bank.
 
         Args:
-            dim:
-                The dimension of the which are stored in the bank.
+            size:
+                Size of the memory bank as (num_features, dim) tuple.
 
         """
-        if dim is None:
-            # Feature dimension has been specified when initializing the memory bank.
-            size = self.size
-        else:
-            # Feature dimension was inferred from batch.
-            size = (self.size[0], *dim)
         self.bank = torch.randn(size).type_as(self.bank)
         self.bank = torch.nn.functional.normalize(self.bank, dim=-1)
         self.bank_ptr = torch.zeros(1).type_as(self.bank_ptr)
@@ -165,10 +159,10 @@ class MemoryBankModule(Module):
         if self.size[0] == 0:
             return output, None
 
-        # initialize the memory bank if it is not already done
+        # Initialize the memory bank if it is not already done.
         if self.bank.ndim == 1:
             dim = output.shape[1:]
-            self._init_memory_bank(dim)
+            self._init_memory_bank(size=(*self.size, *dim))
 
         # query and update memory bank
         bank = self.bank.clone().detach()
