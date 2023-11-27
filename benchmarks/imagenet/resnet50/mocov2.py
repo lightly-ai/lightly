@@ -111,7 +111,7 @@ class MoCoV2(LightningModule):
         # NOTE: The original implementation from the authors uses weight decay for all
         # parameters.
         params, params_no_weight_decay = get_weight_decay_parameters(
-            [self.backbone, self.projection_head]
+            [self.query_backbone, self.query_projection_head]
         )
         optimizer = SGD(
             [
