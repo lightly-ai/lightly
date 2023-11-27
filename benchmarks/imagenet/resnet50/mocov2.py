@@ -33,7 +33,11 @@ class MoCoV2(LightningModule):
         self.projection_head = MoCoProjectionHead()
         self.query_backbone = copy.deepcopy(self.backbone)
         self.query_projection_head = MoCoProjectionHead()
-        self.criterion = NTXentLoss(temperature=0.2, memory_bank_size=(65536, 128))
+        self.criterion = NTXentLoss(
+            temperature=0.2,
+            memory_bank_size=(65536, 128),
+            gather_distributed=self.trainer.num_devices > 1,
+        )
 
         self.online_classifier = OnlineLinearClassifier(num_classes=num_classes)
 
