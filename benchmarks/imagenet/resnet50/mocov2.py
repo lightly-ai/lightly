@@ -36,7 +36,7 @@ class MoCoV2(LightningModule):
         self.criterion = NTXentLoss(
             temperature=0.2,
             memory_bank_size=(65536, 128),
-            gather_distributed=self.trainer.num_devices > 1,
+            gather_distributed=True,
         )
 
         self.online_classifier = OnlineLinearClassifier(num_classes=num_classes)
