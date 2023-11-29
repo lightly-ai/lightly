@@ -144,7 +144,7 @@ transform = transforms.SimCLRTransform(input_size=32, cj_prob=0.5)
 
 
 # Create a dataset from your image folder.
-dataset = data.LightlyDataset(input_dir="./my/cute/cats/dataset/", transform=transform)
+dataset = LightlyDataset(input_dir="./my/cute/cats/dataset/", transform=transform)
 
 # Build a PyTorch dataloader.
 dataloader = torch.utils.data.DataLoader(
