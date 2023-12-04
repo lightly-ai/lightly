@@ -20,7 +20,9 @@ class SwaV(nn.Module):
         self.prototypes = SwaVPrototypes(128, 512, 1)
 
         self.start_queue_at_epoch = 2
-        self.queues = nn.ModuleList([MemoryBankModule(size=3840) for _ in range(2)])
+        self.queues = nn.ModuleList(
+            [MemoryBankModule(size=(3840, 128)) for _ in range(2)]
+        )
 
     def forward(self, high_resolution, low_resolution, epoch):
         self.prototypes.normalize()

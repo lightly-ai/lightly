@@ -18,7 +18,7 @@ class TestCO2Regularizer(unittest.TestCase):
             self.assertAlmostEqual((l1 - l2).pow(2).item(), 0.0)
 
     def test_forward_pass_memory_bank(self):
-        reg = CO2Regularizer(memory_bank_size=4096)
+        reg = CO2Regularizer(memory_bank_size=(4096, 32))
         for bsz in range(1, 20):
             batch_1 = torch.randn((bsz, 32))
             batch_2 = torch.randn((bsz, 32))
@@ -44,7 +44,7 @@ class TestCO2Regularizer(unittest.TestCase):
         if not torch.cuda.is_available():
             return
 
-        reg = CO2Regularizer(memory_bank_size=4096)
+        reg = CO2Regularizer(memory_bank_size=(4096, 32))
         for bsz in range(1, 20):
             batch_1 = torch.randn((bsz, 32)).cuda()
             batch_2 = torch.randn((bsz, 32)).cuda()

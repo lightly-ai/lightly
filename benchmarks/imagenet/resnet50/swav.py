@@ -40,7 +40,7 @@ class SwAV(LightningModule):
         self.queues = ModuleList(
             [
                 MemoryBankModule(
-                    size=self.n_batches_in_queue * self.batch_size_per_device
+                    size=(self.n_batches_in_queue * self.batch_size_per_device, 128)
                 )
                 for _ in range(CROP_COUNTS[0])
             ]

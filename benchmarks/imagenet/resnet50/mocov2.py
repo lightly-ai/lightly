@@ -33,7 +33,11 @@ class MoCoV2(LightningModule):
         self.projection_head = MoCoProjectionHead()
         self.query_backbone = copy.deepcopy(self.backbone)
         self.query_projection_head = MoCoProjectionHead()
-        self.criterion = NTXentLoss(temperature=0.2, memory_bank_size=65536)
+        self.criterion = NTXentLoss(
+            temperature=0.2,
+            memory_bank_size=(65536, 128),
+            gather_distributed=True,
+        )
 
         self.online_classifier = OnlineLinearClassifier(num_classes=num_classes)
 
@@ -45,8 +49,16 @@ class MoCoV2(LightningModule):
         x, shuffle = batch_shuffle(batch=x, distributed=self.trainer.num_devices > 1)
         features = self.forward(x).flatten(start_dim=1)
         projections = self.projection_head(features)
-        features = batch_unshuffle(batch=features, shuffle=shuffle)
-        projections = batch_unshuffle(batch=projections, shuffle=shuffle)
+        features = batch_unshuffle(
+            batch=features,
+            shuffle=shuffle,
+            distributed=self.trainer.num_devices > 1,
+        )
+        projections = batch_unshuffle(
+            batch=projections,
+            shuffle=shuffle,
+            distributed=self.trainer.num_devices > 1,
+        )
         return features, projections
 
     def forward_query_encoder(self, x: Tensor) -> Tensor:
@@ -123,7 +135,7 @@ class MoCoV2(LightningModule):
             "scheduler": CosineWarmupScheduler(
                 optimizer=optimizer,
                 warmup_epochs=0,
-                max_epochs=self.trainer.estimated_stepping_batches,
+                max_epochs=int(self.trainer.estimated_stepping_batches),
             ),
             "interval": "step",
         }

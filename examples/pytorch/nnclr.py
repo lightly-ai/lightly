@@ -38,7 +38,7 @@ model = NNCLR(backbone)
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
 
-memory_bank = NNMemoryBankModule(size=4096)
+memory_bank = NNMemoryBankModule(size=(4096, 128))
 memory_bank.to(device)
 
 transform = SimCLRTransform(input_size=32)
