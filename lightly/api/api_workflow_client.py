@@ -228,7 +228,7 @@ class ApiWorkflowClient(
 
     def upload_file_with_signed_url(
         self,
-        file: IOBase,
+        file: Union[IOBase, None],
         signed_write_url: str,
         headers: Optional[Dict] = None,
         session: Optional[requests.Session] = None,
@@ -237,7 +237,7 @@ class ApiWorkflowClient(
 
         Args:
             file:
-                The file to upload.
+                The file to upload. If None, an empty file is uploaded.
             signed_write_url:
                 The url to upload the file to. As no authorization is used,
                 the url must be a signed write url.
