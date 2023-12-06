@@ -12,6 +12,7 @@ import finetune_eval
 import knn_eval
 import linear_eval
 import simclr
+import ssley
 import swav
 import torch
 import vicreg
@@ -58,6 +59,7 @@ METHODS = {
     "dclw": {"model": dclw.DCLW, "transform": dclw.transform},
     "dino": {"model": dino.DINO, "transform": dino.transform},
     "simclr": {"model": simclr.SimCLR, "transform": simclr.transform},
+    "ssley": {"model": ssley.SSLEY, "transform": ssley.transform},
     "swav": {"model": swav.SwAV, "transform": swav.transform},
     "vicreg": {"model": vicreg.VICReg, "transform": vicreg.transform},
 }
