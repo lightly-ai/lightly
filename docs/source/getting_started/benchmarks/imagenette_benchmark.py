@@ -29,6 +29,7 @@ Results (4.5.2023):
 | SimCLR           |        256 |    200 |                  0.835 |   49.7 Min |      3.7 GByte |
 | SimMIM (ViT-B32) |        256 |    200 |                  0.315 |  115.5 Min |      9.7 GByte |
 | SimSiam          |        256 |    200 |                  0.752 |   58.2 Min |      3.9 GByte |
+| SSL-EY           |        256 |    200 |                  TO-DO |   TO-DO    |    TO-DO GByte |
 | SwaV             |        256 |    200 |                  0.861 |   73.3 Min |      6.4 GByte |
 | SwaVQueue        |        256 |    200 |                  0.827 |   72.6 Min |      6.4 GByte |
 | SMoG             |        256 |    200 |                  0.663 |   58.7 Min |      2.6 GByte |
@@ -50,6 +51,7 @@ Results (4.5.2023):
 | SimCLR           |        256 |    800 |                  0.889 |  193.5 Min |      3.7 GByte |
 | SimMIM (ViT-B32) |        256 |    800 |                  0.343 |  446.5 Min |      9.7 GByte |
 | SimSiam          |        256 |    800 |                  0.872 |  206.4 Min |      3.9 GByte |
+| SSL-EY           |        256 |    800 |                  TO-DO |   TO-DO    |    TO-DO GByte |
 | SwaV             |        256 |    800 |                  0.902 |  283.2 Min |      6.4 GByte |
 | SwaVQueue        |        256 |    800 |                  0.890 |  282.7 Min |      6.4 GByte |
 | SMoG             |        256 |    800 |                  0.788 |  232.1 Min |      2.6 GByte |
@@ -81,6 +83,7 @@ from lightly.loss import (
     NegativeCosineSimilarity,
     NTXentLoss,
     PMSNLoss,
+    SSLEYLoss,
     SwaVLoss,
     TiCoLoss,
     VICRegLLoss,
@@ -267,6 +270,7 @@ def create_dataset_train_ssl(model):
         SimCLRModel: simclr_transform,
         SimMIMModel: simmim_transform,
         SimSiamModel: simsiam_transform,
+        SSL_EYModel: vicreg_transform,
         SwaVModel: swav_transform,
         SwaVQueueModel: swav_transform,
         SMoGModel: smog_transform,
@@ -1165,6 +1169,42 @@ class SimMIMModel(BenchmarkModule):
         return [optim], [cosine_scheduler]
 
 
+class SSLEYModel(BenchmarkModule):
+    def __init__(self, dataloader_kNN, num_classes):
+        super().__init__(dataloader_kNN, num_classes)
+        # create a ResNet backbone and remove the classification head
+        resnet = torchvision.models.resnet18()
+        self.backbone = nn.Sequential(*list(resnet.children())[:-1])
+        self.projection_head = heads.BarlowTwinsProjectionHead(512, 2048, 2048)
+        self.criterion = SSLEYLoss()
+        self.warmup_epochs = 40 if max_epochs >= 800 else 20
+
+    def forward(self, x):
+        x = self.backbone(x).flatten(start_dim=1)
+        z = self.projection_head(x)
+        return z
+
+    def training_step(self, batch, batch_index):
+        (x0, x1), _, _ = batch
+        z0 = self.forward(x0)
+        z1 = self.forward(x1)
+        loss = self.criterion(z0, z1)
+        return loss
+
+    def configure_optimizers(self):
+        # Training diverges without LARS
+        optim = LARS(
+            self.parameters(),
+            lr=0.3 * lr_factor,
+            weight_decay=1e-4,
+            momentum=0.9,
+        )
+        cosine_scheduler = scheduler.CosineWarmupScheduler(
+            optim, self.warmup_epochs, max_epochs
+        )
+        return [optim], [cosine_scheduler]
+
+
 class VICRegModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
         super().__init__(dataloader_kNN, num_classes)
@@ -1410,6 +1450,7 @@ models = [
     SimCLRModel,
     # SimMIMModel, # disabled by default because SimMIM uses larger images with size 224
     SimSiamModel,
+    SSLEYModel,
     SwaVModel,
     SwaVQueueModel,
     SMoGModel,
