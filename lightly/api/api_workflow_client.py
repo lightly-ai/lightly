@@ -235,6 +235,9 @@ class ApiWorkflowClient(
     ) -> Response:
         """Uploads a file to a url via a put request.
 
+        This method cannot upload 0 bytes files due to a limitation of the requests
+        library. Set file to None to upload an empty file.
+
         Args:
             file:
                 The file to upload. If None, an empty file is uploaded.
