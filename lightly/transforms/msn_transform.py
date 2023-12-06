@@ -1,4 +1,4 @@
-from typing import Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 import torchvision.transforms as T
 from PIL.Image import Image
@@ -11,6 +11,20 @@ from lightly.transforms.utils import IMAGENET_NORMALIZE
 
 class MSNTransform(MultiViewTransform):
     """Implements the transformations for MSN [0].
+
+    Input to this transform:
+        PIL Image or Tensor.
+
+    Output of this transform:
+        List of Tensor of length 2 * random_views + focal_views. (12 by default)
+
+    Applies the following augmentations by default:
+        - Random resized crop
+        - Random horizontal flip
+        - Color jitter
+        - Random gray scale
+        - Gaussian blur
+        - ImageNet normalization
 
     Generates a set of random and focal views for each input image. The generated output
     is (views, target, filenames) where views is list with the following entries:
@@ -82,7 +96,7 @@ class MSNTransform(MultiViewTransform):
         random_gray_scale: float = 0.2,
         hf_prob: float = 0.5,
         vf_prob: float = 0.0,
-        normalize: dict = IMAGENET_NORMALIZE,
+        normalize: Dict[str, List[float]] = IMAGENET_NORMALIZE,
     ):
         random_view_transform = MSNViewTransform(
             crop_size=random_size,
@@ -136,7 +150,7 @@ class MSNViewTransform:
         random_gray_scale: float = 0.2,
         hf_prob: float = 0.5,
         vf_prob: float = 0.0,
-        normalize: dict = IMAGENET_NORMALIZE,
+        normalize: Dict[str, List[float]] = IMAGENET_NORMALIZE,
     ):
         color_jitter = T.ColorJitter(
             brightness=cj_strength * cj_bright,
@@ -169,4 +183,5 @@ class MSNViewTransform:
             The transformed image.
 
         """
-        return self.transform(image)
+        transformed: Tensor = self.transform(image)
+        return transformed

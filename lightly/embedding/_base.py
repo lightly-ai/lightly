@@ -4,18 +4,34 @@
 # All Rights Reserved
 import copy
 import os
+from typing import Any, List, Optional, Sequence, Tuple, Union
 
 import omegaconf
 from omegaconf import DictConfig
 from pytorch_lightning import LightningModule, Trainer
+from pytorch_lightning.callbacks.callback import Callback
+from torch import Tensor
+from torch.nn import Module
+from torch.optim import Optimizer
+from torch.optim.lr_scheduler import _LRScheduler
+from torch.utils.data import DataLoader
 
+from lightly.data.dataset import LightlyDataset
 from lightly.embedding import callbacks
+from lightly.utils.benchmarking import BenchmarkModule
 
 
 class BaseEmbedding(LightningModule):
     """All trainable embeddings must inherit from BaseEmbedding."""
 
-    def __init__(self, model, criterion, optimizer, dataloader, scheduler=None):
+    def __init__(
+        self,
+        model: BenchmarkModule,
+        criterion: Module,
+        optimizer: Optimizer,
+        dataloader: DataLoader[LightlyDataset],
+        scheduler: Optional[_LRScheduler] = None,
+    ) -> None:
         """Constructor
 
         Args:
@@ -32,30 +48,35 @@ class BaseEmbedding(LightningModule):
         self.optimizer = optimizer
         self.dataloader = dataloader
         self.scheduler = scheduler
-        self.checkpoint = None
+        self.checkpoint: Optional[str] = None
         self.cwd = os.getcwd()
 
-    def forward(self, x0, x1):
-        return self.model(x0, x1)
+    def forward(self, x0: Tensor, x1: Tensor) -> Tensor:
+        embedding: Tensor = self.model(x0, x1)
+        return embedding
 
-    def training_step(self, batch, batch_idx):
+    def training_step(
+        self, batch: Tuple[List[Tensor], Tensor, List[str]], batch_idx: int
+    ) -> Tensor:
         # get the two image transformations
         (x0, x1), _, _ = batch
         # forward pass of the transformations
         y0, y1 = self(x0, x1)
         # calculate loss
-        loss = self.criterion(y0, y1)
+        loss: Tensor = self.criterion(y0, y1)
         # log loss and return
         self.log("loss", loss)
         return loss
 
-    def configure_optimizers(self):
+    def configure_optimizers(
+        self,
+    ) -> Union[Optimizer, Tuple[Sequence[Optimizer], Sequence[_LRScheduler]]]:
         if self.scheduler is None:
             return self.optimizer
         else:
             return [self.optimizer], [self.scheduler]
 
-    def train_dataloader(self):
+    def train_dataloader(self) -> DataLoader[LightlyDataset]:
         return self.dataloader
 
     def train_embedding(
@@ -63,7 +84,7 @@ class BaseEmbedding(LightningModule):
         trainer_config: DictConfig,
         checkpoint_callback_config: DictConfig,
         summary_callback_config: DictConfig,
-    ):
+    ) -> None:
         """Train the model on the provided dataset.
 
         Args:
@@ -80,9 +101,9 @@ class BaseEmbedding(LightningModule):
             A trained encoder, ready for embedding datasets.
 
         """
-        trainer_callbacks = []
+        trainer_callbacks: List[Callback] = []
 
-        checkpoint_cb = callbacks.create_checkpoint_callback(
+        checkpoint_cb = callbacks.create_checkpoint_callback(  # type: ignore[misc]
             **checkpoint_callback_config
         )
         trainer_callbacks.append(checkpoint_cb)
@@ -100,14 +121,13 @@ class BaseEmbedding(LightningModule):
         if "weights_summary" in trainer_config_copy:
             with omegaconf.open_dict(trainer_config_copy):
                 del trainer_config_copy["weights_summary"]
-
-        trainer = Trainer(**trainer_config_copy, callbacks=trainer_callbacks)
+        trainer = Trainer(**trainer_config_copy, callbacks=trainer_callbacks)  # type: ignore[misc]
 
         trainer.fit(self)
 
         if checkpoint_cb.best_model_path != "":
             self.checkpoint = os.path.join(self.cwd, checkpoint_cb.best_model_path)
 
-    def embed(self, *args, **kwargs):
+    def embed(self, *args: Any, **kwargs: Any) -> Any:
         """Must be implemented by classes which inherit from BaseEmbedding."""
         raise NotImplementedError()

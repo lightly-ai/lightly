@@ -1,19 +1,18 @@
 import io
 import os
+import urllib.request
 import warnings
 from concurrent.futures.thread import ThreadPoolExecutor
 from typing import Dict, List, Optional
-from urllib.request import Request, urlopen
+from urllib.request import Request
 
 import tqdm
 from PIL import Image
 
-from lightly.api import download
+from lightly.api import download, utils
 from lightly.api.bitmask import BitMask
-from lightly.api.utils import paginate_endpoint, retry
-from lightly.openapi_generated.swagger_client import (
+from lightly.openapi_generated.swagger_client.models import (
     DatasetEmbeddingData,
-    FileNameFormat,
     ImageType,
 )
 from lightly.utils.hipify import bcolors
@@ -34,7 +33,7 @@ def _make_dir_and_save_image(output_dir: str, filename: str, img: Image):
 def _get_image_from_read_url(read_url: str):
     """Makes a get request to the signed read url and returns the image."""
     request = Request(read_url, method="GET")
-    with urlopen(request) as response:
+    with urllib.request.urlopen(request) as response:
         blob = response.read()
         img = Image.open(io.BytesIO(blob))
     return img
@@ -124,8 +123,8 @@ class _DownloadDatasetMixin:
             # try to download image
             try:
                 read_url = self._samples_api.get_sample_image_read_url_by_id(
-                    self.dataset_id,
-                    sample_id,
+                    dataset_id=self.dataset_id,
+                    sample_id=sample_id,
                     type="full",
                 )
                 img = _get_image_from_read_url(read_url)
@@ -293,11 +292,13 @@ class _DownloadDatasetMixin:
             >>> client.export_label_studio_tasks_by_tag_id(tag_id="646f34608a5613b57d8b73cc")
             [{'id': 0, 'data': {'image': '...', ...}}]
         """
-        label_studio_tasks = paginate_endpoint(
-            self._tags_api.export_tag_to_label_studio_tasks,
-            page_size=20000,
-            dataset_id=self.dataset_id,
-            tag_id=tag_id,
+        label_studio_tasks = list(
+            utils.paginate_endpoint(
+                self._tags_api.export_tag_to_label_studio_tasks,
+                page_size=20000,
+                dataset_id=self.dataset_id,
+                tag_id=tag_id,
+            )
         )
         return label_studio_tasks
 

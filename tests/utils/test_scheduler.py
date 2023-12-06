@@ -7,7 +7,7 @@ from lightly.utils.scheduler import CosineWarmupScheduler, cosine_schedule
 
 
 class TestScheduler(unittest.TestCase):
-    def test_cosine_schedule(self):
+    def test_cosine_schedule(self) -> None:
         self.assertAlmostEqual(cosine_schedule(1, 10, 0.99, 1.0), 0.99030154, 6)
         self.assertAlmostEqual(cosine_schedule(95, 100, 0.7, 2.0), 1.99477063, 6)
         self.assertAlmostEqual(cosine_schedule(0, 1, 0.996, 1.0), 1.0, 6)
@@ -23,7 +23,15 @@ class TestScheduler(unittest.TestCase):
         ):
             cosine_schedule(11, 10, 0.0, 1.0)
 
-    def test_CosineWarmupScheduler(self):
+    def test_cosine_schedule__period(self) -> None:
+        self.assertAlmostEqual(cosine_schedule(0, 1, 0, 1.0, period=10), 0.0, 6)
+        self.assertAlmostEqual(cosine_schedule(3, 1, 0, 2.0, period=10), 1.30901706, 6)
+        self.assertAlmostEqual(cosine_schedule(10, 1, 0, 1.0, period=10), 0.0, 6)
+        self.assertAlmostEqual(cosine_schedule(15, 1, 0, 1.0, period=10), 1.0, 6)
+        with self.assertRaises(ValueError):
+            cosine_schedule(1, 10, 0.0, 1.0, period=-1)
+
+    def test_CosineWarmupScheduler(self) -> None:
         model = nn.Linear(10, 1)
         optimizer = torch.optim.SGD(
             model.parameters(), lr=1.0, momentum=0.0, weight_decay=0.0
@@ -62,3 +70,23 @@ class TestScheduler(unittest.TestCase):
             RuntimeWarning, msg="Current step number 7 exceeds max_steps 6."
         ):
             scheduler.step()
+
+    def test_CosineWarmupScheduler__warmup(self) -> None:
+        model = nn.Linear(10, 1)
+        optimizer = torch.optim.SGD(
+            model.parameters(), lr=1.0, momentum=0.0, weight_decay=0.0
+        )
+        scheduler = CosineWarmupScheduler(
+            optimizer,
+            warmup_epochs=3,
+            max_epochs=6,
+            start_value=2.0,
+            end_value=0.0,
+        )
+        # Linear warmup
+        self.assertAlmostEqual(scheduler.scale_lr(epoch=0), 2.0 * 1 / 3)
+        self.assertAlmostEqual(scheduler.scale_lr(epoch=1), 2.0 * 2 / 3)
+        self.assertAlmostEqual(scheduler.scale_lr(epoch=2), 2.0 * 3 / 3)
+        # Cosine decay
+        self.assertAlmostEqual(scheduler.scale_lr(epoch=3), 2.0 * 3 / 3)
+        self.assertLess(scheduler.scale_lr(epoch=4), 2.0)

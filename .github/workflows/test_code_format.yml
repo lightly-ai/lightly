@@ -9,7 +9,6 @@ jobs:
   test:
     name: Check
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout Code
       uses: actions/checkout@v3
@@ -21,7 +20,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: "3.10"
+        python-version: "3.7"
     - uses: actions/cache@v2
       with:
         path: ${{ env.pythonLocation }}
@@ -30,5 +29,7 @@ jobs:
       run: pip install -e '.[all]'
     - name: Run Format Check
       run: |
-        export LIGHTLY_SERVER_LOCATION="localhost:-1"
         make format-check
+    - name: Run Type Check
+      run: |
+        make type-check

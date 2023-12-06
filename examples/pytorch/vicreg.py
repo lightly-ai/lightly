@@ -2,15 +2,12 @@ import torch
 import torchvision
 from torch import nn
 
-from lightly.data import LightlyDataset
-from lightly.data.multi_view_collate import MultiViewCollate
-
 ## The projection head is the same as the Barlow Twins one
 from lightly.loss import VICRegLoss
 
 ## The projection head is the same as the Barlow Twins one
 from lightly.loss.vicreg_loss import VICRegLoss
-from lightly.models.modules import BarlowTwinsProjectionHead
+from lightly.models.modules.heads import VICRegProjectionHead
 from lightly.transforms.vicreg_transform import VICRegTransform
 
 
@@ -18,7 +15,12 @@ class VICReg(nn.Module):
     def __init__(self, backbone):
         super().__init__()
         self.backbone = backbone
-        self.projection_head = BarlowTwinsProjectionHead(512, 2048, 2048)
+        self.projection_head = VICRegProjectionHead(
+            input_dim=512,
+            hidden_dim=2048,
+            output_dim=2048,
+            num_layers=2,
+        )
 
     def forward(self, x):
         x = self.backbone(x).flatten(start_dim=1)
@@ -33,30 +35,28 @@ model = VICReg(backbone)
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
 
-cifar10 = torchvision.datasets.CIFAR10("datasets/cifar10", download=True)
 transform = VICRegTransform(input_size=32)
-dataset = LightlyDataset.from_torch_dataset(cifar10, transform=transform)
+dataset = torchvision.datasets.CIFAR10(
+    "datasets/cifar10", download=True, transform=transform
+)
 # or create a dataset from a folder containing images or videos:
-# dataset = LightlyDataset("path/to/folder")
-
-collate_fn = MultiViewCollate()
+# dataset = LightlyDataset("path/to/folder", transform=transform)
 
 dataloader = torch.utils.data.DataLoader(
     dataset,
     batch_size=256,
-    collate_fn=collate_fn,
     shuffle=True,
     drop_last=True,
     num_workers=8,
 )
-
 criterion = VICRegLoss()
 optimizer = torch.optim.SGD(model.parameters(), lr=0.06)
 
 print("Starting Training")
 for epoch in range(10):
     total_loss = 0
-    for (x0, x1), _, _ in dataloader:
+    for batch in dataloader:
+        x0, x1 = batch[0]
         x0 = x0.to(device)
         x1 = x1.to(device)
         z0 = model(x0)

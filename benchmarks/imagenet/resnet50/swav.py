@@ -105,14 +105,14 @@ class SwAV(LightningModule):
             loss,
             prog_bar=True,
             sync_dist=True,
-            batch_size_per_device=len(targets),
+            batch_size=len(targets),
         )
 
         # Calculate the classification loss.
         cls_loss, cls_log = self.online_classifier.training_step(
             (multi_crop_features[0].detach(), targets), batch_idx
         )
-        self.log_dict(cls_log, sync_dist=True, batch_size_per_device=len(targets))
+        self.log_dict(cls_log, sync_dist=True, batch_size=len(targets))
         return loss + cls_loss
 
     def validation_step(
@@ -123,9 +123,7 @@ class SwAV(LightningModule):
         cls_loss, cls_log = self.online_classifier.validation_step(
             (features.detach(), targets), batch_idx
         )
-        self.log_dict(
-            cls_log, prog_bar=True, sync_dist=True, batch_size_per_device=len(targets)
-        )
+        self.log_dict(cls_log, prog_bar=True, sync_dist=True, batch_size=len(targets))
         return cls_loss
 
     def configure_optimizers(self):
@@ -158,12 +156,12 @@ class SwAV(LightningModule):
         scheduler = {
             "scheduler": CosineWarmupScheduler(
                 optimizer=optimizer,
-                warmup_epochs=(
+                warmup_epochs=int(
                     self.trainer.estimated_stepping_batches
                     / self.trainer.max_epochs
                     * 10
                 ),
-                max_epochs=self.trainer.estimated_stepping_batches,
+                max_epochs=int(self.trainer.estimated_stepping_batches),
                 end_value=0.0006
                 * (self.batch_size_per_device * self.trainer.world_size)
                 / 256,
@@ -192,10 +190,10 @@ def _update_queue(
     # Get the queue projections
     queue_projections = []
     for i in range(len(queues)):
-        _, projections = queues[i](projections[i], update=True)
+        _, queue_proj = queues[i](projections[i], update=True)
         # Queue projections are in (num_ftrs X queue_length) shape, while the high res
         # projections are in (batch_size_per_device X num_ftrs). Swap the axes for interoperability.
-        projections = torch.permute(projections, (1, 0))
-        queue_projections.append(projections)
+        queue_proj = torch.permute(queue_proj, (1, 0))
+        queue_projections.append(queue_proj)
 
     return queue_projections

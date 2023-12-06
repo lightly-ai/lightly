@@ -1,23 +1,19 @@
 import csv
-import hashlib
 import io
 import tempfile
+import urllib.request
 from datetime import datetime
 from typing import List
-from urllib.request import Request, urlopen
+from urllib.request import Request
 
 from lightly.api.utils import retry
-from lightly.openapi_generated.swagger_client import (
+from lightly.openapi_generated.swagger_client.models import (
+    DatasetEmbeddingData,
     DimensionalityReductionMethod,
     Trigger2dEmbeddingJobRequest,
-)
-from lightly.openapi_generated.swagger_client.models.dataset_embedding_data import (
-    DatasetEmbeddingData,
-)
-from lightly.openapi_generated.swagger_client.models.write_csv_url_data import (
     WriteCSVUrlData,
 )
-from lightly.utils.io import check_embeddings, check_filenames
+from lightly.utils import io as io_utils
 
 
 class EmbeddingDoesNotExistError(ValueError):
@@ -28,14 +24,17 @@ class _UploadEmbeddingsMixin:
     def _get_csv_reader_from_read_url(self, read_url: str) -> None:
         """Makes a get request to the signed read url and returns the .csv file."""
         request = Request(read_url, method="GET")
-        with urlopen(request) as response:
+        with urllib.request.urlopen(request) as response:
             buffer = io.StringIO(response.read().decode("utf-8"))
             reader = csv.reader(buffer)
 
         return reader
 
     def set_embedding_id_to_latest(self) -> None:
-        """Sets the embedding ID in the API client to the latest embedding ID in the current dataset."""
+        """Sets the embedding ID in the API client to the latest embedding ID in the current dataset.
+
+        :meta private:  # Skip docstring generation
+        """
         embeddings_on_server: List[
             DatasetEmbeddingData
         ] = self._embeddings_api.get_embeddings_by_dataset_id(
@@ -108,8 +107,11 @@ class _UploadEmbeddingsMixin:
                 The name of the embedding. If an embedding with such a name already exists on the server,
                 the upload is aborted.
 
+        :meta private:  # Skip docstring generation
         """
-        check_embeddings(path_to_embeddings_csv, remove_additional_columns=True)
+        io_utils.check_embeddings(
+            path_to_embeddings_csv, remove_additional_columns=True
+        )
 
         # Try to append the embeddings on the server, if they exist
         try:
@@ -164,7 +166,9 @@ class _UploadEmbeddingsMixin:
                 dimensionality_reduction_method=dimensionality_reduction_method
             )
             self._embeddings_api.trigger2d_embeddings_job(
-                body=body, dataset_id=self.dataset_id, embedding_id=self.embedding_id
+                trigger2d_embedding_job_request=body,
+                dataset_id=self.dataset_id,
+                embedding_id=self.embedding_id,
             )
 
     def append_embeddings(self, path_to_embeddings_csv: str, embedding_id: str) -> None:
@@ -185,6 +189,7 @@ class _UploadEmbeddingsMixin:
                 If the number of columns in the local embeddings file and that of the remote
                 embeddings file mismatch.
 
+        :meta private:  # Skip docstring generation
         """
 
         # read embedding from API
@@ -254,7 +259,6 @@ class _UploadEmbeddingsMixin:
                     f"The filenames in the embedding file and "
                     f"the filenames on the server do not align"
                 )
-            check_filenames(filenames)
 
             rows_without_header_ordered = self._order_list_by_filenames(
                 filenames, rows_without_header

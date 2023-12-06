@@ -1,14 +1,14 @@
 import copy
 import dataclasses
 import difflib
+import json
 import time
 from functools import partial
 from typing import Any, Callable, Dict, Iterator, List, Optional, Type, TypeVar, Union
 
 from lightly.api import utils
-from lightly.api.utils import retry
-from lightly.openapi_generated.swagger_client import (
-    ApiClient,
+from lightly.openapi_generated.swagger_client.api_client import ApiClient
+from lightly.openapi_generated.swagger_client.models import (
     CreateDockerWorkerRegistryEntryRequest,
     DockerRunData,
     DockerRunScheduledCreateRequest,
@@ -22,10 +22,10 @@ from lightly.openapi_generated.swagger_client import (
     DockerWorkerConfigV3Lightly,
     DockerWorkerRegistryEntryData,
     DockerWorkerType,
-    SelectionConfig,
-    SelectionConfigEntry,
-    SelectionConfigEntryInput,
-    SelectionConfigEntryStrategy,
+    SelectionConfigV3,
+    SelectionConfigV3Entry,
+    SelectionConfigV3EntryInput,
+    SelectionConfigV3EntryStrategy,
     TagData,
 )
 from lightly.openapi_generated.swagger_client.rest import ApiException
@@ -175,7 +175,7 @@ class _ComputeWorkerMixin:
         self,
         worker_config: Optional[Dict[str, Any]] = None,
         lightly_config: Optional[Dict[str, Any]] = None,
-        selection_config: Optional[Union[Dict[str, Any], SelectionConfig]] = None,
+        selection_config: Optional[Union[Dict[str, Any], SelectionConfigV3]] = None,
     ) -> str:
         """Creates a new configuration for a Lightly Worker run.
 
@@ -207,6 +207,8 @@ class _ComputeWorkerMixin:
             >>> config_id = client.create_compute_worker_config(
             ...     selection_config=selection_config,
             ... )
+
+        :meta private:  # Skip docstring generation
         """
         if isinstance(selection_config, dict):
             selection = selection_config_from_dict(cfg=selection_config)
@@ -244,14 +246,30 @@ class _ComputeWorkerMixin:
         request = DockerWorkerConfigV3CreateRequest(
             config=config, creator=self._creator
         )
-        response = self._compute_worker_api.create_docker_worker_config_v3(request)
-        return response.id
+        try:
+            response = self._compute_worker_api.create_docker_worker_config_v3(request)
+            return response.id
+        except ApiException as e:
+            if e.body is None:
+                raise e
+            eb = json.loads(e.body)
+            eb_code = eb.get("code")
+            eb_error = eb.get("error")
+            if str(e.status)[0] == "4" and eb_code is not None and eb_error is not None:
+                raise ValueError(
+                    f"Trying to schedule your job resulted in\n"
+                    f">> {eb_code}\n>> {json.dumps(eb_error, indent=4)}\n"
+                    f">> Please fix the issue mentioned above and see our docs "
+                    f"https://docs.lightly.ai/docs/all-configuration-options for more help."
+                ) from e
+            else:
+                raise e
 
     def schedule_compute_worker_run(
         self,
         worker_config: Optional[Dict[str, Any]] = None,
         lightly_config: Optional[Dict[str, Any]] = None,
-        selection_config: Optional[Union[Dict[str, Any], SelectionConfig]] = None,
+        selection_config: Optional[Union[Dict[str, Any], SelectionConfigV3]] = None,
         priority: str = DockerRunScheduledPriority.MID,
         runs_on: Optional[List[str]] = None,
     ) -> str:
@@ -308,10 +326,35 @@ class _ComputeWorkerMixin:
             creator=self._creator,
         )
         response = self._compute_worker_api.create_docker_run_scheduled_by_dataset_id(
-            body=request,
+            docker_run_scheduled_create_request=request,
             dataset_id=self.dataset_id,
         )
         return response.id
+
+    def get_compute_worker_runs_iter(
+        self,
+        dataset_id: Optional[str] = None,
+    ) -> Iterator[DockerRunData]:
+        """Returns an iterator over all Lightly Worker runs for the user.
+
+        Args:
+            dataset_id:
+                Target dataset ID. Optional. If set, only runs with the given dataset
+                will be returned.
+
+        Returns:
+            Runs iterator.
+
+        """
+        if dataset_id is not None:
+            return utils.paginate_endpoint(
+                self._compute_worker_api.get_docker_runs_query_by_dataset_id,
+                dataset_id=dataset_id,
+            )
+        else:
+            return utils.paginate_endpoint(
+                self._compute_worker_api.get_docker_runs,
+            )
 
     def get_compute_worker_runs(
         self,
@@ -338,15 +381,7 @@ class _ComputeWorkerMixin:
              ...
              }]
         """
-        if dataset_id is not None:
-            runs: List[DockerRunData] = utils.paginate_endpoint(
-                self._compute_worker_api.get_docker_runs_query_by_dataset_id,
-                dataset_id=dataset_id,
-            )
-        else:
-            runs: List[DockerRunData] = utils.paginate_endpoint(
-                self._compute_worker_api.get_docker_runs,
-            )
+        runs: List[DockerRunData] = list(self.get_compute_worker_runs_iter(dataset_id))
         sorted_runs = sorted(runs, key=lambda run: run.created_at or -1)
         return sorted_runs
 
@@ -461,7 +496,7 @@ class _ComputeWorkerMixin:
         try:
             run: DockerRunScheduledData = next(
                 run
-                for run in retry(
+                for run in utils.retry(
                     lambda: self._compute_worker_api.get_docker_runs_scheduled_by_dataset_id(
                         self.dataset_id
                     )
@@ -599,16 +634,17 @@ class _ComputeWorkerMixin:
         return tags_in_dataset
 
 
-def selection_config_from_dict(cfg: Dict[str, Any]) -> SelectionConfig:
-    """Recursively converts selection config from dict to a SelectionConfig instance."""
-    new_cfg = copy.deepcopy(cfg)
+def selection_config_from_dict(cfg: Dict[str, Any]) -> SelectionConfigV3:
+    """Recursively converts selection config from dict to a SelectionConfigV3 instance."""
     strategies = []
-    for entry in new_cfg.get("strategies", []):
-        entry["input"] = SelectionConfigEntryInput(**entry["input"])
-        entry["strategy"] = SelectionConfigEntryStrategy(**entry["strategy"])
-        strategies.append(SelectionConfigEntry(**entry))
+    for entry in cfg.get("strategies", []):
+        new_entry = copy.deepcopy(entry)
+        new_entry["input"] = SelectionConfigV3EntryInput(**entry["input"])
+        new_entry["strategy"] = SelectionConfigV3EntryStrategy(**entry["strategy"])
+        strategies.append(SelectionConfigV3Entry(**new_entry))
+    new_cfg = copy.deepcopy(cfg)
     new_cfg["strategies"] = strategies
-    return SelectionConfig(**new_cfg)
+    return SelectionConfigV3(**new_cfg)
 
 
 _T = TypeVar("_T")
@@ -656,24 +692,19 @@ def _validate_config(
 
     Recursively checks if the keys in the cfg dictionary match the attributes of
     the DockerWorkerConfigV2Docker/DockerWorkerConfigV2Lightly instances. If not,
-    suggests a best match based on the keys in 'swagger_types'.
+    suggests a best match.
 
     Raises:
-        TypeError: If obj is not of swagger type.
+        InvalidConfigurationError: If obj is not a valid config.
 
     """
 
     if cfg is None:
         return
 
-    if not hasattr(type(obj), "swagger_types"):
-        raise TypeError(
-            f"Type {type(obj)} of argument 'obj' has not attribute 'swagger_types'"
-        )
-
     for key, item in cfg.items():
         if not hasattr(obj, key):
-            possible_options = list(type(obj).swagger_types.keys())
+            possible_options = list(obj.__fields__.keys())
             closest_match = difflib.get_close_matches(
                 word=key, possibilities=possible_options, n=1, cutoff=0.0
             )[0]

@@ -5,7 +5,7 @@
 
 import math
 import warnings
-from typing import Dict, Iterable, List, Optional, Tuple, Union
+from typing import Dict, Iterable, List, Optional, Tuple, Type, Union
 
 import numpy as np
 import torch
@@ -15,6 +15,7 @@ from numpy.typing import NDArray
 from torch.nn import Module, Sequential
 from torch.nn.modules import CrossMapLRN2d, GroupNorm, LayerNorm, LocalResponseNorm
 from torch.nn.modules.batchnorm import _NormBase
+from torch.nn import Module
 from torch.nn.parameter import Parameter
 from torchvision.ops import StochasticDepth
 
@@ -202,6 +203,7 @@ def activate_requires_grad(model: nn.Module):
         param.requires_grad = True
 
 
+@torch.no_grad()
 def update_momentum(model: nn.Module, model_ema: nn.Module, m: float):
     """Updates parameters of `model_ema` with Exponential Moving Average of `model`
 
@@ -550,7 +552,7 @@ def get_weight_decay_parameters(
     modules: Iterable[Module],
     decay_norm: bool = False,
     decay_bias: bool = False,
-    norm_layers: Tuple[Module] = _NORM_LAYERS,
+    norm_layers: Tuple[Type[Module], ...] = _NORM_LAYERS,
 ) -> Tuple[List[Parameter], List[Parameter]]:
     """Returns all parameters of the modules that should be decayed and not decayed.
 
@@ -631,6 +633,12 @@ def get_2d_sine_cosine_positional_embedding(
     if cls_token:
         pos_embed = np.concatenate([np.zeros([1, embed_dim]), pos_embed], axis=0)
     return pos_embed
+
+
+# TODO(guarin): Remove alias and rename function instead. get_2d_sincos_pos_embed
+# was introduced by ijepa while get_2d_sine_cosine_positional_embedding was introduced
+# by mae.
+get_2d_sincos_pos_embed = get_2d_sine_cosine_positional_embedding
 
 
 def get_2d_sine_cosine_positional_embedding_from_grid(

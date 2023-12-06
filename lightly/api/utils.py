@@ -6,9 +6,10 @@
 import io
 import os
 import random
+import threading
 import time
 from enum import Enum
-from typing import List, Optional
+from typing import Iterator, List, Optional
 
 # the following two lines are needed because
 # PIL misidentifies certain jpeg images as MPOs
@@ -23,7 +24,7 @@ RETRY_MAX_BACKOFF = 32
 RETRY_MAX_RETRIES = 5
 
 
-def retry(func, *args, **kwargs):
+def retry(func, *args, **kwargs):  # type: ignore
     """Repeats a function until it completes successfully or fails too often.
 
     Args:
@@ -66,7 +67,44 @@ def retry(func, *args, **kwargs):
                 ) from e
 
 
-def paginate_endpoint(fn, page_size=5000, *args, **kwargs) -> List:
+class Paginated(Iterator):
+    def __init__(self, fn, page_size, *args, **kwargs):
+        self.entries: List = []
+        self.last_chunk_size = page_size
+        self.offset = 0
+        self.fn = fn
+        self.page_size = page_size
+        self.args = args
+        self.kwargs = kwargs
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if len(self.entries) == 0:
+            # stop iteration if the last chunk was smaller than the page size
+            if self.last_chunk_size < self.page_size:
+                raise StopIteration
+            chunk = retry(
+                self.fn,
+                page_offset=self.offset * self.page_size,
+                page_size=self.page_size,
+                *self.args,
+                **self.kwargs,
+            )
+            if len(chunk) == 0:
+                raise StopIteration
+            self.offset += 1
+            self.last_chunk_size = len(chunk)
+            # Handle the case where the chunk is a string. In this case we want
+            # to return the whole page as a single string instead of an interable
+            # of characters.
+            chunk = chunk if not isinstance(chunk, str) else [chunk]
+            self.entries.extend(chunk)
+        return self.entries.pop(0)
+
+
+def paginate_endpoint(fn, page_size=5000, *args, **kwargs) -> Iterator:
     """Paginates an API endpoint
 
     Args:
@@ -75,21 +113,7 @@ def paginate_endpoint(fn, page_size=5000, *args, **kwargs) -> List:
         page_size:
             The size of the pages to pull
     """
-    entries: List = []
-    offset = 0
-    has_more = True
-    while has_more:
-        chunk = retry(
-            fn, page_offset=offset * page_size, page_size=page_size, *args, **kwargs
-        )
-        # if we don't find more data, stop pagination otherwise get next chunk
-        if len(chunk) == 0:
-            has_more = False
-        else:
-            entries.extend(chunk)
-            offset += 1
-
-    return entries
+    return Paginated(fn, page_size, *args, **kwargs)
 
 
 def getenv(key: str, default: str):
@@ -213,7 +237,7 @@ def get_api_client_configuration(
         )
 
     configuration = Configuration()
-    configuration.api_key = {"token": token}
+    configuration.api_key = {"ApiKeyAuth": token}
     configuration.ssl_ca_cert = ssl_ca_cert
     configuration.host = host
 

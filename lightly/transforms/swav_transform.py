@@ -1,4 +1,4 @@
-from typing import Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 import torchvision.transforms as T
 from PIL.Image import Image
@@ -12,6 +12,20 @@ from lightly.transforms.utils import IMAGENET_NORMALIZE
 
 class SwaVTransform(MultiCropTranform):
     """Implements the multi-crop transformations for SwaV.
+
+    Input to this transform:
+        PIL Image or Tensor.
+
+    Output of this transform:
+        List of Tensor of length sum(crop_counts). (8 by default)
+
+    Applies the following augmentations by default:
+        - Random resized crop
+        - Random horizontal flip
+        - Color jitter
+        - Random gray scale
+        - Gaussian blur
+        - ImageNet normalization
 
     Attributes:
         crop_sizes:
@@ -82,7 +96,7 @@ class SwaVTransform(MultiCropTranform):
         gaussian_blur: float = 0.5,
         kernel_size: Optional[float] = None,
         sigmas: Tuple[float, float] = (0.1, 2),
-        normalize: Union[None, dict] = IMAGENET_NORMALIZE,
+        normalize: Union[None, Dict[str, List[float]]] = IMAGENET_NORMALIZE,
     ):
         transforms = SwaVViewTransform(
             hf_prob=hf_prob,
@@ -128,7 +142,7 @@ class SwaVViewTransform:
         gaussian_blur: float = 0.5,
         kernel_size: Optional[float] = None,
         sigmas: Tuple[float, float] = (0.1, 2),
-        normalize: Union[None, dict] = IMAGENET_NORMALIZE,
+        normalize: Union[None, Dict[str, List[float]]] = IMAGENET_NORMALIZE,
     ):
         color_jitter = T.ColorJitter(
             brightness=cj_strength * cj_bright,
@@ -164,4 +178,5 @@ class SwaVViewTransform:
             The transformed image.
 
         """
-        return self.transform(image)
+        transformed: Tensor = self.transform(image)
+        return transformed

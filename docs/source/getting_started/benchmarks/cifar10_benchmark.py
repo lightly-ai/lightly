@@ -71,7 +71,6 @@ import torchvision
 from pytorch_lightning.loggers import TensorBoardLogger
 
 from lightly.data import LightlyDataset
-from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.loss import (
     BarlowTwinsLoss,
     DCLLoss,
@@ -85,6 +84,9 @@ from lightly.loss import (
 from lightly.models import ResNetGenerator, modules, utils
 from lightly.models.modules import heads
 from lightly.transforms import (
+    BYOLTransform,
+    BYOLView1Transform,
+    BYOLView2Transform,
     DINOTransform,
     FastSiamTransform,
     SimCLRTransform,
@@ -162,8 +164,11 @@ else:
 path_to_train = "/datasets/cifar10/train/"
 path_to_test = "/datasets/cifar10/test/"
 
-# Collate function init
-collate_fn = MultiViewCollate()
+# Use BYOL augmentations
+byol_transform = BYOLTransform(
+    view_1_transform=BYOLView1Transform(input_size=32, gaussian_blur=0.0),
+    view_2_transform=BYOLView2Transform(input_size=32, gaussian_blur=0.0),
+)
 
 # Use SimCLR augmentations
 simclr_transform = SimCLRTransform(
@@ -233,8 +238,8 @@ def create_dataset_train_ssl(model):
             Model class for which to select the transform.
     """
     model_to_transform = {
-        BarlowTwinsModel: simclr_transform,
-        BYOLModel: simclr_transform,
+        BarlowTwinsModel: byol_transform,
+        BYOLModel: byol_transform,
         DCL: simclr_transform,
         DCLW: simclr_transform,
         DINOModel: dino_transform,
@@ -260,7 +265,6 @@ def get_data_loaders(batch_size: int, dataset_train_ssl):
         dataset_train_ssl,
         batch_size=batch_size,
         shuffle=True,
-        collate_fn=collate_fn,
         drop_last=True,
         num_workers=num_workers,
     )

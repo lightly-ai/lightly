@@ -1,29 +1,31 @@
 
-![Lightly Logo](docs/logos/lightly_logo_crop.png)
+![Lightly SSL self-supervised learning Logo](docs/logos/lightly_SSL_logo_crop.png)
 
 ![GitHub](https://img.shields.io/github/license/lightly-ai/lightly)
 ![Unit Tests](https://github.com/lightly-ai/lightly/workflows/Unit%20Tests/badge.svg)
 [![PyPI](https://img.shields.io/pypi/v/lightly)](https://pypi.org/project/lightly/)
-[![Downloads](https://pepy.tech/badge/lightly)](https://pepy.tech/project/lightly)
+[![Downloads](https://static.pepy.tech/badge/lightly)](https://pepy.tech/project/lightly)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Discord](https://img.shields.io/discord/752876370337726585?logo=discord&logoColor=white&label=discord&color=7289da)](https://discord.gg/xvNJW94)
 
-Lightly is a computer vision framework for self-supervised learning.
 
-> We, at [Lightly](https://www.lightly.ai), are passionate engineers who want to make deep learning more efficient. That's why - together with our community - we want to popularize the use of self-supervised methods to understand and curate raw image data. Our solution can be applied before any data annotation step and the learned representations can be used to visualize and analyze datasets. This allows to select the best set of samples for model training through advanced filtering.
+Lightly SSL is a computer vision framework for self-supervised learning.
 
-- [Homepage](https://www.lightly.ai)
-- [Web-App](https://app.lightly.ai)
 - [Documentation](https://docs.lightly.ai/self-supervised-learning/)
-- [Lightly Solution Documentation (Lightly Worker & API)](https://docs.lightly.ai/)
 - [Github](https://github.com/lightly-ai/lightly)
 - [Discord](https://discord.gg/xvNJW94) (We have weekly paper sessions!)
+
+We've also built a whole platform on top, with additional features for active learning
+and [data curation](https://docs.lightly.ai/docs/what-is-lightly). If you're interested in the
+Lightly Worker Solution to easily process millions of samples and run [powerful algorithms](https://docs.lightly.ai/docs/selection)
+on your data, check out [lightly.ai](https://www.lightly.ai). It's free to get started!
 
 
 ## Features
 
-Lightly offers features like
+This self-supervised learning framework offers the following features:
 
-- Modular framework which exposes low-level building blocks such as loss functions and
+- Modular framework, which exposes low-level building blocks such as loss functions and
   model heads.
 - Easy to use and written in a PyTorch like style.
 - Supports custom backbone models for self-supervised pre-training.
@@ -66,17 +68,6 @@ Want to jump to the tutorials and see Lightly in action?
 - [Use Lightly with Custom Augmentations](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_custom_augmentations.html)
 - [Pre-train a Detectron2 Backbone with Lightly](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_pretrain_detectron2.html)
 
-Tutorials for the Lightly Solution (Lightly Worker & API):
-
-- [General Docs of Lightly Solution](https://docs.lightly.ai)
-- [Active Learning Using YOLOv7 and Comma10k](https://docs.lightly.ai/docs/active-learning-yolov7)
-- [Active Learning for Driveable Area Segmentation Using Cityscapes](https://docs.lightly.ai/docs/active-learning-for-driveable-area-segmentation-using-cityscapes)
-- [Active Learning for Transactions of Images](https://docs.lightly.ai/docs/active-learning-for-transactions-of-images)
-- [Improving YOLOv8 using Active Learning on Videos](https://docs.lightly.ai/docs/active-learning-yolov8-video)
-- [Assertion-based Active Learning with YOLOv8](https://docs.lightly.ai/docs/assertion-based-active-learning-tutorial)
-- and more ...
-
-
 Community and partner projects:
 
 - [On-Device Deep Learning with Lightly on an ARM microcontroller](https://github.com/ARM-software/EndpointAI/tree/master/ProofOfConcepts/Vision/OpenMvMaskDefaults)
@@ -105,9 +96,6 @@ pip3 install lightly
 We strongly recommend that you install Lightly in a dedicated virtualenv, to avoid
 conflicting with your system packages.
 
-If you only want to install the API client without torch and torchvision dependencies
-follow the docs on [how to install the Lightly Python Client](https://docs.lightly.ai/docs/install-lightly#install-the-lightly-python-client).
-
 
 ### Lightly in Action
 
@@ -123,7 +111,6 @@ import torchvision
 from lightly import loss
 from lightly import transforms
 from lightly.data import LightlyDataset
-from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.models.modules import heads
 
 
@@ -155,18 +142,15 @@ model = SimCLR(backbone)
 # Prepare transform that creates multiple random views for every image.
 transform = transforms.SimCLRTransform(input_size=32, cj_prob=0.5)
 
-# Combine views from multiple images into a batch.
-collate_fn = MultiViewCollate()
 
 # Create a dataset from your image folder.
-dataset = data.LightlyDataset(input_dir="./my/cute/cats/dataset/", transform=transform)
+dataset = LightlyDataset(input_dir="./my/cute/cats/dataset/", transform=transform)
 
 # Build a PyTorch dataloader.
 dataloader = torch.utils.data.DataLoader(
     dataset,  # Pass the dataset to the dataloader.
     batch_size=128,  # A large batch size helps with the learning.
     shuffle=True,  # Shuffling is important!
-    collate_fn=collate_fn,
 )
 
 # Lightly exposes building blocks such as loss functions.
@@ -278,60 +262,48 @@ We provide multi-GPU training examples with distributed gather and synchronized 
 ## Benchmarks
 
 Implemented models and their performance on various datasets. Hyperparameters are not
-tuned for maximum accuracy. For detailed results and more info about the benchmarks click
+tuned for maximum accuracy. For detailed results and more information about the benchmarks click
 [here](https://docs.lightly.ai/self-supervised-learning/getting_started/benchmarks.html).
 
 
-### Imagenet
+### ImageNet1k
 
-| Model       | Backbone | Batch Size | Epochs | Linear Top1 | Finetune Top1 | KNN Top1 | Tensorboard | Checkpoint |
-|-------------|----------|------------|--------|-------------|---------------|----------|-------------|------------|
-| SimCLR      | Res50    |        256 |    100 |        63.2 |           N/A |     44.9 |      [link](https://tensorboard.dev/experiment/JwNs9E02TeeQkS7aljh8dA) |       [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_simclr_2023-05-04_09-02-54/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt) |
-| SwAV        | Res50    |        256 |    100 |        67.2 |          75.4 |     49.5 |      [link](https://tensorboard.dev/experiment/Ipx4Oxl5Qkqm5Sl5kWyKKg) |       [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_swav_2023-05-25_08-29-14/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt)
+[ImageNet1k benchmarks](https://docs.lightly.ai/self-supervised-learning/getting_started/benchmarks.html#imagenet1k)
 
-
-### ImageNette
-
-| Model       | Backbone | Batch Size | Epochs | KNN Top1 |
-|-------------|----------|------------|--------|----------|
-| BarlowTwins | Res18    |        256 |    800 |    0.852 |
-| BYOL        | Res18    |        256 |    800 |    0.887 |
-| DCL         | Res18    |        256 |    800 |    0.861 |
-| DCLW        | Res18    |        256 |    800 |    0.865 |
-| DINO        | Res18    |        256 |    800 |    0.888 |
-| FastSiam    | Res18    |        256 |    800 |    0.873 |
-| MAE         | ViT-S    |        256 |    800 |    0.610 |
-| MSN         | ViT-S    |        256 |    800 |    0.828 |
-| Moco        | Res18    |        256 |    800 |    0.874 |
-| NNCLR       | Res18    |        256 |    800 |    0.884 |
-| PMSN        | ViT-S    |        256 |    800 |    0.822 |
-| SimCLR      | Res18    |        256 |    800 |    0.889 |
-| SimMIM      | ViT-B32  |        256 |    800 |    0.343 |
-| SimSiam     | Res18    |        256 |    800 |    0.872 |
-| SwaV        | Res18    |        256 |    800 |    0.902 |
-| SwaVQueue   | Res18    |        256 |    800 |    0.890 |
-| SMoG        | Res18    |        256 |    800 |    0.788 |
-| TiCo        | Res18    |        256 |    800 |    0.856 |
-| VICReg      | Res18    |        256 |    800 |    0.845 |
-| VICRegL     | Res18    |        256 |    800 |    0.778 |
+**Note**: Evaluation settings are based on these papers:
+ * Linear: [SimCLR](https://arxiv.org/abs/2002.05709)
+ * Finetune: [SimCLR](https://arxiv.org/abs/2002.05709)
+ * KNN: [InstDisc](https://arxiv.org/abs/1805.01978)
+ 
+See the [benchmarking scripts](./benchmarks/imagenet/resnet50/) for details.
 
 
-### Cifar10
+| Model          | Backbone | Batch Size | Epochs | Linear Top1 | Finetune Top1 | kNN Top1 | Tensorboard | Checkpoint |
+|----------------|----------|------------|--------|-------------|---------------|----------|-------------|------------|
+| BarlowTwins    | Res50    |        256 |    100 |        62.9 |          72.6 |     45.6 |      [link](https://tensorboard.dev/experiment/NxyNRiQsQjWZ82I9b0PvKg/) |       [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_barlowtwins_2023-08-18_00-11-03/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt) |
+| BYOL           | Res50    |        256 |    100 |        62.4 |          74.0 |     45.6 |      [link](https://tensorboard.dev/experiment/Z0iG2JLaTJe5nuBD7DK1bg) |       [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_byol_2023-07-10_10-37-32/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt) |
+| DINO           | Res50    |        128 |    100 |        68.2 |          72.5 |     49.9 |      [link](https://tensorboard.dev/experiment/DvKHX9sNSWWqDrRksllPLA) |       [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_dino_2023-06-06_13-59-48/pretrain/version_0/checkpoints/epoch%3D99-step%3D1000900.ckpt) |
+| SimCLR*        | Res50    |        256 |    100 |        63.2 |          73.9 |     44.8 |      [link](https://tensorboard.dev/experiment/Ugol97adQdezgcVibDYMMA) |       [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_simclr_2023-06-22_09-11-13/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt) |
+| SimCLR* + DCL  | Res50    |        256 |    100 |        65.1 |          73.5 |     49.6 |      [link](https://tensorboard.dev/experiment/k4ZonZ77QzmBkc0lXswQlg/) |       [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_dcl_2023-07-04_16-51-40/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt) |
+| SimCLR* + DCLW | Res50    |        256 |    100 |        64.5 |          73.2 |     48.5 |      [link](https://tensorboard.dev/experiment/TrALnpwFQ4OkZV3uvaX7wQ/) |       [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_dclw_2023-07-07_14-57-13/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt) |
+| SwAV           | Res50    |        256 |    100 |        67.2 |          75.4 |     49.5 |      [link](https://tensorboard.dev/experiment/Ipx4Oxl5Qkqm5Sl5kWyKKg) |       [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_swav_2023-05-25_08-29-14/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt) |
+| VICReg         | Res50    |        256 |    100 |        63.0 |          73.7 |     46.3 |      [link](https://tensorboard.dev/experiment/qH5uywJbTJSzgCEfxc7yUw) |       [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_vicreg_2023-09-11_10-53-08/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt) |
 
-| Model       | Backbone | Batch Size | Epochs | KNN Top1 |
-|-------------|----------|------------|--------|----------|
-| BarlowTwins | Res18    |        512 |    800 |    0.859 |
-| BYOL        | Res18    |        512 |    800 |    0.910 |
-| DCL         | Res18    |        512 |    800 |    0.874 |
-| DCLW        | Res18    |        512 |    800 |    0.871 |
-| DINO        | Res18    |        512 |    800 |    0.848 |
-| FastSiam    | Res18    |        512 |    800 |    0.902 |
-| Moco        | Res18    |        512 |    800 |    0.899 |
-| NNCLR       | Res18    |        512 |    800 |    0.892 |
-| SimCLR      | Res18    |        512 |    800 |    0.879 |
-| SimSiam     | Res18    |        512 |    800 |    0.904 |
-| SwaV        | Res18    |        512 |    800 |    0.884 |
-| SMoG        | Res18    |        512 |    800 |    0.800 |
+*\*We use square root learning rate scaling instead of linear scaling as it yields
+better results for smaller batch sizes. See Appendix B.1 in the [SimCLR paper](https://arxiv.org/abs/2002.05709).*
+
+### ImageNet100
+[ImageNet100 benchmarks](https://docs.lightly.ai/self-supervised-learning/getting_started/benchmarks.html#imagenet100)
+
+
+### Imagenette
+
+[Imagenette benchmarks](https://docs.lightly.ai/self-supervised-learning/getting_started/benchmarks.html#imagenette)
+
+
+### CIFAR-10
+
+[CIFAR-10 benchmarks](https://docs.lightly.ai/self-supervised-learning/getting_started/benchmarks.html#cifar-10)
 
 
 ## Terminology
@@ -344,7 +316,7 @@ The terms in bold are explained in more detail in our [documentation](https://do
 
 ### Next Steps
 
-Head to the [documentation](https://docs.lightly.ai) and see the things you can achieve with Lightly!
+Head to the [documentation](https://docs.lightly.ai/self-supervised-learning/) and see the things you can achieve with Lightly!
 
 
 ## Development
@@ -420,12 +392,22 @@ make format
 
 ## Lightly in Research
 
+- [Reverse Engineering Self-Supervised Learning, 2023](https://arxiv.org/abs/2305.15614)
 - [Learning Visual Representations via Language-Guided Sampling, 2023](https://arxiv.org/pdf/2302.12248.pdf)
 - [Self-Supervised Learning Methods for Label-Efficient Dental Caries Classification, 2022](https://www.mdpi.com/2075-4418/12/5/1237)
 - [DPCL: Constrative Representation Learning with Differential Privacy, 2022](https://assets.researchsquare.com/files/rs-1516950/v1_covered.pdf?c=1654486158)
 - [Decoupled Contrastive Learning, 2021](https://arxiv.org/abs/2110.06848)
 - [solo-learn: A Library of Self-supervised Methods for Visual Representation Learning, 2021](https://www.jmlr.org/papers/volume23/21-1155/21-1155.pdf)
 
+## Company behind this Open Source Framework
+[Lightly](https://www.lightly.ai) is a spin-off from ETH Zurich that helps companies 
+build efficient active learning pipelines to select the most relevant data for their models.
+
+You can find out more about the company and it's services by following the links below:
+
+- [Homepage](https://www.lightly.ai)
+- [Web-App](https://app.lightly.ai)
+- [Lightly Solution Documentation (Lightly Worker & API)](https://docs.lightly.ai/)
 
 ## BibTeX
 If you want to cite the framework feel free to use this:

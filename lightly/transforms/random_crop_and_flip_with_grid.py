@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, List, Tuple
+from typing import Tuple
 
 import torch
 import torchvision.transforms as T
@@ -28,7 +28,7 @@ class Location:
     vertical_flip: bool = False
 
 
-class RandomResizedCropWithLocation(T.RandomResizedCrop):
+class RandomResizedCropWithLocation(T.RandomResizedCrop):  # type: ignore[misc] # Class cannot subclass "RandomResizedCrop" (has type "Any")
     """
     Do a random resized crop and return both the resulting image and the location. See base class.
 
@@ -59,7 +59,7 @@ class RandomResizedCropWithLocation(T.RandomResizedCrop):
         return img, location
 
 
-class RandomHorizontalFlipWithLocation(T.RandomHorizontalFlip):
+class RandomHorizontalFlipWithLocation(T.RandomHorizontalFlip):  # type: ignore[misc] # Class cannot subclass "RandomHorizontalFlip" (has type "Any")
     """See base class."""
 
     def forward(
@@ -84,7 +84,7 @@ class RandomHorizontalFlipWithLocation(T.RandomHorizontalFlip):
         return img, location
 
 
-class RandomVerticalFlipWithLocation(T.RandomVerticalFlip):
+class RandomVerticalFlipWithLocation(T.RandomVerticalFlip):  # type: ignore[misc] # Class cannot subclass "RandomVerticalFlip" (has type "Any")
     """See base class."""
 
     def forward(
@@ -138,6 +138,7 @@ class RandomResizedCropAndFlip(nn.Module):
         crop_min_scale: float = 0.05,
         crop_max_scale: float = 0.2,
         hf_prob: float = 0.5,
+        vf_prob: float = 0.5,
     ):
         super().__init__()
         self.grid_size = grid_size
@@ -145,11 +146,12 @@ class RandomResizedCropAndFlip(nn.Module):
         self.crop_min_scale = crop_min_scale
         self.crop_max_scale = crop_max_scale
         self.hf_prob = hf_prob
+        self.vf_prob = vf_prob
         self.resized_crop = RandomResizedCropWithLocation(
             size=self.crop_size, scale=(self.crop_min_scale, self.crop_max_scale)
         )
         self.horizontal_flip = RandomHorizontalFlipWithLocation(self.hf_prob)
-        self.vertical_flip = RandomVerticalFlipWithLocation(self.hf_prob)
+        self.vertical_flip = RandomVerticalFlipWithLocation(self.vf_prob)
 
     def forward(self, img: Image.Image) -> Tuple[Image.Image, torch.Tensor]:
         """Applies random cropping and horizontal flipping to an image, and returns the

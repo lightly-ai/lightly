@@ -1,4 +1,4 @@
-from typing import Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 from lightly.transforms.simclr_transform import SimCLRTransform
 from lightly.transforms.utils import IMAGENET_NORMALIZE
@@ -6,6 +6,19 @@ from lightly.transforms.utils import IMAGENET_NORMALIZE
 
 class MoCoV1Transform(SimCLRTransform):
     """Implements the transformations for MoCo v1.
+
+    Input to this transform:
+        PIL Image or Tensor.
+
+    Output of this transform:
+        List of Tensor of length 2.
+
+    Applies the following augmentations by default:
+        - Random resized crop
+        - Random horizontal flip
+        - Color jitter
+        - Random gray scale
+        - ImageNet normalization
 
     Attributes:
         input_size:
@@ -70,7 +83,7 @@ class MoCoV1Transform(SimCLRTransform):
         hf_prob: float = 0.5,
         rr_prob: float = 0.0,
         rr_degrees: Union[None, float, Tuple[float, float]] = None,
-        normalize: dict = IMAGENET_NORMALIZE,
+        normalize: Union[None, Dict[str, List[float]]] = IMAGENET_NORMALIZE,
     ):
         super().__init__(
             input_size=input_size,
@@ -96,7 +109,22 @@ class MoCoV1Transform(SimCLRTransform):
 class MoCoV2Transform(SimCLRTransform):
     """Implements the transformations for MoCo v2 [0].
 
-    Identical to SimCLRTransform.
+    Similar to SimCLRTransform, but with different values for color jittering and
+    minimum scale of the random resized crop.
+
+    Input to this transform:
+        PIL Image or Tensor.
+
+    Output of this transform:
+        List of Tensor of length 2.
+
+    Applies the following augmentations by default:
+        - Random resized crop
+        - Random horizontal flip
+        - Color jitter
+        - Random gray scale
+        - Gaussian blur
+        - ImageNet normalization
 
     - [0]: MoCo v2, 2020, https://arxiv.org/abs/2003.04297
 
@@ -145,3 +173,43 @@ class MoCoV2Transform(SimCLRTransform):
             Dictionary with 'mean' and 'std' for torchvision.transforms.Normalize.
 
     """
+
+    def __init__(
+        self,
+        input_size: int = 224,
+        cj_prob: float = 0.8,
+        cj_strength: float = 1.0,
+        cj_bright: float = 0.4,
+        cj_contrast: float = 0.4,
+        cj_sat: float = 0.4,
+        cj_hue: float = 0.1,
+        min_scale: float = 0.2,
+        random_gray_scale: float = 0.2,
+        gaussian_blur: float = 0.5,
+        kernel_size: Optional[float] = None,
+        sigmas: Tuple[float, float] = (0.1, 2),
+        vf_prob: float = 0.0,
+        hf_prob: float = 0.5,
+        rr_prob: float = 0.0,
+        rr_degrees: Union[None, float, Tuple[float, float]] = None,
+        normalize: Union[None, Dict[str, List[float]]] = IMAGENET_NORMALIZE,
+    ):
+        super().__init__(
+            input_size=input_size,
+            cj_prob=cj_prob,
+            cj_strength=cj_strength,
+            cj_bright=cj_bright,
+            cj_contrast=cj_contrast,
+            cj_sat=cj_sat,
+            cj_hue=cj_hue,
+            min_scale=min_scale,
+            random_gray_scale=random_gray_scale,
+            gaussian_blur=gaussian_blur,
+            kernel_size=kernel_size,
+            sigmas=sigmas,
+            vf_prob=vf_prob,
+            hf_prob=hf_prob,
+            rr_prob=rr_prob,
+            rr_degrees=rr_degrees,
+            normalize=normalize,
+        )

@@ -3,7 +3,7 @@
 Datapool
 =================
 
-Lightly has been designed in a way that you can incrementally build up a 
+Lightly Worker has been designed in a way that you can incrementally build up a 
 dataset for your project. The software automatically keeps track of the 
 representations of previously selected samples and uses this information 
 to pick new samples in order to maximize the quality of the final dataset. 
@@ -43,7 +43,7 @@ has the following advantages:
 If you want to search all data in your bucket for new samples
 instead of only newly added data,
 then set :code:`'datasource.process_all': True` in your worker config. This has the
-same effect as creating a new Lightly dataset and running the Lightly Worker from scratch
+same effect as creating a new dataset and running the Lightly Worker from scratch
 on the full dataset. We process all data instead of only the newly added ones.
 
 
@@ -67,7 +67,7 @@ first time.
     |-- passageway1-c1.avi
     `-- terrace1-c0.avi
 
-Let's create a Lightly dataset which uses that bucket (choose your tab - S3, GCS or Azure):
+Let's create a dataset which uses that bucket (choose your tab - S3, GCS or Azure):
 
 .. tabs::
   .. tab:: AWS S3 Datasource

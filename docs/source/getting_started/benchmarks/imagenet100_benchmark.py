@@ -40,7 +40,6 @@ from pytorch_lightning.loggers import TensorBoardLogger
 from torch.optim.lr_scheduler import LambdaLR
 
 from lightly.data import LightlyDataset
-from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.loss import (
     BarlowTwinsLoss,
     DINOLoss,
@@ -51,6 +50,7 @@ from lightly.loss import (
 from lightly.models import modules, utils
 from lightly.models.modules import heads
 from lightly.transforms import (
+    BYOLTransform,
     DINOTransform,
     FastSiamTransform,
     SimCLRTransform,
@@ -109,17 +109,17 @@ else:
 path_to_train = "/datasets/imagenet100/train/"
 path_to_test = "/datasets/imagenet100/val/"
 
-# Collate function init
-collate_fn = MultiViewCollate()
+# Use BYOL augmentations
+byol_transform = BYOLTransform()
 
 # Use SimCLR augmentations
-simclr_transform = SimCLRTransform(input_size=input_size)
+simclr_transform = SimCLRTransform()
 
 # Use SimSiam augmentations
-simsiam_transform = SimSiamTransform(input_size=input_size)
+simsiam_transform = SimSiamTransform()
 
 # Multi crop augmentation for FastSiam
-fast_siam_transform = FastSiamTransform(input_size=input_size)
+fast_siam_transform = FastSiamTransform()
 
 # Multi crop augmentation for SwAV
 swav_transform = SwaVTransform()
@@ -159,8 +159,8 @@ def create_dataset_train_ssl(model):
             Model class for which to select the transform.
     """
     model_to_transform = {
-        BarlowTwinsModel: simclr_transform,
-        BYOLModel: simclr_transform,
+        BarlowTwinsModel: byol_transform,
+        BYOLModel: byol_transform,
         DINOModel: dino_transform,
         FastSiamModel: fast_siam_transform,
         MocoModel: simclr_transform,
@@ -183,7 +183,6 @@ def get_data_loaders(batch_size: int, dataset_train_ssl):
         dataset_train_ssl,
         batch_size=batch_size,
         shuffle=True,
-        collate_fn=collate_fn,
         drop_last=True,
         num_workers=num_workers,
     )

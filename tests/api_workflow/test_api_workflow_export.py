@@ -1,150 +1,309 @@
-from unittest.mock import MagicMock
+from pytest_mock import MockerFixture
 
-from lightly.api import ApiWorkflowClient, api_workflow_download_dataset
-from lightly.openapi_generated.swagger_client import (
-    DatasetEmbeddingData,
-    FileNameFormat,
-    TagsApi,
-)
-from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
+from lightly.api import ApiWorkflowClient, api_workflow_export
+from lightly.api import utils as api_utils
+from lightly.openapi_generated.swagger_client.models import FileNameFormat, TagData
+from tests.api_workflow import utils
 
 
-class TestApiWorkflowExport(MockedApiWorkflowSetup):
-    def setUp(self) -> None:
-        MockedApiWorkflowSetup.setUp(self, dataset_id="dataset_0_id")
-        self.api_workflow_client._tags_api.no_tags = 3
+def _get_tag(dataset_id: str, tag_name: str) -> TagData:
+    return TagData(
+        id=utils.generate_id(),
+        dataset_id=dataset_id,
+        prev_tag_id=None,
+        bit_mask_data="0x1",
+        name=tag_name,
+        tot_size=4,
+        created_at=1577836800,
+        changes=[],
+    )
 
-    def test_export_label_box_data_rows_by_tag_id(self):
-        rows = self.api_workflow_client.export_label_box_data_rows_by_tag_id(
-            tag_id="some-tag-id"
-        )
-        assert rows == [
-            {
-                "external_id": "2008_007291_jpg.rf.2fca436925b52ea33cf897125a34a2fb.jpg",
-                "image_url": "https://api.lightly.ai/v1/datasets/62383ab8f9cb290cd83ab5f9/samples/62383cb7e6a0f29e3f31e233/readurlRedirect?type=CENSORED",
-            }
+
+def test_export_filenames_by_tag_id(mocker: MockerFixture) -> None:
+    dataset_id = utils.generate_id()
+    mocked_paginate = mocker.patch.object(
+        api_utils,
+        "paginate_endpoint",
+        side_effect=[iter(["file0\nfile1"])],
+    )
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
+    mocked_api = mocker.MagicMock()
+
+    client = ApiWorkflowClient()
+    client._dataset_id = dataset_id
+    client._tags_api = mocked_api
+    data = client.export_filenames_by_tag_id(tag_id="tag_id")
+
+    assert data == "file0\nfile1"
+    mocked_paginate.assert_called_once_with(
+        mocked_api.export_tag_to_basic_filenames,
+        dataset_id=dataset_id,
+        tag_id="tag_id",
+    )
+
+
+def test_export_filenames_by_tag_id__two_pages(mocker: MockerFixture) -> None:
+    dataset_id = utils.generate_id()
+    mocked_paginate = mocker.patch.object(
+        api_utils,
+        "paginate_endpoint",
+        side_effect=[
+            # Simulate two pages.
+            iter(["file0\nfile1", "file2\nfile3"])
+        ],
+    )
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
+    mocked_api = mocker.MagicMock()
+
+    client = ApiWorkflowClient()
+    client._dataset_id = dataset_id
+    client._tags_api = mocked_api
+    data = client.export_filenames_by_tag_id(tag_id="tag_id")
+
+    assert data == "file0\nfile1\nfile2\nfile3"
+    mocked_paginate.assert_called_once_with(
+        mocked_api.export_tag_to_basic_filenames,
+        dataset_id=dataset_id,
+        tag_id="tag_id",
+    )
+
+
+def test_export_filenames_and_read_urls_by_tag_id(mocker: MockerFixture) -> None:
+    dataset_id = utils.generate_id()
+    mocked_paginate = mocker.patch.object(
+        api_utils,
+        "paginate_endpoint",
+        side_effect=[
+            iter(["file0\nfile1"]),
+            iter(["read_url0\nread_url1"]),
+            iter(["datasource_url0\ndatasource_url1"]),
+        ],
+    )
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
+    mocked_api = mocker.MagicMock()
+
+    client = ApiWorkflowClient()
+    client._dataset_id = dataset_id
+    client._tags_api = mocked_api
+    data = client.export_filenames_and_read_urls_by_tag_id(tag_id="tag_id")
+
+    assert data == [
+        {
+            "fileName": "file0",
+            "readUrl": "read_url0",
+            "datasourceUrl": "datasource_url0",
+        },
+        {
+            "fileName": "file1",
+            "readUrl": "read_url1",
+            "datasourceUrl": "datasource_url1",
+        },
+    ]
+    mocked_paginate.assert_has_calls(
+        [
+            mocker.call(
+                mocked_api.export_tag_to_basic_filenames,
+                dataset_id=dataset_id,
+                tag_id="tag_id",
+                file_name_format=FileNameFormat.NAME,
+            ),
+            mocker.call(
+                mocked_api.export_tag_to_basic_filenames,
+                dataset_id=dataset_id,
+                tag_id="tag_id",
+                file_name_format=FileNameFormat.REDIRECTED_READ_URL,
+            ),
+            mocker.call(
+                mocked_api.export_tag_to_basic_filenames,
+                dataset_id=dataset_id,
+                tag_id="tag_id",
+                file_name_format=FileNameFormat.DATASOURCE_FULL,
+            ),
         ]
+    )
 
-    def test_export_label_box_data_rows_by_tag_name(self):
-        rows = self.api_workflow_client.export_label_box_data_rows_by_tag_name(
-            tag_name="initial-tag"
-        )
-        assert rows == [
-            {
-                "external_id": "2008_007291_jpg.rf.2fca436925b52ea33cf897125a34a2fb.jpg",
-                "image_url": "https://api.lightly.ai/v1/datasets/62383ab8f9cb290cd83ab5f9/samples/62383cb7e6a0f29e3f31e233/readurlRedirect?type=CENSORED",
-            }
+
+def test_export_filenames_and_read_urls_by_tag_id__two_pages(
+    mocker: MockerFixture,
+) -> None:
+    dataset_id = utils.generate_id()
+    mocked_paginate = mocker.patch.object(
+        api_utils,
+        "paginate_endpoint",
+        side_effect=[
+            # Simulate two pages.
+            iter(["file0\nfile1", "file2\nfile3"]),
+            iter(["read_url0\nread_url1", "read_url2\nread_url3"]),
+            iter(
+                ["datasource_url0\ndatasource_url1", "datasource_url2\ndatasource_url3"]
+            ),
+        ],
+    )
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
+    mocked_api = mocker.MagicMock()
+
+    client = ApiWorkflowClient()
+    client._dataset_id = dataset_id
+    client._tags_api = mocked_api
+    data = client.export_filenames_and_read_urls_by_tag_id(tag_id="tag_id")
+
+    assert data == [
+        {
+            "fileName": "file0",
+            "readUrl": "read_url0",
+            "datasourceUrl": "datasource_url0",
+        },
+        {
+            "fileName": "file1",
+            "readUrl": "read_url1",
+            "datasourceUrl": "datasource_url1",
+        },
+        {
+            "fileName": "file2",
+            "readUrl": "read_url2",
+            "datasourceUrl": "datasource_url2",
+        },
+        {
+            "fileName": "file3",
+            "readUrl": "read_url3",
+            "datasourceUrl": "datasource_url3",
+        },
+    ]
+    mocked_paginate.assert_has_calls(
+        [
+            mocker.call(
+                mocked_api.export_tag_to_basic_filenames,
+                dataset_id=dataset_id,
+                tag_id="tag_id",
+                file_name_format=FileNameFormat.NAME,
+            ),
+            mocker.call(
+                mocked_api.export_tag_to_basic_filenames,
+                dataset_id=dataset_id,
+                tag_id="tag_id",
+                file_name_format=FileNameFormat.REDIRECTED_READ_URL,
+            ),
+            mocker.call(
+                mocked_api.export_tag_to_basic_filenames,
+                dataset_id=dataset_id,
+                tag_id="tag_id",
+                file_name_format=FileNameFormat.DATASOURCE_FULL,
+            ),
         ]
-
-    def test_export_label_box_v4_data_rows_by_tag_name(self):
-        rows = self.api_workflow_client.export_label_box_v4_data_rows_by_tag_name(
-            tag_name="initial-tag"
-        )
-        assert rows == [
-            {
-                "row_data": "http://localhost:5000/v1/datasets/6401d4534d2ed9112da782f5/samples/6401e455a6045a7faa79b20a/readurlRedirect?type=full&publicToken=token",
-                "global_key": "image.png",
-                "media_type": "IMAGE",
-            }
-        ]
-
-    def test_export_label_box_v4_data_rows_by_tag_id(self):
-        rows = self.api_workflow_client.export_label_box_v4_data_rows_by_tag_id(
-            tag_id="some-tag-id"
-        )
-        assert rows == [
-            {
-                "row_data": "http://localhost:5000/v1/datasets/6401d4534d2ed9112da782f5/samples/6401e455a6045a7faa79b20a/readurlRedirect?type=full&publicToken=token",
-                "global_key": "image.png",
-                "media_type": "IMAGE",
-            }
-        ]
-
-    def test_export_label_studio_tasks_by_tag_name(self):
-        tasks = self.api_workflow_client.export_label_studio_tasks_by_tag_name(
-            "initial-tag"
-        )
-        self.assertIsNotNone(tasks)
-        self.assertTrue(all(isinstance(task, dict) for task in tasks))
-
-    def test_export_tag_to_basic_filenames_and_read_urls(self):
-        def mocked_export_tag_to_basic_filenames(
-            dataset_id: str, tag_id: str, file_name_format: str
-        ):
-            return {
-                FileNameFormat.NAME: "\n".join(["sample1.jpg", "sample2.jpg"]),
-                FileNameFormat.REDIRECTED_READ_URL: "\n".join(
-                    ["READ_URL_1", "READ_URL_2"]
-                ),
-                FileNameFormat.DATASOURCE_FULL: "\n".join(
-                    ["s3://my_datasource/sample1.jpg", "s3://my_datasource/sample2.jpg"]
-                ),
-            }[file_name_format]
-
-        mocked_client = MagicMock(spec=ApiWorkflowClient)
-        mocked_client.dataset_id = "some_dataset_id"
-        mocked_client._tags_api = MagicMock(spec_set=TagsApi)
-        mocked_client._tags_api.export_tag_to_basic_filenames.side_effect = (
-            mocked_export_tag_to_basic_filenames
-        )
-
-        data = ApiWorkflowClient.export_filenames_and_read_urls_by_tag_id(
-            self=mocked_client, tag_id="tag_id"
-        )
-
-        assert data == [
-            {
-                "fileName": "sample1.jpg",
-                "readUrl": "READ_URL_1",
-                "datasourceUrl": "s3://my_datasource/sample1.jpg",
-            },
-            {
-                "fileName": "sample2.jpg",
-                "readUrl": "READ_URL_2",
-                "datasourceUrl": "s3://my_datasource/sample2.jpg",
-            },
-        ]
-
-    def test_export_filenames_by_tag_name(self):
-        filenames = self.api_workflow_client.export_filenames_by_tag_name("initial-tag")
-        self.assertIsNotNone(filenames)
-        self.assertTrue(isinstance(filenames, str))
-
-
-def test__get_latest_default_embedding_data() -> None:
-    embedding_0 = DatasetEmbeddingData(
-        id="0",
-        name="default_20221209_10h45m49s",
-        created_at=0,
-        is_processed=False,
-    )
-    embedding_1 = DatasetEmbeddingData(
-        id="1",
-        name="default_20221209_10h45m50s",
-        created_at=1,
-        is_processed=False,
-    )
-    embedding_2 = DatasetEmbeddingData(
-        id="2",
-        name="custom-name",
-        created_at=2,
-        is_processed=False,
     )
 
-    embedding = api_workflow_download_dataset._get_latest_default_embedding_data(
-        embeddings=[embedding_0, embedding_1, embedding_2]
+
+def test_export_filenames_by_tag_name(mocker: MockerFixture) -> None:
+    dataset_id = utils.generate_id()
+    tag_name = "some-tag"
+    tag = _get_tag(dataset_id=dataset_id, tag_name=tag_name)
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
+    mocked_get_tag = mocker.patch.object(
+        ApiWorkflowClient, "get_tag_by_name", return_value=tag
     )
-    assert embedding == embedding_1
+    mocked_export = mocker.patch.object(ApiWorkflowClient, "export_filenames_by_tag_id")
+    client = ApiWorkflowClient()
+    client._dataset_id = dataset_id
+    client.export_filenames_by_tag_name(tag_name)
+    mocked_get_tag.assert_called_once_with(tag_name)
+    mocked_export.assert_called_once_with(tag.id)
 
 
-def test__get_latest_default_embedding_data__no_default_embedding() -> None:
-    custom_embedding = DatasetEmbeddingData(
-        id="0",
-        name="custom-name",
-        created_at=0,
-        is_processed=False,
+def test_export_label_box_data_rows_by_tag_id(mocker: MockerFixture) -> None:
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
+    mocked_paginate = mocker.patch.object(
+        api_workflow_export.utils, "paginate_endpoint"
     )
-    embedding = api_workflow_download_dataset._get_latest_default_embedding_data(
-        embeddings=[custom_embedding]
+    mocked_api = mocker.MagicMock()
+    mocked_warning = mocker.patch("warnings.warn")
+
+    client = ApiWorkflowClient()
+    client._dataset_id = utils.generate_id()
+    client._tags_api = mocked_api
+    client.export_label_box_data_rows_by_tag_id(tag_id="tag_id")
+    mocked_paginate.assert_called_once()
+    call_args = mocked_paginate.call_args[0]
+    assert call_args[0] == mocked_api.export_tag_to_label_box_data_rows
+    warning_text = str(mocked_warning.call_args[0][0])
+    assert warning_text == (
+        "This method exports data in the deprecated Labelbox v3 format and "
+        "will be removed in the future. Use export_label_box_v4_data_rows_by_tag_id "
+        "to export data in the Labelbox v4 format instead."
     )
-    assert embedding is None
+
+
+def test_export_label_box_data_rows_by_tag_name(mocker: MockerFixture) -> None:
+    dataset_id = utils.generate_id()
+    tag_name = "some-tag"
+    tag = _get_tag(dataset_id=dataset_id, tag_name=tag_name)
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
+    mocked_get_tag = mocker.patch.object(
+        ApiWorkflowClient, "get_tag_by_name", return_value=tag
+    )
+    mocked_export = mocker.patch.object(
+        ApiWorkflowClient, "export_label_box_data_rows_by_tag_id"
+    )
+    mocked_warning = mocker.patch("warnings.warn")
+    client = ApiWorkflowClient()
+    client._dataset_id = dataset_id
+    client.export_label_box_data_rows_by_tag_name(tag_name)
+    mocked_get_tag.assert_called_once_with(tag_name)
+    mocked_export.assert_called_once_with(tag.id)
+    warning_text = str(mocked_warning.call_args[0][0])
+    assert warning_text == (
+        "This method exports data in the deprecated Labelbox v3 format and "
+        "will be removed in the future. Use export_label_box_v4_data_rows_by_tag_name "
+        "to export data in the Labelbox v4 format instead."
+    )
+
+
+def test_export_label_box_v4_data_rows_by_tag_id(mocker: MockerFixture) -> None:
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
+    mocked_paginate = mocker.patch.object(
+        api_workflow_export.utils, "paginate_endpoint"
+    )
+    mocked_api = mocker.MagicMock()
+
+    client = ApiWorkflowClient()
+    client._dataset_id = utils.generate_id()
+    client._tags_api = mocked_api
+    client.export_label_box_v4_data_rows_by_tag_id(tag_id="tag_id")
+    mocked_paginate.assert_called_once()
+    call_args = mocked_paginate.call_args[0]
+    assert call_args[0] == mocked_api.export_tag_to_label_box_v4_data_rows
+
+
+def test_export_label_box_v4_data_rows_by_tag_name(mocker: MockerFixture) -> None:
+    dataset_id = utils.generate_id()
+    tag_name = "some-tag"
+    tag = _get_tag(dataset_id=dataset_id, tag_name=tag_name)
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
+    mocked_get_tag = mocker.patch.object(
+        ApiWorkflowClient, "get_tag_by_name", return_value=tag
+    )
+    mocked_export = mocker.patch.object(
+        ApiWorkflowClient, "export_label_box_v4_data_rows_by_tag_id"
+    )
+    client = ApiWorkflowClient()
+    client._dataset_id = dataset_id
+    client.export_label_box_v4_data_rows_by_tag_name(tag_name)
+    mocked_get_tag.assert_called_once_with(tag_name)
+    mocked_export.assert_called_once_with(tag.id)
+
+
+def test_export_label_studio_tasks_by_tag_name(mocker: MockerFixture) -> None:
+    dataset_id = utils.generate_id()
+    tag_name = "some-tag"
+    tag = _get_tag(dataset_id=dataset_id, tag_name=tag_name)
+    mocker.patch.object(ApiWorkflowClient, "__init__", return_value=None)
+    mocked_get_tag = mocker.patch.object(
+        ApiWorkflowClient, "get_tag_by_name", return_value=tag
+    )
+    mocked_export = mocker.patch.object(
+        ApiWorkflowClient, "export_label_studio_tasks_by_tag_id"
+    )
+    client = ApiWorkflowClient()
+    client._dataset_id = dataset_id
+    client.export_label_studio_tasks_by_tag_name(tag_name)
+    mocked_get_tag.assert_called_once_with(tag_name)
+    mocked_export.assert_called_once_with(tag.id)

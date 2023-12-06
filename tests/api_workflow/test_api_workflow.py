@@ -2,9 +2,9 @@ import os
 from unittest import mock
 
 import numpy as np
-from urllib3 import Timeout
 
 import lightly
+from tests.api_workflow import utils
 from tests.api_workflow.mocked_api_workflow_client import (
     MockedApiWorkflowClient,
     MockedApiWorkflowSetup,
@@ -44,12 +44,13 @@ class TestApiWorkflow(MockedApiWorkflowSetup):
         assert dataset_id == self.api_workflow_client._datasets_api.datasets[-1].id
 
     def test_dataset_id_existing(self):
-        id = "random_dataset_id"
+        id = utils.generate_id()
         self.api_workflow_client._dataset_id = id
         assert self.api_workflow_client.dataset_id == id
 
     def test_set_dataset_id_existing(self):
-        self.api_workflow_client.dataset_id = "dataset_1_id"
+        datasets = self.api_workflow_client.get_all_datasets()
+        self.api_workflow_client.dataset_id = datasets[1].id
 
     def test_set_dataset_id_missing(self):
         with self.assertRaises(ValueError):

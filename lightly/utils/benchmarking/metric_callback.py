@@ -1,8 +1,10 @@
-from typing import Dict, List
+from typing import Dict, List, Union
 
 from pytorch_lightning import LightningModule, Trainer
 from pytorch_lightning.callbacks import Callback
 from torch import Tensor
+
+MetricValue = Union[Tensor, float]
 
 
 class MetricCallback(Callback):
@@ -39,7 +41,7 @@ class MetricCallback(Callback):
         >>> max_val_acc = max(metric_callback.val_metrics["val_acc"])
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.train_metrics: Dict[str, List[float]] = {}
         self.val_metrics: Dict[str, List[float]] = {}
@@ -58,7 +60,6 @@ class MetricCallback(Callback):
         self, metrics_dict: Dict[str, List[float]], trainer: Trainer
     ) -> None:
         for name, value in trainer.callback_metrics.items():
-            # Only store scalar values.
             if isinstance(value, float) or (
                 isinstance(value, Tensor) and value.numel() == 1
             ):

@@ -4,18 +4,21 @@
 # All Rights Reserved
 
 import time
-from typing import List, Tuple, Union
+from typing import List, Optional, Tuple
 
 import numpy as np
 import torch
+from numpy.typing import NDArray
+from torch.nn import Module
+from torch.optim import Optimizer
+from torch.optim.lr_scheduler import _LRScheduler
+from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-import lightly
+from lightly.data import LightlyDataset
 from lightly.embedding._base import BaseEmbedding
+from lightly.utils.benchmarking import BenchmarkModule
 from lightly.utils.reordering import sort_items_by_keys
-
-if lightly._is_prefetch_generator_available():
-    from prefetch_generator import BackgroundGenerator
 
 
 class SelfSupervisedEmbedding(BaseEmbedding):
@@ -62,19 +65,21 @@ class SelfSupervisedEmbedding(BaseEmbedding):
 
     def __init__(
         self,
-        model: torch.nn.Module,
-        criterion: torch.nn.Module,
-        optimizer: torch.optim.Optimizer,
-        dataloader: torch.utils.data.DataLoader,
-        scheduler=None,
-    ):
+        model: BenchmarkModule,
+        criterion: Module,
+        optimizer: Optimizer,
+        dataloader: DataLoader[LightlyDataset],
+        scheduler: Optional[_LRScheduler] = None,
+    ) -> None:
         super(SelfSupervisedEmbedding, self).__init__(
             model, criterion, optimizer, dataloader, scheduler
         )
 
     def embed(
-        self, dataloader: torch.utils.data.DataLoader, device: torch.device = None
-    ) -> Tuple[np.ndarray, List[int], List[str]]:
+        self,
+        dataloader: DataLoader[LightlyDataset],
+        device: Optional[torch.device] = None,
+    ) -> Tuple[NDArray[np.float_], List[int], List[str]]:
         """Embeds images in a vector space.
 
         Args:
@@ -102,17 +107,15 @@ class SelfSupervisedEmbedding(BaseEmbedding):
         """
 
         self.model.eval()
-        embeddings, labels, filenames = None, None, []
+        filenames = []
 
-        dataset = dataloader.dataset
-        if lightly._is_prefetch_generator_available():
-            dataloader = BackgroundGenerator(dataloader, max_prefetch=3)
+        dataset: LightlyDataset = dataloader.dataset
 
         pbar = tqdm(total=len(dataset), unit="imgs")
 
         efficiency = 0.0
-        embeddings = []
-        labels = []
+        embeddings: List[NDArray[np.float_]] = []
+        labels: List[int] = []
         with torch.no_grad():
             start_timepoint = time.time()
             for image_batch, label_batch, filename_batch in dataloader:
@@ -130,8 +133,8 @@ class SelfSupervisedEmbedding(BaseEmbedding):
                 embedding_batch = self.model.backbone(image_batch)
                 embedding_batch = embedding_batch.detach().reshape(batch_size, -1)
 
-                embeddings.append(embedding_batch)
-                labels.append(label_batch)
+                embeddings.extend(embedding_batch.cpu().numpy())
+                labels.extend(label_batch.cpu().tolist())
 
                 finished_timepoint = time.time()
 
@@ -145,16 +148,14 @@ class SelfSupervisedEmbedding(BaseEmbedding):
 
                 pbar.update(batch_size)
 
-            embeddings = torch.cat(embeddings, 0)
-            labels = torch.cat(labels, 0)
-
-            embeddings = embeddings.cpu().numpy()
-            labels = labels.cpu().numpy()
-
         sorted_filenames = dataset.get_filenames()
-        sorted_embeddings = sort_items_by_keys(filenames, embeddings, sorted_filenames)
-        sorted_labels = sort_items_by_keys(filenames, labels, sorted_filenames)
-        embeddings = np.stack(sorted_embeddings)
-        labels = np.stack(sorted_labels).tolist()
+        sorted_embeddings = sort_items_by_keys(
+            keys=filenames,
+            items=embeddings,
+            sorted_keys=sorted_filenames,
+        )
+        sorted_labels = sort_items_by_keys(
+            keys=filenames, items=labels, sorted_keys=sorted_filenames
+        )
 
-        return embeddings, labels, sorted_filenames
+        return np.stack(sorted_embeddings), sorted_labels, sorted_filenames

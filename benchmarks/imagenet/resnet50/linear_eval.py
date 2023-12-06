@@ -10,6 +10,7 @@ from torchvision import transforms as T
 from lightly.data import LightlyDataset
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils.benchmarking import LinearClassifier, MetricCallback
+from lightly.utils.dist import print_rank_zero
 
 
 def linear_eval(
@@ -26,9 +27,21 @@ def linear_eval(
 ) -> None:
     """Runs a linear evaluation on the given model.
 
-    Parameters follow SimCLR settings.
+    Parameters follow SimCLR [0] settings.
+
+    The most important settings are:
+        - Backbone: Frozen
+        - Epochs: 90
+        - Optimizer: SGD
+        - Base Learning Rate: 0.1
+        - Momentum: 0.9
+        - Weight Decay: 0.0
+        - LR Schedule: Cosine without warmup
+
+    References:
+        - [0]: SimCLR, 2020, https://arxiv.org/abs/2002.05709
     """
-    print("Running linear evaluation...")
+    print_rank_zero("Running linear evaluation...")
 
     # Setup training data.
     train_transform = T.Compose(
@@ -46,6 +59,7 @@ def linear_eval(
         shuffle=True,
         num_workers=num_workers,
         drop_last=True,
+        persistent_workers=False,
     )
 
     # Setup validation data.
@@ -63,6 +77,7 @@ def linear_eval(
         batch_size=batch_size_per_device,
         shuffle=False,
         num_workers=num_workers,
+        persistent_workers=False,
     )
 
     # Train linear classifier.
@@ -79,6 +94,7 @@ def linear_eval(
         logger=TensorBoardLogger(save_dir=str(log_dir), name="linear_eval"),
         precision=precision,
         strategy="ddp_find_unused_parameters_true",
+        num_sanity_val_steps=0,
     )
     classifier = LinearClassifier(
         model=model,
@@ -93,4 +109,6 @@ def linear_eval(
         val_dataloaders=val_dataloader,
     )
     for metric in ["val_top1", "val_top5"]:
-        print(f"max linear {metric}: {max(metric_callback.val_metrics[metric])}")
+        print_rank_zero(
+            f"max linear {metric}: {max(metric_callback.val_metrics[metric])}"
+        )

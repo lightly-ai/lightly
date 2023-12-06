@@ -7,6 +7,7 @@ from typing import List, Optional, Tuple, Union
 
 import torch
 import torch.nn as nn
+from torch import Tensor
 
 from lightly.models import utils
 
@@ -33,10 +34,10 @@ class ProjectionHead(nn.Module):
 
     def __init__(
         self, blocks: List[Tuple[int, int, Optional[nn.Module], Optional[nn.Module]]]
-    ):
+    ) -> None:
         super(ProjectionHead, self).__init__()
 
-        layers = []
+        layers: List[nn.Module] = []
         for input_dim, output_dim, batch_norm, non_linearity in blocks:
             use_bias = not bool(batch_norm)
             layers.append(nn.Linear(input_dim, output_dim, bias=use_bias))
@@ -46,7 +47,7 @@ class ProjectionHead(nn.Module):
                 layers.append(non_linearity)
         self.layers = nn.Sequential(*layers)
 
-    def forward(self, x: torch.Tensor):
+    def forward(self, x: Tensor) -> Tensor:
         """Computes one forward pass through the projection head.
 
         Args:
@@ -54,7 +55,8 @@ class ProjectionHead(nn.Module):
                 Input of shape bsz x num_ftrs.
 
         """
-        return self.layers(x)
+        projection: Tensor = self.layers(x)
+        return projection
 
 
 class BarlowTwinsProjectionHead(ProjectionHead):
@@ -324,7 +326,7 @@ class SMoGPrototypes(nn.Module):
 
     def __init__(
         self,
-        group_features: torch.Tensor,
+        group_features: Tensor,
         beta: float,
     ):
         super(SMoGPrototypes, self).__init__()
@@ -332,8 +334,8 @@ class SMoGPrototypes(nn.Module):
         self.beta = beta
 
     def forward(
-        self, x: torch.Tensor, group_features: torch.Tensor, temperature: float = 0.1
-    ) -> torch.Tensor:
+        self, x: Tensor, group_features: Tensor, temperature: float = 0.1
+    ) -> Tensor:
         """Computes the logits for given model outputs and group features.
 
         Args:
@@ -353,7 +355,7 @@ class SMoGPrototypes(nn.Module):
         logits = torch.mm(x, group_features.t())
         return logits / temperature
 
-    def get_updated_group_features(self, x: torch.Tensor) -> None:
+    def get_updated_group_features(self, x: Tensor) -> Tensor:
         """Performs the synchronous momentum update of the group vectors.
 
         Args:
@@ -370,23 +372,23 @@ class SMoGPrototypes(nn.Module):
             mask = assignments == assigned_class
             group_features[assigned_class] = self.beta * self.group_features[
                 assigned_class
-            ] + (1 - self.beta) * x[mask].mean(axis=0)
+            ] + (1 - self.beta) * x[mask].mean(dim=0)
 
         return group_features
 
-    def set_group_features(self, x: torch.Tensor) -> None:
+    def set_group_features(self, x: Tensor) -> None:
         """Sets the group features and asserts they don't require gradient."""
         self.group_features.data = x.to(self.group_features.device)
 
     @torch.no_grad()
-    def assign_groups(self, x: torch.Tensor) -> torch.LongTensor:
+    def assign_groups(self, x: Tensor) -> Tensor:
         """Assigns each representation in x to a group based on cosine similarity.
 
         Args:
             Tensor of shape bsz x dim.
 
         Returns:
-            LongTensor of shape bsz indicating group assignments.
+            Tensor of shape bsz indicating group assignments.
 
         """
         return torch.argmax(self.forward(x, self.group_features), dim=-1)
@@ -524,19 +526,21 @@ class SwaVPrototypes(nn.Module):
         )
         self.n_steps_frozen_prototypes = n_steps_frozen_prototypes
 
-    def forward(self, x, step=None) -> Union[torch.Tensor, List[torch.Tensor]]:
+    def forward(
+        self, x: Tensor, step: Optional[int] = None
+    ) -> Union[Tensor, List[Tensor]]:
         self._freeze_prototypes_if_required(step)
         out = []
         for layer in self.heads:
             out.append(layer(x))
         return out[0] if self._is_single_prototype else out
 
-    def normalize(self):
+    def normalize(self) -> None:
         """Normalizes the prototypes so that they are on the unit sphere."""
         for layer in self.heads:
             utils.normalize_weight(layer.weight)
 
-    def _freeze_prototypes_if_required(self, step):
+    def _freeze_prototypes_if_required(self, step: Optional[int] = None) -> None:
         if self.n_steps_frozen_prototypes > 0:
             if step is None:
                 raise ValueError(
@@ -601,22 +605,23 @@ class DINOProjectionHead(ProjectionHead):
         )
         self.apply(self._init_weights)
         self.freeze_last_layer = freeze_last_layer
-        self.last_layer = nn.utils.weight_norm(
-            nn.Linear(bottleneck_dim, output_dim, bias=False)
-        )
-        self.last_layer.weight_g.data.fill_(1)
+        self.last_layer = nn.Linear(bottleneck_dim, output_dim, bias=False)
+        self.last_layer = nn.utils.weight_norm(self.last_layer)
+        # Tell mypy this is ok because fill_ is overloaded.
+        self.last_layer.weight_g.data.fill_(1)  # type: ignore
+
         # Option to normalize last layer.
         if norm_last_layer:
             self.last_layer.weight_g.requires_grad = False
 
-    def cancel_last_layer_gradients(self, current_epoch: int):
+    def cancel_last_layer_gradients(self, current_epoch: int) -> None:
         """Cancel last layer gradients to stabilize the training."""
         if current_epoch >= self.freeze_last_layer:
             return
         for param in self.last_layer.parameters():
             param.grad = None
 
-    def _init_weights(self, module):
+    def _init_weights(self, module: nn.Module) -> None:
         """Initializes layers with a truncated normal distribution."""
         if isinstance(module, nn.Linear):
             utils._no_grad_trunc_normal(
@@ -629,7 +634,7 @@ class DINOProjectionHead(ProjectionHead):
             if module.bias is not None:
                 nn.init.constant_(module.bias, 0)
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def forward(self, x: Tensor) -> Tensor:
         """Computes one forward pass through the head."""
         x = self.layers(x)
         # l2 normalization
@@ -689,6 +694,37 @@ class TiCoProjectionHead(ProjectionHead):
         super(TiCoProjectionHead, self).__init__(
             [
                 (input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),
+                (hidden_dim, output_dim, None, None),
+            ]
+        )
+
+
+class VICRegProjectionHead(ProjectionHead):
+    """Projection head used for VICReg.
+
+    "The projector network has three linear layers, each with 8192 output
+    units. The first two layers of the projector are followed by a batch
+    normalization layer and rectified linear units." [0]
+
+    [0]: 2022, VICReg, https://arxiv.org/pdf/2105.04906.pdf
+
+    """
+
+    def __init__(
+        self,
+        input_dim: int = 2048,
+        hidden_dim: int = 8192,
+        output_dim: int = 8192,
+        num_layers: int = 3,
+    ):
+        hidden_layers = [
+            (hidden_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU())
+            for _ in range(num_layers - 2)  # Exclude first and last layer.
+        ]
+        super(VICRegProjectionHead, self).__init__(
+            [
+                (input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),
+                *hidden_layers,
                 (hidden_dim, output_dim, None, None),
             ]
         )

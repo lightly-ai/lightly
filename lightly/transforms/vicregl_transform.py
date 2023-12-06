@@ -1,4 +1,4 @@
-from typing import Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 import torchvision.transforms as T
 from PIL.Image import Image
@@ -13,6 +13,21 @@ from lightly.transforms.utils import IMAGENET_NORMALIZE
 
 class VICRegLTransform(ImageGridTransform):
     """Transforms images for VICRegL.
+
+    Input to this transform:
+        PIL Image or Tensor.
+
+    Output of this transform:
+        List of Tensor of length n_global_views + n_local_views. (8 by default)
+
+    Applies the following augmentations by default:
+        - Random resized crop
+        - Random horizontal flip
+        - Color jitter
+        - Random gray scale
+        - Gaussian blur
+        - Random solarization
+        - ImageNet normalization
 
     - [0]: VICRegL, 2022, https://arxiv.org/abs/2210.01571
 
@@ -100,6 +115,7 @@ class VICRegLTransform(ImageGridTransform):
         global_solarize_prob: float = 0.0,
         local_solarize_prob: float = 0.2,
         hf_prob: float = 0.5,
+        vf_prob: float = 0.0,
         cj_prob: float = 1.0,
         cj_strength: float = 0.5,
         cj_bright: float = 0.8,
@@ -107,7 +123,7 @@ class VICRegLTransform(ImageGridTransform):
         cj_sat: float = 0.4,
         cj_hue: float = 0.2,
         random_gray_scale: float = 0.2,
-        normalize: Union[None, dict] = IMAGENET_NORMALIZE,
+        normalize: Union[None, Dict[str, List[float]]] = IMAGENET_NORMALIZE,
     ):
         global_transform = (
             RandomResizedCropAndFlip(
@@ -115,6 +131,7 @@ class VICRegLTransform(ImageGridTransform):
                 crop_min_scale=global_crop_scale[0],
                 crop_max_scale=global_crop_scale[1],
                 hf_prob=hf_prob,
+                vf_prob=vf_prob,
                 grid_size=global_grid_size,
             ),
             VICRegLViewTransform(
@@ -172,7 +189,7 @@ class VICRegLViewTransform:
         cj_sat: float = 0.4,
         cj_hue: float = 0.2,
         random_gray_scale: float = 0.2,
-        normalize: Union[None, dict] = IMAGENET_NORMALIZE,
+        normalize: Union[None, Dict[str, List[float]]] = IMAGENET_NORMALIZE,
     ):
         color_jitter = T.ColorJitter(
             brightness=cj_strength * cj_bright,
@@ -206,4 +223,5 @@ class VICRegLViewTransform:
         Returns:
             The transformed image.
         """
-        return self.transform(image)
+        transformed: Tensor = self.transform(image)
+        return transformed

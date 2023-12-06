@@ -1,22 +1,10 @@
-import csv
-import io
 import os
-import random
 import tempfile
-from json import load
 
 import numpy as np
 
-import lightly
-from lightly.utils.io import (
-    INVALID_FILENAME_CHARACTERS,
-    load_embeddings,
-    save_embeddings,
-)
-from tests.api_workflow.mocked_api_workflow_client import (
-    N_FILES_ON_SERVER,
-    MockedApiWorkflowSetup,
-)
+from lightly.utils import io as io_utils
+from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
 
 
 class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):
@@ -42,7 +30,7 @@ class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):
                 f"_{special_char_in_first_filename}" f"{self.sample_names[0]}"
             )
         labels = [0] * len(self.sample_names)
-        save_embeddings(
+        io_utils.save_embeddings(
             self.path_to_embeddings,
             np.random.randn(n_data, n_dims),
             labels,
@@ -88,18 +76,14 @@ class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):
         with self.assertRaises(ValueError):
             self.t_ester_upload_embedding(n_data=n_data, special_name_first_sample=True)
 
-    def test_upload_comma_filenames(self):
-        n_data = len(self.api_workflow_client._mappings_api.sample_names)
-        for invalid_char in INVALID_FILENAME_CHARACTERS:
-            with self.subTest(msg=f"invalid_char: {invalid_char}"):
-                with self.assertRaises(ValueError):
-                    self.t_ester_upload_embedding(
-                        n_data=n_data, special_char_in_first_filename=invalid_char
-                    )
-
     def test_set_embedding_id_default(self):
         self.api_workflow_client.set_embedding_id_to_latest()
-        self.assertEqual(self.api_workflow_client.embedding_id, "embedding_id_xyz")
+        embeddings = (
+            self.api_workflow_client._embeddings_api.get_embeddings_by_dataset_id(
+                dataset_id=self.api_workflow_client.dataset_id
+            )
+        )
+        self.assertEqual(self.api_workflow_client.embedding_id, embeddings[0].id)
 
     def test_set_embedding_id_no_embeddings(self):
         self.api_workflow_client._embeddings_api.embeddings = []
@@ -160,13 +144,13 @@ class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):
         )
 
         # load the new (appended) embeddings
-        _, labels_appended, filenames_appended = load_embeddings(
+        _, labels_appended, filenames_appended = io_utils.load_embeddings(
             self.path_to_embeddings
         )
 
         # define the expected filenames and labels
         self.create_fake_embeddings(n_data=n_data_local + n_data_start_local)
-        _, _, filenames_expected = load_embeddings(self.path_to_embeddings)
+        _, _, filenames_expected = io_utils.load_embeddings(self.path_to_embeddings)
         labels_expected = list(range(n_data_start_local)) + [0] * n_data_local
 
         # make sure the list of filenames and labels equal

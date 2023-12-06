@@ -1,15 +1,24 @@
-from typing import List, Tuple, Union
+from typing import Dict, List, Tuple, Union
 
 import torchvision.transforms as T
 from PIL.Image import Image
 from torch import Tensor
 
-from lightly.transforms.multi_view_transform import MultiViewTransform
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 
 
 class MAETransform:
     """Implements the view augmentation for MAE [0].
+
+    Input to this transform:
+        PIL Image or Tensor.
+
+    Output of this transform:
+        List of Tensor of length 1.
+
+    Applies the following augmentations by default:
+        - Random resized crop
+        - Random horizontal flip
 
     - [0]: Masked Autoencoder, 2021, https://arxiv.org/abs/2111.06377
 
@@ -27,7 +36,7 @@ class MAETransform:
         self,
         input_size: Union[int, Tuple[int, int]] = 224,
         min_scale: float = 0.2,
-        normalize: dict = IMAGENET_NORMALIZE,
+        normalize: Dict[str, List[float]] = IMAGENET_NORMALIZE,
     ):
         transforms = [
             T.RandomResizedCrop(

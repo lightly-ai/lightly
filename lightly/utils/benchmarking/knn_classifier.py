@@ -23,11 +23,10 @@ class KNNClassifier(LightningModule):
     ):
         """KNN classifier for benchmarking.
 
-        Settings based on "Unsupervised Feature Learning via Non-Parametric Instance
-        Discrimination" [0]. Code adapted from MoCo [1].
+        Settings based on InstDisc [0]. Code adapted from MoCo [1].
 
-        - [0]: https://arxiv.org/pdf/1805.01978v1.pdf
-        - [1]: https://github.com/facebookresearch/moco
+        - [0]: InstDisc, 2018, https://arxiv.org/pdf/1805.01978v1.pdf
+        - [1]: MoCo, 2019, https://github.com/facebookresearch/moco
 
         Args:
             model:

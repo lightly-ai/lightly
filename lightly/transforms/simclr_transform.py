@@ -1,4 +1,4 @@
-from typing import Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 import torchvision.transforms as T
 from PIL.Image import Image
@@ -13,10 +13,30 @@ from lightly.transforms.utils import IMAGENET_NORMALIZE
 class SimCLRTransform(MultiViewTransform):
     """Implements the transformations for SimCLR [0, 1].
 
+    Input to this transform:
+        PIL Image or Tensor.
+
+    Output of this transform:
+        List of Tensor of length 2.
+
+    Applies the following augmentations by default:
+        - Random resized crop
+        - Random horizontal flip
+        - Color jitter
+        - Random gray scale
+        - Gaussian blur
+        - ImageNet normalization
+
     Note that SimCLR v1 and v2 use the same data augmentations.
 
     - [0]: SimCLR v1, 2020, https://arxiv.org/abs/2002.05709
     - [1]: SimCLR v2, 2020, https://arxiv.org/abs/2006.10029
+
+    Input to this transform:
+        PIL Image or Tensor.
+
+    Output of this transform:
+        List of [tensor, tensor].
 
     Attributes:
         input_size:
@@ -82,7 +102,7 @@ class SimCLRTransform(MultiViewTransform):
         hf_prob: float = 0.5,
         rr_prob: float = 0.0,
         rr_degrees: Union[None, float, Tuple[float, float]] = None,
-        normalize: Union[None, dict] = IMAGENET_NORMALIZE,
+        normalize: Union[None, Dict[str, List[float]]] = IMAGENET_NORMALIZE,
     ):
         view_transform = SimCLRViewTransform(
             input_size=input_size,
@@ -125,7 +145,7 @@ class SimCLRViewTransform:
         hf_prob: float = 0.5,
         rr_prob: float = 0.0,
         rr_degrees: Union[None, float, Tuple[float, float]] = None,
-        normalize: Union[None, dict] = IMAGENET_NORMALIZE,
+        normalize: Union[None, Dict[str, List[float]]] = IMAGENET_NORMALIZE,
     ):
         color_jitter = T.ColorJitter(
             brightness=cj_strength * cj_bright,
@@ -160,4 +180,5 @@ class SimCLRViewTransform:
             The transformed image.
 
         """
-        return self.transform(image)
+        transformed: Tensor = self.transform(image)
+        return transformed

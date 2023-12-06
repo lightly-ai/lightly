@@ -2,7 +2,6 @@
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
-
 from lightly.loss.barlow_twins_loss import BarlowTwinsLoss
 from lightly.loss.dcl_loss import DCLLoss, DCLWLoss
 from lightly.loss.dino_loss import DINOLoss

@@ -3,7 +3,7 @@
 Add Metadata to a Datasource
 ===============================
 
-Lightly can make use of metadata collected alongside your images or videos. Provided,
+Lightly Worker can make use of metadata collected alongside your images or videos. Provided,
 metadata can be used to steer the selection process and to analyze the selected dataset
 in the Lightly Platform.
 
@@ -45,7 +45,7 @@ Metadata Schema
 The schema defines the format of the metadata and helps the Lightly Platform to correctly identify 
 and display different types of metadata.
 
-You can provide this information to Lightly by adding a `schema.json` to the 
+You can provide this information to Lightly Worker by adding a `schema.json` to the 
 `.lightly/metadata` directory. The `schema.json` file must contain a list of
 configuration entries. Each of the entries is a dictionary with the following keys:
 
@@ -105,9 +105,9 @@ of the images we have collected. A possible schema could look like this:
 
 Metadata Files
 --------------
-Lightly requires a single metadata file per image or video. If an image or video has no corresponding metadata file,
-Lightly assumes the default value from the `schema.json`. If a metadata file is provided for a full video,
-Lightly assumes that the metadata is valid for all frames in that video.
+Lightly Worker requires a single metadata file per image or video. If an image or video has no corresponding metadata file,
+Lightly Worker assumes the default value from the `schema.json`. If a metadata file is provided for a full video,
+Lightly Worker assumes that the metadata is valid for all frames in that video.
 
 To provide metadata for an image or a video, place a metadata file with the same name
 as the image or video in the `.lightly/metadata` directory but change the file extension to
@@ -130,8 +130,8 @@ as the image or video in the `.lightly/metadata` directory but change the file e
 
 
 When working with videos it's also possible to provide metadata on a per-frame basis.
-Then, Lightly requires a metadata file per frame. If a frame has no corresponding metadata file,
-Lightly assumes the default value from the `schema.json`. Lightly uses a naming convention to
+Then, Lightly Worker requires a metadata file per frame. If a frame has no corresponding metadata file,
+Lightly Worker assumes the default value from the `schema.json`. Lightly Worker uses a naming convention to
 identify frames: The filename of a frame consists of the video filename, the frame number 
 (padded to the length of the number of frames in the video), the video format separated
 by hyphens. For example, for a video with 200 frames, the frame number will be padded

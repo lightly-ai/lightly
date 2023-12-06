@@ -7,12 +7,10 @@ import torch
 import torchvision
 from torch import nn
 
-from lightly.data import LightlyDataset
-from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.loss.vicreg_loss import VICRegLoss
 
 ## The projection head is the same as the Barlow Twins one
-from lightly.models.modules import BarlowTwinsProjectionHead
+from lightly.models.modules.heads import VICRegProjectionHead
 from lightly.transforms.vicreg_transform import VICRegTransform
 
 
@@ -21,7 +19,12 @@ class VICReg(pl.LightningModule):
         super().__init__()
         resnet = torchvision.models.resnet18()
         self.backbone = nn.Sequential(*list(resnet.children())[:-1])
-        self.projection_head = BarlowTwinsProjectionHead(512, 2048, 2048)
+        self.projection_head = VICRegProjectionHead(
+            input_dim=512,
+            hidden_dim=2048,
+            output_dim=2048,
+            num_layers=2,
+        )
         self.criterion = VICRegLoss()
 
     def forward(self, x):
@@ -30,7 +33,7 @@ class VICReg(pl.LightningModule):
         return z
 
     def training_step(self, batch, batch_index):
-        (x0, x1), _, _ = batch
+        (x0, x1) = batch[0]
         z0 = self.forward(x0)
         z1 = self.forward(x1)
         loss = self.criterion(z0, z1)
@@ -43,17 +46,16 @@ class VICReg(pl.LightningModule):
 
 model = VICReg()
 
-cifar10 = torchvision.datasets.CIFAR10("datasets/cifar10", download=True)
-dataset = LightlyDataset.from_torch_dataset(cifar10, VICRegTransform(input_size=32))
+transform = VICRegTransform(input_size=32)
+dataset = torchvision.datasets.CIFAR10(
+    "datasets/cifar10", download=True, transform=transform
+)
 # or create a dataset from a folder containing images or videos:
-# dataset = LightlyDataset("path/to/folder")
-
-collate_fn = MultiViewCollate()
+# dataset = LightlyDataset("path/to/folder", transform=transform)
 
 dataloader = torch.utils.data.DataLoader(
     dataset,
     batch_size=256,
-    collate_fn=collate_fn,
     shuffle=True,
     drop_last=True,
     num_workers=8,

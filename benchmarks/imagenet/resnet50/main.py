@@ -3,22 +3,32 @@ from datetime import datetime
 from pathlib import Path
 from typing import Sequence, Union
 
+import barlowtwins
+import byol
+import dcl
+import dclw
+import dino
 import finetune_eval
 import knn_eval
 import linear_eval
 import simclr
 import swav
 import torch
+import vicreg
 from pytorch_lightning import LightningModule, Trainer
-from pytorch_lightning.callbacks import DeviceStatsMonitor, LearningRateMonitor
+from pytorch_lightning.callbacks import (
+    DeviceStatsMonitor,
+    EarlyStopping,
+    LearningRateMonitor,
+)
 from pytorch_lightning.loggers import TensorBoardLogger
 from torch.utils.data import DataLoader
 from torchvision import transforms as T
 
 from lightly.data import LightlyDataset
-from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils.benchmarking import MetricCallback
+from lightly.utils.dist import print_rank_zero
 
 parser = ArgumentParser("ImageNet ResNet50 Benchmarks")
 parser.add_argument("--train-dir", type=Path, default="/datasets/imagenet/train")
@@ -29,7 +39,8 @@ parser.add_argument("--epochs", type=int, default=100)
 parser.add_argument("--num-workers", type=int, default=8)
 parser.add_argument("--accelerator", type=str, default="gpu")
 parser.add_argument("--devices", type=int, default=1)
-parser.add_argument("--precision", type=int, default=16)
+parser.add_argument("--precision", type=str, default="16-mixed")
+parser.add_argument("--ckpt-path", type=Path, default=None)
 parser.add_argument("--compile-model", action="store_true")
 parser.add_argument("--methods", type=str, nargs="+")
 parser.add_argument("--num-classes", type=int, default=1000)
@@ -38,8 +49,17 @@ parser.add_argument("--skip-linear-eval", action="store_true")
 parser.add_argument("--skip-finetune-eval", action="store_true")
 
 METHODS = {
+    "barlowtwins": {
+        "model": barlowtwins.BarlowTwins,
+        "transform": barlowtwins.transform,
+    },
+    "byol": {"model": byol.BYOL, "transform": byol.transform},
+    "dcl": {"model": dcl.DCL, "transform": dcl.transform},
+    "dclw": {"model": dclw.DCLW, "transform": dclw.transform},
+    "dino": {"model": dino.DINO, "transform": dino.transform},
     "simclr": {"model": simclr.SimCLR, "transform": simclr.transform},
     "swav": {"model": swav.SwAV, "transform": swav.transform},
+    "vicreg": {"model": vicreg.VICReg, "transform": vicreg.transform},
 }
 
 
@@ -59,6 +79,7 @@ def main(
     skip_knn_eval: bool,
     skip_linear_eval: bool,
     skip_finetune_eval: bool,
+    ckpt_path: Union[Path, None],
 ) -> None:
     torch.set_float32_matmul_precision("high")
 
@@ -74,11 +95,13 @@ def main(
 
         if compile_model and hasattr(torch, "compile"):
             # Compile model if PyTorch supports it.
-            print("Compiling model...")
+            print_rank_zero("Compiling model...")
             model = torch.compile(model)
 
         if epochs <= 0:
-            print("Epochs <= 0, skipping pretraining.")
+            print_rank_zero("Epochs <= 0, skipping pretraining.")
+            if ckpt_path is not None:
+                model.load_state_dict(torch.load(ckpt_path)["state_dict"])
         else:
             pretrain(
                 model=model,
@@ -92,10 +115,11 @@ def main(
                 accelerator=accelerator,
                 devices=devices,
                 precision=precision,
+                ckpt_path=ckpt_path,
             )
 
         if skip_knn_eval:
-            print("Skipping KNN eval.")
+            print_rank_zero("Skipping KNN eval.")
         else:
             knn_eval.knn_eval(
                 model=model,
@@ -110,7 +134,7 @@ def main(
             )
 
         if skip_linear_eval:
-            print("Skipping linear eval.")
+            print_rank_zero("Skipping linear eval.")
         else:
             linear_eval.linear_eval(
                 model=model,
@@ -126,7 +150,7 @@ def main(
             )
 
         if skip_finetune_eval:
-            print("Skipping fine-tune eval.")
+            print_rank_zero("Skipping fine-tune eval.")
         else:
             finetune_eval.finetune_eval(
                 model=model,
@@ -154,8 +178,9 @@ def pretrain(
     accelerator: str,
     devices: int,
     precision: str,
+    ckpt_path: Union[Path, None],
 ) -> None:
-    print(f"Running pretraining for {method}...")
+    print_rank_zero(f"Running pretraining for {method}...")
 
     # Setup training data.
     train_transform = METHODS[method]["transform"]
@@ -165,8 +190,8 @@ def pretrain(
         batch_size=batch_size_per_device,
         shuffle=True,
         num_workers=num_workers,
-        collate_fn=MultiViewCollate(),
         drop_last=True,
+        persistent_workers=False,
     )
 
     # Setup validation data.
@@ -184,6 +209,7 @@ def pretrain(
         batch_size=batch_size_per_device,
         shuffle=False,
         num_workers=num_workers,
+        persistent_workers=False,
     )
 
     # Train model.
@@ -194,6 +220,8 @@ def pretrain(
         devices=devices,
         callbacks=[
             LearningRateMonitor(),
+            # Stop if training loss diverges.
+            EarlyStopping(monitor="train_loss", patience=int(1e12), check_finite=True),
             DeviceStatsMonitor(),
             metric_callback,
         ],
@@ -201,14 +229,17 @@ def pretrain(
         precision=precision,
         strategy="ddp_find_unused_parameters_true",
         sync_batchnorm=True,
+        num_sanity_val_steps=0,
     )
+
     trainer.fit(
         model=model,
         train_dataloaders=train_dataloader,
         val_dataloaders=val_dataloader,
+        ckpt_path=ckpt_path,
     )
     for metric in ["val_online_cls_top1", "val_online_cls_top5"]:
-        print(f"max {metric}: {max(metric_callback.val_metrics[metric])}")
+        print_rank_zero(f"max {metric}: {max(metric_callback.val_metrics[metric])}")
 
 
 if __name__ == "__main__":
