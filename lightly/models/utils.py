@@ -15,7 +15,6 @@ from numpy.typing import NDArray
 from torch.nn import Module, Sequential
 from torch.nn.modules import CrossMapLRN2d, GroupNorm, LayerNorm, LocalResponseNorm
 from torch.nn.modules.batchnorm import _NormBase
-from torch.nn import Module
 from torch.nn.parameter import Parameter
 from torchvision.ops import StochasticDepth
 
