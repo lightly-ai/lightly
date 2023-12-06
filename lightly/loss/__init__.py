@@ -9,6 +9,7 @@ from lightly.loss.msn_loss import MSNLoss
 from lightly.loss.negative_cosine_similarity import NegativeCosineSimilarity
 from lightly.loss.ntx_ent_loss import NTXentLoss
 from lightly.loss.pmsn_loss import PMSNCustomLoss, PMSNLoss
+from lightly.loss.ssley_loss import SSLEYLoss
 from lightly.loss.swav_loss import SwaVLoss
 from lightly.loss.sym_neg_cos_sim_loss import SymNegCosineSimilarityLoss
 from lightly.loss.tico_loss import TiCoLoss
