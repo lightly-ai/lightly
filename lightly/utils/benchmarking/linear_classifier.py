@@ -98,7 +98,8 @@ class LinearClassifier(LightningModule):
                 features = self.model.forward(images).flatten(start_dim=1)
         else:
             features = self.model.forward(images).flatten(start_dim=1)
-        return self.classification_head(features)
+        output: Tensor = self.classification_head(features)
+        return output
 
     def shared_step(
         self, batch: Tuple[Tensor, ...], batch_idx: int
