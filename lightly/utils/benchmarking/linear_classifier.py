@@ -6,7 +6,6 @@ from torch import Tensor
 from torch.nn import CrossEntropyLoss, Linear, Module
 from torch.optim import SGD, Optimizer
 
-from lightly.models.utils import activate_requires_grad, deactivate_requires_grad
 from lightly.utils.benchmarking.topk import mean_topk_accuracy
 from lightly.utils.scheduler import CosineWarmupScheduler
 

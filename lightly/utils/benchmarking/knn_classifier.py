@@ -6,7 +6,6 @@ from pytorch_lightning import LightningModule
 from torch import Tensor
 from torch.nn import Module
 
-from lightly.models.utils import activate_requires_grad, deactivate_requires_grad
 from lightly.utils.benchmarking import knn_predict
 from lightly.utils.benchmarking.topk import mean_topk_accuracy
 
