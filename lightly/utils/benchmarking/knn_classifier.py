@@ -97,6 +97,7 @@ class KNNClassifier(LightningModule):
         self._train_features_tensor: Union[Tensor, None] = None
         self._train_targets_tensor: Union[Tensor, None] = None
 
+    @torch.no_grad()
     def training_step(self, batch, batch_idx) -> None:
         images, targets = batch[0], batch[1]
         features = self.model.forward(images).flatten(start_dim=1)
@@ -141,13 +142,9 @@ class KNNClassifier(LightningModule):
             targets = targets.flatten().t().contiguous()
             self._train_targets_tensor = targets.to(self.device)
 
-    def on_fit_start(self) -> None:
-        # Freeze model weights.
-        deactivate_requires_grad(model=self.model)
-
-    def on_fit_end(self) -> None:
-        # Unfreeze model weights.
-        activate_requires_grad(model=self.model)
+    def on_train_epoch_start(self) -> None:
+        # Set model to eval mode to disable norm layer updates.
+        self.model.eval()
 
     def configure_optimizers(self) -> None:
         # configure_optimizers must be implemented for PyTorch Lightning. Returning None
