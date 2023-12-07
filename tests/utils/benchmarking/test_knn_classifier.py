@@ -61,7 +61,11 @@ class TestKNNClassifier:
 
     def _test__accelerator(self, accelerator: str, expected_device: str) -> None:
         torch.manual_seed(0)
-        model = nn.Linear(3, 2)
+        linear = nn.Linear(3, 2)
+        batch_norm = nn.BatchNorm1d(2)
+        model = nn.Sequential(linear, batch_norm)
+        initial_weights = linear.weight.clone()
+        initial_bn_weights = batch_norm.weight.clone()
         classifier = KNNClassifier(model, num_classes=10, knn_k=20)
         trainer = Trainer(max_epochs=1, accelerator=accelerator, devices=1)
         train_features = torch.randn(40, 3)
@@ -92,6 +96,16 @@ class TestKNNClassifier:
         assert classifier._train_features_tensor.dtype == torch.float32
         assert classifier._train_features_tensor.device.type == expected_device
         assert classifier._train_targets_tensor.device.type == expected_device
+
+        # Verify that model weights were not updated.
+        assert torch.all(torch.eq(initial_weights, linear.weight))
+        assert torch.all(torch.eq(initial_bn_weights, batch_norm.weight))
+        # Verify that batch norm statistics were not updated. Note that even though the
+        # running mean was not updated, it is still initialized to zero.
+        assert batch_norm.running_mean is not None
+        assert torch.all(
+            torch.eq(batch_norm.running_mean, torch.zeros_like(batch_norm.running_mean))
+        )
 
     def test__features_dtype(self) -> None:
         model = nn.Identity()
