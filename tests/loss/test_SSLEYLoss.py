@@ -2,9 +2,7 @@ import unittest
 
 import pytest
 import torch
-import torch.nn.functional as F
 from pytest_mock import MockerFixture
-from torch import Tensor
 from torch import distributed as dist
 
 from lightly.loss import SSLEYLoss
