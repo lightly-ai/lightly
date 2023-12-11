@@ -1,8 +1,8 @@
-from typing import Union
+from typing import Dict, List, Optional, Tuple, Union
 
 from lightly.transforms.byol_transform import BYOLView1Transform
-
 from lightly.transforms.multi_view_transform import MultiViewTransform
+from lightly.transforms.utils import IMAGENET_NORMALIZE
 
 
 class MMCRTransform(MultiViewTransform):
@@ -44,7 +44,7 @@ class MMCRTransform(MultiViewTransform):
 
     def __init__(
         self,
-        k: int = 2,
+        k: int = 8,
         input_size: int = 224,
         cj_prob: float = 0.8,
         cj_strength: float = 1.0,
@@ -71,7 +71,7 @@ class MMCRTransform(MultiViewTransform):
             cj_prob=cj_prob,
             cj_strength=cj_strength,
             cj_bright=cj_bright,
-            cj_contrast=cj_sat,
+            cj_contrast=cj_contrast,
             cj_sat=cj_sat,
             cj_hue=cj_hue,
             min_scale=min_scale,
