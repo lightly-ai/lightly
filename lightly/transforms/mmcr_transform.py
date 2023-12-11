@@ -1,6 +1,6 @@
 from typing import Union
 
-from byol_transform import BYOLView1Transform
+from lightly.transforms.byol_transform import BYOLView1Transform
 
 from lightly.transforms.multi_view_transform import MultiViewTransform
 
