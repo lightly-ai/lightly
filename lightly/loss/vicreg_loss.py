@@ -125,7 +125,6 @@ def variance_loss(x: Tensor, eps: float = 0.0001) -> Tensor:
         eps:
             Epsilon for numerical stability.
     """
-    x = x - x.mean(dim=0)
     std = torch.sqrt(x.var(dim=0) + eps)
     loss = torch.mean(F.relu(1.0 - std))
     return loss
