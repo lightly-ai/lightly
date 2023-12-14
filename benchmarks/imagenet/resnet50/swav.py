@@ -8,9 +8,9 @@ from torch.nn import Identity, ModuleList
 from torch.nn import functional as F
 from torchvision.models import resnet50
 
-from lightly.loss.memory_bank import MemoryBankModule
 from lightly.loss.swav_loss import SwaVLoss
 from lightly.models.modules import SwaVProjectionHead, SwaVPrototypes
+from lightly.models.modules.memory_bank import MemoryBankModule
 from lightly.models.utils import get_weight_decay_parameters
 from lightly.transforms import SwaVTransform
 from lightly.utils.benchmarking import OnlineLinearClassifier
@@ -40,7 +40,7 @@ class SwAV(LightningModule):
         self.queues = ModuleList(
             [
                 MemoryBankModule(
-                    size=self.n_batches_in_queue * self.batch_size_per_device
+                    size=(self.n_batches_in_queue * self.batch_size_per_device, 128)
                 )
                 for _ in range(CROP_COUNTS[0])
             ]

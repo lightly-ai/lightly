@@ -29,7 +29,7 @@ class MoCo(pl.LightningModule):
         deactivate_requires_grad(self.backbone_momentum)
         deactivate_requires_grad(self.projection_head_momentum)
 
-        self.criterion = NTXentLoss(memory_bank_size=4096)
+        self.criterion = NTXentLoss(memory_bank_size=(4096, 128))
 
     def forward(self, x):
         query = self.backbone(x).flatten(start_dim=1)
