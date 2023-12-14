@@ -21,17 +21,15 @@ import json
 
 from typing import Optional
 from pydantic import Extra,  BaseModel, Field, StrictBool
-from lightly.openapi_generated.swagger_client.models.docker_worker_config_v3_docker_datasource_input_expiration import DockerWorkerConfigV3DockerDatasourceInputExpiration
 
-class DockerWorkerConfigV3DockerDatasource(BaseModel):
+class DockerWorkerConfigV2DockerDatasource(BaseModel):
     """
-    DockerWorkerConfigV3DockerDatasource
+    DockerWorkerConfigV2DockerDatasource
     """
     bypass_verify: Optional[StrictBool] = Field(None, alias="bypassVerify")
     enable_datapool_update: Optional[StrictBool] = Field(None, alias="enableDatapoolUpdate")
     process_all: Optional[StrictBool] = Field(None, alias="processAll")
-    input_expiration: Optional[DockerWorkerConfigV3DockerDatasourceInputExpiration] = Field(None, alias="inputExpiration")
-    __properties = ["bypassVerify", "enableDatapoolUpdate", "processAll", "inputExpiration"]
+    __properties = ["bypassVerify", "enableDatapoolUpdate", "processAll"]
 
     class Config:
         """Pydantic configuration"""
@@ -49,8 +47,8 @@ class DockerWorkerConfigV3DockerDatasource(BaseModel):
         return json.dumps(self.to_dict(by_alias=by_alias))
 
     @classmethod
-    def from_json(cls, json_str: str) -> DockerWorkerConfigV3DockerDatasource:
-        """Create an instance of DockerWorkerConfigV3DockerDatasource from a JSON string"""
+    def from_json(cls, json_str: str) -> DockerWorkerConfigV2DockerDatasource:
+        """Create an instance of DockerWorkerConfigV2DockerDatasource from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self, by_alias: bool = False):
@@ -59,30 +57,26 @@ class DockerWorkerConfigV3DockerDatasource(BaseModel):
                           exclude={
                           },
                           exclude_none=True)
-        # override the default output from pydantic by calling `to_dict()` of input_expiration
-        if self.input_expiration:
-            _dict['inputExpiration' if by_alias else 'input_expiration'] = self.input_expiration.to_dict(by_alias=by_alias)
         return _dict
 
     @classmethod
-    def from_dict(cls, obj: dict) -> DockerWorkerConfigV3DockerDatasource:
-        """Create an instance of DockerWorkerConfigV3DockerDatasource from a dict"""
+    def from_dict(cls, obj: dict) -> DockerWorkerConfigV2DockerDatasource:
+        """Create an instance of DockerWorkerConfigV2DockerDatasource from a dict"""
         if obj is None:
             return None
 
         if not isinstance(obj, dict):
-            return DockerWorkerConfigV3DockerDatasource.parse_obj(obj)
+            return DockerWorkerConfigV2DockerDatasource.parse_obj(obj)
 
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in DockerWorkerConfigV3DockerDatasource) in the input: " + str(obj))
+                raise ValueError("Error due to additional fields (not defined in DockerWorkerConfigV2DockerDatasource) in the input: " + str(obj))
 
-        _obj = DockerWorkerConfigV3DockerDatasource.parse_obj({
+        _obj = DockerWorkerConfigV2DockerDatasource.parse_obj({
             "bypass_verify": obj.get("bypassVerify"),
             "enable_datapool_update": obj.get("enableDatapoolUpdate"),
-            "process_all": obj.get("processAll"),
-            "input_expiration": DockerWorkerConfigV3DockerDatasourceInputExpiration.from_dict(obj.get("inputExpiration")) if obj.get("inputExpiration") is not None else None
+            "process_all": obj.get("processAll")
         })
         return _obj
 
