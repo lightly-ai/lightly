@@ -85,10 +85,9 @@ from lightly.loss import (
     TiCoLoss,
     VICRegLLoss,
     VICRegLoss,
-    memory_bank,
 )
 from lightly.models import modules, utils
-from lightly.models.modules import heads, masked_autoencoder
+from lightly.models.modules import heads, masked_autoencoder, memory_bank
 from lightly.transforms import (
     BYOLTransform,
     BYOLView1Transform,
@@ -330,7 +329,9 @@ class MocoModel(BenchmarkModule):
         utils.deactivate_requires_grad(self.projection_head_momentum)
 
         # create our loss with the optional memory bank
-        self.criterion = NTXentLoss(temperature=0.1, memory_bank_size=memory_bank_size)
+        self.criterion = NTXentLoss(
+            temperature=0.1, memory_bank_size=(memory_bank_size, 128)
+        )
 
     def forward(self, x):
         x = self.backbone(x).flatten(start_dim=1)
@@ -1015,7 +1016,7 @@ class SMoGModel(BenchmarkModule):
         # smog
         self.n_groups = 300
         memory_bank_size = 10000
-        self.memory_bank = memory_bank.MemoryBankModule(size=memory_bank_size)
+        self.memory_bank = memory_bank.MemoryBankModule(size=(memory_bank_size, 128))
         # create our loss
         group_features = torch.nn.functional.normalize(
             torch.rand(self.n_groups, 128), dim=1
@@ -1320,7 +1321,7 @@ class SwaVQueueModel(BenchmarkModule):
         self.prototypes = heads.SwaVPrototypes(128, 3000, 1)
         self.start_queue_at_epoch = 15
         self.queues = nn.ModuleList(
-            [memory_bank.MemoryBankModule(size=384) for _ in range(2)]
+            [memory_bank.MemoryBankModule(size=(384, 128)) for _ in range(2)]
         )  # Queue size reduced in order to work with a smaller dataset
         self.criterion = SwaVLoss()
 

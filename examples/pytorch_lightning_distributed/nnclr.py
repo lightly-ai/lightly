@@ -23,7 +23,7 @@ class NNCLR(pl.LightningModule):
         self.backbone = nn.Sequential(*list(resnet.children())[:-1])
         self.projection_head = NNCLRProjectionHead(512, 512, 128)
         self.prediction_head = NNCLRPredictionHead(128, 512, 128)
-        self.memory_bank = NNMemoryBankModule(size=4096)
+        self.memory_bank = NNMemoryBankModule(size=(4096, 128))
 
         self.criterion = NTXentLoss()
 
