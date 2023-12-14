@@ -21,10 +21,10 @@ import json
 
 from typing import Optional
 from pydantic import Extra,  BaseModel, Field, StrictBool, StrictStr, conint
+from lightly.openapi_generated.swagger_client.models.docker_worker_config_v2_docker_datasource import DockerWorkerConfigV2DockerDatasource
 from lightly.openapi_generated.swagger_client.models.docker_worker_config_v2_docker_object_level import DockerWorkerConfigV2DockerObjectLevel
 from lightly.openapi_generated.swagger_client.models.docker_worker_config_v2_docker_stopping_condition import DockerWorkerConfigV2DockerStoppingCondition
 from lightly.openapi_generated.swagger_client.models.docker_worker_config_v3_docker_corruptness_check import DockerWorkerConfigV3DockerCorruptnessCheck
-from lightly.openapi_generated.swagger_client.models.docker_worker_config_v3_docker_datasource import DockerWorkerConfigV3DockerDatasource
 from lightly.openapi_generated.swagger_client.models.lightly_docker_selection_method import LightlyDockerSelectionMethod
 
 class DockerWorkerConfigV2Docker(BaseModel):
@@ -33,7 +33,7 @@ class DockerWorkerConfigV2Docker(BaseModel):
     """
     checkpoint: Optional[StrictStr] = None
     corruptness_check: Optional[DockerWorkerConfigV3DockerCorruptnessCheck] = Field(None, alias="corruptnessCheck")
-    datasource: Optional[DockerWorkerConfigV3DockerDatasource] = None
+    datasource: Optional[DockerWorkerConfigV2DockerDatasource] = None
     embeddings: Optional[StrictStr] = None
     enable_training: Optional[StrictBool] = Field(None, alias="enableTraining")
     method: Optional[LightlyDockerSelectionMethod] = None
@@ -105,7 +105,7 @@ class DockerWorkerConfigV2Docker(BaseModel):
         _obj = DockerWorkerConfigV2Docker.parse_obj({
             "checkpoint": obj.get("checkpoint"),
             "corruptness_check": DockerWorkerConfigV3DockerCorruptnessCheck.from_dict(obj.get("corruptnessCheck")) if obj.get("corruptnessCheck") is not None else None,
-            "datasource": DockerWorkerConfigV3DockerDatasource.from_dict(obj.get("datasource")) if obj.get("datasource") is not None else None,
+            "datasource": DockerWorkerConfigV2DockerDatasource.from_dict(obj.get("datasource")) if obj.get("datasource") is not None else None,
             "embeddings": obj.get("embeddings"),
             "enable_training": obj.get("enableTraining"),
             "method": obj.get("method"),
