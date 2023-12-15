@@ -105,7 +105,8 @@ class KNNClassifier(LightningModule):
         images, targets = batch[0], batch[1]
         features = self.model.forward(images).flatten(start_dim=1)
         if self.normalize:
-            features = F.normalize(features, dim=1).to(self.feature_dtype)
+            features = F.normalize(features, dim=1)
+        features = features.to(self.feature_dtype)
         self._train_features.append(features.cpu())
         self._train_targets.append(targets.cpu())
 
@@ -116,7 +117,8 @@ class KNNClassifier(LightningModule):
         images, targets = batch[0], batch[1]
         features = self.model.forward(images).flatten(start_dim=1)
         if self.normalize:
-            features = F.normalize(features, dim=1).to(self.feature_dtype)
+            features = F.normalize(features, dim=1)
+        features = features.to(self.feature_dtype)
         predicted_classes = knn_predict(
             feature=features,
             feature_bank=self._train_features_tensor,
