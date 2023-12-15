@@ -58,10 +58,10 @@ class SSLEYLoss(torch.nn.Module):
                 Tensor with shape (batch_size, ..., dim).
         """
         assert (
-                z_a.shape[0] > 1 and z_b.shape[0] > 1
+            z_a.shape[0] > 1 and z_b.shape[0] > 1
         ), f"z_a and z_b must have batch size > 1 but found {z_a.shape[0]} and {z_b.shape[0]}"
         assert (
-                z_a.shape == z_b.shape
+            z_a.shape == z_b.shape
         ), f"z_a and z_b must have same shape but found {z_a.shape} and {z_b.shape}."
         # gather all batches
         if self.gather_distributed and dist.is_initialized():
@@ -73,7 +73,7 @@ class SSLEYLoss(torch.nn.Module):
         z_a = z_a - z_a.mean(dim=0)
         z_b = z_b - z_b.mean(dim=0)
         batch_size = z_a.size(0)
-        C = 2*(z_a.T @ z_b) / (batch_size - 1)
+        C = 2 * (z_a.T @ z_b) / (batch_size - 1)
         V = (z_a.T @ z_a) / (batch_size - 1) + (z_b.T @ z_b) / (batch_size - 1)
 
         loss = -2 * torch.trace(C) + torch.trace(V @ V)
