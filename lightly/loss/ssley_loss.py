@@ -1,7 +1,5 @@
 import torch
 import torch.distributed as dist
-import torch.nn.functional as F
-from torch import Tensor
 
 from lightly.utils.dist import gather
 
