@@ -151,6 +151,12 @@ class KNNClassifier(LightningModule):
         # Set model to eval mode to disable norm layer updates.
         self.model.eval()
 
+        # Reset features and targets.
+        self._train_features = []
+        self._train_targets = []
+        self._train_features_tensor = None
+        self._train_targets_tensor = None
+
     def configure_optimizers(self) -> None:
         # configure_optimizers must be implemented for PyTorch Lightning. Returning None
         # means that no optimization is performed.
