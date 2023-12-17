@@ -5,16 +5,24 @@
 
 import math
 import warnings
-from typing import Iterable, List, Optional, Tuple, Union
+from typing import Dict, Iterable, List, Optional, Tuple, Type, Union
 
 import numpy as np
 import torch
 import torch.distributed as dist
 import torch.nn as nn
 from numpy.typing import NDArray
-from torch.nn import Module
-from torch.nn.modules.batchnorm import _BatchNorm
+from torch.nn import Module, Sequential
+from torch.nn.modules import CrossMapLRN2d, GroupNorm, LayerNorm, LocalResponseNorm
+from torch.nn.modules.batchnorm import _NormBase
 from torch.nn.parameter import Parameter
+from torchvision.ops import StochasticDepth
+
+from lightly import _torchvision_vit_available
+
+if _torchvision_vit_available:
+    # Requires torchvision >=0.12
+    from torchvision.models.vision_transformer import EncoderBlock
 
 
 @torch.no_grad()
@@ -534,20 +542,26 @@ def nearest_neighbors(
     return filtered_input_maps, filtered_candidate_maps
 
 
+_NORM_LAYERS = (_NormBase, LayerNorm, CrossMapLRN2d, LocalResponseNorm, GroupNorm)
+
+
 def get_weight_decay_parameters(
     modules: Iterable[Module],
-    decay_batch_norm: bool = False,
+    decay_norm: bool = False,
     decay_bias: bool = False,
+    norm_layers: Tuple[Type[Module], ...] = _NORM_LAYERS,
 ) -> Tuple[List[Parameter], List[Parameter]]:
     """Returns all parameters of the modules that should be decayed and not decayed.
 
     Args:
         modules:
             List of modules to get the parameters from.
-        no_batch_norm:
-            If True, batch norm parameters are decayed.
-        no_bias:
+        decay_norm:
+            If True, normalization parameters are decayed.
+        decay_bias:
             If True, bias parameters are decayed.
+        norm_layers:
+            Tuple of normalization classes to decay if decay_norm is True.
 
     Returns:
         (params, params_no_weight_decay) tuple.
@@ -556,8 +570,8 @@ def get_weight_decay_parameters(
     params_no_weight_decay = []
     for module in modules:
         for mod in module.modules():
-            if isinstance(mod, _BatchNorm):
-                if not decay_batch_norm:
+            if isinstance(mod, norm_layers):
+                if not decay_norm:
                     params_no_weight_decay.extend(mod.parameters(recurse=False))
                 else:
                     params.extend(mod.parameters(recurse=False))
@@ -570,145 +584,116 @@ def get_weight_decay_parameters(
     return params, params_no_weight_decay
 
 
-def trunc_normal_(tensor, mean=0.0, std=1.0, a=-2.0, b=2.0):
-    return _no_grad_trunc_normal(tensor, mean, std, a, b)
+def get_named_leaf_modules(module: Module) -> Dict[str, Module]:
+    """Returns all leaf modules of the model with their names."""
+    return {
+        name: mod for name, mod in module.named_modules() if not any(mod.children())
+    }
 
 
-def apply_masks(x, masks):
-    """
-    :param x: tensor of shape [B (batch-size), N (num-patches), D (feature-dim)]
-    :param masks: list of tensors containing indices of patches in [N] to keep
-    """
-    all_x = []
-    for m in masks:
-        mask_keep = m.unsqueeze(-1).repeat(1, 1, x.size(-1))
-        all_x += [torch.gather(x, dim=1, index=mask_keep)]
-    return torch.cat(all_x, dim=0)
+def add_stochastic_depth_to_blocks(vit: Module, prob: float = 0.0, mode="row") -> None:
+    """Adds stochastic depth dropout to all transformer blocks."""
+    if prob <= 0:
+        return
+
+    for mod in vit.modules():
+        if isinstance(mod, EncoderBlock):
+            mod.dropout = Sequential(mod.dropout, StochasticDepth(p=prob, mode=mode))
+            mod.mlp = Sequential(mod.mlp, StochasticDepth(p=prob, mode=mode))
 
 
-def repeat_interleave_batch(x, B, repeat):
-    N = len(x) // B
-    x = torch.cat(
-        [
-            torch.cat([x[i * B : (i + 1) * B] for _ in range(repeat)], dim=0)
-            for i in range(N)
-        ],
-        dim=0,
-    )
-    return x
+def get_2d_sine_cosine_positional_embedding(
+    embed_dim: int, grid_size: int, cls_token: bool
+) -> NDArray[np.float32]:
+    """Generates 2D sine-cosine positional embedding.
 
-
-def get_2d_sincos_pos_embed(
-    embed_dim: int, grid_size: int, cls_token: bool = False
-) -> NDArray[np.float_]:
-    """Returns 2D sin-cos embeddings. Code from [0].
-
-    - [0]: https://github.com/facebookresearch/ijepa
+    Code follows: https://github.com/facebookresearch/mae/blob/main/util/pos_embed.py
 
     Args:
         embed_dim:
             Embedding dimension.
         grid_size:
-            Grid height and width. Should usually be set to sqrt(sequence length).
+            Height and width of the grid.
         cls_token:
-            If True, a positional embedding for the class token is prepended to the returned
-            embeddings.
-
+            If True, a positional embedding for the class token is generated.
     Returns:
-        Positional embeddings array with size (grid_size * grid_size, embed_dim) if cls_token is False.
-        If cls_token is True, a (1 + grid_size * grid_size, embed_dim) array is returned.
+        Positional embedding with shape (grid_size * grid_size, embed_dim) or
+        (1 + grid_size * grid_size, embed_dim) if cls_token is True.
     """
-    grid_h = np.arange(grid_size, dtype=float)
-    grid_w = np.arange(grid_size, dtype=float)
+    grid_h = np.arange(grid_size, dtype=np.float32)
+    grid_w = np.arange(grid_size, dtype=np.float32)
     grid = np.meshgrid(grid_w, grid_h)  # here w goes first
     grid = np.stack(grid, axis=0)
 
     grid = grid.reshape([2, 1, grid_size, grid_size])
-    pos_embed = get_2d_sincos_pos_embed_from_grid(embed_dim, grid)
+    pos_embed = get_2d_sine_cosine_positional_embedding_from_grid(embed_dim, grid)
     if cls_token:
         pos_embed = np.concatenate([np.zeros([1, embed_dim]), pos_embed], axis=0)
     return pos_embed
 
 
-def get_2d_sincos_pos_embed_from_grid(
-    embed_dim: int, grid: NDArray[np.int_]
-) -> NDArray[np.float_]:
-    """Returns 2D sin-cos embeddings grid. Code from [0].
+# TODO(guarin): Remove alias and rename function instead. get_2d_sincos_pos_embed
+# was introduced by ijepa while get_2d_sine_cosine_positional_embedding was introduced
+# by mae.
+get_2d_sincos_pos_embed = get_2d_sine_cosine_positional_embedding
 
-    - [0]: https://github.com/facebookresearch/ijepa
+
+def get_2d_sine_cosine_positional_embedding_from_grid(
+    embed_dim: int, grid: NDArray[np.float32]
+) -> NDArray[np.float32]:
+    """Generates 2D sine-cosine positional embedding from a grid.
+
+    Code follows: https://github.com/facebookresearch/mae/blob/main/util/pos_embed.py
 
     Args:
         embed_dim:
             Embedding dimension.
         grid:
-            2-dimensional grid to embed.
-
+            Grid of shape (2, grid_size, grid_size) with x and y coordinates.
     Returns:
-        Positional embeddings array with size (grid_size * grid_size, embed_dim).
+        Positional embedding with shape (grid_size * grid_size, embed_dim).
     """
     assert embed_dim % 2 == 0
 
-    # use half of dimensions to encode grid_h
-    emb_h = get_1d_sincos_pos_embed_from_grid(embed_dim // 2, grid[0])  # (H*W, D/2)
-    emb_w = get_1d_sincos_pos_embed_from_grid(embed_dim // 2, grid[1])  # (H*W, D/2)
+    # Use half of dimensions to encode grid_h.
+    # (grid_size * grid_size, embed_dim/2)
+    emb_h = get_1d_sine_cosine_positional_embedding_from_positions(
+        embed_dim // 2, grid[0]
+    )
+    # (grid_size * grid_size, embed_dim/2)
+    emb_w = get_1d_sine_cosine_positional_embedding_from_positions(
+        embed_dim // 2, grid[1]
+    )
 
-    emb = np.concatenate([emb_h, emb_w], axis=1)  # (H*W, D)
+    emb = np.concatenate([emb_h, emb_w], axis=1)  # (grid_size * grid_size, embed_dim)
     return emb
 
 
-def get_1d_sincos_pos_embed(
-    embed_dim: int, grid_size: int, cls_token: bool = False
-) -> NDArray[np.float_]:
-    """Returns 1D sin-cos embeddings. Code from [0].
+def get_1d_sine_cosine_positional_embedding_from_positions(
+    embed_dim: int, pos: NDArray[np.float32]
+) -> NDArray[np.float32]:
+    """Generates 1D sine-cosine positional embedding from positions.
 
-    - [0]: https://github.com/facebookresearch/ijepa
-
-    Args:
-        embed_dim:
-            Embedding dimension.
-        grid_size:
-            Grid height and width. Should usually be set to sqrt(sequence length).
-        cls_token:
-            If True, a positional embedding for the class token is prepended to the returned
-            embeddings.
-
-    Returns:
-        Positional embeddings array with size (grid_size, embed_dim) if cls_token is False.
-        If cls_token is True, a (1 + grid_size, embed_dim) array is returned.
-    """
-    grid = np.arange(grid_size, dtype=float)
-    pos_embed = get_1d_sincos_pos_embed_from_grid(embed_dim, grid)
-    if cls_token:
-        pos_embed = np.concatenate([np.zeros([1, embed_dim]), pos_embed], axis=0)
-    return pos_embed
-
-
-def get_1d_sincos_pos_embed_from_grid(
-    embed_dim: int, pos: NDArray[np.int_]
-) -> NDArray[np.float_]:
-    """Returns 1D sin-cos embeddings grid. Code from [0].
-
-    - [0]: https://github.com/facebookresearch/ijepa
+    Code follows: https://github.com/facebookresearch/mae/blob/main/util/pos_embed.py
 
     Args:
         embed_dim:
             Embedding dimension.
         pos:
-            1-dimensional grid to embed.
-
+            Positions to be encoded with shape (N, M).
     Returns:
-        Positional embeddings array with size (grid_size, embed_dim).
+        Positional embedding with shape (N * M, embed_dim).
     """
     assert embed_dim % 2 == 0
-    omega = np.arange(embed_dim // 2, dtype=float)
+    omega = np.arange(embed_dim // 2, dtype=np.float32)
     omega /= embed_dim / 2.0
-    omega = 1.0 / 10000**omega  # (D/2,)
+    omega = 1.0 / 10000**omega  # (embed_dim/2,)
 
-    pos = pos.reshape(-1)  # (M,)
-    out = np.einsum("m,d->md", pos, omega)  # (M, D/2), outer product
+    pos = pos.reshape(-1)  # (N*M,)
+    out = np.einsum("m,d->md", pos, omega)  # (N*M, embed_dim/2), outer product
 
-    emb_sin = np.sin(out)  # (M, D/2)
-    emb_cos = np.cos(out)  # (M, D/2)
+    emb_sin = np.sin(out)  # (N*M, embed_dim/2)
+    emb_cos = np.cos(out)  # (N*M, embed_dim/2)
 
-    emb = np.concatenate([emb_sin, emb_cos], axis=1)  # (M, D)
+    emb = np.concatenate([emb_sin, emb_cos], axis=1)  # (N*M, embed_dim)
     return emb
