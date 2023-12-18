@@ -1,6 +1,6 @@
 """Code for W-MSE Loss, largely taken from https://github.com/htdt/self-supervised"""
 
-from typing import Callable, List
+from typing import Callable
 
 import torch
 import torch.nn as nn
@@ -18,11 +18,8 @@ class Whitening2d(nn.Module):
     """
     Implementation of the whitening layer as described in [0].
 
-    [0] Whitening for Self-Supervised Representation Learning, 2021, https://arxiv.org/pdf/2007.06346.pdf
+    [0] W-MSE, 2021, https://arxiv.org/pdf/2007.06346.pdf
     """
-
-    running_mean: torch.Tensor
-    running_variance: torch.Tensor
 
     def __init__(
         self,
@@ -32,6 +29,8 @@ class Whitening2d(nn.Module):
         eps: float = 0,
     ):
         super(Whitening2d, self).__init__()
+        self.running_mean: torch.Tensor
+        self.running_variance: torch.Tensor
         self.num_features = num_features
         self.momentum = momentum
         self.track_running_stats = track_running_stats
@@ -87,9 +86,10 @@ class Whitening2d(nn.Module):
 
 class WMSELoss(torch.nn.Module):
     """
-    Implementation of the W-MSE loss function [0].
+    Implementation of the loss described in 'Whitening for
+    Self-Supervised Representation Learning' [0].
 
-    - [0] Whitening for Self-Supervised Representation Learning, 2021, https://arxiv.org/pdf/2007.06346.pdf
+    - [0] W-MSE, 2021, https://arxiv.org/pdf/2007.06346.pdf
 
     Examples:
         >>> # initialize loss function
@@ -109,12 +109,12 @@ class WMSELoss(torch.nn.Module):
 
     def __init__(
         self,
-        embedding_dim: int = 64,
+        embedding_dim: int = 128,
         momentum: float = 0.01,
         eps: float = 0.0,
         track_running_stats: bool = True,
         w_iter: int = 1,
-        w_size: int = 128,
+        w_size: int = 256,
         loss_fn: Callable[[torch.Tensor, torch.Tensor], torch.Tensor] = norm_mse_loss,
         num_samples: int = 2,
     ):
@@ -147,6 +147,10 @@ class WMSELoss(torch.nn.Module):
             eps=eps,
             track_running_stats=track_running_stats,
         )
+        if embedding_dim * 2 > w_size:
+            raise ValueError(
+                "w_size should be at least twice the size of embedding_dim to avoid instabiliy"
+            )
         self.w_iter = w_iter
         self.w_size = w_size
         self.loss_f = loss_fn
@@ -154,6 +158,21 @@ class WMSELoss(torch.nn.Module):
         self.num_pairs = num_samples * (num_samples - 1) // 2
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
+        """Calculates the W-MSE loss.
+
+         Args:
+            input:
+                Tensor with shape (batch_size * num_samples, embedding_dim).
+
+        Returns:
+            Aggregate W-MSE loss over all sub-batches.
+
+        Raises:
+            RuntimeError:
+                If the batch size is not divisible by num_samples.
+            ValueError:
+                If the batch size is smaller than w_size.
+        """
         if input.shape[0] % self.num_samples != 0:
             raise RuntimeError("input batch size must be divisible by num_samples")
 
