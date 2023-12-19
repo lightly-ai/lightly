@@ -33,3 +33,4 @@ from lightly.transforms.solarize import RandomSolarization
 from lightly.transforms.swav_transform import SwaVTransform, SwaVViewTransform
 from lightly.transforms.vicreg_transform import VICRegTransform, VICRegViewTransform
 from lightly.transforms.vicregl_transform import VICRegLTransform, VICRegLViewTransform
+from lightly.transforms.wmse_transform import WMSETransform
