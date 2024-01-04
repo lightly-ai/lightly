@@ -1,0 +1,86 @@
+"""Code for EMP-SSL Loss, largely taken from https://github.com/tsb0601/EMP-SSL"""
+
+from typing import List, Sequence
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torch import Tensor
+
+
+def tcr_loss(z: Tensor, eps: float) -> Tensor:
+    """Total Coding Rate (TCR) loss.
+
+    Args:
+        z (Tensor):
+            Patch embeddings.
+        eps (float):
+            Epsilon value for numerical stability.
+
+    Returns:
+        TCR loss.
+    """
+    _, batch_size, dim = z.shape
+    diag = torch.eye(dim, device=z.device).unsqueeze(0)
+    # matmul over batch dimension
+    einsum = torch.einsum("vbd,vbe->vde", z, z)
+    logdet = torch.logdet(diag + dim / (batch_size * eps) * einsum)
+    return 0.5 * logdet.mean()
+
+
+def invariance_loss(z: Tensor) -> Tensor:
+    """Loss representing the similiarity between the patch embeddings and the average of the patch embeddings.
+
+    Args:
+        z (Tensor):
+            Patch embeddings.
+    Returns:
+        Similarity loss.
+    """
+    # z has shape (num_views, batch_size, dim)
+    z_mean = z.mean(0, keepdim=True)
+    return -F.cosine_similarity(z, z_mean, dim=-1).mean()
+
+
+class EMPSSLLoss(nn.Module):
+    """Implementation of the loss from 'EMP-SSL: Towards
+    Self-Supervised Learning in One Training Epoch' [0].
+    - [0] EMP-SSL, 2023, https://arxiv.org/abs/2304.03977
+
+    Examples:
+        >>> # initialize loss function
+        >>> loss_fn = EMP_SSLLoss()
+        >>> base_transform = VICRegViewTransform() # As discussed in paper
+        >>> transform_fn = MultiCropTransform(transforms=base_transform, crop_counts=100)
+        >>>
+        >>> # generate the transformed samples
+        >>> samples = transform_fn(image)
+        >>>
+        >>> # feed through encoder head
+        >>> z = torch.cat([model(s) for s in samples])
+        >>>
+        >>> # calculate loss
+        >>> loss = loss_fn(z)
+    """
+
+    def __init__(
+        self,
+        tcr_eps: float = 0.2,
+        inv_coef: float = 200.0,
+    ) -> None:
+        """Args as in [0].
+        Args:
+            tcr_eps:
+                Total Coding Rate (TCR) epsilon. NOTE: While in the paper, this term is squared, we do not square it here
+                as to follow the implementation in the official repository.
+            inv_coef:
+                Coefficient for the invariance loss (Lambda in the paper).
+        """
+        super().__init__()
+        self.tcr_eps = tcr_eps
+        self.inv_coef = inv_coef
+
+    def forward(self, z_views: Sequence[Tensor]) -> Tensor:
+        # z has shape (num_views, batch_size, dim)
+        z = torch.stack(z_views)
+        return tcr_loss(z, eps=self.tcr_eps) + self.inv_coef * invariance_loss(z)
