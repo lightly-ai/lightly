@@ -2,13 +2,19 @@ from __future__ import annotations
 
 import math
 from functools import partial
-from typing import Callable, List, Optional
+from typing import Callable, Optional, Union, Tuple, Type
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
+    
+from timm.layers import PatchEmbed, Mlp, DropPath, AttentionPoolLatent, RmsNorm, PatchDropout, SwiGLUPacked, \
+    trunc_normal_, lecun_normal_, resample_patch_embed, resample_abs_pos_embed, use_fused_attn, \
+    get_act_layer, get_norm_layer, LayerType
 
 import torch
 import torch.nn as nn
-from torch.nn import Linear, Module, Parameter
-
-from torchvision.models.vision_transformer import ConvStemConfig
+from torch.nn import Linear, Module, Parameter, LayerNorm, ModuleList
 
 from timm.models import vision_transformer
 
@@ -27,65 +33,125 @@ class MAEBackbone(vision_transformer.VisionTransformer):
     - [2]: Early Convolutions Help Transformers See Better, 2021, https://arxiv.org/abs/2106.14881.
 
     Attributes:
-        image_size:
+        img_size: 
             Input image size.
-        patch_size:
-            Width and height of the image patches. image_size must be a multiple
-            of patch_size.
-        num_layers:
-            Number of transformer blocks.
-        num_heads:
+        patch_size: 
+            Patch size.
+        in_chans: 
+            Number of image input channels.
+        num_classes: 
+            Number of classes for classification head.
+        global_pool: 
+            Type of global pooling for final sequence (default: 'token').
+        embed_dim: 
+            Transformer embedding dimension.
+        depth: 
+            Depth of transformer.
+        num_heads: 
             Number of attention heads.
-        hidden_dim:
-            Dimension of the input and output tokens.
-        mlp_dim:
-            Dimension of the MLP in the transformer block.
-        dropout:
-            Percentage of elements set to zero after the MLP in the transformer.
-        attention_dropout:
-            Percentage of elements set to zero after the attention head.
-        num_classes:
-            Number of classes for the classification head. Currently not used.
-        representation_size:
-            If specified, an additional linear layer is added before the
-            classification head to change the token dimension from hidden_dim
-            to representation_size. Currently not used.
-        norm_layer:
-            Callable that creates a normalization layer.
-        conv_stem_configs:
-            If specified, a convolutional stem is added at the beggining of the
-            network following [2]. Not used in the original Masked Autoencoder
-            paper [0].
+        mlp_ratio: 
+            Ratio of mlp hidden dim to embedding dim.
+        qkv_bias: 
+            Enable bias for qkv projections if True.
+        init_values: 
+            Layer-scale init values (layer-scale enabled if not None).
+        class_token: 
+            Use class token.
+        no_embed_class: 
+            Don't include position embeddings for class (or reg) tokens.
+        reg_tokens: 
+            Number of register tokens.
+        fc_norm: 
+            Pre head norm after pool (instead of before), if None, enabled when global_pool == 'avg'.
+        drop_rate: 
+            Head dropout rate.
+        pos_drop_rate: 
+            Position embedding dropout rate.
+        attn_drop_rate: 
+            Attention dropout rate.
+        drop_path_rate: 
+            Stochastic depth rate.
+        weight_init: 
+            Weight initialization scheme.
+        embed_layer: 
+            Patch embedding layer.
+        norm_layer: 
+            Normalization layer.
+        act_layer: 
+            MLP activation layer.
+        block_fn: 
+            Transformer block layer.
 
     """
 
     def __init__(
-        self,
-        image_size: int,
-        patch_size: int,
-        num_layers: int,
-        num_heads: int,
-        hidden_dim: int,
-        mlp_dim: int,
-        dropout: float = 0,
-        attention_dropout: float = 0,
-        num_classes: int = 1000,
-        representation_size: Optional[int] = None,
-        norm_layer: Callable[..., torch.nn.Module] = partial(nn.LayerNorm, eps=1e-6),
-        conv_stem_configs: Optional[List[ConvStemConfig]] = None,
-    ):
+            self,
+            img_size: Union[int, Tuple[int, int]] = 224,
+            patch_size: Union[int, Tuple[int, int]] = 16,
+            in_chans: int = 3,
+            num_classes: int = 1000,
+            global_pool: Literal['', 'avg', 'token', 'map'] = 'token',
+            embed_dim: int = 768,
+            depth: int = 12,
+            num_heads: int = 12,
+            mlp_ratio: float = 4.,
+            qkv_bias: bool = True,
+            qk_norm: bool = False,
+            init_values: Optional[float] = None,
+            class_token: bool = True,
+            no_embed_class: bool = False,
+            reg_tokens: int = 0,
+            pre_norm: bool = False,
+            fc_norm: Optional[bool] = None,
+            dynamic_img_size: bool = False,
+            dynamic_img_pad: bool = False,
+            drop_rate: float = 0.,
+            pos_drop_rate: float = 0.,
+            patch_drop_rate: float = 0.,
+            proj_drop_rate: float = 0.,
+            attn_drop_rate: float = 0.,
+            drop_path_rate: float = 0.,
+            weight_init: Literal['skip', 'jax', 'jax_nlhb', 'moco', ''] = '',
+            embed_layer: Callable = PatchEmbed,
+            norm_layer: Optional[LayerType] = None,
+            act_layer: Optional[LayerType] = None,
+            block_fn: Type[nn.Module] = vision_transformer.Block,
+            mlp_layer: Type[nn.Module] = Mlp,
+    ) -> None:
         super().__init__(
-            img_size=image_size, 
+            img_size=img_size, 
             patch_size=patch_size,
-            depth=num_layers,
-            num_heads=num_heads,
-            embed_dim=hidden_dim,
-            mlp_ratio=mlp_dim/hidden_dim,
-            drop_rate=dropout,
-            attn_drop_rate=attention_dropout, 
             num_classes=num_classes,
+            global_pool=global_pool,
+            in_chans=in_chans,
+            depth=depth,
+            num_heads=num_heads,
+            embed_dim=embed_dim,
+            mlp_ratio=mlp_ratio,
+            qkv_bias=qkv_bias,
+            qk_norm=qk_norm,
+            init_values=init_values,
+            class_token=class_token,
+            no_embed_class=no_embed_class,
+            reg_tokens=reg_tokens,
+            pre_norm=pre_norm,
+            fc_norm=fc_norm,
+            dynamic_img_size=dynamic_img_size,
+            dynamic_img_pad=dynamic_img_pad,
+            drop_rate=drop_rate,
+            pos_drop_rate=pos_drop_rate,
+            patch_drop_rate=patch_drop_rate,
+            proj_drop_rate=proj_drop_rate,
+            attn_drop_rate=attn_drop_rate,
+            drop_path_rate=drop_path_rate,
+            weight_init=weight_init,
+            embed_layer=embed_layer, 
             norm_layer=norm_layer,
+            act_layer=act_layer,
+            block_fn=block_fn,
+            mlp_layer=mlp_layer
         )
+        self._initialize_weights()
 
 
     @classmethod
@@ -109,20 +175,14 @@ class MAEBackbone(vision_transformer.VisionTransformer):
         # by the copied vit_encoder attributes
         
         backbone = cls(
-            img_size=1,
-            patch_size=1, 
-            num_layers=1,
-            num_heads=1,
-            embed_dim=vit.embed_dim,
-            mlp_dim=1,
-            dropout=0.2,
-            attention_dropout=0.2,
-            num_classes=vit.num_classes,
-            representation_size=16,
-            norm_layer=vit.norm,
+            img_size=vit.patch_embed.img_size, 
+            patch_size=vit.patch_embed.patch_size,
+            embed_dim=vit.embed_dim
         )
         backbone.patch_embed = vit.patch_embed
         backbone.blocks = vit.blocks
+        if initialize_weights:
+            backbone._initialize_weights()
         return backbone
 
     def forward(
@@ -232,18 +292,19 @@ class MAEBackbone(vision_transformer.VisionTransformer):
     def _initialize_weights(self) -> None:
         # Initialize the patch embedding layer like a linear layer instead of conv
         # layer.
-        w = self.conv_proj.weight.data
+        w = self.patch_embed.proj.weight.data
         torch.nn.init.xavier_uniform_(w.view([w.shape[0], -1]))
 
         # Initialize the class token.
-        torch.nn.init.normal_(self.class_token, std=0.02)
+        torch.nn.init.normal_(self.cls_token, std=0.02)
 
-        self.encoder._initialize_weights()
+        # initialize nn.Linear and nn.LayerNorm
+        self.apply(_init_weights)
+        
         _initialize_2d_sine_cosine_positional_embedding(self.pos_embed)
-        _initialize_linear_layers(self)
 
 
-class MAEDecoder(nn.Module):
+class MAEDecoder(Module):
     """Decoder for the Masked Autoencoder model [0].
 
     Decodes encoded patches and predicts pixel values for every patch.
@@ -278,43 +339,43 @@ class MAEDecoder(nn.Module):
 
     def __init__(
         self,
-        seq_length: int,
-        num_layers: int,
-        num_heads: int,
-        embed_input_dim: int,
-        hidden_dim: int,
-        mlp_dim: int,
-        out_dim: int,
-        dropout: float = 0.0,
-        attention_dropout: float = 0.0,
-        norm_layer: Callable[..., nn.Module] = partial(nn.LayerNorm, eps=1e-6),
-    ):
-        super().__init__(
-            seq_length=seq_length,
-            num_layers=num_layers,
-            num_heads=num_heads,
-            hidden_dim=hidden_dim,
-            mlp_dim=mlp_dim,
-            dropout=dropout,
-            attention_dropout=attention_dropout,
-            norm_layer=norm_layer,
-        )
-        num_patches = seq_length - 1
+        num_patches: int,
+        patch_size : int,
+        in_chans: int = 3,
         
-        self.decoder_embed = nn.Linear(embed_input_dim, hidden_dim, bias=True)
+        embed_dim: int = 1024,
+        decoder_embed_dim: int = 512, 
+        decoder_depth:int = 8, 
+        decoder_num_heads:int = 16,
+        mlp_ratio:float = 4., 
+        norm_layer = LayerNorm
+        # seq_length: int,
+        # num_layers: int,
+        # num_heads: int,
+        # embed_input_dim: int,
+        # hidden_dim: int,
+        # mlp_dim: int,
+        # out_dim: int,
+        # dropout: float = 0.0,
+        # attention_dropout: float = 0.0,
+        # norm_layer: Callable[..., nn.Module] = partial(nn.LayerNorm, eps=1e-6),
+    ):
+        super().__init__()
+        
+        self.decoder_embed = nn.Linear(embed_dim, decoder_embed_dim, bias=True)
+        self.mask_token = nn.Parameter(torch.zeros(1, 1, decoder_embed_dim))
 
-        self.mask_token = nn.Parameter(torch.zeros(1, 1, hidden_dim))
 
         # positional encoding of the decoder
-        self.decoder_pos_embed = nn.Parameter(torch.zeros(1, num_patches + 1, hidden_dim), requires_grad=False)  # fixed sin-cos embedding
+        self.decoder_pos_embed = nn.Parameter(torch.zeros(1, num_patches + 1, decoder_embed_dim), requires_grad=False)  # fixed sin-cos embedding
 
-        mlp_ratio = mlp_dim / hidden_dim
-        self.decoder_blocks = nn.ModuleList([
-            vision_transformer.Block(hidden_dim, num_heads, mlp_ratio, qkv_bias=True, qk_scale=None, norm_layer=norm_layer)
-            for i in range(num_layers)])
+        self.decoder_blocks = ModuleList([
+            vision_transformer.Block(decoder_embed_dim, decoder_num_heads, mlp_ratio, qkv_bias=True, qk_scale=None, norm_layer=norm_layer)
+            for i in range(decoder_depth)])
 
-        self.decoder_norm = norm_layer(hidden_dim)
-        self.decoder_pred = nn.Linear(hidden_dim, out_dim, bias=True) # decoder to patch
+
+        self.decoder_norm = norm_layer(decoder_embed_dim)
+        self.decoder_pred = nn.Linear(decoder_embed_dim, patch_size**2 * in_chans, bias=True) # decoder to patch
         
         self._initialize_weights()
 
@@ -384,11 +445,12 @@ class MAEDecoder(nn.Module):
             predictions for each token.
 
         """
-        return self.prediction_head(input)
+        return self.decoder_pred(input)
 
     def _initialize_weights(self) -> None:
-        _initialize_2d_sine_cosine_positional_embedding(self.pos_embedding)
-        _initialize_linear_layers(self)
+        torch.nn.init.normal_(self.mask_token, std=.02)
+        _initialize_2d_sine_cosine_positional_embedding(self.decoder_pos_embed)
+        self.apply(_init_weights)
 
 
 def _initialize_2d_sine_cosine_positional_embedding(pos_embedding: Parameter) -> None:
@@ -406,11 +468,12 @@ def _initialize_2d_sine_cosine_positional_embedding(pos_embedding: Parameter) ->
     pos_embedding.requires_grad = False
 
 
-def _initialize_linear_layers(module: Module) -> None:
-    def init(mod: Module) -> None:
-        if isinstance(mod, Linear):
-            nn.init.xavier_uniform_(mod.weight)
-            if mod.bias is not None:
-                nn.init.constant_(mod.bias, 0)
-
-    module.apply(init)
+def _init_weights(module: Module) -> None:
+    if isinstance(module, Linear):
+        # we use xavier_uniform following official JAX ViT:
+        nn.init.xavier_uniform_(module.weight)
+        if isinstance(module, Linear) and module.bias is not None:
+            nn.init.constant_(module.bias, 0)
+    elif isinstance(module, LayerNorm):
+        nn.init.constant_(module.bias, 0)
+        nn.init.constant_(module.weight, 1.0)
