@@ -30,7 +30,7 @@ class TiCo(LightningModule):
         self.student_backbone = copy.deepcopy(self.backbone)
         self.student_projection_head = copy.deepcopy(self.projection_head)
 
-        self.criterion = TiCoLoss()
+        self.criterion = TiCoLoss(beta=0.9, rho=8.0, gather_distributed=True)
 
         self.online_classifier = OnlineLinearClassifier(num_classes=num_classes)
 
@@ -65,10 +65,26 @@ class TiCo(LightningModule):
         teacher_features, teacher_projections = self.forward_teacher(views[0])
         student_projections = self.forward_student(views[1])
 
-        loss = self.criterion(teacher_projections, student_projections)
+        loss, transformative_invariance_loss, covariance_contrast_loss = self.criterion(
+            teacher_projections, student_projections
+        )
 
         self.log(
             "train_loss", loss, prog_bar=True, sync_dist=True, batch_size=len(targets)
+        )
+        self.log(
+            "train_transformative_invariance_loss",
+            transformative_invariance_loss,
+            prog_bar=False,
+            sync_dist=True,
+            batch_size=len(targets),
+        )
+        self.log(
+            "train_covariance_contrast_loss",
+            covariance_contrast_loss,
+            prog_bar=False,
+            sync_dist=True,
+            batch_size=len(targets),
         )
 
         # Online linear evaluation.
@@ -115,7 +131,7 @@ class TiCo(LightningModule):
             # Settings follow original code for 100 epochs which are slightly different
             # from the paper, see:
             # https://github.com/deepmind/deepmind-research/blob/f5de0ede8430809180254ee957abf36ed62579ef/byol/configs/byol.py#L21-L23
-            lr=0.2 * self.batch_size_per_device * self.trainer.world_size / 256,
+            lr=0.02 * self.batch_size_per_device * self.trainer.world_size / 256,
             momentum=0.9,
             weight_decay=1.5e-6,
         )
