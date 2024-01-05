@@ -14,9 +14,11 @@ class GatherLayer(Function):
 
     """
 
-    # Type ignore is required because superclass uses Any type for ctx.
+    # Type ignore misc is required because the superclass uses Any type for ctx.
+    # Type ignore override is required because the superclass has a different signature
+    # for forward.
     @staticmethod
-    def forward(ctx: Any, input: Tensor) -> Tuple[Tensor, ...]:  # type: ignore[misc]
+    def forward(ctx: Any, input: Tensor) -> Tuple[Tensor, ...]:  # type: ignore[misc, override]
         ctx.save_for_backward(input)
         output = [torch.empty_like(input) for _ in range(dist.get_world_size())]
         dist.all_gather(output, input)
