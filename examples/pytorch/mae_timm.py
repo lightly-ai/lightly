@@ -1,6 +1,7 @@
 # Note: The model and training settings do not follow the reference settings
 # from the paper. The settings are chosen such that the example can easily be
 # run on a small dataset with a single GPU.
+import sys
 
 import torch
 import torchvision
@@ -14,6 +15,7 @@ try:
     from timm.models import vision_transformer
 except ImportError:
     print("TIMM is not available. Please install in order to run this example.")
+    sys.exit(1)
 
 
 class MAE(nn.Module):

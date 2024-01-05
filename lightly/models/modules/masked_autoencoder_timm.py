@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+import sys
 from functools import partial
 from typing import Callable, Optional, Tuple, Type, Union
 
@@ -9,14 +10,12 @@ try:
 except ImportError:
     from typing_extensions import Literal
 
-from timm.layers import LayerType, Mlp, PatchEmbed
-from timm.models import vision_transformer
-
 try:
     from timm.layers import LayerType, Mlp, PatchEmbed
     from timm.models import vision_transformer
 except ImportError:
     print("TIMM is not available. Please install if you would like to use the MAE.")
+    sys.exit(1)
 
 import torch
 import torch.nn as nn
