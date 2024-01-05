@@ -5,6 +5,7 @@
 from lightly.loss.barlow_twins_loss import BarlowTwinsLoss
 from lightly.loss.dcl_loss import DCLLoss, DCLWLoss
 from lightly.loss.dino_loss import DINOLoss
+from lightly.loss.mmcr_loss import MMCRLoss
 from lightly.loss.msn_loss import MSNLoss
 from lightly.loss.negative_cosine_similarity import NegativeCosineSimilarity
 from lightly.loss.ntx_ent_loss import NTXentLoss
@@ -15,3 +16,4 @@ from lightly.loss.sym_neg_cos_sim_loss import SymNegCosineSimilarityLoss
 from lightly.loss.tico_loss import TiCoLoss
 from lightly.loss.vicreg_loss import VICRegLoss
 from lightly.loss.vicregl_loss import VICRegLLoss
+from lightly.loss.wmse_loss import Whitening2d, WMSELoss

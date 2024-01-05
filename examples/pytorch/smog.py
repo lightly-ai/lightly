@@ -9,13 +9,13 @@ import torchvision
 from sklearn.cluster import KMeans
 from torch import nn
 
-from lightly.loss.memory_bank import MemoryBankModule
 from lightly.models import utils
 from lightly.models.modules.heads import (
     SMoGPredictionHead,
     SMoGProjectionHead,
     SMoGPrototypes,
 )
+from lightly.models.modules.memory_bank import MemoryBankModule
 from lightly.transforms.smog_transform import SMoGTransform
 
 
@@ -80,7 +80,7 @@ model = SMoGModel(backbone)
 
 # memory bank because we reset the group features every 300 iterations
 memory_bank_size = 300 * batch_size
-memory_bank = MemoryBankModule(size=memory_bank_size)
+memory_bank = MemoryBankModule(size=(memory_bank_size, 128))
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)

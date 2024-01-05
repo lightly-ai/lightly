@@ -11,6 +11,7 @@ import dino
 import finetune_eval
 import knn_eval
 import linear_eval
+import mocov2
 import simclr
 import ssley
 import swav
@@ -58,6 +59,7 @@ METHODS = {
     "dcl": {"model": dcl.DCL, "transform": dcl.transform},
     "dclw": {"model": dclw.DCLW, "transform": dclw.transform},
     "dino": {"model": dino.DINO, "transform": dino.transform},
+    "mocov2": {"model": mocov2.MoCoV2, "transform": mocov2.transform},
     "simclr": {"model": simclr.SimCLR, "transform": simclr.transform},
     "ssley": {"model": ssley.SSLEY, "transform": ssley.transform},
     "swav": {"model": swav.SwAV, "transform": swav.transform},
@@ -230,7 +232,7 @@ def pretrain(
         logger=TensorBoardLogger(save_dir=str(log_dir), name="pretrain"),
         precision=precision,
         strategy="ddp_find_unused_parameters_true",
-        sync_batchnorm=True,
+        sync_batchnorm=accelerator != "cpu",  # Sync batchnorm is not supported on CPU.
         num_sanity_val_steps=0,
     )
 

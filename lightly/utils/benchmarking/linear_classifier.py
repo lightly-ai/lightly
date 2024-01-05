@@ -1,11 +1,11 @@
 from typing import Any, Dict, List, Tuple, Union
 
+import torch
 from pytorch_lightning import LightningModule
 from torch import Tensor
 from torch.nn import CrossEntropyLoss, Linear, Module
 from torch.optim import SGD, Optimizer
 
-from lightly.models.utils import activate_requires_grad, deactivate_requires_grad
 from lightly.utils.benchmarking.topk import mean_topk_accuracy
 from lightly.utils.scheduler import CosineWarmupScheduler
 
@@ -93,7 +93,11 @@ class LinearClassifier(LightningModule):
         self.criterion = CrossEntropyLoss()
 
     def forward(self, images: Tensor) -> Tensor:
-        features = self.model.forward(images).flatten(start_dim=1)
+        if self.freeze_model:
+            with torch.no_grad():
+                features = self.model.forward(images).flatten(start_dim=1)
+        else:
+            features = self.model.forward(images).flatten(start_dim=1)
         output: Tensor = self.classification_head(features)
         return output
 
@@ -147,12 +151,7 @@ class LinearClassifier(LightningModule):
         }
         return [optimizer], [scheduler]
 
-    def on_fit_start(self) -> None:
-        # Freeze model weights.
+    def on_train_epoch_start(self) -> None:
         if self.freeze_model:
-            deactivate_requires_grad(model=self.model)
-
-    def on_fit_end(self) -> None:
-        # Unfreeze model weights.
-        if self.freeze_model:
-            activate_requires_grad(model=self.model)
+            # Set model to eval mode to disable norm layer updates.
+            self.model.eval()

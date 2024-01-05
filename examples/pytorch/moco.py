@@ -62,7 +62,7 @@ dataloader = torch.utils.data.DataLoader(
     num_workers=8,
 )
 
-criterion = NTXentLoss(memory_bank_size=4096)
+criterion = NTXentLoss(memory_bank_size=(4096, 128))
 optimizer = torch.optim.SGD(model.parameters(), lr=0.06)
 
 epochs = 10

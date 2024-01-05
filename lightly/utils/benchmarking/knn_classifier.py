@@ -6,7 +6,6 @@ from pytorch_lightning import LightningModule
 from torch import Tensor
 from torch.nn import Module
 
-from lightly.models.utils import activate_requires_grad, deactivate_requires_grad
 from lightly.utils.benchmarking import knn_predict
 from lightly.utils.benchmarking.topk import mean_topk_accuracy
 
@@ -20,6 +19,7 @@ class KNNClassifier(LightningModule):
         knn_t: float = 0.1,
         topk: Tuple[int, ...] = (1, 5),
         feature_dtype: torch.dtype = torch.float32,
+        normalize: bool = True,
     ):
         """KNN classifier for benchmarking.
 
@@ -43,6 +43,8 @@ class KNNClassifier(LightningModule):
             feature_dtype:
                 Torch data type of the features used for KNN search. Reduce to float16
                 for memory-efficient KNN search.
+            normalize:
+                Whether to normalize the features for KNN search.
 
         Examples:
             >>> from pytorch_lightning import Trainer
@@ -91,16 +93,20 @@ class KNNClassifier(LightningModule):
         self.knn_t = knn_t
         self.topk = topk
         self.feature_dtype = feature_dtype
+        self.normalize = normalize
 
         self._train_features = []
         self._train_targets = []
         self._train_features_tensor: Union[Tensor, None] = None
         self._train_targets_tensor: Union[Tensor, None] = None
 
+    @torch.no_grad()
     def training_step(self, batch, batch_idx) -> None:
         images, targets = batch[0], batch[1]
         features = self.model.forward(images).flatten(start_dim=1)
-        features = F.normalize(features, dim=1).to(self.feature_dtype)
+        if self.normalize:
+            features = F.normalize(features, dim=1)
+        features = features.to(self.feature_dtype)
         self._train_features.append(features.cpu())
         self._train_targets.append(targets.cpu())
 
@@ -110,7 +116,9 @@ class KNNClassifier(LightningModule):
 
         images, targets = batch[0], batch[1]
         features = self.model.forward(images).flatten(start_dim=1)
-        features = F.normalize(features, dim=1).to(self.feature_dtype)
+        if self.normalize:
+            features = F.normalize(features, dim=1)
+        features = features.to(self.feature_dtype)
         predicted_classes = knn_predict(
             feature=features,
             feature_bank=self._train_features_tensor,
@@ -141,13 +149,15 @@ class KNNClassifier(LightningModule):
             targets = targets.flatten().t().contiguous()
             self._train_targets_tensor = targets.to(self.device)
 
-    def on_fit_start(self) -> None:
-        # Freeze model weights.
-        deactivate_requires_grad(model=self.model)
+    def on_train_epoch_start(self) -> None:
+        # Set model to eval mode to disable norm layer updates.
+        self.model.eval()
 
-    def on_fit_end(self) -> None:
-        # Unfreeze model weights.
-        activate_requires_grad(model=self.model)
+        # Reset features and targets.
+        self._train_features = []
+        self._train_targets = []
+        self._train_features_tensor = None
+        self._train_targets_tensor = None
 
     def configure_optimizers(self) -> None:
         # configure_optimizers must be implemented for PyTorch Lightning. Returning None

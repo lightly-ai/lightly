@@ -68,8 +68,10 @@ class TestLinearClassifier:
         train_dataloader = DataLoader(dataset, batch_size=2)
         val_dataloader = DataLoader(dataset, batch_size=2)
         linear = nn.Linear(3 * 8 * 8, 4)
-        model = nn.Sequential(nn.Flatten(), linear)
+        batch_norm = nn.BatchNorm1d(4)
+        model = nn.Sequential(nn.Flatten(), linear, batch_norm)
         initial_weights = linear.weight.clone()
+        initial_bn_weights = batch_norm.weight.clone()
         linear_classifier = LinearClassifier(
             model=model,
             batch_size_per_device=2,
@@ -97,6 +99,13 @@ class TestLinearClassifier:
 
         # Verify that model weights were not updated.
         assert torch.all(torch.eq(initial_weights, linear.weight))
+        assert torch.all(torch.eq(initial_bn_weights, batch_norm.weight))
+        # Verify that batch norm statistics were not updated. Note that even though the
+        # running mean was not updated, it is still initialized to zero.
+        assert batch_norm.running_mean is not None
+        assert torch.all(
+            torch.eq(batch_norm.running_mean, torch.zeros_like(batch_norm.running_mean))
+        )
         # Verify that head weights were updated.
         assert not torch.all(
             torch.eq(initial_head_weights, linear_classifier.classification_head.weight)
