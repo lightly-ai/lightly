@@ -36,7 +36,7 @@ class TestSSLEYLoss:
             assert (l1 - l2).pow(2).item() == pytest.approx(0.0)
 
     @unittest.skipUnless(torch.cuda.is_available(), "Cuda not available")
-    def test_forward__cuda(self):
+    def test_forward__cuda(self) -> None:
         loss = SSLEYLoss()
         for bsz in range(2, 4):
             x0 = torch.randn((bsz, 32)).cuda()
@@ -47,7 +47,7 @@ class TestSSLEYLoss:
             l2 = loss(x1, x0)
             assert (l1 - l2).pow(2).item() == pytest.approx(0.0)
 
-    def test_forward__error_batch_size_1(self):
+    def test_forward__error_batch_size_1(self) -> None:
         loss = SSLEYLoss()
         x0 = torch.randn((1, 32))
         x1 = torch.randn((2, 32))
@@ -56,7 +56,7 @@ class TestSSLEYLoss:
         with pytest.raises(ValueError):
             loss(x1, x0)
 
-    def test_forward__error_different_shapes(self):
+    def test_forward__error_different_shapes(self) -> None:
         loss = SSLEYLoss()
         x0 = torch.randn((2, 32))
         x1 = torch.randn((2, 16))
