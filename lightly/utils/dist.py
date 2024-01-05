@@ -1,10 +1,10 @@
 from typing import Any, Callable, Literal, Optional, Tuple, TypeVar, Union
-from torch.autograd import Function
-from torch.autograd.function import FunctionCtx
 
 import torch
 import torch.distributed as dist
 from torch import Tensor
+from torch.autograd import Function
+from torch.autograd.function import FunctionCtx
 
 
 class GatherLayer(Function):
@@ -107,7 +107,7 @@ def print_rank_zero(  # type: ignore[misc]
     sep: Union[str, None] = " ",
     end: Union[str, None] = "\n",
     file: Any = None,
-    flush: Literal[False] = False
+    flush: bool = False
 ) -> None:
     """Equivalent to print, but only runs on the process with rank 0."""
     print(*values, sep=sep, end=end, file=file, flush=flush)
