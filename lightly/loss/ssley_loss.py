@@ -9,7 +9,7 @@ from lightly.utils.dist import gather
 class SSLEYLoss(Module):
     """Implementation of the SSL-EY loss [0].
 
-    - [0] Efficient Algorithms for the CCA Family: Unconstrained Objectives with Unbiased Gradients, 2022, https://arxiv.org/abs/2310.01012
+    - [0]: Efficient Algorithms for the CCA Family: Unconstrained Objectives with Unbiased Gradients, 2023, https://arxiv.org/abs/2310.01012
 
     Attributes:
         gather_distributed:
