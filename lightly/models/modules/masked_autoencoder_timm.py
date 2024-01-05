@@ -3,12 +3,7 @@ from __future__ import annotations
 import math
 import sys
 from functools import partial
-from typing import Callable, Optional, Tuple, Type, Union
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal
+from typing import Callable, Literal, Optional, Tuple, Type, Union
 
 try:
     from timm.layers import LayerType, Mlp, PatchEmbed
@@ -24,7 +19,7 @@ from torch.nn import LayerNorm, Linear, Module, ModuleList, Parameter
 from lightly.models import utils
 
 
-class MAEBackbone(vision_transformer.VisionTransformer):
+class MAEBackbone(vision_transformer.VisionTransformer):  # type: ignore
     """Backbone for the Masked Autoencoder model [0].
 
     Converts images into patches and encodes them. Code inspired by [1].
@@ -114,7 +109,7 @@ class MAEBackbone(vision_transformer.VisionTransformer):
         attn_drop_rate: float = 0.0,
         drop_path_rate: float = 0.0,
         weight_init: Literal["skip", "jax", "jax_nlhb", "moco", ""] = "",
-        embed_layer: Callable = PatchEmbed,
+        embed_layer: Callable[..., PatchEmbed] = PatchEmbed,
         norm_layer: Optional[LayerType] = None,
         act_layer: Optional[LayerType] = None,
         block_fn: Type[nn.Module] = vision_transformer.Block,
@@ -155,7 +150,7 @@ class MAEBackbone(vision_transformer.VisionTransformer):
         )
         self._initialize_weights()
 
-    @classmethod
+    @classmethod  # type: ignore
     def from_vit(
         cls, vit: vision_transformer.VisionTransformer, initialize_weights: bool = True
     ) -> MAEBackbone:
@@ -240,9 +235,9 @@ class MAEBackbone(vision_transformer.VisionTransformer):
             input = blk(input)
         # normalize
         out = self.norm(input)
-        return out
+        return torch.Tensor(out)
 
-    def interpolate_pos_encoding(self, input: torch.Tensor):
+    def interpolate_pos_encoding(self, input: torch.Tensor) -> torch.Tensor:
         """Returns the interpolated positional embedding for the given input.
 
         This function interpolates self.pos_embed for all tokens in the input,
@@ -258,7 +253,7 @@ class MAEBackbone(vision_transformer.VisionTransformer):
         npatch = input.shape[1] - 1
         N = self.pos_embed.shape[1] - 1
         if npatch == N:
-            return self.pos_embed
+            return torch.Tensor(self.pos_embed)
         class_emb = self.pos_embed[:, 0]
         pos_embed = self.pos_embed[:, 1:]
         dim = input.shape[-1]
@@ -285,7 +280,7 @@ class MAEBackbone(vision_transformer.VisionTransformer):
             Tensor with shape (batch_size, sequence_length - 1, hidden_dim)
             containing the patch tokens.
         """
-        tokens = self.patch_embed(images)
+        tokens = torch.Tensor(self.patch_embed(images))
         if prepend_class_token:
             tokens = utils.prepend_class_token(tokens, self.cls_token)
         return tokens
@@ -417,7 +412,7 @@ class MAEDecoder(Module):
             the embedded tokens.
 
         """
-        return self.decoder_embed(input)
+        return torch.Tensor(self.decoder_embed(input))
 
     def decode(self, input: torch.Tensor) -> torch.Tensor:
         """Forward pass through the decoder transformer.
@@ -452,7 +447,7 @@ class MAEDecoder(Module):
             predictions for each token.
 
         """
-        return self.decoder_pred(input)
+        return torch.Tensor(self.decoder_pred(input))
 
     def _initialize_weights(self) -> None:
         torch.nn.init.normal_(self.mask_token, std=0.02)
