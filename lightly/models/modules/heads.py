@@ -750,3 +750,27 @@ class VicRegLLocalProjectionHead(ProjectionHead):
                 (hidden_dim, output_dim, None, None),
             ]
         )
+
+
+class SSLEYProjectionHead(VICRegProjectionHead):
+    """Projection head used for SSLEY [0].
+
+    Same as VICReg [1] projection head but uses only 2 layers by default.
+
+    - [0]: 2023, Efficient Algorithms for the CCA Family: Unconstrained Objectives with Unbiased Gradients, https://arxiv.org/abs/2310.01012
+    - [1]: 2022, VICRegL, https://arxiv.org/abs/2210.01571
+    """
+
+    def __init__(
+        self,
+        input_dim: int = 2048,
+        hidden_dim: int = 8192,
+        output_dim: int = 8192,
+        num_layers: int = 2,
+    ):
+        super().__init__(
+            input_dim=input_dim,
+            hidden_dim=hidden_dim,
+            output_dim=output_dim,
+            num_layers=num_layers,
+        )
