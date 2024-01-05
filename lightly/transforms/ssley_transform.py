@@ -1,9 +1,8 @@
 from typing import Dict, List, Optional, Tuple, Union
 
-from lightly.transforms.vicreg_transform import VICRegViewTransform
-
 from lightly.transforms.multi_view_transform import MultiViewTransform
 from lightly.transforms.utils import IMAGENET_NORMALIZE
+from lightly.transforms.vicreg_transform import VICRegViewTransform
 
 
 class SSLEYTransform(MultiViewTransform):

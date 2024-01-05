@@ -1,6 +1,7 @@
 import torch
 import torchvision
 from torch import nn
+
 from lightly.loss.ssley_loss import SSLEYLoss
 from lightly.models.modules.heads import VICRegProjectionHead
 from lightly.transforms.vicreg_transform import VICRegTransform
