@@ -4,7 +4,6 @@ import torch
 import torch.distributed as dist
 from torch import Tensor
 from torch.autograd import Function
-from torch.autograd.function import FunctionCtx
 
 
 class GatherLayer(Function):
@@ -15,17 +14,18 @@ class GatherLayer(Function):
 
     """
 
+    # Type ignore is required because superclass uses Any type for ctx.
     @staticmethod
-    def forward(ctx: FunctionCtx, input: Tensor) -> Tuple[Tensor, ...]:
+    def forward(ctx: Any, input: Tensor) -> Tuple[Tensor, ...]:  # type: ignore[misc]
         ctx.save_for_backward(input)
         output = [torch.empty_like(input) for _ in range(dist.get_world_size())]
         dist.all_gather(output, input)
         return tuple(output)
 
+    # Type ignore is required because superclass uses Any type for ctx.
     @staticmethod
-    def backward(ctx: FunctionCtx, *grads: Tensor) -> Tensor:
-        # Type ignore because FunctionCtx is not fully typed.
-        (input,) = ctx.saved_tensors  # type: ignore
+    def backward(ctx: Any, *grads: Tensor) -> Tensor:  # type: ignore[misc]
+        (input,) = ctx.saved_tensors
         grad_out = torch.empty_like(input)
         grad_out[:] = grads[dist.get_rank()]
         return grad_out
