@@ -3,15 +3,15 @@ import torchvision
 from torch import nn
 
 from lightly.loss.ssley_loss import SSLEYLoss
-from lightly.models.modules.heads import VICRegProjectionHead
-from lightly.transforms.vicreg_transform import VICRegTransform
+from lightly.models.modules.heads import SSLEYProjectionHead
+from lightly.transforms import SSLEYTransform
 
 
 class SSLEY(nn.Module):
     def __init__(self, backbone):
         super().__init__()
         self.backbone = backbone
-        self.projection_head = VICRegProjectionHead(
+        self.projection_head = SSLEYProjectionHead(
             input_dim=512,
             hidden_dim=2048,
             output_dim=2048,
@@ -31,7 +31,7 @@ model = SSLEY(backbone)
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
 
-transform = VICRegTransform(input_size=32)
+transform = SSLEYTransform(input_size=32)
 dataset = torchvision.datasets.CIFAR10(
     "datasets/cifar10", download=True, transform=transform
 )

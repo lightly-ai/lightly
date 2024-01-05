@@ -7,9 +7,9 @@ from torch.nn import Identity
 from torchvision.models import resnet50
 
 from lightly.loss.ssley_loss import SSLEYLoss
-from lightly.models.modules.heads import VICRegProjectionHead
+from lightly.models.modules.heads import SSLEYProjectionHead
 from lightly.models.utils import get_weight_decay_parameters
-from lightly.transforms.vicreg_transform import VICRegTransform
+from lightly.transforms import SSLEYTransform
 from lightly.utils.benchmarking import OnlineLinearClassifier
 from lightly.utils.lars import LARS
 from lightly.utils.scheduler import CosineWarmupScheduler
@@ -24,7 +24,7 @@ class SSLEY(LightningModule):
         resnet = resnet50()
         resnet.fc = Identity()  # Ignore classification head
         self.backbone = resnet
-        self.projection_head = VICRegProjectionHead(num_layers=2)
+        self.projection_head = SSLEYProjectionHead()
         self.criterion = SSLEYLoss()
 
         self.online_classifier = OnlineLinearClassifier(num_classes=num_classes)
@@ -108,7 +108,7 @@ class SSLEY(LightningModule):
 
 
 # SSLEY transform
-transform = VICRegTransform()
+transform = SSLEYTransform()
 
 
 def _get_base_learning_rate(global_batch_size: int) -> float:
