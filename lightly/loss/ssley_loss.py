@@ -1,10 +1,12 @@
 import torch
 import torch.distributed as dist
+from torch import Tensor
+from torch.nn import Module
 
 from lightly.utils.dist import gather
 
 
-class SSLEYLoss(torch.nn.Module):
+class SSLEYLoss(Module):
     """Implementation of the SSL-EY loss [0].
 
     - [0] Efficient Algorithms for the CCA Family: Unconstrained Objectives with Unbiased Gradients, 2022, https://arxiv.org/abs/2310.01012
@@ -35,9 +37,9 @@ class SSLEYLoss(torch.nn.Module):
     def __init__(
         self,
         gather_distributed: bool = False,
-        eps=0.0001,
+        eps: float = 0.0001,
     ):
-        super(SSLEYLoss, self).__init__()
+        super().__init__()
         if gather_distributed and not dist.is_available():
             raise ValueError(
                 "gather_distributed is True but torch.distributed is not available. "
@@ -48,7 +50,7 @@ class SSLEYLoss(torch.nn.Module):
         self.gather_distributed = gather_distributed
         self.eps = eps
 
-    def forward(self, z_a: torch.Tensor, z_b: torch.Tensor) -> torch.Tensor:
+    def forward(self, z_a: Tensor, z_b: Tensor) -> Tensor:
         """Returns SSL-EY loss.
 
         Args:
