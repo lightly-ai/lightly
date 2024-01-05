@@ -2,27 +2,27 @@ from __future__ import annotations
 
 import math
 from functools import partial
-from typing import Callable, Optional, Union, Tuple, Type
+from typing import Callable, Optional, Tuple, Type, Union
+
 try:
     from typing import Literal
 except ImportError:
     from typing_extensions import Literal
-    
-from timm.layers import PatchEmbed, Mlp, LayerType
+
+from timm.layers import LayerType, Mlp, PatchEmbed
 from timm.models import vision_transformer
 
 try:
-    from timm.layers import PatchEmbed, Mlp, LayerType
+    from timm.layers import LayerType, Mlp, PatchEmbed
     from timm.models import vision_transformer
 except ImportError:
     print("TIMM is not available. Please install if you would like to use the MAE.")
 
 import torch
 import torch.nn as nn
-from torch.nn import Linear, Module, Parameter, LayerNorm, ModuleList
+from torch.nn import LayerNorm, Linear, Module, ModuleList, Parameter
 
 from lightly.models import utils
-
 
 
 class MAEBackbone(vision_transformer.VisionTransformer):
@@ -36,93 +36,93 @@ class MAEBackbone(vision_transformer.VisionTransformer):
     - [2]: Early Convolutions Help Transformers See Better, 2021, https://arxiv.org/abs/2106.14881.
 
     Attributes:
-        img_size: 
+        img_size:
             Input image size.
-        patch_size: 
+        patch_size:
             Patch size.
-        in_chans: 
+        in_chans:
             Number of image input channels.
-        num_classes: 
+        num_classes:
             Number of classes for classification head.
-        global_pool: 
+        global_pool:
             Type of global pooling for final sequence (default: 'token').
-        embed_dim: 
+        embed_dim:
             Transformer embedding dimension.
-        depth: 
+        depth:
             Depth of transformer.
-        num_heads: 
+        num_heads:
             Number of attention heads.
-        mlp_ratio: 
+        mlp_ratio:
             Ratio of mlp hidden dim to embedding dim.
-        qkv_bias: 
+        qkv_bias:
             Enable bias for qkv projections if True.
-        init_values: 
+        init_values:
             Layer-scale init values (layer-scale enabled if not None).
-        class_token: 
+        class_token:
             Use class token.
-        no_embed_class: 
+        no_embed_class:
             Don't include position embeddings for class (or reg) tokens.
-        reg_tokens: 
+        reg_tokens:
             Number of register tokens.
-        fc_norm: 
+        fc_norm:
             Pre head norm after pool (instead of before), if None, enabled when global_pool == 'avg'.
-        drop_rate: 
+        drop_rate:
             Head dropout rate.
-        pos_drop_rate: 
+        pos_drop_rate:
             Position embedding dropout rate.
-        attn_drop_rate: 
+        attn_drop_rate:
             Attention dropout rate.
-        drop_path_rate: 
+        drop_path_rate:
             Stochastic depth rate.
-        weight_init: 
+        weight_init:
             Weight initialization scheme.
-        embed_layer: 
+        embed_layer:
             Patch embedding layer.
-        norm_layer: 
+        norm_layer:
             Normalization layer.
-        act_layer: 
+        act_layer:
             MLP activation layer.
-        block_fn: 
+        block_fn:
             Transformer block layer.
 
     """
 
     def __init__(
-            self,
-            img_size: Union[int, Tuple[int, int]] = 224,
-            patch_size: Union[int, Tuple[int, int]] = 32,
-            in_chans: int = 3,
-            num_classes: int = 1000,
-            global_pool: Literal['', 'avg', 'token', 'map'] = 'token',
-            embed_dim: int = 768,
-            depth: int = 12,
-            num_heads: int = 12,
-            mlp_ratio: float = 4.,
-            qkv_bias: bool = True,
-            qk_norm: bool = False,
-            init_values: Optional[float] = None,
-            class_token: bool = True,
-            no_embed_class: bool = False,
-            reg_tokens: int = 0,
-            pre_norm: bool = False,
-            fc_norm: Optional[bool] = None,
-            dynamic_img_size: bool = False,
-            dynamic_img_pad: bool = False,
-            drop_rate: float = 0.,
-            pos_drop_rate: float = 0.,
-            patch_drop_rate: float = 0.,
-            proj_drop_rate: float = 0.,
-            attn_drop_rate: float = 0.,
-            drop_path_rate: float = 0.,
-            weight_init: Literal['skip', 'jax', 'jax_nlhb', 'moco', ''] = '',
-            embed_layer: Callable = PatchEmbed,
-            norm_layer: Optional[LayerType] = None,
-            act_layer: Optional[LayerType] = None,
-            block_fn: Type[nn.Module] = vision_transformer.Block,
-            mlp_layer: Type[nn.Module] = Mlp,
+        self,
+        img_size: Union[int, Tuple[int, int]] = 224,
+        patch_size: Union[int, Tuple[int, int]] = 32,
+        in_chans: int = 3,
+        num_classes: int = 1000,
+        global_pool: Literal["", "avg", "token", "map"] = "token",
+        embed_dim: int = 768,
+        depth: int = 12,
+        num_heads: int = 12,
+        mlp_ratio: float = 4.0,
+        qkv_bias: bool = True,
+        qk_norm: bool = False,
+        init_values: Optional[float] = None,
+        class_token: bool = True,
+        no_embed_class: bool = False,
+        reg_tokens: int = 0,
+        pre_norm: bool = False,
+        fc_norm: Optional[bool] = None,
+        dynamic_img_size: bool = False,
+        dynamic_img_pad: bool = False,
+        drop_rate: float = 0.0,
+        pos_drop_rate: float = 0.0,
+        patch_drop_rate: float = 0.0,
+        proj_drop_rate: float = 0.0,
+        attn_drop_rate: float = 0.0,
+        drop_path_rate: float = 0.0,
+        weight_init: Literal["skip", "jax", "jax_nlhb", "moco", ""] = "",
+        embed_layer: Callable = PatchEmbed,
+        norm_layer: Optional[LayerType] = None,
+        act_layer: Optional[LayerType] = None,
+        block_fn: Type[nn.Module] = vision_transformer.Block,
+        mlp_layer: Type[nn.Module] = Mlp,
     ) -> None:
         super().__init__(
-            img_size=img_size, 
+            img_size=img_size,
             patch_size=patch_size,
             num_classes=num_classes,
             global_pool=global_pool,
@@ -148,14 +148,13 @@ class MAEBackbone(vision_transformer.VisionTransformer):
             attn_drop_rate=attn_drop_rate,
             drop_path_rate=drop_path_rate,
             weight_init=weight_init,
-            embed_layer=embed_layer, 
+            embed_layer=embed_layer,
             norm_layer=norm_layer,
             act_layer=act_layer,
             block_fn=block_fn,
-            mlp_layer=mlp_layer
+            mlp_layer=mlp_layer,
         )
         self._initialize_weights()
-
 
     @classmethod
     def from_vit(
@@ -176,11 +175,11 @@ class MAEBackbone(vision_transformer.VisionTransformer):
         """
         # Create a new instance with dummy values as they will be overwritten
         # by the copied vit_encoder attributes
-        
+
         backbone = cls(
-            img_size=vit.patch_embed.img_size, 
+            img_size=vit.patch_embed.img_size,
             patch_size=vit.patch_embed.patch_size,
-            embed_dim=vit.embed_dim
+            embed_dim=vit.embed_dim,
         )
         backbone.patch_embed = vit.patch_embed
         backbone.blocks = vit.blocks
@@ -234,16 +233,16 @@ class MAEBackbone(vision_transformer.VisionTransformer):
         input = self.images_to_tokens(images, prepend_class_token=True)
         # add positional encoding
         input = input + self.interpolate_pos_encoding(input)
-        # get the tokens that are kept  
+        # get the tokens that are kept
         if idx_keep is not None:
-            input = utils.get_at_index(input, idx_keep)    
+            input = utils.get_at_index(input, idx_keep)
         # apply Transformer blocks
         for blk in self.blocks:
             input = blk(input)
         # normalize
         out = self.norm(input)
         return out
-    
+
     def interpolate_pos_encoding(self, input: torch.Tensor):
         """Returns the interpolated positional embedding for the given input.
 
@@ -303,7 +302,7 @@ class MAEBackbone(vision_transformer.VisionTransformer):
 
         # initialize nn.Linear and nn.LayerNorm
         self.apply(_init_weights)
-        
+
         _initialize_2d_sine_cosine_positional_embedding(self.pos_embed)
 
 
@@ -319,25 +318,25 @@ class MAEDecoder(Module):
     Attributes:
         num_patches:
             Number of patches.
-        patch_size: 
+        patch_size:
             Patch size.
-        in_chans: 
+        in_chans:
             Number of image input channels.
         embed_dim:
             Embedding dimension of the encoder.
         decoder_embed_dim:
             Embedding dimension of the decoder.
-        decoder_depth: 
+        decoder_depth:
             Depth of transformer.
-        decoder_num_heads: 
+        decoder_num_heads:
             Number of attention heads.
-        mlp_ratio: 
+        mlp_ratio:
             Ratio of mlp hidden dim to embedding dim.
         proj_drop_rate:
             Percentage of elements set to zero after the MLP in the transformer.
         attn_drop_rate:
             Percentage of elements set to zero after the attention head.
-        norm_layer: 
+        norm_layer:
             Normalization layer.
 
     """
@@ -345,34 +344,47 @@ class MAEDecoder(Module):
     def __init__(
         self,
         num_patches: int,
-        patch_size : int,
+        patch_size: int,
         in_chans: int = 3,
         embed_dim: int = 1024,
-        decoder_embed_dim: int = 512, 
-        decoder_depth:int = 8, 
-        decoder_num_heads:int = 16,
-        mlp_ratio:float = 4., 
-        proj_drop_rate:float = 0.,
-        attn_drop_rate:float = 0.,
-        norm_layer: Callable[..., nn.Module] = partial(LayerNorm, eps=1e-6)
+        decoder_embed_dim: int = 512,
+        decoder_depth: int = 8,
+        decoder_num_heads: int = 16,
+        mlp_ratio: float = 4.0,
+        proj_drop_rate: float = 0.0,
+        attn_drop_rate: float = 0.0,
+        norm_layer: Callable[..., nn.Module] = partial(LayerNorm, eps=1e-6),
     ):
         super().__init__()
-        
+
         self.decoder_embed = nn.Linear(embed_dim, decoder_embed_dim, bias=True)
         self.mask_token = nn.Parameter(torch.zeros(1, 1, decoder_embed_dim))
 
         # positional encoding of the decoder
-        self.decoder_pos_embed = nn.Parameter(torch.zeros(1, num_patches+1, decoder_embed_dim), requires_grad=False)  # fixed sin-cos embedding
+        self.decoder_pos_embed = nn.Parameter(
+            torch.zeros(1, num_patches + 1, decoder_embed_dim), requires_grad=False
+        )  # fixed sin-cos embedding
 
-        self.decoder_blocks = ModuleList([
-            vision_transformer.Block(decoder_embed_dim, decoder_num_heads, mlp_ratio, qkv_bias=True, norm_layer=norm_layer, proj_drop=proj_drop_rate,
-            attn_drop=attn_drop_rate)
-            for i in range(decoder_depth)])
-
+        self.decoder_blocks = ModuleList(
+            [
+                vision_transformer.Block(
+                    decoder_embed_dim,
+                    decoder_num_heads,
+                    mlp_ratio,
+                    qkv_bias=True,
+                    norm_layer=norm_layer,
+                    proj_drop=proj_drop_rate,
+                    attn_drop=attn_drop_rate,
+                )
+                for i in range(decoder_depth)
+            ]
+        )
 
         self.decoder_norm = norm_layer(decoder_embed_dim)
-        self.decoder_pred = nn.Linear(decoder_embed_dim, patch_size**2 * in_chans, bias=True) # decoder to patch
-        
+        self.decoder_pred = nn.Linear(
+            decoder_embed_dim, patch_size**2 * in_chans, bias=True
+        )  # decoder to patch
+
         self._initialize_weights()
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
@@ -444,7 +456,7 @@ class MAEDecoder(Module):
         return self.decoder_pred(input)
 
     def _initialize_weights(self) -> None:
-        torch.nn.init.normal_(self.mask_token, std=.02)
+        torch.nn.init.normal_(self.mask_token, std=0.02)
         _initialize_2d_sine_cosine_positional_embedding(self.decoder_pos_embed)
         self.apply(_init_weights)
 

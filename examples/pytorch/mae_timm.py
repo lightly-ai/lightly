@@ -23,7 +23,7 @@ class MAE(nn.Module):
         decoder_dim = 512
         self.mask_ratio = 0.75
         self.patch_size = vit.patch_embed.patch_size[0]
-        self.sequence_length = vit.patch_embed.num_patches+1
+        self.sequence_length = vit.patch_embed.num_patches + 1
         self.mask_token = nn.Parameter(torch.zeros(1, 1, decoder_dim))
         self.backbone = masked_autoencoder_timm.MAEBackbone.from_vit(vit)
         self.decoder = masked_autoencoder_timm.MAEDecoder(
@@ -31,12 +31,12 @@ class MAE(nn.Module):
             patch_size=self.patch_size,
             in_chans=3,
             embed_dim=vit.embed_dim,
-            decoder_embed_dim=decoder_dim, 
-            decoder_depth=1, 
+            decoder_embed_dim=decoder_dim,
+            decoder_depth=1,
             decoder_num_heads=16,
-            mlp_ratio=4., 
-            proj_drop_rate=0.,
-            attn_drop_rate=0.
+            mlp_ratio=4.0,
+            proj_drop_rate=0.0,
+            attn_drop_rate=0.0,
         )
 
     def forward_encoder(self, images, idx_keep=None):
