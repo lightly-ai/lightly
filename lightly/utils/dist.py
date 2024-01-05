@@ -1,4 +1,4 @@
-from typing import Any, Callable, Literal, Optional, Tuple, TypeVar, Union
+from typing import Any, Callable, Optional, Tuple, TypeVar, Union
 
 import torch
 import torch.distributed as dist
