@@ -11,7 +11,7 @@ from lightly.loss import SSLEYLoss
 
 ## The projection head is the same as the Barlow Twins one
 from lightly.models.modules.heads import VICRegProjectionHead
-from lightly.transforms.vicreg_transform import VICRegTransform
+from lightly.transforms.ssley_transform import SSLEYTransform
 
 
 class SSLEY(pl.LightningModule):
@@ -49,7 +49,7 @@ class SSLEY(pl.LightningModule):
 
 model = SSLEY()
 
-transform = VICRegTransform(input_size=32)
+transform = SSLEYTransform(input_size=32)
 dataset = torchvision.datasets.CIFAR10(
     "datasets/cifar10", download=True, transform=transform
 )
