@@ -21,7 +21,7 @@ import json
 
 from typing import Optional
 from pydantic import Extra,  BaseModel, Field, StrictBool
-from lightly.openapi_generated.swagger_client.models.docker_worker_config_v3_docker_datasource_input_expiration import DockerWorkerConfigV3DockerDatasourceInputExpiration
+from lightly.openapi_generated.swagger_client.models.docker_worker_config_v3_datasource_input_expiration import DockerWorkerConfigV3DatasourceInputExpiration
 
 class DockerWorkerConfigV3DockerDatasource(BaseModel):
     """
@@ -30,7 +30,7 @@ class DockerWorkerConfigV3DockerDatasource(BaseModel):
     bypass_verify: Optional[StrictBool] = Field(None, alias="bypassVerify")
     enable_datapool_update: Optional[StrictBool] = Field(None, alias="enableDatapoolUpdate")
     process_all: Optional[StrictBool] = Field(None, alias="processAll")
-    input_expiration: Optional[DockerWorkerConfigV3DockerDatasourceInputExpiration] = Field(None, alias="inputExpiration")
+    input_expiration: Optional[DockerWorkerConfigV3DatasourceInputExpiration] = Field(None, alias="inputExpiration")
     __properties = ["bypassVerify", "enableDatapoolUpdate", "processAll", "inputExpiration"]
 
     class Config:
@@ -82,7 +82,7 @@ class DockerWorkerConfigV3DockerDatasource(BaseModel):
             "bypass_verify": obj.get("bypassVerify"),
             "enable_datapool_update": obj.get("enableDatapoolUpdate"),
             "process_all": obj.get("processAll"),
-            "input_expiration": DockerWorkerConfigV3DockerDatasourceInputExpiration.from_dict(obj.get("inputExpiration")) if obj.get("inputExpiration") is not None else None
+            "input_expiration": DockerWorkerConfigV3DatasourceInputExpiration.from_dict(obj.get("inputExpiration")) if obj.get("inputExpiration") is not None else None
         })
         return _obj
 
