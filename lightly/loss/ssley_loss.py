@@ -59,12 +59,15 @@ class SSLEYLoss(Module):
             z_b:
                 Tensor with shape (batch_size, ..., dim).
         """
-        assert (
-            z_a.shape[0] > 1 and z_b.shape[0] > 1
-        ), f"z_a and z_b must have batch size > 1 but found {z_a.shape[0]} and {z_b.shape[0]}"
-        assert (
-            z_a.shape == z_b.shape
-        ), f"z_a and z_b must have same shape but found {z_a.shape} and {z_b.shape}."
+        if z_a.shape[0] <= 1:
+            raise ValueError(f"z_a must have batch size > 1 but found {z_a.shape[0]}.")
+        if z_b.shape[0] <= 1:
+            raise ValueError(f"z_b must have batch size > 1 but found {z_b.shape[0]}.")
+        if z_a.shape != z_b.shape:
+            raise ValueError(
+                f"z_a and z_b must have same shape but found {z_a.shape} and "
+                f"{z_b.shape}."
+            )
         # gather all batches
         if self.gather_distributed and dist.is_initialized():
             world_size = dist.get_world_size()
