@@ -9,7 +9,11 @@ from torchvision.models import resnet50
 
 from lightly.loss.tico_loss import TiCoLoss
 from lightly.models.modules.heads import TiCoProjectionHead
-from lightly.models.utils import get_weight_decay_parameters, update_momentum
+from lightly.models.utils import (
+    deactivate_requires_grad,
+    get_weight_decay_parameters,
+    update_momentum,
+)
 from lightly.transforms import BYOLTransform
 from lightly.utils.benchmarking import OnlineLinearClassifier
 from lightly.utils.lars import LARS
@@ -37,15 +41,16 @@ class TiCo(LightningModule):
     def forward(self, x: Tensor) -> Tensor:
         return self.backbone(x)
 
-    @torch.no_grad()
     def forward_teacher(self, x: Tensor) -> Tuple[Tensor, Tensor]:
-        features = self(x).flatten(start_dim=1)
+        features = self.backbone(x).flatten(start_dim=1)
         projections = self.projection_head(features)
         return features, projections
 
+    @torch.no_grad()
     def forward_student(self, x: Tensor) -> Tensor:
         features = self.student_backbone(x).flatten(start_dim=1)
         projections = self.student_projection_head(features)
+        projections = projections.detach()
         return projections
 
     def training_step(
@@ -57,34 +62,18 @@ class TiCo(LightningModule):
             start_value=0.99,
             end_value=1.0,
         )
-        update_momentum(self.student_backbone, self.backbone, m=momentum)
-        update_momentum(self.student_projection_head, self.projection_head, m=momentum)
+        update_momentum(self.backbone, self.student_backbone, m=momentum)
+        update_momentum(self.projection_head, self.student_projection_head, m=momentum)
 
         # Forward pass and loss calculation.
         views, targets = batch[0], batch[1]
         teacher_features, teacher_projections = self.forward_teacher(views[0])
         student_projections = self.forward_student(views[1])
 
-        loss, transformative_invariance_loss, covariance_contrast_loss = self.criterion(
-            teacher_projections, student_projections
-        )
+        loss = self.criterion(teacher_projections, student_projections)
 
         self.log(
             "train_loss", loss, prog_bar=True, sync_dist=True, batch_size=len(targets)
-        )
-        self.log(
-            "train_transformative_invariance_loss",
-            transformative_invariance_loss,
-            prog_bar=False,
-            sync_dist=True,
-            batch_size=len(targets),
-        )
-        self.log(
-            "train_covariance_contrast_loss",
-            covariance_contrast_loss,
-            prog_bar=False,
-            sync_dist=True,
-            batch_size=len(targets),
         )
 
         # Online linear evaluation.
@@ -110,8 +99,8 @@ class TiCo(LightningModule):
         # head to improve performance.
         params, params_no_weight_decay = get_weight_decay_parameters(
             [
-                self.student_backbone,
-                self.student_projection_head,
+                self.backbone,
+                self.projection_head,
             ]
         )
         optimizer = LARS(
@@ -131,7 +120,7 @@ class TiCo(LightningModule):
             # Settings follow original code for 100 epochs which are slightly different
             # from the paper, see:
             # https://github.com/deepmind/deepmind-research/blob/f5de0ede8430809180254ee957abf36ed62579ef/byol/configs/byol.py#L21-L23
-            lr=0.02 * self.batch_size_per_device * self.trainer.world_size / 256,
+            lr=0.2 * self.batch_size_per_device * self.trainer.world_size / 256,
             momentum=0.9,
             weight_decay=1.5e-6,
         )
