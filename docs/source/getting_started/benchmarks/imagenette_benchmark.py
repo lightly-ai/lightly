@@ -61,8 +61,8 @@ Results (4.5.2023):
 """
 import copy
 import os
-import time
 import sys
+import time
 
 import numpy as np
 import pytorch_lightning as pl
@@ -75,7 +75,9 @@ from pytorch_lightning.loggers import TensorBoardLogger
 try:
     from timm.models import vision_transformer
 except ImportError:
-    print("TIMM is not available. Please install in order to run this benchmark for MAE.")
+    print(
+        "TIMM is not available. Please install in order to run this benchmark for MAE."
+    )
     sys.exit(1)
 
 from lightly.data import LightlyDataset
@@ -94,7 +96,12 @@ from lightly.loss import (
     VICRegLoss,
 )
 from lightly.models import modules, utils
-from lightly.models.modules import heads, masked_autoencoder, masked_autoencoder_timm, memory_bank
+from lightly.models.modules import (
+    heads,
+    masked_autoencoder,
+    masked_autoencoder_timm,
+    memory_bank,
+)
 from lightly.transforms import (
     BYOLTransform,
     BYOLView1Transform,
