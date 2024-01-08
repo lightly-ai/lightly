@@ -62,6 +62,7 @@ Results (4.5.2023):
 import copy
 import os
 import time
+import sys
 
 import numpy as np
 import pytorch_lightning as pl
@@ -70,6 +71,12 @@ import torch.nn as nn
 import torchvision
 from pl_bolts.optimizers.lars import LARS
 from pytorch_lightning.loggers import TensorBoardLogger
+
+try:
+    from timm.models import vision_transformer
+except ImportError:
+    print("TIMM is not available. Please install in order to run this benchmark for MAE.")
+    sys.exit(1)
 
 from lightly.data import LightlyDataset
 from lightly.loss import (
@@ -87,7 +94,7 @@ from lightly.loss import (
     VICRegLoss,
 )
 from lightly.models import modules, utils
-from lightly.models.modules import heads, masked_autoencoder, memory_bank
+from lightly.models.modules import heads, masked_autoencoder, masked_autoencoder_timm, memory_bank
 from lightly.transforms import (
     BYOLTransform,
     BYOLView1Transform,
@@ -768,25 +775,25 @@ class MAEModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
         super().__init__(dataloader_kNN, num_classes)
 
+        vit = vision_transformer.vit_base_patch32_224()
         decoder_dim = 512
-        vit = torchvision.models.vit_b_32(pretrained=False)
-
         self.warmup_epochs = 40 if max_epochs >= 800 else 20
         self.mask_ratio = 0.75
-        self.patch_size = vit.patch_size
-        self.sequence_length = vit.seq_length
+        self.patch_size = vit.patch_embed.patch_size[0]
+        self.sequence_length = vit.patch_embed.num_patches + 1
         self.mask_token = nn.Parameter(torch.zeros(1, 1, decoder_dim))
-        self.backbone = masked_autoencoder.MAEBackbone.from_vit(vit)
-        self.decoder = masked_autoencoder.MAEDecoder(
-            seq_length=vit.seq_length,
-            num_layers=1,
-            num_heads=16,
-            embed_input_dim=vit.hidden_dim,
-            hidden_dim=decoder_dim,
-            mlp_dim=decoder_dim * 4,
-            out_dim=vit.patch_size**2 * 3,
-            dropout=0,
-            attention_dropout=0,
+        self.backbone = masked_autoencoder_timm.MAEBackbone.from_vit(vit)
+        self.decoder = masked_autoencoder_timm.MAEDecoder(
+            num_patches=vit.patch_embed.num_patches,
+            patch_size=self.patch_size,
+            in_chans=3,
+            embed_dim=vit.embed_dim,
+            decoder_embed_dim=decoder_dim,
+            decoder_depth=1,
+            decoder_num_heads=16,
+            mlp_ratio=4.0,
+            proj_drop_rate=0.0,
+            attn_drop_rate=0.0,
         )
         self.criterion = nn.MSELoss()
 
