@@ -2,12 +2,13 @@ from typing import List, Tuple
 
 import torch
 from pytorch_lightning import LightningModule
+from timm.models.vision_transformer import vit_base_patch16_reg8_gap_256
 from torch import Tensor
 from torch.nn import MSELoss, Parameter
 from torch.optim import AdamW
-from torchvision.models import vit_b_16
 
 from lightly.models import utils
+from lightly.models.modules import masked_autoencoder_timm
 from lightly.models.modules.masked_autoencoder import MAEBackbone, MAEDecoder
 from lightly.transforms import MAETransform
 from lightly.utils.benchmarking import OnlineLinearClassifier
@@ -21,24 +22,25 @@ class MAE(LightningModule):
         self.batch_size_per_device = batch_size_per_device
 
         decoder_dim = 512
-        vit = vit_b_16()
+        vit = vit_base_patch16_reg8_gap_256()
 
         self.mask_ratio = 0.75
-        self.patch_size = vit.patch_size
-        self.sequence_length = vit.seq_length
+        self.patch_size = vit.patch_embed.patch_size[0]
+        self.sequence_length = vit.patch_embed.num_patches + 1
         self.mask_token = Parameter(torch.zeros(1, 1, decoder_dim))
         torch.nn.init.normal_(self.mask_token, std=0.02)
         self.backbone = MAEBackbone.from_vit(vit)
-        self.decoder = MAEDecoder(
-            seq_length=vit.seq_length,
-            num_layers=8,
-            num_heads=16,
-            embed_input_dim=vit.hidden_dim,
-            hidden_dim=decoder_dim,
-            mlp_dim=decoder_dim * 4,
-            out_dim=vit.patch_size**2 * 3,
-            dropout=0,
-            attention_dropout=0,
+        self.decoder = masked_autoencoder_timm.MAEDecoder(
+            num_patches=vit.patch_embed.num_patches,
+            patch_size=self.patch_size,
+            in_chans=3,
+            embed_dim=vit.embed_dim,
+            decoder_embed_dim=decoder_dim,
+            decoder_depth=8,
+            decoder_num_heads=16,
+            mlp_ratio=4.0,
+            proj_drop_rate=0.0,
+            attn_drop_rate=0.0,
         )
         self.criterion = MSELoss()
 
