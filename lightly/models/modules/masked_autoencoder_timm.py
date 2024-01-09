@@ -14,7 +14,7 @@ except ImportError:
 
 import torch
 import torch.nn as nn
-from torch.nn import LayerNorm, Linear, Module, ModuleList, Parameter
+from torch.nn import LayerNorm, Linear, Module, Parameter, Sequential
 
 from lightly.models import utils
 
@@ -60,6 +60,8 @@ class MAEBackbone(vision_transformer.VisionTransformer):  # type: ignore
             Number of register tokens.
         fc_norm:
             Pre head norm after pool (instead of before), if None, enabled when global_pool == 'avg'.
+        dynamic_img_size:
+            If set to True, encoding of variable sized images is handled.
         drop_rate:
             Head dropout rate.
         pos_drop_rate:
@@ -167,16 +169,33 @@ class MAEBackbone(vision_transformer.VisionTransformer):  # type: ignore
             A MAEBackbone with the same architecture as vit.
 
         """
-        # Create a new instance with dummy values as they will be overwritten
-        # by the copied vit_encoder attributes
 
         backbone = cls(
             img_size=vit.patch_embed.img_size,
             patch_size=vit.patch_embed.patch_size,
+            num_classes=vit.num_classes,
+            global_pool=vit.global_pool,
+            class_token=vit.has_class_token,
+            reg_tokens=vit.num_reg_tokens,
+            no_embed_class=vit.no_embed_class,
             embed_dim=vit.embed_dim,
+            dynamic_img_size=vit.dynamic_img_size,
         )
+        backbone.num_prefix_tokens = vit.num_prefix_tokens
+        backbone.cls_token = vit.cls_token
+        backbone.reg_token = vit.reg_token
+        backbone.pos_embed = vit.pos_embed
+        backbone.pos_drop = vit.pos_drop
+        backbone.patch_drop = vit.patch_drop
+        backbone.norm_pre = vit.norm_pre
         backbone.patch_embed = vit.patch_embed
         backbone.blocks = vit.blocks
+        backbone.norm = vit.norm
+        backbone.attn_pool = vit.attn_pool
+        backbone.fc_norm = vit.fc_norm
+        backbone.head_drop = vit.head_drop
+        backbone.head = vit.head
+
         if initialize_weights:
             backbone._initialize_weights()
         return backbone
@@ -226,46 +245,15 @@ class MAEBackbone(vision_transformer.VisionTransformer):  # type: ignore
         # convert images to tokens and add class token if needed
         input = self.images_to_tokens(images, prepend_class_token=True)
         # add positional encoding
-        input = input + self.interpolate_pos_encoding(input)
+        input = input + self.pos_embed
         # get the tokens that are kept
         if idx_keep is not None:
             input = utils.get_at_index(input, idx_keep)
         # apply Transformer blocks
-        for blk in self.blocks:
-            input = blk(input)
+        input = self.blocks(input)
         # normalize
-        out = self.norm(input)
-        return torch.Tensor(out)
-
-    def interpolate_pos_encoding(self, input: torch.Tensor) -> torch.Tensor:
-        """Returns the interpolated positional embedding for the given input.
-
-        This function interpolates self.pos_embed for all tokens in the input,
-        ignoring the class token. This allows encoding variable sized images.
-
-        Args:
-            input:
-               Input tensor with shape (batch_size, num_sequences).
-
-        """
-        # code copied from:
-        # https://github.com/facebookresearch/msn/blob/4388dc1eadbe3042b85d3296d41b9b207656e043/src/deit.py#L291
-        npatch = input.shape[1] - 1
-        N = self.pos_embed.shape[1] - 1
-        if npatch == N:
-            return torch.Tensor(self.pos_embed)
-        class_emb = self.pos_embed[:, 0]
-        pos_embed = self.pos_embed[:, 1:]
-        dim = input.shape[-1]
-        pos_embed = nn.functional.interpolate(
-            pos_embed.reshape(1, int(math.sqrt(N)), int(math.sqrt(N)), dim).permute(
-                0, 3, 1, 2
-            ),
-            scale_factor=math.sqrt(npatch / N),
-            mode="bicubic",
-        )
-        pos_embed = pos_embed.permute(0, 2, 3, 1).view(1, -1, dim)
-        return torch.cat((class_emb.unsqueeze(0), pos_embed), dim=1)
+        out: torch.Tensor = self.norm(input)
+        return out
 
     def images_to_tokens(
         self, images: torch.Tensor, prepend_class_token: bool
@@ -280,7 +268,7 @@ class MAEBackbone(vision_transformer.VisionTransformer):  # type: ignore
             Tensor with shape (batch_size, sequence_length - 1, hidden_dim)
             containing the patch tokens.
         """
-        tokens = torch.Tensor(self.patch_embed(images))
+        tokens: torch.Tensor = self.patch_embed(images)
         if prepend_class_token:
             tokens = utils.prepend_class_token(tokens, self.cls_token)
         return tokens
@@ -359,8 +347,8 @@ class MAEDecoder(Module):
             torch.zeros(1, num_patches + 1, decoder_embed_dim), requires_grad=False
         )  # fixed sin-cos embedding
 
-        self.decoder_blocks = ModuleList(
-            [
+        self.decoder_blocks = Sequential(
+            *[
                 vision_transformer.Block(
                     decoder_embed_dim,
                     decoder_num_heads,
@@ -412,7 +400,8 @@ class MAEDecoder(Module):
             the embedded tokens.
 
         """
-        return torch.Tensor(self.decoder_embed(input))
+        out: torch.Tensor = self.decoder_embed(input)
+        return out
 
     def decode(self, input: torch.Tensor) -> torch.Tensor:
         """Forward pass through the decoder transformer.
@@ -428,11 +417,9 @@ class MAEDecoder(Module):
 
         """
         input = input + self.decoder_pos_embed
-
-        for blk in self.decoder_blocks:
-            input = blk(input)
-        input = self.decoder_norm(input)
-        return input
+        input = self.decoder_blocks(input)
+        out = self.decoder_norm(input)
+        return out
 
     def predict(self, input: torch.Tensor) -> torch.Tensor:
         """Predics pixel values from decoded tokens.
@@ -447,7 +434,7 @@ class MAEDecoder(Module):
             predictions for each token.
 
         """
-        return torch.Tensor(self.decoder_pred(input))
+        return self.decoder_pred(input)
 
     def _initialize_weights(self) -> None:
         torch.nn.init.normal_(self.mask_token, std=0.02)
