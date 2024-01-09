@@ -58,9 +58,13 @@ class MAEBackbone(vision_transformer.VisionTransformer):  # type: ignore
         reg_tokens:
             Number of register tokens.
         fc_norm:
-            Pre head norm after pool (instead of before), if None, enabled when global_pool == 'avg'.
+            Pre head norm after pool (instead of before), if None, enabled when
+            global_pool == 'avg'.
         dynamic_img_size:
             If set to True, encoding of variable sized images is handled.
+        dynamic_img_pad:
+            If set to True, the image dimensions do not have to be divisible by the
+            patch size. The images are padded as needed.
         drop_rate:
             Head dropout rate.
         pos_drop_rate:
