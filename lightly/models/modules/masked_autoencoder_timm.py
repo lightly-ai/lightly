@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import math
 import sys
 from functools import partial
 from typing import Callable, Literal, Optional, Tuple, Type, Union

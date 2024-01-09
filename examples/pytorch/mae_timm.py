@@ -26,7 +26,6 @@ class MAE(nn.Module):
         self.mask_ratio = 0.75
         self.patch_size = vit.patch_embed.patch_size[0]
         self.sequence_length = vit.patch_embed.num_patches + 1
-        self.mask_token = nn.Parameter(torch.zeros(1, 1, decoder_dim))
         self.backbone = masked_autoencoder_timm.MAEBackbone.from_vit(vit)
         self.decoder = masked_autoencoder_timm.MAEDecoder(
             num_patches=vit.patch_embed.num_patches,
@@ -49,7 +48,7 @@ class MAE(nn.Module):
         batch_size = x_encoded.shape[0]
         x_decode = self.decoder.embed(x_encoded)
         x_masked = utils.repeat_token(
-            self.mask_token, (batch_size, self.sequence_length)
+            self.decoder.mask_token, (batch_size, self.sequence_length)
         )
         x_masked = utils.set_at_index(x_masked, idx_keep, x_decode.type_as(x_masked))
 
