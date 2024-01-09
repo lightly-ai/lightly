@@ -416,10 +416,10 @@ class MAEDecoder(Module):
             the decoded tokens.
 
         """
-        input = input + self.decoder_pos_embed
-        input = self.decoder_blocks(input)
-        out = self.decoder_norm(input)
-        return out
+        output: torch.Tensor = input + self.decoder_pos_embed
+        output = self.decoder_blocks(output)
+        output = self.decoder_norm(output)
+        return output
 
     def predict(self, input: torch.Tensor) -> torch.Tensor:
         """Predics pixel values from decoded tokens.
@@ -434,7 +434,8 @@ class MAEDecoder(Module):
             predictions for each token.
 
         """
-        return self.decoder_pred(input)
+        out: torch.Tensor = self.decoder_pred(input)
+        return out
 
     def _initialize_weights(self) -> None:
         torch.nn.init.normal_(self.mask_token, std=0.02)
