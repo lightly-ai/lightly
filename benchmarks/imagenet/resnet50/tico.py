@@ -31,8 +31,8 @@ class TiCo(LightningModule):
         self.backbone = resnet
         self.projection_head = TiCoProjectionHead()
 
-        self.student_backbone = copy.deepcopy(self.backbone)
-        self.student_projection_head = copy.deepcopy(self.projection_head)
+        self.backbone_momentum = copy.deepcopy(self.backbone)
+        self.projection_head_momentum = copy.deepcopy(self.projection_head)
 
         self.criterion = TiCoLoss(beta=0.9, rho=8.0, gather_distributed=True)
 
@@ -41,15 +41,10 @@ class TiCo(LightningModule):
     def forward(self, x: Tensor) -> Tensor:
         return self.backbone(x)
 
-    def forward_teacher(self, x: Tensor) -> Tuple[Tensor, Tensor]:
-        features = self.backbone(x).flatten(start_dim=1)
-        projections = self.projection_head(features)
-        return features, projections
-
     @torch.no_grad()
-    def forward_student(self, x: Tensor) -> Tensor:
-        features = self.student_backbone(x).flatten(start_dim=1)
-        projections = self.student_projection_head(features)
+    def forward_momentum(self, x: Tensor) -> Tensor:
+        features = self.backbone_momentum(x).flatten(start_dim=1)
+        projections = self.projection_head_momentum(features)
         projections = projections.detach()
         return projections
 
@@ -62,15 +57,19 @@ class TiCo(LightningModule):
             start_value=0.99,
             end_value=1.0,
         )
-        update_momentum(self.backbone, self.student_backbone, m=momentum)
-        update_momentum(self.projection_head, self.student_projection_head, m=momentum)
+        update_momentum(self.backbone, self.backbone_momentum, m=momentum)
+        update_momentum(self.projection_head, self.projection_head_momentum, m=momentum)
 
         # Forward pass and loss calculation.
         views, targets = batch[0], batch[1]
-        teacher_features, teacher_projections = self.forward_teacher(views[0])
-        student_projections = self.forward_student(views[1])
 
-        loss = self.criterion(teacher_projections, student_projections)
+        features = self.forward(views[0]).flatten(start_dim=1)
+        projections = self.projection_head(features)
+
+        # momentum encoder network
+        projections_momentum = self.forward_momentum(views[1])
+
+        loss = self.criterion(projections, projections_momentum)
 
         self.log(
             "train_loss", loss, prog_bar=True, sync_dist=True, batch_size=len(targets)
@@ -78,7 +77,7 @@ class TiCo(LightningModule):
 
         # Online linear evaluation.
         cls_loss, cls_log = self.online_classifier.training_step(
-            (teacher_features.detach(), targets), batch_idx
+            (features.detach(), targets), batch_idx
         )
         self.log_dict(cls_log, sync_dist=True, batch_size=len(targets))
         return loss + cls_loss
