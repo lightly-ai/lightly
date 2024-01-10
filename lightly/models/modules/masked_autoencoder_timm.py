@@ -246,9 +246,9 @@ class MAEBackbone(vision_transformer.VisionTransformer):  # type: ignore
 
         """
         # convert images to tokens and add class token if needed
-        input = self.images_to_tokens(images, prepend_class_token=True)
+        input: torch.Tensor = self.patch_embed(images)
         # add positional encoding
-        input = input + self.pos_embed
+        input = self._pos_embed(input)
         # get the tokens that are kept
         if idx_keep is not None:
             input = utils.get_at_index(input, idx_keep)
@@ -257,24 +257,6 @@ class MAEBackbone(vision_transformer.VisionTransformer):  # type: ignore
         # normalize
         out: torch.Tensor = self.norm(input)
         return out
-
-    def images_to_tokens(
-        self, images: torch.Tensor, prepend_class_token: bool
-    ) -> torch.Tensor:
-        """Converts images into patch tokens.
-
-        Args:
-            images:
-                Tensor with shape (batch_size, channels, image_size, image_size).
-
-        Returns:
-            Tensor with shape (batch_size, sequence_length - 1, hidden_dim)
-            containing the patch tokens.
-        """
-        tokens: torch.Tensor = self.patch_embed(images)
-        if prepend_class_token:
-            tokens = utils.prepend_class_token(tokens, self.cls_token)
-        return tokens
 
     def _initialize_weights(self) -> None:
         # Initialize the patch embedding layer like a linear layer instead of conv
