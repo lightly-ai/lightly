@@ -71,6 +71,10 @@ lightly.transforms
    :members:
    :special-members: __call__
 
+.. automodule:: lightly.transforms.ssley_transform
+   :members:
+   :special-members: __call__
+
 .. automodule:: lightly.transforms.swav_transform
    :members:
    :special-members: __call__

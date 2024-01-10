@@ -24,6 +24,7 @@ for PyTorch and PyTorch Lightning to give you a headstart when implementing your
     simmim.rst
     simsiam.rst
     smog.rst
+    ssley.rst
     swav.rst
     tico.rst
     vicreg.rst

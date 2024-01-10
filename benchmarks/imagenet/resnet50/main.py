@@ -13,6 +13,7 @@ import knn_eval
 import linear_eval
 import mocov2
 import simclr
+import ssley
 import swav
 import torch
 import vicreg
@@ -60,6 +61,7 @@ METHODS = {
     "dino": {"model": dino.DINO, "transform": dino.transform},
     "mocov2": {"model": mocov2.MoCoV2, "transform": mocov2.transform},
     "simclr": {"model": simclr.SimCLR, "transform": simclr.transform},
+    "ssley": {"model": ssley.SSLEY, "transform": ssley.transform},
     "swav": {"model": swav.SwAV, "transform": swav.transform},
     "vicreg": {"model": vicreg.VICReg, "transform": vicreg.transform},
 }

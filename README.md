@@ -52,6 +52,7 @@ and PyTorch Lightning distributed examples for all models to kickstart your proj
 - SimMIM, 2021 [paper](https://arxiv.org/abs/2111.09886) [docs](https://docs.lightly.ai/self-supervised-learning/examples/simmim.html)
 - SimSiam, 2021 [paper](https://arxiv.org/abs/2011.10566) [docs](https://docs.lightly.ai/self-supervised-learning/examples/simsiam.html)
 - SMoG, 2022 [paper](https://arxiv.org/abs/2207.06167) [docs](https://docs.lightly.ai/self-supervised-learning/examples/smog.html)
+- SSL-EY, 2023 [paper](https://arxiv.org/abs/2310.01012) [docs](https://docs.lightly.ai/self-supervised-learning/examples/ssley.html)
 - SwaV, 2020 [paper](https://arxiv.org/abs/2006.09882) [docs](https://docs.lightly.ai/self-supervised-learning/examples/swav.html)
 - TiCo, 2022 [paper](https://arxiv.org/abs/2206.10698) [docs](https://docs.lightly.ai/self-supervised-learning/examples/tico.html)
 - VICReg, 2022 [paper](https://arxiv.org/abs/2105.04906) [docs](https://docs.lightly.ai/self-supervised-learning/examples/vicreg.html)
@@ -287,6 +288,7 @@ See the [benchmarking scripts](./benchmarks/imagenet/resnet50/) for details.
 | SimCLR*        | Res50    |        256 |    100 |        63.2 |          73.9 |     44.8 |      [link](https://tensorboard.dev/experiment/Ugol97adQdezgcVibDYMMA) |       [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_simclr_2023-06-22_09-11-13/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt) |
 | SimCLR* + DCL  | Res50    |        256 |    100 |        65.1 |          73.5 |     49.6 |      [link](https://tensorboard.dev/experiment/k4ZonZ77QzmBkc0lXswQlg/) |       [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_dcl_2023-07-04_16-51-40/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt) |
 | SimCLR* + DCLW | Res50    |        256 |    100 |        64.5 |          73.2 |     48.5 |      [link](https://tensorboard.dev/experiment/TrALnpwFQ4OkZV3uvaX7wQ/) |       [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_dclw_2023-07-07_14-57-13/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt) |
+| SSL-EY         | Res50    |        256 |    100 | TODO        | TODO          | TODO     | [link](TODO)| [link](TODO)  |
 | SwAV           | Res50    |        256 |    100 |        67.2 |          75.4 |     49.5 |      [link](https://tensorboard.dev/experiment/Ipx4Oxl5Qkqm5Sl5kWyKKg) |       [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_swav_2023-05-25_08-29-14/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt) |
 | VICReg         | Res50    |        256 |    100 |        63.0 |          73.7 |     46.3 |      [link](https://tensorboard.dev/experiment/qH5uywJbTJSzgCEfxc7yUw) |       [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_vicreg_2023-09-11_10-53-08/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt) |
 
