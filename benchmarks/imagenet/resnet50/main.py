@@ -14,6 +14,7 @@ import linear_eval
 import mocov2
 import simclr
 import swav
+import tico
 import torch
 import vicreg
 from pytorch_lightning import LightningModule, Trainer
@@ -61,6 +62,7 @@ METHODS = {
     "mocov2": {"model": mocov2.MoCoV2, "transform": mocov2.transform},
     "simclr": {"model": simclr.SimCLR, "transform": simclr.transform},
     "swav": {"model": swav.SwAV, "transform": swav.transform},
+    "tico": {"model": tico.TiCo, "transform": tico.transform},
     "vicreg": {"model": vicreg.VICReg, "transform": vicreg.transform},
 }
 
