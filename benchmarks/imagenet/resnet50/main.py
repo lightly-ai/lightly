@@ -17,6 +17,7 @@ import swav
 import tico
 import torch
 import vicreg
+import wmse
 from pytorch_lightning import LightningModule, Trainer
 from pytorch_lightning.callbacks import (
     DeviceStatsMonitor,
@@ -64,6 +65,7 @@ METHODS = {
     "swav": {"model": swav.SwAV, "transform": swav.transform},
     "tico": {"model": tico.TiCo, "transform": tico.transform},
     "vicreg": {"model": vicreg.VICReg, "transform": vicreg.transform},
+    "wmse": {"model": wmse.WMSE, "transform": wmse.transform},
 }
 
 
