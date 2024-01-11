@@ -1,0 +1,6 @@
+coverage:
+  status:
+    project:
+      default:
+        target: auto  # This sets the target to your last upload (useful for incremental changes)
+        threshold: 0.5%  # This allows for a decrease of up to 0.5% in coverage
