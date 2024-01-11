@@ -116,9 +116,6 @@ class TiCo(LightningModule):
                     "weight_decay": 0.0,
                 },
             ],
-            # Settings follow original code for 100 epochs which are slightly different
-            # from the paper, see:
-            # https://github.com/deepmind/deepmind-research/blob/f5de0ede8430809180254ee957abf36ed62579ef/byol/configs/byol.py#L21-L23
             lr=0.2 * self.batch_size_per_device * self.trainer.world_size / 256,
             momentum=0.9,
             weight_decay=1.5e-6,
