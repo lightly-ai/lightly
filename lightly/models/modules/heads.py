@@ -715,7 +715,7 @@ class WMSEProjectionHead(SimCLRProjectionHead):
         num_layers: int = 2,
         batch_norm: bool = True,
     ):
-        super(SimCLRProjectionHead).__init__(
+        super(WMSEProjectionHead, self).__init__(
             input_dim, hidden_dim, output_dim, num_layers, batch_norm
         )
 
