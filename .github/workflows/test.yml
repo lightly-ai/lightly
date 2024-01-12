@@ -35,7 +35,9 @@ jobs:
     - uses: actions/cache@v2
       with:
         path: ${{ env.pythonLocation }}
-        key: cache_v2_${{ env.pythonLocation }}-${{ hashFiles('requirements/**') }}
+        key: general-env-${{ runner.os }}-python-${{ matrix.python }}-${{ hashFiles('requirements/**') }}
+        restore-keys: |
+          general-env-${{ runner.os }}-python-${{ matrix.python }}-
     - name: Install Dependencies and lightly
       run: pip install -e '.[all]'
     - name: Run Pytest
