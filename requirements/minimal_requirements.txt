@@ -34,7 +34,6 @@ pre-commit
 opencv-python==4.4.0.46
 scikit-learn==0.24.2
 pandas
-torchmetrics
 matplotlib
 lightning-bolts # for LARS optimizer
 
