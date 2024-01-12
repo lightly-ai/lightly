@@ -2,7 +2,7 @@
 certifi==2017.4.17
 hydra-core==1.0.0
 lightly_utils~=0.0.0
-numpy==1.22.4
+numpy==1.21.6
 python_dateutil==2.5.3
 requests==2.23.0
 six==1.10
