@@ -36,4 +36,4 @@ scikit-learn==0.24.2
 pandas
 matplotlib
 
-av==8.0.2
+av==8.0.3
