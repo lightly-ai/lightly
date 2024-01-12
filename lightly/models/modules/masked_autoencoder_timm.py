@@ -265,8 +265,7 @@ class MAEBackbone(vision_transformer.VisionTransformer):  # type: ignore
         torch.nn.init.xavier_uniform_(w.view([w.shape[0], -1]))
 
         # Initialize the class token.
-        if self.cls_token:
-            torch.nn.init.normal_(self.cls_token, std=0.02)
+        torch.nn.init.normal_(self.cls_token, std=0.02)
 
         # initialize nn.Linear and nn.LayerNorm
         self.apply(_init_weights)

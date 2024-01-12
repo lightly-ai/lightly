@@ -22,7 +22,7 @@ class MAE(LightningModule):
         self.batch_size_per_device = batch_size_per_device
 
         decoder_dim = 512
-        vit = vit_base_patch16_reg8_gap_256()
+        vit = vit_base_patch16_reg8_gap_256(class_token=True)
 
         self.mask_ratio = 0.75
         self.patch_size = vit.patch_embed.patch_size[0]
