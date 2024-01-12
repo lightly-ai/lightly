@@ -1,5 +1,5 @@
 # we use this file to track minimal dependencies
-certifi==14.05.14
+certifi==2017.4.17
 hydra-core==1.0.0
 lightly_utils~=0.0.0
 numpy==1.18.1
