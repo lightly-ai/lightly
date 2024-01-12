@@ -149,7 +149,7 @@ gather_distributed = False
 
 # benchmark
 n_runs = 1  # optional, increase to create multiple runs and report mean + std
-batch_size = 256
+batch_size = 32 #256
 lr_factor = batch_size / 256  # scales the learning rate linearly with batch size
 
 # Number of devices and hardware to use for training.
@@ -167,8 +167,11 @@ else:
 
 # The dataset structure should be like this:
 
-path_to_train = "/datasets/imagenette2-160/train/"
-path_to_test = "/datasets/imagenette2-160/val/"
+# path_to_train = "/datasets/imagenette2-160/train/"
+# path_to_test = "/datasets/imagenette2-160/val/"
+
+path_to_train = "/home/ubuntu/datasets/imagenette2-160/train/"
+path_to_test = "/home/ubuntu/datasets/imagenette2-160/val/"
 
 # Use BYOL augmentations
 byol_transform = BYOLTransform(
@@ -782,7 +785,7 @@ class MAEModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
         super().__init__(dataloader_kNN, num_classes)
 
-        vit = vision_transformer.vit_base_patch32_224()
+        vit = vision_transformer.vit_base_patch32_224(dynamic_img_size=True)
         decoder_dim = 512
         self.warmup_epochs = 40 if max_epochs >= 800 else 20
         self.mask_ratio = 0.75
@@ -1431,6 +1434,10 @@ models = [
     TiCoModel,
     VICRegModel,
     VICRegLModel,
+]
+
+models = [
+    MAEModel, # disabled by default because MAE uses larger images with size 224
 ]
 bench_results = dict()
 
