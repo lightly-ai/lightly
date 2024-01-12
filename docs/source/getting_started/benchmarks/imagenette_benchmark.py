@@ -1434,9 +1434,6 @@ models = [
     VICRegLModel,
 ]
 
-models = [
-    MAEModel,  # disabled by default because MAE uses larger images with size 224
-]
 bench_results = dict()
 
 experiment_version = None
