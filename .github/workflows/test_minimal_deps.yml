@@ -36,4 +36,4 @@ jobs:
     - name: Install Package Without Dependencies
       run: pip install --no-deps .
     - name: Run Tests
-      run: pytest
+      run: python -m pytest -s -v --runslow
