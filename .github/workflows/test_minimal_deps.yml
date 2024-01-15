@@ -4,9 +4,13 @@ on:
   push:
     paths-ignore:
       - 'docs/**'
+      - 'examples/**'
+      - 'benchmarks/**'
   pull_request:
     paths-ignore:
       - 'docs/**'
+      - 'examples/**'
+      - 'benchmarks/**'
   workflow_dispatch:
 
 jobs:
@@ -36,4 +40,6 @@ jobs:
     - name: Install Package Without Dependencies
       run: pip install --no-deps .
     - name: Run Tests
-      run: python -m pytest -s -v --runslow
+      run:  |
+        export LIGHTLY_SERVER_LOCATION="localhost:-1"
+        python -m pytest -s -v --runslow
