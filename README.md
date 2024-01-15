@@ -69,17 +69,17 @@ Community and partner projects:
 
 ## Quick Start
 
-Lightly requires **Python 3.6+** but we recommend using **Python 3.7+**. We recommend installing Lightly in a **Linux** or **OSX** environment.
+Lightly requires **Python 3.7+**. We recommend installing Lightly in a **Linux** or **OSX** environment. Python 3.12 is not yet supported, as PyTorch itself lacks Python 3.12 compatibility.
 
 ### Dependencies
 
-- [PyTorch](https://pytorch.org/)
-- [Torchvision](https://pytorch.org/vision/stable/index.html)
-- [PyTorch Lightning](https://www.pytorchlightning.ai/index.html) v1.5+
+Due to the modular nature of the Lightly package some modules can be used with older versions of dependencies. However, to use all features as of today lightly requires the following dependencies:
+
+- [PyTorch](https://pytorch.org/)>=1.11.0
+- [Torchvision](https://pytorch.org/vision/stable/index.html)>=0.12.0
+- [PyTorch Lightning](https://www.pytorchlightning.ai/index.html)>=1.7.1
 
 Lightly is compatible with PyTorch and PyTorch Lightning v2.0+!
-
-Vision transformer based models require Torchvision v0.12+.
 
 ### Installation
 

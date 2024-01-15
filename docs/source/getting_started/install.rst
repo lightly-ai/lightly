@@ -4,7 +4,7 @@ Installation
 Supported Python versions
 -------------------------
 
-Lightly SSL requires Python 3.6+. We recommend installing Lightly SSL in a Linux or OSX environment.
+Lightly SSL requires Python 3.7+. We recommend installing Lightly SSL in a Linux or OSX environment.
 
 .. _rst-installing:
 
