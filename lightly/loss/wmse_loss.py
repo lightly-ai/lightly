@@ -62,7 +62,7 @@ class Whitening2d(nn.Module):
         f_cov_shrinked = (1 - self.eps) * f_cov + self.eps * eye
 
         # get type of f_cov_shrinked and temporary convert to full precision
-        # to support chelosky decomposition
+        # to support chelosky decomposition (only supports fp32)
         f_cov_shrinked_type = f_cov_shrinked.dtype
         f_cov_shrinked = f_cov_shrinked.to(torch.float32)
 
