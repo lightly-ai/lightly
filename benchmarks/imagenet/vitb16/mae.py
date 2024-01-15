@@ -2,7 +2,7 @@ from typing import List, Tuple
 
 import torch
 from pytorch_lightning import LightningModule
-from timm.models.vision_transformer import vit_base_patch16_reg8_gap_256
+from timm.models.vision_transformer import vit_base_patch16_224
 from torch import Tensor
 from torch.nn import MSELoss, Parameter
 from torch.optim import AdamW
@@ -22,7 +22,7 @@ class MAE(LightningModule):
         self.batch_size_per_device = batch_size_per_device
 
         decoder_dim = 512
-        vit = vit_base_patch16_reg8_gap_256(class_token=True)
+        vit = vit_base_patch16_224(dynamic_img_size=True)
 
         self.mask_ratio = 0.75
         self.patch_size = vit.patch_embed.patch_size[0]
