@@ -26,12 +26,12 @@ class WMSE(LightningModule):
         resnet.fc = Identity()  # Ignore classification head
         self.backbone = resnet
 
-        # we use a projection head with output dimension 64
-        # and w_size of 128 to support a batch size of 256
-        self.projection_head = WMSEProjectionHead(output_dim=64)
+        # we use a projection head with output dimension 128
+        # and w_size of 256 to support a batch size of 512
+        self.projection_head = WMSEProjectionHead(output_dim=128)
 
         self.criterion_WMSE4loss = WMSELoss(
-            w_size=128, embedding_dim=64, num_samples=4, gather_distributed=True
+            w_size=256, embedding_dim=128, num_samples=4
         )
 
         self.online_classifier = OnlineLinearClassifier(num_classes=num_classes)
