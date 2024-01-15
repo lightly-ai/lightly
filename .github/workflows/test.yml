@@ -4,9 +4,13 @@ on:
   push:
     paths-ignore:
       - 'docs/**'
+      - 'examples/**'
+      - 'benchmarks/**'
   pull_request:
     paths-ignore:
       - 'docs/**'
+      - 'examples/**'
+      - 'benchmarks/**'
   workflow_dispatch:
 
 
