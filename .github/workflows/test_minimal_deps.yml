@@ -33,8 +33,6 @@ jobs:
       with:
         path: ${{ env.pythonLocation }}
         key: minimal-env-${{ runner.os }}-python-${{ matrix.python }}-${{ hashFiles('requirements/minimal_requirements.txt') }}
-        restore-keys: |
-          minimal-env-${{ runner.os }}-python-${{ matrix.python }}-
     - name: Install Minimal Dependencies
       run: pip install -r requirements/minimal_requirements.txt
     - name: Install Package Without Dependencies
