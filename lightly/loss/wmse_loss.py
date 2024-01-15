@@ -194,11 +194,6 @@ class WMSELoss(torch.nn.Module):
             ValueError:
                 If the batch size is smaller than w_size.
         """
-        # gather all batches
-        if self.gather_distributed and dist.is_initialized():
-            world_size = dist.get_world_size()
-            if world_size > 1:
-                input = torch.cat(gather(input), dim=0)
 
         if input.shape[0] % self.num_samples != 0:
             raise RuntimeError(
