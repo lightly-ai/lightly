@@ -1,0 +1,43 @@
+name: Minimal Dependency Tests
+
+on:
+  push:
+    paths-ignore:
+      - 'docs/**'
+      - 'examples/**'
+      - 'benchmarks/**'
+  pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - 'examples/**'
+      - 'benchmarks/**'
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.7"]
+
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python }}
+    - name: Cache Python Dependencies
+      uses: actions/cache@v2
+      with:
+        path: ${{ env.pythonLocation }}
+        key: minimal-env-${{ runner.os }}-python-${{ matrix.python }}-${{ hashFiles('requirements/minimal_requirements.txt') }}
+    - name: Install Minimal Dependencies
+      run: pip install -r requirements/minimal_requirements.txt
+    - name: Install Package Without Dependencies
+      run: pip install --no-deps .
+    - name: Run Tests
+      run:  |
+        export LIGHTLY_SERVER_LOCATION="localhost:-1"
+        python -m pytest -s -v --runslow
