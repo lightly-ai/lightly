@@ -1,6 +1,6 @@
 from typing import Dict, List, Tuple, Union
 
-from lightly.transforms import MAETransform
+from lightly.transforms.mae_transform import MAETransform
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 
 

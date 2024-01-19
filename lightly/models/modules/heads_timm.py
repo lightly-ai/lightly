@@ -16,6 +16,7 @@ class AIMPredictionHeadBlock(Module):
         norm_layer: Type[Module] = LayerNorm,
         mlp_layer: Type[Module] = Mlp,
     ) -> None:
+        super().__init__()
         self.norm = norm_layer(input_dim)
         self.mlp = mlp_layer(
             in_features=input_dim,
@@ -50,6 +51,7 @@ class AIMPredictionHead(Module):
         mlp_layer: Type[Module] = Mlp,
         block_fn: Type[Module] = AIMPredictionHeadBlock,
     ) -> None:
+        super().__init__()
         self.blocks = Sequential(
             # First MLP to project the input to the hidden dimension. The paper does not
             # specify how exactly this is done. We assume it happens in the last layer
@@ -65,7 +67,8 @@ class AIMPredictionHead(Module):
             # Main blocks.
             *[
                 block_fn(
-                    dim=hidden_dim,
+                    input_dim=hidden_dim,
+                    output_dim=hidden_dim,
                     mlp_ratio=mlp_ratio,
                     proj_drop=proj_drop,
                     norm_layer=norm_layer,

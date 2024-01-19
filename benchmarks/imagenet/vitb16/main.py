@@ -3,6 +3,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Sequence, Union
 
+import aim
 import finetune_eval
 import knn_eval
 import linear_eval
@@ -37,6 +38,7 @@ parser.add_argument("--skip-linear-eval", action="store_true")
 parser.add_argument("--skip-finetune-eval", action="store_true")
 
 METHODS = {
+    "aim": {"model": aim.AIM, "transform": aim.transform},
     "mae": {"model": mae.MAE, "transform": mae.transform},
 }
 

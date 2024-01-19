@@ -115,7 +115,7 @@ class MaskedCausalVisionTransformer(VisionTransformer):
         patch_size: Union[int, Tuple[int, int]] = 16,
         in_chans: int = 3,
         num_classes: int = 1000,
-        global_pool: Literal["", "avg", "token", "map"] = "token",
+        global_pool: Literal["", "avg", "token", "map"] = "",
         embed_dim: int = 768,
         depth: int = 12,
         num_heads: int = 12,
@@ -187,6 +187,7 @@ class MaskedCausalVisionTransformer(VisionTransformer):
             # mask.
             x = _manipulate.checkpoint_seq(self.blocks, x)
         else:
-            x = self.blocks(x, mask=mask)
+            for block in self.blocks:
+                x = block(x, mask=mask)
         x = self.norm(x)
         return x
