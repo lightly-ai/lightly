@@ -37,9 +37,6 @@ class AIM(LightningModule):
             qk_norm=False,
             class_token=False,
             no_embed_class=True,
-            drop_rate=0.0,
-            attn_drop_rate=0.0,
-            drop_path_rate=0.1,
         )
         # Use absolute positional embedding.
         pos_embed = get_2d_sincos_pos_embed(
