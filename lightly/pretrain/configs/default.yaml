@@ -1,0 +1,51 @@
+task:
+method: "simclr"
+backbone: "resnet18"
+output_dir: "output_dir/${now:%Y_%m_%d_%H_%M_%S}"
+dataset:
+  train_dir:
+  val_dir:
+  num_classes: 100
+loader:
+  train:
+    batch_size: 32
+    num_workers: 8
+    shuffle: True
+    drop_last: True
+  val:
+    batch_size: 32
+    num_workers: 8
+    shuffle: False
+    drop_last: False
+transform:
+  train:
+  val:
+    resize:
+      size: 256
+    center_crop:
+      size: 224
+    normalize:
+      mean: [0.485, 0.456, 0.406]
+      std: [0.229, 0.224, 0.225]
+trainer:
+  max_epochs: 100
+  devices: 1
+  logger:
+    tensorboard:
+      save_dir: ""
+  callbacks:
+    model_checkpoint:
+      dirpath: "checkpoints"
+      save_last: True
+      every_n_epochs: 10
+    onnx_checkpoint:
+      dirpath: "checkpoints"
+      every_n_epochs: 1
+      filename: "onnx_epoch{epoch}.onnx"
+  default_root_dir: "${output_dir}"
+
+
+# Hydra stuff.
+hydra:
+  run:
+    dir: "${output_dir}"
