@@ -32,7 +32,7 @@ class AIM(LightningModule):
             patch_size=self.patch_size,
             num_classes=num_classes,
             embed_dim=1536,
-            depth=3,  # 24,
+            depth=24,
             num_heads=12,
             qk_norm=False,
             class_token=False,
