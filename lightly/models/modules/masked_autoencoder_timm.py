@@ -245,9 +245,9 @@ class MAEBackbone(vision_transformer.VisionTransformer):  # type: ignore
             containing the encoded class and patch tokens for every image.
 
         """
-        # convert images to tokens and add class token if needed
+        # convert images to tokens
         input: torch.Tensor = self.patch_embed(images)
-        # add positional encoding
+        # add positional encoding and adds class token if needed
         input = self._pos_embed(input)
         # get the tokens that are kept
         if idx_keep is not None:
