@@ -70,7 +70,7 @@ class Whitening2d(nn.Module):
             torch.linalg.cholesky(f_cov_shrinked), eye, upper=False
         )
 
-        # convert back to original type
+        # convert back to original type (e.g. fp16)
         inv_sqrt = inv_sqrt.to(f_cov_shrinked_type)
 
         inv_sqrt = inv_sqrt.contiguous().view(
@@ -194,6 +194,12 @@ class WMSELoss(torch.nn.Module):
             ValueError:
                 If the batch size is smaller than w_size.
         """
+
+        # gather all batches
+        if self.gather_distributed and dist.is_initialized():
+            world_size = dist.get_world_size()
+            if world_size > 1:
+                input = torch.cat(gather(input), dim=0)
 
         if input.shape[0] % self.num_samples != 0:
             raise RuntimeError(
