@@ -3,18 +3,18 @@
 from typing import List
 
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
 from torch import Tensor
+from torch.nn import Module
 
 
 def tcr_loss(z: Tensor, eps: float) -> Tensor:
     """Total Coding Rate (TCR) loss.
 
     Args:
-        z (Tensor):
+        z:
             Patch embeddings.
-        eps (float):
+        eps:
             Epsilon value for numerical stability.
 
     Returns:
@@ -29,10 +29,11 @@ def tcr_loss(z: Tensor, eps: float) -> Tensor:
 
 
 def invariance_loss(z: Tensor) -> Tensor:
-    """Loss representing the similiarity between the patch embeddings and the average of the patch embeddings.
+    """Loss representing the similiarity between the patch embeddings and the average of
+    the patch embeddings.
 
     Args:
-        z (Tensor):
+        z:
             Patch embeddings.
     Returns:
         Similarity loss.
@@ -42,10 +43,19 @@ def invariance_loss(z: Tensor) -> Tensor:
     return -F.cosine_similarity(z, z_mean, dim=-1).mean()
 
 
-class EMPSSLLoss(nn.Module):
-    """Implementation of the loss from 'EMP-SSL: Towards
-    Self-Supervised Learning in One Training Epoch' [0].
+class EMPSSLLoss(Module):
+    """Implementation of the loss from 'EMP-SSL: Towards Self-Supervised Learning in
+    One Training Epoch' [0].
+
     - [0] EMP-SSL, 2023, https://arxiv.org/abs/2304.03977
+
+    Attributes:
+        tcr_eps:
+            Total Coding Rate (TCR) epsilon. NOTE: While in the paper, this term is
+            squared, we do not square it here as to follow the implementation in the
+            official repository.
+        inv_coef:
+            Coefficient for the invariance loss (Lambda in the paper).
 
     Examples:
         >>> # initialize loss function
@@ -68,14 +78,6 @@ class EMPSSLLoss(nn.Module):
         tcr_eps: float = 0.2,
         inv_coef: float = 200.0,
     ) -> None:
-        """Args as in [0].
-        Args:
-            tcr_eps:
-                Total Coding Rate (TCR) epsilon. NOTE: While in the paper, this term is squared, we do not square it here
-                as to follow the implementation in the official repository.
-            inv_coef:
-                Coefficient for the invariance loss (Lambda in the paper).
-        """
         super().__init__()
         self.tcr_eps = tcr_eps
         self.inv_coef = inv_coef
