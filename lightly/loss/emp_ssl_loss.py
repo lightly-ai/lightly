@@ -1,6 +1,6 @@
 """Code for EMP-SSL Loss, largely taken from https://github.com/tsb0601/EMP-SSL"""
 
-from typing import List, Sequence
+from typing import List
 
 import torch
 import torch.nn as nn
@@ -80,7 +80,7 @@ class EMPSSLLoss(nn.Module):
         self.tcr_eps = tcr_eps
         self.inv_coef = inv_coef
 
-    def forward(self, z_views: Sequence[Tensor]) -> Tensor:
+    def forward(self, z_views: List[Tensor]) -> Tensor:
         # z has shape (num_views, batch_size, dim)
         z = torch.stack(z_views)
         return tcr_loss(z, eps=self.tcr_eps) + self.inv_coef * invariance_loss(z)
