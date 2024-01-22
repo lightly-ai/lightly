@@ -20,26 +20,16 @@ import json
 
 
 from typing import Optional
-from pydantic import Extra,  BaseModel, Field, StrictStr, conint, constr, validator
-from lightly.openapi_generated.swagger_client.models.docker_worker_config import DockerWorkerConfig
+from pydantic import Extra,  BaseModel, Field
+from lightly.openapi_generated.swagger_client.models.docker_worker_config_v3 import DockerWorkerConfigV3
 
-class DockerWorkerConfigData(BaseModel):
+class DockerWorkerConfigV3DataAllOf(BaseModel):
     """
-    DockerWorkerConfigData
+    DockerWorkerConfigV3DataAllOf
     """
-    id: constr(strict=True) = Field(..., description="MongoDB ObjectId")
-    version: Optional[StrictStr] = None
-    config: DockerWorkerConfig = Field(...)
-    config_orig: Optional[DockerWorkerConfig] = Field(None, alias="configOrig")
-    created_at: Optional[conint(strict=True, ge=0)] = Field(None, alias="createdAt", description="unix timestamp in milliseconds")
-    __properties = ["id", "version", "config", "configOrig", "createdAt"]
-
-    @validator('id')
-    def id_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if not re.match(r"^[a-f0-9]{24}$", value):
-            raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
-        return value
+    config: DockerWorkerConfigV3 = Field(...)
+    config_orig: Optional[DockerWorkerConfigV3] = Field(None, alias="configOrig")
+    __properties = ["config", "configOrig"]
 
     class Config:
         """Pydantic configuration"""
@@ -57,8 +47,8 @@ class DockerWorkerConfigData(BaseModel):
         return json.dumps(self.to_dict(by_alias=by_alias))
 
     @classmethod
-    def from_json(cls, json_str: str) -> DockerWorkerConfigData:
-        """Create an instance of DockerWorkerConfigData from a JSON string"""
+    def from_json(cls, json_str: str) -> DockerWorkerConfigV3DataAllOf:
+        """Create an instance of DockerWorkerConfigV3DataAllOf from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self, by_alias: bool = False):
@@ -76,25 +66,22 @@ class DockerWorkerConfigData(BaseModel):
         return _dict
 
     @classmethod
-    def from_dict(cls, obj: dict) -> DockerWorkerConfigData:
-        """Create an instance of DockerWorkerConfigData from a dict"""
+    def from_dict(cls, obj: dict) -> DockerWorkerConfigV3DataAllOf:
+        """Create an instance of DockerWorkerConfigV3DataAllOf from a dict"""
         if obj is None:
             return None
 
         if not isinstance(obj, dict):
-            return DockerWorkerConfigData.parse_obj(obj)
+            return DockerWorkerConfigV3DataAllOf.parse_obj(obj)
 
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in DockerWorkerConfigData) in the input: " + str(obj))
+                raise ValueError("Error due to additional fields (not defined in DockerWorkerConfigV3DataAllOf) in the input: " + str(obj))
 
-        _obj = DockerWorkerConfigData.parse_obj({
-            "id": obj.get("id"),
-            "version": obj.get("version"),
-            "config": DockerWorkerConfig.from_dict(obj.get("config")) if obj.get("config") is not None else None,
-            "config_orig": DockerWorkerConfig.from_dict(obj.get("configOrig")) if obj.get("configOrig") is not None else None,
-            "created_at": obj.get("createdAt")
+        _obj = DockerWorkerConfigV3DataAllOf.parse_obj({
+            "config": DockerWorkerConfigV3.from_dict(obj.get("config")) if obj.get("config") is not None else None,
+            "config_orig": DockerWorkerConfigV3.from_dict(obj.get("configOrig")) if obj.get("configOrig") is not None else None
         })
         return _obj
 

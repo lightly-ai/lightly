@@ -20,26 +20,17 @@ import json
 
 
 from typing import Optional
-from pydantic import Extra,  BaseModel, Field, StrictStr, conint, constr, validator
+from pydantic import Extra,  BaseModel, Field
 from lightly.openapi_generated.swagger_client.models.docker_worker_config_v3 import DockerWorkerConfigV3
+from lightly.openapi_generated.swagger_client.models.docker_worker_config_vx_data_base import DockerWorkerConfigVXDataBase
 
-class DockerWorkerConfigV3Data(BaseModel):
+class DockerWorkerConfigV3Data(DockerWorkerConfigVXDataBase):
     """
     DockerWorkerConfigV3Data
     """
-    id: constr(strict=True) = Field(..., description="MongoDB ObjectId")
-    version: Optional[StrictStr] = None
     config: DockerWorkerConfigV3 = Field(...)
     config_orig: Optional[DockerWorkerConfigV3] = Field(None, alias="configOrig")
-    created_at: Optional[conint(strict=True, ge=0)] = Field(None, alias="createdAt", description="unix timestamp in milliseconds")
-    __properties = ["id", "version", "config", "configOrig", "createdAt"]
-
-    @validator('id')
-    def id_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if not re.match(r"^[a-f0-9]{24}$", value):
-            raise ValueError(r"must validate the regular expression /^[a-f0-9]{24}$/")
-        return value
+    __properties = ["id", "version", "createdAt", "config", "configOrig"]
 
     class Config:
         """Pydantic configuration"""
@@ -92,9 +83,9 @@ class DockerWorkerConfigV3Data(BaseModel):
         _obj = DockerWorkerConfigV3Data.parse_obj({
             "id": obj.get("id"),
             "version": obj.get("version"),
+            "created_at": obj.get("createdAt"),
             "config": DockerWorkerConfigV3.from_dict(obj.get("config")) if obj.get("config") is not None else None,
-            "config_orig": DockerWorkerConfigV3.from_dict(obj.get("configOrig")) if obj.get("configOrig") is not None else None,
-            "created_at": obj.get("createdAt")
+            "config_orig": DockerWorkerConfigV3.from_dict(obj.get("configOrig")) if obj.get("configOrig") is not None else None
         })
         return _obj
 

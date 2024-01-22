@@ -43,13 +43,13 @@ from lightly.openapi_generated.swagger_client.models.docker_run_update_request i
 from lightly.openapi_generated.swagger_client.models.docker_user_stats import DockerUserStats
 from lightly.openapi_generated.swagger_client.models.docker_worker_authorization_request import DockerWorkerAuthorizationRequest
 from lightly.openapi_generated.swagger_client.models.docker_worker_config_create_request import DockerWorkerConfigCreateRequest
-from lightly.openapi_generated.swagger_client.models.docker_worker_config_data import DockerWorkerConfigData
 from lightly.openapi_generated.swagger_client.models.docker_worker_config_omni_vx_create_request import DockerWorkerConfigOmniVXCreateRequest
-from lightly.openapi_generated.swagger_client.models.docker_worker_config_omni_vx_data import DockerWorkerConfigOmniVXData
+from lightly.openapi_generated.swagger_client.models.docker_worker_config_v0_data import DockerWorkerConfigV0Data
 from lightly.openapi_generated.swagger_client.models.docker_worker_config_v2_create_request import DockerWorkerConfigV2CreateRequest
 from lightly.openapi_generated.swagger_client.models.docker_worker_config_v2_data import DockerWorkerConfigV2Data
 from lightly.openapi_generated.swagger_client.models.docker_worker_config_v3_create_request import DockerWorkerConfigV3CreateRequest
 from lightly.openapi_generated.swagger_client.models.docker_worker_config_v3_data import DockerWorkerConfigV3Data
+from lightly.openapi_generated.swagger_client.models.docker_worker_config_vx_data import DockerWorkerConfigVXData
 from lightly.openapi_generated.swagger_client.models.docker_worker_registry_entry_data import DockerWorkerRegistryEntryData
 from lightly.openapi_generated.swagger_client.models.tag_data import TagData
 from lightly.openapi_generated.swagger_client.models.update_docker_worker_registry_entry_request import UpdateDockerWorkerRegistryEntryRequest
@@ -3952,7 +3952,7 @@ class DockerApi(object):
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def get_docker_worker_config_by_id(self, config_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker config")], **kwargs) -> DockerWorkerConfigData:  # noqa: E501
+    def get_docker_worker_config_by_id(self, config_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker config")], **kwargs) -> DockerWorkerConfigV0Data:  # noqa: E501
         """(Deprecated) get_docker_worker_config_by_id  # noqa: E501
 
         Gets a docker worker configuration by id. It will try to return the config version but expects (and will fail if not) the config to be of v0   # noqa: E501
@@ -3973,7 +3973,7 @@ class DockerApi(object):
         :return: Returns the result object.
                  If the method is called asynchronously,
                  returns the request thread.
-        :rtype: DockerWorkerConfigData
+        :rtype: DockerWorkerConfigV0Data
         """
         kwargs['_return_http_data_only'] = True
         if '_preload_content' in kwargs:
@@ -4015,7 +4015,7 @@ class DockerApi(object):
         :return: Returns the result object.
                  If the method is called asynchronously,
                  returns the request thread.
-        :rtype: tuple(DockerWorkerConfigData, status_code(int), headers(HTTPHeaderDict))
+        :rtype: tuple(DockerWorkerConfigV0Data, status_code(int), headers(HTTPHeaderDict))
         """
 
         warnings.warn("GET /v1/docker/worker/config/{configId} is deprecated.", DeprecationWarning)
@@ -4072,7 +4072,7 @@ class DockerApi(object):
         _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
 
         _response_types_map = {
-            '200': "DockerWorkerConfigData",
+            '200': "DockerWorkerConfigV0Data",
             '400': "ApiErrorResponse",
             '403': "ApiErrorResponse",
             '404': "ApiErrorResponse",
@@ -4384,7 +4384,7 @@ class DockerApi(object):
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def get_docker_worker_config_vxby_id(self, config_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker config")], **kwargs) -> DockerWorkerConfigOmniVXData:  # noqa: E501
+    def get_docker_worker_config_vxby_id(self, config_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker config")], **kwargs) -> DockerWorkerConfigVXData:  # noqa: E501
         """get_docker_worker_config_vxby_id  # noqa: E501
 
         Gets a docker worker configuration by id. It will return whichever config version the configId corresponds to.   # noqa: E501
@@ -4405,7 +4405,7 @@ class DockerApi(object):
         :return: Returns the result object.
                  If the method is called asynchronously,
                  returns the request thread.
-        :rtype: DockerWorkerConfigOmniVXData
+        :rtype: DockerWorkerConfigVXData
         """
         kwargs['_return_http_data_only'] = True
         if '_preload_content' in kwargs:
@@ -4447,7 +4447,7 @@ class DockerApi(object):
         :return: Returns the result object.
                  If the method is called asynchronously,
                  returns the request thread.
-        :rtype: tuple(DockerWorkerConfigOmniVXData, status_code(int), headers(HTTPHeaderDict))
+        :rtype: tuple(DockerWorkerConfigVXData, status_code(int), headers(HTTPHeaderDict))
         """
 
         _params = locals()
@@ -4502,7 +4502,7 @@ class DockerApi(object):
         _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
 
         _response_types_map = {
-            '200': "DockerWorkerConfigOmniVXData",
+            '200': "DockerWorkerConfigVXData",
             '400': "ApiErrorResponse",
             '403': "ApiErrorResponse",
             '404': "ApiErrorResponse",
@@ -4526,7 +4526,7 @@ class DockerApi(object):
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def get_docker_worker_configs(self, **kwargs) -> List[DockerWorkerConfigData]:  # noqa: E501
+    def get_docker_worker_configs(self, **kwargs) -> List[DockerWorkerConfigV0Data]:  # noqa: E501
         """(Deprecated) get_docker_worker_configs  # noqa: E501
 
         Get docker worker configurations.  # noqa: E501
@@ -4545,7 +4545,7 @@ class DockerApi(object):
         :return: Returns the result object.
                  If the method is called asynchronously,
                  returns the request thread.
-        :rtype: List[DockerWorkerConfigData]
+        :rtype: List[DockerWorkerConfigV0Data]
         """
         kwargs['_return_http_data_only'] = True
         if '_preload_content' in kwargs:
@@ -4585,7 +4585,7 @@ class DockerApi(object):
         :return: Returns the result object.
                  If the method is called asynchronously,
                  returns the request thread.
-        :rtype: tuple(List[DockerWorkerConfigData], status_code(int), headers(HTTPHeaderDict))
+        :rtype: tuple(List[DockerWorkerConfigV0Data], status_code(int), headers(HTTPHeaderDict))
         """
 
         warnings.warn("GET /v1/docker/worker/config is deprecated.", DeprecationWarning)
@@ -4638,7 +4638,7 @@ class DockerApi(object):
         _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
 
         _response_types_map = {
-            '200': "List[DockerWorkerConfigData]",
+            '200': "List[DockerWorkerConfigV0Data]",
             '400': "ApiErrorResponse",
             '403': "ApiErrorResponse",
             '404': "ApiErrorResponse",

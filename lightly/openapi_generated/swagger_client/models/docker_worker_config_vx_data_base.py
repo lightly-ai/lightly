@@ -23,9 +23,9 @@ import lightly.openapi_generated.swagger_client.models
 
 from pydantic import Extra,  BaseModel, Field, StrictStr, conint, constr, validator
 
-class DockerWorkerConfigOmniVXDataBase(BaseModel):
+class DockerWorkerConfigVXDataBase(BaseModel):
     """
-    DockerWorkerConfigOmniVXDataBase
+    DockerWorkerConfigVXDataBase
     """
     id: constr(strict=True) = Field(..., description="MongoDB ObjectId")
     version: StrictStr = Field(..., description="The version of the config. Either V3, V4, etc. Used as the discriminator for")
@@ -51,9 +51,10 @@ class DockerWorkerConfigOmniVXDataBase(BaseModel):
 
     # discriminator mappings
     __discriminator_value_class_map = {
-        'DockerWorkerConfigOmniV2Data': 'DockerWorkerConfigOmniV2Data',
-        'DockerWorkerConfigOmniV3Data': 'DockerWorkerConfigOmniV3Data',
-        'DockerWorkerConfigOmniV4Data': 'DockerWorkerConfigOmniV4Data'
+        'DockerWorkerConfigV0Data': 'DockerWorkerConfigV0Data',
+        'DockerWorkerConfigV2Data': 'DockerWorkerConfigV2Data',
+        'DockerWorkerConfigV3Data': 'DockerWorkerConfigV3Data',
+        'DockerWorkerConfigV4Data': 'DockerWorkerConfigV4Data'
     }
 
     @classmethod
@@ -74,8 +75,8 @@ class DockerWorkerConfigOmniVXDataBase(BaseModel):
         return json.dumps(self.to_dict(by_alias=by_alias))
 
     @classmethod
-    def from_json(cls, json_str: str) -> Union(DockerWorkerConfigOmniV2Data, DockerWorkerConfigOmniV3Data, DockerWorkerConfigOmniV4Data):
-        """Create an instance of DockerWorkerConfigOmniVXDataBase from a JSON string"""
+    def from_json(cls, json_str: str) -> Union(DockerWorkerConfigV0Data, DockerWorkerConfigV2Data, DockerWorkerConfigV3Data, DockerWorkerConfigV4Data):
+        """Create an instance of DockerWorkerConfigVXDataBase from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self, by_alias: bool = False):
@@ -87,15 +88,15 @@ class DockerWorkerConfigOmniVXDataBase(BaseModel):
         return _dict
 
     @classmethod
-    def from_dict(cls, obj: dict) -> Union(DockerWorkerConfigOmniV2Data, DockerWorkerConfigOmniV3Data, DockerWorkerConfigOmniV4Data):
-        """Create an instance of DockerWorkerConfigOmniVXDataBase from a dict"""
+    def from_dict(cls, obj: dict) -> Union(DockerWorkerConfigV0Data, DockerWorkerConfigV2Data, DockerWorkerConfigV3Data, DockerWorkerConfigV4Data):
+        """Create an instance of DockerWorkerConfigVXDataBase from a dict"""
         # look up the object type based on discriminator mapping
         object_type = cls.get_discriminator_value(obj)
         if object_type:
             klass = getattr(lightly.openapi_generated.swagger_client.models, object_type)
             return klass.from_dict(obj)
         else:
-            raise ValueError("DockerWorkerConfigOmniVXDataBase failed to lookup discriminator value from " +
+            raise ValueError("DockerWorkerConfigVXDataBase failed to lookup discriminator value from " +
                              json.dumps(obj) + ". Discriminator property name: " + cls.__discriminator_property_name +
                              ", mapping: " + json.dumps(cls.__discriminator_value_class_map))
 

@@ -21,14 +21,14 @@ import json
 
 from typing import Optional
 from pydantic import Extra,  BaseModel, Field
-from lightly.openapi_generated.swagger_client.models.docker_worker_config_v4 import DockerWorkerConfigV4
+from lightly.openapi_generated.swagger_client.models.docker_worker_config import DockerWorkerConfig
 
-class DockerWorkerConfigOmniV4DataAllOf(BaseModel):
+class DockerWorkerConfigV0DataAllOf(BaseModel):
     """
-    DockerWorkerConfigOmniV4DataAllOf
+    DockerWorkerConfigV0DataAllOf
     """
-    config: DockerWorkerConfigV4 = Field(...)
-    config_orig: Optional[DockerWorkerConfigV4] = Field(None, alias="configOrig")
+    config: DockerWorkerConfig = Field(...)
+    config_orig: Optional[DockerWorkerConfig] = Field(None, alias="configOrig")
     __properties = ["config", "configOrig"]
 
     class Config:
@@ -47,8 +47,8 @@ class DockerWorkerConfigOmniV4DataAllOf(BaseModel):
         return json.dumps(self.to_dict(by_alias=by_alias))
 
     @classmethod
-    def from_json(cls, json_str: str) -> DockerWorkerConfigOmniV4DataAllOf:
-        """Create an instance of DockerWorkerConfigOmniV4DataAllOf from a JSON string"""
+    def from_json(cls, json_str: str) -> DockerWorkerConfigV0DataAllOf:
+        """Create an instance of DockerWorkerConfigV0DataAllOf from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self, by_alias: bool = False):
@@ -66,22 +66,22 @@ class DockerWorkerConfigOmniV4DataAllOf(BaseModel):
         return _dict
 
     @classmethod
-    def from_dict(cls, obj: dict) -> DockerWorkerConfigOmniV4DataAllOf:
-        """Create an instance of DockerWorkerConfigOmniV4DataAllOf from a dict"""
+    def from_dict(cls, obj: dict) -> DockerWorkerConfigV0DataAllOf:
+        """Create an instance of DockerWorkerConfigV0DataAllOf from a dict"""
         if obj is None:
             return None
 
         if not isinstance(obj, dict):
-            return DockerWorkerConfigOmniV4DataAllOf.parse_obj(obj)
+            return DockerWorkerConfigV0DataAllOf.parse_obj(obj)
 
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in DockerWorkerConfigOmniV4DataAllOf) in the input: " + str(obj))
+                raise ValueError("Error due to additional fields (not defined in DockerWorkerConfigV0DataAllOf) in the input: " + str(obj))
 
-        _obj = DockerWorkerConfigOmniV4DataAllOf.parse_obj({
-            "config": DockerWorkerConfigV4.from_dict(obj.get("config")) if obj.get("config") is not None else None,
-            "config_orig": DockerWorkerConfigV4.from_dict(obj.get("configOrig")) if obj.get("configOrig") is not None else None
+        _obj = DockerWorkerConfigV0DataAllOf.parse_obj({
+            "config": DockerWorkerConfig.from_dict(obj.get("config")) if obj.get("config") is not None else None,
+            "config_orig": DockerWorkerConfig.from_dict(obj.get("configOrig")) if obj.get("configOrig") is not None else None
         })
         return _obj
 
