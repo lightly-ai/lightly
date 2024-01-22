@@ -19,18 +19,17 @@ import re  # noqa: F401
 import json
 
 
-from typing import Optional
-from pydantic import Extra,  BaseModel, Field
-from lightly.openapi_generated.swagger_client.models.creator import Creator
-from lightly.openapi_generated.swagger_client.models.docker_worker_config_v3 import DockerWorkerConfigV3
 
-class DockerWorkerConfigV3CreateRequest(BaseModel):
+from pydantic import Extra,  BaseModel, Field
+from lightly.openapi_generated.swagger_client.models.docker_worker_config_v3 import DockerWorkerConfigV3
+from lightly.openapi_generated.swagger_client.models.docker_worker_config_vx_create_request_base import DockerWorkerConfigVXCreateRequestBase
+
+class DockerWorkerConfigV3CreateRequest(DockerWorkerConfigVXCreateRequestBase):
     """
     DockerWorkerConfigV3CreateRequest
     """
     config: DockerWorkerConfigV3 = Field(...)
-    creator: Optional[Creator] = None
-    __properties = ["config", "creator"]
+    __properties = ["version", "creator", "config"]
 
     class Config:
         """Pydantic configuration"""
@@ -78,8 +77,9 @@ class DockerWorkerConfigV3CreateRequest(BaseModel):
                 raise ValueError("Error due to additional fields (not defined in DockerWorkerConfigV3CreateRequest) in the input: " + str(obj))
 
         _obj = DockerWorkerConfigV3CreateRequest.parse_obj({
-            "config": DockerWorkerConfigV3.from_dict(obj.get("config")) if obj.get("config") is not None else None,
-            "creator": obj.get("creator")
+            "version": obj.get("version"),
+            "creator": obj.get("creator"),
+            "config": DockerWorkerConfigV3.from_dict(obj.get("config")) if obj.get("config") is not None else None
         })
         return _obj
 

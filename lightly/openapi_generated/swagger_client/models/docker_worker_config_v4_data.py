@@ -19,17 +19,18 @@ import re  # noqa: F401
 import json
 
 
-
+from typing import Optional
 from pydantic import Extra,  BaseModel, Field
-from lightly.openapi_generated.swagger_client.models.docker_worker_config_v2 import DockerWorkerConfigV2
-from lightly.openapi_generated.swagger_client.models.docker_worker_config_vx_create_request_base import DockerWorkerConfigVXCreateRequestBase
+from lightly.openapi_generated.swagger_client.models.docker_worker_config_v4 import DockerWorkerConfigV4
+from lightly.openapi_generated.swagger_client.models.docker_worker_config_vx_data_base import DockerWorkerConfigVXDataBase
 
-class DockerWorkerConfigV2CreateRequest(DockerWorkerConfigVXCreateRequestBase):
+class DockerWorkerConfigV4Data(DockerWorkerConfigVXDataBase):
     """
-    DockerWorkerConfigV2CreateRequest
+    DockerWorkerConfigV4Data
     """
-    config: DockerWorkerConfigV2 = Field(...)
-    __properties = ["version", "creator", "config"]
+    config: DockerWorkerConfigV4 = Field(...)
+    config_orig: Optional[DockerWorkerConfigV4] = Field(None, alias="configOrig")
+    __properties = ["id", "version", "createdAt", "config", "configOrig"]
 
     class Config:
         """Pydantic configuration"""
@@ -47,8 +48,8 @@ class DockerWorkerConfigV2CreateRequest(DockerWorkerConfigVXCreateRequestBase):
         return json.dumps(self.to_dict(by_alias=by_alias))
 
     @classmethod
-    def from_json(cls, json_str: str) -> DockerWorkerConfigV2CreateRequest:
-        """Create an instance of DockerWorkerConfigV2CreateRequest from a JSON string"""
+    def from_json(cls, json_str: str) -> DockerWorkerConfigV4Data:
+        """Create an instance of DockerWorkerConfigV4Data from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self, by_alias: bool = False):
@@ -60,26 +61,31 @@ class DockerWorkerConfigV2CreateRequest(DockerWorkerConfigVXCreateRequestBase):
         # override the default output from pydantic by calling `to_dict()` of config
         if self.config:
             _dict['config' if by_alias else 'config'] = self.config.to_dict(by_alias=by_alias)
+        # override the default output from pydantic by calling `to_dict()` of config_orig
+        if self.config_orig:
+            _dict['configOrig' if by_alias else 'config_orig'] = self.config_orig.to_dict(by_alias=by_alias)
         return _dict
 
     @classmethod
-    def from_dict(cls, obj: dict) -> DockerWorkerConfigV2CreateRequest:
-        """Create an instance of DockerWorkerConfigV2CreateRequest from a dict"""
+    def from_dict(cls, obj: dict) -> DockerWorkerConfigV4Data:
+        """Create an instance of DockerWorkerConfigV4Data from a dict"""
         if obj is None:
             return None
 
         if not isinstance(obj, dict):
-            return DockerWorkerConfigV2CreateRequest.parse_obj(obj)
+            return DockerWorkerConfigV4Data.parse_obj(obj)
 
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in DockerWorkerConfigV2CreateRequest) in the input: " + str(obj))
+                raise ValueError("Error due to additional fields (not defined in DockerWorkerConfigV4Data) in the input: " + str(obj))
 
-        _obj = DockerWorkerConfigV2CreateRequest.parse_obj({
+        _obj = DockerWorkerConfigV4Data.parse_obj({
+            "id": obj.get("id"),
             "version": obj.get("version"),
-            "creator": obj.get("creator"),
-            "config": DockerWorkerConfigV2.from_dict(obj.get("config")) if obj.get("config") is not None else None
+            "created_at": obj.get("createdAt"),
+            "config": DockerWorkerConfigV4.from_dict(obj.get("config")) if obj.get("config") is not None else None,
+            "config_orig": DockerWorkerConfigV4.from_dict(obj.get("configOrig")) if obj.get("configOrig") is not None else None
         })
         return _obj
 
