@@ -36,6 +36,8 @@ parser.add_argument("--num-classes", type=int, default=1000)
 parser.add_argument("--skip-knn-eval", action="store_true")
 parser.add_argument("--skip-linear-eval", action="store_true")
 parser.add_argument("--skip-finetune-eval", action="store_true")
+parser.add_argument("--float32-matmul-precision", type=str)
+parser.add_argument("--strategy", default="ddp_find_unused_parameters_true")
 
 METHODS = {
     "aim": {"model": aim.AIM, "transform": aim.transform},
@@ -59,8 +61,11 @@ def main(
     skip_knn_eval: bool,
     skip_linear_eval: bool,
     skip_finetune_eval: bool,
+    float32_matmul_precision: Union[str, None],
+    strategy: str,
 ) -> None:
-    torch.set_float32_matmul_precision("high")
+    if float32_matmul_precision is not None:
+        torch.set_float32_matmul_precision(float32_matmul_precision)
 
     method_names = methods or METHODS.keys()
 
@@ -92,6 +97,7 @@ def main(
                 accelerator=accelerator,
                 devices=devices,
                 precision=precision,
+                strategy=strategy,
             )
 
         if skip_knn_eval:
@@ -154,6 +160,7 @@ def pretrain(
     accelerator: str,
     devices: int,
     precision: str,
+    strategy: str,
 ) -> None:
     print(f"Running pretraining for {method}...")
 
@@ -199,7 +206,7 @@ def pretrain(
         ],
         logger=TensorBoardLogger(save_dir=str(log_dir), name="pretrain"),
         precision=precision,
-        strategy="ddp_find_unused_parameters_true",
+        strategy=strategy,
         sync_batchnorm=True,
     )
     trainer.fit(
