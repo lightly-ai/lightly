@@ -17,7 +17,7 @@ from lightly.openapi_generated.swagger_client.models import (
     DockerRunScheduledState,
     DockerRunState,
     DockerWorkerConfigV3,
-    DockerWorkerConfigV3CreateRequest,
+    DockerWorkerConfigOmniVXCreateRequest,
     DockerWorkerConfigV3Docker,
     DockerWorkerConfigV3Lightly,
     DockerWorkerRegistryEntryData,
@@ -243,11 +243,13 @@ class _ComputeWorkerMixin:
             lightly=lightly,
             selection=selection,
         )
-        request = DockerWorkerConfigV3CreateRequest(
-            config=config, creator=self._creator
-        )
+        request = DockerWorkerConfigOmniVXCreateRequest.from_dict({
+            "version": "V3",
+            "config": config.to_dict(by_alias=True),
+            "creator": self._creator,
+        })
         try:
-            response = self._compute_worker_api.create_docker_worker_config_v3(request)
+            response = self._compute_worker_api.create_docker_worker_config_vx(request)
             return response.id
         except ApiException as e:
             if e.body is None:
