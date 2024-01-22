@@ -36,7 +36,7 @@ parser.add_argument("--num-classes", type=int, default=1000)
 parser.add_argument("--skip-knn-eval", action="store_true")
 parser.add_argument("--skip-linear-eval", action="store_true")
 parser.add_argument("--skip-finetune-eval", action="store_true")
-parser.add_argument("--float32-matmul-precision", type=str)
+parser.add_argument("--float32-matmul-precision", type=str, default="high")
 parser.add_argument("--strategy", default="ddp_find_unused_parameters_true")
 
 METHODS = {
@@ -61,11 +61,10 @@ def main(
     skip_knn_eval: bool,
     skip_linear_eval: bool,
     skip_finetune_eval: bool,
-    float32_matmul_precision: Union[str, None],
+    float32_matmul_precision: str,
     strategy: str,
 ) -> None:
-    if float32_matmul_precision is not None:
-        torch.set_float32_matmul_precision(float32_matmul_precision)
+    torch.set_float32_matmul_precision(float32_matmul_precision)
 
     method_names = methods or METHODS.keys()
 
