@@ -482,6 +482,40 @@ def random_token_mask(
     return idx_keep, idx_mask
 
 
+def random_prefix_mask(
+    size: Tuple[int, int],
+    max_prefix_length: int,
+    device: Optional[Union[torch.device, str]] = None,
+) -> torch.Tensor:
+    """Creates a random prefix mask.
+
+    The mask is created by uniformly sampling a prefix length in [0, max_prefix_length]
+    for each sequence in the batch. All tokens with an index greater or equal to
+    the prefix length are masked.
+
+    Args:
+        size:
+            Size of the token batch for which to generate masks.
+            Should be (batch_size, sequence_length).
+        max_prefix_length:
+            Maximum length of the prefix to mask.
+        device:
+            Device on which to create the mask.
+
+    Returns:
+        A mask tensor with shape (batch_size, sequence_length) where each entry
+        is True if the token should be masked and False otherwise.
+
+    """
+    batch_size, sequence_length = size
+    arange = torch.arange(sequence_length, device=device).expand(
+        batch_size, sequence_length
+    )
+    indices = torch.randint(0, max_prefix_length, (batch_size, 1), device=device)
+    mask = arange >= indices
+    return mask
+
+
 def nearest_neighbors(
     input_maps: torch.Tensor,
     candidate_maps: torch.Tensor,

@@ -9,7 +9,7 @@ from torch.optim.optimizer import Optimizer
 
 from lightly.models import utils
 from lightly.models.modules import AIMPredictionHead, MaskedCausalVisionTransformer
-from lightly.models.utils import get_2d_sincos_pos_embed
+from lightly.models.utils import get_2d_sincos_pos_embed, random_prefix_mask
 from lightly.transforms import AIMTransform
 from lightly.utils.benchmarking import OnlineLinearClassifier
 from lightly.utils.scheduler import CosineWarmupScheduler
@@ -24,8 +24,6 @@ class AIM(LightningModule):
         img_size = 224
         self.patch_size = 14
         self.num_patches = (img_size // self.patch_size) ** 2
-        # The paper does not specify the prefix length. We just use a fixed size here.
-        self.prefix_len = 16
 
         vit = MaskedCausalVisionTransformer(
             img_size=img_size,
@@ -72,9 +70,12 @@ class AIM(LightningModule):
         images, targets = batch[0], batch[1]
         images = images[0]  # images is a list containing only one view
         batch_size = images.shape[0]
-        mask = images.new_ones(batch_size, self.num_patches, dtype=torch.bool)
-        mask[:, self.prefix_len :] = False  # Unmask the prefix tokens.
 
+        mask = random_prefix_mask(
+            size=(batch_size, self.num_patches),
+            max_prefix_length=self.num_patches - 1,
+            device=images.device,
+        )
         features = self.backbone.forward_features(images, mask=mask)
         # Add positional embedding before head.
         features = self.backbone._pos_embed(features)
