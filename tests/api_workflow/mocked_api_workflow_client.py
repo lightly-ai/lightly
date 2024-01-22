@@ -883,7 +883,7 @@ class MockedComputeWorkerApi(DockerApi):
     def create_docker_worker_config_v3(self, body, **kwargs):
         assert isinstance(body, DockerWorkerConfigV3CreateRequest)
         return CreateEntityResponse(id=utils.generate_id())
-    
+
     def create_docker_worker_config_vx(self, body, **kwargs):
         assert isinstance(body, DockerWorkerConfigOmniVXCreateRequest)
         return CreateEntityResponse(id=utils.generate_id())
