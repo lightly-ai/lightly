@@ -95,7 +95,7 @@ def concat_all_gather(x: torch.Tensor) -> torch.Tensor:
 
 @torch.no_grad()
 def batch_shuffle_distributed(batch: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
-    """Shuffles batch over multiple gpus.
+    """Shuffles batch over multiple devices.
 
     This code was taken and adapted from here:
     https://github.com/facebookresearch/moco.
@@ -109,26 +109,25 @@ def batch_shuffle_distributed(batch: torch.Tensor) -> Tuple[torch.Tensor, torch.
         input batch and shuffle is an index to restore the original order.
 
     """
-    # gather from all gpus
+    # gather from all devices
     batch_size_this = batch.shape[0]
     batch_gather = concat_all_gather(batch)
     batch_size_all = batch_gather.shape[0]
 
-    num_gpus = batch_size_all // batch_size_this
+    num_devices = batch_size_all // batch_size_this
 
     # random shuffle index
-    idx_shuffle = torch.randperm(batch_size_all).cuda()
+    idx_shuffle = torch.randperm(batch_size_all, device=batch.device)
 
-    # broadcast to all gpus
+    # broadcast to all devices
     dist.broadcast(idx_shuffle, src=0)
 
     # index for restoring
     shuffle = torch.argsort(idx_shuffle)
 
-    # shuffled index for this gpu
-    gpu_idx = dist.get_rank()
-    idx_this = idx_shuffle.view(num_gpus, -1)[gpu_idx]
-
+    # shuffled index for this device
+    rank = dist.get_rank()
+    idx_this = idx_shuffle.view(num_devices, -1)[rank]
     return batch_gather[idx_this], shuffle
 
 
@@ -136,7 +135,7 @@ def batch_shuffle_distributed(batch: torch.Tensor) -> Tuple[torch.Tensor, torch.
 def batch_unshuffle_distributed(
     batch: torch.Tensor, shuffle: torch.Tensor
 ) -> torch.Tensor:
-    """Undo batch shuffle over multiple gpus.
+    """Undo batch shuffle over multiple devices.
 
     This code was taken and adapted from here:
     https://github.com/facebookresearch/moco.
@@ -151,17 +150,16 @@ def batch_unshuffle_distributed(
         The unshuffled tensor.
 
     """
-    # gather from all gpus
+    # gather from all devices
     batch_size_this = batch.shape[0]
     batch_gather = concat_all_gather(batch)
     batch_size_all = batch_gather.shape[0]
 
-    num_gpus = batch_size_all // batch_size_this
+    num_devices = batch_size_all // batch_size_this
 
     # restored index for this gpu
-    gpu_idx = dist.get_rank()
-    idx_this = shuffle.view(num_gpus, -1)[gpu_idx]
-
+    rank = dist.get_rank()
+    idx_this = shuffle.view(num_devices, -1)[rank]
     return batch_gather[idx_this]
 
 

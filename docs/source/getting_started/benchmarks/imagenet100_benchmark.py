@@ -225,7 +225,9 @@ class MocoModel(BenchmarkModule):
         utils.deactivate_requires_grad(self.projection_head_momentum)
 
         # create our loss with the optional memory bank
-        self.criterion = NTXentLoss(temperature=0.07, memory_bank_size=memory_bank_size)
+        self.criterion = NTXentLoss(
+            temperature=0.07, memory_bank_size=(memory_bank_size, 128)
+        )
 
     def forward(self, x):
         x = self.backbone(x).flatten(start_dim=1)
@@ -505,7 +507,7 @@ class NNCLRModel(BenchmarkModule):
         self.projection_head = heads.NNCLRProjectionHead(feature_dim, 4096, 256)
 
         self.criterion = NTXentLoss()
-        self.memory_bank = modules.NNMemoryBankModule(size=memory_bank_size)
+        self.memory_bank = modules.NNMemoryBankModule(size=(memory_bank_size, 256))
 
     def forward(self, x):
         y = self.backbone(x).flatten(start_dim=1)

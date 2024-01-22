@@ -268,7 +268,7 @@ class MoCoModel(pl.LightningModule):
         deactivate_requires_grad(self.projection_head_momentum)
 
         # Create the loss function with memory bank.
-        self.criterion = NTXentLoss(temperature=0.1, memory_bank_size=4096)
+        self.criterion = NTXentLoss(temperature=0.1, memory_bank_size=(4096, 128))
 
     def training_step(self, batch, batch_idx):
         (x_q, x_k), _, _ = batch
