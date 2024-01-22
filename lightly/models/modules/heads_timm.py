@@ -2,7 +2,7 @@ from typing import Type
 
 from timm.layers import Mlp
 from torch import Tensor
-from torch.nn import GELU, LayerNorm, Module, Sequential
+from torch.nn import GELU, LayerNorm, Linear, Module, Sequential
 
 
 class AIMPredictionHeadBlock(Module):
@@ -32,10 +32,9 @@ class AIMPredictionHeadBlock(Module):
 
 
 class AIMPredictionHead(Module):
-    """Prediction head for AIM model.
+    """Prediction head for AIM [0].
 
-    Note: This is a best effort implementation based on the descriptions in the paper
-    as the official implementation does not include the projection head.
+    - [0]: Scalable Pre-training of Large Autoregressive Image Models, 2024, https://arxiv.org/abs/2401.08541
     """
 
     def __init__(
@@ -53,17 +52,9 @@ class AIMPredictionHead(Module):
     ) -> None:
         super().__init__()
         self.blocks = Sequential(
-            # First MLP to project the input to the hidden dimension. The paper does not
-            # specify how exactly this is done. We assume it happens in the last layer
-            # of the first MLP block.
+            # Linear layer to project the input dimension to the hidden dimension.
             norm_layer(input_dim),
-            mlp_layer(
-                in_features=input_dim,
-                hidden_features=int(hidden_dim * mlp_ratio),
-                out_features=hidden_dim,
-                act_layer=act_layer,
-                drop=proj_drop,
-            ),
+            Linear(input_dim, hidden_dim, bias=False),
             # Main blocks.
             *[
                 block_fn(
@@ -75,19 +66,11 @@ class AIMPredictionHead(Module):
                     act_layer=act_layer,
                     mlp_layer=mlp_layer,
                 )
-                for _ in range(num_blocks - 2)
+                for _ in range(num_blocks)
             ],
-            # Final block to project the hidden dimension to the output dimension. The
-            # paper does not specify how exactly this is done. We assume that the
-            # conversion happens in the last linear layer.
+            # Linear layer to project the hidden dimension to the output dimension.
             norm_layer(hidden_dim),
-            mlp_layer(
-                in_features=hidden_dim,
-                hidden_features=int(hidden_dim * mlp_ratio),
-                out_features=output_dim,
-                act_layer=act_layer,
-                drop=proj_drop,
-            ),
+            Linear(hidden_dim, output_dim, bias=False),
         )
 
     def forward(self, x: Tensor) -> Tensor:
