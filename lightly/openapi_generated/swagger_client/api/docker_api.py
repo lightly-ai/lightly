@@ -44,12 +44,12 @@ from lightly.openapi_generated.swagger_client.models.docker_user_stats import Do
 from lightly.openapi_generated.swagger_client.models.docker_worker_authorization_request import DockerWorkerAuthorizationRequest
 from lightly.openapi_generated.swagger_client.models.docker_worker_config_create_request import DockerWorkerConfigCreateRequest
 from lightly.openapi_generated.swagger_client.models.docker_worker_config_data import DockerWorkerConfigData
-from lightly.openapi_generated.swagger_client.models.docker_worker_config_v2_create_request1 import DockerWorkerConfigV2CreateRequest1
-from lightly.openapi_generated.swagger_client.models.docker_worker_config_v2_data1 import DockerWorkerConfigV2Data1
-from lightly.openapi_generated.swagger_client.models.docker_worker_config_v3_create_request1 import DockerWorkerConfigV3CreateRequest1
-from lightly.openapi_generated.swagger_client.models.docker_worker_config_v3_data1 import DockerWorkerConfigV3Data1
-from lightly.openapi_generated.swagger_client.models.docker_worker_config_vx_create_request import DockerWorkerConfigVXCreateRequest
-from lightly.openapi_generated.swagger_client.models.docker_worker_config_vx_data import DockerWorkerConfigVXData
+from lightly.openapi_generated.swagger_client.models.docker_worker_config_omni_vx_create_request import DockerWorkerConfigOmniVXCreateRequest
+from lightly.openapi_generated.swagger_client.models.docker_worker_config_omni_vx_data import DockerWorkerConfigOmniVXData
+from lightly.openapi_generated.swagger_client.models.docker_worker_config_v2_create_request import DockerWorkerConfigV2CreateRequest
+from lightly.openapi_generated.swagger_client.models.docker_worker_config_v2_data import DockerWorkerConfigV2Data
+from lightly.openapi_generated.swagger_client.models.docker_worker_config_v3_create_request import DockerWorkerConfigV3CreateRequest
+from lightly.openapi_generated.swagger_client.models.docker_worker_config_v3_data import DockerWorkerConfigV3Data
 from lightly.openapi_generated.swagger_client.models.docker_worker_registry_entry_data import DockerWorkerRegistryEntryData
 from lightly.openapi_generated.swagger_client.models.tag_data import TagData
 from lightly.openapi_generated.swagger_client.models.update_docker_worker_registry_entry_request import UpdateDockerWorkerRegistryEntryRequest
@@ -1144,18 +1144,18 @@ class DockerApi(object):
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def create_docker_worker_config_v2(self, docker_worker_config_v2_create_request1 : DockerWorkerConfigV2CreateRequest1, **kwargs) -> CreateEntityResponse:  # noqa: E501
+    def create_docker_worker_config_v2(self, docker_worker_config_v2_create_request : DockerWorkerConfigV2CreateRequest, **kwargs) -> CreateEntityResponse:  # noqa: E501
         """(Deprecated) create_docker_worker_config_v2  # noqa: E501
 
         Creates a docker worker v2 configuration.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.create_docker_worker_config_v2(docker_worker_config_v2_create_request1, async_req=True)
+        >>> thread = api.create_docker_worker_config_v2(docker_worker_config_v2_create_request, async_req=True)
         >>> result = thread.get()
 
-        :param docker_worker_config_v2_create_request1: (required)
-        :type docker_worker_config_v2_create_request1: DockerWorkerConfigV2CreateRequest1
+        :param docker_worker_config_v2_create_request: (required)
+        :type docker_worker_config_v2_create_request: DockerWorkerConfigV2CreateRequest
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _request_timeout: timeout setting for this request. If one
@@ -1170,21 +1170,21 @@ class DockerApi(object):
         kwargs['_return_http_data_only'] = True
         if '_preload_content' in kwargs:
             raise ValueError("Error! Please call the create_docker_worker_config_v2_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.create_docker_worker_config_v2_with_http_info(docker_worker_config_v2_create_request1, **kwargs)  # noqa: E501
+        return self.create_docker_worker_config_v2_with_http_info(docker_worker_config_v2_create_request, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def create_docker_worker_config_v2_with_http_info(self, docker_worker_config_v2_create_request1 : DockerWorkerConfigV2CreateRequest1, **kwargs) -> ApiResponse:  # noqa: E501
+    def create_docker_worker_config_v2_with_http_info(self, docker_worker_config_v2_create_request : DockerWorkerConfigV2CreateRequest, **kwargs) -> ApiResponse:  # noqa: E501
         """(Deprecated) create_docker_worker_config_v2  # noqa: E501
 
         Creates a docker worker v2 configuration.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.create_docker_worker_config_v2_with_http_info(docker_worker_config_v2_create_request1, async_req=True)
+        >>> thread = api.create_docker_worker_config_v2_with_http_info(docker_worker_config_v2_create_request, async_req=True)
         >>> result = thread.get()
 
-        :param docker_worker_config_v2_create_request1: (required)
-        :type docker_worker_config_v2_create_request1: DockerWorkerConfigV2CreateRequest1
+        :param docker_worker_config_v2_create_request: (required)
+        :type docker_worker_config_v2_create_request: DockerWorkerConfigV2CreateRequest
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
@@ -1215,7 +1215,7 @@ class DockerApi(object):
         _params = locals()
 
         _all_params = [
-            'docker_worker_config_v2_create_request1'
+            'docker_worker_config_v2_create_request'
         ]
         _all_params.extend(
             [
@@ -1253,8 +1253,8 @@ class DockerApi(object):
         _files = {}
         # process the body parameter
         _body_params = None
-        if _params['docker_worker_config_v2_create_request1'] is not None:
-            _body_params = _params['docker_worker_config_v2_create_request1']
+        if _params['docker_worker_config_v2_create_request'] is not None:
+            _body_params = _params['docker_worker_config_v2_create_request']
 
         # set the HTTP header `Accept`
         _header_params['Accept'] = self.api_client.select_header_accept(
@@ -1295,18 +1295,18 @@ class DockerApi(object):
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def create_docker_worker_config_v3(self, docker_worker_config_v3_create_request1 : DockerWorkerConfigV3CreateRequest1, **kwargs) -> CreateEntityResponse:  # noqa: E501
+    def create_docker_worker_config_v3(self, docker_worker_config_v3_create_request : DockerWorkerConfigV3CreateRequest, **kwargs) -> CreateEntityResponse:  # noqa: E501
         """(Deprecated) create_docker_worker_config_v3  # noqa: E501
 
         Creates a docker worker v3 configuration.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.create_docker_worker_config_v3(docker_worker_config_v3_create_request1, async_req=True)
+        >>> thread = api.create_docker_worker_config_v3(docker_worker_config_v3_create_request, async_req=True)
         >>> result = thread.get()
 
-        :param docker_worker_config_v3_create_request1: (required)
-        :type docker_worker_config_v3_create_request1: DockerWorkerConfigV3CreateRequest1
+        :param docker_worker_config_v3_create_request: (required)
+        :type docker_worker_config_v3_create_request: DockerWorkerConfigV3CreateRequest
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _request_timeout: timeout setting for this request. If one
@@ -1321,21 +1321,21 @@ class DockerApi(object):
         kwargs['_return_http_data_only'] = True
         if '_preload_content' in kwargs:
             raise ValueError("Error! Please call the create_docker_worker_config_v3_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.create_docker_worker_config_v3_with_http_info(docker_worker_config_v3_create_request1, **kwargs)  # noqa: E501
+        return self.create_docker_worker_config_v3_with_http_info(docker_worker_config_v3_create_request, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def create_docker_worker_config_v3_with_http_info(self, docker_worker_config_v3_create_request1 : DockerWorkerConfigV3CreateRequest1, **kwargs) -> ApiResponse:  # noqa: E501
+    def create_docker_worker_config_v3_with_http_info(self, docker_worker_config_v3_create_request : DockerWorkerConfigV3CreateRequest, **kwargs) -> ApiResponse:  # noqa: E501
         """(Deprecated) create_docker_worker_config_v3  # noqa: E501
 
         Creates a docker worker v3 configuration.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.create_docker_worker_config_v3_with_http_info(docker_worker_config_v3_create_request1, async_req=True)
+        >>> thread = api.create_docker_worker_config_v3_with_http_info(docker_worker_config_v3_create_request, async_req=True)
         >>> result = thread.get()
 
-        :param docker_worker_config_v3_create_request1: (required)
-        :type docker_worker_config_v3_create_request1: DockerWorkerConfigV3CreateRequest1
+        :param docker_worker_config_v3_create_request: (required)
+        :type docker_worker_config_v3_create_request: DockerWorkerConfigV3CreateRequest
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
@@ -1366,7 +1366,7 @@ class DockerApi(object):
         _params = locals()
 
         _all_params = [
-            'docker_worker_config_v3_create_request1'
+            'docker_worker_config_v3_create_request'
         ]
         _all_params.extend(
             [
@@ -1404,8 +1404,8 @@ class DockerApi(object):
         _files = {}
         # process the body parameter
         _body_params = None
-        if _params['docker_worker_config_v3_create_request1'] is not None:
-            _body_params = _params['docker_worker_config_v3_create_request1']
+        if _params['docker_worker_config_v3_create_request'] is not None:
+            _body_params = _params['docker_worker_config_v3_create_request']
 
         # set the HTTP header `Accept`
         _header_params['Accept'] = self.api_client.select_header_accept(
@@ -1446,18 +1446,18 @@ class DockerApi(object):
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def create_docker_worker_config_vx(self, docker_worker_config_vx_create_request : DockerWorkerConfigVXCreateRequest, **kwargs) -> CreateEntityResponse:  # noqa: E501
+    def create_docker_worker_config_vx(self, docker_worker_config_omni_vx_create_request : DockerWorkerConfigOmniVXCreateRequest, **kwargs) -> CreateEntityResponse:  # noqa: E501
         """create_docker_worker_config_vx  # noqa: E501
 
         Creates a docker worker configuration for any version. Can either be V2, V3, V4, V5 etc.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.create_docker_worker_config_vx(docker_worker_config_vx_create_request, async_req=True)
+        >>> thread = api.create_docker_worker_config_vx(docker_worker_config_omni_vx_create_request, async_req=True)
         >>> result = thread.get()
 
-        :param docker_worker_config_vx_create_request: (required)
-        :type docker_worker_config_vx_create_request: DockerWorkerConfigVXCreateRequest
+        :param docker_worker_config_omni_vx_create_request: (required)
+        :type docker_worker_config_omni_vx_create_request: DockerWorkerConfigOmniVXCreateRequest
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _request_timeout: timeout setting for this request. If one
@@ -1472,21 +1472,21 @@ class DockerApi(object):
         kwargs['_return_http_data_only'] = True
         if '_preload_content' in kwargs:
             raise ValueError("Error! Please call the create_docker_worker_config_vx_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.create_docker_worker_config_vx_with_http_info(docker_worker_config_vx_create_request, **kwargs)  # noqa: E501
+        return self.create_docker_worker_config_vx_with_http_info(docker_worker_config_omni_vx_create_request, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def create_docker_worker_config_vx_with_http_info(self, docker_worker_config_vx_create_request : DockerWorkerConfigVXCreateRequest, **kwargs) -> ApiResponse:  # noqa: E501
+    def create_docker_worker_config_vx_with_http_info(self, docker_worker_config_omni_vx_create_request : DockerWorkerConfigOmniVXCreateRequest, **kwargs) -> ApiResponse:  # noqa: E501
         """create_docker_worker_config_vx  # noqa: E501
 
         Creates a docker worker configuration for any version. Can either be V2, V3, V4, V5 etc.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.create_docker_worker_config_vx_with_http_info(docker_worker_config_vx_create_request, async_req=True)
+        >>> thread = api.create_docker_worker_config_vx_with_http_info(docker_worker_config_omni_vx_create_request, async_req=True)
         >>> result = thread.get()
 
-        :param docker_worker_config_vx_create_request: (required)
-        :type docker_worker_config_vx_create_request: DockerWorkerConfigVXCreateRequest
+        :param docker_worker_config_omni_vx_create_request: (required)
+        :type docker_worker_config_omni_vx_create_request: DockerWorkerConfigOmniVXCreateRequest
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
@@ -1515,7 +1515,7 @@ class DockerApi(object):
         _params = locals()
 
         _all_params = [
-            'docker_worker_config_vx_create_request'
+            'docker_worker_config_omni_vx_create_request'
         ]
         _all_params.extend(
             [
@@ -1553,8 +1553,8 @@ class DockerApi(object):
         _files = {}
         # process the body parameter
         _body_params = None
-        if _params['docker_worker_config_vx_create_request'] is not None:
-            _body_params = _params['docker_worker_config_vx_create_request']
+        if _params['docker_worker_config_omni_vx_create_request'] is not None:
+            _body_params = _params['docker_worker_config_omni_vx_create_request']
 
         # set the HTTP header `Accept`
         _header_params['Accept'] = self.api_client.select_header_accept(
@@ -4096,7 +4096,7 @@ class DockerApi(object):
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def get_docker_worker_config_v2_by_id(self, config_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker config")], **kwargs) -> DockerWorkerConfigV2Data1:  # noqa: E501
+    def get_docker_worker_config_v2_by_id(self, config_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker config")], **kwargs) -> DockerWorkerConfigV2Data:  # noqa: E501
         """(Deprecated) get_docker_worker_config_v2_by_id  # noqa: E501
 
         Gets a docker worker configuration by id which needs to be v2   # noqa: E501
@@ -4117,7 +4117,7 @@ class DockerApi(object):
         :return: Returns the result object.
                  If the method is called asynchronously,
                  returns the request thread.
-        :rtype: DockerWorkerConfigV2Data1
+        :rtype: DockerWorkerConfigV2Data
         """
         kwargs['_return_http_data_only'] = True
         if '_preload_content' in kwargs:
@@ -4159,7 +4159,7 @@ class DockerApi(object):
         :return: Returns the result object.
                  If the method is called asynchronously,
                  returns the request thread.
-        :rtype: tuple(DockerWorkerConfigV2Data1, status_code(int), headers(HTTPHeaderDict))
+        :rtype: tuple(DockerWorkerConfigV2Data, status_code(int), headers(HTTPHeaderDict))
         """
 
         warnings.warn("GET /v1/docker/worker/config/v2/{configId} is deprecated.", DeprecationWarning)
@@ -4216,7 +4216,7 @@ class DockerApi(object):
         _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
 
         _response_types_map = {
-            '200': "DockerWorkerConfigV2Data1",
+            '200': "DockerWorkerConfigV2Data",
             '400': "ApiErrorResponse",
             '403': "ApiErrorResponse",
             '404': "ApiErrorResponse",
@@ -4240,7 +4240,7 @@ class DockerApi(object):
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def get_docker_worker_config_v3_by_id(self, config_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker config")], **kwargs) -> DockerWorkerConfigV3Data1:  # noqa: E501
+    def get_docker_worker_config_v3_by_id(self, config_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker config")], **kwargs) -> DockerWorkerConfigV3Data:  # noqa: E501
         """(Deprecated) get_docker_worker_config_v3_by_id  # noqa: E501
 
         Gets a docker worker configuration by id which needs to be v3   # noqa: E501
@@ -4261,7 +4261,7 @@ class DockerApi(object):
         :return: Returns the result object.
                  If the method is called asynchronously,
                  returns the request thread.
-        :rtype: DockerWorkerConfigV3Data1
+        :rtype: DockerWorkerConfigV3Data
         """
         kwargs['_return_http_data_only'] = True
         if '_preload_content' in kwargs:
@@ -4303,7 +4303,7 @@ class DockerApi(object):
         :return: Returns the result object.
                  If the method is called asynchronously,
                  returns the request thread.
-        :rtype: tuple(DockerWorkerConfigV3Data1, status_code(int), headers(HTTPHeaderDict))
+        :rtype: tuple(DockerWorkerConfigV3Data, status_code(int), headers(HTTPHeaderDict))
         """
 
         warnings.warn("GET /v1/docker/worker/config/v3/{configId} is deprecated.", DeprecationWarning)
@@ -4360,7 +4360,7 @@ class DockerApi(object):
         _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
 
         _response_types_map = {
-            '200': "DockerWorkerConfigV3Data1",
+            '200': "DockerWorkerConfigV3Data",
             '400': "ApiErrorResponse",
             '403': "ApiErrorResponse",
             '404': "ApiErrorResponse",
@@ -4384,7 +4384,7 @@ class DockerApi(object):
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def get_docker_worker_config_vxby_id(self, config_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker config")], **kwargs) -> DockerWorkerConfigVXData:  # noqa: E501
+    def get_docker_worker_config_vxby_id(self, config_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker config")], **kwargs) -> DockerWorkerConfigOmniVXData:  # noqa: E501
         """get_docker_worker_config_vxby_id  # noqa: E501
 
         Gets a docker worker configuration by id. It will return whichever config version the configId corresponds to.   # noqa: E501
@@ -4405,7 +4405,7 @@ class DockerApi(object):
         :return: Returns the result object.
                  If the method is called asynchronously,
                  returns the request thread.
-        :rtype: DockerWorkerConfigVXData
+        :rtype: DockerWorkerConfigOmniVXData
         """
         kwargs['_return_http_data_only'] = True
         if '_preload_content' in kwargs:
@@ -4447,7 +4447,7 @@ class DockerApi(object):
         :return: Returns the result object.
                  If the method is called asynchronously,
                  returns the request thread.
-        :rtype: tuple(DockerWorkerConfigVXData, status_code(int), headers(HTTPHeaderDict))
+        :rtype: tuple(DockerWorkerConfigOmniVXData, status_code(int), headers(HTTPHeaderDict))
         """
 
         _params = locals()
@@ -4502,7 +4502,7 @@ class DockerApi(object):
         _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
 
         _response_types_map = {
-            '200': "DockerWorkerConfigVXData",
+            '200': "DockerWorkerConfigOmniVXData",
             '400': "ApiErrorResponse",
             '403': "ApiErrorResponse",
             '404': "ApiErrorResponse",
