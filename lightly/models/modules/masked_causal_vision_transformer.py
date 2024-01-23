@@ -9,7 +9,8 @@ from torch import Tensor, jit
 from torch.nn import GELU, LayerNorm, Module
 
 
-class MaskedCausalAttention(Attention):
+# Type ignore because superclass has Any types.
+class MaskedCausalAttention(Attention):  # type: ignore[misc]
     """Identical to timm.models.vision_transformer.Attention, but supports causal
     attention with masking.
 
@@ -61,9 +62,9 @@ class MaskedCausalAttention(Attention):
                 dropout_p=self.attn_drop.p if self.training else 0.0,
             )
         else:
-            # TODO: Implement non-fused attention.
             assert False, "Only fused attention is supported for now."
-            q = q * self.scale
+            # TODO: Implement non-fused attention.
+            q = q * self.scale  # type: ignore[unreachable]
             attn = q @ k.transpose(-2, -1)
             attn = attn.softmax(dim=-1)
             attn = self.attn_drop(attn)
@@ -75,7 +76,8 @@ class MaskedCausalAttention(Attention):
         return x
 
 
-class MaskedCausalBlock(Block):
+# Type ignore because superclass has Any types.
+class MaskedCausalBlock(Block):  # type: ignore[misc]
     """Idential to timm.models.vision_transformer.Block, but uses PrefixCausalAttention
     instead of Attention.
 
@@ -141,7 +143,8 @@ class MaskedCausalBlock(Block):
         return x
 
 
-class MaskedCausalVisionTransformer(VisionTransformer):
+# Type ignore because superclass has Any types.
+class MaskedCausalVisionTransformer(VisionTransformer):  # type: ignore[misc]
     """Vision transformer with masked causal attention based on AIM [0].
 
     - [0]: AIM, 2024, https://arxiv.org/abs/2401.08541
@@ -175,7 +178,7 @@ class MaskedCausalVisionTransformer(VisionTransformer):
         attn_drop_rate: float = 0.0,
         drop_path_rate: float = 0.0,
         weight_init: Literal["skip", "jax", "jax_nlhb", "moco", ""] = "",
-        embed_layer: Callable = PatchEmbed,
+        embed_layer: Callable = PatchEmbed,  # type: ignore[type-arg]
         norm_layer: Optional[LayerType] = None,
         act_layer: Optional[LayerType] = None,
         block_fn: Type[Module] = MaskedCausalBlock,
