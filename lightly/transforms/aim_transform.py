@@ -19,7 +19,7 @@ class AIMTransform(MAETransform):
         - Random resized crop
         - Random horizontal flip
 
-    - [0]: AIM, 2023, https://arxiv.org/abs/2401.08541
+    - [0]: AIM, 2024, https://arxiv.org/abs/2401.08541
     - [1]: Masked Autoencoder, 2021, https://arxiv.org/abs/2111.06377
 
     Attributes:

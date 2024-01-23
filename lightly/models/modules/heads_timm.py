@@ -6,6 +6,11 @@ from torch.nn import GELU, LayerNorm, Linear, Module, Sequential
 
 
 class AIMPredictionHeadBlock(Module):
+    """Prediction head block for AIM [0].
+
+    - [0]: AIM, 2024, https://arxiv.org/abs/2401.08541
+    """
+
     def __init__(
         self,
         input_dim: int,
@@ -34,7 +39,7 @@ class AIMPredictionHeadBlock(Module):
 class AIMPredictionHead(Module):
     """Prediction head for AIM [0].
 
-    - [0]: Scalable Pre-training of Large Autoregressive Image Models, 2024, https://arxiv.org/abs/2401.08541
+    - [0]: AIM, 2024, https://arxiv.org/abs/2401.08541
     """
 
     def __init__(
@@ -74,4 +79,5 @@ class AIMPredictionHead(Module):
         )
 
     def forward(self, x: Tensor) -> Tensor:
-        return self.blocks(x)
+        x = self.blocks(x)
+        return x
