@@ -33,18 +33,7 @@ class MaskedCausalAttention(Attention):  # type: ignore[misc]
                 attention.
         """
         B, N, C = x.shape
-
-        # Only apply causal attention if mask is not None. This is a bit hacky, but it
-        # allows us to use bidirectional instead of causal attention during evaluation
-        # and fine-tuning.
-        attn_mask = None
-        if mask is not None:
-            attn_mask = x.new_ones(size=(B, N, N), dtype=torch.bool).tril(diagonal=0)
-            # mask has shape (B, N)
-            mask = (~mask).unsqueeze(1).expand(B, N, N).bool()
-            attn_mask = torch.logical_or(attn_mask, mask)
-            attn_mask = attn_mask.unsqueeze(1)  # (B, 1, N, N)
-
+        attn_mask = self._get_attention_mask(x, mask=mask)
         qkv = (
             self.qkv(x)
             .reshape(B, N, 3, self.num_heads, self.head_dim)
@@ -76,10 +65,27 @@ class MaskedCausalAttention(Attention):  # type: ignore[misc]
         x = self.proj_drop(x)
         return x
 
+    def _get_attention_mask(
+        self, x: Tensor, mask: Optional[Tensor]
+    ) -> Optional[Tensor]:
+        B, N = x.shape[:2]
+
+        # Only apply causal attention if mask is not None. This is a bit hacky, but it
+        # allows us to use bidirectional instead of causal attention during evaluation
+        # and fine-tuning.
+        attn_mask = None
+        if mask is not None:
+            attn_mask = x.new_ones(size=(B, N, N), dtype=torch.bool).tril(diagonal=0)
+            # mask has shape (B, N)
+            mask = (~mask).unsqueeze(1).expand(B, N, N).bool()
+            attn_mask = torch.logical_or(attn_mask, mask)
+            attn_mask = attn_mask.unsqueeze(1)  # (B, 1, N, N)
+        return attn_mask
+
 
 # Type ignore because superclass has Any types.
 class MaskedCausalBlock(Block):  # type: ignore[misc]
-    """Idential to timm.models.vision_transformer.Block, but uses PrefixCausalAttention
+    """Identical to timm.models.vision_transformer.Block, but uses PrefixCausalAttention
     instead of Attention.
 
     The implementation is based on AIM [0].
