@@ -1,4 +1,4 @@
-from typing import List, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 import torch
 from pytorch_lightning import LightningModule
@@ -56,8 +56,8 @@ class AIM(LightningModule):
             feature_dim=vit.embed_dim, num_classes=num_classes
         )
 
-    def forward(self, x: Tensor) -> Tensor:
-        features = self.backbone.forward_features(x)
+    def forward(self, x: Tensor, mask: Optional[Tensor] = None) -> Tensor:
+        features = self.backbone.forward_features(x, mask=mask)
         # TODO: We use mean aggregation for simplicity. The paper uses
         # AttentionPoolingClassifier to get the class features. But this is not great
         # as it requires training an additional head.
