@@ -19,16 +19,16 @@ import re  # noqa: F401
 import json
 
 
-from typing import Optional, Union
+from typing import Union
 from pydantic import Extra,  BaseModel, Field, confloat, conint
 from lightly.openapi_generated.swagger_client.models.expiry_handling_strategy_v3 import ExpiryHandlingStrategyV3
 
-class DockerWorkerConfigV3DockerDatasourceInputExpiration(BaseModel):
+class DockerWorkerConfigV3DatasourceInputExpiration(BaseModel):
     """
     Images that expire in less than the specified number of days are handled specially. Given the handling strategy, these images are either skipped or the worker breaks if encountering any of them. 
     """
-    min_days_to_expiration: Optional[Union[confloat(ge=0, strict=True), conint(ge=0, strict=True)]] = Field(None, alias="minDaysToExpiration")
-    handling_strategy: Optional[ExpiryHandlingStrategyV3] = Field(None, alias="handlingStrategy")
+    min_days_to_expiration: Union[confloat(ge=0, strict=True), conint(ge=0, strict=True)] = Field(..., alias="minDaysToExpiration")
+    handling_strategy: ExpiryHandlingStrategyV3 = Field(..., alias="handlingStrategy")
     __properties = ["minDaysToExpiration", "handlingStrategy"]
 
     class Config:
@@ -47,8 +47,8 @@ class DockerWorkerConfigV3DockerDatasourceInputExpiration(BaseModel):
         return json.dumps(self.to_dict(by_alias=by_alias))
 
     @classmethod
-    def from_json(cls, json_str: str) -> DockerWorkerConfigV3DockerDatasourceInputExpiration:
-        """Create an instance of DockerWorkerConfigV3DockerDatasourceInputExpiration from a JSON string"""
+    def from_json(cls, json_str: str) -> DockerWorkerConfigV3DatasourceInputExpiration:
+        """Create an instance of DockerWorkerConfigV3DatasourceInputExpiration from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self, by_alias: bool = False):
@@ -60,20 +60,20 @@ class DockerWorkerConfigV3DockerDatasourceInputExpiration(BaseModel):
         return _dict
 
     @classmethod
-    def from_dict(cls, obj: dict) -> DockerWorkerConfigV3DockerDatasourceInputExpiration:
-        """Create an instance of DockerWorkerConfigV3DockerDatasourceInputExpiration from a dict"""
+    def from_dict(cls, obj: dict) -> DockerWorkerConfigV3DatasourceInputExpiration:
+        """Create an instance of DockerWorkerConfigV3DatasourceInputExpiration from a dict"""
         if obj is None:
             return None
 
         if not isinstance(obj, dict):
-            return DockerWorkerConfigV3DockerDatasourceInputExpiration.parse_obj(obj)
+            return DockerWorkerConfigV3DatasourceInputExpiration.parse_obj(obj)
 
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in DockerWorkerConfigV3DockerDatasourceInputExpiration) in the input: " + str(obj))
+                raise ValueError("Error due to additional fields (not defined in DockerWorkerConfigV3DatasourceInputExpiration) in the input: " + str(obj))
 
-        _obj = DockerWorkerConfigV3DockerDatasourceInputExpiration.parse_obj({
+        _obj = DockerWorkerConfigV3DatasourceInputExpiration.parse_obj({
             "min_days_to_expiration": obj.get("minDaysToExpiration"),
             "handling_strategy": obj.get("handlingStrategy")
         })
