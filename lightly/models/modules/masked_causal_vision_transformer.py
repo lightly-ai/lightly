@@ -55,7 +55,7 @@ class MaskedCausalAttention(Attention):  # type: ignore[misc]
 
         if self.fused_attn:
             # Type ignore because only new torch versions support this.
-            x = F.scaled_dot_product_attention(
+            x = F.scaled_dot_product_attention(  # type: ignore[attr-defined]
                 q,
                 k,
                 v,
