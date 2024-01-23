@@ -6,7 +6,6 @@ from typing import Callable, List, Optional
 
 import torch
 import torch.nn as nn
-from torch.nn import Linear, Module, Parameter
 
 # vision_transformer requires torchvision >= 0.12
 from torchvision.models import vision_transformer
@@ -62,33 +61,18 @@ class MAEEncoder(vision_transformer.Encoder):
             attention_dropout=attention_dropout,
             norm_layer=norm_layer,
         )
-        self._initialize_weights()
 
     @classmethod
-    def from_vit_encoder(
-        cls, vit_encoder: vision_transformer.Encoder, initialize_weights: bool = True
-    ) -> MAEEncoder:
-        """Creates a MAEEncoder from a torchvision ViT encoder.
-
-        Args:
-            vit_encoder:
-                A torchvision ViT encoder.
-            initialize_weights:
-                If True, then all weights are initialized as in MAE paper. Set this to
-                False if vit_encoder is pretrained.
-
-        Returns:
-            A MAEEncoder with the same architecture as vit_encoder.
-
-        """
+    def from_vit_encoder(cls, vit_encoder: vision_transformer.Encoder) -> MAEEncoder:
+        """Creates a MAEEncoder from a torchvision ViT encoder."""
         # Create a new instance with dummy values as they will be overwritten
         # by the copied vit_encoder attributes
         encoder = cls(
-            seq_length=197,
-            num_layers=12,
-            num_heads=12,
-            hidden_dim=768,
-            mlp_dim=3072,
+            seq_length=1,
+            num_layers=1,
+            num_heads=1,
+            hidden_dim=1,
+            mlp_dim=1,
             dropout=0,
             attention_dropout=0,
         )
@@ -96,8 +80,6 @@ class MAEEncoder(vision_transformer.Encoder):
         encoder.dropout = vit_encoder.dropout
         encoder.layers = vit_encoder.layers
         encoder.ln = vit_encoder.ln
-        if initialize_weights:
-            encoder._initialize_weights()
         return encoder
 
     def forward(
@@ -150,10 +132,6 @@ class MAEEncoder(vision_transformer.Encoder):
         )
         pos_embedding = pos_embedding.permute(0, 2, 3, 1).view(1, -1, dim)
         return torch.cat((class_emb.unsqueeze(0), pos_embedding), dim=1)
-
-    def _initialize_weights(self) -> None:
-        _initialize_2d_sine_cosine_positional_embedding(self.pos_embedding)
-        _initialize_linear_layers(self)
 
 
 class MAEBackbone(vision_transformer.VisionTransformer):
@@ -241,22 +219,8 @@ class MAEBackbone(vision_transformer.VisionTransformer):
         )
 
     @classmethod
-    def from_vit(
-        cls, vit: vision_transformer.VisionTransformer, initialize_weights: bool = True
-    ) -> MAEBackbone:
-        """Creates a MAEBackbone from a torchvision ViT model.
-
-        Args:
-            vit:
-                A torchvision ViT model.
-            initialize_weights:
-                If True, then all weights are initialized as in MAE paper. Set this to
-                False if vit is pretrained.
-
-        Returns:
-            A MAEBackbone with the same architecture as vit.
-
-        """
+    def from_vit(cls, vit: vision_transformer.VisionTransformer) -> MAEBackbone:
+        """Creates a MAEBackbone from a torchvision ViT model."""
         # Create a new instance with dummy values as they will be overwritten
         # by the copied vit_encoder attributes
         backbone = cls(
@@ -276,9 +240,7 @@ class MAEBackbone(vision_transformer.VisionTransformer):
         backbone.class_token = vit.class_token
         backbone.seq_length = vit.seq_length
         backbone.heads = vit.heads
-        backbone.encoder = MAEEncoder.from_vit_encoder(
-            vit.encoder, initialize_weights=initialize_weights
-        )
+        backbone.encoder = MAEEncoder.from_vit_encoder(vit.encoder)
         return backbone
 
     def forward(
@@ -345,18 +307,6 @@ class MAEBackbone(vision_transformer.VisionTransformer):
             tokens = utils.prepend_class_token(tokens, self.class_token)
         return tokens
 
-    def _initialize_weights(self) -> None:
-        # Initialize the patch embedding layer like a linear layer instead of conv
-        # layer.
-        w = self.conv_proj.weight.data
-        torch.nn.init.xavier_uniform_(w.view([w.shape[0], -1]))
-
-        # Initialize the class token.
-        torch.nn.init.normal_(self.class_token, std=0.02)
-
-        self.encoder._initialize_weights()
-        _initialize_linear_layers(self)
-
 
 class MAEDecoder(vision_transformer.Encoder):
     """Decoder for the Masked Autoencoder model [0].
@@ -416,7 +366,6 @@ class MAEDecoder(vision_transformer.Encoder):
         )
         self.decoder_embed = nn.Linear(embed_input_dim, hidden_dim, bias=True)
         self.prediction_head = nn.Linear(hidden_dim, out_dim)
-        self._initialize_weights()
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         """Returns predicted pixel values from encoded tokens.
@@ -480,32 +429,3 @@ class MAEDecoder(vision_transformer.Encoder):
 
         """
         return self.prediction_head(input)
-
-    def _initialize_weights(self) -> None:
-        _initialize_2d_sine_cosine_positional_embedding(self.pos_embedding)
-        _initialize_linear_layers(self)
-
-
-def _initialize_2d_sine_cosine_positional_embedding(pos_embedding: Parameter) -> None:
-    _, seq_length, hidden_dim = pos_embedding.shape
-    grid_size = int((seq_length - 1) ** 0.5)
-    sine_cosine_embedding = utils.get_2d_sine_cosine_positional_embedding(
-        embed_dim=hidden_dim,
-        grid_size=grid_size,
-        cls_token=True,
-    )
-    pos_embedding.data.copy_(
-        torch.from_numpy(sine_cosine_embedding).float().unsqueeze(0)
-    )
-    # Freeze positional embedding.
-    pos_embedding.requires_grad = False
-
-
-def _initialize_linear_layers(module: Module) -> None:
-    def init(mod: Module) -> None:
-        if isinstance(mod, Linear):
-            nn.init.xavier_uniform_(mod.weight)
-            if mod.bias is not None:
-                nn.init.constant_(mod.bias, 0)
-
-    module.apply(init)

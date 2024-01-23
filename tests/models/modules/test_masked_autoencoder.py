@@ -83,16 +83,6 @@ class TestMAEBackbone(unittest.TestCase):
     def test_forward_cuda(self):
         self._test_forward(torch.device("cuda"))
 
-    def test_images_to_tokens(self) -> None:
-        torch.manual_seed(0)
-        vit = self._vit()
-        backbone = MAEBackbone.from_vit(vit)
-        images = torch.rand(2, 3, 224, 224)
-        assert torch.all(
-            vit._process_input(images)
-            == backbone.images_to_tokens(images, prepend_class_token=False)
-        )
-
 
 @unittest.skipUnless(_torchvision_vit_available, "Torchvision ViT not available")
 class TestMAEDecoder(unittest.TestCase):

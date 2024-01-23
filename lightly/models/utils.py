@@ -20,10 +20,6 @@ from torchvision.ops import StochasticDepth
 
 from lightly import _torchvision_vit_available
 
-if _torchvision_vit_available:
-    # Requires torchvision >=0.12
-    from torchvision.models.vision_transformer import EncoderBlock
-
 
 @torch.no_grad()
 def batch_shuffle(
@@ -627,6 +623,12 @@ def get_named_leaf_modules(module: Module) -> Dict[str, Module]:
 
 def add_stochastic_depth_to_blocks(vit: Module, prob: float = 0.0, mode="row") -> None:
     """Adds stochastic depth dropout to all transformer blocks."""
+    if _torchvision_vit_available:
+        # Requires torchvision >=0.12
+        from torchvision.models.vision_transformer import EncoderBlock
+    else:
+        raise RuntimeError("add_stochastic_depth_to_blocks requires torchvision>=0.12.")
+
     if prob <= 0:
         return
 
