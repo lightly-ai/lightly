@@ -58,7 +58,6 @@ class AIMPredictionHead(Module):
         super().__init__()
         self.blocks = Sequential(
             # Linear layer to project the input dimension to the hidden dimension.
-            norm_layer(input_dim),  # type: ignore[call-arg]
             Linear(input_dim, hidden_dim, bias=False),
             # Main blocks.
             *[
