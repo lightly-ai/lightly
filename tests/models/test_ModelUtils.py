@@ -293,12 +293,13 @@ def test_get_weight_decay_parameters() -> None:
     batch_norm1d = nn.BatchNorm1d(10)
     conv = nn.Conv2d(3, 3, 3)
     batch_norm2d = nn.BatchNorm2d(3)
-    sequential = nn.Sequential(linear, batch_norm1d, conv, batch_norm2d)
+    layer_norm = nn.LayerNorm(10)
+    sequential = nn.Sequential(linear, batch_norm1d, conv, batch_norm2d, layer_norm)
     params, params_no_weight_decay = utils.get_weight_decay_parameters(
         modules=[sequential]
     )
     assert len(params) == 2
-    assert len(params_no_weight_decay) == 6
+    assert len(params_no_weight_decay) == 8
     assert params[0] is linear.weight
     assert params[1] is conv.weight
     assert params_no_weight_decay[0] is linear.bias
@@ -307,6 +308,8 @@ def test_get_weight_decay_parameters() -> None:
     assert params_no_weight_decay[3] is conv.bias
     assert params_no_weight_decay[4] is batch_norm2d.weight
     assert params_no_weight_decay[5] is batch_norm2d.bias
+    assert params_no_weight_decay[6] is layer_norm.weight
+    assert params_no_weight_decay[7] is layer_norm.bias
 
 
 def test_get_weight_decay_parameters__nested() -> None:
@@ -330,7 +333,7 @@ def test_get_weight_decay_parameters__batch_norm() -> None:
     bn1d = nn.BatchNorm1d(10)
     bn2d = nn.BatchNorm2d(10)
     params, params_no_weight_decay = utils.get_weight_decay_parameters(
-        modules=[bn1d, bn2d], decay_batch_norm=True
+        modules=[bn1d, bn2d], decay_norm=True
     )
     assert len(params) == 4
     assert len(params_no_weight_decay) == 0
@@ -344,7 +347,7 @@ def test_get_weight_decay_parameters__no_batch_norm() -> None:
     bn1d = nn.BatchNorm1d(10)
     bn2d = nn.BatchNorm2d(10)
     params, params_no_weight_decay = utils.get_weight_decay_parameters(
-        modules=[bn1d, bn2d], decay_batch_norm=False
+        modules=[bn1d, bn2d], decay_norm=False
     )
     print(params, params_no_weight_decay)
     assert len(params) == 0
@@ -375,3 +378,13 @@ def test_get_weight_decay_parameters__no_bias() -> None:
     assert len(param_no_weight_decay) == 1
     assert param[0] is linear.weight
     assert param_no_weight_decay[0] is linear.bias
+
+
+def test_get_named_leaf_modules() -> None:
+    linear1 = nn.Linear(10, 10)
+    linear2 = nn.Linear(10, 10)
+    sequential1 = nn.Sequential(linear1, linear2)
+    sequential2 = nn.Sequential(sequential1)
+    assert utils.get_named_leaf_modules(linear1) == {"": linear1}
+    assert utils.get_named_leaf_modules(sequential1) == {"0": linear1, "1": linear2}
+    assert utils.get_named_leaf_modules(sequential2) == {"0.0": linear1, "0.1": linear2}
