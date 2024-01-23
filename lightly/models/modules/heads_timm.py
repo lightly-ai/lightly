@@ -22,8 +22,8 @@ class AIMPredictionHeadBlock(Module):
         mlp_layer: Type[Module] = Mlp,
     ) -> None:
         super().__init__()
-        self.norm = norm_layer(input_dim)
-        self.mlp = mlp_layer(
+        self.norm = norm_layer(input_dim)  # type: ignore[call-arg]
+        self.mlp = mlp_layer(  # type: ignore[call-arg]
             in_features=input_dim,
             hidden_features=int(input_dim * mlp_ratio),
             out_features=output_dim,
@@ -58,11 +58,11 @@ class AIMPredictionHead(Module):
         super().__init__()
         self.blocks = Sequential(
             # Linear layer to project the input dimension to the hidden dimension.
-            norm_layer(input_dim),
+            norm_layer(input_dim),  # type: ignore[call-arg]
             Linear(input_dim, hidden_dim, bias=False),
             # Main blocks.
             *[
-                block_fn(
+                block_fn(  # type: ignore[call-arg]
                     input_dim=hidden_dim,
                     output_dim=hidden_dim,
                     mlp_ratio=mlp_ratio,
@@ -74,7 +74,7 @@ class AIMPredictionHead(Module):
                 for _ in range(num_blocks)
             ],
             # Linear layer to project the hidden dimension to the output dimension.
-            norm_layer(hidden_dim),
+            norm_layer(hidden_dim),  # type: ignore[call-arg]
             Linear(hidden_dim, output_dim, bias=False),
         )
 
