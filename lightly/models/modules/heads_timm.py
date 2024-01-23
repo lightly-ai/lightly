@@ -29,6 +29,7 @@ class AIMPredictionHeadBlock(Module):
             out_features=output_dim,
             act_layer=act_layer,
             drop=proj_drop,
+            bias=False,
         )
 
     def forward(self, x: Tensor) -> Tensor:
