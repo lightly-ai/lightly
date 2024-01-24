@@ -36,18 +36,18 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
         idx_mask: Optional[Tensor] = None,
         idx_keep: Optional[Tensor] = None,
     ) -> Tensor:
-        out = self.encode(images, idx_keep, idx_mask)
+        out = self.encode(images, idx_keep=idx_keep, idx_mask=idx_mask)
         class_token = out[:, 0]
         return class_token
 
     def encode(
         self,
         images: torch.Tensor,
-        idx_keep: Optional[torch.Tensor] = None,
         idx_mask: Optional[torch.Tensor] = None,
+        idx_keep: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         # convert images to tokens
-        input: torch.Tensor = self.patch_embed(images)
+        input = self.patch_embed(images)
         # add prefix tokens if needed
         input = self.add_prefix_tokens(input)
 
@@ -96,9 +96,11 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
             x = x.view(B, -1, C)
         else:
             pos_embed = self.vit.pos_embed
-        # TODO: give option to either have positional encoding for the prefix tokens or not using the self.vit.no_embed_class.
-        # Here it is assumed that the prefix tokens always have positional encodings.
-        x = x + pos_embed
+
+        if self.vit.no_embed_class:
+            x[:, self.vit.num_prefix_tokens :] += pos_embed
+        else:
+            x = x + pos_embed
         return self.vit.pos_drop(x)
 
     def _initialize_weights(self) -> None:
