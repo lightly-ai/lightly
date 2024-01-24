@@ -8,7 +8,7 @@ can be combined with any lightly model.
 # Copyright (c) 2021. Lightly AG and its affiliates.
 # All Rights Reserved
 
-from lightly import _torchvision_vit_available
+from lightly import _timm_available, _torchvision_vit_available
 from lightly.models.modules.heads import (
     BarlowTwinsProjectionHead,
     BYOLPredictionHead,
@@ -34,4 +34,10 @@ if _torchvision_vit_available:
         MAEBackbone,
         MAEDecoder,
         MAEEncoder,
+    )
+if _timm_available:
+    # Requires timm.
+    from lightly.models.modules.heads_timm import AIMPredictionHead
+    from lightly.models.modules.masked_causal_vision_transformer import (
+        MaskedCausalVisionTransformer,
     )
