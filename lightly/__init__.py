@@ -92,6 +92,14 @@ except (
 ):
     _torchvision_vit_available = False
 
+# Check if timm is available.
+try:
+    import timm
+except ImportError:
+    _timm_available = False
+else:
+    _timm_available = True
+
 
 if os.getenv("LIGHTLY_DID_VERSION_CHECK", "False") == "False":
     os.environ["LIGHTLY_DID_VERSION_CHECK"] = "True"
