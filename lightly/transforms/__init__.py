@@ -8,6 +8,7 @@ transforms.
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
+from lightly.transforms.aim_transform import AIMTransform
 from lightly.transforms.byol_transform import (
     BYOLTransform,
     BYOLView1Transform,
