@@ -27,6 +27,10 @@ lightly.transforms
    :members:
    :special-members: __call__
 
+.. automodule:: lightly.transforms.mmcr_transform
+   :members:
+   :special-members: __call__
+
 .. automodule:: lightly.transforms.moco_transform
    :members:
    :special-members: __call__
