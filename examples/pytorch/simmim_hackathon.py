@@ -17,6 +17,7 @@ except ImportError:
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
+
 class SimMIM(nn.Module):
     def __init__(self, vit):
         super().__init__()
@@ -28,11 +29,13 @@ class SimMIM(nn.Module):
         self.mask_token = nn.Parameter(torch.zeros(1, 1, decoder_dim))
 
         # same backbone as MAE
-        self.backbone = masked_vision_transformer_timm.MaskedVisionTransformerTIMM(vit=vit, mask_token=self.mask_token, device=device)
+        self.backbone = masked_vision_transformer_timm.MaskedVisionTransformerTIMM(
+            vit=vit, mask_token=self.mask_token, device=device
+        )
 
         # the decoder is a simple linear layer
         self.patch_size = vit.patch_embed.patch_size[0]
-        self.decoder = nn.Linear(vit.embed_dim, vit.patch_embed.patch_size[0]**2 * 3)
+        self.decoder = nn.Linear(vit.embed_dim, vit.patch_embed.patch_size[0] ** 2 * 3)
 
     def forward_encoder(self, images, batch_size, idx_mask):
         # pass all the tokens to the encoder, both masked and non masked ones

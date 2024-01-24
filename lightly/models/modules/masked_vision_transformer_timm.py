@@ -1,17 +1,14 @@
 from typing import Optional, Union
 
 import torch
+import torch.nn as nn
 from timm.layers.pos_embed import resample_abs_pos_embed
 from timm.models.vision_transformer import VisionTransformer
 from torch import Tensor
-from torch.nn import Parameter
+from torch.nn import LayerNorm, Linear, Module, Parameter, Sequential
 
 from lightly.models import utils
 from lightly.models.modules.masked_vision_transformer import MaskedVisionTransformer
-
-import torch
-import torch.nn as nn
-from torch.nn import LayerNorm, Linear, Module, Parameter, Sequential
 
 
 class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
@@ -19,7 +16,7 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
         self,
         vit: VisionTransformer,  # here assume that we always initialize with a vit model from timm
         mask_token: Union[bool, Parameter],
-        device : str
+        device: str,
     ):
         super().__init__()
         self.vit = vit
@@ -59,7 +56,7 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
             input = utils.mask_at_index(input, idx_mask, self.mask_token)
         # add positional encoding
         input = self.add_pos_embed(input)
-        
+
         if idx_keep is not None:
             input = utils.get_at_index(input, idx_keep)
         # normalization layer
@@ -77,11 +74,14 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
         tokens = torch.Tensor([])
         tokens = tokens.to(self.device)
         if self.vit.cls_token is not None:
-            tokens = torch.cat((tokens, self.vit.cls_token.expand(x.shape[0], -1, -1)), dim=1)
+            tokens = torch.cat(
+                (tokens, self.vit.cls_token.expand(x.shape[0], -1, -1)), dim=1
+            )
         if self.vit.reg_token is not None:
-            tokens = torch.cat((tokens, self.vit.reg_token.expand(x.shape[0], -1, -1)), dim=1)
+            tokens = torch.cat(
+                (tokens, self.vit.reg_token.expand(x.shape[0], -1, -1)), dim=1
+            )
         return torch.cat((tokens, x), dim=1)
-
 
     def add_pos_embed(self, x: Tensor) -> Tensor:
         if self.vit.dynamic_img_size:
@@ -89,16 +89,18 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
             pos_embed = resample_abs_pos_embed(
                 self.vit.pos_embed,
                 (H, W),
-                num_prefix_tokens=0 if self.vit.no_embed_class else self.vit.num_prefix_tokens,
+                num_prefix_tokens=0
+                if self.vit.no_embed_class
+                else self.vit.num_prefix_tokens,
             )
             x = x.view(B, -1, C)
         else:
             pos_embed = self.vit.pos_embed
-        # TODO: give option to either have positional encoding for the prefix tokens or not using the self.vit.no_embed_class. 
+        # TODO: give option to either have positional encoding for the prefix tokens or not using the self.vit.no_embed_class.
         # Here it is assumed that the prefix tokens always have positional encodings.
         x = x + pos_embed
         return self.vit.pos_drop(x)
-    
+
     def _initialize_weights(self) -> None:
         # Initialize the patch embedding layer like a linear layer instead of conv
         # layer.
@@ -112,8 +114,8 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
         self.apply(_init_weights)
 
         _initialize_2d_sine_cosine_positional_embedding(self.vit.pos_embed)
-        
-        
+
+
 def _initialize_2d_sine_cosine_positional_embedding(pos_embedding: Parameter) -> None:
     _, seq_length, hidden_dim = pos_embedding.shape
     grid_size = int((seq_length - 1) ** 0.5)
@@ -137,4 +139,3 @@ def _init_weights(module: Module) -> None:
     elif isinstance(module, LayerNorm):
         nn.init.constant_(module.bias, 0)
         nn.init.constant_(module.weight, 1.0)
-    

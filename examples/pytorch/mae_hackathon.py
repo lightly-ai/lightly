@@ -8,7 +8,10 @@ import torchvision
 from torch import nn
 
 from lightly.models import utils
-from lightly.models.modules import masked_autoencoder_timm, masked_vision_transformer_timm
+from lightly.models.modules import (
+    masked_autoencoder_timm,
+    masked_vision_transformer_timm,
+)
 from lightly.transforms.mae_transform import MAETransform
 
 try:
@@ -20,6 +23,7 @@ except ImportError:
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
+
 class MAE(nn.Module):
     def __init__(self, vit):
         super().__init__()
@@ -28,7 +32,9 @@ class MAE(nn.Module):
         self.mask_ratio = 0.75
         self.patch_size = vit.patch_embed.patch_size[0]
         self.sequence_length = vit.patch_embed.num_patches + 1
-        self.backbone = masked_vision_transformer_timm.MaskedVisionTransformerTIMM(vit=vit, mask_token=None, device=device)
+        self.backbone = masked_vision_transformer_timm.MaskedVisionTransformerTIMM(
+            vit=vit, mask_token=None, device=device
+        )
         self.decoder = masked_autoencoder_timm.MAEDecoder(
             num_patches=vit.patch_embed.num_patches,
             patch_size=self.patch_size,
@@ -67,7 +73,7 @@ class MAE(nn.Module):
         idx_keep, idx_mask = utils.random_token_mask(
             size=(batch_size, self.sequence_length),
             mask_ratio=self.mask_ratio,
-            device=device
+            device=device,
         )
         x_encoded = self.forward_encoder(images, idx_keep)
         x_pred = self.forward_decoder(x_encoded, idx_keep, idx_mask)
