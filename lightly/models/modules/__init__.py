@@ -8,6 +8,8 @@ can be combined with any lightly model.
 # Copyright (c) 2021. Lightly AG and its affiliates.
 # All Rights Reserved
 
+from packaging.version import Version as _Version
+
 from lightly import _timm_available, _timm_version, _torchvision_vit_available
 from lightly.models.modules.heads import (
     BarlowTwinsProjectionHead,
@@ -27,7 +29,6 @@ from lightly.models.modules.heads import (
     SwaVPrototypes,
 )
 from lightly.models.modules.nn_memory_bank import NNMemoryBankModule
-from packaging.version import Version as _Version
 
 if _torchvision_vit_available:
     # Requires torchvision >=0.12

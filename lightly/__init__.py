@@ -79,10 +79,11 @@ __version__ = "1.4.26"
 
 
 import os
-import packaging.version
-from packaging.version import Version as _Version
-from packaging.version import InvalidVersion
 from typing import Optional
+
+import packaging.version
+from packaging.version import InvalidVersion
+from packaging.version import Version as _Version
 
 # see if torchvision vision transformer is available
 try:
