@@ -21,9 +21,6 @@ except ImportError:
     sys.exit(1)
 
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
-
-
 class MAE(nn.Module):
     def __init__(self, vit):
         super().__init__()
@@ -33,7 +30,7 @@ class MAE(nn.Module):
         self.patch_size = vit.patch_embed.patch_size[0]
         self.sequence_length = vit.patch_embed.num_patches + 1
         self.backbone = masked_vision_transformer_timm.MaskedVisionTransformerTIMM(
-            vit=vit, mask_token=None, device=device
+            vit=vit, mask_token=None
         )
         self.decoder = masked_autoencoder_timm.MAEDecoder(
             num_patches=vit.patch_embed.num_patches,
@@ -73,7 +70,7 @@ class MAE(nn.Module):
         idx_keep, idx_mask = utils.random_token_mask(
             size=(batch_size, self.sequence_length),
             mask_ratio=self.mask_ratio,
-            device=device,
+            device=images.device,
         )
         x_encoded = self.forward_encoder(images, idx_keep)
         x_pred = self.forward_decoder(x_encoded, idx_keep, idx_mask)
@@ -84,6 +81,8 @@ class MAE(nn.Module):
         target = utils.get_at_index(patches, idx_mask - 1)
         return x_pred, target
 
+
+device = "cuda" if torch.cuda.is_available() else "cpu"
 
 vit = vision_transformer.vit_base_patch32_224()
 vit = vit.to(device)

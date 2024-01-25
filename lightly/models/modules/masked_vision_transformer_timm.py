@@ -16,9 +16,8 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
         self,
         vit: VisionTransformer,  # here assume that we always initialize with a vit model from timm
         mask_token: Union[bool, Parameter],
-        device: str,
     ):
-        super().__init__(vit=vit, mask_token=mask_token, device=device)
+        super().__init__(vit=vit, mask_token=mask_token)
         self.vit = vit
         self.mask_token = (
             mask_token
@@ -28,7 +27,6 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
             else None
         )
         self.sequence_length = vit.patch_embed.num_patches + vit.num_prefix_tokens
-        self.device = device
 
     def forward(
         self,
@@ -36,9 +34,14 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
         idx_mask: Optional[Tensor] = None,
         idx_keep: Optional[Tensor] = None,
     ) -> Tensor:
-        out = self.encode(images, idx_keep=idx_keep, idx_mask=idx_mask)
-        class_token = out[:, 0]
-        return class_token
+        x = self.encode(images, idx_keep=idx_keep, idx_mask=idx_mask)
+        if self.vit.attn_pool is not None:
+            x = self.vit.attn_pool(x)
+        elif self.vit.global_pool == "avg":
+            x = x[:, self.vit.num_prefix_tokens :].mean(dim=1)
+        elif self.vit.global_pool:
+            x = x[:, 0]  # class token
+        return x
 
     def encode(
         self,
@@ -72,8 +75,9 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
         return tokens
 
     def add_prefix_tokens(self, x: Tensor) -> Tensor:
+        device = x.device
         tokens = torch.Tensor([])
-        tokens = tokens.to(self.device)
+        tokens = tokens.to(device)
         if self.vit.cls_token is not None:
             tokens = torch.cat(
                 (tokens, self.vit.cls_token.expand(x.shape[0], -1, -1)), dim=1

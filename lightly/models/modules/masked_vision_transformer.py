@@ -12,7 +12,6 @@ class MaskedVisionTransformer(ABC):
         self,
         vit: Union[TorchvisionTransformer, TimmVisionTransformer],
         mask_token: Union[bool, Parameter],
-        device: str,
     ):
         pass
 

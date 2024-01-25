@@ -15,9 +15,6 @@ except ImportError:
     sys.exit(1)
 
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
-
-
 class SimMIM(nn.Module):
     def __init__(self, vit):
         super().__init__()
@@ -30,7 +27,7 @@ class SimMIM(nn.Module):
 
         # same backbone as MAE
         self.backbone = masked_vision_transformer_timm.MaskedVisionTransformerTIMM(
-            vit=vit, mask_token=self.mask_token, device=device
+            vit=vit, mask_token=self.mask_token
         )
 
         # the decoder is a simple linear layer
@@ -52,7 +49,7 @@ class SimMIM(nn.Module):
         idx_keep, idx_mask = utils.random_token_mask(
             size=(batch_size, self.sequence_length),
             mask_ratio=self.mask_ratio,
-            device=device,
+            device=images.device,
         )
 
         # Encoding...
@@ -70,6 +67,8 @@ class SimMIM(nn.Module):
 
         return x_out, target
 
+
+device = "cuda" if torch.cuda.is_available() else "cpu"
 
 vit = vision_transformer.vit_base_patch32_224()
 vit = vit.to(device)
