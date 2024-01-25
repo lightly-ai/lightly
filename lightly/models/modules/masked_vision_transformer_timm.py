@@ -18,7 +18,7 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
         mask_token: Union[bool, Parameter],
         device: str,
     ):
-        super().__init__()
+        super().__init__(vit=vit, mask_token=mask_token, device=device)
         self.vit = vit
         self.mask_token = (
             mask_token
@@ -68,7 +68,8 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
         return out
 
     def patch_embed(self, images: Tensor) -> Tensor:
-        return self.vit.patch_embed(images)
+        tokens: Tensor = self.vit.patch_embed(images)
+        return tokens
 
     def add_prefix_tokens(self, x: Tensor) -> Tensor:
         tokens = torch.Tensor([])
@@ -101,19 +102,20 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
             x[:, self.vit.num_prefix_tokens :] += pos_embed
         else:
             x = x + pos_embed
-        return self.vit.pos_drop(x)
+        x = self.vit.pos_drop(x)
+        return x
 
     def _initialize_weights(self) -> None:
         # Initialize the patch embedding layer like a linear layer instead of conv
         # layer.
-        w = self.patch_embed.proj.weight.data
+        w = self.vit.patch_embed.proj.weight.data
         torch.nn.init.xavier_uniform_(w.view([w.shape[0], -1]))
 
         # Initialize the class token.
-        torch.nn.init.normal_(self.cls_token, std=0.02)
+        torch.nn.init.normal_(self.vit.cls_token, std=0.02)
 
         # initialize nn.Linear and nn.LayerNorm
-        self.apply(_init_weights)
+        self.vit.apply(_init_weights)
 
         _initialize_2d_sine_cosine_positional_embedding(self.vit.pos_embed)
 
