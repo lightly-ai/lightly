@@ -79,6 +79,10 @@ __version__ = "1.4.26"
 
 
 import os
+import packaging.version
+from packaging.version import Version as _Version
+from packaging.version import InvalidVersion
+from typing import Optional
 
 # see if torchvision vision transformer is available
 try:
@@ -97,10 +101,13 @@ try:
     import timm
 except ImportError:
     _timm_available = False
-    _timm_version = ""
+    _timm_version: Optional[_Version] = None
 else:
     _timm_available = True
-    _timm_version = timm.__version__
+    try:
+        _timm_version = packaging.version.parse(timm.__version__)
+    except InvalidVersion:
+        _timm_version = None
 
 
 if os.getenv("LIGHTLY_DID_VERSION_CHECK", "False") == "False":
