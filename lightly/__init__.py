@@ -97,8 +97,10 @@ try:
     import timm
 except ImportError:
     _timm_available = False
+    _timm_version = ""
 else:
     _timm_available = True
+    _timm_version = timm.__version__
 
 
 if os.getenv("LIGHTLY_DID_VERSION_CHECK", "False") == "False":
