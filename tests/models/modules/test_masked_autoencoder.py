@@ -93,7 +93,7 @@ class TestMAEBackbone(unittest.TestCase):
 )
 class TestMAEDecoder(unittest.TestCase):
     def test_init(self):
-        return MAEDecoder(
+        MAEDecoder(
             seq_length=50,
             num_layers=2,
             num_heads=4,
