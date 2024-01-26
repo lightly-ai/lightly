@@ -27,6 +27,7 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
             else None
         )
         self.sequence_length = vit.patch_embed.num_patches + vit.num_prefix_tokens
+        self._initialize_weights()
 
     def forward(
         self,

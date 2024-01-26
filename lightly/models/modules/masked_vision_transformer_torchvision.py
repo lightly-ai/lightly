@@ -4,7 +4,7 @@ from typing import Optional, Union
 import torch
 import torch.nn as nn
 from torch import Tensor
-from torch.nn import Parameter
+from torch.nn import Linear, Module, Parameter
 from torchvision.models.vision_transformer import VisionTransformer
 
 from lightly.models import utils
@@ -27,6 +27,7 @@ class MaskedVisionTransformerTorchvision(MaskedVisionTransformer):
             else None
         )
         self.sequence_length = vit.seq_length
+        self._initialize_weights()
 
     def interpolate_pos_encoding(self, input: torch.Tensor) -> torch.Tensor:
         """Returns the interpolated positional embedding for the given input.
@@ -107,3 +108,41 @@ class MaskedVisionTransformerTorchvision(MaskedVisionTransformer):
         # Give the option of not doing so, as is the case for TIMM.
         x = x + self.interpolate_pos_encoding(x)
         return x
+
+    def _initialize_weights(self) -> None:
+        _initialize_2d_sine_cosine_positional_embedding(self.vit.encoder.pos_embedding)
+        # Initialize the patch embedding layer like a linear layer instead of conv
+        # layer.
+        w = self.vit.conv_proj.weight.data
+        torch.nn.init.xavier_uniform_(w.view([w.shape[0], -1]))
+
+        # Initialize the class token.
+        torch.nn.init.normal_(self.vit.class_token, std=0.02)
+
+        self.vit.encoder._initialize_weights()
+        _initialize_linear_layers(self.vit)
+
+
+def _initialize_2d_sine_cosine_positional_embedding(pos_embedding: Parameter) -> None:
+    _, seq_length, hidden_dim = pos_embedding.shape
+    grid_size = int((seq_length - 1) ** 0.5)
+    sine_cosine_embedding = utils.get_2d_sine_cosine_positional_embedding(
+        embed_dim=hidden_dim,
+        grid_size=grid_size,
+        cls_token=True,
+    )
+    pos_embedding.data.copy_(
+        torch.from_numpy(sine_cosine_embedding).float().unsqueeze(0)
+    )
+    # Freeze positional embedding.
+    pos_embedding.requires_grad = False
+
+
+def _initialize_linear_layers(module: Module) -> None:
+    def init(mod: Module) -> None:
+        if isinstance(mod, Linear):
+            nn.init.xavier_uniform_(mod.weight)
+            if mod.bias is not None:
+                nn.init.constant_(mod.bias, 0)
+
+    module.apply(init)
