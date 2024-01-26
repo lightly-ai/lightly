@@ -110,7 +110,6 @@ class MaskedVisionTransformerTorchvision(MaskedVisionTransformer):
         return x
 
     def _initialize_weights(self) -> None:
-        _initialize_2d_sine_cosine_positional_embedding(self.vit.encoder.pos_embedding)
         # Initialize the patch embedding layer like a linear layer instead of conv
         # layer.
         w = self.vit.conv_proj.weight.data
@@ -119,7 +118,10 @@ class MaskedVisionTransformerTorchvision(MaskedVisionTransformer):
         # Initialize the class token.
         torch.nn.init.normal_(self.vit.class_token, std=0.02)
 
-        self.vit.encoder._initialize_weights()
+        # Initialize positional encoding.
+        _initialize_2d_sine_cosine_positional_embedding(self.vit.encoder.pos_embedding)
+
+        # Initialize linear layers.
         _initialize_linear_layers(self.vit)
 
 

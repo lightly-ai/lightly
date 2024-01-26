@@ -14,7 +14,7 @@ from lightly.models.modules.masked_vision_transformer import MaskedVisionTransfo
 class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
     def __init__(
         self,
-        vit: VisionTransformer,  # here assume that we always initialize with a vit model from timm
+        vit: VisionTransformer,
         mask_token: Union[bool, Parameter],
     ):
         super().__init__(vit=vit, mask_token=mask_token)

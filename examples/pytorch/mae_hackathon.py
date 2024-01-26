@@ -45,8 +45,8 @@ class MAE(nn.Module):
             attn_drop_rate=0.0,
         )
 
-    def forward_encoder(self, images, idx_keep=None):
-        return self.backbone.encode(images=images, idx_keep=idx_keep)
+    def forward_encoder(self, images, idx_mask=None, idx_keep=None):
+        return self.backbone.encode(images=images, idx_mask=idx_mask, idx_keep=idx_keep)
 
     def forward_decoder(self, x_encoded, idx_keep, idx_mask):
         # build decoder input
@@ -72,8 +72,12 @@ class MAE(nn.Module):
             mask_ratio=self.mask_ratio,
             device=images.device,
         )
-        x_encoded = self.forward_encoder(images, idx_keep)
-        x_pred = self.forward_decoder(x_encoded, idx_keep, idx_mask)
+        x_encoded = self.forward_encoder(
+            images=images, idx_mask=None, idx_keep=idx_keep
+        )
+        x_pred = self.forward_decoder(
+            x_encoded=x_encoded, idx_keep=idx_keep, idx_mask=idx_mask
+        )
 
         # get image patches for masked tokens
         patches = utils.patchify(images, self.patch_size)
