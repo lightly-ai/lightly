@@ -3,14 +3,16 @@ import unittest
 import torch
 import torchvision
 
-from lightly import _torchvision_vit_available
 from lightly.models import utils
+from lightly.utils import dependency
 
-if _torchvision_vit_available:
+if dependency.torchvision_vit_available():
     from lightly.models.modules import MAEBackbone, MAEDecoder, MAEEncoder
 
 
-@unittest.skipUnless(_torchvision_vit_available, "Torchvision ViT not available")
+@unittest.skipUnless(
+    dependency.torchvision_vit_available(), "Torchvision ViT not available"
+)
 class TestMAEEncoder(unittest.TestCase):
     def _vit(self):
         return torchvision.models.vision_transformer.vit_b_32(progress=False)
@@ -48,7 +50,9 @@ class TestMAEEncoder(unittest.TestCase):
         self._test_forward(torch.device("cuda"))
 
 
-@unittest.skipUnless(_torchvision_vit_available, "Torchvision ViT not available")
+@unittest.skipUnless(
+    dependency.torchvision_vit_available(), "Torchvision ViT not available"
+)
 class TestMAEBackbone(unittest.TestCase):
     def _vit(self):
         return torchvision.models.vision_transformer.vit_b_32(progress=False)
@@ -84,7 +88,9 @@ class TestMAEBackbone(unittest.TestCase):
         self._test_forward(torch.device("cuda"))
 
 
-@unittest.skipUnless(_torchvision_vit_available, "Torchvision ViT not available")
+@unittest.skipUnless(
+    dependency.torchvision_vit_available(), "Torchvision ViT not available"
+)
 class TestMAEDecoder(unittest.TestCase):
     def test_init(self):
         return MAEDecoder(

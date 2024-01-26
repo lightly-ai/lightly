@@ -18,7 +18,7 @@ from torch.nn.modules.batchnorm import _NormBase
 from torch.nn.parameter import Parameter
 from torchvision.ops import StochasticDepth
 
-from lightly import _torchvision_vit_available
+from lightly.utils import dependency
 
 
 @torch.no_grad()
@@ -623,7 +623,7 @@ def get_named_leaf_modules(module: Module) -> Dict[str, Module]:
 
 def add_stochastic_depth_to_blocks(vit: Module, prob: float = 0.0, mode="row") -> None:
     """Adds stochastic depth dropout to all transformer blocks."""
-    if _torchvision_vit_available:
+    if dependency.torchvision_vit_available():
         # Requires torchvision >=0.12
         from torchvision.models.vision_transformer import EncoderBlock
     else:

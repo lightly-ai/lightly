@@ -79,37 +79,6 @@ __version__ = "1.4.26"
 
 
 import os
-from typing import Optional
-
-import packaging.version
-from packaging.version import InvalidVersion
-from packaging.version import Version as _Version
-
-# see if torchvision vision transformer is available
-try:
-    import torchvision.models.vision_transformer
-
-    _torchvision_vit_available = True
-except (
-    RuntimeError,  # Different CUDA versions for torch and torchvision
-    OSError,  # Different CUDA versions for torch and torchvision (old)
-    ImportError,  # No installation or old version of torchvision
-):
-    _torchvision_vit_available = False
-
-# Check if timm is available.
-try:
-    import timm
-except ImportError:
-    _timm_available = False
-    _timm_version: Optional[_Version] = None
-else:
-    _timm_available = True
-    try:
-        _timm_version = packaging.version.parse(timm.__version__)
-    except InvalidVersion:
-        _timm_version = None
-
 
 if os.getenv("LIGHTLY_DID_VERSION_CHECK", "False") == "False":
     os.environ["LIGHTLY_DID_VERSION_CHECK"] = "True"
