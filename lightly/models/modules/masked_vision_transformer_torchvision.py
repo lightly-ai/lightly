@@ -15,7 +15,7 @@ class MaskedVisionTransformerTorchvision(MaskedVisionTransformer):
     def __init__(
         self,
         vit: VisionTransformer,
-        mask_token: Union[bool, Parameter],
+        mask_token: Optional[Union[bool, Parameter]] = None,
     ):
         super().__init__(vit=vit, mask_token=mask_token)
         self.vit = vit

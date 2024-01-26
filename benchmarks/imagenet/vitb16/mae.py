@@ -8,7 +8,10 @@ from torch.nn import MSELoss, Parameter
 from torch.optim import AdamW
 
 from lightly.models import utils
-from lightly.models.modules import masked_autoencoder_timm
+from lightly.models.modules import (
+    masked_autoencoder_timm,
+    masked_vision_transformer_timm,
+)
 from lightly.models.modules.masked_autoencoder_timm import MAEBackbone, MAEDecoder
 from lightly.transforms import MAETransform
 from lightly.utils.benchmarking import OnlineLinearClassifier
@@ -29,7 +32,9 @@ class MAE(LightningModule):
         self.sequence_length = vit.patch_embed.num_patches + 1
         self.mask_token = Parameter(torch.zeros(1, 1, decoder_dim))
         torch.nn.init.normal_(self.mask_token, std=0.02)
-        self.backbone = MAEBackbone.from_vit(vit)
+        self.backbone = masked_vision_transformer_timm.MaskedVisionTransformerTIMM(
+            vit=vit, mask_token=False
+        )
         self.decoder = masked_autoencoder_timm.MAEDecoder(
             num_patches=vit.patch_embed.num_patches,
             patch_size=self.patch_size,

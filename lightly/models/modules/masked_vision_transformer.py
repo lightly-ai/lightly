@@ -11,7 +11,7 @@ class MaskedVisionTransformer(ABC):
     def __init__(
         self,
         vit: Union[TorchvisionTransformer, TimmVisionTransformer],
-        mask_token: Union[bool, Parameter],
+        mask_token: Optional[Union[bool, Parameter]] = None,
     ):
         pass
 

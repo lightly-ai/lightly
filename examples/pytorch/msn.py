@@ -9,6 +9,7 @@ from torch import nn
 
 from lightly.loss import MSNLoss
 from lightly.models import utils
+from lightly.models.modules import masked_vision_transformer_torchvision
 from lightly.models.modules.heads import MSNProjectionHead
 from lightly.models.modules.masked_autoencoder import MAEBackbone
 from lightly.transforms.msn_transform import MSNTransform
@@ -20,6 +21,11 @@ class MSN(nn.Module):
 
         self.mask_ratio = 0.15
         self.backbone = MAEBackbone.from_vit(vit)
+        self.backbone = (
+            masked_vision_transformer_torchvision.MaskedVisionTransformerTorchvision(
+                vit=vit
+            )
+        )
         self.projection_head = MSNProjectionHead(input_dim=384)
 
         self.anchor_backbone = copy.deepcopy(self.backbone)
