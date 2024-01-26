@@ -12,7 +12,6 @@ from lightly.models.modules import (
     masked_autoencoder_timm,
     masked_vision_transformer_timm,
 )
-from lightly.models.modules.masked_autoencoder_timm import MAEBackbone, MAEDecoder
 from lightly.transforms import MAETransform
 from lightly.utils.benchmarking import OnlineLinearClassifier
 from lightly.utils.scheduler import CosineWarmupScheduler

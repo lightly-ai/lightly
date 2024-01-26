@@ -104,7 +104,6 @@ from lightly.loss import (
 from lightly.models import modules, utils
 from lightly.models.modules import (
     heads,
-    masked_autoencoder,
     masked_autoencoder_timm,
     masked_vision_transformer_timm,
     memory_bank,
@@ -174,8 +173,11 @@ else:
 
 # The dataset structure should be like this:
 
-path_to_train = "/datasets/imagenette2-160/train/"
-path_to_test = "/datasets/imagenette2-160/val/"
+# path_to_train = "/datasets/imagenette2-160/train/"
+# path_to_test = "/datasets/imagenette2-160/val/"
+
+path_to_train = "/home/ubuntu/datasets/imagenette2-160/train/"
+path_to_test = "/home/ubuntu/datasets/imagenette2-160/val/"
 
 
 # Use BYOL augmentations
