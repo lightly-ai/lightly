@@ -252,6 +252,8 @@ class MAEBackbone(vision_transformer.VisionTransformer):  # type: ignore
         # get the tokens that are kept
         if idx_keep is not None:
             input = utils.get_at_index(input, idx_keep)
+        # normalization layer
+        input = self.norm_pre(input)
         # apply Transformer blocks
         input = self.blocks(input)
         # normalize

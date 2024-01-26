@@ -30,7 +30,7 @@ class MAE(nn.Module):
         self.patch_size = vit.patch_embed.patch_size[0]
         self.sequence_length = vit.patch_embed.num_patches + 1
         self.backbone = masked_vision_transformer_timm.MaskedVisionTransformerTIMM(
-            vit=vit, mask_token=None
+            vit=vit, mask_token=False
         )
         self.decoder = masked_autoencoder_timm.MAEDecoder(
             num_patches=vit.patch_embed.num_patches,
@@ -46,7 +46,7 @@ class MAE(nn.Module):
         )
 
     def forward_encoder(self, images, idx_keep=None):
-        return self.backbone.encode(images=images, idx_keep=idx_keep, idx_mask=None)
+        return self.backbone.encode(images=images, idx_keep=idx_keep)
 
     def forward_decoder(self, x_encoded, idx_keep, idx_mask):
         # build decoder input
@@ -87,8 +87,6 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 vit = vision_transformer.vit_base_patch32_224()
 vit = vit.to(device)
 model = MAE(vit)
-
-
 model.to(device)
 
 transform = MAETransform()

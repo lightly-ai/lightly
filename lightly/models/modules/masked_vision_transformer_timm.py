@@ -34,7 +34,7 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
         idx_mask: Optional[Tensor] = None,
         idx_keep: Optional[Tensor] = None,
     ) -> Tensor:
-        x = self.encode(images, idx_keep=idx_keep, idx_mask=idx_mask)
+        x = self.encode(images, idx_mask=idx_mask, idx_keep=idx_keep)
         if self.vit.attn_pool is not None:
             x = self.vit.attn_pool(x)
         elif self.vit.global_pool == "avg":
@@ -55,7 +55,6 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
         input = self.add_prefix_tokens(input)
 
         if idx_mask is not None:
-            assert self.mask_token is not None
             input = utils.mask_at_index(input, idx_mask, self.mask_token)
         # add positional encoding
         input = self.add_pos_embed(input)
@@ -75,18 +74,14 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
         return tokens
 
     def add_prefix_tokens(self, x: Tensor) -> Tensor:
-        device = x.device
-        tokens = torch.Tensor([])
-        tokens = tokens.to(device)
+        prefix_tokens = []
         if self.vit.cls_token is not None:
-            tokens = torch.cat(
-                (tokens, self.vit.cls_token.expand(x.shape[0], -1, -1)), dim=1
-            )
+            prefix_tokens.append(self.vit.cls_token.expand(x.shape[0], -1, -1))
         if self.vit.reg_token is not None:
-            tokens = torch.cat(
-                (tokens, self.vit.reg_token.expand(x.shape[0], -1, -1)), dim=1
-            )
-        return torch.cat((tokens, x), dim=1)
+            prefix_tokens.append(self.vit.reg_token.expand(x.shape[0], -1, -1))
+        if prefix_tokens:
+            x = torch.cat(prefix_tokens + [x], dim=1)
+        return x
 
     def add_pos_embed(self, x: Tensor) -> Tensor:
         if self.vit.dynamic_img_size:
@@ -103,7 +98,7 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
             pos_embed = self.vit.pos_embed
 
         if self.vit.no_embed_class:
-            x[:, self.vit.num_prefix_tokens :] += pos_embed
+            x[:, self.vit.num_prefix_tokens :, :] += pos_embed
         else:
             x = x + pos_embed
         x = self.vit.pos_drop(x)
