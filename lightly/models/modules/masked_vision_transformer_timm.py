@@ -72,6 +72,9 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
 
     def patch_embed(self, images: Tensor) -> Tensor:
         tokens: Tensor = self.vit.patch_embed(images)
+        if self.vit.dynamic_img_size:
+            tokens = tokens.permute(0, 3, 1, 2)  # NHWC -> NCHW
+            tokens = tokens.flatten(2).transpose(1, 2)  # NCHW -> NLC
         return tokens
 
     def add_prefix_tokens(self, x: Tensor) -> Tensor:
@@ -85,7 +88,23 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
         return x
 
     def add_pos_embed(self, x: Tensor) -> Tensor:
+        x_prefix = (
+            x[:, : self.vit.num_prefix_tokens, :]
+            if self.vit.num_prefix_tokens
+            else torch.empty()
+        )
+        x = x[:, self.vit.num_prefix_tokens :, :] if self.vit.num_prefix_tokens else x
         if self.vit.dynamic_img_size:
+            x = x.transpose(1, 2)  # NLC -> NCL
+            x = x.view(
+                x.size(0),
+                x.size(1),
+                self.vit.patch_embed.grid_size[0],
+                self.vit.patch_embed.grid_size[1],
+            )  # NCL -> NCHW
+
+            # NCHW -> NHWC
+            x = x.permute(0, 2, 3, 1)
             B, H, W, C = x.shape
             pos_embed = resample_abs_pos_embed(
                 self.vit.pos_embed,
@@ -99,11 +118,15 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
             pos_embed = self.vit.pos_embed
 
         if self.vit.no_embed_class:
-            x[:, self.vit.num_prefix_tokens :, :] += pos_embed
-        else:
             x = x + pos_embed
-        x = self.vit.pos_drop(x)
-        return x
+            if self.vit.num_prefix_tokens:
+                out = torch.cat((x_prefix, x), dim=1)
+        else:
+            if self.vit.num_prefix_tokens:
+                out = torch.cat((x_prefix, x), dim=1)
+            out = out + pos_embed
+        out = self.vit.pos_drop(out)
+        return out
 
     def _initialize_weights(self) -> None:
         # Initialize the patch embedding layer like a linear layer instead of conv
