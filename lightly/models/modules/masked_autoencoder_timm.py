@@ -307,6 +307,8 @@ class MAEDecoder(Module):
             Percentage of elements set to zero after the attention head.
         norm_layer:
             Normalization layer.
+        mask_token:
+            The mask token.
 
     """
 
@@ -323,11 +325,16 @@ class MAEDecoder(Module):
         proj_drop_rate: float = 0.0,
         attn_drop_rate: float = 0.0,
         norm_layer: Callable[..., nn.Module] = partial(LayerNorm, eps=1e-6),
+        mask_token: Optional[Parameter] = None,
     ):
         super().__init__()
 
         self.decoder_embed = nn.Linear(embed_dim, decoder_embed_dim, bias=True)
-        self.mask_token = nn.Parameter(torch.zeros(1, 1, decoder_embed_dim))
+        self.mask_token = (
+            nn.Parameter(torch.zeros(1, 1, decoder_embed_dim))
+            if mask_token is None
+            else mask_token
+        )
 
         # positional encoding of the decoder
         self.decoder_pos_embed = nn.Parameter(
