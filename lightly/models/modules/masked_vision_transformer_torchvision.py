@@ -1,6 +1,6 @@
 import math
 from functools import partial
-from typing import Callable, List, Optional, Union
+from typing import Callable, List, Optional
 
 import torch
 import torch.nn as nn
@@ -88,6 +88,10 @@ class MaskedVisionTransformerTorchvision(MaskedVisionTransformer, VisionTransfor
         backbone.seq_length = vit.seq_length
         backbone.heads = vit.heads
         backbone.encoder = vit.encoder
+        backbone.encoder.pos_embedding = vit.encoder.pos_embedding
+        backbone.encoder.dropout = vit.encoder.dropout
+        backbone.encoder.layers = vit.encoder.layers
+        backbone.encoder.ln = vit.encoder.ln
         backbone.mask_token = mask_token
         if initialize_weights:
             backbone._initialize_weights()

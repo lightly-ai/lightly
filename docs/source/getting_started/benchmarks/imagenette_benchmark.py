@@ -152,7 +152,7 @@ gather_distributed = False
 
 # benchmark
 n_runs = 1  # optional, increase to create multiple runs and report mean + std
-batch_size = 16  # 256
+batch_size = 256
 lr_factor = batch_size / 256  # scales the learning rate linearly with batch size
 
 # Number of devices and hardware to use for training.
@@ -170,12 +170,8 @@ else:
 
 # The dataset structure should be like this:
 
-# path_to_train = "/datasets/imagenette2-160/train/"
-# path_to_test = "/datasets/imagenette2-160/val/"
-
-path_to_train = "/home/ubuntu/datasets/imagenette2-160/train/"
-path_to_test = "/home/ubuntu/datasets/imagenette2-160/val/"
-
+path_to_train = "/datasets/imagenette2-160/train/"
+path_to_test = "/datasets/imagenette2-160/val/"
 
 # Use BYOL augmentations
 byol_transform = BYOLTransform(
@@ -1135,11 +1131,11 @@ class SimMIMModel(BenchmarkModule):
         self.mask_ratio = 0.75
         self.patch_size = vit.patch_size
         self.sequence_length = vit.seq_length
-        self.mask_token = nn.Parameter(torch.zeros(1, 1, decoder_dim))
+        mask_token = nn.Parameter(torch.zeros(1, 1, decoder_dim))
 
-        # same backbone as MAE
+        # Masked vision transformer as backbone
         self.backbone = masked_vision_transformer_torchvision.MaskedVisionTransformerTorchvision.from_vit(
-            vit
+            vit, mask_token=mask_token
         )
 
         # the decoder is a simple linear layer
@@ -1149,10 +1145,7 @@ class SimMIMModel(BenchmarkModule):
         self.criterion = nn.L1Loss()
 
     def forward_encoder(self, images, batch_size, idx_mask):
-        # pass all the tokens to the encoder, both masked and non masked ones
-        tokens = self.backbone.images_to_tokens(images=images)
-        tokens_masked = utils.mask_at_index(tokens, idx_mask, self.mask_token)
-        return self.backbone.encoder(tokens_masked)
+        return self.backbone.encode(images=images, idx_mask=idx_mask, idx_keep=None)
 
     def forward_decoder(self, x_encoded):
         return self.decoder(x_encoded)
@@ -1427,26 +1420,26 @@ class SwaVQueueModel(BenchmarkModule):
 
 
 models = [
-    BarlowTwinsModel,
-    BYOLModel,
-    DCL,
-    DCLW,
-    DINOModel,
-    FastSiamModel,
-    # MAEModel,  # disabled by default because MAE uses larger images with size 224
+    # BarlowTwinsModel,
+    # BYOLModel,
+    # DCL,
+    # DCLW,
+    # DINOModel,
+    # FastSiamModel,
+    MAEModel,  # disabled by default because MAE uses larger images with size 224
     MSNModel,
-    MocoModel,
-    NNCLRModel,
+    # MocoModel,
+    # NNCLRModel,
     PMSNModel,
-    SimCLRModel,
-    # SimMIMModel,  # disabled by default because SimMIM uses larger images with size 224
-    SimSiamModel,
-    SwaVModel,
-    SwaVQueueModel,
-    SMoGModel,
-    TiCoModel,
-    VICRegModel,
-    VICRegLModel,
+    # SimCLRModel,
+    SimMIMModel,  # disabled by default because SimMIM uses larger images with size 224
+    # SimSiamModel,
+    # SwaVModel,
+    # SwaVQueueModel,
+    # SMoGModel,
+    # TiCoModel,
+    # VICRegModel,
+    # VICRegLModel,
 ]
 
 bench_results = dict()
