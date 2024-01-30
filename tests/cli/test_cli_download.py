@@ -1,11 +1,11 @@
 import os
 import sys
 import tempfile
+import warnings
 
 import pytest
 import torchvision
 from hydra.experimental import compose, initialize
-import warnings
 
 import lightly
 from tests.api_workflow.mocked_api_workflow_client import (
