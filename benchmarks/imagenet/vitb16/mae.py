@@ -24,7 +24,7 @@ class MAE(LightningModule):
         self.batch_size_per_device = batch_size_per_device
 
         decoder_dim = 512
-        vit = vit_base_patch16_224(dynamic_img_size=True)
+        vit = vit_base_patch16_224()
 
         self.mask_ratio = 0.75
         self.patch_size = vit.patch_embed.patch_size[0]
@@ -37,7 +37,6 @@ class MAE(LightningModule):
         self.decoder = masked_autoencoder_timm.MAEDecoder(
             num_patches=vit.patch_embed.num_patches,
             patch_size=self.patch_size,
-            in_chans=3,
             embed_dim=vit.embed_dim,
             decoder_embed_dim=decoder_dim,
             decoder_depth=8,
