@@ -2,7 +2,7 @@
 certifi>=14.05.14
 hydra-core>=1.0.0
 lightly_utils~=0.0.0
-numpy>=1.18.1
+numpy>=1.20.0
 python_dateutil>=2.5.3
 requests>=2.23.0
 six>=1.10
