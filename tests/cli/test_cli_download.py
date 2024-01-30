@@ -1,6 +1,7 @@
 import os
 import sys
 import tempfile
+import warnings
 
 import pytest
 import torchvision
@@ -114,7 +115,7 @@ class TestCLIDownload(MockedApiWorkflowSetup):
             f"lightly-download token='123' dataset_id='{_DATASET_ID}' tag_name=1000"
         )
         self.parse_cli_string(cli_string)
-        with pytest.warns(None) as record:
+        with warnings.catch_warnings(record=True) as record:
             lightly.cli.download_cli(self.cfg)
         # check if the warning "Tag with name 1000 does not exist" is raised
         # if so, the cli string was not parsed correctly
