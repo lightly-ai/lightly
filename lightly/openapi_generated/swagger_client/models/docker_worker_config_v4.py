@@ -21,8 +21,8 @@ import json
 
 from typing import Optional
 from pydantic import Extra,  BaseModel, Field
-from lightly.openapi_generated.swagger_client.models.docker_worker_config_v3_docker import DockerWorkerConfigV3Docker
 from lightly.openapi_generated.swagger_client.models.docker_worker_config_v3_lightly import DockerWorkerConfigV3Lightly
+from lightly.openapi_generated.swagger_client.models.docker_worker_config_v4_docker import DockerWorkerConfigV4Docker
 from lightly.openapi_generated.swagger_client.models.docker_worker_type import DockerWorkerType
 from lightly.openapi_generated.swagger_client.models.selection_config_v3 import SelectionConfigV3
 
@@ -31,7 +31,7 @@ class DockerWorkerConfigV4(BaseModel):
     DockerWorkerConfigV4
     """
     worker_type: DockerWorkerType = Field(..., alias="workerType")
-    docker: Optional[DockerWorkerConfigV3Docker] = None
+    docker: Optional[DockerWorkerConfigV4Docker] = None
     lightly: Optional[DockerWorkerConfigV3Lightly] = None
     selection: Optional[SelectionConfigV3] = None
     __properties = ["workerType", "docker", "lightly", "selection"]
@@ -89,7 +89,7 @@ class DockerWorkerConfigV4(BaseModel):
 
         _obj = DockerWorkerConfigV4.parse_obj({
             "worker_type": obj.get("workerType"),
-            "docker": DockerWorkerConfigV3Docker.from_dict(obj.get("docker")) if obj.get("docker") is not None else None,
+            "docker": DockerWorkerConfigV4Docker.from_dict(obj.get("docker")) if obj.get("docker") is not None else None,
             "lightly": DockerWorkerConfigV3Lightly.from_dict(obj.get("lightly")) if obj.get("lightly") is not None else None,
             "selection": SelectionConfigV3.from_dict(obj.get("selection")) if obj.get("selection") is not None else None
         })
