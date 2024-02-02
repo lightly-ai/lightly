@@ -25,12 +25,12 @@ from lightly.openapi_generated.swagger_client.models import (
     DockerRunScheduledPriority,
     DockerRunScheduledState,
     DockerRunState,
-    DockerWorkerConfigV3,
     DockerWorkerConfigV3Docker,
     DockerWorkerConfigV3DockerCorruptnessCheck,
     DockerWorkerConfigV3Lightly,
     DockerWorkerConfigV3LightlyCollate,
     DockerWorkerConfigV3LightlyLoader,
+    DockerWorkerConfigV4,
     DockerWorkerState,
     DockerWorkerType,
     SelectionConfigV3,
@@ -248,7 +248,7 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
                 ),
             ],
         )
-        config = DockerWorkerConfigV3(
+        config = DockerWorkerConfigV4(
             worker_type=DockerWorkerType.FULL, selection=selection_config
         )
 
