@@ -17,9 +17,9 @@ from lightly.openapi_generated.swagger_client.models import (
     DockerRunScheduledState,
     DockerRunState,
     DockerWorkerConfigOmniVXCreateRequest,
-    DockerWorkerConfigV3,
-    DockerWorkerConfigV3Docker,
     DockerWorkerConfigV3Lightly,
+    DockerWorkerConfigV4,
+    DockerWorkerConfigV4Docker,
     DockerWorkerRegistryEntryData,
     DockerWorkerType,
     SelectionConfigV3,
@@ -219,7 +219,7 @@ class _ComputeWorkerMixin:
             worker_config_cc = _config_to_camel_case(cfg=worker_config)
             deserialize_worker_config = _get_deserialize(
                 api_client=self.api_client,
-                klass=DockerWorkerConfigV3Docker,
+                klass=DockerWorkerConfigV4Docker,
             )
             docker = deserialize_worker_config(worker_config_cc)
             _validate_config(cfg=worker_config, obj=docker)
@@ -237,7 +237,7 @@ class _ComputeWorkerMixin:
         else:
             lightly = None
 
-        config = DockerWorkerConfigV3(
+        config = DockerWorkerConfigV4(
             worker_type=DockerWorkerType.FULL,
             docker=docker,
             lightly=lightly,
@@ -245,7 +245,7 @@ class _ComputeWorkerMixin:
         )
         request = DockerWorkerConfigOmniVXCreateRequest.from_dict(
             {
-                "version": "V3",
+                "version": "V4",
                 "config": config.to_dict(by_alias=True),
                 "creator": self._creator,
             }
