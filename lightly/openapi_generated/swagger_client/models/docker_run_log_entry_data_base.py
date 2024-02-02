@@ -25,16 +25,16 @@ from lightly.openapi_generated.swagger_client.models.docker_run_log_docker_load 
 from lightly.openapi_generated.swagger_client.models.docker_run_log_level import DockerRunLogLevel
 from lightly.openapi_generated.swagger_client.models.docker_run_state import DockerRunState
 
-class DockerRunLogEntryData(BaseModel):
+class DockerRunLogEntryDataBase(BaseModel):
     """
-    DockerRunLogEntryData
+    DockerRunLogEntryDataBase
     """
-    ts: conint(strict=True, ge=0) = Field(..., description="unix timestamp in milliseconds")
-    level: DockerRunLogLevel = Field(...)
+    ts: Optional[conint(strict=True, ge=0)] = Field(None, description="unix timestamp in milliseconds")
+    level: Optional[DockerRunLogLevel] = None
     group: Optional[StrictStr] = Field(None, description="The logger name/group of the log entry.")
     origin: Optional[StrictStr] = Field(None, description="The origin/filename+loc from where a log entry was created from.")
-    msg: StrictStr = Field(..., description="The actual log message.")
-    state: DockerRunState = Field(...)
+    msg: Optional[StrictStr] = Field(None, description="The actual log message.")
+    state: Optional[DockerRunState] = None
     load: Optional[DockerRunLogDockerLoad] = None
     __properties = ["ts", "level", "group", "origin", "msg", "state", "load"]
 
@@ -54,8 +54,8 @@ class DockerRunLogEntryData(BaseModel):
         return json.dumps(self.to_dict(by_alias=by_alias))
 
     @classmethod
-    def from_json(cls, json_str: str) -> DockerRunLogEntryData:
-        """Create an instance of DockerRunLogEntryData from a JSON string"""
+    def from_json(cls, json_str: str) -> DockerRunLogEntryDataBase:
+        """Create an instance of DockerRunLogEntryDataBase from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self, by_alias: bool = False):
@@ -70,20 +70,20 @@ class DockerRunLogEntryData(BaseModel):
         return _dict
 
     @classmethod
-    def from_dict(cls, obj: dict) -> DockerRunLogEntryData:
-        """Create an instance of DockerRunLogEntryData from a dict"""
+    def from_dict(cls, obj: dict) -> DockerRunLogEntryDataBase:
+        """Create an instance of DockerRunLogEntryDataBase from a dict"""
         if obj is None:
             return None
 
         if not isinstance(obj, dict):
-            return DockerRunLogEntryData.parse_obj(obj)
+            return DockerRunLogEntryDataBase.parse_obj(obj)
 
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in DockerRunLogEntryData) in the input: " + str(obj))
+                raise ValueError("Error due to additional fields (not defined in DockerRunLogEntryDataBase) in the input: " + str(obj))
 
-        _obj = DockerRunLogEntryData.parse_obj({
+        _obj = DockerRunLogEntryDataBase.parse_obj({
             "ts": obj.get("ts"),
             "level": obj.get("level"),
             "group": obj.get("group"),
