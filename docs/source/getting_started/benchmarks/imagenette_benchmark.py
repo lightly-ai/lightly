@@ -73,7 +73,7 @@ from pl_bolts.optimizers.lars import LARS
 from pytorch_lightning.loggers import TensorBoardLogger
 
 try:
-    from timm.models import timm_vision_transformer
+    from timm.models import vision_transformer as timm_vision_transformer
 except ImportError:
     print(
         "TIMM is not available. Please install in order to run this benchmark for MAE."
@@ -170,11 +170,9 @@ else:
 
 # The dataset structure should be like this:
 
-# path_to_train = "/datasets/imagenette2-160/train/"
-# path_to_test = "/datasets/imagenette2-160/val/"
+path_to_train = "/datasets/imagenette2-160/train/"
+path_to_test = "/datasets/imagenette2-160/val/"
 
-path_to_train = "/home/ubuntu/datasets/imagenette2-160/train/"
-path_to_test = "/home/ubuntu/datasets/imagenette2-160/val/"
 
 # Use BYOL augmentations
 byol_transform = BYOLTransform(
