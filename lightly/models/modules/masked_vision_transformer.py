@@ -2,16 +2,9 @@ from abc import ABC, abstractmethod
 from typing import Optional
 
 from torch import Tensor
-from torch.nn import Parameter
 
 
 class MaskedVisionTransformer(ABC):
-    def __init__(
-        self,
-        mask_token: Optional[Parameter] = None,
-    ):
-        self.mask_token = mask_token
-
     @abstractmethod
     def forward(
         self,
@@ -26,7 +19,7 @@ class MaskedVisionTransformer(ABC):
         pass
 
     @abstractmethod
-    def add_prefix_tokens(self, x: Tensor, prepend_class_token: bool = True) -> Tensor:
+    def add_prefix_tokens(self, x: Tensor) -> Tensor:
         pass
 
     @abstractmethod
