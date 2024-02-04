@@ -648,6 +648,62 @@ class DINOProjectionHead(ProjectionHead):
         x = nn.functional.normalize(x, dim=-1, p=2)
         x = self.last_layer(x)
         return x
+    
+
+class MMCRProjectionHead(ProjectionHead):
+    """Projection head used for MMCR.
+
+    "Following Chen et al. (14), we append a small perceptron to the output 
+    of the average pooling layer of the ResNet so that zi = g(h(xi)), where 
+    h is the ResNet and g is the MLP." [0]
+
+    - [0]: MMCR, 2023, https://arxiv.org/abs/2303.03307
+    """
+
+    def __init__(
+        self,
+        input_dim: int = 8192,
+        hidden_dim: int = 8192,
+        output_dim: int = 512,
+        num_layers: int = 2,
+        batch_norm: bool = True,
+    ):
+        """Initialize a new MMCRProjectionHead instance.
+
+        Args:
+            input_dim: Number of input dimensions.
+            hidden_dim: Number of hidden dimensions.
+            output_dim: Number of output dimensions.
+            num_layers: Number of hidden layers (2 for v1, 3+ for v2).
+            batch_norm: Whether or not to use batch norms.
+        """
+        layers: List[Tuple[int, int, Optional[nn.Module], Optional[nn.Module]]] = []
+        layers.append(
+            (
+                input_dim,
+                hidden_dim,
+                nn.BatchNorm1d(hidden_dim) if batch_norm else None,
+                nn.ReLU(),
+            )
+        )
+        for _ in range(2, num_layers):
+            layers.append(
+                (
+                    hidden_dim,
+                    hidden_dim,
+                    nn.BatchNorm1d(hidden_dim) if batch_norm else None,
+                    nn.ReLU(),
+                )
+            )
+        layers.append(
+            (
+                hidden_dim,
+                output_dim,
+                nn.BatchNorm1d(output_dim) if batch_norm else None,
+                None,
+            )
+        )
+        super().__init__(layers)
 
 
 class MMCRProjectionHead(ProjectionHead):
