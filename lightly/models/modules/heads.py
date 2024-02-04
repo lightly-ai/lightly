@@ -648,13 +648,13 @@ class DINOProjectionHead(ProjectionHead):
         x = nn.functional.normalize(x, dim=-1, p=2)
         x = self.last_layer(x)
         return x
-    
+
 
 class MMCRProjectionHead(ProjectionHead):
     """Projection head used for MMCR.
 
-    "Following Chen et al. (14), we append a small perceptron to the output 
-    of the average pooling layer of the ResNet so that zi = g(h(xi)), where 
+    "Following Chen et al. (14), we append a small perceptron to the output
+    of the average pooling layer of the ResNet so that zi = g(h(xi)), where
     h is the ResNet and g is the MLP." [0]
 
     - [0]: MMCR, 2023, https://arxiv.org/abs/2303.03307
