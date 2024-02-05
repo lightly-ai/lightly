@@ -1,4 +1,4 @@
-from typing import Tuple, Union
+from typing import Optional, Tuple
 
 import torch
 import torch.nn.functional as F
@@ -97,8 +97,8 @@ class KNNClassifier(LightningModule):
 
         self._train_features = []
         self._train_targets = []
-        self._train_features_tensor: Union[Tensor, None] = None
-        self._train_targets_tensor: Union[Tensor, None] = None
+        self._train_features_tensor: Optional[Tensor] = None
+        self._train_targets_tensor: Optional[Tensor] = None
 
     @torch.no_grad()
     def training_step(self, batch, batch_idx) -> None:

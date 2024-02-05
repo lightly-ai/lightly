@@ -72,7 +72,7 @@ if not isinstance(av, ModuleNotFoundError):
 
     def download_all_video_frames(
         url: str,
-        timestamp: Union[int, None] = None,
+        timestamp: Optional[int] = None,
         as_pil_image: int = True,
         thread_type: av.codec.context.ThreadType = av.codec.context.ThreadType.AUTO,
         video_channel: int = 0,

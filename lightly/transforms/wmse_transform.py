@@ -1,4 +1,4 @@
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Optional, Tuple
 
 import torchvision.transforms as T
 
@@ -78,7 +78,7 @@ class WMSETransform(MultiViewTransform):
         random_gray_scale: float = 0.1,
         hf_prob: float = 0.5,
         gaussian_blur: float = 0.5,
-        kernel_size: Union[int, None] = None,
+        kernel_size: Optional[int] = None,
         sigmas: Tuple[float, float] = (0.1, 2.0),
         normalize: Dict[str, List[float]] = IMAGENET_NORMALIZE,
     ):
