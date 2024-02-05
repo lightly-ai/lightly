@@ -655,7 +655,7 @@ class MMCRProjectionHead(ProjectionHead):
 
     def __init__(
         self,
-        input_dim: int = 8192,
+        input_dim: int = 2048,
         hidden_dim: int = 8192,
         output_dim: int = 512,
         num_layers: int = 2,
@@ -667,7 +667,7 @@ class MMCRProjectionHead(ProjectionHead):
             input_dim: Number of input dimensions.
             hidden_dim: Number of hidden dimensions.
             output_dim: Number of output dimensions.
-            num_layers: Number of hidden layers (2 for v1, 3+ for v2).
+            num_layers: Number of hidden layers.
             batch_norm: Whether or not to use batch norms.
         """
         layers: List[Tuple[int, int, Optional[nn.Module], Optional[nn.Module]]] = []
@@ -679,7 +679,7 @@ class MMCRProjectionHead(ProjectionHead):
                 nn.ReLU(),
             )
         )
-        for _ in range(2, num_layers):
+        for _ in range(num_layers - 1):
             layers.append(
                 (
                     hidden_dim,
