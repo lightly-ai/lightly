@@ -14,7 +14,6 @@ from torchvision import transforms as T
 
 from lightly.data import LightlyDataset
 from lightly.models import utils
-from lightly.models.utils import add_stochastic_depth_to_blocks
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils.benchmarking import LinearClassifier, MetricCallback
 from lightly.utils.benchmarking.topk import mean_topk_accuracy
