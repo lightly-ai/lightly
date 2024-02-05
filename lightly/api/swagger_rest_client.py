@@ -1,4 +1,4 @@
-from typing import Any, Dict, Tuple, Union
+from typing import Any, Dict, Optional, Tuple, Union
 
 from lightly.openapi_generated.swagger_client.api_client import Configuration
 from lightly.openapi_generated.swagger_client.rest import RESTClientObject
@@ -29,7 +29,7 @@ class PatchRESTClientObjectMixin:
         configuration: Configuration,
         timeout: Union[None, int, Tuple[int, int]],
         pools_size: int = 4,
-        maxsize: Union[None, int] = None,
+        maxsize: Optional[int] = None,
     ):
         # Save args as attributes to make the class picklable.
         self.configuration = configuration

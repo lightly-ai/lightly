@@ -1,7 +1,7 @@
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
-from typing import Tuple, Union
+from typing import Optional, Tuple
 from warnings import warn
 
 import numpy as np
@@ -34,9 +34,9 @@ class GaussianBlur:
 
     def __init__(
         self,
-        kernel_size: Union[float, None] = None,
+        kernel_size: Optional[float] = None,
         prob: float = 0.5,
-        scale: Union[float, None] = None,
+        scale: Optional[float] = None,
         sigmas: Tuple[float, float] = (0.2, 2),
     ):
         if scale != None or kernel_size != None:

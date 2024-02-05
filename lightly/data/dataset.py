@@ -5,7 +5,7 @@ import bisect
 import os
 import shutil
 import tempfile
-from typing import Any, Callable, Dict, List, Union
+from typing import Any, Callable, Dict, List, Optional, Union
 
 import torchvision.datasets as datasets
 from PIL import Image
@@ -254,8 +254,8 @@ class LightlyDataset:
     def dump(
         self,
         output_dir: str,
-        filenames: Union[List[str], None] = None,
-        format: Union[str, None] = None,
+        filenames: Optional[List[str]] = None,
+        format: Optional[str] = None,
     ):
         """Saves images in the dataset to the output directory.
 

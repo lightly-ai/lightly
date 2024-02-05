@@ -1,6 +1,6 @@
 import math
 import warnings
-from typing import Union
+from typing import Optional
 
 import torch
 import torch.distributed as dist
@@ -152,7 +152,7 @@ class MSNLoss(nn.Module):
         temperature: float = 0.1,
         sinkhorn_iterations: int = 3,
         regularization_weight: float = 1.0,
-        me_max_weight: Union[float, None] = None,
+        me_max_weight: Optional[float] = None,
         gather_distributed: bool = False,
     ):
         super().__init__()

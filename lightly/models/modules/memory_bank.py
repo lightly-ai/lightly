@@ -4,7 +4,7 @@
 # All Rights Reserved
 
 import warnings
-from typing import Sequence, Tuple, Union
+from typing import Optional, Sequence, Tuple, Union
 
 import torch
 from torch import Tensor
@@ -44,7 +44,7 @@ class MemoryBankModule(Module):
         >>>     def __init__(self, memory_bank_size: Tuple[int, int] = (2 ** 16, 128)):
         >>>         super().__init__(memory_bank_size)
         >>>
-        >>>     def forward(self, output: Tensor, labels: Union[Tensor, None] = None):
+        >>>     def forward(self, output: Tensor, labels: Optional[Tensor] = None):
         >>>         output, negatives = super().forward(output)
         >>>
         >>>         if negatives is not None:
@@ -134,7 +134,7 @@ class MemoryBankModule(Module):
     def forward(
         self,
         output: Tensor,
-        labels: Union[Tensor, None] = None,
+        labels: Optional[Tensor] = None,
         update: bool = False,
     ) -> Tuple[Tensor, Union[Tensor, None]]:
         """Query memory bank for additional negative samples

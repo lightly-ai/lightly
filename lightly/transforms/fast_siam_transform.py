@@ -88,7 +88,7 @@ class FastSiamTransform(MultiViewTransform):
         vf_prob: float = 0.0,
         hf_prob: float = 0.5,
         rr_prob: float = 0.0,
-        rr_degrees: Union[None, float, Tuple[float, float]] = None,
+        rr_degrees: Optional[Union[float, Tuple[float, float]]] = None,
         normalize: Union[None, Dict[str, List[float]]] = IMAGENET_NORMALIZE,
     ):
         transforms = [
