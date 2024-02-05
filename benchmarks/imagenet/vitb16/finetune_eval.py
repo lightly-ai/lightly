@@ -36,8 +36,6 @@ class FinetuneEvalClassifier(LinearClassifier):
         super().__init__(
             model, batch_size_per_device, feature_dim, num_classes, topk, freeze_model
         )
-        # Add path dropout.
-        add_stochastic_depth_to_blocks(self.model, prob=0.1)
         # Add mixup and cutmix.
         self.mixup = Mixup(
             mixup_alpha=0.8,
