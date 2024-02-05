@@ -1,6 +1,6 @@
 import copy
 import warnings
-from typing import Type, Union
+from typing import Optional, Type, Union
 
 
 class bcolors:
@@ -19,7 +19,7 @@ def _custom_formatwarning(
     category: Type[Warning],
     filename: str,
     lineno: int,
-    line: Union[str, None] = None,
+    line: Optional[str] = None,
 ) -> str:
     # ignore everything except the message
     return f"{bcolors.WARNING}{message}{bcolors.WARNING}\n"

@@ -159,7 +159,7 @@ class ImageCollateFunction(BaseCollateFunction):
         vf_prob: float = 0.0,
         hf_prob: float = 0.5,
         rr_prob: float = 0.0,
-        rr_degrees: Union[None, float, Tuple[float, float]] = None,
+        rr_degrees: Optional[Union[float, Tuple[float, float]]] = None,
         normalize: dict = imagenet_normalize,
     ):
         if isinstance(input_size, tuple):
@@ -289,7 +289,7 @@ class SimCLRCollateFunction(ImageCollateFunction):
         vf_prob: float = 0.0,
         hf_prob: float = 0.5,
         rr_prob: float = 0.0,
-        rr_degrees: Union[None, float, Tuple[float, float]] = None,
+        rr_degrees: Optional[Union[float, Tuple[float, float]]] = None,
         normalize: dict = imagenet_normalize,
     ):
         super(SimCLRCollateFunction, self).__init__(
@@ -376,7 +376,7 @@ class MoCoCollateFunction(ImageCollateFunction):
         vf_prob: float = 0.0,
         hf_prob: float = 0.5,
         rr_prob: float = 0.0,
-        rr_degrees: Union[None, float, Tuple[float, float]] = None,
+        rr_degrees: Optional[Union[float, Tuple[float, float]]] = None,
         normalize: dict = imagenet_normalize,
     ):
         super(MoCoCollateFunction, self).__init__(
@@ -523,7 +523,7 @@ class SwaVCollateFunction(MultiCropCollateFunction):
         hf_prob: float = 0.5,
         vf_prob: float = 0.0,
         rr_prob: float = 0.0,
-        rr_degrees: Union[None, float, Tuple[float, float]] = None,
+        rr_degrees: Optional[Union[float, Tuple[float, float]]] = None,
         cj_prob: float = 0.8,
         cj_strength: float = 0.8,
         random_gray_scale: float = 0.2,
@@ -638,7 +638,7 @@ class DINOCollateFunction(MultiViewCollateFunction):
         hf_prob=0.5,
         vf_prob=0,
         rr_prob=0,
-        rr_degrees: Union[None, float, Tuple[float, float]] = None,
+        rr_degrees: Optional[Union[float, Tuple[float, float]]] = None,
         cj_prob=0.8,
         cj_bright=0.4,
         cj_contrast=0.4,
@@ -1148,7 +1148,7 @@ class VICRegCollateFunction(BaseCollateFunction):
         vf_prob: float = 0.0,
         hf_prob: float = 0.5,
         rr_prob: float = 0.0,
-        rr_degrees: Union[None, float, Tuple[float, float]] = None,
+        rr_degrees: Optional[Union[float, Tuple[float, float]]] = None,
         normalize: dict = imagenet_normalize,
     ):
         if isinstance(input_size, tuple):
