@@ -35,8 +35,7 @@ class FinetuneEvalClassifier(LinearClassifier):
         super().__init__(
             model, batch_size_per_device, feature_dim, num_classes, topk, freeze_model
         )
-        # Add path dropout.
-        model.__dict__["backbone"].__dict__["vit"].drop_path_rate = 0.1
+        # TODO(Ersi, 2/24): Add path dropout.
 
         # Add mixup and cutmix.
         self.mixup = Mixup(

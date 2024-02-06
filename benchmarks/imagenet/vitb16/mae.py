@@ -123,7 +123,6 @@ class MAE(LightningModule):
         params, params_no_weight_decay = utils.get_weight_decay_parameters(
             [self.backbone, self.decoder]
         )
-        params.append(self.decoder.mask_token)
         optimizer = AdamW(
             [
                 {"name": "mae", "params": params},
