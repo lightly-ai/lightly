@@ -100,12 +100,8 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer, Module):
         return x
 
     def add_pos_embed(self, x: Tensor) -> Tensor:
-        x_prefix = (
-            x[:, : self.vit.num_prefix_tokens, :]
-            if self.vit.num_prefix_tokens
-            else torch.empty()
-        )
-        x = x[:, self.vit.num_prefix_tokens :, :] if self.vit.num_prefix_tokens else x
+        x_prefix = x[:, : self.vit.num_prefix_tokens, :]
+        x = x[:, self.vit.num_prefix_tokens :, :] 
         if self.vit.dynamic_img_size:
             x = x.transpose(1, 2)  # NLC -> NCL
             total_size = torch.numel(x)
