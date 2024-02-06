@@ -8,8 +8,10 @@ from torch.nn import MSELoss, Parameter
 from torch.optim import AdamW
 
 from lightly.models import utils
-from lightly.models.modules import masked_autoencoder_timm
-from lightly.models.modules.masked_autoencoder_timm import MAEBackbone, MAEDecoder
+from lightly.models.modules import (
+    masked_autoencoder_timm,
+    masked_vision_transformer_timm,
+)
 from lightly.transforms import MAETransform
 from lightly.utils.benchmarking import OnlineLinearClassifier
 from lightly.utils.scheduler import CosineWarmupScheduler
@@ -26,10 +28,12 @@ class MAE(LightningModule):
 
         self.mask_ratio = 0.75
         self.patch_size = vit.patch_embed.patch_size[0]
-        self.sequence_length = vit.patch_embed.num_patches + +vit.num_prefix_tokens
-        self.mask_token = Parameter(torch.zeros(1, 1, decoder_dim))
-        torch.nn.init.normal_(self.mask_token, std=0.02)
-        self.backbone = MAEBackbone.from_vit(vit)
+        self.sequence_length = vit.patch_embed.num_patches + vit.num_prefix_tokens
+        mask_token = Parameter(torch.zeros(1, 1, decoder_dim))
+        torch.nn.init.normal_(mask_token, std=0.02)
+        self.backbone = masked_vision_transformer_timm.MaskedVisionTransformerTIMM(
+            vit=vit
+        )
         self.decoder = masked_autoencoder_timm.MAEDecoder(
             num_patches=vit.patch_embed.num_patches,
             patch_size=self.patch_size,
@@ -40,6 +44,7 @@ class MAE(LightningModule):
             mlp_ratio=4.0,
             proj_drop_rate=0.0,
             attn_drop_rate=0.0,
+            mask_token=mask_token,
         )
         self.criterion = MSELoss()
 
@@ -48,17 +53,17 @@ class MAE(LightningModule):
         )
 
     def forward(self, x: Tensor) -> Tensor:
-        return self.backbone(x)
+        return self.backbone(images=x)
 
     def forward_encoder(self, images, idx_keep=None):
-        return self.backbone.encode(images, idx_keep)
+        return self.backbone.encode(images=images, idx_keep=idx_keep)
 
     def forward_decoder(self, x_encoded, idx_keep, idx_mask):
         # build decoder input
         batch_size = x_encoded.shape[0]
         x_decode = self.decoder.embed(x_encoded)
         x_masked = utils.repeat_token(
-            self.mask_token, (batch_size, self.sequence_length)
+            self.decoder.mask_token, (batch_size, self.sequence_length)
         )
         x_masked = utils.set_at_index(x_masked, idx_keep, x_decode.type_as(x_masked))
 
@@ -118,7 +123,6 @@ class MAE(LightningModule):
         params, params_no_weight_decay = utils.get_weight_decay_parameters(
             [self.backbone, self.decoder]
         )
-        params.append(self.mask_token)
         optimizer = AdamW(
             [
                 {"name": "mae", "params": params},

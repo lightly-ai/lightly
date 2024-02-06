@@ -602,6 +602,21 @@ def add_stochastic_depth_to_blocks(vit: Module, prob: float = 0.0, mode="row") -
             mod.mlp = Sequential(mod.mlp, StochasticDepth(p=prob, mode=mode))
 
 
+def initialize_2d_sine_cosine_positional_embedding(pos_embedding: Parameter) -> None:
+    _, seq_length, hidden_dim = pos_embedding.shape
+    grid_size = int((seq_length - 1) ** 0.5)
+    sine_cosine_embedding = get_2d_sine_cosine_positional_embedding(
+        embed_dim=hidden_dim,
+        grid_size=grid_size,
+        cls_token=True,
+    )
+    pos_embedding.data.copy_(
+        torch.from_numpy(sine_cosine_embedding).float().unsqueeze(0)
+    )
+    # Freeze positional embedding.
+    pos_embedding.requires_grad = False
+
+
 def get_2d_sine_cosine_positional_embedding(
     embed_dim: int, grid_size: int, cls_token: bool
 ) -> NDArray[np.float32]:
