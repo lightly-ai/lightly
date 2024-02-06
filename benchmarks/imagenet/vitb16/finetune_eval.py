@@ -35,6 +35,9 @@ class FinetuneEvalClassifier(LinearClassifier):
         super().__init__(
             model, batch_size_per_device, feature_dim, num_classes, topk, freeze_model
         )
+        # Add path dropout.
+        model.__dict__['backbone'].__dict__['vit'].drop_path_rate = 0.1
+        
         # Add mixup and cutmix.
         self.mixup = Mixup(
             mixup_alpha=0.8,
@@ -137,7 +140,6 @@ def finetune_eval(
     Parameters follow MAE settings.
     """
     print("Running fine-tune evaluation...")
-
     # Setup training data.
     # NOTE: We use transforms from the timm library here as they are the default in MAE
     # and torchvision does not provide all required parameters.
