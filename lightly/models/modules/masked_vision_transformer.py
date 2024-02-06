@@ -25,4 +25,3 @@ class MaskedVisionTransformer(ABC):
     @abstractmethod
     def add_pos_embed(self, x: Tensor) -> Tensor:
         pass
-
