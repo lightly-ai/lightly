@@ -26,6 +26,3 @@ class MaskedVisionTransformer(ABC):
     def add_pos_embed(self, x: Tensor) -> Tensor:
         pass
 
-    @abstractmethod
-    def _initialize_weights(self) -> None:
-        pass
