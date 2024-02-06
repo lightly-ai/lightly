@@ -19,7 +19,7 @@ class ProjectionHead(nn.Module):
         blocks:
             List of tuples, each denoting one block of the projection head MLP.
             Each tuple reads (in_features, out_features, batch_norm_layer,
-            non_linearity_layer).
+            non_linearity_layer, use_bias (optional)).
 
     Examples:
         >>> # the following projection head has two blocks
@@ -33,13 +33,20 @@ class ProjectionHead(nn.Module):
     """
 
     def __init__(
-        self, blocks: List[Tuple[int, int, Optional[nn.Module], Optional[nn.Module]]]
+        self,
+        blocks: List[
+            Union[
+                Tuple[int, int, Optional[nn.Module], Optional[nn.Module]],
+                Tuple[int, int, Optional[nn.Module], Optional[nn.Module], bool],
+            ]
+        ],
     ) -> None:
         super(ProjectionHead, self).__init__()
 
         layers: List[nn.Module] = []
-        for input_dim, output_dim, batch_norm, non_linearity in blocks:
-            use_bias = not bool(batch_norm)
+        for block in blocks:
+            input_dim, output_dim, batch_norm, non_linearity, *bias = block
+            use_bias = bias[0] if bias else not bool(batch_norm)
             layers.append(nn.Linear(input_dim, output_dim, bias=use_bias))
             if batch_norm:
                 layers.append(batch_norm)
@@ -660,6 +667,7 @@ class MMCRProjectionHead(ProjectionHead):
         output_dim: int = 512,
         num_layers: int = 2,
         batch_norm: bool = True,
+        use_bias: bool = False,
     ):
         """Initialize a new MMCRProjectionHead instance.
 
@@ -669,14 +677,21 @@ class MMCRProjectionHead(ProjectionHead):
             output_dim: Number of output dimensions.
             num_layers: Number of hidden layers.
             batch_norm: Whether or not to use batch norms.
+            use_bias: Whether or not to use bias in the linear layers.
         """
-        layers: List[Tuple[int, int, Optional[nn.Module], Optional[nn.Module]]] = []
+        layers: List[
+            Union[
+                Tuple[int, int, Optional[nn.Module], Optional[nn.Module]],
+                Tuple[int, int, Optional[nn.Module], Optional[nn.Module], bool],
+            ]
+        ] = []
         layers.append(
             (
                 input_dim,
                 hidden_dim,
                 nn.BatchNorm1d(hidden_dim) if batch_norm else None,
                 nn.ReLU(),
+                use_bias,
             )
         )
         for _ in range(num_layers - 1):
@@ -686,16 +701,10 @@ class MMCRProjectionHead(ProjectionHead):
                     hidden_dim,
                     nn.BatchNorm1d(hidden_dim) if batch_norm else None,
                     nn.ReLU(),
+                    use_bias,
                 )
             )
-        layers.append(
-            (
-                hidden_dim,
-                output_dim,
-                nn.BatchNorm1d(output_dim) if batch_norm else None,
-                None,
-            )
-        )
+        layers.append((hidden_dim, output_dim, None, None, use_bias))
         super().__init__(layers)
 
 
