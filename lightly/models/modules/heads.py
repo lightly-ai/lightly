@@ -3,7 +3,7 @@
 # Copyright (c) 2021. Lightly AG and its affiliates.
 # All Rights Reserved
 
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Sequence, Tuple, Union
 
 import torch
 import torch.nn as nn
@@ -34,14 +34,14 @@ class ProjectionHead(nn.Module):
 
     def __init__(
         self,
-        blocks: List[
+        blocks: Sequence[
             Union[
                 Tuple[int, int, Optional[nn.Module], Optional[nn.Module]],
                 Tuple[int, int, Optional[nn.Module], Optional[nn.Module], bool],
-            ]
+            ],
         ],
     ) -> None:
-        super(ProjectionHead, self).__init__()
+        super().__init__()
 
         layers: List[nn.Module] = []
         for block in blocks:
@@ -680,10 +680,7 @@ class MMCRProjectionHead(ProjectionHead):
             use_bias: Whether or not to use bias in the linear layers.
         """
         layers: List[
-            Union[
-                Tuple[int, int, Optional[nn.Module], Optional[nn.Module]],
-                Tuple[int, int, Optional[nn.Module], Optional[nn.Module], bool],
-            ]
+            Tuple[int, int, Optional[nn.Module], Optional[nn.Module], bool]
         ] = []
         layers.append(
             (
