@@ -8,7 +8,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  check-paths:
+  detect-code-changes:
+    name: Detect Code Changes
     runs-on: ubuntu-latest
     outputs:
       run-tests: ${{ steps.filter.outputs.run-tests }}
@@ -26,8 +27,8 @@ jobs:
 
   test:
     name: Test
-    needs: check-paths
-    if: needs.check-paths.outputs.run-tests == 'true'
+    needs: detect-code-changes
+    if: needs.detect-code-changes.outputs.run-tests == 'true'
     runs-on: ubuntu-latest
     strategy:
       matrix:
