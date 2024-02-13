@@ -36,17 +36,17 @@ class BYOL(LightningModule):
     def forward(self, x: Tensor) -> Tensor:
         return self.backbone(x)
 
-    def forward_student(self, x: Tensor) -> Tensor:
+    def forward_student(self, x: Tensor) -> Tuple[Tensor, Tensor]:
         features = self(x).flatten(start_dim=1)
         projections = self.projection_head(features)
         predictions = self.prediction_head(projections)
-        return predictions
+        return features, predictions
 
     @torch.no_grad()
-    def forward_teacher(self, x: Tensor) -> Tuple[Tensor, Tensor]:
+    def forward_teacher(self, x: Tensor) -> Tensor:
         features = self.teacher_backbone(x).flatten(start_dim=1)
         projections = self.teacher_projection_head(features)
-        return features, projections
+        return projections
 
     def training_step(
         self, batch: Tuple[List[Tensor], Tensor, List[str]], batch_idx: int
@@ -66,10 +66,10 @@ class BYOL(LightningModule):
 
         # Forward pass and loss calculation.
         views, targets = batch[0], batch[1]
-        teacher_features_0, teacher_projections_0 = self.forward_teacher(views[0])
-        _, teacher_projections_1 = self.forward_teacher(views[1])
-        student_predictions_0 = self.forward_student(views[0])
-        student_predictions_1 = self.forward_student(views[1])
+        teacher_projections_0 = self.forward_teacher(views[0])
+        teacher_projections_1 = self.forward_teacher(views[1])
+        student_features_0, student_predictions_0 = self.forward_student(views[0])
+        _, student_predictions_1 = self.forward_student(views[1])
         # NOTE: Factor 2 because: L2(norm(x), norm(y)) = 2 - 2 * cossim(x, y)
         loss_0 = 2 * self.criterion(teacher_projections_0, student_predictions_1)
         loss_1 = 2 * self.criterion(teacher_projections_1, student_predictions_0)
@@ -82,7 +82,7 @@ class BYOL(LightningModule):
 
         # Online linear evaluation.
         cls_loss, cls_log = self.online_classifier.training_step(
-            (teacher_features_0.detach(), targets), batch_idx
+            (student_features_0.detach(), targets), batch_idx
         )
         self.log_dict(cls_log, sync_dist=True, batch_size=len(targets))
         return loss + cls_loss
