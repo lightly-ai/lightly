@@ -26,9 +26,9 @@ class BYOL(LightningModule):
         resnet.fc = Identity()  # Ignore classification head
         self.backbone = resnet
         self.projection_head = BYOLProjectionHead()
-        self.student_backbone = copy.deepcopy(self.backbone)
-        self.student_projection_head = BYOLProjectionHead()
-        self.student_prediction_head = BYOLPredictionHead()
+        self.prediction_head = BYOLPredictionHead()
+        self.teacher_backbone = copy.deepcopy(self.backbone)
+        self.teacher_projection_head = BYOLProjectionHead()
         self.criterion = NegativeCosineSimilarity()
 
         self.online_classifier = OnlineLinearClassifier(num_classes=num_classes)
@@ -36,17 +36,17 @@ class BYOL(LightningModule):
     def forward(self, x: Tensor) -> Tensor:
         return self.backbone(x)
 
-    @torch.no_grad()
-    def forward_teacher(self, x: Tensor) -> Tuple[Tensor, Tensor]:
+    def forward_student(self, x: Tensor) -> Tensor:
         features = self(x).flatten(start_dim=1)
         projections = self.projection_head(features)
-        return features, projections
-
-    def forward_student(self, x: Tensor) -> Tensor:
-        features = self.student_backbone(x).flatten(start_dim=1)
-        projections = self.student_projection_head(features)
-        predictions = self.student_prediction_head(projections)
+        predictions = self.prediction_head(projections)
         return predictions
+
+    @torch.no_grad()
+    def forward_teacher(self, x: Tensor) -> Tuple[Tensor, Tensor]:
+        features = self.teacher_backbone(x).flatten(start_dim=1)
+        projections = self.teacher_projection_head(features)
+        return features, projections
 
     def training_step(
         self, batch: Tuple[List[Tensor], Tensor, List[str]], batch_idx: int
@@ -61,8 +61,8 @@ class BYOL(LightningModule):
             start_value=0.99,
             end_value=1.0,
         )
-        update_momentum(self.student_backbone, self.backbone, m=momentum)
-        update_momentum(self.student_projection_head, self.projection_head, m=momentum)
+        update_momentum(self.backbone, self.teacher_backbone, m=momentum)
+        update_momentum(self.projection_head, self.teacher_projection_head, m=momentum)
 
         # Forward pass and loss calculation.
         views, targets = batch[0], batch[1]
@@ -103,9 +103,9 @@ class BYOL(LightningModule):
         # head to improve performance.
         params, params_no_weight_decay = get_weight_decay_parameters(
             [
-                self.student_backbone,
-                self.student_projection_head,
-                self.student_prediction_head,
+                self.backbone,
+                self.projection_head,
+                self.prediction_head,
             ]
         )
         optimizer = LARS(
