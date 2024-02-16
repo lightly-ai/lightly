@@ -1,6 +1,7 @@
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
 from typing import Sequence
+from urllib import parse
 
 
 def get_server(
@@ -61,6 +62,7 @@ def _translate_path(path: str, directories: Sequence[Path]) -> str:
         if the file doesn't exist.
 
     """
+    path = parse.unquote(path)
     stripped_path = path.lstrip("/")
     for directory in directories:
         if (directory / stripped_path).exists():
