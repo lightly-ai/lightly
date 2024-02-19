@@ -98,7 +98,7 @@ class _DownloadDatasetMixin:
                 self._mappings_api.get_sample_mappings_by_dataset_id,
                 page_size=25000,
                 dataset_id=self.dataset_id,
-                field="_id"
+                field="_id",
             )
         )
 
