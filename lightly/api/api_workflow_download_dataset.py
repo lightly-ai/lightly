@@ -93,8 +93,13 @@ class _DownloadDatasetMixin:
             )
 
         # get sample ids
-        sample_ids = self._mappings_api.get_sample_mappings_by_dataset_id(
-            self.dataset_id, field="_id"
+        sample_ids = list(
+            utils.paginate_endpoint(
+                self._mappings_api.get_sample_mappings_by_dataset_id,
+                page_size=25000,
+                dataset_id=self.dataset_id,
+                field="_id"
+            )
         )
 
         indices = BitMask.from_hex(tag.bit_mask_data).to_indices()

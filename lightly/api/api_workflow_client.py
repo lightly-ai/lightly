@@ -221,8 +221,13 @@ class ApiWorkflowClient(
 
         :meta private:  # Skip docstring generation
         """
-        filenames_on_server = self._mappings_api.get_sample_mappings_by_dataset_id(
-            dataset_id=self.dataset_id, field="fileName"
+        filenames_on_server = list(
+            utils.paginate_endpoint(
+                self._mappings_api.get_sample_mappings_by_dataset_id,
+                page_size=25000,
+                dataset_id=self.dataset_id,
+                field="fileName"
+            )
         )
         return filenames_on_server
 
