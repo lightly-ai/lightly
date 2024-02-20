@@ -41,7 +41,9 @@ def lightly_serve(cfg):
     )
     print(f"Starting server, listening at '{httpd.server_name}:{httpd.server_port}'")
     print(f"Serving files in '{cfg.input_mount}' and '{cfg.lightly_mount}'")
-    print(f"Please follow our docs if you are facing any issues: https://docs.lightly.ai/docs/local-storage#optional-after-run-view-local-data-in-lightly-platform")
+    print(
+        f"Please follow our docs if you are facing any issues: https://docs.lightly.ai/docs/local-storage#optional-after-run-view-local-data-in-lightly-platform"
+    )
     httpd.serve_forever()
 
 
