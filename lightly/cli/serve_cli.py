@@ -5,6 +5,7 @@ import hydra
 
 from lightly.api import serve
 from lightly.cli._helpers import fix_hydra_arguments
+from lightly.utils.hipify import bcolors
 
 
 @hydra.main(**fix_hydra_arguments(config_path="config", config_name="lightly-serve"))
@@ -39,8 +40,8 @@ def lightly_serve(cfg):
         host=cfg.host,
         port=cfg.port,
     )
-    print(f"Starting server, listening at '{httpd.server_name}:{httpd.server_port}'")
-    print(f"Serving files in '{cfg.input_mount}' and '{cfg.lightly_mount}'")
+    print(f"Starting server, listening at '{bcolors.OKBLUE}{httpd.server_name}:{httpd.server_port}{bcolors.ENDC}'")
+    print(f"Serving files in '{bcolors.OKBLUE}{cfg.input_mount}{bcolors.ENDC}' and '{bcolors.OKBLUE}{cfg.lightly_mount}{bcolors.ENDC}'")
     print(
         f"Please follow our docs if you are facing any issues: https://docs.lightly.ai/docs/local-storage#optional-after-run-view-local-data-in-lightly-platform"
     )
