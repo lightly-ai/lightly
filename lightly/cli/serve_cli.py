@@ -40,8 +40,12 @@ def lightly_serve(cfg):
         host=cfg.host,
         port=cfg.port,
     )
-    print(f"Starting server, listening at '{bcolors.OKBLUE}{httpd.server_name}:{httpd.server_port}{bcolors.ENDC}'")
-    print(f"Serving files in '{bcolors.OKBLUE}{cfg.input_mount}{bcolors.ENDC}' and '{bcolors.OKBLUE}{cfg.lightly_mount}{bcolors.ENDC}'")
+    print(
+        f"Starting server, listening at '{bcolors.OKBLUE}{httpd.server_name}:{httpd.server_port}{bcolors.ENDC}'"
+    )
+    print(
+        f"Serving files in '{bcolors.OKBLUE}{cfg.input_mount}{bcolors.ENDC}' and '{bcolors.OKBLUE}{cfg.lightly_mount}{bcolors.ENDC}'"
+    )
     print(
         f"Please follow our docs if you are facing any issues: https://docs.lightly.ai/docs/local-storage#optional-after-run-view-local-data-in-lightly-platform"
     )
