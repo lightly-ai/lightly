@@ -39,6 +39,11 @@ def get_server(
             self.send_header("Access-Control-Allow-Origin", "*")
             self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
             self.end_headers()
+        
+        def send_response_only(self, code, message=None):
+            super().send_response_only(code, message)
+            self.send_header('Cache-Control', 'no-store, must-revalidate, no-cache, max-age=-1')
+            self.send_header('Expires', '0')
 
     return HTTPServer((host, port), _LocalDatasourceRequestHandler)
 
