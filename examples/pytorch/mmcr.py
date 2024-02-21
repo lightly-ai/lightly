@@ -9,7 +9,7 @@ import torchvision
 from torch import nn
 
 from lightly.loss import MMCRLoss
-from lightly.models.modules import SimCLRProjectionHead
+from lightly.models.modules import MMCRProjectionHead
 from lightly.models.utils import deactivate_requires_grad, update_momentum
 from lightly.transforms.mmcr_transform import MMCRTransform
 from lightly.utils.scheduler import cosine_schedule
@@ -20,7 +20,7 @@ class MMCR(nn.Module):
         super().__init__()
 
         self.backbone = backbone
-        self.projection_head = SimCLRProjectionHead(512, 512, 128)
+        self.projection_head = MMCRProjectionHead(512, 512, 128)
 
         self.backbone_momentum = copy.deepcopy(self.backbone)
         self.projection_head_momentum = copy.deepcopy(self.projection_head)
