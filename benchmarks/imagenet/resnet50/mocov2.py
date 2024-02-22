@@ -31,8 +31,8 @@ class MoCoV2(LightningModule):
         resnet.fc = Identity()  # Ignore classification head
         self.backbone = resnet
         self.projection_head = MoCoProjectionHead()
-        self.query_backbone = copy.deepcopy(self.backbone)
-        self.query_projection_head = MoCoProjectionHead()
+        self.key_backbone = copy.deepcopy(self.backbone)
+        self.key_projection_head = MoCoProjectionHead()
         self.criterion = NTXentLoss(
             temperature=0.2,
             memory_bank_size=(65536, 128),
@@ -44,11 +44,16 @@ class MoCoV2(LightningModule):
     def forward(self, x: Tensor) -> Tensor:
         return self.backbone(x)
 
-    @torch.no_grad()
-    def forward_key_encoder(self, x: Tensor) -> Tuple[Tensor, Tensor]:
-        x, shuffle = batch_shuffle(batch=x, distributed=self.trainer.num_devices > 1)
-        features = self.forward(x).flatten(start_dim=1)
+    def forward_query_encoder(self, x: Tensor) -> Tuple[Tensor, Tensor]:
+        features = self(x).flatten(start_dim=1)
         projections = self.projection_head(features)
+        return features, projections
+
+    @torch.no_grad()
+    def forward_key_encoder(self, x: Tensor) -> Tensor:
+        x, shuffle = batch_shuffle(batch=x, distributed=self.trainer.num_devices > 1)
+        features = self.key_backbone(x).flatten(start_dim=1)
+        projections = self.key_projection_head(features)
         features = batch_unshuffle(
             batch=features,
             shuffle=shuffle,
@@ -59,11 +64,6 @@ class MoCoV2(LightningModule):
             shuffle=shuffle,
             distributed=self.trainer.num_devices > 1,
         )
-        return features, projections
-
-    def forward_query_encoder(self, x: Tensor) -> Tensor:
-        features = self.query_backbone(x).flatten(start_dim=1)
-        projections = self.query_projection_head(features)
         return projections
 
     def training_step(
@@ -72,16 +72,16 @@ class MoCoV2(LightningModule):
         views, targets = batch[0], batch[1]
 
         # Encode queries.
-        query_projections = self.forward_query_encoder(views[1])
+        query_features, query_projections = self.forward_query_encoder(views[1])
 
         # Momentum update. This happens between query and key encoding, following the
         # original implementation from the authors:
         # https://github.com/facebookresearch/moco/blob/5a429c00bb6d4efdf511bf31b6f01e064bf929ab/moco/builder.py#L142
-        update_momentum(self.query_backbone, self.backbone, m=0.999)
-        update_momentum(self.query_projection_head, self.projection_head, m=0.999)
+        update_momentum(self.backbone, self.key_backbone, m=0.999)
+        update_momentum(self.projection_head, self.key_projection_head, m=0.999)
 
         # Encode keys.
-        key_features, key_projections = self.forward_key_encoder(views[0])
+        key_projections = self.forward_key_encoder(views[0])
         loss = self.criterion(query_projections, key_projections)
         self.log(
             "train_loss", loss, prog_bar=True, sync_dist=True, batch_size=len(targets)
@@ -89,7 +89,7 @@ class MoCoV2(LightningModule):
 
         # Online linear evaluation.
         cls_loss, cls_log = self.online_classifier.training_step(
-            (key_features.detach(), targets), batch_idx
+            (query_features.detach(), targets), batch_idx
         )
         self.log_dict(cls_log, sync_dist=True, batch_size=len(targets))
         return loss + cls_loss
@@ -111,7 +111,7 @@ class MoCoV2(LightningModule):
         # NOTE: The original implementation from the authors uses weight decay for all
         # parameters.
         params, params_no_weight_decay = get_weight_decay_parameters(
-            [self.query_backbone, self.query_projection_head]
+            [self.backbone, self.projection_head]
         )
         optimizer = SGD(
             [
