@@ -3,17 +3,14 @@ from datetime import datetime
 from pathlib import Path
 from typing import Sequence, Union
 
-<<<<<<< HEAD
 import finetune_eval
 import knn_eval
 import linear_eval
 import mae
-=======
 import aim
 import finetune_eval
 import knn_eval
 import linear_eval
->>>>>>> master
 import torch
 from pytorch_lightning import LightningModule, Trainer
 from pytorch_lightning.callbacks import DeviceStatsMonitor, LearningRateMonitor

@@ -623,47 +623,15 @@ def get_named_leaf_modules(module: Module) -> Dict[str, Module]:
 
 def add_stochastic_depth_to_blocks(vit: Module, prob: float = 0.0, mode="row") -> None:
     """Adds stochastic depth dropout to all transformer blocks."""
-<<<<<<< HEAD
-    if prob <= 0:
-        return
-
-    for mod in vit.modules():
-        if isinstance(mod, EncoderBlock):
-            mod.dropout = Sequential(mod.dropout, StochasticDepth(p=prob, mode=mode))
-            mod.mlp = Sequential(mod.mlp, StochasticDepth(p=prob, mode=mode))
-
-
-def initialize_2d_sine_cosine_positional_embedding(pos_embedding: Parameter) -> None:
-    _, seq_length, hidden_dim = pos_embedding.shape
-    grid_size = int((seq_length - 1) ** 0.5)
-    sine_cosine_embedding = get_2d_sine_cosine_positional_embedding(
-        embed_dim=hidden_dim,
-        grid_size=grid_size,
-        cls_token=True,
-    )
-    pos_embedding.data.copy_(
-        torch.from_numpy(sine_cosine_embedding).float().unsqueeze(0)
-    )
-    # Freeze positional embedding.
-    pos_embedding.requires_grad = False
-=======
     if dependency.torchvision_vit_available():
         # Requires torchvision >=0.12
         from torchvision.models.vision_transformer import EncoderBlock
     else:
         raise RuntimeError("add_stochastic_depth_to_blocks requires torchvision>=0.12.")
->>>>>>> master
 
     if prob <= 0:
         return
 
-<<<<<<< HEAD
-def get_2d_sine_cosine_positional_embedding(
-    embed_dim: int, grid_size: int, cls_token: bool
-) -> NDArray[np.float32]:
-    """Generates 2D sine-cosine positional embedding.
-
-=======
     for mod in vit.modules():
         if isinstance(mod, EncoderBlock):
             mod.dropout = Sequential(mod.dropout, StochasticDepth(p=prob, mode=mode))
@@ -675,7 +643,6 @@ def get_2d_sine_cosine_positional_embedding(
 ) -> NDArray[np.float32]:
     """Generates 2D sine-cosine positional embedding.
 
->>>>>>> master
     Code follows: https://github.com/facebookresearch/mae/blob/main/util/pos_embed.py
 
     Args:
@@ -705,13 +672,8 @@ def get_2d_sine_cosine_positional_embedding(
 # was introduced by ijepa while get_2d_sine_cosine_positional_embedding was introduced
 # by mae.
 get_2d_sincos_pos_embed = get_2d_sine_cosine_positional_embedding
-<<<<<<< HEAD
 
 
-=======
-
-
->>>>>>> master
 def get_2d_sine_cosine_positional_embedding_from_grid(
     embed_dim: int, grid: NDArray[np.float32]
 ) -> NDArray[np.float32]:
