@@ -3,14 +3,11 @@ from datetime import datetime
 from pathlib import Path
 from typing import Sequence, Union
 
-import finetune_eval
-import knn_eval
-import linear_eval
-import mae
 import aim
 import finetune_eval
 import knn_eval
 import linear_eval
+import mae
 import torch
 from pytorch_lightning import LightningModule, Trainer
 from pytorch_lightning.callbacks import DeviceStatsMonitor, LearningRateMonitor
@@ -44,7 +41,9 @@ parser.add_argument("--strategy", default="ddp_find_unused_parameters_true")
 
 
 METHODS = {
-    "mae": {"model": mae.MAE, "transform": mae.transform}, "aim": {"model": aim.AIM, "transform": aim.transform}}
+    "mae": {"model": mae.MAE, "transform": mae.transform},
+    "aim": {"model": aim.AIM, "transform": aim.transform},
+}
 
 
 def main(
