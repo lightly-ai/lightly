@@ -245,13 +245,15 @@ class MAEBackbone(vision_transformer.VisionTransformer):  # type: ignore
             containing the encoded class and patch tokens for every image.
 
         """
-        # convert images to tokens and add class token if needed
+        # convert images to tokens
         input: torch.Tensor = self.patch_embed(images)
-        # add positional encoding
+        # add positional encoding and adds class token if needed
         input = self._pos_embed(input)
         # get the tokens that are kept
         if idx_keep is not None:
             input = utils.get_at_index(input, idx_keep)
+        # normalization layer
+        input = self.norm_pre(input)
         # apply Transformer blocks
         input = self.blocks(input)
         # normalize
@@ -305,6 +307,8 @@ class MAEDecoder(Module):
             Percentage of elements set to zero after the attention head.
         norm_layer:
             Normalization layer.
+        mask_token:
+            The mask token.
 
     """
 
@@ -321,11 +325,16 @@ class MAEDecoder(Module):
         proj_drop_rate: float = 0.0,
         attn_drop_rate: float = 0.0,
         norm_layer: Callable[..., nn.Module] = partial(LayerNorm, eps=1e-6),
+        mask_token: Optional[Parameter] = None,
     ):
         super().__init__()
 
         self.decoder_embed = nn.Linear(embed_dim, decoder_embed_dim, bias=True)
-        self.mask_token = nn.Parameter(torch.zeros(1, 1, decoder_embed_dim))
+        self.mask_token = (
+            nn.Parameter(torch.zeros(1, 1, decoder_embed_dim))
+            if mask_token is None
+            else mask_token
+        )
 
         # positional encoding of the decoder
         self.decoder_pos_embed = nn.Parameter(

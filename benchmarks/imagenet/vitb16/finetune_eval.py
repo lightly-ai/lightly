@@ -14,7 +14,6 @@ from torchvision import transforms as T
 
 from lightly.data import LightlyDataset
 from lightly.models import utils
-from lightly.models.utils import add_stochastic_depth_to_blocks
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils.benchmarking import LinearClassifier, MetricCallback
 from lightly.utils.benchmarking.topk import mean_topk_accuracy
@@ -36,8 +35,8 @@ class FinetuneEvalClassifier(LinearClassifier):
         super().__init__(
             model, batch_size_per_device, feature_dim, num_classes, topk, freeze_model
         )
-        # Add path dropout.
-        add_stochastic_depth_to_blocks(self.model, prob=0.1)
+        # TODO(Ersi, 2/24): Add path dropout.
+
         # Add mixup and cutmix.
         self.mixup = Mixup(
             mixup_alpha=0.8,
@@ -140,7 +139,6 @@ def finetune_eval(
     Parameters follow MAE settings.
     """
     print("Running fine-tune evaluation...")
-
     # Setup training data.
     # NOTE: We use transforms from the timm library here as they are the default in MAE
     # and torchvision does not provide all required parameters.
