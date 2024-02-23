@@ -75,23 +75,10 @@ The framework is structured into the following modules:
 # All Rights Reserved
 
 __name__ = "lightly"
-__version__ = "1.4.24"
+__version__ = "1.5.0"
 
 
 import os
-
-# see if torchvision vision transformer is available
-try:
-    import torchvision.models.vision_transformer
-
-    _torchvision_vit_available = True
-except (
-    RuntimeError,  # Different CUDA versions for torch and torchvision
-    OSError,  # Different CUDA versions for torch and torchvision (old)
-    ImportError,  # No installation or old version of torchvision
-):
-    _torchvision_vit_available = False
-
 
 if os.getenv("LIGHTLY_DID_VERSION_CHECK", "False") == "False":
     os.environ["LIGHTLY_DID_VERSION_CHECK"] = "True"

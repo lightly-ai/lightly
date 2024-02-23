@@ -19,8 +19,9 @@ import re  # noqa: F401
 import json
 
 
-
+from typing import Optional
 from pydantic import Extra,  BaseModel, Field, StrictStr, conint
+from lightly.openapi_generated.swagger_client.models.docker_run_log_docker_load import DockerRunLogDockerLoad
 from lightly.openapi_generated.swagger_client.models.docker_run_log_level import DockerRunLogLevel
 from lightly.openapi_generated.swagger_client.models.docker_run_state import DockerRunState
 
@@ -28,11 +29,14 @@ class DockerRunLogEntryData(BaseModel):
     """
     DockerRunLogEntryData
     """
-    msg: StrictStr = Field(...)
     ts: conint(strict=True, ge=0) = Field(..., description="unix timestamp in milliseconds")
-    state: DockerRunState = Field(...)
     level: DockerRunLogLevel = Field(...)
-    __properties = ["msg", "ts", "state", "level"]
+    group: Optional[StrictStr] = Field(None, description="The logger name/group of the log entry.")
+    origin: Optional[StrictStr] = Field(None, description="The origin/filename+loc from where a log entry was created from.")
+    msg: StrictStr = Field(..., description="The actual log message.")
+    state: DockerRunState = Field(...)
+    load: Optional[DockerRunLogDockerLoad] = None
+    __properties = ["ts", "level", "group", "origin", "msg", "state", "load"]
 
     class Config:
         """Pydantic configuration"""
@@ -60,6 +64,9 @@ class DockerRunLogEntryData(BaseModel):
                           exclude={
                           },
                           exclude_none=True)
+        # override the default output from pydantic by calling `to_dict()` of load
+        if self.load:
+            _dict['load' if by_alias else 'load'] = self.load.to_dict(by_alias=by_alias)
         return _dict
 
     @classmethod
@@ -77,10 +84,13 @@ class DockerRunLogEntryData(BaseModel):
                 raise ValueError("Error due to additional fields (not defined in DockerRunLogEntryData) in the input: " + str(obj))
 
         _obj = DockerRunLogEntryData.parse_obj({
-            "msg": obj.get("msg"),
             "ts": obj.get("ts"),
+            "level": obj.get("level"),
+            "group": obj.get("group"),
+            "origin": obj.get("origin"),
+            "msg": obj.get("msg"),
             "state": obj.get("state"),
-            "level": obj.get("level")
+            "load": DockerRunLogDockerLoad.from_dict(obj.get("load")) if obj.get("load") is not None else None
         })
         return _obj
 

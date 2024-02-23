@@ -228,6 +228,7 @@ def get_api_client_configuration(
 ) -> Configuration:
     host = get_lightly_server_location_from_env()
     ssl_ca_cert = getenv("LIGHTLY_CA_CERTS", None)
+    proxy = getenv("ALL_PROXY", getenv("HTTPS_PROXY", getenv("HTTP_PROXY", None)))
 
     if token is None:
         token = getenv("LIGHTLY_TOKEN", None)
@@ -239,6 +240,7 @@ def get_api_client_configuration(
     configuration = Configuration()
     configuration.api_key = {"ApiKeyAuth": token}
     configuration.ssl_ca_cert = ssl_ca_cert
+    configuration.proxy = proxy
     configuration.host = host
 
     return configuration

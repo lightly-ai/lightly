@@ -30,7 +30,7 @@ class BYOLView1Transform:
         vf_prob: float = 0.0,
         hf_prob: float = 0.5,
         rr_prob: float = 0.0,
-        rr_degrees: Union[None, float, Tuple[float, float]] = None,
+        rr_degrees: Optional[Union[float, Tuple[float, float]]] = None,
         normalize: Union[None, Dict[str, List[float]]] = IMAGENET_NORMALIZE,
     ):
         color_jitter = T.ColorJitter(
@@ -90,7 +90,7 @@ class BYOLView2Transform:
         vf_prob: float = 0.0,
         hf_prob: float = 0.5,
         rr_prob: float = 0.0,
-        rr_degrees: Union[None, float, Tuple[float, float]] = None,
+        rr_degrees: Optional[Union[float, Tuple[float, float]]] = None,
         normalize: Union[None, Dict[str, List[float]]] = IMAGENET_NORMALIZE,
     ):
         color_jitter = T.ColorJitter(
@@ -168,8 +168,8 @@ class BYOLTransform(MultiViewTransform):
 
     def __init__(
         self,
-        view_1_transform: Union[BYOLView1Transform, None] = None,
-        view_2_transform: Union[BYOLView2Transform, None] = None,
+        view_1_transform: Optional[BYOLView1Transform] = None,
+        view_2_transform: Optional[BYOLView2Transform] = None,
     ):
         # We need to initialize the transforms here
         view_1_transform = view_1_transform or BYOLView1Transform()

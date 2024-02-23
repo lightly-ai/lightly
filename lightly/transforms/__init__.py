@@ -8,6 +8,7 @@ transforms.
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
+from lightly.transforms.aim_transform import AIMTransform
 from lightly.transforms.byol_transform import (
     BYOLTransform,
     BYOLView1Transform,
@@ -34,3 +35,4 @@ from lightly.transforms.solarize import RandomSolarization
 from lightly.transforms.swav_transform import SwaVTransform, SwaVViewTransform
 from lightly.transforms.vicreg_transform import VICRegTransform, VICRegViewTransform
 from lightly.transforms.vicregl_transform import VICRegLTransform, VICRegLViewTransform
+from lightly.transforms.wmse_transform import WMSETransform

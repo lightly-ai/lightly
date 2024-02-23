@@ -20,9 +20,9 @@ import warnings
 from pydantic import validate_arguments, ValidationError
 from typing_extensions import Annotated
 
-from pydantic import Field, StrictStr, constr, validator
+from pydantic import Field, StrictStr, conint, constr, validator
 
-from typing import List
+from typing import List, Optional
 
 
 from lightly.openapi_generated.swagger_client.api_client import ApiClient
@@ -46,20 +46,24 @@ class MappingsApi(object):
         self.api_client = api_client
 
     @validate_arguments
-    def get_sample_mappings_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], field : Annotated[StrictStr, Field(..., description="the field to return as the value")], **kwargs) -> List[str]:  # noqa: E501
+    def get_sample_mappings_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], field : Annotated[StrictStr, Field(..., description="the field to return as the value")], page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> List[str]:  # noqa: E501
         """get_sample_mappings_by_dataset_id  # noqa: E501
 
         Get all samples of a dataset as a list. List index is the index of the sample2bitmask mapping and the value is the 'field' you wanted (e.g _id, fileName)  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.get_sample_mappings_by_dataset_id(dataset_id, field, async_req=True)
+        >>> thread = api.get_sample_mappings_by_dataset_id(dataset_id, field, page_size, page_offset, async_req=True)
         >>> result = thread.get()
 
         :param dataset_id: ObjectId of the dataset (required)
         :type dataset_id: str
         :param field: the field to return as the value (required)
         :type field: str
+        :param page_size: pagination size/limit of the number of samples to return
+        :type page_size: int
+        :param page_offset: pagination offset
+        :type page_offset: int
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _request_timeout: timeout setting for this request. If one
@@ -74,23 +78,27 @@ class MappingsApi(object):
         kwargs['_return_http_data_only'] = True
         if '_preload_content' in kwargs:
             raise ValueError("Error! Please call the get_sample_mappings_by_dataset_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.get_sample_mappings_by_dataset_id_with_http_info(dataset_id, field, **kwargs)  # noqa: E501
+        return self.get_sample_mappings_by_dataset_id_with_http_info(dataset_id, field, page_size, page_offset, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def get_sample_mappings_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], field : Annotated[StrictStr, Field(..., description="the field to return as the value")], **kwargs) -> ApiResponse:  # noqa: E501
+    def get_sample_mappings_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], field : Annotated[StrictStr, Field(..., description="the field to return as the value")], page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> ApiResponse:  # noqa: E501
         """get_sample_mappings_by_dataset_id  # noqa: E501
 
         Get all samples of a dataset as a list. List index is the index of the sample2bitmask mapping and the value is the 'field' you wanted (e.g _id, fileName)  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.get_sample_mappings_by_dataset_id_with_http_info(dataset_id, field, async_req=True)
+        >>> thread = api.get_sample_mappings_by_dataset_id_with_http_info(dataset_id, field, page_size, page_offset, async_req=True)
         >>> result = thread.get()
 
         :param dataset_id: ObjectId of the dataset (required)
         :type dataset_id: str
         :param field: the field to return as the value (required)
         :type field: str
+        :param page_size: pagination size/limit of the number of samples to return
+        :type page_size: int
+        :param page_offset: pagination offset
+        :type page_offset: int
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
@@ -120,7 +128,9 @@ class MappingsApi(object):
 
         _all_params = [
             'dataset_id',
-            'field'
+            'field',
+            'page_size',
+            'page_offset'
         ]
         _all_params.extend(
             [
@@ -154,6 +164,18 @@ class MappingsApi(object):
 
         # process the query parameters
         _query_params = []
+        if _params.get('page_size') is not None:  # noqa: E501
+            _query_params.append((
+                'pageSize',
+                _params['page_size'].value if hasattr(_params['page_size'], 'value') else _params['page_size']
+            ))
+
+        if _params.get('page_offset') is not None:  # noqa: E501
+            _query_params.append((
+                'pageOffset',
+                _params['page_offset'].value if hasattr(_params['page_offset'], 'value') else _params['page_offset']
+            ))
+
         if _params.get('field') is not None:  # noqa: E501
             _query_params.append((
                 'field',

@@ -16,16 +16,16 @@ from lightly.openapi_generated.swagger_client.models import (
     DockerRunScheduledPriority,
     DockerRunScheduledState,
     DockerRunState,
-    DockerWorkerConfigV3,
-    DockerWorkerConfigV3CreateRequest,
-    DockerWorkerConfigV3Docker,
+    DockerWorkerConfigOmniVXCreateRequest,
     DockerWorkerConfigV3Lightly,
+    DockerWorkerConfigV4,
+    DockerWorkerConfigV4Docker,
     DockerWorkerRegistryEntryData,
     DockerWorkerType,
-    SelectionConfigV3,
-    SelectionConfigV3Entry,
-    SelectionConfigV3EntryInput,
-    SelectionConfigV3EntryStrategy,
+    SelectionConfigV4,
+    SelectionConfigV4Entry,
+    SelectionConfigV4EntryInput,
+    SelectionConfigV4EntryStrategy,
     TagData,
 )
 from lightly.openapi_generated.swagger_client.rest import ApiException
@@ -175,7 +175,7 @@ class _ComputeWorkerMixin:
         self,
         worker_config: Optional[Dict[str, Any]] = None,
         lightly_config: Optional[Dict[str, Any]] = None,
-        selection_config: Optional[Union[Dict[str, Any], SelectionConfigV3]] = None,
+        selection_config: Optional[Union[Dict[str, Any], SelectionConfigV4]] = None,
     ) -> str:
         """Creates a new configuration for a Lightly Worker run.
 
@@ -219,7 +219,7 @@ class _ComputeWorkerMixin:
             worker_config_cc = _config_to_camel_case(cfg=worker_config)
             deserialize_worker_config = _get_deserialize(
                 api_client=self.api_client,
-                klass=DockerWorkerConfigV3Docker,
+                klass=DockerWorkerConfigV4Docker,
             )
             docker = deserialize_worker_config(worker_config_cc)
             _validate_config(cfg=worker_config, obj=docker)
@@ -237,17 +237,21 @@ class _ComputeWorkerMixin:
         else:
             lightly = None
 
-        config = DockerWorkerConfigV3(
+        config = DockerWorkerConfigV4(
             worker_type=DockerWorkerType.FULL,
             docker=docker,
             lightly=lightly,
             selection=selection,
         )
-        request = DockerWorkerConfigV3CreateRequest(
-            config=config, creator=self._creator
+        request = DockerWorkerConfigOmniVXCreateRequest.from_dict(
+            {
+                "version": "V4",
+                "config": config.to_dict(by_alias=True),
+                "creator": self._creator,
+            }
         )
         try:
-            response = self._compute_worker_api.create_docker_worker_config_v3(request)
+            response = self._compute_worker_api.create_docker_worker_config_vx(request)
             return response.id
         except ApiException as e:
             if e.body is None:
@@ -269,7 +273,7 @@ class _ComputeWorkerMixin:
         self,
         worker_config: Optional[Dict[str, Any]] = None,
         lightly_config: Optional[Dict[str, Any]] = None,
-        selection_config: Optional[Union[Dict[str, Any], SelectionConfigV3]] = None,
+        selection_config: Optional[Union[Dict[str, Any], SelectionConfigV4]] = None,
         priority: str = DockerRunScheduledPriority.MID,
         runs_on: Optional[List[str]] = None,
     ) -> str:
@@ -634,17 +638,17 @@ class _ComputeWorkerMixin:
         return tags_in_dataset
 
 
-def selection_config_from_dict(cfg: Dict[str, Any]) -> SelectionConfigV3:
-    """Recursively converts selection config from dict to a SelectionConfigV3 instance."""
+def selection_config_from_dict(cfg: Dict[str, Any]) -> SelectionConfigV4:
+    """Recursively converts selection config from dict to a SelectionConfigV4 instance."""
     strategies = []
     for entry in cfg.get("strategies", []):
         new_entry = copy.deepcopy(entry)
-        new_entry["input"] = SelectionConfigV3EntryInput(**entry["input"])
-        new_entry["strategy"] = SelectionConfigV3EntryStrategy(**entry["strategy"])
-        strategies.append(SelectionConfigV3Entry(**new_entry))
+        new_entry["input"] = SelectionConfigV4EntryInput(**entry["input"])
+        new_entry["strategy"] = SelectionConfigV4EntryStrategy(**entry["strategy"])
+        strategies.append(SelectionConfigV4Entry(**new_entry))
     new_cfg = copy.deepcopy(cfg)
     new_cfg["strategies"] = strategies
-    return SelectionConfigV3(**new_cfg)
+    return SelectionConfigV4(**new_cfg)
 
 
 _T = TypeVar("_T")

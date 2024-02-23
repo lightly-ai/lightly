@@ -18,11 +18,7 @@ from torch.nn.modules.batchnorm import _NormBase
 from torch.nn.parameter import Parameter
 from torchvision.ops import StochasticDepth
 
-from lightly import _torchvision_vit_available
-
-if _torchvision_vit_available:
-    # Requires torchvision >=0.12
-    from torchvision.models.vision_transformer import EncoderBlock
+from lightly.utils import dependency
 
 
 @torch.no_grad()
@@ -482,6 +478,40 @@ def random_token_mask(
     return idx_keep, idx_mask
 
 
+def random_prefix_mask(
+    size: Tuple[int, int],
+    max_prefix_length: int,
+    device: Optional[Union[torch.device, str]] = None,
+) -> torch.Tensor:
+    """Creates a random prefix mask.
+
+    The mask is created by uniformly sampling a prefix length in [0, max_prefix_length]
+    for each sequence in the batch. All tokens with an index greater or equal to
+    the prefix length are masked.
+
+    Args:
+        size:
+            Size of the token batch for which to generate masks.
+            Should be (batch_size, sequence_length).
+        max_prefix_length:
+            Maximum length of the prefix to mask.
+        device:
+            Device on which to create the mask.
+
+    Returns:
+        A mask tensor with shape (batch_size, sequence_length) where each entry
+        is True if the token should be masked and False otherwise.
+
+    """
+    batch_size, sequence_length = size
+    arange = torch.arange(sequence_length, device=device).expand(
+        batch_size, sequence_length
+    )
+    indices = torch.randint(0, max_prefix_length, (batch_size, 1), device=device)
+    mask = arange >= indices
+    return mask
+
+
 def nearest_neighbors(
     input_maps: torch.Tensor,
     candidate_maps: torch.Tensor,
@@ -593,6 +623,7 @@ def get_named_leaf_modules(module: Module) -> Dict[str, Module]:
 
 def add_stochastic_depth_to_blocks(vit: Module, prob: float = 0.0, mode="row") -> None:
     """Adds stochastic depth dropout to all transformer blocks."""
+<<<<<<< HEAD
     if prob <= 0:
         return
 
@@ -615,6 +646,28 @@ def initialize_2d_sine_cosine_positional_embedding(pos_embedding: Parameter) -> 
     )
     # Freeze positional embedding.
     pos_embedding.requires_grad = False
+=======
+    if dependency.torchvision_vit_available():
+        # Requires torchvision >=0.12
+        from torchvision.models.vision_transformer import EncoderBlock
+    else:
+        raise RuntimeError("add_stochastic_depth_to_blocks requires torchvision>=0.12.")
+>>>>>>> master
+
+    if prob <= 0:
+        return
+
+<<<<<<< HEAD
+def get_2d_sine_cosine_positional_embedding(
+    embed_dim: int, grid_size: int, cls_token: bool
+) -> NDArray[np.float32]:
+    """Generates 2D sine-cosine positional embedding.
+
+=======
+    for mod in vit.modules():
+        if isinstance(mod, EncoderBlock):
+            mod.dropout = Sequential(mod.dropout, StochasticDepth(p=prob, mode=mode))
+            mod.mlp = Sequential(mod.mlp, StochasticDepth(p=prob, mode=mode))
 
 
 def get_2d_sine_cosine_positional_embedding(
@@ -622,6 +675,7 @@ def get_2d_sine_cosine_positional_embedding(
 ) -> NDArray[np.float32]:
     """Generates 2D sine-cosine positional embedding.
 
+>>>>>>> master
     Code follows: https://github.com/facebookresearch/mae/blob/main/util/pos_embed.py
 
     Args:
@@ -651,8 +705,13 @@ def get_2d_sine_cosine_positional_embedding(
 # was introduced by ijepa while get_2d_sine_cosine_positional_embedding was introduced
 # by mae.
 get_2d_sincos_pos_embed = get_2d_sine_cosine_positional_embedding
+<<<<<<< HEAD
 
 
+=======
+
+
+>>>>>>> master
 def get_2d_sine_cosine_positional_embedding_from_grid(
     embed_dim: int, grid: NDArray[np.float32]
 ) -> NDArray[np.float32]:

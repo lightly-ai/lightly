@@ -3,7 +3,7 @@
 # Copyright (c) 2021. Lightly AG and its affiliates.
 # All Rights Reserved
 
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Sequence, Tuple, Union
 
 import torch
 import torch.nn as nn
@@ -19,7 +19,7 @@ class ProjectionHead(nn.Module):
         blocks:
             List of tuples, each denoting one block of the projection head MLP.
             Each tuple reads (in_features, out_features, batch_norm_layer,
-            non_linearity_layer).
+            non_linearity_layer, use_bias (optional)).
 
     Examples:
         >>> # the following projection head has two blocks
@@ -33,13 +33,20 @@ class ProjectionHead(nn.Module):
     """
 
     def __init__(
-        self, blocks: List[Tuple[int, int, Optional[nn.Module], Optional[nn.Module]]]
+        self,
+        blocks: Sequence[
+            Union[
+                Tuple[int, int, Optional[nn.Module], Optional[nn.Module]],
+                Tuple[int, int, Optional[nn.Module], Optional[nn.Module], bool],
+            ],
+        ],
     ) -> None:
-        super(ProjectionHead, self).__init__()
+        super().__init__()
 
         layers: List[nn.Module] = []
-        for input_dim, output_dim, batch_norm, non_linearity in blocks:
-            use_bias = not bool(batch_norm)
+        for block in blocks:
+            input_dim, output_dim, batch_norm, non_linearity, *bias = block
+            use_bias = bias[0] if bias else not bool(batch_norm)
             layers.append(nn.Linear(input_dim, output_dim, bias=use_bias))
             if batch_norm:
                 layers.append(batch_norm)
@@ -641,6 +648,61 @@ class DINOProjectionHead(ProjectionHead):
         x = nn.functional.normalize(x, dim=-1, p=2)
         x = self.last_layer(x)
         return x
+
+
+class MMCRProjectionHead(ProjectionHead):
+    """Projection head used for MMCR.
+
+    "Following Chen et al. (14), we append a small perceptron to the output
+    of the average pooling layer of the ResNet so that zi = g(h(xi)), where
+    h is the ResNet and g is the MLP." [0]
+
+    - [0]: MMCR, 2023, https://arxiv.org/abs/2303.03307
+    """
+
+    def __init__(
+        self,
+        input_dim: int = 2048,
+        hidden_dim: int = 8192,
+        output_dim: int = 512,
+        num_layers: int = 2,
+        batch_norm: bool = True,
+        use_bias: bool = False,
+    ):
+        """Initialize a new MMCRProjectionHead instance.
+
+        Args:
+            input_dim: Number of input dimensions.
+            hidden_dim: Number of hidden dimensions.
+            output_dim: Number of output dimensions.
+            num_layers: Number of hidden layers.
+            batch_norm: Whether or not to use batch norms.
+            use_bias: Whether or not to use bias in the linear layers.
+        """
+        layers: List[
+            Tuple[int, int, Optional[nn.Module], Optional[nn.Module], bool]
+        ] = []
+        layers.append(
+            (
+                input_dim,
+                hidden_dim,
+                nn.BatchNorm1d(hidden_dim) if batch_norm else None,
+                nn.ReLU(),
+                use_bias,
+            )
+        )
+        for _ in range(num_layers - 1):
+            layers.append(
+                (
+                    hidden_dim,
+                    hidden_dim,
+                    nn.BatchNorm1d(hidden_dim) if batch_norm else None,
+                    nn.ReLU(),
+                    use_bias,
+                )
+            )
+        layers.append((hidden_dim, output_dim, None, None, use_bias))
+        super().__init__(layers)
 
 
 class MSNProjectionHead(ProjectionHead):

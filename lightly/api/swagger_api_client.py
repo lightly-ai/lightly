@@ -1,4 +1,4 @@
-from typing import Any, Dict, Tuple, Union
+from typing import Any, Dict, Optional, Tuple, Union
 
 from lightly.api.swagger_rest_client import LightlySwaggerRESTClientObject
 from lightly.openapi_generated.swagger_client.api_client import ApiClient, Configuration
@@ -49,9 +49,9 @@ class LightlySwaggerApiClient(PatchApiClientMixin, ApiClient):
         self,
         configuration: Configuration,
         timeout: Union[None, int, Tuple[int, int]] = DEFAULT_API_TIMEOUT,
-        header_name: Union[str, None] = None,
-        header_value: Union[str, None] = None,
-        cookie: Union[str, None] = None,
+        header_name: Optional[str] = None,
+        header_value: Optional[str] = None,
+        cookie: Optional[str] = None,
     ):
         super().__init__(
             configuration=configuration,

@@ -3,10 +3,17 @@ from datetime import datetime
 from pathlib import Path
 from typing import Sequence, Union
 
+<<<<<<< HEAD
 import finetune_eval
 import knn_eval
 import linear_eval
 import mae
+=======
+import aim
+import finetune_eval
+import knn_eval
+import linear_eval
+>>>>>>> master
 import torch
 from pytorch_lightning import LightningModule, Trainer
 from pytorch_lightning.callbacks import DeviceStatsMonitor, LearningRateMonitor
@@ -35,10 +42,12 @@ parser.add_argument("--num-classes", type=int, default=1000)
 parser.add_argument("--skip-knn-eval", action="store_true")
 parser.add_argument("--skip-linear-eval", action="store_true")
 parser.add_argument("--skip-finetune-eval", action="store_true")
+parser.add_argument("--float32-matmul-precision", type=str, default="high")
+parser.add_argument("--strategy", default="ddp_find_unused_parameters_true")
+
 
 METHODS = {
-    "mae": {"model": mae.MAE, "transform": mae.transform},
-}
+    "mae": {"model": mae.MAE, "transform": mae.transform}, "aim": {"model": aim.AIM, "transform": aim.transform}}
 
 
 def main(
@@ -57,8 +66,10 @@ def main(
     skip_knn_eval: bool,
     skip_linear_eval: bool,
     skip_finetune_eval: bool,
+    float32_matmul_precision: str,
+    strategy: str,
 ) -> None:
-    torch.set_float32_matmul_precision("high")
+    torch.set_float32_matmul_precision(float32_matmul_precision)
 
     method_names = methods or METHODS.keys()
 
@@ -90,6 +101,7 @@ def main(
                 accelerator=accelerator,
                 devices=devices,
                 precision=precision,
+                strategy=strategy,
             )
 
         if skip_knn_eval:
@@ -152,6 +164,7 @@ def pretrain(
     accelerator: str,
     devices: int,
     precision: str,
+    strategy: str,
 ) -> None:
     print(f"Running pretraining for {method}...")
 
@@ -197,7 +210,7 @@ def pretrain(
         ],
         logger=TensorBoardLogger(save_dir=str(log_dir), name="pretrain"),
         precision=precision,
-        strategy="ddp_find_unused_parameters_true",
+        strategy=strategy,
         sync_batchnorm=True,
     )
     trainer.fit(

@@ -20,7 +20,7 @@ class TiCoLoss(torch.nn.Module):
                 Defaults to 0.9 [0].
             rho:
                 Weight for the covariance term of the loss
-                Defaults to 20.0 [0].
+                Defaults to 8.0 [0].
             gather_distributed:
                 If True then the cross-correlation matrices from all gpus are
                 gathered and summed before the loss calculation.
@@ -44,7 +44,7 @@ class TiCoLoss(torch.nn.Module):
     def __init__(
         self,
         beta: float = 0.9,
-        rho: float = 20.0,
+        rho: float = 8.0,
         gather_distributed: bool = False,
     ):
         super(TiCoLoss, self).__init__()
@@ -101,7 +101,7 @@ class TiCoLoss(torch.nn.Module):
         z_b = torch.nn.functional.normalize(z_b, dim=1)
 
         # compute auxiliary matrix B
-        B = torch.mm(z_a.T, z_a) / z_a.shape[0]
+        B = torch.mm(z_a.T, z_a).detach() / z_a.shape[0]
 
         # init covariance matrix
         if self.C is None:
@@ -109,11 +109,11 @@ class TiCoLoss(torch.nn.Module):
 
         # compute loss
         C = self.beta * self.C + (1 - self.beta) * B
-        loss = (
-            1
-            - (z_a * z_b).sum(dim=1).mean()
-            + self.rho * (torch.mm(z_a, C) * z_a).sum(dim=1).mean()
-        )
+
+        transformative_invariance_loss = 1.0 - (z_a * z_b).sum(dim=1).mean()
+        covariance_contrast_loss = self.rho * (torch.mm(z_a, C) * z_a).sum(dim=1).mean()
+
+        loss = transformative_invariance_loss + covariance_contrast_loss
 
         # update covariance matrix
         if update_covariance_matrix:

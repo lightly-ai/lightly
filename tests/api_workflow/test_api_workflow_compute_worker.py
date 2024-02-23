@@ -25,18 +25,18 @@ from lightly.openapi_generated.swagger_client.models import (
     DockerRunScheduledPriority,
     DockerRunScheduledState,
     DockerRunState,
-    DockerWorkerConfigV3,
     DockerWorkerConfigV3Docker,
     DockerWorkerConfigV3DockerCorruptnessCheck,
     DockerWorkerConfigV3Lightly,
     DockerWorkerConfigV3LightlyCollate,
     DockerWorkerConfigV3LightlyLoader,
+    DockerWorkerConfigV4,
     DockerWorkerState,
     DockerWorkerType,
-    SelectionConfigV3,
-    SelectionConfigV3Entry,
-    SelectionConfigV3EntryInput,
-    SelectionConfigV3EntryStrategy,
+    SelectionConfigV4,
+    SelectionConfigV4Entry,
+    SelectionConfigV4EntryInput,
+    SelectionConfigV4EntryStrategy,
     SelectionInputPredictionsName,
     SelectionInputType,
     SelectionStrategyThresholdOperation,
@@ -101,16 +101,16 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
                     "batch_size": 64,
                 },
             },
-            selection_config=SelectionConfigV3(
+            selection_config=SelectionConfigV4(
                 n_samples=20,
                 strategies=[
-                    SelectionConfigV3Entry(
-                        input=SelectionConfigV3EntryInput(
+                    SelectionConfigV4Entry(
+                        input=SelectionConfigV4EntryInput(
                             type=SelectionInputType.EMBEDDINGS,
                             dataset_id=utils.generate_id(),
                             tag_name="some-tag-name",
                         ),
-                        strategy=SelectionConfigV3EntryStrategy(
+                        strategy=SelectionConfigV4EntryStrategy(
                             type=SelectionStrategyTypeV3.SIMILARITY,
                         ),
                     )
@@ -203,52 +203,52 @@ class TestApiWorkflowComputeWorker(MockedApiWorkflowSetup):
         return obj_api
 
     def test_selection_config(self):
-        selection_config = SelectionConfigV3(
+        selection_config = SelectionConfigV4(
             n_samples=1,
             strategies=[
-                SelectionConfigV3Entry(
-                    input=SelectionConfigV3EntryInput(
+                SelectionConfigV4Entry(
+                    input=SelectionConfigV4EntryInput(
                         type=SelectionInputType.EMBEDDINGS
                     ),
-                    strategy=SelectionConfigV3EntryStrategy(
+                    strategy=SelectionConfigV4EntryStrategy(
                         type=SelectionStrategyTypeV3.DIVERSITY,
                         stopping_condition_minimum_distance=-1,
                     ),
                 ),
-                SelectionConfigV3Entry(
-                    input=SelectionConfigV3EntryInput(
+                SelectionConfigV4Entry(
+                    input=SelectionConfigV4EntryInput(
                         type=SelectionInputType.SCORES,
                         task="my-classification-task",
                         score="uncertainty_margin",
                     ),
-                    strategy=SelectionConfigV3EntryStrategy(
+                    strategy=SelectionConfigV4EntryStrategy(
                         type=SelectionStrategyTypeV3.WEIGHTS
                     ),
                 ),
-                SelectionConfigV3Entry(
-                    input=SelectionConfigV3EntryInput(
+                SelectionConfigV4Entry(
+                    input=SelectionConfigV4EntryInput(
                         type=SelectionInputType.METADATA, key="lightly.sharpness"
                     ),
-                    strategy=SelectionConfigV3EntryStrategy(
+                    strategy=SelectionConfigV4EntryStrategy(
                         type=SelectionStrategyTypeV3.THRESHOLD,
                         threshold=20,
                         operation=SelectionStrategyThresholdOperation.BIGGER_EQUAL,
                     ),
                 ),
-                SelectionConfigV3Entry(
-                    input=SelectionConfigV3EntryInput(
+                SelectionConfigV4Entry(
+                    input=SelectionConfigV4EntryInput(
                         type=SelectionInputType.PREDICTIONS,
                         task="my_object_detection_task",
                         name=SelectionInputPredictionsName.CLASS_DISTRIBUTION,
                     ),
-                    strategy=SelectionConfigV3EntryStrategy(
+                    strategy=SelectionConfigV4EntryStrategy(
                         type=SelectionStrategyTypeV3.BALANCE,
                         target={"Ambulance": 0.2, "Bus": 0.4},
                     ),
                 ),
             ],
         )
-        config = DockerWorkerConfigV3(
+        config = DockerWorkerConfigV4(
             worker_type=DockerWorkerType.FULL, selection=selection_config
         )
 
@@ -457,7 +457,7 @@ def test_get_compute_worker_state_and_message_OPEN() -> None:
     assert run_info.in_end_state() == False
 
 
-def test_create_docker_worker_config_v3_api_error() -> None:
+def test_create_docker_worker_config_vx_api_error() -> None:
     class HttpThing:
         def __init__(self, status, reason, data):
             self.status = status
@@ -478,7 +478,7 @@ def test_create_docker_worker_config_v3_api_error() -> None:
 
     client = ApiWorkflowClient(token="123")
     client._dataset_id = utils.generate_id()
-    client._compute_worker_api.create_docker_worker_config_v3 = mocked_raise_exception
+    client._compute_worker_api.create_docker_worker_config_vx = mocked_raise_exception
     with pytest.raises(
         ValueError,
         match=r'Trying to schedule your job resulted in\n>> ACCOUNT_SUBSCRIPTION_INSUFFICIENT\n>> "Your current plan allows for 1000000 samples but you tried to use 2000000 samples, please contact sales at sales@lightly.ai to upgrade your account."\n>> Please fix the issue mentioned above and see our docs https://docs.lightly.ai/docs/all-configuration-options for more help.',
@@ -493,7 +493,7 @@ def test_create_docker_worker_config_v3_api_error() -> None:
         )
 
 
-def test_create_docker_worker_config_v3_5xx_api_error() -> None:
+def test_create_docker_worker_config_vx_5xx_api_error() -> None:
     class HttpThing:
         def __init__(self, status, reason, data):
             self.status = status
@@ -514,7 +514,7 @@ def test_create_docker_worker_config_v3_5xx_api_error() -> None:
 
     client = ApiWorkflowClient(token="123")
     client._dataset_id = utils.generate_id()
-    client._compute_worker_api.create_docker_worker_config_v3 = mocked_raise_exception
+    client._compute_worker_api.create_docker_worker_config_vx = mocked_raise_exception
     with pytest.raises(
         ApiException,
         match=r"Server pains",
@@ -529,13 +529,13 @@ def test_create_docker_worker_config_v3_5xx_api_error() -> None:
         )
 
 
-def test_create_docker_worker_config_v3_no_body_api_error() -> None:
+def test_create_docker_worker_config_vx_no_body_api_error() -> None:
     def mocked_raise_exception(*args, **kwargs):
         raise ApiException
 
     client = ApiWorkflowClient(token="123")
     client._dataset_id = utils.generate_id()
-    client._compute_worker_api.create_docker_worker_config_v3 = mocked_raise_exception
+    client._compute_worker_api.create_docker_worker_config_vx = mocked_raise_exception
     with pytest.raises(
         ApiException,
     ):
