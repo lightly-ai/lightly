@@ -4,7 +4,9 @@ import torchvision
 from torch import nn
 
 from lightly.models import utils
-from lightly.models.modules import masked_autoencoder
+from lightly.models.modules.masked_vision_transformer_torchvision import (
+    MaskedVisionTransformerTorchvision,
+)
 from lightly.transforms.mae_transform import MAETransform  # Same transform as MAE
 
 
@@ -12,27 +14,23 @@ class SimMIM(pl.LightningModule):
     def __init__(self):
         super().__init__()
 
-        decoder_dim = vit.hidden_dim
         vit = torchvision.models.vit_b_32(pretrained=False)
         self.mask_ratio = 0.75
         self.patch_size = vit.patch_size
         self.sequence_length = vit.seq_length
-        self.mask_token = nn.Parameter(torch.zeros(1, 1, decoder_dim))
+        decoder_dim = vit.hidden_dim
 
-        # same backbone as MAE
-        self.backbone = masked_autoencoder.MAEBackbone.from_vit(vit)
+        self.backbone = MaskedVisionTransformerTorchvision(vit=vit)
 
         # the decoder is a simple linear layer
-        self.decoder = nn.Linear(vit.hidden_dim, vit.patch_size**2 * 3)
+        self.decoder = nn.Linear(decoder_dim, vit.patch_size**2 * 3)
 
         # L1 loss as paper suggestion
         self.criterion = nn.L1Loss()
 
     def forward_encoder(self, images, batch_size, idx_mask):
         # pass all the tokens to the encoder, both masked and non masked ones
-        tokens = self.backbone.images_to_tokens(images, prepend_class_token=True)
-        tokens_masked = utils.mask_at_index(tokens, idx_mask, self.mask_token)
-        return self.backbone.encoder(tokens_masked)
+        return self.backbone.encode(images=images, idx_mask=idx_mask)
 
     def forward_decoder(self, x_encoded):
         return self.decoder(x_encoded)
@@ -99,6 +97,7 @@ trainer = pl.Trainer(
     devices="auto",
     accelerator="gpu",
     strategy="ddp",
-    use_distributed_sampler=True,  # or replace_sampler_ddp=True for PyTorch Lightning <2.0
+    # use_distributed_sampler=True,  # or replace_sampler_ddp=True for PyTorch Lightning <2.0
+    replace_sampler_ddp=True,
 )
 trainer.fit(model=model, train_dataloaders=dataloader)
