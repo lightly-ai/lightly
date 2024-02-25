@@ -42,7 +42,7 @@ parser.add_argument("--strategy", default="ddp_find_unused_parameters_true")
 
 METHODS = {
     "mae": {"model": mae.MAE, "transform": mae.transform},
-    # "aim": {"model": aim.AIM, "transform": aim.transform},
+    "aim": {"model": aim.AIM, "transform": aim.transform},
 }
 
 
