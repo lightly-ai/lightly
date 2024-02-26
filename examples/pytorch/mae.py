@@ -30,7 +30,6 @@ class MAE(nn.Module):
         self.mask_ratio = 0.75
         self.patch_size = vit.patch_embed.patch_size[0]
 
-        mask_token = nn.Parameter(torch.zeros(1, 1, decoder_dim))
         self.backbone = masked_vision_transformer_timm.MaskedVisionTransformerTIMM(
             vit=vit
         )
@@ -45,7 +44,6 @@ class MAE(nn.Module):
             mlp_ratio=4.0,
             proj_drop_rate=0.0,
             attn_drop_rate=0.0,
-            mask_token=mask_token,
         )
 
     def forward_encoder(self, images, idx_keep=None):
