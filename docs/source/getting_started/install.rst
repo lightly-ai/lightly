@@ -32,6 +32,13 @@ If you want to work with video files you need to additionally install
 
     pip install av
 
+If you want to work use the Masked Autoencoder you need to additionally install
+`TIMM <https://timm.fast.ai/>`_.
+
+.. code-block:: bash
+
+    pip install timm
+
 Next Steps
 ------------
 
