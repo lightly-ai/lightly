@@ -32,6 +32,12 @@ from lightly.utils import dependency as _dependency
 
 if _dependency.torchvision_vit_available():
     # Requires torchvision >=0.12
+    # Requires torchvision >=0.12
+    from lightly.models.modules.masked_autoencoder import (
+        MAEBackbone,
+        MAEDecoder,
+        MAEEncoder,
+    )
     from lightly.models.modules.masked_vision_transformer_torchvision import (
         MaskedVisionTransformerTorchvision,
     )
