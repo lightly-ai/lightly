@@ -1,18 +1,15 @@
 import math
-import sys
 from typing import Optional
 
 import torch
 import torch.nn as nn
 
-try:
+from lightly.utils import dependency
+
+if dependency.timm_vit_available():
     from timm.layers.pos_embed import resample_abs_pos_embed
     from timm.models import vision_transformer
-except ImportError:
-    print(
-        "TIMM is not available. Please install if you would like to use the TIMM Masked Vision Transformer."
-    )
-    sys.exit(1)
+
 
 from torch import Tensor
 from torch.nn import LayerNorm, Linear, Module, Parameter

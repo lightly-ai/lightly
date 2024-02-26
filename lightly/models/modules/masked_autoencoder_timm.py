@@ -1,14 +1,13 @@
 from __future__ import annotations
 
-import sys
 from functools import partial
 from typing import Callable, Optional
 
-try:
+from lightly.utils import dependency
+
+if dependency.timm_vit_available():
     from timm.models import vision_transformer
-except ImportError:
-    print("TIMM is not available. Please install if you would like to use the MAE.")
-    sys.exit(1)
+
 
 import torch
 import torch.nn as nn

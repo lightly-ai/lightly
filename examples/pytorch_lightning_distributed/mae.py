@@ -1,12 +1,19 @@
 # Note: The model and training settings do not follow the reference settings
 # from the paper. The settings are chosen such that the example can easily be
 # run on a small dataset with a single GPU.
+import sys
 
 import pytorch_lightning as pl
 import torch
 import torchvision
-from timm.models.vision_transformer import vit_base_patch32_224
 from torch import nn
+
+from lightly.utils import dependency
+
+if dependency.timm_vit_available():
+    from timm.models.vision_transformer import vit_base_patch32_224
+else:
+    sys.exit(1)
 
 from lightly.models import utils
 from lightly.models.modules import (
