@@ -14,7 +14,7 @@ if dependency.timm_vit_available():
     )
 
 
-@unittest.skipUnless(dependency.timm_vit_available, "TIMM is not available")
+@unittest.skipUnless(dependency.timm_vit_available(), "TIMM is not available")
 class TestMAEBackbone(unittest.TestCase):
     def _vit(self):
         return timm.models.vision_transformer.vit_base_patch32_224()
