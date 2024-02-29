@@ -6,14 +6,17 @@ from lightly.models import utils
 from lightly.utils import dependency
 
 if dependency.timm_vit_available():
-    from timm.models.vision_transformer import vit_base_patch32_224
+    from timm.models.vision_transformer import VisionTransformer, vit_base_patch32_224
 
     from lightly.models.modules import MAEDecoderTIMM, MaskedVisionTransformerTIMM
+
+else:
+    VisionTransformer = None
 
 
 @unittest.skipUnless(dependency.timm_vit_available(), "TIMM is not available")
 class TestMAEBackbone(unittest.TestCase):
-    def _vit(self):  # type: ignore[call-arg]
+    def _vit(self) -> VisionTransformer:
         return vit_base_patch32_224()
 
     def test_from_vit(self) -> None:
