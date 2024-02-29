@@ -33,7 +33,7 @@ If you want to work with video files you need to additionally install
     pip install av
 
 If you want to work use the Masked Autoencoder you need to additionally install
-`TIMM <https://timm.fast.ai/>`_.
+`TIMM <https://github.com/huggingface/pytorch-image-models>`_.
 
 .. code-block:: bash
 

@@ -3,20 +3,15 @@ from __future__ import annotations
 from functools import partial
 from typing import Callable, Optional
 
-from lightly.utils import dependency
-
-if dependency.timm_vit_available():
-    from timm.models import vision_transformer
-
-
 import torch
 import torch.nn as nn
+from timm.models import vision_transformer
 from torch.nn import LayerNorm, Linear, Module, Parameter, Sequential
 
 from lightly.models import utils
 
 
-class MAEDecoder(Module):
+class MAEDecoderTIMM(Module):
     """Decoder for the Masked Autoencoder model [0].
 
     Decodes encoded patches and predicts pixel values for every patch.

@@ -10,10 +10,8 @@ from torch import nn
 
 from lightly.loss import MSNLoss
 from lightly.models import utils
+from lightly.models.modules import MaskedVisionTransformerTorchvision
 from lightly.models.modules.heads import MSNProjectionHead
-from lightly.models.modules.masked_vision_transformer_torchvision import (
-    MaskedVisionTransformerTorchvision,
-)
 from lightly.transforms.msn_transform import MSNTransform
 
 

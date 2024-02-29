@@ -1,25 +1,14 @@
 # Note: The model and training settings do not follow the reference settings
 # from the paper. The settings are chosen such that the example can easily be
 # run on a small dataset with a single GPU.
-import sys
-
 import pytorch_lightning as pl
 import torch
 import torchvision
+from timm.models.vision_transformer import vit_base_patch32_224
 from torch import nn
 
-from lightly.utils import dependency
-
-if dependency.timm_vit_available():
-    from timm.models.vision_transformer import vit_base_patch32_224
-else:
-    sys.exit(1)
-
 from lightly.models import utils
-from lightly.models.modules import (
-    masked_autoencoder_timm,
-    masked_vision_transformer_timm,
-)
+from lightly.models.modules import MAEDecoderTIMM, MaskedVisionTransformerTIMM
 from lightly.transforms.mae_transform import MAETransform
 
 
@@ -31,16 +20,14 @@ class MAE(pl.LightningModule):
         vit = vit_base_patch32_224()
         self.mask_ratio = 0.75
         self.patch_size = vit.patch_embed.patch_size[0]
-        self.backbone = masked_vision_transformer_timm.MaskedVisionTransformerTIMM(
-            vit=vit
-        )
+        self.backbone = MaskedVisionTransformerTIMM(vit=vit)
         self.sequence_length = self.backbone.sequence_length
-        self.decoder = masked_autoencoder_timm.MAEDecoder(
+        self.decoder = MAEDecoderTIMM(
             num_patches=vit.patch_embed.num_patches,
             patch_size=self.patch_size,
             embed_dim=vit.embed_dim,
             decoder_embed_dim=decoder_dim,
-            decoder_depth=8,
+            decoder_depth=1,
             decoder_num_heads=16,
             mlp_ratio=4.0,
             proj_drop_rate=0.0,

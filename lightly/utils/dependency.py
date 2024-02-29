@@ -21,7 +21,6 @@ def timm_vit_available() -> bool:
         import timm.models.vision_transformer  # Requires timm >= 0.3.3
         from timm.layers import LayerType  # Requires timm >= 0.9.9
     except ImportError:
-        print("TIMM is not available. Please install if you would like to use the MAE.")
         return False
     else:
         return True

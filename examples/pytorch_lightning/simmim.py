@@ -4,9 +4,7 @@ import torchvision
 from torch import nn
 
 from lightly.models import utils
-from lightly.models.modules.masked_vision_transformer_torchvision import (
-    MaskedVisionTransformerTorchvision,
-)
+from lightly.models.modules import MaskedVisionTransformerTorchvision
 from lightly.transforms.mae_transform import MAETransform  # Same transform as MAE
 
 

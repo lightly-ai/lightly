@@ -4,9 +4,7 @@ import torchvision
 from torch import nn
 
 from lightly.models import utils
-from lightly.models.modules.masked_vision_transformer_torchvision import (
-    MaskedVisionTransformerTorchvision,
-)
+from lightly.models.modules import MaskedVisionTransformerTorchvision
 from lightly.transforms.mae_transform import MAETransform  # Same transform as MAE
 
 
@@ -97,7 +95,6 @@ trainer = pl.Trainer(
     devices="auto",
     accelerator="gpu",
     strategy="ddp",
-    # use_distributed_sampler=True,  # or replace_sampler_ddp=True for PyTorch Lightning <2.0
-    replace_sampler_ddp=True,
+    use_distributed_sampler=True,  # or replace_sampler_ddp=True for PyTorch Lightning <2.0
 )
 trainer.fit(model=model, train_dataloaders=dataloader)
