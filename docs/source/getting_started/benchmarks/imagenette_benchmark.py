@@ -99,10 +99,10 @@ from lightly.loss import (
 )
 from lightly.models import modules, utils
 from lightly.models.modules import (
+    MAEDecoderTIMM,
+    MaskedVisionTransformerTIMM,
+    MaskedVisionTransformerTorchvision,
     heads,
-    masked_autoencoder_timm,
-    masked_vision_transformer_timm,
-    masked_vision_transformer_torchvision,
     memory_bank,
 )
 from lightly.transforms import (
@@ -794,10 +794,8 @@ class MAEModel(BenchmarkModule):
         self.mask_ratio = 0.75
         self.patch_size = vit.patch_embed.patch_size[0]
         self.sequence_length = vit.patch_embed.num_patches + 1
-        self.backbone = masked_vision_transformer_timm.MaskedVisionTransformerTIMM(
-            vit=vit
-        )
-        self.decoder = masked_autoencoder_timm.MAEDecoder(
+        self.backbone = MaskedVisionTransformerTIMM(vit=vit)
+        self.decoder = MAEDecoderTIMM(
             num_patches=vit.patch_embed.num_patches,
             patch_size=self.patch_size,
             in_chans=3,
@@ -880,11 +878,7 @@ class MSNModel(BenchmarkModule):
             hidden_dim=384,
             mlp_dim=384 * 4,
         )
-        self.backbone = (
-            masked_vision_transformer_torchvision.MaskedVisionTransformerTorchvision(
-                vit=vit
-            )
-        )
+        self.backbone = MaskedVisionTransformerTorchvision(vit=vit)
 
         self.projection_head = heads.MSNProjectionHead(384)
 
@@ -961,11 +955,7 @@ class PMSNModel(BenchmarkModule):
             hidden_dim=384,
             mlp_dim=384 * 4,
         )
-        self.backbone = (
-            masked_vision_transformer_torchvision.MaskedVisionTransformerTorchvision(
-                vit=vit
-            )
-        )
+        self.backbone = MaskedVisionTransformerTorchvision(vit=vit)
         self.projection_head = heads.MSNProjectionHead(384)
 
         self.anchor_backbone = copy.deepcopy(self.backbone)
@@ -1142,10 +1132,8 @@ class SimMIMModel(BenchmarkModule):
         mask_token = nn.Parameter(torch.zeros(1, 1, decoder_dim))
 
         # Masked vision transformer as backbone
-        self.backbone = (
-            masked_vision_transformer_torchvision.MaskedVisionTransformerTorchvision(
-                vit=vit, mask_token=mask_token
-            )
+        self.backbone = MaskedVisionTransformerTorchvision(
+            vit=vit, mask_token=mask_token
         )
 
         # the decoder is a simple linear layer
