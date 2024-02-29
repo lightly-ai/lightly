@@ -7,19 +7,22 @@ from lightly.utils import dependency
 
 if dependency.timm_vit_available():
     import timm
+    from timm import VisionTransformer
 
     from lightly.models.modules import MAEDecoderTIMM, MaskedVisionTransformerTIMM
 
 
 @unittest.skipUnless(dependency.timm_vit_available(), "TIMM is not available")
 class TestMAEBackbone(unittest.TestCase):
-    def _vit(self):
+    def _vit(self) -> VisionTransformer:
         return timm.models.vision_transformer.vit_base_patch32_224()
 
-    def test_from_vit(self):
+    def test_from_vit(self) -> None:
         MaskedVisionTransformerTIMM(vit=self._vit())
 
-    def _test_forward(self, device, batch_size=8, seed=0):
+    def _test_forward(
+        self, device: torch.device, batch_size: int = 8, seed: int = 0
+    ) -> None:
         torch.manual_seed(seed)
         vit = self._vit()
         backbone = MaskedVisionTransformerTIMM(vit=vit).to(device)
@@ -41,11 +44,11 @@ class TestMAEBackbone(unittest.TestCase):
                 # output must have reasonable numbers
                 self.assertTrue(torch.all(torch.not_equal(class_tokens, torch.inf)))
 
-    def test_forward(self):
+    def test_forward(self) -> None:
         self._test_forward(torch.device("cpu"))
 
     @unittest.skipUnless(torch.cuda.is_available(), "Cuda not available.")
-    def test_forward_cuda(self):
+    def test_forward_cuda(self) -> None:
         self._test_forward(torch.device("cuda"))
 
     def test_images_to_tokens(self) -> None:
@@ -60,7 +63,7 @@ class TestMAEBackbone(unittest.TestCase):
 
 @unittest.skipUnless(dependency.timm_vit_available(), "TIMM is not available")
 class TestMAEDecoder(unittest.TestCase):
-    def test_init(self):
+    def test_init(self) -> None:
         MAEDecoderTIMM(
             num_patches=49,
             patch_size=32,
@@ -73,7 +76,9 @@ class TestMAEDecoder(unittest.TestCase):
             attn_drop_rate=0.0,
         )
 
-    def _test_forward(self, device, batch_size=8, seed=0):
+    def _test_forward(
+        self, device: torch.device, batch_size: int = 8, seed: int = 0
+    ) -> None:
         torch.manual_seed(seed)
         seq_length = 50
         embed_input_dim = 128
@@ -100,9 +105,9 @@ class TestMAEDecoder(unittest.TestCase):
         # output must have reasonable numbers
         self.assertTrue(torch.all(torch.not_equal(predictions, torch.inf)))
 
-    def test_forward(self):
+    def test_forward(self) -> None:
         self._test_forward(torch.device("cpu"))
 
     @unittest.skipUnless(torch.cuda.is_available(), "Cuda not available.")
-    def test_forward_cuda(self):
+    def test_forward_cuda(self) -> None:
         self._test_forward(torch.device("cuda"))
