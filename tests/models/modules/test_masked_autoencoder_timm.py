@@ -10,7 +10,7 @@ if dependency.timm_vit_available():
 
     from lightly.models.modules import MAEDecoderTIMM, MaskedVisionTransformerTIMM
 
-    class TestMAEBackboneTIMM(unittest.TestCase):
+    class TestMaskedVisionTransformerTIMM(unittest.TestCase):
         def _vit(self) -> VisionTransformer:
             return vit_base_patch32_224()
 
