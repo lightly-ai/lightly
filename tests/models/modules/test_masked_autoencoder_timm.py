@@ -7,7 +7,7 @@ from lightly.utils import dependency
 
 if dependency.timm_vit_available():
     import timm
-    from timm import VisionTransformer
+    from timm.models.vision_transformer import VisionTransformer
 
     from lightly.models.modules import MAEDecoderTIMM, MaskedVisionTransformerTIMM
 
