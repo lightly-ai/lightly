@@ -73,14 +73,14 @@ from pl_bolts.optimizers.lars import LARS
 from pytorch_lightning.loggers import TensorBoardLogger
 
 try:
-    from timm.models import vision_transformer as timm_vision_transformer
+    from timm.models.vision_transformer import vit_base_patch32_224
 except ImportError:
     print(
         "TIMM is not available. Please install in order to run this benchmark for MAE."
     )
     sys.exit(1)
 
-from torchvision.models import vision_transformer as torchvision_transformer
+from torchvision.models.vision_transformer import VisionTransformer
 
 from lightly.data import LightlyDataset
 from lightly.loss import (
@@ -152,7 +152,7 @@ gather_distributed = False
 
 # benchmark
 n_runs = 1  # optional, increase to create multiple runs and report mean + std
-batch_size = 256
+batch_size = 128
 lr_factor = batch_size / 256  # scales the learning rate linearly with batch size
 
 # Number of devices and hardware to use for training.
@@ -786,7 +786,7 @@ class MAEModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
         super().__init__(dataloader_kNN, num_classes)
 
-        vit = timm_vision_transformer.vit_base_patch32_224(
+        vit = vit_base_patch32_224(
             dynamic_img_size=True, dynamic_img_pad=True
         )
         decoder_dim = 512
@@ -870,7 +870,7 @@ class MSNModel(BenchmarkModule):
         self.warmup_epochs = 15
         # ViT small configuration (ViT-S/16)
         self.mask_ratio = 0.15
-        vit = torchvision_transformer.VisionTransformer(
+        vit = VisionTransformer(
             image_size=224,
             patch_size=16,
             num_layers=12,
@@ -947,7 +947,7 @@ class PMSNModel(BenchmarkModule):
         self.warmup_epochs = 15
         # ViT small configuration (ViT-S/16)
         self.mask_ratio = 0.15
-        vit = torchvision_transformer.VisionTransformer(
+        vit = VisionTransformer(
             image_size=224,
             patch_size=16,
             num_layers=12,
