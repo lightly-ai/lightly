@@ -786,9 +786,7 @@ class MAEModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
         super().__init__(dataloader_kNN, num_classes)
 
-        vit = vit_base_patch32_224(
-            dynamic_img_size=True, dynamic_img_pad=True
-        )
+        vit = vit_base_patch32_224(dynamic_img_size=True, dynamic_img_pad=True)
         decoder_dim = 512
         self.warmup_epochs = 40 if max_epochs >= 800 else 20
         self.mask_ratio = 0.75
