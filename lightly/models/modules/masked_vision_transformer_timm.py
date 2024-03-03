@@ -22,12 +22,13 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer, Module):
     """Masked Vision Transformer class using TIMM.
 
     Attributes:
-        vit: 
+        vit:
             The VisionTransformer object of TIMM.
         mask_token:
             The mask token.
 
     """
+
     def __init__(
         self,
         vit: vision_transformer.VisionTransformer,
@@ -164,7 +165,7 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer, Module):
         """Adds positional embeddings to the input tensor based on the Vision Transformer (ViT) architecture in vit.
 
         Args:
-            x: 
+            x:
                 Input tensor with shape (batch_size, self.sequence_length, vit.embed_dim).
 
         Returns:

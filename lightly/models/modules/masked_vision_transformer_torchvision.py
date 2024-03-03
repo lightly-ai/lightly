@@ -15,12 +15,13 @@ class MaskedVisionTransformerTorchvision(MaskedVisionTransformer, Module):
     """Masked Vision Transformer class using Torchvision.
 
     Attributes:
-        vit: 
+        vit:
             The VisionTransformer object of Torchvision.
         mask_token:
             The mask token.
 
     """
+
     def __init__(
         self,
         vit: vision_transformer.VisionTransformer,
@@ -175,7 +176,7 @@ class MaskedVisionTransformerTorchvision(MaskedVisionTransformer, Module):
         """Adds positional embeddings to the input tensor based on the Vision Transformer (ViT) architecture in vit.
 
         Args:
-            x: 
+            x:
                 Input tensor with shape (batch_size, self.sequence_length, vit.hidden_dim).
 
         Returns:
