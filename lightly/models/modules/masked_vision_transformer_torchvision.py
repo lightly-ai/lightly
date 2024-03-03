@@ -12,6 +12,15 @@ from lightly.models.modules.masked_vision_transformer import MaskedVisionTransfo
 
 
 class MaskedVisionTransformerTorchvision(MaskedVisionTransformer, Module):
+    """Masked Vision Transformer class using Torchvision.
+
+    Attributes:
+        vit: 
+            The VisionTransformer object of Torchvision.
+        mask_token:
+            The mask token.
+
+    """
     def __init__(
         self,
         vit: vision_transformer.VisionTransformer,
@@ -68,6 +77,26 @@ class MaskedVisionTransformerTorchvision(MaskedVisionTransformer, Module):
         idx_mask: Optional[Tensor] = None,
         idx_keep: Optional[Tensor] = None,
     ) -> Tensor:
+        """Returns encoded class tokens from a batch of images.
+
+        Args:
+            images:
+                Tensor with shape (batch_size, channels, image_size, image_size).
+            idx_mask:
+                Tensor with shape (batch_size, num_tokens_to_mask) where each
+                entry is an index of the token to mask in the respective batch.
+                If specified, the indexed tokens are masked with self.mask_token.
+            idx_keep:
+                Tensor with shape (batch_size, num_tokens_to_keep) where each
+                entry is an index of the token to keep in the respective batch.
+                If specified, only the indexed tokens will be passed to the
+                encoder.
+
+        Returns:
+            Tensor with shape (batch_size, vit.hidden_dim) containing the
+            encoded class token for every image.
+
+        """
         out = self.encode(images, idx_mask=idx_mask, idx_keep=idx_keep)
         class_token = out[:, 0]
         return class_token
@@ -78,6 +107,23 @@ class MaskedVisionTransformerTorchvision(MaskedVisionTransformer, Module):
         idx_mask: Optional[torch.Tensor] = None,
         idx_keep: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
+        """Encode input images.
+
+        Args:
+            input:
+                Batch of input images.
+            idx_mask:
+                Tensor with shape (batch_size, num_tokens_to_mask) where each
+                entry is an index of the token to mask in the respective batch.
+                If specified, the indexed tokens are masked with self.mask_token.
+            idx_keep:
+                Tensor with shape (batch_size, num_tokens_to_keep) where each
+                entry is an index of the token to keep in the respective batch.
+                If specified, only the indexed tokens will be encoded.
+
+        Returns:
+            Batch of encoded output tokens.
+        """
         # convert images to tokens
         input = self.images_to_tokens(images)
         # add prefix tokens if needed
@@ -96,16 +142,45 @@ class MaskedVisionTransformerTorchvision(MaskedVisionTransformer, Module):
         return out
 
     def images_to_tokens(self, images: Tensor) -> Tensor:
+        """Converts images into patch tokens.
+
+        Args:
+            images:
+                Tensor with shape (batch_size, channels, image_size, image_size).
+
+        Returns:
+            Tensor with shape (batch_size, self.vit.seq_length-1, vit.hidden_dim) containing the image patch tokens.
+        """
         x = self.vit.conv_proj(images)
         tokens: torch.Tensor = x.flatten(2).transpose(1, 2)
         return tokens
 
     def add_prefix_tokens(self, x: Tensor, prepend_class_token: bool = True) -> Tensor:
+        """Adds class token to image patch tokens.
+
+        Args:
+            x:
+                Tensor with shape (batch_size, vit.seq_length-1, vit.hidden_dim) containing the image patch tokens
+            prepend_class_token:
+                Boolean flag that determines if a class token should be prepended.
+
+        Returns:
+            Tensor with shape (batch_size, vit.seq_length, vit.hidden_dim) containing the image patch tokens and class tokens.
+        """
         if prepend_class_token:
             x = utils.prepend_class_token(x, self.vit.class_token)
         return x
 
     def add_pos_embed(self, x: Tensor) -> Tensor:
+        """Adds positional embeddings to the input tensor based on the Vision Transformer (ViT) architecture in vit.
+
+        Args:
+            x: 
+                Input tensor with shape (batch_size, self.sequence_length, vit.hidden_dim).
+
+        Returns:
+            Tensor after adding positional embeddings, with the same shape as the input.
+        """
         # TODO(Ersi:1/24) This adds positional encoding to the prefix tokens as well.
         # Give the option of not doing so, as is the case for TIMM.
         x = x + self.interpolate_pos_encoding(x)
