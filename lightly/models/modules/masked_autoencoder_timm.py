@@ -169,23 +169,8 @@ class MAEDecoderTIMM(Module):
 
     def _initialize_weights(self) -> None:
         torch.nn.init.normal_(self.mask_token, std=0.02)
-        _initialize_2d_sine_cosine_positional_embedding(self.decoder_pos_embed)
+        utils.initialize_2d_sine_cosine_positional_embedding(self.decoder_pos_embed)
         self.apply(_init_weights)
-
-
-def _initialize_2d_sine_cosine_positional_embedding(pos_embedding: Parameter) -> None:
-    _, seq_length, hidden_dim = pos_embedding.shape
-    grid_size = int((seq_length - 1) ** 0.5)
-    sine_cosine_embedding = utils.get_2d_sine_cosine_positional_embedding(
-        embed_dim=hidden_dim,
-        grid_size=grid_size,
-        cls_token=True,
-    )
-    pos_embedding.data.copy_(
-        torch.from_numpy(sine_cosine_embedding).float().unsqueeze(0)
-    )
-    # Freeze positional embedding.
-    pos_embedding.requires_grad = False
 
 
 def _init_weights(module: Module) -> None:
