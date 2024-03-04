@@ -3,14 +3,8 @@ from typing import Optional
 
 import torch
 import torch.nn as nn
-
-from lightly.utils import dependency
-
-if dependency.timm_vit_available():
-    from timm.layers.pos_embed import resample_abs_pos_embed
-    from timm.models import vision_transformer
-
-
+from timm.layers.pos_embed import resample_abs_pos_embed
+from timm.models.vision_transformer import VisionTransformer
 from torch import Tensor
 from torch.nn import LayerNorm, Linear, Module, Parameter
 
@@ -31,7 +25,7 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer, Module):
 
     def __init__(
         self,
-        vit: vision_transformer.VisionTransformer,
+        vit: VisionTransformer,
         mask_token: Optional[Parameter] = None,
     ) -> None:
         super().__init__()
@@ -85,10 +79,10 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer, Module):
 
     def encode(
         self,
-        images: torch.Tensor,
-        idx_mask: Optional[torch.Tensor] = None,
-        idx_keep: Optional[torch.Tensor] = None,
-    ) -> torch.Tensor:
+        images: Tensor,
+        idx_mask: Optional[Tensor] = None,
+        idx_keep: Optional[Tensor] = None,
+    ) -> Tensor:
         """Encode input images.
 
         Args:
@@ -123,7 +117,7 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer, Module):
         # apply Transformer blocks
         input = self.vit.blocks(input)
         # normalize
-        out: torch.Tensor = self.vit.norm(input)
+        out: Tensor = self.vit.norm(input)
         return out
 
     def images_to_tokens(self, images: Tensor) -> Tensor:
@@ -134,7 +128,8 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer, Module):
                 Tensor with shape (batch_size, channels, image_size, image_size).
 
         Returns:
-            Tensor with shape (batch_size, self.vit.patch_embed.num_patches, vit.embed_dim) containing the patch tokens (excluding prefix tokens).
+            Tensor with shape (batch_size, vit.patch_embed.num_patches, vit.embed_dim)
+            containing the patch tokens (excluding prefix tokens).
         """
         tokens: Tensor = self.vit.patch_embed(images)
         if self.vit.dynamic_img_size:
@@ -147,10 +142,12 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer, Module):
 
         Args:
             x:
-                Tensor with shape (batch_size, self.vit.patch_embed.num_patches, vit.embed_dim) containing the image patch tokens
+                Tensor with shape (batch_size, vit.patch_embed.num_patches, vit.embed_dim)
+                containing the image patch tokens
 
         Returns:
-            Tensor with shape (batch_size, self.sequence_length, vit.embed_dim) containing the image patch tokens and prefix tokens.
+            Tensor with shape (batch_size, self.sequence_length, vit.embed_dim) containing
+            the image patch tokens and prefix tokens.
         """
         prefix_tokens = []
         if self.vit.cls_token is not None:
@@ -162,7 +159,8 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer, Module):
         return x
 
     def add_pos_embed(self, x: Tensor) -> Tensor:
-        """Adds positional embeddings to the input tensor based on the Vision Transformer (ViT) architecture in vit.
+        """Adds positional embeddings to the input tensor based on the Vision Transformer
+        (ViT) architecture in vit.
 
         Args:
             x:

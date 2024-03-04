@@ -71,15 +71,7 @@ import torch.nn as nn
 import torchvision
 from pl_bolts.optimizers.lars import LARS
 from pytorch_lightning.loggers import TensorBoardLogger
-
-try:
-    from timm.models.vision_transformer import vit_base_patch32_224
-except ImportError:
-    print(
-        "TIMM is not available. Please install in order to run this benchmark for MAE."
-    )
-    sys.exit(1)
-
+from timm.models.vision_transformer import vit_base_patch32_224
 from torchvision.models.vision_transformer import VisionTransformer
 
 from lightly.data import LightlyDataset

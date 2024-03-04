@@ -1,11 +1,9 @@
-from __future__ import annotations
-
 from functools import partial
 from typing import Callable, Optional
 
 import torch
 import torch.nn as nn
-from timm.models import vision_transformer
+from timm.models.vision_transformer import Block
 from torch.nn import LayerNorm, Linear, Module, Parameter, Sequential
 
 from lightly.models import utils
@@ -79,7 +77,7 @@ class MAEDecoderTIMM(Module):
 
         self.decoder_blocks = Sequential(
             *[
-                vision_transformer.Block(
+                Block(
                     decoder_embed_dim,
                     decoder_num_heads,
                     mlp_ratio,
