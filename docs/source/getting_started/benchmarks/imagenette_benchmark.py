@@ -71,16 +71,8 @@ import torch.nn as nn
 import torchvision
 from pl_bolts.optimizers.lars import LARS
 from pytorch_lightning.loggers import TensorBoardLogger
-
-try:
-    from timm.models import vision_transformer as timm_vision_transformer
-except ImportError:
-    print(
-        "TIMM is not available. Please install in order to run this benchmark for MAE."
-    )
-    sys.exit(1)
-
-from torchvision.models import vision_transformer as torchvision_transformer
+from timm.models.vision_transformer import vit_base_patch32_224
+from torchvision.models.vision_transformer import VisionTransformer
 
 from lightly.data import LightlyDataset
 from lightly.loss import (
@@ -99,10 +91,10 @@ from lightly.loss import (
 )
 from lightly.models import modules, utils
 from lightly.models.modules import (
+    MAEDecoderTIMM,
+    MaskedVisionTransformerTIMM,
+    MaskedVisionTransformerTorchvision,
     heads,
-    masked_autoencoder_timm,
-    masked_vision_transformer_timm,
-    masked_vision_transformer_torchvision,
     memory_bank,
 )
 from lightly.transforms import (
@@ -152,7 +144,7 @@ gather_distributed = False
 
 # benchmark
 n_runs = 1  # optional, increase to create multiple runs and report mean + std
-batch_size = 256
+batch_size = 128
 lr_factor = batch_size / 256  # scales the learning rate linearly with batch size
 
 # Number of devices and hardware to use for training.
@@ -786,18 +778,14 @@ class MAEModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
         super().__init__(dataloader_kNN, num_classes)
 
-        vit = timm_vision_transformer.vit_base_patch32_224(
-            dynamic_img_size=True, dynamic_img_pad=True
-        )
+        vit = vit_base_patch32_224(dynamic_img_size=True, dynamic_img_pad=True)
         decoder_dim = 512
         self.warmup_epochs = 40 if max_epochs >= 800 else 20
         self.mask_ratio = 0.75
         self.patch_size = vit.patch_embed.patch_size[0]
         self.sequence_length = vit.patch_embed.num_patches + 1
-        self.backbone = masked_vision_transformer_timm.MaskedVisionTransformerTIMM(
-            vit=vit
-        )
-        self.decoder = masked_autoencoder_timm.MAEDecoder(
+        self.backbone = MaskedVisionTransformerTIMM(vit=vit)
+        self.decoder = MAEDecoderTIMM(
             num_patches=vit.patch_embed.num_patches,
             patch_size=self.patch_size,
             in_chans=3,
@@ -872,7 +860,7 @@ class MSNModel(BenchmarkModule):
         self.warmup_epochs = 15
         # ViT small configuration (ViT-S/16)
         self.mask_ratio = 0.15
-        vit = torchvision_transformer.VisionTransformer(
+        vit = VisionTransformer(
             image_size=224,
             patch_size=16,
             num_layers=12,
@@ -880,11 +868,7 @@ class MSNModel(BenchmarkModule):
             hidden_dim=384,
             mlp_dim=384 * 4,
         )
-        self.backbone = (
-            masked_vision_transformer_torchvision.MaskedVisionTransformerTorchvision(
-                vit=vit
-            )
-        )
+        self.backbone = MaskedVisionTransformerTorchvision(vit=vit)
 
         self.projection_head = heads.MSNProjectionHead(384)
 
@@ -953,7 +937,7 @@ class PMSNModel(BenchmarkModule):
         self.warmup_epochs = 15
         # ViT small configuration (ViT-S/16)
         self.mask_ratio = 0.15
-        vit = torchvision_transformer.VisionTransformer(
+        vit = VisionTransformer(
             image_size=224,
             patch_size=16,
             num_layers=12,
@@ -961,11 +945,7 @@ class PMSNModel(BenchmarkModule):
             hidden_dim=384,
             mlp_dim=384 * 4,
         )
-        self.backbone = (
-            masked_vision_transformer_torchvision.MaskedVisionTransformerTorchvision(
-                vit=vit
-            )
-        )
+        self.backbone = MaskedVisionTransformerTorchvision(vit=vit)
         self.projection_head = heads.MSNProjectionHead(384)
 
         self.anchor_backbone = copy.deepcopy(self.backbone)
@@ -1142,10 +1122,8 @@ class SimMIMModel(BenchmarkModule):
         mask_token = nn.Parameter(torch.zeros(1, 1, decoder_dim))
 
         # Masked vision transformer as backbone
-        self.backbone = (
-            masked_vision_transformer_torchvision.MaskedVisionTransformerTorchvision(
-                vit=vit, mask_token=mask_token
-            )
+        self.backbone = MaskedVisionTransformerTorchvision(
+            vit=vit, mask_token=mask_token
         )
 
         # the decoder is a simple linear layer
@@ -1430,26 +1408,26 @@ class SwaVQueueModel(BenchmarkModule):
 
 
 models = [
-    # BarlowTwinsModel,
-    # BYOLModel,
-    # DCL,
-    # DCLW,
-    # DINOModel,
-    # FastSiamModel,
-    MAEModel,  # disabled by default because MAE uses larger images with size 224
+    BarlowTwinsModel,
+    BYOLModel,
+    DCL,
+    DCLW,
+    DINOModel,
+    FastSiamModel,
+    # MAEModel,  # disabled by default because MAE uses larger images with size 224
     MSNModel,
-    # MocoModel,
-    # NNCLRModel,
+    MocoModel,
+    NNCLRModel,
     PMSNModel,
-    # SimCLRModel,
-    SimMIMModel,  # disabled by default because SimMIM uses larger images with size 224
-    # SimSiamModel,
-    # SwaVModel,
-    # SwaVQueueModel,
-    # SMoGModel,
-    # TiCoModel,
-    # VICRegModel,
-    # VICRegLModel,
+    SimCLRModel,
+    # SimMIMModel,  # disabled by default because SimMIM uses larger images with size 224
+    SimSiamModel,
+    SwaVModel,
+    SwaVQueueModel,
+    SMoGModel,
+    TiCoModel,
+    VICRegModel,
+    VICRegLModel,
 ]
 
 bench_results = dict()

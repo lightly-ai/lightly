@@ -1,11 +1,10 @@
-from __future__ import annotations
-
 from functools import partial
 from typing import Callable, Optional
 
 import torch
 import torch.nn as nn
-from timm.models import vision_transformer
+from timm.models.vision_transformer import Block
+from torch import Tensor
 from torch.nn import LayerNorm, Linear, Module, Parameter, Sequential
 
 from lightly.models import utils
@@ -79,7 +78,7 @@ class MAEDecoderTIMM(Module):
 
         self.decoder_blocks = Sequential(
             *[
-                vision_transformer.Block(
+                Block(
                     decoder_embed_dim,
                     decoder_num_heads,
                     mlp_ratio,
@@ -99,7 +98,7 @@ class MAEDecoderTIMM(Module):
 
         self._initialize_weights()
 
-    def forward(self, input: torch.Tensor) -> torch.Tensor:
+    def forward(self, input: Tensor) -> Tensor:
         """Returns predicted pixel values from encoded tokens.
 
         Args:
@@ -114,7 +113,7 @@ class MAEDecoderTIMM(Module):
         out = self.decode(out)
         return self.predict(out)
 
-    def embed(self, input: torch.Tensor) -> torch.Tensor:
+    def embed(self, input: Tensor) -> Tensor:
         """Embeds encoded input tokens into decoder token dimension.
 
         This is a single linear layer that changes the token dimension from
@@ -130,10 +129,10 @@ class MAEDecoderTIMM(Module):
             the embedded tokens.
 
         """
-        out: torch.Tensor = self.decoder_embed(input)
+        out: Tensor = self.decoder_embed(input)
         return out
 
-    def decode(self, input: torch.Tensor) -> torch.Tensor:
+    def decode(self, input: Tensor) -> Tensor:
         """Forward pass through the decoder transformer.
 
         Args:
@@ -146,12 +145,12 @@ class MAEDecoderTIMM(Module):
             the decoded tokens.
 
         """
-        output: torch.Tensor = input + self.decoder_pos_embed
+        output: Tensor = input + self.decoder_pos_embed
         output = self.decoder_blocks(output)
         output = self.decoder_norm(output)
         return output
 
-    def predict(self, input: torch.Tensor) -> torch.Tensor:
+    def predict(self, input: Tensor) -> Tensor:
         """Predics pixel values from decoded tokens.
 
         Args:
@@ -164,28 +163,13 @@ class MAEDecoderTIMM(Module):
             predictions for each token.
 
         """
-        out: torch.Tensor = self.decoder_pred(input)
+        out: Tensor = self.decoder_pred(input)
         return out
 
     def _initialize_weights(self) -> None:
         torch.nn.init.normal_(self.mask_token, std=0.02)
-        _initialize_2d_sine_cosine_positional_embedding(self.decoder_pos_embed)
+        utils.initialize_2d_sine_cosine_positional_embedding(self.decoder_pos_embed)
         self.apply(_init_weights)
-
-
-def _initialize_2d_sine_cosine_positional_embedding(pos_embedding: Parameter) -> None:
-    _, seq_length, hidden_dim = pos_embedding.shape
-    grid_size = int((seq_length - 1) ** 0.5)
-    sine_cosine_embedding = utils.get_2d_sine_cosine_positional_embedding(
-        embed_dim=hidden_dim,
-        grid_size=grid_size,
-        cls_token=True,
-    )
-    pos_embedding.data.copy_(
-        torch.from_numpy(sine_cosine_embedding).float().unsqueeze(0)
-    )
-    # Freeze positional embedding.
-    pos_embedding.requires_grad = False
 
 
 def _init_weights(module: Module) -> None:

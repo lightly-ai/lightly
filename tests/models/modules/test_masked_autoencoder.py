@@ -1,13 +1,12 @@
 import unittest
 
 import torch
+import torchvision
 
 from lightly.models import utils
 from lightly.utils import dependency
 
 if dependency.torchvision_vit_available():
-    import torchvision
-
     from lightly.models.modules import MAEBackbone, MAEDecoder, MAEEncoder
 
 

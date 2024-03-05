@@ -3,22 +3,13 @@ from typing import List, Tuple
 
 import torch
 from pytorch_lightning import LightningModule
+from timm.models.vision_transformer import vit_base_patch16_224
 from torch import Tensor
 from torch.nn import MSELoss, Parameter
 from torch.optim import AdamW
 
-from lightly.utils import dependency
-
-if dependency.timm_vit_available():
-    from timm.models.vision_transformer import vit_base_patch16_224
-else:
-    sys.exit(1)
-
 from lightly.models import utils
-from lightly.models.modules import (
-    masked_autoencoder_timm,
-    masked_vision_transformer_timm,
-)
+from lightly.models.modules import MAEDecoderTIMM, MaskedVisionTransformerTIMM
 from lightly.transforms import MAETransform
 from lightly.utils.benchmarking import OnlineLinearClassifier
 from lightly.utils.scheduler import CosineWarmupScheduler
@@ -38,10 +29,8 @@ class MAE(LightningModule):
         self.sequence_length = vit.patch_embed.num_patches + vit.num_prefix_tokens
         mask_token = Parameter(torch.zeros(1, 1, decoder_dim))
         torch.nn.init.normal_(mask_token, std=0.02)
-        self.backbone = masked_vision_transformer_timm.MaskedVisionTransformerTIMM(
-            vit=vit
-        )
-        self.decoder = masked_autoencoder_timm.MAEDecoder(
+        self.backbone = MaskedVisionTransformerTIMM(vit=vit)
+        self.decoder = MAEDecoderTIMM(
             num_patches=vit.patch_embed.num_patches,
             patch_size=self.patch_size,
             embed_dim=vit.embed_dim,
