@@ -15,7 +15,7 @@ class AIM(nn.Module):
     def __init__(self, vit):
         super().__init__()
         utils.initialize_2d_sine_cosine_positional_embedding(
-            pos_embedding=vit.pos_embed
+            pos_embedding=vit.pos_embed, has_class_token=vit.has_class_token
         )
         self.patch_size = vit.patch_embed.patch_size[0]
         self.num_patches = vit.patch_embed.num_patches

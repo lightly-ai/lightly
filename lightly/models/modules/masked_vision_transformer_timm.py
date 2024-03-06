@@ -191,9 +191,9 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer, Module):
             pos_embed = resample_abs_pos_embed(
                 self.vit.pos_embed,
                 (H, W),
-                num_prefix_tokens=0
-                if self.vit.no_embed_class
-                else self.vit.num_prefix_tokens,
+                num_prefix_tokens=(
+                    0 if self.vit.no_embed_class else self.vit.num_prefix_tokens
+                ),
             )
             x = x.view(B, -1, C)
         else:
@@ -222,7 +222,9 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer, Module):
         # initialize nn.Linear and nn.LayerNorm
         self.apply(_init_weights)
 
-        utils.initialize_2d_sine_cosine_positional_embedding(self.vit.pos_embed)
+        utils.initialize_2d_sine_cosine_positional_embedding(
+            pos_embedding=self.vit.pos_embed, has_class_token=self.vit.has_class_token
+        )
 
 
 def _init_weights(module: Module) -> None:
