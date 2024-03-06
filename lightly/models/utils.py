@@ -12,6 +12,7 @@ import torch
 import torch.distributed as dist
 import torch.nn as nn
 from numpy.typing import NDArray
+from torch import Tensor
 from torch.nn import Module, Sequential
 from torch.nn.modules import CrossMapLRN2d, GroupNorm, LayerNorm, LocalResponseNorm
 from torch.nn.modules.batchnorm import _NormBase
@@ -638,13 +639,15 @@ def add_stochastic_depth_to_blocks(vit: Module, prob: float = 0.0, mode="row") -
             mod.mlp = Sequential(mod.mlp, StochasticDepth(p=prob, mode=mode))
 
 
-def initialize_2d_sine_cosine_positional_embedding(pos_embedding: Parameter) -> None:
+def initialize_2d_sine_cosine_positional_embedding(
+    pos_embedding: Parameter, has_class_token: bool
+) -> None:
     _, seq_length, hidden_dim = pos_embedding.shape
-    grid_size = int((seq_length - 1) ** 0.5)
+    grid_size = int((seq_length - int(has_class_token)) ** 0.5)
     sine_cosine_embedding = get_2d_sine_cosine_positional_embedding(
         embed_dim=hidden_dim,
         grid_size=grid_size,
-        cls_token=True,
+        cls_token=has_class_token,
     )
     pos_embedding.data.copy_(
         torch.from_numpy(sine_cosine_embedding).float().unsqueeze(0)
@@ -748,3 +751,23 @@ def get_1d_sine_cosine_positional_embedding_from_positions(
 
     emb = np.concatenate([emb_sin, emb_cos], axis=1)  # (N*M, embed_dim)
     return emb
+
+
+def normalize_mean_var(x: Tensor, dim: int = -1, eps: float = 1.0e-6) -> Tensor:
+    """Normalizes the input tensor to zero mean and unit variance.
+
+    Args:
+        x:
+            Input tensor.
+        dim:
+            Dimension along which to compute mean and standard deviation. Takes last
+            dimension by default.
+        eps:
+            Epsilon value to avoid division by zero.
+
+    Returns:
+        Normalized tensor.
+    """
+    mean = x.mean(dim=dim, keepdim=True)
+    var = x.var(dim=dim, keepdim=True)
+    return (x - mean) / (var + eps).sqrt()
