@@ -9,8 +9,8 @@ from torch import nn
 
 from lightly.loss import PMSNLoss
 from lightly.models import utils
+from lightly.models.modules import MaskedVisionTransformerTorchvision
 from lightly.models.modules.heads import MSNProjectionHead
-from lightly.models.modules.masked_autoencoder import MAEBackbone
 from lightly.transforms import MSNTransform
 
 
@@ -19,7 +19,7 @@ class PMSN(nn.Module):
         super().__init__()
 
         self.mask_ratio = 0.15
-        self.backbone = MAEBackbone.from_vit(vit)
+        self.backbone = MaskedVisionTransformerTorchvision(vit=vit)
         self.projection_head = MSNProjectionHead(384)
 
         self.anchor_backbone = copy.deepcopy(self.backbone)
@@ -31,18 +31,18 @@ class PMSN(nn.Module):
         self.prototypes = nn.Linear(256, 1024, bias=False).weight
 
     def forward(self, images):
-        out = self.backbone(images)
+        out = self.backbone(images=images)
         return self.projection_head(out)
 
     def forward_masked(self, images):
         batch_size, _, _, width = images.shape
-        seq_length = (width // self.anchor_backbone.patch_size) ** 2
+        seq_length = (width // self.anchor_backbone.vit.patch_size) ** 2
         idx_keep, _ = utils.random_token_mask(
             size=(batch_size, seq_length),
             mask_ratio=self.mask_ratio,
             device=images.device,
         )
-        out = self.anchor_backbone(images, idx_keep)
+        out = self.anchor_backbone(images=images, idx_keep=idx_keep)
         return self.anchor_projection_head(out)
 
 
@@ -106,7 +106,7 @@ for epoch in range(10):
         anchors = views[1]
         anchors_focal = torch.concat(views[2:], dim=0)
 
-        targets_out = model.backbone(targets)
+        targets_out = model.backbone(images=targets)
         targets_out = model.projection_head(targets_out)
         anchors_out = model.forward_masked(anchors)
         anchors_focal_out = model.forward_masked(anchors_focal)
