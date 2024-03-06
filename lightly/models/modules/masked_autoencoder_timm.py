@@ -168,7 +168,9 @@ class MAEDecoderTIMM(Module):
 
     def _initialize_weights(self) -> None:
         torch.nn.init.normal_(self.mask_token, std=0.02)
-        utils.initialize_2d_sine_cosine_positional_embedding(self.decoder_pos_embed)
+        utils.initialize_2d_sine_cosine_positional_embedding(
+            pos_embedding=self.decoder_pos_embed, has_class_token=True
+        )
         self.apply(_init_weights)
 
 

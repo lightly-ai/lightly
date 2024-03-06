@@ -10,6 +10,7 @@ for PyTorch and PyTorch Lightning to give you a headstart when implementing your
 .. toctree::
     :maxdepth: 1
     
+    aim.rst
     barlowtwins.rst
     byol.rst
     dcl.rst

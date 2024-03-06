@@ -202,7 +202,8 @@ class MaskedVisionTransformerTorchvision(MaskedVisionTransformer, Module):
 
         # Initialize positional encoding.
         utils.initialize_2d_sine_cosine_positional_embedding(
-            self.vit.encoder.pos_embedding
+            pos_embedding=self.vit.encoder.pos_embedding,
+            has_class_token=True,
         )
 
         # Initialize linear layers.

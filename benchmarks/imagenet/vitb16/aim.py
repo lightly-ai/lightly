@@ -21,13 +21,9 @@ class AIM(LightningModule):
         self.save_hyperparameters()
         self.batch_size_per_device = batch_size_per_device
 
-        img_size = 224
-        self.patch_size = 14
-        self.num_patches = (img_size // self.patch_size) ** 2
-
         vit = MaskedCausalVisionTransformer(
-            img_size=img_size,
-            patch_size=self.patch_size,
+            img_size=224,
+            patch_size=14,
             num_classes=num_classes,
             embed_dim=1536,
             depth=24,
@@ -36,14 +32,11 @@ class AIM(LightningModule):
             class_token=False,
             no_embed_class=True,
         )
-        # Use absolute positional embedding.
-        pos_embed = get_2d_sincos_pos_embed(
-            embed_dim=vit.embed_dim,
-            grid_size=int(self.num_patches**0.5),
-            cls_token=False,
+        utils.initialize_2d_sine_cosine_positional_embedding(
+            pos_embedding=vit.pos_embed, has_class_token=vit.has_class_token
         )
-        vit.pos_embed.requires_grad = False
-        vit.pos_embed.data.copy_(torch.from_numpy(pos_embed).float().unsqueeze(0))
+        self.patch_size = vit.patch_embed.patch_size[0]
+        self.num_patches = vit.patch_embed.num_patches
 
         self.backbone = vit
         self.projection_head = AIMPredictionHead(
@@ -67,8 +60,8 @@ class AIM(LightningModule):
     def training_step(
         self, batch: Tuple[List[Tensor], Tensor, List[str]], batch_idx: int
     ) -> Tensor:
-        images, targets = batch[0], batch[1]
-        images = images[0]  # images is a list containing only one view
+        views, targets = batch[0], batch[1]
+        images = views[0]  # AIM has only a single view
         batch_size = images.shape[0]
 
         mask = random_prefix_mask(
@@ -83,9 +76,7 @@ class AIM(LightningModule):
 
         # Convert images to patches and normalize them.
         patches = utils.patchify(images, self.patch_size)
-        mean = patches.mean(dim=-1, keepdim=True)
-        var = patches.var(dim=-1, keepdim=True)
-        patches = (patches - mean) / (var + 1.0e-6) ** 0.5
+        patches = utils.normalize_mean_var(patches, dim=-1)
 
         loss = self.criterion(predictions, patches)
 
