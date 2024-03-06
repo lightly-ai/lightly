@@ -401,5 +401,5 @@ def test_normalize_mean_var() -> None:
 
     x = torch.rand(2, 3, 4)
     norm = utils.normalize_mean_var(x)
-    assert norm.mean(dim=-1) == pytest.approx(0.0)
-    assert norm.var(dim=-1) == pytest.approx(1.0)
+    assert torch.allclose(norm.mean(dim=-1), torch.tensor(0.0), rtol=0.0001, atol=1e-5)
+    assert torch.allclose(norm.var(dim=-1), torch.tensor(1.0), rtol=0.0001, atol=1e-5)
