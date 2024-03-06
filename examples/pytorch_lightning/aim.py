@@ -15,14 +15,9 @@ from lightly.transforms import AIMTransform
 class AIM(pl.LightningModule):
     def __init__(self) -> None:
         super().__init__()
-
-        img_size = 224
-        self.patch_size = 32
-        self.num_patches = (img_size // self.patch_size) ** 2
-
         vit = MaskedCausalVisionTransformer(
-            img_size=img_size,
-            patch_size=self.patch_size,
+            img_size=224,
+            patch_size=32,
             embed_dim=768,
             depth=12,
             num_heads=12,
@@ -33,6 +28,8 @@ class AIM(pl.LightningModule):
         utils.initialize_2d_sine_cosine_positional_embedding(
             pos_embedding=vit.pos_embed
         )
+        self.patch_size = vit.patch_embed.patch_size[0]
+        self.num_patches = vit.patch_embed.num_patches
 
         self.backbone = vit
         self.projection_head = AIMPredictionHead(
