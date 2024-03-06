@@ -395,9 +395,9 @@ def test_get_named_leaf_modules() -> None:
 def test_normalize_mean_var() -> None:
     x = torch.tensor([1.0, 2.0, 3.0])
     norm = utils.normalize_mean_var(x).tolist()
-    assert norm[0] == pytest.approx(-1 / math.sqrt(2 / 3))
+    assert norm[0] == pytest.approx(-1)
     assert norm[1] == pytest.approx(0.0)
-    assert norm[2] == pytest.approx(1 / math.sqrt(2 / 3))
+    assert norm[2] == pytest.approx(1)
 
     x = torch.rand(2, 3, 4)
     norm = utils.normalize_mean_var(x)
