@@ -40,7 +40,7 @@ class AIM(LightningModule):
         pos_embed = get_2d_sincos_pos_embed(
             embed_dim=vit.embed_dim,
             grid_size=int(self.num_patches**0.5),
-            cls_token=False,
+            cls_token=vit.has_class_token,
         )
         vit.pos_embed.requires_grad = False
         vit.pos_embed.data.copy_(torch.from_numpy(pos_embed).float().unsqueeze(0))
