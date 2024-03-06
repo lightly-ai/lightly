@@ -60,8 +60,8 @@ class AIM(LightningModule):
     def training_step(
         self, batch: Tuple[List[Tensor], Tensor, List[str]], batch_idx: int
     ) -> Tensor:
-        images, targets = batch[0], batch[1]
-        images = images[0]  # images is a list containing only one view
+        views, targets = batch[0], batch[1]
+        images = views[0]  # AIM has only a single view
         batch_size = images.shape[0]
 
         mask = random_prefix_mask(

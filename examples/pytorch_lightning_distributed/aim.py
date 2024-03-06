@@ -39,8 +39,8 @@ class AIM(pl.LightningModule):
         self.criterion = nn.MSELoss()
 
     def training_step(self, batch, batch_idx):
-        images, targets = batch[0], batch[1]
-        images = images[0]  # images is a list containing only one view
+        views, targets = batch[0], batch[1]
+        images = views[0]  # AIM has only a single view
         batch_size = images.shape[0]
 
         mask = utils.random_prefix_mask(
