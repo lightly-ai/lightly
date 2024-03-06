@@ -7,6 +7,7 @@ import aim
 import finetune_eval
 import knn_eval
 import linear_eval
+import mae
 import torch
 from pytorch_lightning import LightningModule, Trainer
 from pytorch_lightning.callbacks import DeviceStatsMonitor, LearningRateMonitor
@@ -38,7 +39,9 @@ parser.add_argument("--skip-finetune-eval", action="store_true")
 parser.add_argument("--float32-matmul-precision", type=str, default="high")
 parser.add_argument("--strategy", default="ddp_find_unused_parameters_true")
 
+
 METHODS = {
+    "mae": {"model": mae.MAE, "transform": mae.transform},
     "aim": {"model": aim.AIM, "transform": aim.transform},
 }
 

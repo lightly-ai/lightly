@@ -36,6 +36,8 @@ class FinetuneEvalClassifier(LinearClassifier):
         super().__init__(
             model, batch_size_per_device, feature_dim, num_classes, topk, freeze_model
         )
+        # TODO(Ersi, 2/24): Add path dropout for TIMM.
+
         # Add path dropout.
         add_stochastic_depth_to_blocks(self.model, prob=0.1)
         # Add mixup and cutmix.
@@ -140,7 +142,6 @@ def finetune_eval(
     Parameters follow MAE settings.
     """
     print("Running fine-tune evaluation...")
-
     # Setup training data.
     # NOTE: We use transforms from the timm library here as they are the default in MAE
     # and torchvision does not provide all required parameters.
