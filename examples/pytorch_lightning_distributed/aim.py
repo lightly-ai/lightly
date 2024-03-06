@@ -60,7 +60,7 @@ class AIM(pl.LightningModule):
 
         # Convert images to patches and normalize them.
         patches = utils.patchify(images, self.patch_size)
-        patches = utils.normalize_mean_var(patches)
+        patches = utils.normalize_mean_var(patches, dim=-1)
 
         loss = self.criterion(predictions, patches)
         return loss

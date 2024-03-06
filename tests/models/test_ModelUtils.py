@@ -1,10 +1,10 @@
 import copy
+import math
 import unittest
 
+import pytest
 import torch
 import torch.nn as nn
-import pytest
-import math
 
 from lightly.models import utils
 from lightly.models.utils import (
