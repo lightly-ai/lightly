@@ -39,9 +39,7 @@ class AIM(nn.Module):
 
         # Convert images to patches and normalize them.
         patches = utils.patchify(images, self.patch_size)
-        mean = patches.mean(dim=-1, keepdim=True)
-        var = patches.var(dim=-1, keepdim=True)
-        patches = (patches - mean) / (var + 1.0e-6) ** 0.5
+        patches = utils.normalize_mean_var(patches)
 
         return predictions, patches
 

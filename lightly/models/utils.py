@@ -17,6 +17,7 @@ from torch.nn.modules import CrossMapLRN2d, GroupNorm, LayerNorm, LocalResponseN
 from torch.nn.modules.batchnorm import _NormBase
 from torch.nn.parameter import Parameter
 from torchvision.ops import StochasticDepth
+from torch import Tensor
 
 from lightly.utils import dependency
 
@@ -748,3 +749,23 @@ def get_1d_sine_cosine_positional_embedding_from_positions(
 
     emb = np.concatenate([emb_sin, emb_cos], axis=1)  # (N*M, embed_dim)
     return emb
+
+
+def normalize_mean_var(x: Tensor, dim: int = -1, eps: float = 1.0e-6) -> Tensor:
+    """Normalizes the input tensor to zero mean and unit variance.
+
+    Args:
+        x:
+            Input tensor.
+        dim:
+            Dimension along which to compute mean and standard deviation. Takes last
+            dimension by default.
+        eps:
+            Epsilon value to avoid division by zero.
+
+    Returns:
+        Normalized tensor.
+    """
+    mean = x.mean(dim=dim, keepdim=True)
+    var = x.var(dim=dim, keepdim=True)
+    return (x - mean) / (var + eps).sqrt()
