@@ -21,13 +21,9 @@ class AIM(LightningModule):
         self.save_hyperparameters()
         self.batch_size_per_device = batch_size_per_device
 
-        img_size = 224
-        self.patch_size = 14
-        self.num_patches = (img_size // self.patch_size) ** 2
-
         vit = MaskedCausalVisionTransformer(
-            img_size=img_size,
-            patch_size=self.patch_size,
+            img_size=224,
+            patch_size=14,
             num_classes=num_classes,
             embed_dim=1536,
             depth=24,
@@ -39,6 +35,8 @@ class AIM(LightningModule):
         utils.initialize_2d_sine_cosine_positional_embedding(
             pos_embedding=vit.pos_embed
         )
+        self.patch_size = vit.patch_embed.patch_size[0]
+        self.num_patches = vit.patch_embed.num_patches
 
         self.backbone = vit
         self.projection_head = AIMPredictionHead(
