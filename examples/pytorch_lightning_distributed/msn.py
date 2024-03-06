@@ -10,8 +10,8 @@ from torch import nn
 
 from lightly.loss import MSNLoss
 from lightly.models import utils
+from lightly.models.modules import MaskedVisionTransformerTorchvision
 from lightly.models.modules.heads import MSNProjectionHead
-from lightly.models.modules.masked_autoencoder import MAEBackbone
 from lightly.transforms.msn_transform import MSNTransform
 
 
@@ -21,7 +21,8 @@ class MSN(pl.LightningModule):
 
         # ViT small configuration (ViT-S/16)
         self.mask_ratio = 0.15
-        self.backbone = MAEBackbone(
+        # ViT small configuration (ViT-S/16)
+        vit = torchvision.models.VisionTransformer(
             image_size=224,
             patch_size=16,
             num_layers=12,
@@ -29,6 +30,7 @@ class MSN(pl.LightningModule):
             hidden_dim=384,
             mlp_dim=384 * 4,
         )
+        self.backbone = MaskedVisionTransformerTorchvision(vit=vit)
         # or use a torchvision ViT backbone:
         # vit = torchvision.models.vit_b_32(pretrained=False)
         # self.backbone = MAEBackbone.from_vit(vit)
@@ -55,7 +57,7 @@ class MSN(pl.LightningModule):
         anchors = views[1]
         anchors_focal = torch.concat(views[2:], dim=0)
 
-        targets_out = self.backbone(targets)
+        targets_out = self.backbone(images=targets)
         targets_out = self.projection_head(targets_out)
         anchors_out = self.encode_masked(anchors)
         anchors_focal_out = self.encode_masked(anchors_focal)
@@ -66,13 +68,13 @@ class MSN(pl.LightningModule):
 
     def encode_masked(self, anchors):
         batch_size, _, _, width = anchors.shape
-        seq_length = (width // self.anchor_backbone.patch_size) ** 2
+        seq_length = (width // self.anchor_backbone.vit.patch_size) ** 2
         idx_keep, _ = utils.random_token_mask(
             size=(batch_size, seq_length),
             mask_ratio=self.mask_ratio,
             device=self.device,
         )
-        out = self.anchor_backbone(anchors, idx_keep)
+        out = self.anchor_backbone(images=anchors, idx_keep=idx_keep)
         return self.anchor_projection_head(out)
 
     def configure_optimizers(self):
