@@ -26,6 +26,7 @@ from lightly.models.modules.heads import (
     SMoGPrototypes,
     SwaVProjectionHead,
     SwaVPrototypes,
+    WMSEProjectionHead,
 )
 from lightly.models.modules.nn_memory_bank import NNMemoryBankModule
 from lightly.utils import dependency as _dependency

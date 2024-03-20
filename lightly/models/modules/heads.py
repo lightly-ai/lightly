@@ -761,6 +761,27 @@ class TiCoProjectionHead(ProjectionHead):
         )
 
 
+class WMSEProjectionHead(SimCLRProjectionHead):
+    """Projection head used for W-MSE.
+
+    Uses the same projection head as SimCLR.[0]
+
+    [0]: 2021, W-MSE, https://arxiv.org/pdf/2007.06346.pdf
+    """
+
+    def __init__(
+        self,
+        input_dim: int = 2048,
+        hidden_dim: int = 2048,
+        output_dim: int = 128,
+        num_layers: int = 2,
+        batch_norm: bool = True,
+    ):
+        super(WMSEProjectionHead, self).__init__(
+            input_dim, hidden_dim, output_dim, num_layers, batch_norm
+        )
+
+
 class VICRegProjectionHead(ProjectionHead):
     """Projection head used for VICReg.
 

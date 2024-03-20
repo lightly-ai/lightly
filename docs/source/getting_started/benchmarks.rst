@@ -39,6 +39,7 @@ Evaluation settings are based on the following papers:
   "SwAV", "Res50", "256", "100", "67.2", "88.1", "75.4", "92.7", "49.5", "78.6", "`link <https://tensorboard.dev/experiment/Ipx4Oxl5Qkqm5Sl5kWyKKg>`_", "`link <https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_swav_2023-05-25_08-29-14/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt>`_"
   "TiCo", "Res50", "256", "100", "49.7", "74.4", "72.7", "90.9", "26.6", "53.6", "-", "`link <https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_tico_2024-01-07_18-40-57/pretrain/version_0/checkpoints/epoch%3D99-step%3D250200.ckpt>`_"
   "VICReg", "Res50", "256", "100", "63.0", "85.4", "73.7", "91.9", "46.3", "75.2", "`link <https://tensorboard.dev/experiment/qH5uywJbTJSzgCEfxc7yUw>`_", "`link <https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_vicreg_2023-09-11_10-53-08/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt>`_"
+  "W-MSE", "Res50", "512", "100", "54.6", "78.8", "73.6", "91.5", "31.2", "60.4", "-", "`link <https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_wmse_2024-01-15_22-02-33/pretrain/version_0/checkpoints/epoch%3D99-step%3D250200.ckpt>`_"
 
 *\*We use square root learning rate scaling instead of linear scaling as it yields better results for smaller batch sizes. See Appendix B.1 in the SimCLR paper.*
 
