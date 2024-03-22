@@ -8,7 +8,7 @@ from torch import nn
 
 from lightly.models import utils
 from lightly.models.modules import MAEDecoderTIMM, MaskedVisionTransformerTIMM
-from lightly.transforms.mae_transform import MAETransform
+from lightly.transforms import MAETransform
 
 
 class MAE(nn.Module):
