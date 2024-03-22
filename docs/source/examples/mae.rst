@@ -15,6 +15,14 @@ input image and using a shallow decoder architecture.
 Reference:
     `Masked Autoencoders Are Scalable Vision Learners, 2021 <https://arxiv.org/abs/2111.06377>`_
 
+.. note::
+
+    MAE requires `TIMM <https://github.com/huggingface/pytorch-image-models>`_ to be
+    installed
+
+    .. code-block:: bash
+
+        pip install "timm>=0.9.9"
 
 .. tabs::
     .. tab:: PyTorch
