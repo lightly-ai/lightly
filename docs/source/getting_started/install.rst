@@ -37,7 +37,7 @@ If you want to work use the Masked Autoencoder you need to additionally install
 
 .. code-block:: bash
 
-    pip install timm
+    pip install "timm>=0.9.9"
 
 Next Steps
 ------------
