@@ -18,7 +18,7 @@ class PrettyPrintApiException(ApiException):
         error_message += f"Error Reason: {self.reason}\n"
         error_body_dict = json.loads(self.body)
         if "error" in error_body_dict:
-            error_message += f"Error Message: {error_body_dict['error']}\n"
+            error_message += f"Error Message: \033[1m\033[31m{error_body_dict['error']}\033[0m\n"
 
         return error_message
 
