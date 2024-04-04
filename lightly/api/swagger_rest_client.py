@@ -1,7 +1,26 @@
+import json
 from typing import Any, Dict, Optional, Tuple, Union
 
 from lightly.openapi_generated.swagger_client.api_client import Configuration
+from lightly.openapi_generated.swagger_client.exceptions import ApiException, UnauthorizedException
+from lightly.openapi_generated.swagger_client.models.api_error_code import ApiErrorCode
 from lightly.openapi_generated.swagger_client.rest import RESTClientObject
+
+class PrettyPrintApiException(ApiException):
+
+    def __init__(self, current_exception: ApiException):
+        super().__init__(current_exception.status, current_exception.reason)
+        self.body = current_exception.body
+        self.headers = current_exception.headers
+
+    def __str__(self):
+        error_message = f"\nError Code: {self.status}\n"
+        error_message += f"Error Reason: {self.reason}\n"
+        error_body_dict = json.loads(self.body)
+        if "error" in error_body_dict:
+            error_message += f"Error Message: {error_body_dict['error']}\n"
+
+        return error_message
 
 
 class PatchRESTClientObjectMixin:
@@ -61,16 +80,22 @@ class PatchRESTClientObjectMixin:
             _request_timeout = self.timeout
 
         # Call RESTClientObject.request
-        return super().request(
-            method=method,
-            url=url,
-            query_params=query_params,
-            headers=headers,
-            body=body,
-            post_params=post_params,
-            _preload_content=_preload_content,
-            _request_timeout=_request_timeout,
-        )
+        try:
+            return super().request(
+                method=method,
+                url=url,
+                query_params=query_params,
+                headers=headers,
+                body=body,
+                post_params=post_params,
+                _preload_content=_preload_content,
+                _request_timeout=_request_timeout,
+            )
+        except ApiException as e:
+            if e.reason in [ApiErrorCode.BAD_REQUEST, ApiErrorCode.CONFLICT, ApiErrorCode.MALFORMED_RESPONSE, ApiErrorCode.MALFORMED_REQUEST]:
+                raise e
+            raise PrettyPrintApiException(e).with_traceback(None) from None
+
 
     def __getstate__(self) -> Dict[str, Any]:
         """__getstate__ method for pickling."""
@@ -116,3 +141,4 @@ class LightlySwaggerRESTClientObject(PatchRESTClientObjectMixin, RESTClientObjec
     """
 
     pass
+
