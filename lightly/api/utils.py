@@ -55,8 +55,6 @@ def retry(func, *args, **kwargs):  # type: ignore
             # return on success
             return func(*args, **kwargs)
         except Exception as e:
-            if isinstance(e, KeyboardInterrupt):
-                raise e
             # sleep on failure
             time.sleep(backoff)
             backoff = 2 * backoff if backoff < max_backoff else backoff
