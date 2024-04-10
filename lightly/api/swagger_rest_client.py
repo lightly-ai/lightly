@@ -2,9 +2,13 @@ import json
 from typing import Any, Dict, Optional, Tuple, Union
 
 from lightly.openapi_generated.swagger_client.api_client import Configuration
-from lightly.openapi_generated.swagger_client.exceptions import ApiException, UnauthorizedException
+from lightly.openapi_generated.swagger_client.exceptions import (
+    ApiException,
+    UnauthorizedException,
+)
 from lightly.openapi_generated.swagger_client.models.api_error_code import ApiErrorCode
 from lightly.openapi_generated.swagger_client.rest import RESTClientObject
+
 
 class PrettyPrintApiException(ApiException):
 
@@ -15,7 +19,7 @@ class PrettyPrintApiException(ApiException):
 
     def __str__(self):
         error_message = "\n"
-        error_message += "#"*30
+        error_message += "#" * 30
         error_message += f"\nError Code: {self.status}\n"
         error_message += f"Error Reason: {self.reason}\n"
         if self.body is not None:
@@ -25,12 +29,13 @@ class PrettyPrintApiException(ApiException):
                     error_message += f"Error Message: {error_body_dict['error']}\n"
             except json.JSONDecodeError:
                 pass
-        error_message += "#"*30+"\n"
+        error_message += "#" * 30 + "\n"
 
         # make the error message red
         error_message = f"\033[91m{error_message}\033[0m"
 
         return error_message
+
 
 class PatchRESTClientObjectMixin:
     """Mixin that adds patches to a RESTClientObject.
@@ -101,10 +106,14 @@ class PatchRESTClientObjectMixin:
                 _request_timeout=_request_timeout,
             )
         except ApiException as e:
-            if e.reason in [ApiErrorCode.BAD_REQUEST, ApiErrorCode.CONFLICT, ApiErrorCode.MALFORMED_RESPONSE, ApiErrorCode.MALFORMED_REQUEST]:
+            if e.reason in [
+                ApiErrorCode.BAD_REQUEST,
+                ApiErrorCode.CONFLICT,
+                ApiErrorCode.MALFORMED_RESPONSE,
+                ApiErrorCode.MALFORMED_REQUEST,
+            ]:
                 raise e
             raise PrettyPrintApiException(e).with_traceback(None) from None
-
 
     def __getstate__(self) -> Dict[str, Any]:
         """__getstate__ method for pickling."""
@@ -150,4 +159,3 @@ class LightlySwaggerRESTClientObject(PatchRESTClientObjectMixin, RESTClientObjec
     """
 
     pass
-
