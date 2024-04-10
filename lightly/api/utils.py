@@ -15,8 +15,6 @@ from typing import Iterator, List, Optional
 # PIL misidentifies certain jpeg images as MPOs
 from PIL import JpegImagePlugin
 
-from lightly.api.swagger_rest_client import PrettyPrintApiException
-
 JpegImagePlugin._getmp = lambda: None
 
 from lightly.openapi_generated.swagger_client.configuration import Configuration
@@ -57,7 +55,7 @@ def retry(func, *args, **kwargs):  # type: ignore
             # return on success
             return func(*args, **kwargs)
         except Exception as e:
-            if isinstance(e, (PrettyPrintApiException, KeyboardInterrupt)):
+            if isinstance(e, KeyboardInterrupt):
                 raise e
             # sleep on failure
             time.sleep(backoff)

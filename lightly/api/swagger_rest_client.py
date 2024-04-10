@@ -14,14 +14,23 @@ class PrettyPrintApiException(ApiException):
         self.headers = current_exception.headers
 
     def __str__(self):
-        error_message = f"\nError Code: {self.status}\n"
+        error_message = "\n"
+        error_message += "#"*30
+        error_message += f"\nError Code: {self.status}\n"
         error_message += f"Error Reason: {self.reason}\n"
-        error_body_dict = json.loads(self.body)
-        if "error" in error_body_dict:
-            error_message += f"Error Message: \033[1m\033[31m{error_body_dict['error']}\033[0m\n"
+        if self.body is not None:
+            try:
+                error_body_dict = json.loads(self.body)
+                if "error" in error_body_dict:
+                    error_message += f"Error Message: {error_body_dict['error']}\n"
+            except json.JSONDecodeError:
+                pass
+        error_message += "#"*30+"\n"
+
+        # make the error message red
+        error_message = f"\033[91m{error_message}\033[0m"
 
         return error_message
-
 
 class PatchRESTClientObjectMixin:
     """Mixin that adds patches to a RESTClientObject.
