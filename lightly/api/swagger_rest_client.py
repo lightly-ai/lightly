@@ -25,10 +25,11 @@ class PrettyPrintApiException(ApiException):
         if self.body is not None:
             try:
                 error_body_dict = json.loads(self.body)
+            except JSONDecodeError:
+                pass
+            else:
                 if "error" in error_body_dict:
                     error_message += f"Error Message: {error_body_dict['error']}\n"
-            except json.JSONDecodeError:
-                pass
         error_message += "#" * 30 + "\n"
 
         # make the error message red
