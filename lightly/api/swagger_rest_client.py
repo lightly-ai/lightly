@@ -1,12 +1,9 @@
 import json
+from json import JSONDecodeError
 from typing import Any, Dict, Optional, Tuple, Union
 
 from lightly.openapi_generated.swagger_client.api_client import Configuration
-from lightly.openapi_generated.swagger_client.exceptions import (
-    ApiException,
-    UnauthorizedException,
-)
-from lightly.openapi_generated.swagger_client.models.api_error_code import ApiErrorCode
+from lightly.openapi_generated.swagger_client.exceptions import ApiException
 from lightly.openapi_generated.swagger_client.rest import RESTClientObject
 
 
@@ -19,18 +16,24 @@ class PrettyPrintApiException(ApiException):
 
     def __str__(self):
         error_message = "\n"
-        error_message += "#" * 30
-        error_message += f"\nError Code: {self.status}\n"
-        error_message += f"Error Reason: {self.reason}\n"
-        if self.body is not None:
-            try:
-                error_body_dict = json.loads(self.body)
-            except JSONDecodeError:
-                pass
-            else:
-                if "error" in error_body_dict:
-                    error_message += f"Error Message: {error_body_dict['error']}\n"
-        error_message += "#" * 30 + "\n"
+        error_message += "#" * 100
+        error_message += "\n"
+        error_message += f"Error Code: {self.status}"
+        error_message += "\n"
+        error_message += f"Error Reason: {self.reason}"
+        error_message += "\n"
+        error_message += "\n"
+        try:
+            error_body_dict = json.loads(self.body)
+        except JSONDecodeError:
+            pass
+        else:
+            if "error" in error_body_dict:
+                error_message += f"Error Message: {error_body_dict['error']}"
+
+        error_message += "\n"
+
+        error_message += "#" * 100
 
         # make the error message red
         error_message = f"\033[91m{error_message}\033[0m"
@@ -107,14 +110,7 @@ class PatchRESTClientObjectMixin:
                 _request_timeout=_request_timeout,
             )
         except ApiException as e:
-            if e.reason in [
-                ApiErrorCode.BAD_REQUEST,
-                ApiErrorCode.CONFLICT,
-                ApiErrorCode.MALFORMED_RESPONSE,
-                ApiErrorCode.MALFORMED_REQUEST,
-            ]:
-                raise e
-            raise PrettyPrintApiException(e).with_traceback(None) from None
+            raise PrettyPrintApiException(e) from None
 
     def __getstate__(self) -> Dict[str, Any]:
         """__getstate__ method for pickling."""
