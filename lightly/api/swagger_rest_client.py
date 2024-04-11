@@ -8,7 +8,6 @@ from lightly.openapi_generated.swagger_client.rest import RESTClientObject
 
 
 class PrettyPrintApiException(ApiException):
-
     def __init__(self, current_exception: ApiException):
         super().__init__(current_exception.status, current_exception.reason)
         self.body = current_exception.body
