@@ -1,4 +1,5 @@
 import sys
+import os
 from pathlib import Path
 
 import hydra
@@ -53,4 +54,6 @@ def lightly_serve(cfg):
 
 
 def entry() -> None:
+    # Set the working directory explicitly
+    os.chdir(".")
     lightly_serve()
