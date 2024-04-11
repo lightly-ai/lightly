@@ -14,7 +14,7 @@ class PrettyPrintApiException(ApiException):
         self.body = current_exception.body
         self.headers = current_exception.headers
 
-    def __str__(self):
+    def __str__(self) -> str:
         error_message = "\n"
         error_message += "#" * 100
         error_message += "\n"
