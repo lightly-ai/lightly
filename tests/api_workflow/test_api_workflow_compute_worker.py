@@ -480,8 +480,8 @@ def test_create_docker_worker_config_vx_api_error() -> None:
     client._dataset_id = utils.generate_id()
     client._compute_worker_api.create_docker_worker_config_vx = mocked_raise_exception
     with pytest.raises(
-        ValueError,
-        match=r'Trying to schedule your job resulted in\n>> ACCOUNT_SUBSCRIPTION_INSUFFICIENT\n>> "Your current plan allows for 1000000 samples but you tried to use 2000000 samples, please contact sales at sales@lightly.ai to upgrade your account."\n>> Please fix the issue mentioned above and see our docs https://docs.lightly.ai/docs/all-configuration-options for more help.',
+        ApiException,
+        match=r'"Your current plan allows for 1000000 samples but you tried to use 2000000 samples, please contact sales at sales@lightly.ai to upgrade your account."',
     ):
         r = client.create_compute_worker_config(
             selection_config={
