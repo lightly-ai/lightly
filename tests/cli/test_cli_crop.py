@@ -7,7 +7,7 @@ import tempfile
 import hydra
 import torchvision
 import yaml
-from hydra.experimental import compose
+from hydra.experimental import compose, initialize
 
 import lightly
 from lightly.data import LightlyDataset
@@ -27,9 +27,7 @@ class TestCLICrop(MockedApiWorkflowSetup):
         MockedApiWorkflowSetup.setUp(self)
         self.create_fake_dataset()
         self.create_fake_yolo_labels()
-        with hydra.initialize(
-            config_path="../../lightly/cli/config", job_name="test_app"
-        ):
+        with initialize(config_path="../../lightly/cli/config", job_name="test_app"):
             self.cfg = compose(
                 config_name="config",
                 overrides=[

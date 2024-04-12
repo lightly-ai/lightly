@@ -5,7 +5,7 @@ import tempfile
 
 import hydra
 import torchvision
-from hydra.experimental import compose
+from hydra.experimental import compose, initialize
 
 import lightly
 from tests.api_workflow.mocked_api_workflow_client import (
@@ -22,9 +22,7 @@ class TestCLIEmbed(MockedApiWorkflowSetup):
     def setUp(self):
         MockedApiWorkflowSetup.setUp(self)
         self.create_fake_dataset()
-        with hydra.initialize(
-            config_path="../../lightly/cli/config", job_name="test_app"
-        ):
+        with initialize(config_path="../../lightly/cli/config", job_name="test_app"):
             self.cfg = compose(
                 config_name="config",
                 overrides=[

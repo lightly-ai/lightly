@@ -6,7 +6,7 @@ import warnings
 import hydra
 import pytest
 import torchvision
-from hydra.experimental import compose
+from hydra.experimental import compose, initialize
 
 import lightly
 from tests.api_workflow.mocked_api_workflow_client import (
@@ -25,9 +25,7 @@ class TestCLIDownload(MockedApiWorkflowSetup):
         ].ApiWorkflowClient = MockedApiWorkflowClient
 
     def setUp(self):
-        with hydra.initialize(
-            config_path="../../lightly/cli/config", job_name="test_app"
-        ):
+        with initialize(config_path="../../lightly/cli/config", job_name="test_app"):
             self.cfg = compose(config_name="config")
 
     def create_fake_dataset(self, n_data: int = 5):
@@ -49,7 +47,7 @@ class TestCLIDownload(MockedApiWorkflowSetup):
     def parse_cli_string(self, cli_words: str):
         cli_words = cli_words.replace("lightly-download ", "")
         overrides = cli_words.split(" ")
-        with hydra.initialize(config_path="../../lightly/cli/config/"):
+        with initialize(config_path="../../lightly/cli/config/"):
             self.cfg = compose(
                 config_name="config",
                 overrides=overrides,
