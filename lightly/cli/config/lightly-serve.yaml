@@ -12,3 +12,5 @@ defaults:
 
 hydra:  
   output_subdir: null  
+  run:  
+      dir: .

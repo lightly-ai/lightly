@@ -1,6 +1,6 @@
 # the default package dependencies
 certifi>=14.05.14
-hydra-core>=1.0.0
+hydra-core>=1.2.0
 lightly_utils~=0.0.0
 numpy>=1.18.1
 python_dateutil>=2.5.3

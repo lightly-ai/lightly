@@ -1,4 +1,3 @@
-import os
 import sys
 from pathlib import Path
 
@@ -54,6 +53,4 @@ def lightly_serve(cfg):
 
 
 def entry() -> None:
-    # Set the working directory explicitly
-    os.chdir(".")
     lightly_serve()
