@@ -3,10 +3,10 @@ import tempfile
 import unittest
 from typing import List, Tuple
 
+import hydra
 import numpy as np
 import torch
 import torchvision
-from hydra import initialize
 from hydra.experimental import compose
 from torch import manual_seed
 from torch.utils.data import DataLoader
@@ -18,7 +18,9 @@ from lightly.data import LightlyDataset
 class TestLightlyDataset(unittest.TestCase):
     def setUp(self):
         self.folder_path, self.sample_names = self.create_dataset_no_subdir(10)
-        with initialize(config_path="../../lightly/cli/config", job_name="test_app"):
+        with hydra.initialize(
+            config_path="../../lightly/cli/config", job_name="test_app"
+        ):
             self.cfg = compose(
                 config_name="config",
                 overrides=[
