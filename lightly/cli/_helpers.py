@@ -43,7 +43,7 @@ def fix_hydra_arguments(config_path: str = "config", config_name: str = "config"
     hydra_args = {"config_path": config_path, "config_name": config_name}
 
     try:
-        if version_compare(hydra.__version__, "1.2.0") > 0:
+        if version_compare(hydra.__version__, "1.2.0") >= 0:
             hydra_args["version_base"] = None
         elif version_compare(hydra.__version__, "1.1.2") > 0:
             hydra_args["version_base"] = "1.1"
