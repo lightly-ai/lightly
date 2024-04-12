@@ -6,7 +6,8 @@ from typing import List, Tuple
 import numpy as np
 import torch
 import torchvision
-from hydra.experimental import compose, initialize
+from hydra import initialize
+from hydra.experimental import compose
 from torch import manual_seed
 from torch.utils.data import DataLoader
 

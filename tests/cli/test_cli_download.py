@@ -5,7 +5,8 @@ import warnings
 
 import pytest
 import torchvision
-from hydra.experimental import compose, initialize
+from hydra import initialize
+from hydra.experimental import compose
 
 import lightly
 from tests.api_workflow.mocked_api_workflow_client import (

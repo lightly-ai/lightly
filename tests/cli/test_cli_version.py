@@ -4,7 +4,8 @@ import sys
 import tempfile
 
 import pytest
-from hydra.experimental import compose, initialize
+from hydra import initialize
+from hydra.experimental import compose
 
 from lightly.cli.version_cli import version_cli
 from tests.api_workflow.mocked_api_workflow_client import (
