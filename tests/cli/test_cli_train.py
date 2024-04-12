@@ -3,8 +3,8 @@ import re
 import sys
 import tempfile
 
+import hydra
 import torchvision
-from hydra import initialize
 from hydra.experimental import compose
 
 from lightly import cli
@@ -18,7 +18,9 @@ class TestCLITrain(MockedApiWorkflowSetup):
     def setUp(self):
         MockedApiWorkflowSetup.setUp(self)
         self.create_fake_dataset()
-        with initialize(config_path="../../lightly/cli/config", job_name="test_app"):
+        with hydra.initialize(
+            config_path="../../lightly/cli/config", job_name="test_app"
+        ):
             self.cfg = compose(
                 config_name="config",
                 overrides=[

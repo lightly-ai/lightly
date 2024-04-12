@@ -3,8 +3,8 @@ import re
 import sys
 import tempfile
 
+import hydra
 import pytest
-from hydra import initialize
 from hydra.experimental import compose
 
 from lightly.cli.version_cli import version_cli
@@ -17,7 +17,9 @@ from tests.api_workflow.mocked_api_workflow_client import (
 class TestCLIVersion(MockedApiWorkflowSetup):
     def setUp(self):
         MockedApiWorkflowSetup.setUp(self)
-        with initialize(config_path="../../lightly/cli/config", job_name="test_app"):
+        with hydra.initialize(
+            config_path="../../lightly/cli/config", job_name="test_app"
+        ):
             self.cfg = compose(config_name="config")
 
     @pytest.fixture(autouse=True)
