@@ -7,7 +7,13 @@ import hydra
 import numpy as np
 import torch
 import torchvision
-from hydra.experimental import compose, initialize
+from hydra.experimental import compose
+
+try:
+    from hydra import initialize
+except ImportError:
+    from hydra.experimental import initialize
+
 from torch import manual_seed
 from torch.utils.data import DataLoader
 

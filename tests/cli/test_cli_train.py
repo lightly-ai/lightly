@@ -5,7 +5,12 @@ import tempfile
 
 import hydra
 import torchvision
-from hydra.experimental import compose, initialize
+from hydra.experimental import compose
+
+try:
+    from hydra import initialize
+except ImportError:
+    from hydra.experimental import initialize
 
 from lightly import cli
 from tests.api_workflow.mocked_api_workflow_client import (

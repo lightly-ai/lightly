@@ -7,7 +7,12 @@ import tempfile
 import hydra
 import torchvision
 import yaml
-from hydra.experimental import compose, initialize
+from hydra.experimental import compose
+
+try:
+    from hydra import initialize
+except ImportError:
+    from hydra.experimental import initialize
 
 import lightly
 from lightly.data import LightlyDataset
