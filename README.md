@@ -13,6 +13,10 @@ Lightly SSL is a computer vision framework for self-supervised learning.
 - [Github](https://github.com/lightly-ai/lightly)
 - [Discord](https://discord.gg/xvNJW94) (We have weekly paper sessions!)
 
+For a commercial version with more features, including Docker support and pretraining
+models for embedding, classification, detection, and segmentation tasks with
+a single command, please contact sales@lightly.ai.
+
 We've also built a whole platform on top, with additional features for active learning
 and [data curation](https://docs.lightly.ai/docs/what-is-lightly). If you're interested in the
 Lightly Worker Solution to easily process millions of samples and run [powerful algorithms](https://docs.lightly.ai/docs/selection)
@@ -277,7 +281,7 @@ See the [benchmarking scripts](./benchmarks/imagenet/resnet50/) for details.
 | BarlowTwins     | Res50    | 256        | 100    | 62.9        | 72.6          | 45.6     | [link](https://tensorboard.dev/experiment/NxyNRiQsQjWZ82I9b0PvKg/) | [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_barlowtwins_2023-08-18_00-11-03/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt) |
 | BYOL            | Res50    | 256        | 100    | 62.5        | 74.5          | 46.0     | -                                                                  | [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_byol_2024-02-14_16-10-09/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt)        |
 | DINO            | Res50    | 128        | 100    | 68.2        | 72.5          | 49.9     | [link](https://tensorboard.dev/experiment/DvKHX9sNSWWqDrRksllPLA)  | [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_dino_2023-06-06_13-59-48/pretrain/version_0/checkpoints/epoch%3D99-step%3D1000900.ckpt)       |
-| MAE             | ViT-B/16 | 256        | 100    | 46.0        | 81.3          | 11.2     | -  | [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_vitb16_mae_2024-02-25_19-57-30/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt)      |
+| MAE             | ViT-B/16 | 256        | 100    | 46.0        | 81.3          | 11.2     | -                                                                  | [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_vitb16_mae_2024-02-25_19-57-30/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt)           |
 | MoCoV2          | Res50    | 256        | 100    | 61.5        | 74.3          | 41.8     | -                                                                  | [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_mocov2_2024-02-18_10-29-14/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt)      |
 | SimCLR\*        | Res50    | 256        | 100    | 63.2        | 73.9          | 44.8     | [link](https://tensorboard.dev/experiment/Ugol97adQdezgcVibDYMMA)  | [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_simclr_2023-06-22_09-11-13/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt)      |
 | SimCLR\* + DCL  | Res50    | 256        | 100    | 65.1        | 73.5          | 49.6     | [link](https://tensorboard.dev/experiment/k4ZonZ77QzmBkc0lXswQlg/) | [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_dcl_2023-07-04_16-51-40/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt)         |

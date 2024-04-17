@@ -28,6 +28,10 @@ Lightly SSL has been built to help you understand and work with large unlabeled
 datasets. It is built on top of PyTorch and therefore fully compatible with 
 other frameworks such as Fast.ai.
 
+For a commercial version with more features, including Docker support and pretraining
+models for embedding, classification, detection, and segmentation tasks with
+a single command, please contact sales@lightly.ai.
+
 
 Lightly AI
 ----------
