@@ -7,10 +7,9 @@ from pathlib import Path
 import numpy as np
 
 from lightly.utils import io
-from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
 
 
-class TestCLICrop(MockedApiWorkflowSetup):  # type: ignore[misc]
+class TestCLICrop():
     def test_save_metadata(self) -> None:
         metadata = [("filename.jpg", {"random_metadata": 42})]
         metadata_filepath = tempfile.mktemp(".json", "metadata")
