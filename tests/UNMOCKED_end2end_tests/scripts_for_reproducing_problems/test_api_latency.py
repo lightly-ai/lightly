@@ -4,8 +4,7 @@ import time
 import numpy as np
 from tqdm import tqdm
 
-from lightly.api import ApiWorkflowClient
-from lightly.openapi_generated.swagger_client import ApiClient, Configuration, QuotaApi
+from lightly_api import ApiWorkflowClient, ApiClient, Configuration, QuotaApi
 
 if __name__ == "__main__":
     token = os.getenv("LIGHTLY_TOKEN")

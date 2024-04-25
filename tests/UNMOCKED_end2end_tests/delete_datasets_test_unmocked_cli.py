@@ -1,6 +1,6 @@
 import sys
 
-from lightly.api import ApiWorkflowClient
+from lightly_api import ApiWorkflowClient
 
 if __name__ == "__main__":
     if len(sys.argv) == 1 + 3:
