@@ -5,25 +5,24 @@ import torch.distributed as dist
 
 
 class GatherLayer(torch.autograd.Function):
-    """Gather tensors from all processes, supporting backward propagation.
+    """Gather tensors from all process, supporting backward propagation.
 
     This code was taken and adapted from here:
-    https://github.com/Spijkervet/SimCLR
+    https://github.com/vturrisi/solo-learn/blob/b69b4bd27472593919956d9ac58902a301537a4d/solo/utils/misc.py#L187
 
     """
 
     @staticmethod
     def forward(ctx, input: torch.Tensor) -> Tuple[torch.Tensor, ...]:
-        ctx.save_for_backward(input)
         output = [torch.empty_like(input) for _ in range(dist.get_world_size())]
         dist.all_gather(output, input)
         return tuple(output)
 
     @staticmethod
-    def backward(ctx, *grads: torch.Tensor) -> torch.Tensor:
-        (input,) = ctx.saved_tensors
-        grad_out = torch.empty_like(input)
-        grad_out[:] = grads[dist.get_rank()]
+    def backward(ctx, *grads) -> torch.Tensor:
+        all_gradients = torch.stack(grads)
+        dist.all_reduce(all_gradients)
+        grad_out = all_gradients[dist.get_rank()]
         return grad_out
 
 
