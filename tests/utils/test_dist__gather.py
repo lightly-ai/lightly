@@ -1,30 +1,22 @@
-import os
 from typing import Any
-import unittest
-from unittest import mock
 
-import pytest
-from pytest_mock import MockerFixture
+import pytorch_lightning as pl
 import torch
-from pytest import CaptureFixture
-import torch.multiprocessing as mp
-import torch.distributed as torch_dist
-from lightly.utils import dist as lightly_dist
-
-
-from typing import Any
+from pytorch_lightning import LightningModule, Trainer
+from pytorch_lightning.strategies.ddp import DDPStrategy
+from torch import Tensor
 from torch.nn import Linear, MSELoss
 from torch.optim import SGD
-import pytorch_lightning as pl
-from pytorch_lightning import Trainer, LightningModule
-from torch.utils.data import DataLoader, TensorDataset
-from torch import Tensor
+from torch.utils.data import TensorDataset
 
-import torch
-from pytorch_lightning.strategies.ddp import DDPStrategy
+from lightly.utils import dist as lightly_dist
+from lightly.loss.ntx_ent_loss import NTXentLoss
 
-
-pl.seed_everything(0, workers=True)
+"""
+WARNING: 
+Using a DDPStrategy causes the file to be executed once per device.
+Thus this test needs to be in a separate file.
+"""
 
 
 class Model(LightningModule):
@@ -37,22 +29,19 @@ class Model(LightningModule):
                 [0.6, 0.7, 0.8, 0.9, 1.0],
             ]
         )
-        self.criterion = MSELoss()
+        self.criterion = NTXentLoss(gather_distributed=gather)
         self.gather = gather
 
     def training_step(self, batch, batch_idx: int) -> Tensor:
         x = batch[0]
         y = batch[1]
-        x = self.model(x)
-        if self.gather:
-            x = torch.cat(lightly_dist.gather(x))
-            with torch.no_grad():
-                y = torch.cat(lightly_dist.gather(y))
+        x = self.model(x).flatten(start_dim=1)
+        y = y.flatten(start_dim=1)
         loss = self.criterion(x, y)
         return loss
 
     def configure_optimizers(self) -> Any:
-        return SGD(self.parameters(), lr=0.0001)
+        return SGD(self.parameters(), lr=0.01)
 
 
 class TestGatherLayer:
@@ -79,10 +68,11 @@ class TestGatherLayer:
           the devices and there is no gather layer for the batch normalization.
         """
         n_samples = 8
-        n_devices = 8
+        n_devices = 4
         batch_size = int(n_samples / n_devices)
         gather = n_devices > 1
 
+        pl.seed_everything(0, workers=True)
 
         xs = torch.arange(n_samples * 2 * 5).reshape(n_samples, 2, 5).float()
         ys = torch.arange(n_samples * 2 * 2).reshape(n_samples, 2, 2).float()
@@ -109,8 +99,8 @@ class TestGatherLayer:
         params = list(model.parameters())[0]
         expected_params__10_epochs__no_gather = torch.Tensor(
             [
-                [-0.1172, -0.0219,  0.0734,  0.1687,  0.2639],
-                [-0.0949, -0.0087,  0.0775,  0.1637,  0.2499]
+                [0.1076, 0.2076, 0.3077, 0.4077, 0.5078],
+                [0.5976, 0.6973, 0.7971, 0.8969, 0.9967]
             ]
         )
         assert torch.allclose(params, expected_params__10_epochs__no_gather, rtol=1e-2)
