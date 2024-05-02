@@ -9,8 +9,8 @@ from torch.nn import Linear, MSELoss
 from torch.optim import SGD
 from torch.utils.data import TensorDataset
 
-from lightly.utils import dist as lightly_dist
 from lightly.loss.ntx_ent_loss import NTXentLoss
+from lightly.utils import dist as lightly_dist
 
 """
 WARNING: 
@@ -45,8 +45,6 @@ class Model(LightningModule):
 
 
 class TestGatherLayer:
-
-
     def test(self) -> None:
         """
         Tests that the gather layer works as expected.
@@ -100,7 +98,7 @@ class TestGatherLayer:
         expected_params__10_epochs__no_gather = torch.Tensor(
             [
                 [0.1076, 0.2076, 0.3077, 0.4077, 0.5078],
-                [0.5976, 0.6973, 0.7971, 0.8969, 0.9967]
+                [0.5976, 0.6973, 0.7971, 0.8969, 0.9967],
             ]
         )
         assert torch.allclose(params, expected_params__10_epochs__no_gather, rtol=1e-2)
