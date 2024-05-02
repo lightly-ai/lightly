@@ -5,7 +5,7 @@ import torch.distributed as dist
 
 
 class GatherLayer(torch.autograd.Function):
-    """Gather tensors from all process, supporting backward propagation.
+    """Gather tensors from all processes, supporting backward propagation.
 
     This code was taken and adapted from here:
     https://github.com/vturrisi/solo-learn/blob/b69b4bd27472593919956d9ac58902a301537a4d/solo/utils/misc.py#L187
