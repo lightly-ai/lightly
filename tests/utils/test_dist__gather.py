@@ -67,8 +67,8 @@ class TestGatherLayer:
         - Any batch normalization in the model, as the batch size is split between
           the devices and there is no gather layer for the batch normalization.
         """
+        n_devices = 2
         n_samples = 8
-        n_devices = 4
         batch_size = int(n_samples / n_devices)
         gather = n_devices > 1
 
