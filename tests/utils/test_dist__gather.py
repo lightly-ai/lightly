@@ -61,7 +61,7 @@ class TestGatherLayer:
         times, running a proper test is difficult. The approach used here:
 
         1. This test was run once with n_devices=1 and gather=False. The resulting
-        parameters after 100 epochs are saved as expected_params__10_epochs__no_gather.
+        parameters after 10 epochs are saved as expected_params__10_epochs__no_gather.
 
         2. This test is now run with n_devices=2 and gather=True. The resulting
         parameters are asserted to be the same ad with n_devices=1 and gather=False.
