@@ -68,15 +68,15 @@ class TestGatherLayer:
         1. This test was run once with n_devices=1 and gather=False. The resulting
         parameters after 100 epochs are saved as expected_params__10_epochs__no_gather.
 
-        2. This test was run once with n_devices=2 and gather=True. The resulting
-        parameters are checked to be the same.
+        2. This test is now run with n_devices=2 and gather=True. The resulting
+        parameters are asserted to be the same ad with n_devices=1 and gather=False.
 
         Note that the results would not be the same for n_devices=1 and n_devices=2 if
         there was:
-        - any randomness in the transform, as the order the samples are processed and
-          thus the random seed differ
-        - any batch normalization in the model, as the batch size is split between
-          the devices and there is no gather layer for the batch normalization
+        - Any randomness in the transform, as the order the samples are processed and
+          thus the random seed differ.
+        - Any batch normalization in the model, as the batch size is split between
+          the devices and there is no gather layer for the batch normalization.
         """
         n_samples = 8
         n_devices = 8
