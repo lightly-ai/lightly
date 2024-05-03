@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Generator
 
 import pytest
 import pytorch_lightning as pl
@@ -34,12 +34,12 @@ class Model(LightningModule):
         self.criterion = NTXentLoss(gather_distributed=gather)
         self.gather = gather
 
-    def training_step(self, batch, batch_idx: int) -> Tensor:
+    def training_step(self, batch: tuple[Tensor, Tensor], batch_idx: int) -> Tensor:
         x = batch[0]
         y = batch[1]
         x = self.model(x).flatten(start_dim=1)
         y = y.flatten(start_dim=1)
-        loss = self.criterion(x, y)
+        loss: Tensor = self.criterion(x, y)
         return loss
 
     def configure_optimizers(self) -> Any:
@@ -47,13 +47,13 @@ class Model(LightningModule):
 
 
 @pytest.fixture
-def close_torch_distributed() -> None:
+def close_torch_distributed() -> Generator[None, None, None]:
     yield None
     torch.distributed.destroy_process_group()
 
 
 class TestGatherLayer:
-    def test(self, close_torch_distributed) -> None:
+    def test(self, close_torch_distributed: None) -> None:
         """
         Tests that the gather layer works as expected.
 
