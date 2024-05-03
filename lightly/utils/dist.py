@@ -1,29 +1,29 @@
-from typing import Optional, Tuple
+from typing import Any, Callable, Optional, Tuple, TypeVar
 
 import torch
 import torch.distributed as dist
+from torch.autograd.function import FunctionCtx
 
 
 class GatherLayer(torch.autograd.Function):
     """Gather tensors from all processes, supporting backward propagation.
 
     This code was taken and adapted from here:
-    https://github.com/Spijkervet/SimCLR
+    https://github.com/vturrisi/solo-learn/blob/b69b4bd27472593919956d9ac58902a301537a4d/solo/utils/misc.py#L187
 
     """
 
     @staticmethod
-    def forward(ctx, input: torch.Tensor) -> Tuple[torch.Tensor, ...]:
-        ctx.save_for_backward(input)
+    def forward(ctx, input: torch.Tensor) -> Tuple[torch.Tensor, ...]:  # type: ignore
         output = [torch.empty_like(input) for _ in range(dist.get_world_size())]
         dist.all_gather(output, input)
         return tuple(output)
 
     @staticmethod
-    def backward(ctx, *grads: torch.Tensor) -> torch.Tensor:
-        (input,) = ctx.saved_tensors
-        grad_out = torch.empty_like(input)
-        grad_out[:] = grads[dist.get_rank()]
+    def backward(ctx, *grads) -> torch.Tensor:  # type: ignore
+        all_gradients = torch.stack(grads)
+        dist.all_reduce(all_gradients)
+        grad_out = all_gradients[dist.get_rank()]
         return grad_out
 
 
@@ -39,7 +39,7 @@ def world_size() -> int:
 
 def gather(input: torch.Tensor) -> Tuple[torch.Tensor]:
     """Gathers this tensor from all processes. Supports backprop."""
-    return GatherLayer.apply(input)
+    return GatherLayer.apply(input)  # type: ignore[no-any-return]
 
 
 def eye_rank(n: int, device: Optional[torch.device] = None) -> torch.Tensor:
@@ -70,7 +70,10 @@ def eye_rank(n: int, device: Optional[torch.device] = None) -> torch.Tensor:
     return diag_mask
 
 
-def rank_zero_only(fn):
+R = TypeVar("R")
+
+
+def rank_zero_only(fn: Callable[..., R]) -> Callable[..., Optional[R]]:
     """Decorator that only runs the function on the process with rank 0.
 
     Example:
@@ -79,17 +82,17 @@ def rank_zero_only(fn):
         >>>     print(message)
         >>>
         >>> print_rank_zero("Hello from rank 0!")
-
     """
 
-    def wrapped(*args, **kwargs):
+    def wrapped(*args: Any, **kwargs: Any) -> Optional[R]:
         if rank() == 0:
             return fn(*args, **kwargs)
+        return None
 
     return wrapped
 
 
 @rank_zero_only
-def print_rank_zero(*args, **kwargs) -> None:
+def print_rank_zero(*args: Any, **kwargs: Any) -> None:  # type: ignore[misc]
     """Equivalent to print, but only runs on the process with rank 0."""
     print(*args, **kwargs)
