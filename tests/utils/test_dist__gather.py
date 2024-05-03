@@ -1,4 +1,4 @@
-from typing import Any, Generator
+from typing import Any, Generator, Tuple
 
 import pytest
 import pytorch_lightning as pl
@@ -34,7 +34,7 @@ class Model(LightningModule):
         self.criterion = NTXentLoss(gather_distributed=gather)
         self.gather = gather
 
-    def training_step(self, batch: tuple[Tensor, Tensor], batch_idx: int) -> Tensor:
+    def training_step(self, batch: Tuple[Tensor, Tensor], batch_idx: int) -> Tensor:
         x = batch[0]
         y = batch[1]
         x = self.model(x).flatten(start_dim=1)
