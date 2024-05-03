@@ -1,4 +1,4 @@
-from typing import Optional, Tuple
+from typing import Any, Callable, Optional, Tuple, TypeVar
 
 import torch
 import torch.distributed as dist
@@ -39,7 +39,7 @@ def world_size() -> int:
 
 def gather(input: torch.Tensor) -> Tuple[torch.Tensor]:
     """Gathers this tensor from all processes. Supports backprop."""
-    return GatherLayer.apply(input)
+    return GatherLayer.apply(input)  # type: ignore[no-any-return]
 
 
 def eye_rank(n: int, device: Optional[torch.device] = None) -> torch.Tensor:
@@ -70,7 +70,10 @@ def eye_rank(n: int, device: Optional[torch.device] = None) -> torch.Tensor:
     return diag_mask
 
 
-def rank_zero_only(fn):
+R = TypeVar("R")
+
+
+def rank_zero_only(fn: Callable[..., R]) -> Callable[..., Optional[R]]:
     """Decorator that only runs the function on the process with rank 0.
 
     Example:
@@ -79,17 +82,17 @@ def rank_zero_only(fn):
         >>>     print(message)
         >>>
         >>> print_rank_zero("Hello from rank 0!")
-
     """
 
-    def wrapped(*args, **kwargs):
+    def wrapped(*args: Any, **kwargs: Any) -> Optional[R]:
         if rank() == 0:
             return fn(*args, **kwargs)
+        return None
 
     return wrapped
 
 
 @rank_zero_only
-def print_rank_zero(*args, **kwargs) -> None:
+def print_rank_zero(*args: Any, **kwargs: Any) -> None:  # type: ignore[misc]
     """Equivalent to print, but only runs on the process with rank 0."""
     print(*args, **kwargs)
