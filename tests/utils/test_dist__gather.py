@@ -3,10 +3,10 @@ from typing import Any
 import pytest
 import pytorch_lightning as pl
 import torch
+import torch.distributed
 from pytorch_lightning import LightningModule, Trainer
 from pytorch_lightning.strategies.ddp import DDPStrategy
 from torch import Tensor
-import torch.distributed
 from torch.nn import Linear, MSELoss
 from torch.optim import SGD
 from torch.utils.data import TensorDataset
@@ -47,12 +47,12 @@ class Model(LightningModule):
 
 
 @pytest.fixture
-def close_torch_distributed()-> None:
+def close_torch_distributed() -> None:
     yield None
     torch.distributed.destroy_process_group()
 
-class TestGatherLayer:
 
+class TestGatherLayer:
     def test(self, close_torch_distributed) -> None:
         """
         Tests that the gather layer works as expected.
