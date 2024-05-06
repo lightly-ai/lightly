@@ -30,7 +30,7 @@ class DatasourceConfigS3DelegatedAccess(DatasourceConfigBase):
     """
     full_path: StrictStr = Field(..., alias="fullPath", description="path includes the bucket name and the path within the bucket where you have stored your information")
     s3_region: S3Region = Field(..., alias="s3Region")
-    s3_external_id: constr(strict=True, min_length=10) = Field(..., alias="s3ExternalId", description="The external ID specified when creating the role.")
+    s3_external_id: constr(strict=True, min_length=10) = Field(..., alias="s3ExternalId", description="The external ID specified when creating the role. More information can be found here: - https://docs.aws.amazon.com/IAM/latest/UserGuide/confused-deputy.html - https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_iam-condition-keys.html#ck_externalid ")
     s3_arn: constr(strict=True, min_length=12) = Field(..., alias="s3ARN", description="The ARN of the role you created")
     s3_server_side_encryption_kms_key: Optional[constr(strict=True, min_length=1)] = Field(None, alias="s3ServerSideEncryptionKMSKey", description="If set, Lightly Worker will automatically set the headers to use server side encryption https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html with this value as the appropriate KMS key arn. This will encrypt the files created by Lightly (crops, frames, thumbnails) in the S3 bucket. ")
     __properties = ["id", "purpose", "type", "thumbSuffix", "fullPath", "s3Region", "s3ExternalId", "s3ARN", "s3ServerSideEncryptionKMSKey"]

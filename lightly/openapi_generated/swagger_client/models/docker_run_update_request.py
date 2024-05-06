@@ -20,7 +20,7 @@ import json
 
 
 from typing import Optional
-from pydantic import Extra,  BaseModel, Field, StrictStr
+from pydantic import Extra,  BaseModel, Field, StrictStr, conint
 from lightly.openapi_generated.swagger_client.models.docker_run_state import DockerRunState
 
 class DockerRunUpdateRequest(BaseModel):
@@ -29,7 +29,8 @@ class DockerRunUpdateRequest(BaseModel):
     """
     state: DockerRunState = Field(...)
     message: Optional[StrictStr] = None
-    __properties = ["state", "message"]
+    ts: Optional[conint(strict=True, ge=0)] = Field(None, description="unix timestamp in milliseconds")
+    __properties = ["state", "message", "ts"]
 
     class Config:
         """Pydantic configuration"""
@@ -75,7 +76,8 @@ class DockerRunUpdateRequest(BaseModel):
 
         _obj = DockerRunUpdateRequest.parse_obj({
             "state": obj.get("state"),
-            "message": obj.get("message")
+            "message": obj.get("message"),
+            "ts": obj.get("ts")
         })
         return _obj
 

@@ -1527,7 +1527,7 @@ class SamplesApi(object):
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def update_sample_by_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], sample_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the sample")], sample_update_request : Annotated[SampleUpdateRequest, Field(..., description="The updated sample to set")], enable_dataset_update : Optional[StrictBool] = None, **kwargs) -> None:  # noqa: E501
+    def update_sample_by_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], sample_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the sample")], sample_update_request : Annotated[SampleUpdateRequest, Field(..., description="The updated sample to set")], enable_dataset_update : Annotated[Optional[StrictBool], Field(description="Deprecated, is ignored! If we should also update the dataset with the new sample information (like total size)")] = None, **kwargs) -> None:  # noqa: E501
         """update_sample_by_id  # noqa: E501
 
         update a specific sample of a dataset  # noqa: E501
@@ -1543,7 +1543,7 @@ class SamplesApi(object):
         :type sample_id: str
         :param sample_update_request: The updated sample to set (required)
         :type sample_update_request: SampleUpdateRequest
-        :param enable_dataset_update:
+        :param enable_dataset_update: Deprecated, is ignored! If we should also update the dataset with the new sample information (like total size)
         :type enable_dataset_update: bool
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -1562,7 +1562,7 @@ class SamplesApi(object):
         return self.update_sample_by_id_with_http_info(dataset_id, sample_id, sample_update_request, enable_dataset_update, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def update_sample_by_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], sample_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the sample")], sample_update_request : Annotated[SampleUpdateRequest, Field(..., description="The updated sample to set")], enable_dataset_update : Optional[StrictBool] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def update_sample_by_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], sample_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the sample")], sample_update_request : Annotated[SampleUpdateRequest, Field(..., description="The updated sample to set")], enable_dataset_update : Annotated[Optional[StrictBool], Field(description="Deprecated, is ignored! If we should also update the dataset with the new sample information (like total size)")] = None, **kwargs) -> ApiResponse:  # noqa: E501
         """update_sample_by_id  # noqa: E501
 
         update a specific sample of a dataset  # noqa: E501
@@ -1578,7 +1578,7 @@ class SamplesApi(object):
         :type sample_id: str
         :param sample_update_request: The updated sample to set (required)
         :type sample_update_request: SampleUpdateRequest
-        :param enable_dataset_update:
+        :param enable_dataset_update: Deprecated, is ignored! If we should also update the dataset with the new sample information (like total size)
         :type enable_dataset_update: bool
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
