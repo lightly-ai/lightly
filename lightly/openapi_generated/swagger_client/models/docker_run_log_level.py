@@ -32,9 +32,10 @@ class DockerRunLogLevel(str, Enum):
     allowed enum values
     """
     VERBOSE = 'VERBOSE'
+    NOTSET = 'NOTSET'
     DEBUG = 'DEBUG'
     INFO = 'INFO'
-    WARN = 'WARN'
+    WARNING = 'WARNING'
     ERROR = 'ERROR'
     CRITICAL = 'CRITICAL'
 

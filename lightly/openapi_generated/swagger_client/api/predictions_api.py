@@ -20,7 +20,7 @@ import warnings
 from pydantic import validate_arguments, ValidationError
 from typing_extensions import Annotated
 
-from pydantic import Field, conint, conlist, constr, validator
+from pydantic import Field, StrictBool, conint, conlist, constr, validator
 
 from typing import List, Optional
 
@@ -711,20 +711,26 @@ class PredictionsApi(object):
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def get_predictions_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, task_name : Annotated[Optional[constr(strict=True, min_length=1)], Field(description="If provided, only gets all prediction singletons of all samples of a dataset that were yielded by a specific prediction task name")] = None, **kwargs) -> List[List]:  # noqa: E501
+    def get_predictions_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, lean : Annotated[Optional[StrictBool], Field(description="if lean is set to true, all prediction singletons are returned without their \"heavy\" part. This is useful for large datasets where the full prediction singletons are not needed. e.g SEGMENTATION does not need to return the RLE ")] = None, task_name : Annotated[Optional[constr(strict=True, min_length=1)], Field(description="If provided, only gets all prediction singletons of all samples of a dataset that were yielded by a specific prediction task name")] = None, **kwargs) -> List[List]:  # noqa: E501
         """get_predictions_by_dataset_id  # noqa: E501
 
         Get all prediction singletons of all samples of a dataset ordered by the sample mapping  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.get_predictions_by_dataset_id(dataset_id, prediction_uuid_timestamp, task_name, async_req=True)
+        >>> thread = api.get_predictions_by_dataset_id(dataset_id, prediction_uuid_timestamp, page_size, page_offset, lean, task_name, async_req=True)
         >>> result = thread.get()
 
         :param dataset_id: ObjectId of the dataset (required)
         :type dataset_id: str
         :param prediction_uuid_timestamp: Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. 
         :type prediction_uuid_timestamp: int
+        :param page_size: pagination size/limit of the number of samples to return
+        :type page_size: int
+        :param page_offset: pagination offset
+        :type page_offset: int
+        :param lean: if lean is set to true, all prediction singletons are returned without their \"heavy\" part. This is useful for large datasets where the full prediction singletons are not needed. e.g SEGMENTATION does not need to return the RLE 
+        :type lean: bool
         :param task_name: If provided, only gets all prediction singletons of all samples of a dataset that were yielded by a specific prediction task name
         :type task_name: str
         :param async_req: Whether to execute the request asynchronously.
@@ -741,23 +747,29 @@ class PredictionsApi(object):
         kwargs['_return_http_data_only'] = True
         if '_preload_content' in kwargs:
             raise ValueError("Error! Please call the get_predictions_by_dataset_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.get_predictions_by_dataset_id_with_http_info(dataset_id, prediction_uuid_timestamp, task_name, **kwargs)  # noqa: E501
+        return self.get_predictions_by_dataset_id_with_http_info(dataset_id, prediction_uuid_timestamp, page_size, page_offset, lean, task_name, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def get_predictions_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, task_name : Annotated[Optional[constr(strict=True, min_length=1)], Field(description="If provided, only gets all prediction singletons of all samples of a dataset that were yielded by a specific prediction task name")] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def get_predictions_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, lean : Annotated[Optional[StrictBool], Field(description="if lean is set to true, all prediction singletons are returned without their \"heavy\" part. This is useful for large datasets where the full prediction singletons are not needed. e.g SEGMENTATION does not need to return the RLE ")] = None, task_name : Annotated[Optional[constr(strict=True, min_length=1)], Field(description="If provided, only gets all prediction singletons of all samples of a dataset that were yielded by a specific prediction task name")] = None, **kwargs) -> ApiResponse:  # noqa: E501
         """get_predictions_by_dataset_id  # noqa: E501
 
         Get all prediction singletons of all samples of a dataset ordered by the sample mapping  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.get_predictions_by_dataset_id_with_http_info(dataset_id, prediction_uuid_timestamp, task_name, async_req=True)
+        >>> thread = api.get_predictions_by_dataset_id_with_http_info(dataset_id, prediction_uuid_timestamp, page_size, page_offset, lean, task_name, async_req=True)
         >>> result = thread.get()
 
         :param dataset_id: ObjectId of the dataset (required)
         :type dataset_id: str
         :param prediction_uuid_timestamp: Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. 
         :type prediction_uuid_timestamp: int
+        :param page_size: pagination size/limit of the number of samples to return
+        :type page_size: int
+        :param page_offset: pagination offset
+        :type page_offset: int
+        :param lean: if lean is set to true, all prediction singletons are returned without their \"heavy\" part. This is useful for large datasets where the full prediction singletons are not needed. e.g SEGMENTATION does not need to return the RLE 
+        :type lean: bool
         :param task_name: If provided, only gets all prediction singletons of all samples of a dataset that were yielded by a specific prediction task name
         :type task_name: str
         :param async_req: Whether to execute the request asynchronously.
@@ -790,6 +802,9 @@ class PredictionsApi(object):
         _all_params = [
             'dataset_id',
             'prediction_uuid_timestamp',
+            'page_size',
+            'page_offset',
+            'lean',
             'task_name'
         ]
         _all_params.extend(
@@ -828,6 +843,24 @@ class PredictionsApi(object):
             _query_params.append((
                 'predictionUUIDTimestamp',
                 _params['prediction_uuid_timestamp'].value if hasattr(_params['prediction_uuid_timestamp'], 'value') else _params['prediction_uuid_timestamp']
+            ))
+
+        if _params.get('page_size') is not None:  # noqa: E501
+            _query_params.append((
+                'pageSize',
+                _params['page_size'].value if hasattr(_params['page_size'], 'value') else _params['page_size']
+            ))
+
+        if _params.get('page_offset') is not None:  # noqa: E501
+            _query_params.append((
+                'pageOffset',
+                _params['page_offset'].value if hasattr(_params['page_offset'], 'value') else _params['page_offset']
+            ))
+
+        if _params.get('lean') is not None:  # noqa: E501
+            _query_params.append((
+                'lean',
+                _params['lean'].value if hasattr(_params['lean'], 'value') else _params['lean']
             ))
 
         if _params.get('task_name') is not None:  # noqa: E501

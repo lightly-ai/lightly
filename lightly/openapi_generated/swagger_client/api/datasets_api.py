@@ -636,18 +636,20 @@ class DatasetsApi(object):
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def get_datasets(self, shared : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which have been shared with the user")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> List[DatasetData]:  # noqa: E501
+    def get_datasets(self, shared : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which have been shared with the user")] = None, exclude_playground : Annotated[Optional[StrictBool], Field(description="if set, excludes playground datasets. Typically set to true when querying for team assets")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> List[DatasetData]:  # noqa: E501
         """get_datasets  # noqa: E501
 
         Get all datasets for a user  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.get_datasets(shared, get_assets_of_team, get_assets_of_team_inclusive_self, page_size, page_offset, async_req=True)
+        >>> thread = api.get_datasets(shared, exclude_playground, get_assets_of_team, get_assets_of_team_inclusive_self, page_size, page_offset, async_req=True)
         >>> result = thread.get()
 
         :param shared: if set, only returns the datasets which have been shared with the user
         :type shared: bool
+        :param exclude_playground: if set, excludes playground datasets. Typically set to true when querying for team assets
+        :type exclude_playground: bool
         :param get_assets_of_team: if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user
         :type get_assets_of_team: bool
         :param get_assets_of_team_inclusive_self: if this flag is true, we get the relevant asset of the team of the user including the assets of the user
@@ -670,21 +672,23 @@ class DatasetsApi(object):
         kwargs['_return_http_data_only'] = True
         if '_preload_content' in kwargs:
             raise ValueError("Error! Please call the get_datasets_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.get_datasets_with_http_info(shared, get_assets_of_team, get_assets_of_team_inclusive_self, page_size, page_offset, **kwargs)  # noqa: E501
+        return self.get_datasets_with_http_info(shared, exclude_playground, get_assets_of_team, get_assets_of_team_inclusive_self, page_size, page_offset, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def get_datasets_with_http_info(self, shared : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which have been shared with the user")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def get_datasets_with_http_info(self, shared : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which have been shared with the user")] = None, exclude_playground : Annotated[Optional[StrictBool], Field(description="if set, excludes playground datasets. Typically set to true when querying for team assets")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> ApiResponse:  # noqa: E501
         """get_datasets  # noqa: E501
 
         Get all datasets for a user  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.get_datasets_with_http_info(shared, get_assets_of_team, get_assets_of_team_inclusive_self, page_size, page_offset, async_req=True)
+        >>> thread = api.get_datasets_with_http_info(shared, exclude_playground, get_assets_of_team, get_assets_of_team_inclusive_self, page_size, page_offset, async_req=True)
         >>> result = thread.get()
 
         :param shared: if set, only returns the datasets which have been shared with the user
         :type shared: bool
+        :param exclude_playground: if set, excludes playground datasets. Typically set to true when querying for team assets
+        :type exclude_playground: bool
         :param get_assets_of_team: if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user
         :type get_assets_of_team: bool
         :param get_assets_of_team_inclusive_self: if this flag is true, we get the relevant asset of the team of the user including the assets of the user
@@ -722,6 +726,7 @@ class DatasetsApi(object):
 
         _all_params = [
             'shared',
+            'exclude_playground',
             'get_assets_of_team',
             'get_assets_of_team_inclusive_self',
             'page_size',
@@ -760,6 +765,12 @@ class DatasetsApi(object):
             _query_params.append((
                 'shared',
                 _params['shared'].value if hasattr(_params['shared'], 'value') else _params['shared']
+            ))
+
+        if _params.get('exclude_playground') is not None:  # noqa: E501
+            _query_params.append((
+                'excludePlayground',
+                _params['exclude_playground'].value if hasattr(_params['exclude_playground'], 'value') else _params['exclude_playground']
             ))
 
         if _params.get('get_assets_of_team') is not None:  # noqa: E501
@@ -826,20 +837,22 @@ class DatasetsApi(object):
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def get_datasets_enriched(self, shared : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which have been shared with the user")] = None, limit : Annotated[Optional[StrictInt], Field(description="DEPRECATED, use pageSize instead. if set, only returns the newest up until limit")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> List[DatasetDataEnriched]:  # noqa: E501
+    def get_datasets_enriched(self, shared : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which have been shared with the user")] = None, limit : Annotated[Optional[StrictInt], Field(description="DEPRECATED, use pageSize instead. if set, only returns the newest up until limit")] = None, exclude_playground : Annotated[Optional[StrictBool], Field(description="if set, excludes playground datasets. Typically set to true when querying for team assets")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> List[DatasetDataEnriched]:  # noqa: E501
         """get_datasets_enriched  # noqa: E501
 
-        Get all datasets for a user but enriched with additional information as nTags, nEmbeddings, samples  # noqa: E501
+        Get all datasets for a user but enriched with additional information as nTags, nEmbeddings, samples.   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.get_datasets_enriched(shared, limit, get_assets_of_team, get_assets_of_team_inclusive_self, page_size, page_offset, async_req=True)
+        >>> thread = api.get_datasets_enriched(shared, limit, exclude_playground, get_assets_of_team, get_assets_of_team_inclusive_self, page_size, page_offset, async_req=True)
         >>> result = thread.get()
 
         :param shared: if set, only returns the datasets which have been shared with the user
         :type shared: bool
         :param limit: DEPRECATED, use pageSize instead. if set, only returns the newest up until limit
         :type limit: int
+        :param exclude_playground: if set, excludes playground datasets. Typically set to true when querying for team assets
+        :type exclude_playground: bool
         :param get_assets_of_team: if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user
         :type get_assets_of_team: bool
         :param get_assets_of_team_inclusive_self: if this flag is true, we get the relevant asset of the team of the user including the assets of the user
@@ -862,23 +875,25 @@ class DatasetsApi(object):
         kwargs['_return_http_data_only'] = True
         if '_preload_content' in kwargs:
             raise ValueError("Error! Please call the get_datasets_enriched_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.get_datasets_enriched_with_http_info(shared, limit, get_assets_of_team, get_assets_of_team_inclusive_self, page_size, page_offset, **kwargs)  # noqa: E501
+        return self.get_datasets_enriched_with_http_info(shared, limit, exclude_playground, get_assets_of_team, get_assets_of_team_inclusive_self, page_size, page_offset, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def get_datasets_enriched_with_http_info(self, shared : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which have been shared with the user")] = None, limit : Annotated[Optional[StrictInt], Field(description="DEPRECATED, use pageSize instead. if set, only returns the newest up until limit")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def get_datasets_enriched_with_http_info(self, shared : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which have been shared with the user")] = None, limit : Annotated[Optional[StrictInt], Field(description="DEPRECATED, use pageSize instead. if set, only returns the newest up until limit")] = None, exclude_playground : Annotated[Optional[StrictBool], Field(description="if set, excludes playground datasets. Typically set to true when querying for team assets")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> ApiResponse:  # noqa: E501
         """get_datasets_enriched  # noqa: E501
 
-        Get all datasets for a user but enriched with additional information as nTags, nEmbeddings, samples  # noqa: E501
+        Get all datasets for a user but enriched with additional information as nTags, nEmbeddings, samples.   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.get_datasets_enriched_with_http_info(shared, limit, get_assets_of_team, get_assets_of_team_inclusive_self, page_size, page_offset, async_req=True)
+        >>> thread = api.get_datasets_enriched_with_http_info(shared, limit, exclude_playground, get_assets_of_team, get_assets_of_team_inclusive_self, page_size, page_offset, async_req=True)
         >>> result = thread.get()
 
         :param shared: if set, only returns the datasets which have been shared with the user
         :type shared: bool
         :param limit: DEPRECATED, use pageSize instead. if set, only returns the newest up until limit
         :type limit: int
+        :param exclude_playground: if set, excludes playground datasets. Typically set to true when querying for team assets
+        :type exclude_playground: bool
         :param get_assets_of_team: if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user
         :type get_assets_of_team: bool
         :param get_assets_of_team_inclusive_self: if this flag is true, we get the relevant asset of the team of the user including the assets of the user
@@ -917,6 +932,7 @@ class DatasetsApi(object):
         _all_params = [
             'shared',
             'limit',
+            'exclude_playground',
             'get_assets_of_team',
             'get_assets_of_team_inclusive_self',
             'page_size',
@@ -961,6 +977,12 @@ class DatasetsApi(object):
             _query_params.append((
                 'limit',
                 _params['limit'].value if hasattr(_params['limit'], 'value') else _params['limit']
+            ))
+
+        if _params.get('exclude_playground') is not None:  # noqa: E501
+            _query_params.append((
+                'excludePlayground',
+                _params['exclude_playground'].value if hasattr(_params['exclude_playground'], 'value') else _params['exclude_playground']
             ))
 
         if _params.get('get_assets_of_team') is not None:  # noqa: E501
@@ -1174,14 +1196,14 @@ class DatasetsApi(object):
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def get_datasets_enriched_query_by_name(self, dataset_name : constr(strict=True, min_length=1), shared : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which have been shared with the user")] = None, exact : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which match the name exactly (not just by prefix)")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> List[DatasetDataEnriched]:  # noqa: E501
+    def get_datasets_enriched_query_by_name(self, dataset_name : constr(strict=True, min_length=1), shared : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which have been shared with the user")] = None, exact : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which match the name exactly (not just by prefix)")] = None, exclude_playground : Annotated[Optional[StrictBool], Field(description="if set, excludes playground datasets. Typically set to true when querying for team assets")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> List[DatasetDataEnriched]:  # noqa: E501
         """get_datasets_enriched_query_by_name  # noqa: E501
 
         Query for datasets  enriched with additional information by their name prefix unless exact flag is set  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.get_datasets_enriched_query_by_name(dataset_name, shared, exact, get_assets_of_team, get_assets_of_team_inclusive_self, page_size, page_offset, async_req=True)
+        >>> thread = api.get_datasets_enriched_query_by_name(dataset_name, shared, exact, exclude_playground, get_assets_of_team, get_assets_of_team_inclusive_self, page_size, page_offset, async_req=True)
         >>> result = thread.get()
 
         :param dataset_name: (required)
@@ -1190,6 +1212,8 @@ class DatasetsApi(object):
         :type shared: bool
         :param exact: if set, only returns the datasets which match the name exactly (not just by prefix)
         :type exact: bool
+        :param exclude_playground: if set, excludes playground datasets. Typically set to true when querying for team assets
+        :type exclude_playground: bool
         :param get_assets_of_team: if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user
         :type get_assets_of_team: bool
         :param get_assets_of_team_inclusive_self: if this flag is true, we get the relevant asset of the team of the user including the assets of the user
@@ -1212,17 +1236,17 @@ class DatasetsApi(object):
         kwargs['_return_http_data_only'] = True
         if '_preload_content' in kwargs:
             raise ValueError("Error! Please call the get_datasets_enriched_query_by_name_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.get_datasets_enriched_query_by_name_with_http_info(dataset_name, shared, exact, get_assets_of_team, get_assets_of_team_inclusive_self, page_size, page_offset, **kwargs)  # noqa: E501
+        return self.get_datasets_enriched_query_by_name_with_http_info(dataset_name, shared, exact, exclude_playground, get_assets_of_team, get_assets_of_team_inclusive_self, page_size, page_offset, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def get_datasets_enriched_query_by_name_with_http_info(self, dataset_name : constr(strict=True, min_length=1), shared : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which have been shared with the user")] = None, exact : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which match the name exactly (not just by prefix)")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def get_datasets_enriched_query_by_name_with_http_info(self, dataset_name : constr(strict=True, min_length=1), shared : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which have been shared with the user")] = None, exact : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which match the name exactly (not just by prefix)")] = None, exclude_playground : Annotated[Optional[StrictBool], Field(description="if set, excludes playground datasets. Typically set to true when querying for team assets")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> ApiResponse:  # noqa: E501
         """get_datasets_enriched_query_by_name  # noqa: E501
 
         Query for datasets  enriched with additional information by their name prefix unless exact flag is set  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.get_datasets_enriched_query_by_name_with_http_info(dataset_name, shared, exact, get_assets_of_team, get_assets_of_team_inclusive_self, page_size, page_offset, async_req=True)
+        >>> thread = api.get_datasets_enriched_query_by_name_with_http_info(dataset_name, shared, exact, exclude_playground, get_assets_of_team, get_assets_of_team_inclusive_self, page_size, page_offset, async_req=True)
         >>> result = thread.get()
 
         :param dataset_name: (required)
@@ -1231,6 +1255,8 @@ class DatasetsApi(object):
         :type shared: bool
         :param exact: if set, only returns the datasets which match the name exactly (not just by prefix)
         :type exact: bool
+        :param exclude_playground: if set, excludes playground datasets. Typically set to true when querying for team assets
+        :type exclude_playground: bool
         :param get_assets_of_team: if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user
         :type get_assets_of_team: bool
         :param get_assets_of_team_inclusive_self: if this flag is true, we get the relevant asset of the team of the user including the assets of the user
@@ -1270,6 +1296,7 @@ class DatasetsApi(object):
             'dataset_name',
             'shared',
             'exact',
+            'exclude_playground',
             'get_assets_of_team',
             'get_assets_of_team_inclusive_self',
             'page_size',
@@ -1317,6 +1344,12 @@ class DatasetsApi(object):
             _query_params.append((
                 'exact',
                 _params['exact'].value if hasattr(_params['exact'], 'value') else _params['exact']
+            ))
+
+        if _params.get('exclude_playground') is not None:  # noqa: E501
+            _query_params.append((
+                'excludePlayground',
+                _params['exclude_playground'].value if hasattr(_params['exclude_playground'], 'value') else _params['exclude_playground']
             ))
 
         if _params.get('get_assets_of_team') is not None:  # noqa: E501
@@ -1383,14 +1416,14 @@ class DatasetsApi(object):
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def get_datasets_query_by_name(self, dataset_name : constr(strict=True, min_length=1), shared : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which have been shared with the user")] = None, exact : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which match the name exactly (not just by prefix)")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> List[DatasetData]:  # noqa: E501
+    def get_datasets_query_by_name(self, dataset_name : constr(strict=True, min_length=1), shared : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which have been shared with the user")] = None, exact : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which match the name exactly (not just by prefix)")] = None, exclude_playground : Annotated[Optional[StrictBool], Field(description="if set, excludes playground datasets. Typically set to true when querying for team assets")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> List[DatasetData]:  # noqa: E501
         """get_datasets_query_by_name  # noqa: E501
 
         Query for datasets by their name prefix unless exact flag is set  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.get_datasets_query_by_name(dataset_name, shared, exact, get_assets_of_team, get_assets_of_team_inclusive_self, page_size, page_offset, async_req=True)
+        >>> thread = api.get_datasets_query_by_name(dataset_name, shared, exact, exclude_playground, get_assets_of_team, get_assets_of_team_inclusive_self, page_size, page_offset, async_req=True)
         >>> result = thread.get()
 
         :param dataset_name: (required)
@@ -1399,6 +1432,8 @@ class DatasetsApi(object):
         :type shared: bool
         :param exact: if set, only returns the datasets which match the name exactly (not just by prefix)
         :type exact: bool
+        :param exclude_playground: if set, excludes playground datasets. Typically set to true when querying for team assets
+        :type exclude_playground: bool
         :param get_assets_of_team: if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user
         :type get_assets_of_team: bool
         :param get_assets_of_team_inclusive_self: if this flag is true, we get the relevant asset of the team of the user including the assets of the user
@@ -1421,17 +1456,17 @@ class DatasetsApi(object):
         kwargs['_return_http_data_only'] = True
         if '_preload_content' in kwargs:
             raise ValueError("Error! Please call the get_datasets_query_by_name_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.get_datasets_query_by_name_with_http_info(dataset_name, shared, exact, get_assets_of_team, get_assets_of_team_inclusive_self, page_size, page_offset, **kwargs)  # noqa: E501
+        return self.get_datasets_query_by_name_with_http_info(dataset_name, shared, exact, exclude_playground, get_assets_of_team, get_assets_of_team_inclusive_self, page_size, page_offset, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def get_datasets_query_by_name_with_http_info(self, dataset_name : constr(strict=True, min_length=1), shared : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which have been shared with the user")] = None, exact : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which match the name exactly (not just by prefix)")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def get_datasets_query_by_name_with_http_info(self, dataset_name : constr(strict=True, min_length=1), shared : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which have been shared with the user")] = None, exact : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which match the name exactly (not just by prefix)")] = None, exclude_playground : Annotated[Optional[StrictBool], Field(description="if set, excludes playground datasets. Typically set to true when querying for team assets")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> ApiResponse:  # noqa: E501
         """get_datasets_query_by_name  # noqa: E501
 
         Query for datasets by their name prefix unless exact flag is set  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.get_datasets_query_by_name_with_http_info(dataset_name, shared, exact, get_assets_of_team, get_assets_of_team_inclusive_self, page_size, page_offset, async_req=True)
+        >>> thread = api.get_datasets_query_by_name_with_http_info(dataset_name, shared, exact, exclude_playground, get_assets_of_team, get_assets_of_team_inclusive_self, page_size, page_offset, async_req=True)
         >>> result = thread.get()
 
         :param dataset_name: (required)
@@ -1440,6 +1475,8 @@ class DatasetsApi(object):
         :type shared: bool
         :param exact: if set, only returns the datasets which match the name exactly (not just by prefix)
         :type exact: bool
+        :param exclude_playground: if set, excludes playground datasets. Typically set to true when querying for team assets
+        :type exclude_playground: bool
         :param get_assets_of_team: if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user
         :type get_assets_of_team: bool
         :param get_assets_of_team_inclusive_self: if this flag is true, we get the relevant asset of the team of the user including the assets of the user
@@ -1479,6 +1516,7 @@ class DatasetsApi(object):
             'dataset_name',
             'shared',
             'exact',
+            'exclude_playground',
             'get_assets_of_team',
             'get_assets_of_team_inclusive_self',
             'page_size',
@@ -1526,6 +1564,12 @@ class DatasetsApi(object):
             _query_params.append((
                 'exact',
                 _params['exact'].value if hasattr(_params['exact'], 'value') else _params['exact']
+            ))
+
+        if _params.get('exclude_playground') is not None:  # noqa: E501
+            _query_params.append((
+                'excludePlayground',
+                _params['exclude_playground'].value if hasattr(_params['exclude_playground'], 'value') else _params['exclude_playground']
             ))
 
         if _params.get('get_assets_of_team') is not None:  # noqa: E501

@@ -20,22 +20,25 @@ import json
 
 
 from typing import Optional
-from pydantic import Extra,  BaseModel, Field, StrictStr, constr, validator
+from pydantic import Extra,  BaseModel, Field, StrictStr, validator
+from lightly.openapi_generated.swagger_client.models.selection_strategy_type_v3 import SelectionStrategyTypeV3
 
-class DelegatedAccessExternalIdsInner(BaseModel):
+class SelectionConfigV4EntryStrategyAllOf(BaseModel):
     """
-    DelegatedAccessExternalIdsInner
+    SelectionConfigV4EntryStrategyAllOf
     """
-    external_id: constr(strict=True, min_length=10) = Field(..., alias="externalId", description="The external ID specified when creating the role. More information can be found here: - https://docs.aws.amazon.com/IAM/latest/UserGuide/confused-deputy.html - https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_iam-condition-keys.html#ck_externalid ")
-    user_id: Optional[StrictStr] = Field(None, alias="userId")
-    team_id: Optional[StrictStr] = Field(None, alias="teamId")
-    __properties = ["externalId", "userId", "teamId"]
+    type: SelectionStrategyTypeV3 = Field(...)
+    distribution: Optional[StrictStr] = Field(None, description="The distribution of the balance selection strategy. If TARGET is selected, the target prop of the selection strategy needs to be set as well.")
+    __properties = ["type", "distribution"]
 
-    @validator('external_id')
-    def external_id_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if not re.match(r"^[a-zA-Z0-9_+=,.@:\/-]+$", value):
-            raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9_+=,.@:\/-]+$/")
+    @validator('distribution')
+    def distribution_validate_enum(cls, value):
+        """Validates the enum"""
+        if value is None:
+            return value
+
+        if value not in ('TARGET', 'UNIFORM', 'INPUT'):
+            raise ValueError("must be one of enum values ('TARGET', 'UNIFORM', 'INPUT')")
         return value
 
     class Config:
@@ -54,8 +57,8 @@ class DelegatedAccessExternalIdsInner(BaseModel):
         return json.dumps(self.to_dict(by_alias=by_alias))
 
     @classmethod
-    def from_json(cls, json_str: str) -> DelegatedAccessExternalIdsInner:
-        """Create an instance of DelegatedAccessExternalIdsInner from a JSON string"""
+    def from_json(cls, json_str: str) -> SelectionConfigV4EntryStrategyAllOf:
+        """Create an instance of SelectionConfigV4EntryStrategyAllOf from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self, by_alias: bool = False):
@@ -67,23 +70,22 @@ class DelegatedAccessExternalIdsInner(BaseModel):
         return _dict
 
     @classmethod
-    def from_dict(cls, obj: dict) -> DelegatedAccessExternalIdsInner:
-        """Create an instance of DelegatedAccessExternalIdsInner from a dict"""
+    def from_dict(cls, obj: dict) -> SelectionConfigV4EntryStrategyAllOf:
+        """Create an instance of SelectionConfigV4EntryStrategyAllOf from a dict"""
         if obj is None:
             return None
 
         if not isinstance(obj, dict):
-            return DelegatedAccessExternalIdsInner.parse_obj(obj)
+            return SelectionConfigV4EntryStrategyAllOf.parse_obj(obj)
 
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in DelegatedAccessExternalIdsInner) in the input: " + str(obj))
+                raise ValueError("Error due to additional fields (not defined in SelectionConfigV4EntryStrategyAllOf) in the input: " + str(obj))
 
-        _obj = DelegatedAccessExternalIdsInner.parse_obj({
-            "external_id": obj.get("externalId"),
-            "user_id": obj.get("userId"),
-            "team_id": obj.get("teamId")
+        _obj = SelectionConfigV4EntryStrategyAllOf.parse_obj({
+            "type": obj.get("type"),
+            "distribution": obj.get("distribution")
         })
         return _obj
 

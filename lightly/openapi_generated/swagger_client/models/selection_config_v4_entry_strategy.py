@@ -20,7 +20,7 @@ import json
 
 
 from typing import Any, Dict, Optional, Union
-from pydantic import Extra,  BaseModel, Field, StrictFloat, StrictInt, confloat, conint
+from pydantic import Extra,  BaseModel, Field, StrictFloat, StrictInt, StrictStr, confloat, conint, validator
 from lightly.openapi_generated.swagger_client.models.selection_config_v3_entry_strategy_all_of_target_range import SelectionConfigV3EntryStrategyAllOfTargetRange
 from lightly.openapi_generated.swagger_client.models.selection_strategy_threshold_operation import SelectionStrategyThresholdOperation
 from lightly.openapi_generated.swagger_client.models.selection_strategy_type_v3 import SelectionStrategyTypeV3
@@ -34,12 +34,23 @@ class SelectionConfigV4EntryStrategy(BaseModel):
     threshold: Optional[Union[StrictFloat, StrictInt]] = None
     operation: Optional[SelectionStrategyThresholdOperation] = None
     target: Optional[Dict[str, Any]] = None
-    num_nearest_neighbors: Optional[Union[confloat(ge=2, strict=True), conint(ge=2, strict=True)]] = Field(None, alias="numNearestNeighbors", description="It is the number of nearest datapoints used to compute the typicality of each sample. ")
+    num_nearest_neighbors: Optional[conint(strict=True, ge=2)] = Field(None, alias="numNearestNeighbors", description="It is the number of nearest datapoints used to compute the typicality of each sample. ")
     stopping_condition_minimum_typicality: Optional[Union[confloat(gt=0, strict=True), conint(gt=0, strict=True)]] = Field(None, alias="stoppingConditionMinimumTypicality", description="It is the minimal allowed typicality of the selected samples. When the typicality of the selected samples reaches this, the selection stops. It should be  a number between 0 and 1. ")
     strength: Optional[Union[confloat(le=1000000000, ge=-1000000000, strict=True), conint(le=1000000000, ge=-1000000000, strict=True)]] = Field(None, description="The relative strength of this strategy compared to other strategies. The default value is 1.0, which is set in the worker for backwards compatibility. The minimum and maximum values of +-10^9 are used to prevent numerical issues. ")
     stopping_condition_max_sum: Optional[Union[confloat(ge=0.0, strict=True), conint(ge=0, strict=True)]] = Field(None, alias="stoppingConditionMaxSum", description="When the sum of inputs reaches this, the selection stops. Only compatible with the WEIGHTS strategy. Similar to the stopping_condition_minimum_distance for the DIVERSITY strategy. ")
     target_range: Optional[SelectionConfigV3EntryStrategyAllOfTargetRange] = Field(None, alias="targetRange")
-    __properties = ["type", "stopping_condition_minimum_distance", "threshold", "operation", "target", "numNearestNeighbors", "stoppingConditionMinimumTypicality", "strength", "stoppingConditionMaxSum", "targetRange"]
+    distribution: Optional[StrictStr] = Field(None, description="The distribution of the balance selection strategy. If TARGET is selected, the target prop of the selection strategy needs to be set as well.")
+    __properties = ["type", "stopping_condition_minimum_distance", "threshold", "operation", "target", "numNearestNeighbors", "stoppingConditionMinimumTypicality", "strength", "stoppingConditionMaxSum", "targetRange", "distribution"]
+
+    @validator('distribution')
+    def distribution_validate_enum(cls, value):
+        """Validates the enum"""
+        if value is None:
+            return value
+
+        if value not in ('TARGET', 'UNIFORM', 'INPUT'):
+            raise ValueError("must be one of enum values ('TARGET', 'UNIFORM', 'INPUT')")
+        return value
 
     class Config:
         """Pydantic configuration"""
@@ -96,7 +107,8 @@ class SelectionConfigV4EntryStrategy(BaseModel):
             "stopping_condition_minimum_typicality": obj.get("stoppingConditionMinimumTypicality"),
             "strength": obj.get("strength"),
             "stopping_condition_max_sum": obj.get("stoppingConditionMaxSum"),
-            "target_range": SelectionConfigV3EntryStrategyAllOfTargetRange.from_dict(obj.get("targetRange")) if obj.get("targetRange") is not None else None
+            "target_range": SelectionConfigV3EntryStrategyAllOfTargetRange.from_dict(obj.get("targetRange")) if obj.get("targetRange") is not None else None,
+            "distribution": obj.get("distribution")
         })
         return _obj
 
