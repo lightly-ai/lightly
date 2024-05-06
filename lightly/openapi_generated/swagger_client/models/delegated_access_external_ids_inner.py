@@ -26,7 +26,7 @@ class DelegatedAccessExternalIdsInner(BaseModel):
     """
     DelegatedAccessExternalIdsInner
     """
-    external_id: constr(strict=True, min_length=10) = Field(..., alias="externalId", description="The external ID specified when creating the role.")
+    external_id: constr(strict=True, min_length=10) = Field(..., alias="externalId", description="The external ID specified when creating the role. More information can be found here: - https://docs.aws.amazon.com/IAM/latest/UserGuide/confused-deputy.html - https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_iam-condition-keys.html#ck_externalid ")
     user_id: Optional[StrictStr] = Field(None, alias="userId")
     team_id: Optional[StrictStr] = Field(None, alias="teamId")
     __properties = ["externalId", "userId", "teamId"]

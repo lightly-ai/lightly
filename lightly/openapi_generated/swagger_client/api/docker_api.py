@@ -3434,20 +3434,22 @@ class DockerApi(object):
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def get_docker_runs_scheduled_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], state : Optional[DockerRunScheduledState] = None, **kwargs) -> List[DockerRunScheduledData]:  # noqa: E501
+    def get_docker_runs_scheduled_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], state : Optional[DockerRunScheduledState] = None, states : Optional[conlist(DockerRunScheduledState)] = None, **kwargs) -> List[DockerRunScheduledData]:  # noqa: E501
         """get_docker_runs_scheduled_by_dataset_id  # noqa: E501
 
-        Get all scheduled docker runs by dataset id. If no state is specified, returns runs which have not yet finished (neither DONE or CANCELED).  # noqa: E501
+        Get all scheduled docker runs by dataset id. If no state(s) is specified, returns runs which have not yet finished (neither DONE or CANCELED).  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.get_docker_runs_scheduled_by_dataset_id(dataset_id, state, async_req=True)
+        >>> thread = api.get_docker_runs_scheduled_by_dataset_id(dataset_id, state, states, async_req=True)
         >>> result = thread.get()
 
         :param dataset_id: ObjectId of the dataset (required)
         :type dataset_id: str
         :param state:
         :type state: DockerRunScheduledState
+        :param states:
+        :type states: List[DockerRunScheduledState]
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _request_timeout: timeout setting for this request. If one
@@ -3462,23 +3464,25 @@ class DockerApi(object):
         kwargs['_return_http_data_only'] = True
         if '_preload_content' in kwargs:
             raise ValueError("Error! Please call the get_docker_runs_scheduled_by_dataset_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.get_docker_runs_scheduled_by_dataset_id_with_http_info(dataset_id, state, **kwargs)  # noqa: E501
+        return self.get_docker_runs_scheduled_by_dataset_id_with_http_info(dataset_id, state, states, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def get_docker_runs_scheduled_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], state : Optional[DockerRunScheduledState] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def get_docker_runs_scheduled_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], state : Optional[DockerRunScheduledState] = None, states : Optional[conlist(DockerRunScheduledState)] = None, **kwargs) -> ApiResponse:  # noqa: E501
         """get_docker_runs_scheduled_by_dataset_id  # noqa: E501
 
-        Get all scheduled docker runs by dataset id. If no state is specified, returns runs which have not yet finished (neither DONE or CANCELED).  # noqa: E501
+        Get all scheduled docker runs by dataset id. If no state(s) is specified, returns runs which have not yet finished (neither DONE or CANCELED).  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.get_docker_runs_scheduled_by_dataset_id_with_http_info(dataset_id, state, async_req=True)
+        >>> thread = api.get_docker_runs_scheduled_by_dataset_id_with_http_info(dataset_id, state, states, async_req=True)
         >>> result = thread.get()
 
         :param dataset_id: ObjectId of the dataset (required)
         :type dataset_id: str
         :param state:
         :type state: DockerRunScheduledState
+        :param states:
+        :type states: List[DockerRunScheduledState]
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
@@ -3508,7 +3512,8 @@ class DockerApi(object):
 
         _all_params = [
             'dataset_id',
-            'state'
+            'state',
+            'states'
         ]
         _all_params.extend(
             [
@@ -3547,6 +3552,13 @@ class DockerApi(object):
                 'state',
                 _params['state'].value if hasattr(_params['state'], 'value') else _params['state']
             ))
+
+        if _params.get('states') is not None:  # noqa: E501
+            _query_params.append((
+                'states',
+                _params['states'].value if hasattr(_params['states'], 'value') else _params['states']
+            ))
+            _collection_formats['states'] = 'multi'
 
         # process the header parameters
         _header_params = dict(_params.get('_headers', {}))
@@ -3587,14 +3599,14 @@ class DockerApi(object):
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
-    def get_docker_runs_scheduled_by_state_and_labels(self, state : Optional[DockerRunScheduledState] = None, labels : Optional[conlist(StrictStr)] = None, version : Optional[StrictStr] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, **kwargs) -> List[DockerRunScheduledData]:  # noqa: E501
+    def get_docker_runs_scheduled_by_state_and_labels(self, state : Optional[DockerRunScheduledState] = None, labels : Optional[conlist(StrictStr)] = None, version : Optional[StrictStr] = None, include_unlockable_runs : Annotated[Optional[StrictBool], Field(description="Unlockable runs are runs which can't be locked due to e.g another run with the same datasetId being locked/processed. This safeguards two workers processing the same dataset. Only has an effect if querying for runs with state=OPEN ")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, **kwargs) -> List[DockerRunScheduledData]:  # noqa: E501
         """get_docker_runs_scheduled_by_state_and_labels  # noqa: E501
 
         Get all scheduled docker runs of the user. Additionally, you can filter by state.  Furthermore, you can filter by only providing labels and only return scheduled runs whose runsOn labels are included in the provided labels. Runs are filtered by the provided version parameter. Version parameter set to * returns all configs   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.get_docker_runs_scheduled_by_state_and_labels(state, labels, version, get_assets_of_team, get_assets_of_team_inclusive_self, async_req=True)
+        >>> thread = api.get_docker_runs_scheduled_by_state_and_labels(state, labels, version, include_unlockable_runs, get_assets_of_team, get_assets_of_team_inclusive_self, async_req=True)
         >>> result = thread.get()
 
         :param state:
@@ -3603,6 +3615,8 @@ class DockerApi(object):
         :type labels: List[str]
         :param version:
         :type version: str
+        :param include_unlockable_runs: Unlockable runs are runs which can't be locked due to e.g another run with the same datasetId being locked/processed. This safeguards two workers processing the same dataset. Only has an effect if querying for runs with state=OPEN 
+        :type include_unlockable_runs: bool
         :param get_assets_of_team: if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user
         :type get_assets_of_team: bool
         :param get_assets_of_team_inclusive_self: if this flag is true, we get the relevant asset of the team of the user including the assets of the user
@@ -3621,17 +3635,17 @@ class DockerApi(object):
         kwargs['_return_http_data_only'] = True
         if '_preload_content' in kwargs:
             raise ValueError("Error! Please call the get_docker_runs_scheduled_by_state_and_labels_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
-        return self.get_docker_runs_scheduled_by_state_and_labels_with_http_info(state, labels, version, get_assets_of_team, get_assets_of_team_inclusive_self, **kwargs)  # noqa: E501
+        return self.get_docker_runs_scheduled_by_state_and_labels_with_http_info(state, labels, version, include_unlockable_runs, get_assets_of_team, get_assets_of_team_inclusive_self, **kwargs)  # noqa: E501
 
     @validate_arguments
-    def get_docker_runs_scheduled_by_state_and_labels_with_http_info(self, state : Optional[DockerRunScheduledState] = None, labels : Optional[conlist(StrictStr)] = None, version : Optional[StrictStr] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, **kwargs) -> ApiResponse:  # noqa: E501
+    def get_docker_runs_scheduled_by_state_and_labels_with_http_info(self, state : Optional[DockerRunScheduledState] = None, labels : Optional[conlist(StrictStr)] = None, version : Optional[StrictStr] = None, include_unlockable_runs : Annotated[Optional[StrictBool], Field(description="Unlockable runs are runs which can't be locked due to e.g another run with the same datasetId being locked/processed. This safeguards two workers processing the same dataset. Only has an effect if querying for runs with state=OPEN ")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, **kwargs) -> ApiResponse:  # noqa: E501
         """get_docker_runs_scheduled_by_state_and_labels  # noqa: E501
 
         Get all scheduled docker runs of the user. Additionally, you can filter by state.  Furthermore, you can filter by only providing labels and only return scheduled runs whose runsOn labels are included in the provided labels. Runs are filtered by the provided version parameter. Version parameter set to * returns all configs   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.get_docker_runs_scheduled_by_state_and_labels_with_http_info(state, labels, version, get_assets_of_team, get_assets_of_team_inclusive_self, async_req=True)
+        >>> thread = api.get_docker_runs_scheduled_by_state_and_labels_with_http_info(state, labels, version, include_unlockable_runs, get_assets_of_team, get_assets_of_team_inclusive_self, async_req=True)
         >>> result = thread.get()
 
         :param state:
@@ -3640,6 +3654,8 @@ class DockerApi(object):
         :type labels: List[str]
         :param version:
         :type version: str
+        :param include_unlockable_runs: Unlockable runs are runs which can't be locked due to e.g another run with the same datasetId being locked/processed. This safeguards two workers processing the same dataset. Only has an effect if querying for runs with state=OPEN 
+        :type include_unlockable_runs: bool
         :param get_assets_of_team: if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user
         :type get_assets_of_team: bool
         :param get_assets_of_team_inclusive_self: if this flag is true, we get the relevant asset of the team of the user including the assets of the user
@@ -3675,6 +3691,7 @@ class DockerApi(object):
             'state',
             'labels',
             'version',
+            'include_unlockable_runs',
             'get_assets_of_team',
             'get_assets_of_team_inclusive_self'
         ]
@@ -3724,6 +3741,12 @@ class DockerApi(object):
             _query_params.append((
                 'version',
                 _params['version'].value if hasattr(_params['version'], 'value') else _params['version']
+            ))
+
+        if _params.get('include_unlockable_runs') is not None:  # noqa: E501
+            _query_params.append((
+                'includeUnlockableRuns',
+                _params['include_unlockable_runs'].value if hasattr(_params['include_unlockable_runs'], 'value') else _params['include_unlockable_runs']
             ))
 
         if _params.get('get_assets_of_team') is not None:  # noqa: E501
