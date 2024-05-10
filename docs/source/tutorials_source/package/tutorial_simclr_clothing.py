@@ -84,7 +84,7 @@ path_to_data = "/datasets/clothing-dataset/images"
 # such as vertical flip or random rotation (90 degrees).
 # By adding these augmentations we learn our model invariance regarding the
 # orientation of the clothing piece. E.g. we don't care if a shirt is upside down
-# but more about the strcture which make it a shirt.
+# but more about the structure which make it a shirt.
 #
 # You can learn more about the different augmentations and learned invariances
 # here: :ref:`lightly-advanced`.
