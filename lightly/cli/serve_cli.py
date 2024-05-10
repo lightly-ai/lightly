@@ -4,6 +4,7 @@ from pathlib import Path
 import hydra
 
 from lightly.api import serve
+from lightly.api.serve import validate_input_mount, validate_lightly_mount
 from lightly.cli._helpers import fix_hydra_arguments
 from lightly.utils.hipify import bcolors
 
@@ -35,8 +36,13 @@ def lightly_serve(cfg):
         print("Please provide a valid Lightly mount. Use --help for more information.")
         sys.exit(1)
 
+    input_mount = Path(cfg.input_mount)
+    validate_input_mount(input_mount=input_mount)
+    lightly_mount = Path(cfg.lightly_mount)
+    validate_lightly_mount(lightly_mount=lightly_mount)
+
     httpd = serve.get_server(
-        paths=[Path(cfg.input_mount), Path(cfg.lightly_mount)],
+        paths=[input_mount, lightly_mount],
         host=cfg.host,
         port=cfg.port,
     )

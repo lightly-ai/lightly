@@ -1,6 +1,54 @@
 from pathlib import Path
 
+import pytest
+
 from lightly.api import serve
+
+
+def test_validate_input_mount(tmp_path: Path) -> None:
+    (tmp_path / "image.png").touch()
+    serve.validate_input_mount(input_mount=tmp_path)
+
+
+def test_validate_input_mount__not_exist(tmp_path: Path) -> None:
+    with pytest.raises(
+        ValueError, match=f"Input mount '{tmp_path}/not-existant' does not exist."
+    ):
+        serve.validate_input_mount(input_mount=tmp_path / "not-existant")
+
+
+def test_validate_input_mount__not_directory(tmp_path: Path) -> None:
+    (tmp_path / "file.txt").touch()
+    with pytest.raises(
+        ValueError, match=f"Input mount '{tmp_path}/file.txt' is not a directory."
+    ):
+        serve.validate_input_mount(input_mount=tmp_path / "file.txt")
+
+
+def test_validate_input_mount__no_files(tmp_path: Path) -> None:
+    with pytest.raises(
+        ValueError, match=f"Input mount '{tmp_path}' does not contain any files."
+    ):
+        serve.validate_input_mount(input_mount=tmp_path)
+
+
+def test_validate_lightly_mount(tmp_path: Path) -> None:
+    serve.validate_lightly_mount(lightly_mount=tmp_path)
+
+
+def test_validate_lightly_mount__not_exist(tmp_path: Path) -> None:
+    with pytest.raises(
+        ValueError, match=f"Lightly mount '{tmp_path}/not-existant' does not exist."
+    ):
+        serve.validate_lightly_mount(lightly_mount=tmp_path / "not-existant")
+
+
+def test_validate_lightly_mount__not_directory(tmp_path: Path) -> None:
+    (tmp_path / "file.txt").touch()
+    with pytest.raises(
+        ValueError, match=f"Lightly mount '{tmp_path}/file.txt' is not a directory."
+    ):
+        serve.validate_lightly_mount(lightly_mount=tmp_path / "file.txt")
 
 
 def test__translate_path(tmp_path: Path) -> None:
