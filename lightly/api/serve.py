@@ -52,6 +52,7 @@ def get_server(
 
 def validate_input_mount(input_mount: Path) -> None:
     """Validates that the input mount is a directory and contains files."""
+    input_mount = input_mount.resolve()
     if not input_mount.exists():
         raise ValueError(f"Input mount '{input_mount}' does not exist.")
     if not input_mount.is_dir():
@@ -66,6 +67,7 @@ def validate_input_mount(input_mount: Path) -> None:
 
 
 def validate_lightly_mount(lightly_mount: Path) -> None:
+    lightly_mount = lightly_mount.resolve()
     """Validates that the Lightly mount is a directory."""
     if not lightly_mount.exists():
         raise ValueError(f"Lightly mount '{lightly_mount}' does not exist.")
