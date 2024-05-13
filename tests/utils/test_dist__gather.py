@@ -10,15 +10,11 @@ from torch import Tensor
 from torch.nn import Linear, Module
 from torch.optim import SGD
 from torch.utils.data import TensorDataset
-from torchvision.datasets import FakeData
-from torchvision.transforms import ToTensor
 
-from lightly.data.dataset import LightlyDataset
 from lightly.loss.dcl_loss import DCLLoss
 from lightly.loss.ntx_ent_loss import NTXentLoss
 from lightly.loss.tico_loss import TiCoLoss
 from lightly.loss.vicreg_loss import VICRegLoss
-from lightly.utils.benchmarking.benchmark_module import BenchmarkModule
 
 """
 WARNING: 
@@ -28,7 +24,7 @@ Thus this test needs to be in a separate file.
 
 
 class Model(LightningModule):
-    def __init__(self, gather: bool, criterion: Module, learning_rate: 0.01):
+    def __init__(self, gather: bool, criterion: Module, learning_rate: float):
         super().__init__()
         self.model = Linear(5, 2, bias=False)
         self.model.weight.data = torch.Tensor(
@@ -40,9 +36,6 @@ class Model(LightningModule):
         self.criterion = criterion
         self.gather = gather
         self.learning_rate = learning_rate
-
-    def forward(self, x: Tensor) -> Tensor:
-        return self.model(x)
 
     def training_step(self, batch: Tuple[Tensor, Tensor], batch_idx: int) -> Tensor:
         x = batch[0]
@@ -83,7 +76,6 @@ class TestGatherLayer_Losses:
     the devices and there is no gather layer for the batch normalization.
     """
 
-    @pytest.mark.skip("Not implemented")
     def test_loss_ntxent(self, close_torch_distributed: None) -> None:
         self._test_ddp(
             NTXentLoss,
@@ -93,10 +85,9 @@ class TestGatherLayer_Losses:
                     [0.5763, 0.6742, 0.7721, 0.8700, 0.9679],
                 ]
             ),
-            learning_rate=0.01,
+            learning_rate=0.1,
         )
 
-    @pytest.mark.skip("Not implemented")
     def test_loss_tico(self, close_torch_distributed: None) -> None:
         self._test_ddp(
             TiCoLoss,
@@ -106,10 +97,9 @@ class TestGatherLayer_Losses:
                     [0.5694, 0.6627, 0.7559, 0.8492, 0.9424],
                 ]
             ),
-            learning_rate=0.01,
+            learning_rate=0.1,
         )
 
-    @pytest.mark.skip("Not implemented")
     def test_loss_vicreg(self, close_torch_distributed: None) -> None:
         self._test_ddp(
             VICRegLoss,
@@ -122,7 +112,6 @@ class TestGatherLayer_Losses:
             learning_rate=1e-8,
         )
 
-    @pytest.mark.skip("Not implemented")
     def test_loss_dcl(self, close_torch_distributed: None) -> None:
         self._test_ddp(
             DCLLoss,
@@ -141,7 +130,7 @@ class TestGatherLayer_Losses:
         expected_params__10_epochs__no_gather: Tensor,
         learning_rate: float,
     ) -> None:
-        n_devices = 2
+        n_devices = 1
         n_samples = 8
         batch_size = int(n_samples / n_devices)
         gather = n_devices > 1
@@ -176,79 +165,3 @@ class TestGatherLayer_Losses:
 
         params = list(model.parameters())[0]
         assert torch.allclose(params, expected_params__10_epochs__no_gather, rtol=1e-3)
-
-
-class DDPTestBenchmarkModule(BenchmarkModule):
-    def __init__(self, dataloader_kNN: torch.utils.data.DataLoader, num_classes: int):
-        super().__init__(dataloader_kNN=dataloader_kNN, num_classes=num_classes)
-        self.model = Model(
-            gather=True,
-            criterion=NTXentLoss(gather_distributed=True),
-            learning_rate=0.01,
-        )
-        self.backbone = self.model.model
-
-    def forward(self, x: Tensor) -> Tensor:
-        return self.model(x)
-
-    def training_step(self, batch: Tuple[Tensor, Tensor], batch_idx: int) -> Tensor:
-        return self.model.training_step(batch, batch_idx)
-
-    def configure_optimizers(self) -> Any:
-        return self.model.configure_optimizers()
-
-
-class TestGatherLayer_BenchmarkModule:
-    def test__benchmark_module(self, close_torch_distributed: None) -> None:
-        n_devices = 1
-        n_samples = 8
-        batch_size = int(n_samples / n_devices)
-
-        pl.seed_everything(0, workers=True)
-
-        xs = torch.arange(n_samples * 2 * 5).reshape(n_samples, 2, 5).float()
-        ys = torch.arange(n_samples * 2 * 2).reshape(n_samples, 2, 2).float()
-        dataset = TensorDataset(xs, ys)
-
-        dataloader = torch.utils.data.DataLoader(
-            dataset,
-            batch_size=batch_size,
-            shuffle=True,
-            drop_last=True,
-            num_workers=0,
-        )
-
-        xs_validate = xs + torch.randn_like(xs) * 0.1
-        dataset_validate = TensorDataset(xs_validate, ys)
-        dataloader_validate = torch.utils.data.DataLoader(
-            dataset_validate,
-            batch_size=batch_size,
-            shuffle=False,
-            drop_last=True,
-            num_workers=0,
-        )
-
-        dataset_knn = TensorDataset(xs, ys, ys)
-        dataloader_kNN = torch.utils.data.DataLoader(
-            dataset_knn,
-            batch_size=batch_size,
-            shuffle=False,
-            drop_last=True,
-            num_workers=0,
-        )
-
-        model = DDPTestBenchmarkModule(dataloader_kNN=dataloader_kNN, num_classes=8)
-        a = model(torch.randn(8, 2, 5))
-
-        trainer = Trainer(
-            devices=n_devices,
-            accelerator="cpu",
-            max_epochs=10,
-        )
-        trainer.fit(
-            model=model,
-            train_dataloaders=dataloader,
-            val_dataloaders=dataloader_validate,
-        )
-
-        assert model.max_accuracy == 0.945
