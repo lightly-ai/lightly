@@ -29,11 +29,17 @@ def lightly_serve(cfg):
 
     """
     if not cfg.input_mount:
-        print("Please provide a valid input mount. Use --help for more information.")
+        print(
+            "Please provide a valid 'input_mount' argument. Use --help for more "
+            "information."
+        )
         sys.exit(1)
 
     if not cfg.lightly_mount:
-        print("Please provide a valid Lightly mount. Use --help for more information.")
+        print(
+            "Please provide a valid 'lightly_mount' argument. Use --help for more "
+            "information."
+        )
         sys.exit(1)
 
     input_mount = Path(cfg.input_mount)

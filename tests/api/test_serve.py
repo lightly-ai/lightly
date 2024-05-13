@@ -12,7 +12,8 @@ def test_validate_input_mount(tmp_path: Path) -> None:
 
 def test_validate_input_mount__not_exist(tmp_path: Path) -> None:
     with pytest.raises(
-        ValueError, match=f"Input mount '{tmp_path}/not-existant' does not exist."
+        ValueError,
+        match=f"Path for 'input_mount' argument '{tmp_path}/not-existant' does not exist.",
     ):
         serve.validate_input_mount(input_mount=tmp_path / "not-existant")
 
@@ -20,14 +21,19 @@ def test_validate_input_mount__not_exist(tmp_path: Path) -> None:
 def test_validate_input_mount__not_directory(tmp_path: Path) -> None:
     (tmp_path / "file.txt").touch()
     with pytest.raises(
-        ValueError, match=f"Input mount '{tmp_path}/file.txt' is not a directory."
+        ValueError,
+        match=f"Path for 'input_mount' argument '{tmp_path}/file.txt' is not a directory.",
     ):
         serve.validate_input_mount(input_mount=tmp_path / "file.txt")
 
 
 def test_validate_input_mount__no_files(tmp_path: Path) -> None:
     with pytest.raises(
-        ValueError, match=f"Input mount '{tmp_path}' does not contain any files."
+        ValueError,
+        match=(
+            f"Path for 'input_mount' argument '{tmp_path}' does not contain any images "
+            "or videos"
+        ),
     ):
         serve.validate_input_mount(input_mount=tmp_path)
 
@@ -38,7 +44,11 @@ def test_validate_lightly_mount(tmp_path: Path) -> None:
 
 def test_validate_lightly_mount__not_exist(tmp_path: Path) -> None:
     with pytest.raises(
-        ValueError, match=f"Lightly mount '{tmp_path}/not-existant' does not exist."
+        ValueError,
+        match=(
+            f"Path for 'lightly_mount' argument '{tmp_path}/not-existant' does not "
+            "exist."
+        ),
     ):
         serve.validate_lightly_mount(lightly_mount=tmp_path / "not-existant")
 
@@ -46,7 +56,11 @@ def test_validate_lightly_mount__not_exist(tmp_path: Path) -> None:
 def test_validate_lightly_mount__not_directory(tmp_path: Path) -> None:
     (tmp_path / "file.txt").touch()
     with pytest.raises(
-        ValueError, match=f"Lightly mount '{tmp_path}/file.txt' is not a directory."
+        ValueError,
+        match=(
+            f"Path for 'lightly_mount' argument '{tmp_path}/file.txt' is not a "
+            "directory."
+        ),
     ):
         serve.validate_lightly_mount(lightly_mount=tmp_path / "file.txt")
 
