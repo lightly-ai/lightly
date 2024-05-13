@@ -866,7 +866,6 @@ class MockedComputeWorkerApi(DockerApi):
                 created_at=0,
                 last_modified_at=0,
                 labels=["label-1"],
-                isDefault=False,
             )
         ]
 
