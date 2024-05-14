@@ -1,7 +1,7 @@
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
-from typing import List, Optional
+from typing import Any, List, Optional, Tuple
 
 import torch
 import torch.distributed as dist
@@ -12,6 +12,7 @@ from torch import Tensor
 from torch.utils.data import DataLoader
 
 from lightly.utils.benchmarking.knn import knn_predict
+from lightly.utils.dist import gather as lightly_gather
 
 
 class BenchmarkModule(LightningModule):
@@ -84,7 +85,7 @@ class BenchmarkModule(LightningModule):
 
     def __init__(
         self,
-        dataloader_kNN: DataLoader,
+        dataloader_kNN: DataLoader[Any],
         num_classes: int,
         knn_k: int = 200,
         knn_t: float = 0.1,
@@ -117,15 +118,16 @@ class BenchmarkModule(LightningModule):
                     and dist.is_initialized()
                     and dist.get_world_size() > 0
                 ):
-                    # gather features and targets from all processes
-                    feature = torch.cat(dist.gather(feature), 0)
-                    target = torch.cat(dist.gather(target), 0)
+                    feature = torch.cat(lightly_gather(feature), dim=0)
+                    target = torch.cat(lightly_gather(target), dim=0)
                 train_features.append(feature)
                 train_targets.append(target)
         self._train_features = torch.cat(train_features, dim=0).t().contiguous()
         self._train_targets = torch.cat(train_targets, dim=0).t().contiguous()
 
-    def validation_step(self, batch, batch_idx) -> None:
+    def validation_step(
+        self, batch: Tuple[List[torch.Tensor], Tensor, List[str]], batch_idx: int
+    ) -> None:
         # we can only do kNN predictions once we have a feature bank
         if self._train_features is not None and self._train_targets is not None:
             images, targets, _ = batch
@@ -139,10 +141,16 @@ class BenchmarkModule(LightningModule):
                 self.knn_k,
                 self.knn_t,
             )
-            if dist.is_initialized() and dist.get_world_size() > 0:
+
+            print(f"_train_features: {self._train_features}")
+            print(f"_train_targets: {self._train_targets}")
+            print(f"predicted_labels: {predicted_labels}")
+            print(f"targets: {targets}")
+            if dist.is_initialized() and dist.get_world_size() > 1:
                 # gather predictions and targets from all processes
-                predicted_labels = torch.cat(dist.gather(predicted_labels), 0)
-                targets = torch.cat(dist.gather(targets), 0)
+
+                predicted_labels = torch.cat(lightly_gather(predicted_labels), dim=0)
+                targets = torch.cat(lightly_gather(targets), dim=0)
 
             self._val_predicted_labels.append(predicted_labels.cpu())
             self._val_targets.append(targets.cpu())
@@ -154,8 +162,11 @@ class BenchmarkModule(LightningModule):
             top1 = (predicted_labels[:, 0] == targets).float().sum()
             acc = top1 / len(targets)
             if acc > self.max_accuracy:
-                self.max_accuracy = acc.item()
+                self.max_accuracy = float(acc.item())
             self.log("kNN_accuracy", acc * 100.0, prog_bar=True)
+            print(
+                f"This method should not be called - accuracy at rank {dist.get_rank()} is {self.max_accuracy}"
+            )
 
         self._val_predicted_labels.clear()
         self._val_targets.clear()

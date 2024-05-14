@@ -1,9 +1,11 @@
 import unittest
+from typing import Any, List, Tuple
 
 import torch
 from pytorch_lightning import Trainer
+from torch import Tensor
 from torch.nn import CrossEntropyLoss, Flatten, Linear, Sequential
-from torch.optim import SGD
+from torch.optim import SGD, Optimizer
 from torch.utils.data import DataLoader
 from torchvision.datasets import FakeData
 from torchvision.transforms import ToTensor
@@ -66,20 +68,28 @@ class TestBenchmarkModule:
         )  # accuracy is <1.0 because train val are different
 
 
-class _DummyModel(BenchmarkModule):
-    def __init__(self, dataloader_kNN, knn_k=1):
-        super().__init__(dataloader_kNN, num_classes=2, knn_k=knn_k)
+# Type ignore becaue of "Class cannot subclass "BenchmarkModule" (has type "Any")"
+class _DummyModel(BenchmarkModule):  # type: ignore[misc]
+    def __init__(
+        self,
+        dataloader_kNN: DataLoader[LightlyDataset],
+        knn_k: int = 1,
+        num_classes: int = 2,
+    ) -> None:
+        super().__init__(dataloader_kNN, num_classes=num_classes, knn_k=knn_k)
         self.backbone = Sequential(
             Flatten(),
-            Linear(3 * 32 * 32, 2),
+            Linear(3 * 32 * 32, num_classes),
         )
         self.criterion = CrossEntropyLoss()
 
-    def training_step(self, batch, batch_idx):
+    def training_step(
+        self, batch: Tuple[List[torch.Tensor], Tensor, List[str]], batch_idx: int
+    ) -> Tensor:
         images, targets, _ = batch
         predictions = self.backbone(images)
-        loss = self.criterion(predictions, targets)
+        loss: Tensor = self.criterion(predictions, targets)
         return loss
 
-    def configure_optimizers(self):
+    def configure_optimizers(self) -> Optimizer:
         return SGD(self.backbone.parameters(), lr=0.1)

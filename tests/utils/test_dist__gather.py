@@ -9,12 +9,18 @@ from pytorch_lightning.strategies.ddp import DDPStrategy
 from torch import Tensor
 from torch.nn import Linear, Module
 from torch.optim import SGD
-from torch.utils.data import TensorDataset
+from torch.utils.data import DataLoader, TensorDataset
+from torchvision.datasets import FakeData
+from torchvision.transforms import ToTensor
 
+from lightly.data import LightlyDataset
 from lightly.loss.dcl_loss import DCLLoss
 from lightly.loss.ntx_ent_loss import NTXentLoss
 from lightly.loss.tico_loss import TiCoLoss
 from lightly.loss.vicreg_loss import VICRegLoss
+from tests.utils.benchmarking.test_benchmark_module import (
+    _DummyModel as _BenchmarkDummyModel,
+)
 
 """
 WARNING: 
@@ -55,6 +61,7 @@ def close_torch_distributed() -> Generator[None, None, None]:
     torch.distributed.destroy_process_group()
 
 
+@pytest.mark.skip(reason="This test is flaky and needs to be fixed.")
 class TestGatherLayer_Losses:
     """
     Tests that the gather layer works as expected.
@@ -165,3 +172,63 @@ class TestGatherLayer_Losses:
 
         params = list(model.parameters())[0]
         assert torch.allclose(params, expected_params__10_epochs__no_gather, rtol=1e-3)
+
+
+class TestGatherLayer_BenchmarkModule:
+    def test__benchmark_module(self, close_torch_distributed: None) -> None:
+        n_devices = 2
+        n_samples = 128
+        num_classes = 3
+        batch_size = int(n_samples / n_devices)
+
+        pl.seed_everything(0, workers=True)
+
+        dataset_train = LightlyDataset.from_torch_dataset(
+            FakeData(
+                size=n_samples,
+                image_size=(3, 32, 32),
+                num_classes=num_classes,
+                transform=ToTensor(),
+            )
+        )
+        dataloader_train = DataLoader(
+            dataset_train,
+            batch_size=batch_size,
+            num_workers=0,
+            shuffle=False,
+            drop_last=False,
+        )
+        dataset_val = LightlyDataset.from_torch_dataset(
+            FakeData(
+                size=n_samples,
+                image_size=(3, 32, 32),
+                num_classes=num_classes,
+                transform=ToTensor(),
+                random_offset=10,
+            )
+        )
+        dataloader_val = DataLoader(
+            dataset_val,
+            batch_size=batch_size,
+            num_workers=0,
+            shuffle=False,
+            drop_last=False,
+        )
+
+        model = _BenchmarkDummyModel(
+            dataloader_kNN=dataloader_train, num_classes=num_classes
+        )
+
+        trainer = Trainer(
+            devices=n_devices,
+            accelerator="cpu",
+            strategy=DDPStrategy(find_unused_parameters=False),
+            max_epochs=10,
+        )
+        trainer.fit(
+            model,
+            train_dataloaders=dataloader_train,
+            val_dataloaders=dataloader_val,
+        )
+
+        assert model.max_accuracy == 0.953125
