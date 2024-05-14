@@ -28,13 +28,13 @@ on most Linux systems.
 
 """
 
-import copy
 
 # %%
 # Imports
 # -------
 #
 # Import the Python frameworks we need for this tutorial.
+import copy
 import os
 
 import matplotlib.pyplot as plt
