@@ -52,13 +52,15 @@ jobs:
           key: general-env-${{ runner.os }}-python-${{ matrix.python }}-${{ hashFiles('requirements/**') }}
       - name: Install Dependencies and lightly
         run: pip install -e '.[all]'
+      - name: Clean Previous Coverage Data
+        run: rm -f .coverage
       - name: Run Pytest
         run: |
           export LIGHTLY_SERVER_LOCATION="localhost:-1"
-          pip install pytest-cov
+          pip install pytest-cov==4.1.0
           python -m pytest -s -v --runslow --cov=./lightly --cov-report=xml --ignore=./lightly/openapi_generated/
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           fail_ci_if_error: false
           files: ./coverage.xml
