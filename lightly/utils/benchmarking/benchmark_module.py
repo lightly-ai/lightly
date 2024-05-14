@@ -113,13 +113,6 @@ class BenchmarkModule(LightningModule):
                 target = target.to(self.device)
                 feature = self.backbone(img).squeeze()
                 feature = F.normalize(feature, dim=1)
-                if (
-                    dist.is_available()
-                    and dist.is_initialized()
-                    and dist.get_world_size() > 0
-                ):
-                    feature = torch.cat(lightly_gather(feature), dim=0)
-                    target = torch.cat(lightly_gather(target), dim=0)
                 train_features.append(feature)
                 train_targets.append(target)
         self._train_features = torch.cat(train_features, dim=0).t().contiguous()
@@ -160,9 +153,6 @@ class BenchmarkModule(LightningModule):
             if acc > self.max_accuracy:
                 self.max_accuracy = float(acc.item())
             self.log("kNN_accuracy", acc * 100.0, prog_bar=True)
-            print(
-                f"This method should not be called - accuracy at rank {dist.get_rank()} is {self.max_accuracy}"
-            )
 
         self._val_predicted_labels.clear()
         self._val_targets.clear()

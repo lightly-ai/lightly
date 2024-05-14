@@ -136,7 +136,7 @@ class TestGatherLayer_Losses:
         expected_params__10_epochs__no_gather: Tensor,
         learning_rate: float,
     ) -> None:
-        n_devices = 1
+        n_devices = 2
         n_samples = 8
         batch_size = int(n_samples / n_devices)
         gather = n_devices > 1

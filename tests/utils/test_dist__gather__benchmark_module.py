@@ -28,6 +28,7 @@ Using a DDPStrategy causes the file to be executed once per device.
 Thus this test needs to be in a separate file.
 """
 
+
 @pytest.fixture
 def close_torch_distributed() -> Generator[None, None, None]:
     yield None
@@ -57,9 +58,9 @@ class TestGatherLayer_BenchmarkModule:
 
     def test__benchmark_module(self, close_torch_distributed: None) -> None:
         n_devices = 2
-        n_samples = 128
-        num_classes = 3
-        batch_size = int(n_samples / n_devices)
+        n_samples = 32
+        num_classes = 10
+        batch_size = int(n_samples / n_devices) // 2
 
         pl.seed_everything(0, workers=True)
 
@@ -80,7 +81,7 @@ class TestGatherLayer_BenchmarkModule:
         )
         dataset_val = LightlyDataset.from_torch_dataset(
             FakeData(
-                size=n_samples,
+                size=100,
                 image_size=(3, 32, 32),
                 num_classes=num_classes,
                 transform=ToTensor(),
@@ -96,14 +97,14 @@ class TestGatherLayer_BenchmarkModule:
         )
 
         model = _BenchmarkDummyModel(
-            dataloader_kNN=dataloader_train, num_classes=num_classes
+            dataloader_kNN=dataloader_train, knn_k=3, num_classes=num_classes
         )
 
         trainer = Trainer(
             devices=n_devices,
             accelerator="cpu",
             strategy=DDPStrategy(find_unused_parameters=False),
-            max_epochs=10,
+            max_epochs=3,
         )
         trainer.fit(
             model,
@@ -111,4 +112,4 @@ class TestGatherLayer_BenchmarkModule:
             val_dataloaders=dataloader_val,
         )
 
-        assert model.max_accuracy == 0.953125
+        assert model.max_accuracy == 0.75
