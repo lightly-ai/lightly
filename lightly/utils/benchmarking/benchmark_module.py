@@ -142,10 +142,6 @@ class BenchmarkModule(LightningModule):
                 self.knn_t,
             )
 
-            print(f"_train_features: {self._train_features}")
-            print(f"_train_targets: {self._train_targets}")
-            print(f"predicted_labels: {predicted_labels}")
-            print(f"targets: {targets}")
             if dist.is_initialized() and dist.get_world_size() > 1:
                 # gather predictions and targets from all processes
 
