@@ -119,7 +119,7 @@ class BenchmarkModule(LightningModule):
         self._train_targets = torch.cat(train_targets, dim=0).t().contiguous()
 
     def validation_step(
-        self, batch: Tuple[List[torch.Tensor], Tensor, List[str]], batch_idx: int
+        self, batch: Tuple[List[Tensor], Tensor, List[str]], batch_idx: int
     ) -> None:
         # we can only do kNN predictions once we have a feature bank
         if self._train_features is not None and self._train_targets is not None:
