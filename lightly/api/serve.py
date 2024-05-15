@@ -3,6 +3,8 @@ from pathlib import Path
 from typing import Sequence
 from urllib import parse
 
+from lightly.data import _helpers
+
 
 def get_server(
     paths: Sequence[Path],
@@ -48,6 +50,46 @@ def get_server(
             self.send_header("Expires", "0")
 
     return HTTPServer((host, port), _LocalDatasourceRequestHandler)
+
+
+def validate_input_mount(input_mount: Path) -> None:
+    """Validates that the input mount is a directory and contains files."""
+    input_mount = input_mount.resolve()
+    if not input_mount.exists():
+        raise ValueError(
+            f"Path for 'input_mount' argument '{input_mount}' does not exist."
+        )
+    if not input_mount.is_dir():
+        raise ValueError(
+            f"Path for 'input_mount' argument '{input_mount}' is not a directory."
+        )
+    if not _dir_contains_image_or_video(path=input_mount):
+        raise ValueError(
+            f"Path for 'input_mount' argument '{input_mount}' does not contain any "
+            "images or videos. Please verify that this is the correct directory. See "
+            "our docs on lightly-serve for more information: "
+            "https://docs.lightly.ai/docs/local-storage#optional-after-run-view-local-data-in-lightly-platform"
+        )
+
+
+def validate_lightly_mount(lightly_mount: Path) -> None:
+    lightly_mount = lightly_mount.resolve()
+    """Validates that the Lightly mount is a directory."""
+    if not lightly_mount.exists():
+        raise ValueError(
+            f"Path for 'lightly_mount' argument '{lightly_mount}' does not exist."
+        )
+    if not lightly_mount.is_dir():
+        raise ValueError(
+            f"Path for 'lightly_mount' argument '{lightly_mount}' is not a directory."
+        )
+
+
+def _dir_contains_image_or_video(path: Path) -> bool:
+    extensions = set(_helpers.IMG_EXTENSIONS + _helpers.VIDEO_EXTENSIONS)
+    return any(
+        p for p in path.rglob("**/*") if p.is_file() and p.suffix.lower() in extensions
+    )
 
 
 def _translate_path(path: str, directories: Sequence[Path]) -> str:
