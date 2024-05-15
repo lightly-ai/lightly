@@ -1,4 +1,4 @@
-from typing import Any, Generator, Tuple
+from typing import Any, Generator, Tuple, Type
 
 import pytest
 import pytorch_lightning as pl
@@ -147,9 +147,10 @@ class TestGatherLayer_Losses:
         ys = torch.arange(n_samples * 2 * 2).reshape(n_samples, 2, 2).float()
         dataset = TensorDataset(xs, ys)
 
+        # type ignore because 'Unexpected keyword argument "gather_distributed" for "Module"'
         model = Model(
             gather=gather,
-            criterion=loss(gather_distributed=gather),
+            criterion=loss(gather_distributed=gather),  # type: ignore[call-arg]
             learning_rate=learning_rate,
         )
 
