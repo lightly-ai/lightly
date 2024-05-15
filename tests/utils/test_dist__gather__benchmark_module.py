@@ -35,7 +35,7 @@ def close_torch_distributed() -> Generator[None, None, None]:
     torch.distributed.destroy_process_group()
 
 
-class TestGatherLayer_BenchmarkModule:
+class TestGatherLayerBenchmarkModule:
     """
     Tests that the gather layer works as expected.
 
@@ -43,7 +43,7 @@ class TestGatherLayer_BenchmarkModule:
     times, running a proper test is difficult. The approach used here:
 
     1. This test was run once with n_devices=1 and gather=False.
-    The resulting knn accuracy of 0.953125 is hardcoded in the assertion
+    The resulting knn accuracy of 0.75 is hardcoded in the assertion
 
     2. This test is now run with n_devices=2 and gather=True. The resulting
     parameters are asserted to be the same ad with n_devices=1 and gather=False.

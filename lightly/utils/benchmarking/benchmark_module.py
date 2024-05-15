@@ -135,7 +135,7 @@ class BenchmarkModule(LightningModule):
                 self.knn_t,
             )
 
-            if dist.is_initialized() and dist.get_world_size() > 1:
+            if dist.is_initialized() and dist.get_world_size() > 0:
                 # gather predictions and targets from all processes
 
                 predicted_labels = torch.cat(lightly_gather(predicted_labels), dim=0)

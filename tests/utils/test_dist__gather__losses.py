@@ -85,7 +85,7 @@ class TestGatherLayer_Losses:
     def test_loss_ntxent(self, close_torch_distributed: None) -> None:
         self._test_ddp(
             NTXentLoss,
-            torch.Tensor(
+            torch.tensor(
                 [
                     [0.1675, 0.2676, 0.3678, 0.4679, 0.5680],
                     [0.5763, 0.6742, 0.7721, 0.8700, 0.9679],
@@ -132,7 +132,7 @@ class TestGatherLayer_Losses:
 
     def _test_ddp(
         self,
-        loss: Module,
+        loss: Type[Module],
         expected_params__10_epochs__no_gather: Tensor,
         learning_rate: float,
     ) -> None:
@@ -153,7 +153,7 @@ class TestGatherLayer_Losses:
             learning_rate=learning_rate,
         )
 
-        dataloader = torch.utils.data.DataLoader(
+        dataloader = DataLoader(
             dataset,
             batch_size=batch_size,
             shuffle=True,

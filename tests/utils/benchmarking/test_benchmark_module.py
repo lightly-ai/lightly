@@ -84,7 +84,7 @@ class _DummyModel(BenchmarkModule):  # type: ignore[misc]
         self.criterion = CrossEntropyLoss()
 
     def training_step(
-        self, batch: Tuple[List[torch.Tensor], Tensor, List[str]], batch_idx: int
+        self, batch: Tuple[List[Tensor], Tensor, List[str]], batch_idx: int
     ) -> Tensor:
         images, targets, _ = batch
         predictions = self.backbone(images)
