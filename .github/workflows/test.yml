@@ -64,7 +64,7 @@ jobs:
         if: matrix.python == '3.10'
         run: |
           export LIGHTLY_SERVER_LOCATION="localhost:-1"
-          pip install pytest-cov==4.1.0
+          pip install pytest-cov==5.0.0
           python -m pytest -s -v --runslow --cov=./lightly --cov-report=xml --ignore=./lightly/openapi_generated/
       - name: Upload coverage to Codecov
         if: matrix.python == '3.10'
