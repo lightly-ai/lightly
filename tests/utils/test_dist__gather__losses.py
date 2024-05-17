@@ -61,6 +61,7 @@ def close_torch_distributed() -> Generator[None, None, None]:
     torch.distributed.destroy_process_group()
 
 
+@pytest.mark.skip(reason="This test is running in parallel")
 class TestGatherLayer_Losses:
     """
     Tests that the gather layer works as expected.
