@@ -1,3 +1,4 @@
+import os
 from typing import Any, Generator, Tuple
 
 import pytest
@@ -35,6 +36,10 @@ def close_torch_distributed() -> Generator[None, None, None]:
     torch.distributed.destroy_process_group()
 
 
+@pytest.mark.skipif(
+    os.getenv("GITHUB_ACTIONS") is not None,
+    reason="This test is running in parallel and breaks codecov",
+)
 class TestGatherLayerBenchmarkModule:
     """
     Tests that the gather layer works as expected.
