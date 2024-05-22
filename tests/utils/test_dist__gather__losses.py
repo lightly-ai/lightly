@@ -63,7 +63,7 @@ def close_torch_distributed() -> Generator[None, None, None]:
 
 
 @pytest.mark.skipif(
-    os.getenv("GITHUB_ACTIONS"),
+    os.getenv("GITHUB_ACTIONS") is not None,
     reason="This test is running in parallel and breaks codecov",
 )
 class TestGatherLayer_Losses:
