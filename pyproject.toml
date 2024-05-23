@@ -7,3 +7,6 @@ extend-exclude = "lightly/openapi_generated/.*"
 [tool.isort]
 profile = "black"
 extend_skip = "lightly/openapi_generated"
+
+[tool.coverage.run]
+omit = ["lightly/openapi_generated/*"]
