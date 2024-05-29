@@ -1,4 +1,4 @@
-from http.server import HTTPServer, SimpleHTTPRequestHandler
+from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
 from typing import Sequence
 from urllib import parse
@@ -35,7 +35,7 @@ def get_server(
     class _LocalDatasourceRequestHandler(SimpleHTTPRequestHandler):
         def translate_path(self, path: str) -> str:
             return _translate_path(path=path, directories=paths)
-
+        
         def do_OPTIONS(self) -> None:
             self.send_response(204)
             self.send_header("Access-Control-Allow-Origin", "*")
@@ -49,7 +49,7 @@ def get_server(
             )
             self.send_header("Expires", "0")
 
-    return HTTPServer((host, port), _LocalDatasourceRequestHandler)
+    return ThreadingHTTPServer((host, port), _LocalDatasourceRequestHandler)
 
 
 def validate_input_mount(input_mount: Path) -> None:

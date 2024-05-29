@@ -61,7 +61,11 @@ def lightly_serve(cfg):
     print(
         f"Please follow our docs if you are facing any issues: https://docs.lightly.ai/docs/local-storage#optional-after-run-view-local-data-in-lightly-platform"
     )
-    httpd.serve_forever()
+    try:
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        pass
+    httpd.server_close()
 
 
 def entry() -> None:
