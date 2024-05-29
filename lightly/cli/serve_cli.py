@@ -63,9 +63,8 @@ def lightly_serve(cfg):
     )
     try:
         httpd.serve_forever()
-    except KeyboardInterrupt:
-        pass
-    httpd.server_close()
+    finally:
+        httpd.server_close()
 
 
 def entry() -> None:
