@@ -1,4 +1,4 @@
-from http.server import HTTPServer, SimpleHTTPRequestHandler
+from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Sequence
 from urllib import parse
@@ -49,7 +49,7 @@ def get_server(
             )
             self.send_header("Expires", "0")
 
-    return HTTPServer((host, port), _LocalDatasourceRequestHandler)
+    return ThreadingHTTPServer((host, port), _LocalDatasourceRequestHandler)
 
 
 def validate_input_mount(input_mount: Path) -> None:
