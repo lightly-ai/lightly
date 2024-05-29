@@ -199,6 +199,16 @@ class TestModelUtils(unittest.TestCase):
                     img_patch = img_patches[i * width_patches + j]
                     self._assert_tensor_equal(img_patch, expected_patch)
 
+    def test_unpatchify(self, seed=0):
+        torch.manual_seed(seed)
+        batch_size, channels, height, width = (2, 3, 8, 8)
+        patch_size = 4
+        images = torch.rand(batch_size, channels, height, width)
+        batch_patches = utils.patchify(images, patch_size)
+        unpatched_images = utils.unpatchify(batch_patches, patch_size)
+
+        self._assert_tensor_equal(images, unpatched_images)
+
     def _test_random_token_mask(
         self, seed=0, mask_ratio=0.6, mask_class_token=False, device="cpu"
     ):

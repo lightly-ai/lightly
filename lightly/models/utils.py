@@ -434,6 +434,33 @@ def patchify(images: torch.Tensor, patch_size: int) -> torch.Tensor:
     return patches
 
 
+def unpatchify(
+    patches: torch.Tensor, patch_size: int, channels: int = 3
+) -> torch.Tensor:
+    """
+    Reconstructs images from their patches.
+
+     Args:
+         patches:
+             Patches tensor with shape (batch_size, num_patches, channels * patch_size ** 2).
+         patch_size:
+             The patch size in pixels used to create the patches.
+         channels:
+             The number of channels the image must have
+
+     Returns:
+         Reconstructed images tensor with shape (batch_size, channels, height, width).
+    """
+    N, C = patches.shape[0], channels
+    patch_h = patch_w = int(patches.shape[1] ** 0.5)
+    assert patch_h * patch_w == patches.shape[1]
+
+    images = patches.reshape(shape=(N, patch_h, patch_w, patch_size, patch_size, C))
+    images = torch.einsum("nhwpqc->nchpwq", images)
+    images = images.reshape(shape=(N, C, patch_h * patch_size, patch_h * patch_size))
+    return images
+
+
 def random_token_mask(
     size: Tuple[int, int],
     mask_ratio: float = 0.6,
