@@ -1,4 +1,5 @@
 import sys
+import ssl
 from pathlib import Path
 
 import hydra
@@ -22,6 +23,10 @@ def lightly_serve(cfg):
             Hostname for serving the data (defaults to localhost).
         port:
             Port for serving the data (defaults to 3456).
+        ssl_key:
+            Optional path to the ssl key file.
+        ssl_cert:
+            Optional path to the ssl cert file.
 
     Examples:
         >>> lightly-serve input_mount=data/ lightly_mount=lightly/ port=3456
@@ -52,6 +57,15 @@ def lightly_serve(cfg):
         host=cfg.host,
         port=cfg.port,
     )
+
+    # setup ssl if key and cert are provided
+    if cfg.ssl_key and cfg.ssl_cert:
+        httpd.socket = ssl.wrap_socket(httpd.socket, 
+            keyfile=cfg.ssl_key, 
+            certfile=cfg.ssl_cert,
+            server_side=True
+        )
+
     print(
         f"Starting server, listening at '{bcolors.OKBLUE}{httpd.server_name}:{httpd.server_port}{bcolors.ENDC}'"
     )
