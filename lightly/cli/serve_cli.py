@@ -20,7 +20,7 @@ def lightly_serve(cfg):
         lightly_mount:
             Path to the Lightly directory.
         host:
-            Hostname for serving the data (defaults to localhost).
+            Hostname for serving the data (defaults to localhost). If you want to expose this to the world, use '0.0.0.0'.
         port:
             Port for serving the data (defaults to 3456).
         ssl_key:
@@ -58,11 +58,12 @@ def lightly_serve(cfg):
         port=cfg.port,
     )
 
-    # setup ssl if key and cert are provided
-    if cfg.ssl_key and cfg.ssl_cert:
-        httpd.socket = ssl.wrap_socket(httpd.socket, 
-            keyfile=cfg.ssl_key, 
-            certfile=cfg.ssl_cert,
+    # setup https/ssl if key or cert are provided
+    if cfg.ssl_key or cfg.ssl_cert:
+        httpd.socket = ssl.wrap_socket(
+            httpd.socket, 
+            keyfile= Path(cfg.ssl_key) if cfg.ssl_key else None, 
+            certfile= Path(cfg.ssl_cert) if cfg.ssl_cert else None,
             server_side=True
         )
 

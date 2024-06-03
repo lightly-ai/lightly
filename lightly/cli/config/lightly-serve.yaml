@@ -2,8 +2,8 @@ input_mount: ''     # Path to the input directory.
 lightly_mount: ''   # Path to the lightly directory.
 host: 'localhost'   # Hostname for serving the data.
 port: 3456          # Port for serving the data.
-ssl_cert: ''
-ssl_key: ''
+ssl_cert: ''        # Path to the SSL certificate.
+ssl_key: ''         # Path to the SSL key.
 
 # Disable Hydra log directories.
 defaults:  
