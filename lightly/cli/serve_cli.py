@@ -1,5 +1,5 @@
-import sys
 import ssl
+import sys
 from pathlib import Path
 
 import hydra
@@ -61,10 +61,10 @@ def lightly_serve(cfg):
     # setup https/ssl if key or cert are provided
     if cfg.ssl_key or cfg.ssl_cert:
         httpd.socket = ssl.wrap_socket(
-            httpd.socket, 
-            keyfile= Path(cfg.ssl_key) if cfg.ssl_key else None, 
-            certfile= Path(cfg.ssl_cert) if cfg.ssl_cert else None,
-            server_side=True
+            httpd.socket,
+            keyfile=Path(cfg.ssl_key) if cfg.ssl_key else None,
+            certfile=Path(cfg.ssl_cert) if cfg.ssl_cert else None,
+            server_side=True,
         )
 
     print(
