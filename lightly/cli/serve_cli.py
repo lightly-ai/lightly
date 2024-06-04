@@ -20,7 +20,7 @@ def lightly_serve(cfg):
         lightly_mount:
             Path to the Lightly directory.
         host:
-            Hostname for serving the data (defaults to localhost). If you want to expose this to the world, use '0.0.0.0'.
+            Hostname for serving the data (defaults to localhost). If you want to expose it to the internet or your local network, use '0.0.0.0'.
         port:
             Port for serving the data (defaults to 3456).
         ssl_key:
