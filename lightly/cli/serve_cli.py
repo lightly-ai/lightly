@@ -21,6 +21,7 @@ def lightly_serve(cfg):
             Path to the Lightly directory.
         host:
             Hostname for serving the data (defaults to localhost). If you want to expose it to the internet or your local network, use '0.0.0.0'.
+            See our docs on lightly-serve for more information: https://docs.lightly.ai/docs/local-storage#view-the-local-data-securely-over-the-networkvpn
         port:
             Port for serving the data (defaults to 3456).
         ssl_key:
