@@ -1,3 +1,4 @@
+import ssl
 import sys
 from pathlib import Path
 
@@ -19,9 +20,14 @@ def lightly_serve(cfg):
         lightly_mount:
             Path to the Lightly directory.
         host:
-            Hostname for serving the data (defaults to localhost).
+            Hostname for serving the data (defaults to localhost). If you want to expose it to the internet or your local network, use '0.0.0.0'.
+            See our docs on lightly-serve for more information: https://docs.lightly.ai/docs/local-storage#view-the-local-data-securely-over-the-networkvpn
         port:
             Port for serving the data (defaults to 3456).
+        ssl_key:
+            Optional path to the ssl key file.
+        ssl_cert:
+            Optional path to the ssl cert file.
 
     Examples:
         >>> lightly-serve input_mount=data/ lightly_mount=lightly/ port=3456
@@ -52,6 +58,16 @@ def lightly_serve(cfg):
         host=cfg.host,
         port=cfg.port,
     )
+
+    # setup https/ssl if key or cert are provided
+    if cfg.ssl_key or cfg.ssl_cert:
+        httpd.socket = ssl.wrap_socket(
+            httpd.socket,
+            keyfile=Path(cfg.ssl_key) if cfg.ssl_key else None,
+            certfile=Path(cfg.ssl_cert) if cfg.ssl_cert else None,
+            server_side=True,
+        )
+
     print(
         f"Starting server, listening at '{bcolors.OKBLUE}{httpd.server_name}:{httpd.server_port}{bcolors.ENDC}'"
     )
@@ -61,7 +77,10 @@ def lightly_serve(cfg):
     print(
         f"Please follow our docs if you are facing any issues: https://docs.lightly.ai/docs/local-storage#optional-after-run-view-local-data-in-lightly-platform"
     )
-    httpd.serve_forever()
+    try:
+        httpd.serve_forever()
+    finally:
+        httpd.server_close()
 
 
 def entry() -> None:
