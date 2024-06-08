@@ -8,6 +8,10 @@ transforms.
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
+import importlib
+import logging
+import sys
+
 from lightly.transforms.aim_transform import AIMTransform
 from lightly.transforms.byol_transform import (
     BYOLTransform,
@@ -36,3 +40,12 @@ from lightly.transforms.swav_transform import SwaVTransform, SwaVViewTransform
 from lightly.transforms.vicreg_transform import VICRegTransform, VICRegViewTransform
 from lightly.transforms.vicregl_transform import VICRegLTransform, VICRegLViewTransform
 from lightly.transforms.wmse_transform import WMSETransform
+
+logger = logging.getLogger(__name__)
+
+if importlib.util.find_spec("torchvision.transforms.v2") is not None:
+    importlib.import_module("torchvision.transforms.v2")
+    sys.modules["torchvision.transforms"] = sys.modules.pop("torchvision.transforms.v2")
+    logger.info(
+        "Lightly overrides 'torchvision.transforms' with 'torchvision.transforms.v2'."
+    )
