@@ -205,19 +205,19 @@ exclude = '''(?x)(
 # Ignore imports from untyped modules.
 [[tool.mypy.overrides]]
 module = [
-    "mypy-lightly.api.*",
-    "mypy-lightly.cli.*",
-    "mypy-lightly.data.*",
-    "mypy-lightly.loss.*",
-    "mypy-lightly.models.*",
-    "mypy-lightly.utils.benchmarking.*",
-    "mypy-tests.api_workflow.*"
+    "lightly.api.*",
+    "lightly.cli.*",
+    "lightly.data.*",
+    "lightly.loss.*",
+    "lightly.models.*",
+    "lightly.utils.benchmarking.*",
+    "tests.api_workflow.*",
 ]
 follow_imports = "skip"
 
 # Ignore errors in auto generated code.
 [[tool.mypy.overrides]]
 module = [
-    "mypy-lightly.openapi_generated.*"
+    "lightly.openapi_generated.*",
 ]
 ignore_errors = true
