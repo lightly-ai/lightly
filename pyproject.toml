@@ -156,6 +156,12 @@ include = ["lightly*"]
 readme = {file = ["README.md"], content-type = "text/markdown"}
 version = {attr = "lightly.__version__"}
 
+[tool.setuptools.package-data]
+lightly = ["lightly/cli/config/*.yaml"]
+
+[tool.setuptools.exclude-package-data]
+lightly = ["tests/"]
+
 [tool.black]
 extend-exclude = "lightly/openapi_generated/.*"
 
