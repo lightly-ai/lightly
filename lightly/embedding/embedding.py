@@ -79,7 +79,7 @@ class SelfSupervisedEmbedding(BaseEmbedding):
         self,
         dataloader: DataLoader[LightlyDataset],
         device: Optional[torch.device] = None,
-    ) -> Tuple[NDArray[np.float_], List[int], List[str]]:
+    ) -> Tuple[NDArray[np.float64], List[int], List[str]]:
         """Embeds images in a vector space.
 
         Args:
@@ -114,7 +114,7 @@ class SelfSupervisedEmbedding(BaseEmbedding):
         pbar = tqdm(total=len(dataset), unit="imgs")
 
         efficiency = 0.0
-        embeddings: List[NDArray[np.float_]] = []
+        embeddings: List[NDArray[np.float64]] = []
         labels: List[int] = []
         with torch.no_grad():
             start_timepoint = time.time()
