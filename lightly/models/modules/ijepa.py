@@ -54,7 +54,7 @@ class IJEPAPredictor(vision_transformer.Encoder):
         dropout: float,
         attention_dropout: float,
         norm_layer: Callable[..., torch.nn.Module] = partial(nn.LayerNorm, eps=1e-6),
-        **kwargs
+        **kwargs,
     ):
         super().__init__(
             seq_length=seq_length,

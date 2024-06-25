@@ -74,8 +74,8 @@ static-checks: format-check type-check
 all-checks: static-checks test
 
 ## build source and wheel package
-dist: clean 
-	python setup.py sdist bdist_wheel
+dist: clean
+	python -m build
 	ls -l dist
 
 ## install the package to active site
