@@ -1,0 +1,5 @@
+# exclude benchmarks, docs, examples, and tests
+prune docs
+prune benchmarks
+prune examples
+prune tests
