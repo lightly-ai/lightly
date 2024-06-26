@@ -159,14 +159,6 @@ version = {attr = "lightly.__version__"}
 [tool.setuptools.package-data]
 lightly = ["lightly/cli/config/*.yaml"]
 
-[tool.setuptools.exclude-package-data]
-lightly = [
-  "benchmarks/",
-  "docs/",
-  "examples/",
-  "tests/"
-]
-
 [tool.black]
 extend-exclude = "lightly/openapi_generated/.*"
 
