@@ -45,7 +45,7 @@ jobs:
             pyproject.toml
       - name: Install Minimal Dependencies
         run: |
-          sudo apt-get install ffmpeg-dev
+          sudo apt-get install libavformat-dev libavdevice-dev
           pip install -e ."[minimal]"
       - name: Install Package Without Dependencies
         run: pip install --no-deps .
