@@ -44,7 +44,9 @@ jobs:
           cache-dependency-path: |
             pyproject.toml
       - name: Install Minimal Dependencies
-        run: pip install -e ."[minimal]"
+        run: |
+          apt-get install ffmpeg-dev
+          pip install -e ."[minimal]"
       - name: Install Package Without Dependencies
         run: pip install --no-deps .
       - name: Run Tests
