@@ -216,6 +216,34 @@ class LightlyDataset:
         dataset_obj.dataset = dataset
         return dataset_obj
 
+    @classmethod
+    def from_hf_dataset(cls, dataset, transform=None, key: str):
+        """Builds a LightlyDataset from a HuggingFace dataset.
+
+        Args:
+            dataset:
+                HuggingFace dataset
+            transform:
+                Image transforms (as in torchvision).
+            key:
+                The key containing images in the dataset.
+
+        Returns:
+            A LightlyDataset object.
+
+        """ 
+        def apply_transform(batch, transform=tranform, key=key):
+            assert key in batch.keys(), f"the provided key, {key} does not exist in the dataset"
+
+            batch[key] = [transform(image) for image in batch[key]]
+
+            return batch
+
+        dataset.set_transform(apply_transform)
+
+        # TODO: Return a LightlyDataset object
+        return dataset
+
     def __getitem__(self, index: int):
         """Returns (sample, target, fname) of item at index.
 
