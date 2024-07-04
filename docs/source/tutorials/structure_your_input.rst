@@ -125,18 +125,41 @@ The dataset assigns each video frame its video as label.
 PyTorch Datasets
 ----------------
 
-The Lightly SSL package has helper functions that allow us to use any dataset from PyTorch or torchvision directly within the ecosystem. For example,
-to use the CIFAR10 dataset from torchvision we can simply use the
-`from_torch_dataset() <https://docs.lightly.ai/self-supervised-learning/lightly.data.html#lightly.data.dataset.LightlyDataset.from_torch_dataset>`_
-helper method of the `LightlyDataset <https://docs.lightly.ai/self-supervised-learning/lightly.data.html#lightly.data.dataset.LightlyDataset>`_ class.
+You can also use native `torchvision <https://pytorch.org/vision/main/datasets.html>`_ datasets with Lightly SSL directly.
+Just create a dataset as you normally would and apply transforms for greater control over the dataloader. For example, BYOL
+(Bootstrap your own element) expects two views of an input image. To achieve this, we can use the `BYOLTransform`
+while creating the dataset instance, which will lead to the dataloader returning two views per batch, viz.
 
 .. code-block:: python
 
    import torchvision
-   from lightly.data import LightlyDataset
+   from lightly.transforms.byol_transform import (
+       BYOLTransform,
+       BYOLView1Transform,
+       BYOLView2Transform,
+   )
 
-   base = torchvision.datasets.CIFAR10(root = "./data", download = True)
-   torch_dataset = LightlyDataset.from_torch_dataset(base)
+   transform = BYOLTransform(
+       view_1_transform=BYOLView1Transform(input_size=32, gaussian_blur=0.0),
+       view_2_transform=BYOLView2Transform(input_size=32, gaussian_blur=0.0),
+   )
+   dataset = torchvision.datasets.CIFAR10(
+       "datasets/cifar10", download=True, transform=transform
+   )
+
+   dataloader = torch.utils.data.DataLoader(
+       dataset,
+       batch_size=256,
+       shuffle=True,
+       drop_last=True,
+       num_workers=8,
+   )
+
+   # ...
+   for batch in dataloader:
+       x0, x1 = batch[0]
+       # ...
+
 
 HuggingFace Datasets
 --------------------
