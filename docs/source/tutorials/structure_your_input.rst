@@ -4,13 +4,12 @@ Tutorial 1: Structure Your Input
 ================================
 
 The modern-day open-source ecosystem has changed a lot over the years, and there are now
-many viable options for data pipelining. For experimentation purposes,
-the `torchvision.data <https://pytorch.org/vision/main/datasets.html>`_ submodule provides a robust implementation for most use cases,
+many viable options for data pipelining. The `torchvision.data <https://pytorch.org/vision/main/datasets.html>`_ submodule provides a robust implementation for most use cases,
 and the `HuggingFace Hub <https://hf.co>`_ has emerged as a growing collection of datasets that span a variety of domains and tasks.
-When you have your own data in memory, the ability to quickly create datasets and dataloaders is of prime importance.
+It you want to use your own data, the ability to quickly create datasets and dataloaders is of prime importance.
 
-In this blog post, we will provide a brief overview of `LightlyDataset <https://docs.lightly.ai/self-supervised-learning/lightly.data.html#lightly.data.dataset.LightlyDataset>`_
-and go throught examples of using datasets from various open-source libraries such as PyTorch and
+In this blog post, we will provide a brief overview of the `LightlyDataset <https://docs.lightly.ai/self-supervised-learning/lightly.data.html#lightly.data.dataset.LightlyDataset>`_
+and go through examples of using datasets from various open-source libraries such as PyTorch and
 Huggingface with the Lightly SSL open-source package. We will also look into how we can create dataloaders
 for video tasks while incorporating weak labels.
 
@@ -25,8 +24,7 @@ Supported File Types
 ^^^^^^^^^^^^^^^^^^^^
 
 Since Lightly SSL uses `Pillow <https://github.com/python-pillow/Pillow>`_
-for image loading, it also supports all the image formats supported by
-`Pillow <https://github.com/python-pillow/Pillow>`_.
+for image loading, it supports all the image formats supported by Pillow.
 
 - .jpg, .png, .tiff and 
   `many more <https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html>`_
@@ -37,10 +35,10 @@ To load videos directly, Lightly SSL uses
 
 - .mov, .mp4 and .avi
 
-Unlabelled Image Datasets
+Unlabeled Image Datasets
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Creating an Unlabelled Image Dataset is the simplest and the most common use case.
+Creating an Unlabeled Image Dataset is the simplest and the most common use case.
 
 Assuming all images are in a single directory, you can simply pass in the path to the directory containing all the images, viz.
 
@@ -59,7 +57,7 @@ Labeled Image Datasets
 
 If you have (weak) labels for your images and if each label has its directory,
 then you can simply pass in the path to the parent directory,
-and the dataset class will assign the labels automatically, viz.
+and the dataset class will assign each image its subdirectory as label., viz.
 
 .. code-block:: bash
 
@@ -94,8 +92,8 @@ Video Datasets
 ^^^^^^^^^^^^^^
 
 The Lightly SSL package also has native support for videos (`.mov`, `.mp4`, and `.avi` file extensions are supported),
-without having to exctract the frames first. This can save a lot of disk space as video files are
-typically strongly compressed. Like the aforementioned cases if your videos are in a flat directory or with labels in subdirectories,
+without having to extract the frames first. This can save a lot of disk space as video files are
+typically strongly compressed. No matter if your videos are in one flat directory or distributed across subdirectories,
 you can simply pass the path into the LightlyDataset constructor.
 
 An example for an input directory with videos could look like this:
@@ -115,12 +113,12 @@ An example for an input directory with videos could look like this:
 
    video_dataset = LightlyDataset(input_dir='video_dir/')
 
-We assign a weak label to each video.
+The dataset assigns each video frame its video as label.
 
 .. note::
 
-   To use video-specific features of Lightly SSL download the necessary extra dependencies `pip install lightly"[video]"`. Also,
-   Randomly accessing video frames is slower compared to accessing the extracted frames on disk. However,
+   To use video-specific features of Lightly SSL download the necessary extra dependencies `pip install lightly"[video]"`. Furthermore,
+   randomly accessing video frames is slower compared to accessing the extracted frames on disk. However,
    by working directly on video files, one can save a lot of disk space because the frames do not have to
    be extracted beforehand.
 
@@ -151,6 +149,7 @@ helper method and then create a native PyTorch dataloader.
 .. code-block:: python
 
     import torch
+    from typing import Any
     from datasets import load_dataset
     from lightly.transforms import SimCLRTransform
 
@@ -159,36 +158,24 @@ helper method and then create a native PyTorch dataloader.
     ## Use pre-defined set of transformations from Lightly SSL
     transform = SimCLRTransform()
 
-    def apply_transform(example_batch, transform=transform):
+    def apply_transform(batch: dict[str, Any], transform=transform)-> Dict[str, Any]:
         """
-        Apply the given transform across a batch. To be used in a 'map' like manner
-
-        Args:
-          example_batch (Dict): a batch of data, should contain the key 'image'
-          tranform (Callable): image transformations to be performed
-
-        Returns:
-          updated batch with transformations applied to the image
+        Applies the given transform on all elements of batch["image"].
         """
-
-        assert "image" in example_batch.keys(), "batch should be of type Dict[str, Any] with a key 'image'"
-
-        example_batch["image"] = [
-            transform(image.convert("RGB")) for image in example_batch["image"]
-        ]
-        return example_batch
+        assert "image" in example_batch, "batch must contain key 'image'"
+        batch["image"] = [transform(img.convert("RGB")) for img in batch["image"]]
+        return batch
 
     base.set_transform(apply_transform)
-
     hf_dataloader = torch.utils.data.DataLoader(base["train"])
 
 Image Augmentations
 -------------------
 
 Many SSL methods leverage image augmentations to better learn invariances in the training process. For example,
-by using different crops of a given images and positive view, the SSL model will be trained to produce a representation
-that is invariant to these different crops. When using a grayscale operation, or a colorjitter one as positive views,
-the representation will have to be invariant to the color information [1]_.
+by using different crops of a given image, the SSL model will be trained to produce a representation
+that is invariant to these different crops. When using a operation such as grayscale or colorjitter as augmentation,
+it will produce a representation that is invariant to the color information [1]_.
 
 We can use off the shelf augmentations from libraries like `torchvision transforms <https://pytorch.org/vision/stable/transforms.html>`_
 and `albumentations <https://albumentations.ai/docs/>`_ or the ones offered by Lightly SSL's
