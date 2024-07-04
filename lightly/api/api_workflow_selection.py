@@ -29,7 +29,7 @@ def _parse_active_learning_scores(scores: Union[np.ndarray, List]):
 
 class _SelectionMixin:
     def upload_scores(
-        self, al_scores: Dict[str, NDArray[np.float_]], query_tag_id: str
+        self, al_scores: Dict[str, NDArray[np.float64]], query_tag_id: str
     ) -> None:
         """Uploads active learning scores for a tag.
 

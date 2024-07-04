@@ -1,5 +1,163 @@
-# pyproject.toml is currently only used to configure developement tools.
-# Configurations for the lightly package are in setup.py.
+[build-system]
+requires = [
+    "setuptools>=21",
+    "setuptools-scm"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name="lightly"
+requires-python = ">=3.6"
+authors = [
+    {name = "Lightly Team", email = "team@lightly.ai"},
+]
+license = {file = "LICENSE.txt"}
+description="A deep learning package for self-supervised learning"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Image Processing",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Software Development",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "License :: OSI Approved :: MIT License",
+]
+dependencies = [
+  "certifi>=14.05.14",
+  "hydra-core>=1.0.0",
+  "lightly_utils~=0.0.0",
+  "numpy>=1.18.1, <2",
+  "python_dateutil>=2.5.3",
+  "requests>=2.23.0",
+  "six>=1.10",
+  "tqdm>=4.44",
+  "torch",
+  "torchvision",
+  "pydantic >= 1.10.5, < 2",
+  # Note: pytorch_lightning>=1.5 is required for CLI
+  # https://github.com/lightly-ai/lightly/issues/912
+  "pytorch_lightning>=1.0.4",
+  "urllib3 >= 1.25.3",
+  "aenum >= 3.1.11"
+]
+dynamic = ["version", "readme"]
+
+[project.optional-dependencies]
+all = [
+  "lightly[dev, video]"
+]
+dev = [
+  "tox",
+  "sphinx",
+  "pylint",
+  "pytest",
+  "pytest-forked",
+  "pytest-xdist",
+  "pytest-mock",
+  "responses",
+  "docutils<=0.16",
+  "sphinx-copybutton",
+  "sphinx-design",
+  "sphinx-gallery",
+  "sphinx-tabs",
+  "sphinx-reredirects",
+  "sphinx_rtd_theme",
+  "matplotlib",
+  "pre-commit",
+  "opencv-python",
+  "scikit-learn",
+  "pandas",
+  "torchmetrics",
+  "lightning-bolts", # for LARS optimizer
+  "black==23.1.0", # frozen version to avoid differences between CI and local dev machines
+  "isort==5.11.5", # frozen version to avoid differences between CI and local dev machines
+  "mypy==1.4.1", # frozen version to avoid differences between CI and local dev machines
+  "types-python-dateutil"
+]
+minimal = [
+  "certifi==2017.4.17",
+  "hydra-core==1.0.0",
+  "lightly_utils~=0.0.0",
+  "numpy==1.21.6",
+  "python_dateutil==2.5.3",
+  "requests==2.23.0",
+  "six==1.10",
+  "tqdm==4.57.0",
+  "urllib3==1.25.3",
+  "pydantic==1.10.5",
+  "aenum==3.1.11",
+  "pytorch_lightning==1.7.1",
+  "torch==1.11.0",
+  "torchvision==0.12.0",
+  "pillow==7.1.2",
+  "tox",
+  "sphinx",
+  "pylint",
+  "pytest",
+  "pytest-forked",
+  "pytest-xdist",
+  "pytest-mock",
+  "responses",
+  "docutils<=0.16",
+  "sphinx-copybutton",
+  "sphinx-design",
+  "sphinx-gallery",
+  "sphinx-tabs",
+  "sphinx-reredirects",
+  "sphinx_rtd_theme",
+  "pre-commit",
+  "opencv-python==4.4.0.46",
+  "scikit-learn==0.24.2",
+  "pandas",
+  "matplotlib",
+  "av==8.0.3"
+]
+openapi = [
+  "python_dateutil >= 2.5.3",
+  "setuptools >= 21.0.0",
+  "urllib3 >= 1.25.3",
+  "pydantic >= 1.10.5, < 2",
+  "aenum >= 3.1.11"
+]
+video = ["av>=8.0.3"]
+
+[project.urls]
+"Homepage" = "https://www.lightly.ai"
+"Web-App" = "https://app.lightly.ai"
+"Documentation" = "https://docs.lightly.ai"
+"Github" = "https://github.com/lightly-ai/lightly"
+"Discord" = "https://discord.gg/xvNJW94"
+
+[project.scripts]
+lightly-crop = "lightly.cli.crop_cli:entry"
+lightly-download = "lightly.cli.download_cli:entry"
+lightly-embed = "lightly.cli.embed_cli:entry"
+lightly-magic = "lightly.cli.lightly_cli:entry"
+lightly-serve = "lightly.cli.serve_cli:entry"
+lightly-train = "lightly.cli.train_cli:entry"
+lightly-version = "lightly.cli.version_cli:entry"
+
+[tool.setuptools.packages.find]
+include = ["lightly*"]
+
+[tool.setuptools.dynamic]
+readme = {file = ["README.md"], content-type = "text/markdown"}
+version = {attr = "lightly.__version__"}
+
+[tool.setuptools.package-data]
+lightly = ["lightly/cli/config/*.yaml"]
 
 [tool.black]
 extend-exclude = "lightly/openapi_generated/.*"

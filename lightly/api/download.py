@@ -12,6 +12,7 @@ import requests
 import tqdm
 
 from lightly.api import utils
+from lightly.api.swagger_api_client import DEFAULT_API_TIMEOUT
 
 try:
     import av
@@ -533,7 +534,7 @@ def download_json_file(
     """
     request_kwargs = request_kwargs or {}
     request_kwargs.setdefault("stream", True)
-    request_kwargs.setdefault("timeout", 10)
+    request_kwargs.setdefault("timeout", DEFAULT_API_TIMEOUT)
     req = requests if session is None else session
 
     response = req.get(url, **request_kwargs)
