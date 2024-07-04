@@ -84,7 +84,7 @@ class BaseEmbedding(LightningModule):
         trainer_config: DictConfig,
         checkpoint_callback_config: DictConfig,
         summary_callback_config: DictConfig,
-    ) -> None:
+    ) -> Trainer:
         """Train the model on the provided dataset.
 
         Args:
@@ -98,7 +98,7 @@ class BaseEmbedding(LightningModule):
             summary_callback_config: ModelSummary callback arguments
 
         Returns:
-            A trained encoder, ready for embedding datasets.
+            The PyTorch Lightning Trainer object used for training.
 
         """
         trainer_callbacks: List[Callback] = []
@@ -127,6 +127,9 @@ class BaseEmbedding(LightningModule):
 
         if checkpoint_cb.best_model_path != "":
             self.checkpoint = os.path.join(self.cwd, checkpoint_cb.best_model_path)
+
+        # Return trainer to check final training state.
+        return trainer
 
     def embed(self, *args: Any, **kwargs: Any) -> Any:
         """Must be implemented by classes which inherit from BaseEmbedding."""
