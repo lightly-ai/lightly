@@ -1,6 +1,7 @@
-from typing import List, Set
-import toml
 from pathlib import Path
+from typing import List, Set
+
+import toml
 
 
 def test_requirements_base__pyproject() -> None:
