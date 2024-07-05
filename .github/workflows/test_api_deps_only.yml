@@ -1,0 +1,49 @@
+
+name: Install API Dependencies Only
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  detect-code-changes:
+    name: Detect Code Changes
+    runs-on: ubuntu-latest
+    outputs:
+      run-tests: ${{ steps.filter.outputs.run-tests }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          list-files: shell
+          filters: |
+            run-tests:
+              - '!docs/**'
+              - '!examples/**'
+              - '!benchmarks/**'
+
+  test:
+    name: Test
+    needs: detect-code-changes
+    if: needs.detect-code-changes.outputs.run-tests == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - name: Install API Dependencies
+        run: |
+          make install-api-only
+      - name: Test API Client
+        run: |
+          # Test if ApiWorkflowClient can be created.
+          export LIGHTLY_SERVER_LOCATION="localhost:-1"
+          python -c "from lightly.api import ApiWorkflowClient; ApiWorkflowClient(token='abc')"
