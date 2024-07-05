@@ -46,4 +46,4 @@ jobs:
         run: |
           # Test if ApiWorkflowClient can be created.
           export LIGHTLY_SERVER_LOCATION="localhost:-1"
-          python -c "from lightly.api import ApiWorkflowClient; ApiWorkflowClient()"
+          python -c "from lightly.api import ApiWorkflowClient; ApiWorkflowClient(token='abc')"
