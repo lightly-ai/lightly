@@ -79,6 +79,7 @@ dev = [
   "opencv-python",
   "scikit-learn",
   "pandas",
+  "toml",
   "torchmetrics",
   "lightning-bolts", # for LARS optimizer
   "black==23.1.0", # frozen version to avoid differences between CI and local dev machines
@@ -122,6 +123,7 @@ minimal = [
   "opencv-python==4.4.0.46",
   "scikit-learn==0.24.2",
   "pandas",
+  "toml",
   "matplotlib",
   "av==8.0.3"
 ]
