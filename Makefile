@@ -82,6 +82,12 @@ dist: clean
 install: clean 
 	pip install .
 
+# Should be same command as in the docs:
+# https://docs.lightly.ai/docs/install-lightly#install-the-lightly-python-client
+install-api-only: clean
+	pip install -r requirements/base.txt
+	pip install . --no-deps
+
 # uninstall package from active site
 uninstall: clean
 	pip uninstall lightly
