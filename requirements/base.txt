@@ -1,0 +1,13 @@
+# Minimal dependencies to use the package with the API client.
+# See requirements/README.md for more information.
+certifi>=14.05.14
+hydra-core>=1.0.0
+lightly_utils~=0.0.0
+numpy>=1.18.1,<2
+python_dateutil>=2.5.3
+requests>=2.23.0
+six>=1.10
+tqdm>=4.44
+urllib3 >= 1.25.3
+pydantic >= 1.10.5, < 2
+aenum >= 3.1.11
