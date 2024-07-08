@@ -210,8 +210,10 @@ and `albumentations <https://albumentations.ai/docs/>`_ or the ones offered by L
 
     ## Lightly Transforms
     lightly_transform = SimCLRTransform()
-
+    
+    # Datasets and transforms can be mixed and matched together:
     dataset = LightlyDataset(input_dir="image_dir/", transform=torchvision_transform)
+    dataset = torchvision.datasets.CIFAR10("datasets/cifar10", transform=lightly_transform)
 
 .. note::
 
