@@ -19,25 +19,17 @@ import re  # noqa: F401
 import json
 
 
-from typing import Optional
-from pydantic import Extra,  BaseModel, Field, constr, validator
+from typing import Union
+from pydantic import Extra,  BaseModel, Field, StrictFloat, StrictInt, StrictStr
 
-class DockerWorkerConfigV3DockerTraining(BaseModel):
+class SelectedAndRemovedImagePair(BaseModel):
     """
-    DockerWorkerConfigV3DockerTraining
+    SelectedAndRemovedImagePair
     """
-    task_name: Optional[constr(strict=True)] = Field(None, alias="taskName", description="Since we sometimes stitch together SelectionInputTask+ActiveLearningScoreType, they need to follow the same specs of ActiveLearningScoreType. However, this can be an empty string due to internal logic (no minLength). Also v2config.filespecs.ts has this pattern for predictionTaskJSONSchema as well. ")
-    __properties = ["taskName"]
-
-    @validator('task_name')
-    def task_name_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if value is None:
-            return value
-
-        if not re.match(r"^[a-zA-Z0-9_+=,.@:\/-]*$", value):
-            raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9_+=,.@:\/-]*$/")
-        return value
+    selected_image: StrictStr = Field(..., alias="selectedImage")
+    removed_image: StrictStr = Field(..., alias="removedImage")
+    distance: Union[StrictFloat, StrictInt] = Field(...)
+    __properties = ["selectedImage", "removedImage", "distance"]
 
     class Config:
         """Pydantic configuration"""
@@ -55,8 +47,8 @@ class DockerWorkerConfigV3DockerTraining(BaseModel):
         return json.dumps(self.to_dict(by_alias=by_alias))
 
     @classmethod
-    def from_json(cls, json_str: str) -> DockerWorkerConfigV3DockerTraining:
-        """Create an instance of DockerWorkerConfigV3DockerTraining from a JSON string"""
+    def from_json(cls, json_str: str) -> SelectedAndRemovedImagePair:
+        """Create an instance of SelectedAndRemovedImagePair from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self, by_alias: bool = False):
@@ -68,21 +60,23 @@ class DockerWorkerConfigV3DockerTraining(BaseModel):
         return _dict
 
     @classmethod
-    def from_dict(cls, obj: dict) -> DockerWorkerConfigV3DockerTraining:
-        """Create an instance of DockerWorkerConfigV3DockerTraining from a dict"""
+    def from_dict(cls, obj: dict) -> SelectedAndRemovedImagePair:
+        """Create an instance of SelectedAndRemovedImagePair from a dict"""
         if obj is None:
             return None
 
         if not isinstance(obj, dict):
-            return DockerWorkerConfigV3DockerTraining.parse_obj(obj)
+            return SelectedAndRemovedImagePair.parse_obj(obj)
 
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in DockerWorkerConfigV3DockerTraining) in the input: " + str(obj))
+                raise ValueError("Error due to additional fields (not defined in SelectedAndRemovedImagePair) in the input: " + str(obj))
 
-        _obj = DockerWorkerConfigV3DockerTraining.parse_obj({
-            "task_name": obj.get("taskName")
+        _obj = SelectedAndRemovedImagePair.parse_obj({
+            "selected_image": obj.get("selectedImage"),
+            "removed_image": obj.get("removedImage"),
+            "distance": obj.get("distance")
         })
         return _obj
 

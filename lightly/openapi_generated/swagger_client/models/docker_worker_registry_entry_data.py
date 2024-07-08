@@ -36,7 +36,7 @@ class DockerWorkerRegistryEntryData(BaseModel):
     created_at: conint(strict=True, ge=0) = Field(..., alias="createdAt", description="unix timestamp in milliseconds")
     last_modified_at: conint(strict=True, ge=0) = Field(..., alias="lastModifiedAt", description="unix timestamp in milliseconds")
     labels: conlist(StrictStr) = Field(..., description="The labels used for specifying the run-worker-relationship")
-    is_default: StrictBool = Field(..., alias="isDefault", description="If true, this worker was created by the API/System and not by a user. ")
+    is_default: Optional[StrictBool] = Field(None, alias="isDefault", description="If true, this worker was created by the API/System and not by a user. ")
     docker_version: Optional[StrictStr] = Field(None, alias="dockerVersion")
     __properties = ["id", "userId", "name", "workerType", "state", "createdAt", "lastModifiedAt", "labels", "isDefault", "dockerVersion"]
 
@@ -105,7 +105,7 @@ class DockerWorkerRegistryEntryData(BaseModel):
             "created_at": obj.get("createdAt"),
             "last_modified_at": obj.get("lastModifiedAt"),
             "labels": obj.get("labels"),
-            "is_default": obj.get("isDefault") if obj.get("isDefault") is not None else False,
+            "is_default": obj.get("isDefault"),
             "docker_version": obj.get("dockerVersion")
         })
         return _obj

@@ -464,7 +464,7 @@ conf = lightly.openapi_generated.swagger_client.Configuration(
                 'description': "No description provided",
             },
             {
-                'url': "http://localhost:5000",
+                'url': "http://localhost:5001",
                 'description': "No description provided",
             }
         ]
