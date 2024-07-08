@@ -43,16 +43,10 @@ Assuming all images are in a single directory, you can simply pass in the path t
 
 .. code-block:: python
 
-    import torchvision.transforms as T
     from lightly.data import LightlyDataset
+    from lightly.transforms import SimCLRTransform
 
-    transform = T.Compose(
-        [
-            T.RandomHorizontalFlip(),
-            T.ToTensor(),
-            # ... you can add more transforms if needed
-        ]
-    )
+    transform = SimCLRTransform()
     dataset = LightlyDataset(input_dir='image_dir/', transform=transform)
 
 .. note::
@@ -91,16 +85,10 @@ and the dataset class will assign each image its subdirectory as label.
 
 .. code-block:: python
 
-    import torchvision.transforms as T
     from lightly.data import LightlyDataset
+    from lightly.transforms import SimCLRTransform
 
-    transform = T.Compose(
-        [
-            T.RandomHorizontalFlip(),
-            T.ToTensor(),
-            # ... you can add more transforms if needed
-        ]
-    )
+    transform = SimCLRTransform()
     labeled_dataset = LightlyDataset(input_dir='labeled_image_dir/', transform=transform)
 
 Video Datasets
@@ -125,8 +113,10 @@ An example for an input directory with videos could look like this:
 .. code-block:: python
 
    from lightly.data import LightlyDataset
+   from lightly.transforms import SimCLRTransform
 
-   video_dataset = LightlyDataset(input_dir='video_dir/')
+   transform = SimCLRTransform()
+   video_dataset = LightlyDataset(input_dir='video_dir/', transform=transform)
 
 The dataset assigns each video frame its video as label.
 
