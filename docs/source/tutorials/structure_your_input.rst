@@ -43,9 +43,17 @@ Assuming all images are in a single directory, you can simply pass in the path t
 
 .. code-block:: python
 
+    import torchvision.transforms as T
     from lightly.data import LightlyDataset
 
-    dataset = LightlyDataset(input_dir='image_dir/')
+    transform = T.Compose(
+        [
+            T.RandomHorizontalFlip(),
+            T.ToTensor(),
+            # ... you can add more transforms if needed
+        ]
+    )
+    dataset = LightlyDataset(input_dir='image_dir/', transform=transform)
 
 .. note::
 
@@ -83,9 +91,17 @@ and the dataset class will assign each image its subdirectory as label.
 
 .. code-block:: python
 
-   from lightly.data import LightlyDataset
+    import torchvision.transforms as T
+    from lightly.data import LightlyDataset
 
-   labeled_dataset = LightlyDataset(input_dir='labeled_image_dir/')
+    transform = T.Compose(
+        [
+            T.RandomHorizontalFlip(),
+            T.ToTensor(),
+            # ... you can add more transforms if needed
+        ]
+    )
+    labeled_dataset = LightlyDataset(input_dir='labeled_image_dir/', transform=transform)
 
 Video Datasets
 ^^^^^^^^^^^^^^
