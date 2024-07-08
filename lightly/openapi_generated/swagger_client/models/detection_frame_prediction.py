@@ -19,25 +19,17 @@ import re  # noqa: F401
 import json
 
 
-from typing import Optional
-from pydantic import Extra,  BaseModel, Field, constr, validator
+from typing import List, Optional
+from pydantic import Extra,  BaseModel, StrictStr, conlist
+from lightly.openapi_generated.swagger_client.models.object_detection_prediction import ObjectDetectionPrediction
 
-class DockerWorkerConfigV3DockerTraining(BaseModel):
+class DetectionFramePrediction(BaseModel):
     """
-    DockerWorkerConfigV3DockerTraining
+    DetectionFramePrediction
     """
-    task_name: Optional[constr(strict=True)] = Field(None, alias="taskName", description="Since we sometimes stitch together SelectionInputTask+ActiveLearningScoreType, they need to follow the same specs of ActiveLearningScoreType. However, this can be an empty string due to internal logic (no minLength). Also v2config.filespecs.ts has this pattern for predictionTaskJSONSchema as well. ")
-    __properties = ["taskName"]
-
-    @validator('task_name')
-    def task_name_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if value is None:
-            return value
-
-        if not re.match(r"^[a-zA-Z0-9_+=,.@:\/-]*$", value):
-            raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9_+=,.@:\/-]*$/")
-        return value
+    filename: Optional[StrictStr] = None
+    predictions: Optional[conlist(ObjectDetectionPrediction)] = None
+    __properties = ["filename", "predictions"]
 
     class Config:
         """Pydantic configuration"""
@@ -55,8 +47,8 @@ class DockerWorkerConfigV3DockerTraining(BaseModel):
         return json.dumps(self.to_dict(by_alias=by_alias))
 
     @classmethod
-    def from_json(cls, json_str: str) -> DockerWorkerConfigV3DockerTraining:
-        """Create an instance of DockerWorkerConfigV3DockerTraining from a JSON string"""
+    def from_json(cls, json_str: str) -> DetectionFramePrediction:
+        """Create an instance of DetectionFramePrediction from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self, by_alias: bool = False):
@@ -65,24 +57,32 @@ class DockerWorkerConfigV3DockerTraining(BaseModel):
                           exclude={
                           },
                           exclude_none=True)
+        # override the default output from pydantic by calling `to_dict()` of each item in predictions (list)
+        _items = []
+        if self.predictions:
+            for _item in self.predictions:
+                if _item:
+                    _items.append(_item.to_dict(by_alias=by_alias))
+            _dict['predictions' if by_alias else 'predictions'] = _items
         return _dict
 
     @classmethod
-    def from_dict(cls, obj: dict) -> DockerWorkerConfigV3DockerTraining:
-        """Create an instance of DockerWorkerConfigV3DockerTraining from a dict"""
+    def from_dict(cls, obj: dict) -> DetectionFramePrediction:
+        """Create an instance of DetectionFramePrediction from a dict"""
         if obj is None:
             return None
 
         if not isinstance(obj, dict):
-            return DockerWorkerConfigV3DockerTraining.parse_obj(obj)
+            return DetectionFramePrediction.parse_obj(obj)
 
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in DockerWorkerConfigV3DockerTraining) in the input: " + str(obj))
+                raise ValueError("Error due to additional fields (not defined in DetectionFramePrediction) in the input: " + str(obj))
 
-        _obj = DockerWorkerConfigV3DockerTraining.parse_obj({
-            "task_name": obj.get("taskName")
+        _obj = DetectionFramePrediction.parse_obj({
+            "filename": obj.get("filename"),
+            "predictions": [ObjectDetectionPrediction.from_dict(_item) for _item in obj.get("predictions")] if obj.get("predictions") is not None else None
         })
         return _obj
 

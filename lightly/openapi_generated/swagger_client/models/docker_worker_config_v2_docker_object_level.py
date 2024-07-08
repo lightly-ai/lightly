@@ -28,7 +28,7 @@ class DockerWorkerConfigV2DockerObjectLevel(BaseModel):
     """
     crop_dataset_name: Optional[constr(strict=True)] = Field(None, alias="cropDatasetName", description="Identical limitations than DatasetName however it can be empty")
     padding: Optional[Union[StrictFloat, StrictInt]] = None
-    task_name: Optional[constr(strict=True)] = Field(None, alias="taskName", description="Since we sometimes stitch together SelectionInputTask+ActiveLearningScoreType, they need to follow the same specs of ActiveLearningScoreType. However, this can be an empty string due to internal logic. ")
+    task_name: Optional[constr(strict=True)] = Field(None, alias="taskName", description="Since we sometimes stitch together SelectionInputTask+ActiveLearningScoreType, they need to follow the same specs of ActiveLearningScoreType. However, this can be an empty string due to internal logic (no minLength). Also v2config.filespecs.ts has this pattern for predictionTaskJSONSchema as well. ")
     __properties = ["cropDatasetName", "padding", "taskName"]
 
     @validator('crop_dataset_name')

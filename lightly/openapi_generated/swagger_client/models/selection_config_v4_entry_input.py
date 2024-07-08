@@ -29,7 +29,7 @@ class SelectionConfigV4EntryInput(BaseModel):
     SelectionConfigV4EntryInput
     """
     type: SelectionInputType = Field(...)
-    task: Optional[constr(strict=True)] = Field(None, description="Since we sometimes stitch together SelectionInputTask+ActiveLearningScoreType, they need to follow the same specs of ActiveLearningScoreType. However, this can be an empty string due to internal logic. ")
+    task: Optional[constr(strict=True)] = Field(None, description="Since we sometimes stitch together SelectionInputTask+ActiveLearningScoreType, they need to follow the same specs of ActiveLearningScoreType. However, this can be an empty string due to internal logic (no minLength). Also v2config.filespecs.ts has this pattern for predictionTaskJSONSchema as well. ")
     score: Optional[constr(strict=True, min_length=1)] = Field(None, description="Type of active learning score")
     key: Optional[constr(strict=True, min_length=1)] = None
     name: Optional[SelectionInputPredictionsName] = None
