@@ -28,7 +28,7 @@ class PredictionSingletonBase(BaseModel):
     PredictionSingletonBase
     """
     type: StrictStr = Field(...)
-    task_name: constr(strict=True, min_length=1) = Field(..., alias="taskName", description="A name which is safe to have as a file/folder name in a file system")
+    task_name: constr(strict=True) = Field(..., alias="taskName", description="Since we sometimes stitch together SelectionInputTask+ActiveLearningScoreType, they need to follow the same specs of ActiveLearningScoreType. However, this can be an empty string due to internal logic (no minLength). Also v2config.filespecs.ts has this pattern for predictionTaskJSONSchema as well. ")
     crop_dataset_id: Optional[constr(strict=True)] = Field(None, alias="cropDatasetId", description="MongoDB ObjectId")
     crop_sample_id: Optional[constr(strict=True)] = Field(None, alias="cropSampleId", description="MongoDB ObjectId")
     category_id: conint(strict=True, ge=0) = Field(..., alias="categoryId", description="The id of the category. Needs to be a positive integer but can be any integer (gaps are allowed, does not need to be sequential)")
@@ -38,8 +38,8 @@ class PredictionSingletonBase(BaseModel):
     @validator('task_name')
     def task_name_validate_regular_expression(cls, value):
         """Validates the regular expression"""
-        if not re.match(r"^[a-zA-Z0-9][a-zA-Z0-9 ._-]+$", value):
-            raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9][a-zA-Z0-9 ._-]+$/")
+        if not re.match(r"^[a-zA-Z0-9_+=,.@:\/-]*$", value):
+            raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9_+=,.@:\/-]*$/")
         return value
 
     @validator('crop_dataset_id')

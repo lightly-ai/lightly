@@ -29,7 +29,7 @@ class CropData(BaseModel):
     parent_id: constr(strict=True) = Field(..., alias="parentId", description="MongoDB ObjectId")
     prediction_uuid_timestamp: conint(strict=True, ge=0) = Field(..., alias="predictionUUIDTimestamp", description="unix timestamp in milliseconds")
     prediction_index: conint(strict=True, ge=0) = Field(..., alias="predictionIndex", description="the index of this crop within all found prediction singletons of a sampleId (the parentId)")
-    prediction_task_name: constr(strict=True, min_length=1) = Field(..., alias="predictionTaskName", description="A name which is safe to have as a file/folder name in a file system")
+    prediction_task_name: constr(strict=True) = Field(..., alias="predictionTaskName", description="Since we sometimes stitch together SelectionInputTask+ActiveLearningScoreType, they need to follow the same specs of ActiveLearningScoreType. However, this can be an empty string due to internal logic (no minLength). Also v2config.filespecs.ts has this pattern for predictionTaskJSONSchema as well. ")
     prediction_task_category_id: conint(strict=True, ge=0) = Field(..., alias="predictionTaskCategoryId", description="The id of the category. Needs to be a positive integer but can be any integer (gaps are allowed, does not need to be sequential)")
     prediction_task_score: Union[confloat(le=1, ge=0, strict=True), conint(le=1, ge=0, strict=True)] = Field(..., alias="predictionTaskScore", description="the score for the prediction task which yielded this crop")
     __properties = ["parentId", "predictionUUIDTimestamp", "predictionIndex", "predictionTaskName", "predictionTaskCategoryId", "predictionTaskScore"]
@@ -44,8 +44,8 @@ class CropData(BaseModel):
     @validator('prediction_task_name')
     def prediction_task_name_validate_regular_expression(cls, value):
         """Validates the regular expression"""
-        if not re.match(r"^[a-zA-Z0-9][a-zA-Z0-9 ._-]+$", value):
-            raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9][a-zA-Z0-9 ._-]+$/")
+        if not re.match(r"^[a-zA-Z0-9_+=,.@:\/-]*$", value):
+            raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9_+=,.@:\/-]*$/")
         return value
 
     class Config:
