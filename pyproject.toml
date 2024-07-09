@@ -45,7 +45,7 @@ dependencies = [
   "tqdm>=4.44",
   "torch",
   "torchvision",
-  "pydantic >= 1.10.5, < 2",
+  "pydantic >= 1.10.5",
   # Note: pytorch_lightning>=1.5 is required for CLI
   # https://github.com/lightly-ai/lightly/issues/912
   "pytorch_lightning>=1.0.4",
@@ -131,7 +131,7 @@ openapi = [
   "python_dateutil >= 2.5.3",
   "setuptools >= 21.0.0",
   "urllib3 >= 1.25.3",
-  "pydantic >= 1.10.5, < 2",
+  "pydantic >= 1.10.5",
   "aenum >= 3.1.11"
 ]
 video = ["av>=8.0.3"]

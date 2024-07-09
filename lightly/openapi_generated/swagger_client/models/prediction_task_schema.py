@@ -20,11 +20,23 @@ import pprint
 import re  # noqa: F401
 
 from typing import Any, List, Optional
-from pydantic import BaseModel, Field, StrictStr, ValidationError, validator
+try:
+    # Pydantic >=v1.10.17
+    from pydantic.v1 import BaseModel, Field, StrictStr, ValidationError, validator
+    pass # Add pass to avoid empty try/except if no imports are generated for this file.
+except ImportError:
+    # Pydantic v1
+    from pydantic import BaseModel, Field, StrictStr, ValidationError, validator
+    pass # Add pass to avoid empty try/except if no imports are generated for this file.
 from lightly.openapi_generated.swagger_client.models.prediction_task_schema_keypoint import PredictionTaskSchemaKeypoint
 from lightly.openapi_generated.swagger_client.models.prediction_task_schema_simple import PredictionTaskSchemaSimple
 from typing import Any, List
-from pydantic import StrictStr, Field, Extra
+try:
+    # Pydantic >=v1.10.17
+    from pydantic.v1 import StrictStr, Field
+except ImportError:
+    # Pydantic v1
+    from pydantic import StrictStr, Field
 
 PREDICTIONTASKSCHEMA_ONE_OF_SCHEMAS = ["PredictionTaskSchemaKeypoint", "PredictionTaskSchemaSimple"]
 
@@ -42,7 +54,7 @@ class PredictionTaskSchema(BaseModel):
     class Config:
         validate_assignment = True
         use_enum_values = True
-        extra = Extra.forbid
+        extra = "forbid"
 
     discriminator_value_class_map = {
     }

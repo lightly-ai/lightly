@@ -20,7 +20,14 @@ from enum import Enum
 from aenum import no_arg  # type: ignore
 
 
-
+try:
+    # Pydantic >=v1.10.17
+    
+    pass # Add pass to avoid empty try/except if no imports are generated for this file.
+except ImportError:
+    # Pydantic v1
+    
+    pass # Add pass to avoid empty try/except if no imports are generated for this file.
 
 
 class TagArithmeticsOperation(str, Enum):
