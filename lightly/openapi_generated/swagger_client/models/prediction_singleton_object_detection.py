@@ -23,11 +23,9 @@ from typing import List, Optional, Union
 try:
     # Pydantic >=v1.10.17
     from pydantic.v1 import BaseModel, Field, confloat, conint, conlist
-    pass # Add pass to avoid empty try/except if no imports are generated for this file.
 except ImportError:
     # Pydantic v1
     from pydantic import BaseModel, Field, confloat, conint, conlist
-    pass # Add pass to avoid empty try/except if no imports are generated for this file.
 from lightly.openapi_generated.swagger_client.models.prediction_singleton_base import PredictionSingletonBase
 
 class PredictionSingletonObjectDetection(PredictionSingletonBase):

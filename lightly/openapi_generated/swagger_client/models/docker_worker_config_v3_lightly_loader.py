@@ -23,11 +23,9 @@ from typing import Optional
 try:
     # Pydantic >=v1.10.17
     from pydantic.v1 import BaseModel, Field, StrictBool, conint
-    pass # Add pass to avoid empty try/except if no imports are generated for this file.
 except ImportError:
     # Pydantic v1
     from pydantic import BaseModel, Field, StrictBool, conint
-    pass # Add pass to avoid empty try/except if no imports are generated for this file.
 
 class DockerWorkerConfigV3LightlyLoader(BaseModel):
     """

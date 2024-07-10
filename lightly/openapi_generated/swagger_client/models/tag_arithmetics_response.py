@@ -23,14 +23,11 @@ from typing import Any, List, Optional
 try:
     # Pydantic >=v1.10.17
     from pydantic.v1 import BaseModel, Field, StrictStr, ValidationError, validator
-    pass # Add pass to avoid empty try/except if no imports are generated for this file.
 except ImportError:
     # Pydantic v1
     from pydantic import BaseModel, Field, StrictStr, ValidationError, validator
-    pass # Add pass to avoid empty try/except if no imports are generated for this file.
 from lightly.openapi_generated.swagger_client.models.create_entity_response import CreateEntityResponse
 from lightly.openapi_generated.swagger_client.models.tag_bit_mask_response import TagBitMaskResponse
-from typing import Any, List
 try:
     # Pydantic >=v1.10.17
     from pydantic.v1 import StrictStr, Field

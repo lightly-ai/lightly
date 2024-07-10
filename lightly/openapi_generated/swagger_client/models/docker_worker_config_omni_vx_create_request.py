@@ -23,15 +23,12 @@ from typing import Any, List, Optional
 try:
     # Pydantic >=v1.10.17
     from pydantic.v1 import BaseModel, Field, StrictStr, ValidationError, validator
-    pass # Add pass to avoid empty try/except if no imports are generated for this file.
 except ImportError:
     # Pydantic v1
     from pydantic import BaseModel, Field, StrictStr, ValidationError, validator
-    pass # Add pass to avoid empty try/except if no imports are generated for this file.
 from lightly.openapi_generated.swagger_client.models.docker_worker_config_omni_v2_create_request import DockerWorkerConfigOmniV2CreateRequest
 from lightly.openapi_generated.swagger_client.models.docker_worker_config_omni_v3_create_request import DockerWorkerConfigOmniV3CreateRequest
 from lightly.openapi_generated.swagger_client.models.docker_worker_config_omni_v4_create_request import DockerWorkerConfigOmniV4CreateRequest
-from typing import Any, List
 try:
     # Pydantic >=v1.10.17
     from pydantic.v1 import StrictStr, Field

@@ -23,11 +23,9 @@ from typing import List, Optional, Union
 try:
     # Pydantic >=v1.10.17
     from pydantic.v1 import BaseModel, Field, confloat, conint, conlist, constr
-    pass # Add pass to avoid empty try/except if no imports are generated for this file.
 except ImportError:
     # Pydantic v1
     from pydantic import BaseModel, Field, confloat, conint, conlist, constr
-    pass # Add pass to avoid empty try/except if no imports are generated for this file.
 from lightly.openapi_generated.swagger_client.models.selection_config_v4_entry import SelectionConfigV4Entry
 
 class SelectionConfigV4(BaseModel):

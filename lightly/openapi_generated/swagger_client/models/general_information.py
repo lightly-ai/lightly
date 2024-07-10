@@ -23,11 +23,9 @@ from typing import List
 try:
     # Pydantic >=v1.10.17
     from pydantic.v1 import BaseModel, Field, conlist
-    pass # Add pass to avoid empty try/except if no imports are generated for this file.
 except ImportError:
     # Pydantic v1
     from pydantic import BaseModel, Field, conlist
-    pass # Add pass to avoid empty try/except if no imports are generated for this file.
 from lightly.openapi_generated.swagger_client.models.annotation_savings import AnnotationSavings
 from lightly.openapi_generated.swagger_client.models.dataset_information import DatasetInformation
 from lightly.openapi_generated.swagger_client.models.run_information import RunInformation

@@ -23,11 +23,9 @@ from typing import Dict, Optional
 try:
     # Pydantic >=v1.10.17
     from pydantic.v1 import BaseModel, Field
-    pass # Add pass to avoid empty try/except if no imports are generated for this file.
 except ImportError:
     # Pydantic v1
     from pydantic import BaseModel, Field
-    pass # Add pass to avoid empty try/except if no imports are generated for this file.
 from lightly.openapi_generated.swagger_client.models.dataset_analysis import DatasetAnalysis
 from lightly.openapi_generated.swagger_client.models.general_information import GeneralInformation
 from lightly.openapi_generated.swagger_client.models.prediction_task_information import PredictionTaskInformation

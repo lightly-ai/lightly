@@ -23,11 +23,9 @@ from typing import Optional
 try:
     # Pydantic >=v1.10.17
     from pydantic.v1 import BaseModel
-    pass # Add pass to avoid empty try/except if no imports are generated for this file.
 except ImportError:
     # Pydantic v1
     from pydantic import BaseModel
-    pass # Add pass to avoid empty try/except if no imports are generated for this file.
 from lightly.openapi_generated.swagger_client.models.tag_change_data_arithmetics import TagChangeDataArithmetics
 from lightly.openapi_generated.swagger_client.models.tag_change_data_initial import TagChangeDataInitial
 from lightly.openapi_generated.swagger_client.models.tag_change_data_metadata import TagChangeDataMetadata
