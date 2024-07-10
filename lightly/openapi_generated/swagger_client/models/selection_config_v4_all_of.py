@@ -20,7 +20,14 @@ import json
 
 
 from typing import List, Optional
-from pydantic import Extra,  BaseModel, Field, conlist, constr
+try:
+    # Pydantic >=v1.10.17
+    from pydantic.v1 import BaseModel, Field, conlist, constr
+    pass # Add pass to avoid empty try/except if no imports are generated for this file.
+except ImportError:
+    # Pydantic v1
+    from pydantic import BaseModel, Field, conlist, constr
+    pass # Add pass to avoid empty try/except if no imports are generated for this file.
 from lightly.openapi_generated.swagger_client.models.selection_config_v4_entry import SelectionConfigV4Entry
 
 class SelectionConfigV4AllOf(BaseModel):
@@ -36,7 +43,7 @@ class SelectionConfigV4AllOf(BaseModel):
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
-        extra = Extra.forbid
+        extra = "forbid"
 
     def to_str(self, by_alias: bool = False) -> str:
         """Returns the string representation of the model"""

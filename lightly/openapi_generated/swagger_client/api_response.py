@@ -2,7 +2,12 @@
 
 from __future__ import annotations
 from typing import Any, Dict, Optional
-from pydantic import Field, StrictInt, StrictStr
+try:
+    # Pydantic >=v1.10.17
+    from pydantic.v1 import Field, StrictInt, StrictStr
+except ImportError:
+    # Pydantic v1
+    from pydantic import Field, StrictInt, StrictStr
 
 class ApiResponse:
     """

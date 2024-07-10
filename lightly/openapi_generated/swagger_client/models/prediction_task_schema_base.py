@@ -21,7 +21,14 @@ import lightly.openapi_generated.swagger_client.models
 
 
 
-from pydantic import Extra,  BaseModel, Field, StrictStr, constr, validator
+try:
+    # Pydantic >=v1.10.17
+    from pydantic.v1 import BaseModel, Field, StrictStr, constr, validator
+    pass # Add pass to avoid empty try/except if no imports are generated for this file.
+except ImportError:
+    # Pydantic v1
+    from pydantic import BaseModel, Field, StrictStr, constr, validator
+    pass # Add pass to avoid empty try/except if no imports are generated for this file.
 
 class PredictionTaskSchemaBase(BaseModel):
     """
@@ -43,7 +50,7 @@ class PredictionTaskSchemaBase(BaseModel):
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
-        extra = Extra.forbid
+        extra = "forbid"
 
     # JSON field name that stores the object type
     __discriminator_property_name = 'type'

@@ -5,7 +5,14 @@ from unittest import mock
 from unittest.mock import MagicMock
 
 import pytest
-from pydantic import ValidationError
+
+try:
+    # Pydantic >=v1.10.17
+    from pydantic.v1 import ValidationError
+except ImportError:
+    # Pydantic v1
+    from pydantic import ValidationError
+
 from pytest_mock import MockerFixture
 
 from lightly.api import ApiWorkflowClient, api_workflow_compute_worker
