@@ -23,11 +23,9 @@ from typing import Any, Dict, Optional
 try:
     # Pydantic >=v1.10.17
     from pydantic.v1 import BaseModel, Field, StrictInt, StrictStr, conint, constr, validator
-    pass # Add pass to avoid empty try/except if no imports are generated for this file.
 except ImportError:
     # Pydantic v1
     from pydantic import BaseModel, Field, StrictInt, StrictStr, conint, constr, validator
-    pass # Add pass to avoid empty try/except if no imports are generated for this file.
 from lightly.openapi_generated.swagger_client.models.crop_data import CropData
 from lightly.openapi_generated.swagger_client.models.sample_meta_data import SampleMetaData
 from lightly.openapi_generated.swagger_client.models.sample_type import SampleType

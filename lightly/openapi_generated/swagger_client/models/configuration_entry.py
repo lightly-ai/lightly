@@ -23,11 +23,9 @@ from typing import Any, Optional
 try:
     # Pydantic >=v1.10.17
     from pydantic.v1 import BaseModel, Field, constr
-    pass # Add pass to avoid empty try/except if no imports are generated for this file.
 except ImportError:
     # Pydantic v1
     from pydantic import BaseModel, Field, constr
-    pass # Add pass to avoid empty try/except if no imports are generated for this file.
 from lightly.openapi_generated.swagger_client.models.configuration_value_data_type import ConfigurationValueDataType
 
 class ConfigurationEntry(BaseModel):

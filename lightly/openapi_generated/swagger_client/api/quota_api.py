@@ -16,7 +16,6 @@
 import re  # noqa: F401
 import io
 import warnings
-
 try:
     # Pydantic >=v1.10.17
     from pydantic.v1 import validate_arguments, ValidationError

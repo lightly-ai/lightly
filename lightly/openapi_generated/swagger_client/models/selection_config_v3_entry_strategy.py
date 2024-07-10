@@ -23,11 +23,9 @@ from typing import Any, Dict, Optional, Union
 try:
     # Pydantic >=v1.10.17
     from pydantic.v1 import BaseModel, Field, StrictFloat, StrictInt, confloat, conint
-    pass # Add pass to avoid empty try/except if no imports are generated for this file.
 except ImportError:
     # Pydantic v1
     from pydantic import BaseModel, Field, StrictFloat, StrictInt, confloat, conint
-    pass # Add pass to avoid empty try/except if no imports are generated for this file.
 from lightly.openapi_generated.swagger_client.models.selection_config_v3_entry_strategy_all_of_target_range import SelectionConfigV3EntryStrategyAllOfTargetRange
 from lightly.openapi_generated.swagger_client.models.selection_strategy_threshold_operation import SelectionStrategyThresholdOperation
 from lightly.openapi_generated.swagger_client.models.selection_strategy_type_v3 import SelectionStrategyTypeV3

@@ -23,11 +23,9 @@ from typing import Optional
 try:
     # Pydantic >=v1.10.17
     from pydantic.v1 import BaseModel, Field, StrictBool, StrictStr, conint, constr, validator
-    pass # Add pass to avoid empty try/except if no imports are generated for this file.
 except ImportError:
     # Pydantic v1
     from pydantic import BaseModel, Field, StrictBool, StrictStr, conint, constr, validator
-    pass # Add pass to avoid empty try/except if no imports are generated for this file.
 from lightly.openapi_generated.swagger_client.models.docker_worker_config_v3_docker_corruptness_check import DockerWorkerConfigV3DockerCorruptnessCheck
 from lightly.openapi_generated.swagger_client.models.docker_worker_config_v3_docker_datasource import DockerWorkerConfigV3DockerDatasource
 from lightly.openapi_generated.swagger_client.models.docker_worker_config_v3_docker_training import DockerWorkerConfigV3DockerTraining

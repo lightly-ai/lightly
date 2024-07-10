@@ -23,11 +23,9 @@ from typing import List
 try:
     # Pydantic >=v1.10.17
     from pydantic.v1 import BaseModel, Field, conlist
-    pass # Add pass to avoid empty try/except if no imports are generated for this file.
 except ImportError:
     # Pydantic v1
     from pydantic import BaseModel, Field, conlist
-    pass # Add pass to avoid empty try/except if no imports are generated for this file.
 from lightly.openapi_generated.swagger_client.models.prediction_task_schema_base import PredictionTaskSchemaBase
 from lightly.openapi_generated.swagger_client.models.prediction_task_schema_category_keypoints import PredictionTaskSchemaCategoryKeypoints
 

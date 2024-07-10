@@ -16,7 +16,6 @@
 import re  # noqa: F401
 import io
 import warnings
-
 try:
     # Pydantic >=v1.10.17
     from pydantic.v1 import validate_arguments, ValidationError
@@ -25,7 +24,12 @@ except ImportError:
     from pydantic import validate_arguments, ValidationError
 from typing_extensions import Annotated
 
-from pydantic import Field, StrictStr
+try:
+    # Pydantic >=v1.10.17
+    from pydantic.v1 import Field, StrictStr
+except ImportError:
+    # Pydantic v1
+    from pydantic import Field, StrictStr
 
 from typing import List
 
