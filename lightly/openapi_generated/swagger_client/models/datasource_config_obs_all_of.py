@@ -20,7 +20,14 @@ import json
 
 
 
-from pydantic import Extra,  BaseModel, Field, constr, validator
+try:
+    # Pydantic >=v1.10.17
+    from pydantic.v1 import BaseModel, Field, constr, validator
+    pass # Add pass to avoid empty try/except if no imports are generated for this file.
+except ImportError:
+    # Pydantic v1
+    from pydantic import BaseModel, Field, constr, validator
+    pass # Add pass to avoid empty try/except if no imports are generated for this file.
 
 class DatasourceConfigOBSAllOf(BaseModel):
     """
@@ -43,7 +50,7 @@ class DatasourceConfigOBSAllOf(BaseModel):
         allow_population_by_field_name = True
         validate_assignment = True
         use_enum_values = True
-        extra = Extra.forbid
+        extra = "forbid"
 
     def to_str(self, by_alias: bool = False) -> str:
         """Returns the string representation of the model"""
