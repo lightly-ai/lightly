@@ -23,11 +23,9 @@ from typing import Optional
 try:
     # Pydantic >=v1.10.17
     from pydantic.v1 import BaseModel, Field, conint
-    pass # Add pass to avoid empty try/except if no imports are generated for this file.
 except ImportError:
     # Pydantic v1
     from pydantic import BaseModel, Field, conint
-    pass # Add pass to avoid empty try/except if no imports are generated for this file.
 from lightly.openapi_generated.swagger_client.models.lightly_trainer_precision_v2 import LightlyTrainerPrecisionV2
 
 class DockerWorkerConfigV2LightlyTrainer(BaseModel):

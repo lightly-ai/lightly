@@ -23,11 +23,9 @@ from typing import Any, List, Optional
 try:
     # Pydantic >=v1.10.17
     from pydantic.v1 import BaseModel, Field, StrictStr, ValidationError, validator
-    pass # Add pass to avoid empty try/except if no imports are generated for this file.
 except ImportError:
     # Pydantic v1
     from pydantic import BaseModel, Field, StrictStr, ValidationError, validator
-    pass # Add pass to avoid empty try/except if no imports are generated for this file.
 from lightly.openapi_generated.swagger_client.models.datasource_config_azure import DatasourceConfigAzure
 from lightly.openapi_generated.swagger_client.models.datasource_config_gcs import DatasourceConfigGCS
 from lightly.openapi_generated.swagger_client.models.datasource_config_lightly import DatasourceConfigLIGHTLY
@@ -35,7 +33,6 @@ from lightly.openapi_generated.swagger_client.models.datasource_config_local imp
 from lightly.openapi_generated.swagger_client.models.datasource_config_obs import DatasourceConfigOBS
 from lightly.openapi_generated.swagger_client.models.datasource_config_s3 import DatasourceConfigS3
 from lightly.openapi_generated.swagger_client.models.datasource_config_s3_delegated_access import DatasourceConfigS3DelegatedAccess
-from typing import Any, List
 try:
     # Pydantic >=v1.10.17
     from pydantic.v1 import StrictStr, Field

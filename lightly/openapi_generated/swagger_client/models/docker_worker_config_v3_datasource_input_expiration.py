@@ -23,11 +23,9 @@ from typing import Union
 try:
     # Pydantic >=v1.10.17
     from pydantic.v1 import BaseModel, Field, confloat, conint
-    pass # Add pass to avoid empty try/except if no imports are generated for this file.
 except ImportError:
     # Pydantic v1
     from pydantic import BaseModel, Field, confloat, conint
-    pass # Add pass to avoid empty try/except if no imports are generated for this file.
 from lightly.openapi_generated.swagger_client.models.expiry_handling_strategy_v3 import ExpiryHandlingStrategyV3
 
 class DockerWorkerConfigV3DatasourceInputExpiration(BaseModel):
