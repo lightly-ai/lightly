@@ -87,7 +87,13 @@ Follow these steps to start contributing:
    $ pip install -e ".[dev]"
    ```
 
-5. Develop the features on your branch.
+5. Install pre-commit hooks, for more details refer to our [pre-commit instructions](./docs/PRECOMMITHOOKS.md):
+
+   ```bash
+   $ pre-commit install
+   ```
+
+6. Develop the features on your branch.
 
    As you work on the features, you should make sure that the code is formatted and the
    test suite passes:
@@ -131,10 +137,10 @@ Follow these steps to start contributing:
    $ git push -u origin a_descriptive_name_for_my_changes
    ```
 
-6. Once you are satisfied, go to the webpage of your fork on GitHub.
+7. Once you are satisfied, go to the webpage of your fork on GitHub.
    Click on 'Pull request' to send your changes to the project maintainers for review.
 
-7. It's ok if maintainers ask you for changes. It happens to core contributors
+8. It's ok if maintainers ask you for changes. It happens to core contributors
    too! So everyone can see the changes in the Pull request, work in your local
    branch and push the changes to your fork. They will automatically appear in
    the pull request.
