@@ -22,8 +22,6 @@ repos:
           examples/.*|
           \.gitignore|
           CONTRIBUTING\.md|
-          DOCS\.md|
           LICENSE\.txt|
-          PRECOMMITHOOKS\.md|
           README\.md
       )$
