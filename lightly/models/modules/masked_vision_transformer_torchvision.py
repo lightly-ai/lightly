@@ -25,6 +25,7 @@ class MaskedVisionTransformerTorchvision(MaskedVisionTransformer, Module):
     def __init__(
         self,
         vit: VisionTransformer,
+        initialize_weights: bool = False,
         mask_token: Optional[Parameter] = None,
     ) -> None:
         super().__init__()
@@ -34,7 +35,8 @@ class MaskedVisionTransformerTorchvision(MaskedVisionTransformer, Module):
             if mask_token is not None
             else Parameter(torch.zeros(1, 1, self.vit.hidden_dim))
         )
-        self._initialize_weights()
+        if initialize_weights:
+            self._initialize_weights()
 
     @property
     def sequence_length(self) -> int:
