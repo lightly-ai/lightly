@@ -43,6 +43,7 @@ and PyTorch Lightning distributed examples for all models to kickstart your proj
 - Barlow Twins, 2021 [paper](https://arxiv.org/abs/2103.03230) [docs](https://docs.lightly.ai/self-supervised-learning/examples/barlowtwins.html)
 - BYOL, 2020 [paper](https://arxiv.org/abs/2006.07733) [docs](https://docs.lightly.ai/self-supervised-learning/examples/byol.html)
 - DCL & DCLW, 2021 [paper](https://arxiv.org/abs/2110.06848) [docs](https://docs.lightly.ai/self-supervised-learning/examples/dcl.html)
+- DenseCL, 2022 [paper](https://arxiv.org/abs/2011.09157) [docs](https://docs.lightly.ai/self-supervised-learning/examples/densecl.html)
 - DINO, 2021 [paper](https://arxiv.org/abs/2104.14294) [docs](https://docs.lightly.ai/self-supervised-learning/examples/dino.html)
 - MAE, 2021 [paper](https://arxiv.org/abs/2111.06377) [docs](https://docs.lightly.ai/self-supervised-learning/examples/mae.html)
 - MSN, 2022 [paper](https://arxiv.org/abs/2204.07141) [docs](https://docs.lightly.ai/self-supervised-learning/examples/msn.html)
