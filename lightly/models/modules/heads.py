@@ -820,7 +820,7 @@ class DenseCLProjectionHead(ProjectionHead):
     The projection head consists of a 2-layer MLP. It can be used for global and local
     features.
 
-    - [0]: 2021, DenseCL: https://openaccess.thecvf.com/content/CVPR2021/papers/Wang_Dense_Contrastive_Learning_for_Self-Supervised_Visual_Pre-Training_CVPR_2021_paper.pdf
+    - [0]: 2021, DenseCL: https://arxiv.org/abs/2011.09157
     """
 
     def __init__(

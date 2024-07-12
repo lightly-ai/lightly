@@ -9,7 +9,7 @@ representations for object detection and segmentation tasks. While initially des
 for MoCo, DenseCL can also be combined with other self-supervised learning methods.
 
 Reference:
-    `Dense Contrastive Learning for Self-Supervised Visual Pre-Training, 2021 <https://openaccess.thecvf.com/content/CVPR2021/papers/Wang_Dense_Contrastive_Learning_for_Self-Supervised_Visual_Pre-Training_CVPR_2021_paper.pdf>`_
+    `Dense Contrastive Learning for Self-Supervised Visual Pre-Training, 2021 <https://arxiv.org/abs/2011.09157>`_
 
 
 .. tabs::

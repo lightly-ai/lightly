@@ -20,7 +20,7 @@ class DenseCLTransform(MoCoV2Transform):
         - Gaussian blur
         - ImageNet normalization
 
-    - [0]: 2021, DenseCL: https://openaccess.thecvf.com/content/CVPR2021/papers/Wang_Dense_Contrastive_Learning_for_Self-Supervised_Visual_Pre-Training_CVPR_2021_paper.pdf
+    - [0]: 2021, DenseCL: https://arxiv.org/abs/2011.09157
 
     Attributes:
         input_size:
