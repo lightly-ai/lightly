@@ -62,7 +62,7 @@ class MAEDecoderTIMM(Module):
         proj_drop_rate: float = 0.0,
         attn_drop_rate: float = 0.0,
         norm_layer: Callable[..., nn.Module] = partial(LayerNorm, eps=1e-6),
-        initialize_weights: bool = False,
+        initialize_weights: bool = True,
         mask_token: Optional[Parameter] = None,
     ):
         super().__init__()

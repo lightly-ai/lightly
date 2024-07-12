@@ -26,7 +26,7 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer, Module):
     def __init__(
         self,
         vit: VisionTransformer,
-        initialize_weights: bool = False,
+        initialize_weights: bool = True,
         mask_token: Optional[Parameter] = None,
     ) -> None:
         super().__init__()
