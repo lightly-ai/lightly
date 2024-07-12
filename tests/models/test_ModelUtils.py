@@ -300,6 +300,27 @@ class TestModelUtils(unittest.TestCase):
         self._test_random_token_mask_parameters(device="cuda")
 
 
+@pytest.mark.parametrize(
+    "mask_class_token, expected_num_masked",
+    [
+        (False, 2),
+        (True, 3),
+    ],
+)
+def test_random_token_mask__mask_class_token(
+    mask_class_token: bool, expected_num_masked: int
+) -> None:
+    torch.manual_seed(0)
+    batch_size, seq_length = 2, 5
+    idx_keep, idx_mask = utils.random_token_mask(
+        size=(batch_size, seq_length),
+        mask_ratio=0.5,
+        mask_class_token=mask_class_token,
+    )
+    assert idx_mask.shape == (batch_size, expected_num_masked)
+    assert idx_keep.shape == (batch_size, seq_length - expected_num_masked)
+
+
 def test_get_weight_decay_parameters() -> None:
     linear = nn.Linear(10, 10)
     batch_norm1d = nn.BatchNorm1d(10)
