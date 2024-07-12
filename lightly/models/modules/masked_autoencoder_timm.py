@@ -42,6 +42,8 @@ class MAEDecoderTIMM(Module):
             Percentage of elements set to zero after the attention head.
         norm_layer:
             Normalization layer.
+        initialize_weights:
+            Flag that determines if weights should be initialized.
         mask_token:
             The mask token.
 
@@ -60,6 +62,7 @@ class MAEDecoderTIMM(Module):
         proj_drop_rate: float = 0.0,
         attn_drop_rate: float = 0.0,
         norm_layer: Callable[..., nn.Module] = partial(LayerNorm, eps=1e-6),
+        initialize_weights: bool = True,
         mask_token: Optional[Parameter] = None,
     ):
         super().__init__()
@@ -96,7 +99,8 @@ class MAEDecoderTIMM(Module):
             decoder_embed_dim, patch_size**2 * in_chans, bias=True
         )  # decoder to patch
 
-        self._initialize_weights()
+        if initialize_weights:
+            self._initialize_weights()
 
     def forward(self, input: Tensor) -> Tensor:
         """Returns predicted pixel values from encoded tokens.
