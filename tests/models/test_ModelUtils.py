@@ -301,20 +301,22 @@ class TestModelUtils(unittest.TestCase):
 
 
 @pytest.mark.parametrize(
-    "mask_class_token, expected_num_masked",
+    "seq_length, mask_ratio, mask_class_token, expected_num_masked",
     [
-        (False, 2),
-        (True, 3),
+        (5, 0.5, False, 2),
+        (5, 0.5, True, 3),
+        (257, 0.75, False, 192),  # From issue #1583
+        (257, 0.75, True, 193),  # From issue #1583
     ],
 )
 def test_random_token_mask__mask_class_token(
-    mask_class_token: bool, expected_num_masked: int
+    seq_length: int, mask_ratio: float, mask_class_token: bool, expected_num_masked: int
 ) -> None:
     torch.manual_seed(0)
-    batch_size, seq_length = 2, 5
+    batch_size = 2
     idx_keep, idx_mask = utils.random_token_mask(
         size=(batch_size, seq_length),
-        mask_ratio=0.5,
+        mask_ratio=mask_ratio,
         mask_class_token=mask_class_token,
     )
     assert idx_mask.shape == (batch_size, expected_num_masked)
