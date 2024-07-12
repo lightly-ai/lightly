@@ -396,7 +396,7 @@ def test_select_most_similar(
     tx = torch.tensor(x, dtype=torch.float)
     ty = torch.tensor(y, dtype=torch.float)
     ty_values = torch.tensor(y_values, dtype=torch.float)
-    texpected = torch.tensor(expected)
+    texpected = torch.tensor(expected, dtype=torch.float)
     result = utils.select_most_similar(tx, ty, ty_values)
     print(result)  # For easier debugging if test fails.
     assert torch.equal(result, texpected)
