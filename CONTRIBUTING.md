@@ -87,7 +87,7 @@ Follow these steps to start contributing:
    $ pip install -e ".[dev]"
    ```
 
-5. Install pre-commit hooks, for more details refer to our [pre-commit instructions](./docs/PRECOMMITHOOKS.md):
+5. **(Optional)** Install pre-commit hooks, for more details refer to our [pre-commit instructions](./PRECOMMITHOOKS.md):
 
    ```bash
    $ pre-commit install
