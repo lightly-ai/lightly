@@ -42,6 +42,7 @@ class DenseCL(nn.Module):
         # Shapes: (B, H*W, C), (B, D), (B, H*W, D)
         return query_features, query_global, query_local
 
+    @torch.no_grad()
     def forward_momentum(self, x):
         key_features = self.backbone(x)
         key_global = self.pool(key_features).flatten(start_dim=1)
