@@ -6,7 +6,7 @@ We use pre-commit hooks to identify simple issues before submission to code revi
 
 ## Install Pre-Commit
 
-`pre-commit` comes as a pip package and is specified in `requirements/dev.txt`.
+`pre-commit` comes as a pip package and is specified as an optional dependency in `pyproject.toml`.
 
 To install it either run:
 ```
@@ -21,7 +21,7 @@ Test your installation:
 ```
 $ pre-commit --version
 ```
-If the installation failed, try
+If the installation fails, try
 ```
 $ curl https://pre-commit.com/install-local.py | python -
 ```
