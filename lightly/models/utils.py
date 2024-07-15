@@ -466,7 +466,7 @@ def random_token_mask(
     mask_ratio: float = 0.6,
     mask_class_token: bool = False,
     device: Optional[Union[torch.device, str]] = None,
-) -> torch.Tensor:
+) -> Tuple[Tensor, Tensor]:
     """Creates random token masks.
 
     Args:
@@ -486,17 +486,20 @@ def random_token_mask(
         index_keep contains the indices of the unmasked tokens and has shape
         (batch_size, num_keep). index_mask contains the indices of the masked
         tokens and has shape (batch_size, sequence_length - num_keep).
-        num_keep is equal to sequence_length * (1- mask_ratio).
+        num_keep is equal to sequence_length * (1 - mask_ratio).
 
     """
     batch_size, sequence_length = size
-    num_keep = int(sequence_length * (1 - mask_ratio))
+    # Remove 1 from the considered sequence length if the class token cannot be masked.
+    # This only impacts the calculation of the number of tokens to keep.
+    mask_sequence_length = sequence_length - int(not mask_class_token)
+    num_keep = int(mask_sequence_length * (1 - mask_ratio))
 
     noise = torch.rand(batch_size, sequence_length, device=device)
     if not mask_class_token and sequence_length > 0:
         # make sure that class token is not masked
         noise[:, 0] = -1
-        num_keep = max(1, num_keep)
+        num_keep = max(1, num_keep + 1)
 
     # get indices of tokens to keep
     indices = torch.argsort(noise, dim=1)

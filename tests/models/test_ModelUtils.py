@@ -402,6 +402,29 @@ def test_select_most_similar(
     assert torch.equal(result, texpected)
 
 
+@pytest.mark.parametrize(
+    "seq_length, mask_ratio, mask_class_token, expected_num_masked",
+    [
+        (5, 0.5, False, 2),
+        (5, 0.5, True, 3),
+        (257, 0.75, False, 192),  # From issue #1583
+        (257, 0.75, True, 193),  # From issue #1583
+    ],
+)
+def test_random_token_mask__mask_class_token(
+    seq_length: int, mask_ratio: float, mask_class_token: bool, expected_num_masked: int
+) -> None:
+    torch.manual_seed(0)
+    batch_size = 2
+    idx_keep, idx_mask = utils.random_token_mask(
+        size=(batch_size, seq_length),
+        mask_ratio=mask_ratio,
+        mask_class_token=mask_class_token,
+    )
+    assert idx_mask.shape == (batch_size, expected_num_masked)
+    assert idx_keep.shape == (batch_size, seq_length - expected_num_masked)
+
+
 def test_get_weight_decay_parameters() -> None:
     linear = nn.Linear(10, 10)
     batch_norm1d = nn.BatchNorm1d(10)
