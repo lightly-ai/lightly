@@ -1,6 +1,6 @@
 import copy
-import math
 import unittest
+from typing import List
 
 import pytest
 import torch
@@ -298,6 +298,108 @@ class TestModelUtils(unittest.TestCase):
     @unittest.skipUnless(torch.cuda.is_available(), "No cuda available")
     def test_random_token_mask_cuda(self):
         self._test_random_token_mask_parameters(device="cuda")
+
+
+@pytest.mark.parametrize(
+    "x, y, expected",
+    [
+        # Tests with x, y having shape (1, 2, 2)
+        ([[[0, 1], [1, 0]]], [[[0, 1], [1, 0]]], [[0, 1]]),
+        ([[[0, 1], [1, 0]]], [[[1, 0], [0, 1]]], [[1, 0]]),
+        ([[[0, 1], [1, 0]]], [[[0, -1], [-1, 0]]], [[1, 0]]),
+        # Test with x, y having shape (3, 2, 2)
+        (
+            [
+                [[0, 1], [1, 0]],
+                [[0, 1], [1, 0]],
+                [[0, 1], [1, 0]],
+            ],
+            [
+                [[0, 1], [1, 0]],
+                [[1, 0], [0, 1]],
+                [[0, -1], [-1, 0]],
+            ],
+            [
+                [0, 1],
+                [1, 0],
+                [1, 0],
+            ],
+        ),
+    ],
+)
+def test_most_similar_index(
+    x: List[List[List[float]]],
+    y: List[List[List[float]]],
+    expected: List[List[int]],
+) -> None:
+    tx = torch.tensor(x, dtype=torch.float)
+    ty = torch.tensor(y, dtype=torch.float)
+    texpected = torch.tensor(expected)
+    result = utils.most_similar_index(tx, ty)
+    print(result)  # For easier debugging if test fails.
+    assert torch.equal(result, texpected)
+
+
+@pytest.mark.parametrize(
+    "x, y, y_values, expected",
+    [
+        # Tests with x, y having shape (1, 2, 2) and y_values having shape (1, 2, 3)
+        (
+            [[[0, 1], [1, 0]]],  # x
+            [[[0, 1], [1, 0]]],  # y
+            [[[0, 0, 0], [1, 1, 1]]],  # y_values
+            [[[0, 0, 0], [1, 1, 1]]],  # expected
+        ),
+        (
+            [[[0, 1], [1, 0]]],  # x
+            [[[1, 0], [0, 1]]],  # y
+            [[[0, 0, 0], [1, 1, 1]]],  # y_values
+            [[[1, 1, 1], [0, 0, 0]]],  # expected
+        ),
+        (
+            [[[0, 1], [1, 0]]],  # x
+            [[[0, -1], [-1, 0]]],  # y
+            [[[0, 0, 0], [1, 1, 1]]],  # y_values
+            [[[1, 1, 1], [0, 0, 0]]],  # expected
+        ),
+        # Test with x, y having shape (3, 2, 2) and y_values having shape (3, 2, 3)
+        (
+            [  # x
+                [[0, 1], [1, 0]],
+                [[0, 1], [1, 0]],
+                [[0, 1], [1, 0]],
+            ],
+            [  # y
+                [[0, 1], [1, 0]],
+                [[1, 0], [0, 1]],
+                [[0, -1], [-1, 0]],
+            ],
+            [  # y_values
+                [[0, 0, 0], [1, 1, 1]],
+                [[2, 2, 2], [3, 3, 3]],
+                [[4, 4, 4], [5, 5, 5]],
+            ],
+            [  # expected
+                [[0, 0, 0], [1, 1, 1]],
+                [[3, 3, 3], [2, 2, 2]],
+                [[5, 5, 5], [4, 4, 4]],
+            ],
+        ),
+    ],
+)
+def test_select_most_similar(
+    x: List[List[List[float]]],
+    y: List[List[List[float]]],
+    y_values: List[List[List[float]]],
+    expected: List[List[List[float]]],
+) -> None:
+    tx = torch.tensor(x, dtype=torch.float)
+    ty = torch.tensor(y, dtype=torch.float)
+    ty_values = torch.tensor(y_values, dtype=torch.float)
+    texpected = torch.tensor(expected, dtype=torch.float)
+    result = utils.select_most_similar(tx, ty, ty_values)
+    print(result)  # For easier debugging if test fails.
+    assert torch.equal(result, texpected)
 
 
 @pytest.mark.parametrize(

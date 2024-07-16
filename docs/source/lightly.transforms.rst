@@ -3,6 +3,10 @@ lightly.transforms
 
 .. automodule:: lightly.transforms
 
+.. automodule:: lightly.transforms.densecl_transform
+   :members:
+   :special-members: __call__
+
 .. automodule:: lightly.transforms.dino_transform
    :members:
    :special-members: __call__
