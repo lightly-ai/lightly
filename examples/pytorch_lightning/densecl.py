@@ -80,7 +80,8 @@ class DenseCL(pl.LightningModule):
 
         loss_global = self.criterion_global(query_global, key_global)
         loss_local = self.criterion_local(query_local, key_local)
-        loss = 0.5 * (loss_global + loss_local)
+        lambda_ = 0.5
+        loss = (1 - lambda_) * loss_global + lambda_ * loss_local
         return loss
 
     def configure_optimizers(self):

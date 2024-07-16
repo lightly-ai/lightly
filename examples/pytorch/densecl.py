@@ -109,7 +109,8 @@ for epoch in range(epochs):
 
         loss_global = criterion_global(query_global, key_global)
         loss_local = criterion_local(query_local, key_local)
-        loss = 0.5 * (loss_global + loss_local)
+        lambda_ = 0.5
+        loss = (1 - lambda_) * loss_global + lambda_ * loss_local
         total_loss += loss.detach()
         loss.backward()
         optimizer.step()
