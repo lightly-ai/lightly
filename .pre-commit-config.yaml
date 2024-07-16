@@ -24,4 +24,5 @@ repos:
           CONTRIBUTING\.md|
           LICENSE\.txt|
           README\.md
+          PRECOMMITHOOKS\.md|
       )$
