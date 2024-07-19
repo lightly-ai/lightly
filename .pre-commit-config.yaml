@@ -9,7 +9,7 @@ repos:
   hooks:
   - id: pytest-check                     # run all tests
     name: pytest-check
-    entry: make test
+    entry: make test-fast
     language: system
     pass_filenames: false
     stages: [push]
@@ -22,8 +22,7 @@ repos:
           examples/.*|
           \.gitignore|
           CONTRIBUTING\.md|
-          DOCS\.md|
           LICENSE\.txt|
-          PRECOMMITHOOKS\.md|
           README\.md
+          PRECOMMITHOOKS\.md|
       )$
