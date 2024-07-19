@@ -11,6 +11,7 @@ from torch import Tensor
 from torch.nn import Module
 
 from lightly.models import utils
+from lightly.utils import dist
 
 
 class MemoryBankModule(Module):
@@ -119,7 +120,7 @@ class MemoryBankModule(Module):
                 The latest batch of keys to add to the memory bank.
 
         """
-        if self.gather_distributed:
+        if self.gather_distributed and dist.world_size() > 1:
             batch = utils.concat_all_gather(batch)
 
         batch_size = batch.shape[0]
