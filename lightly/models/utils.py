@@ -13,7 +13,7 @@ import torch.distributed as dist
 import torch.nn as nn
 from numpy.typing import NDArray
 from torch import Tensor
-from torch.nn import Module, Sequential
+from torch.nn import Module, Sequential, functional
 from torch.nn.modules import CrossMapLRN2d, GroupNorm, LayerNorm, LocalResponseNorm
 from torch.nn.modules.batchnorm import _NormBase
 from torch.nn.parameter import Parameter
@@ -466,7 +466,7 @@ def random_token_mask(
     mask_ratio: float = 0.6,
     mask_class_token: bool = False,
     device: Optional[Union[torch.device, str]] = None,
-) -> torch.Tensor:
+) -> Tuple[Tensor, Tensor]:
     """Creates random token masks.
 
     Args:
@@ -486,17 +486,20 @@ def random_token_mask(
         index_keep contains the indices of the unmasked tokens and has shape
         (batch_size, num_keep). index_mask contains the indices of the masked
         tokens and has shape (batch_size, sequence_length - num_keep).
-        num_keep is equal to sequence_length * (1- mask_ratio).
+        num_keep is equal to sequence_length * (1 - mask_ratio).
 
     """
     batch_size, sequence_length = size
-    num_keep = int(sequence_length * (1 - mask_ratio))
+    # Remove 1 from the considered sequence length if the class token cannot be masked.
+    # This only impacts the calculation of the number of tokens to keep.
+    mask_sequence_length = sequence_length - int(not mask_class_token)
+    num_keep = int(mask_sequence_length * (1 - mask_ratio))
 
     noise = torch.rand(batch_size, sequence_length, device=device)
     if not mask_class_token and sequence_length > 0:
         # make sure that class token is not masked
         noise[:, 0] = -1
-        num_keep = max(1, num_keep)
+        num_keep = max(1, num_keep + 1)
 
     # get indices of tokens to keep
     indices = torch.argsort(noise, dim=1)
@@ -598,6 +601,53 @@ def nearest_neighbors(
     )  # [bsz, num_matches, feature_dimension]
 
     return filtered_input_maps, filtered_candidate_maps
+
+
+def most_similar_index(
+    x: Tensor,
+    y: Tensor,
+) -> Tensor:
+    """For each feature in x, searches the most similar feature in y and returns the
+    corresponding index.
+
+    Args:
+        x:
+            Tensor with shape (B, N, C).
+        y:
+            Tensor with shape (B, N, C).
+    Returns:
+        Index with shape (B, N) such that y[i, index[i, j]] is most similar to x[i, j]
+        over all y[i, ...].
+
+    """
+    x = functional.normalize(x, dim=-1)
+    y = functional.normalize(y, dim=-1)
+    similarity = torch.einsum("bnc,bmc->bnm", x, y)
+    return similarity.argmax(dim=2)
+
+
+def select_most_similar(
+    x: Tensor,
+    y: Tensor,
+    y_values: Tensor,
+) -> Tensor:
+    """For each feature in x, searches the most similar feature in y and returns the
+    corresponding value from y_values.
+
+    Args:
+        x:
+            Tensor with shape (B, N, C).
+        y:
+            Tensor with shape (B, N, C).
+        y_values:
+            Tensor with shape (B, N, D).
+    Returns:
+        Values with shape (B, N, D) where values[i, j] is the entry in y_values[i, ...]
+        such that x[i, j] is the most similar to y[i, ...].
+    """
+    y_index = most_similar_index(x, y)
+    y_index = y_index.unsqueeze(-1).expand(y_values.shape)
+    return torch.gather(y_values, dim=1, index=y_index)
 
 
 _NORM_LAYERS = (_NormBase, LayerNorm, CrossMapLRN2d, LocalResponseNorm, GroupNorm)

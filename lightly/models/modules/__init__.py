@@ -13,6 +13,7 @@ from lightly.models.modules.heads import (
     BarlowTwinsProjectionHead,
     BYOLPredictionHead,
     BYOLProjectionHead,
+    DenseCLProjectionHead,
     DINOProjectionHead,
     MMCRProjectionHead,
     MoCoProjectionHead,

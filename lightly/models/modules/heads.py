@@ -812,3 +812,23 @@ class VicRegLLocalProjectionHead(ProjectionHead):
                 (hidden_dim, output_dim, None, None),
             ]
         )
+
+
+class DenseCLProjectionHead(ProjectionHead):
+    """Projection head for DenseCL [0].
+
+    The projection head consists of a 2-layer MLP. It can be used for global and local
+    features.
+
+    - [0]: 2021, DenseCL: https://arxiv.org/abs/2011.09157
+    """
+
+    def __init__(
+        self, input_dim: int = 2048, hidden_dim: int = 2048, output_dim: int = 128
+    ):
+        super().__init__(
+            [
+                (input_dim, hidden_dim, None, nn.ReLU()),
+                (hidden_dim, output_dim, None, None),
+            ]
+        )

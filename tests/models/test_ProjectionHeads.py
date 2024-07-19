@@ -2,11 +2,12 @@ import unittest
 
 import torch
 
-import lightly
+from lightly.loss import DINOLoss
 from lightly.models.modules.heads import (
     BarlowTwinsProjectionHead,
     BYOLPredictionHead,
     BYOLProjectionHead,
+    DenseCLProjectionHead,
     DINOProjectionHead,
     MMCRProjectionHead,
     MoCoProjectionHead,
@@ -38,6 +39,7 @@ class TestProjectionHeads(unittest.TestCase):
             BarlowTwinsProjectionHead,
             BYOLProjectionHead,
             BYOLPredictionHead,
+            DenseCLProjectionHead,
             DINOProjectionHead,
             MoCoProjectionHead,
             MSNProjectionHead,
@@ -194,7 +196,7 @@ class TestProjectionHeads(unittest.TestCase):
                     norm_last_layer=norm_last_layer,
                 )
                 optimizer = torch.optim.SGD(head.parameters(), lr=1)
-                criterion = lightly.loss.DINOLoss(output_dim=4)
+                criterion = DINOLoss(output_dim=4)
                 # Store initial weights of last layer
                 initial_data = [
                     param.data.detach().clone()
