@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
     - name: Checkout latest release tag
@@ -22,7 +22,7 @@ jobs:
         git checkout $LATEST_TAG
         echo "tag_name=$LATEST_TAG" >> $GITHUB_OUTPUT;
     - name: Set up Python 3.10
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: "3.10"
     - name: Build and release
