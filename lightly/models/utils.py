@@ -6,17 +6,7 @@ from __future__ import annotations
 
 import math
 import warnings
-from typing import (
-    TYPE_CHECKING,
-    Dict,
-    Iterable,
-    List,
-    Literal,
-    Optional,
-    Tuple,
-    Type,
-    Union,
-)
+from typing import TYPE_CHECKING, Dict, Iterable, List, Optional, Tuple, Type, Union
 
 import numpy as np
 import torch
