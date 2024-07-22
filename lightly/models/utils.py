@@ -867,7 +867,7 @@ def normalize_mean_var(x: Tensor, dim: int = -1, eps: float = 1.0e-6) -> Tensor:
 def update_drop_path_rate(
     model: VisionTransformer,
     drop_path_rate: float,
-    mode: Literal["linear", "uniform"] = "linear",
+    mode: str = "linear",
 ) -> None:
     """Updates the drop path rate in a TIMM VisionTransformer model.
 
@@ -889,7 +889,9 @@ def update_drop_path_rate(
     elif mode == "uniform":
         drop_probabilities = [drop_path_rate for _ in range(total_depth)]
     else:
-        raise ValueError(f"Unknown mode: {mode}")
+        raise ValueError(
+            f"Unknown mode: '{mode}', supported modes are 'linear' and 'uniform'."
+        )
 
     for block, drop_prob in zip(model.blocks, drop_probabilities):
         if drop_prob > 0.0:

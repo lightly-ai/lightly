@@ -579,3 +579,12 @@ def test_update_drop_path_rate__linear() -> None:
     ]:
         assert isinstance(drop_path, DropPath)
         assert drop_path.drop_prob == 0.1
+
+
+def test_update_drop_path_rate__unknown_mode() -> None:
+    pytest.importorskip("timm.models.vision_transformer")
+    from timm.models.vision_transformer import VisionTransformer
+
+    model = VisionTransformer(drop_path_rate=0, depth=4)
+    with pytest.raises(ValueError, match="Unknown mode"):
+        utils.update_drop_path_rate(model=model, drop_path_rate=0.1, mode="unknown")
