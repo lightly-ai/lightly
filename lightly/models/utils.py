@@ -2,10 +2,11 @@
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
+from __future__ import annotations
 
 import math
 import warnings
-from typing import Dict, Iterable, List, Optional, Tuple, Type, Union
+from typing import TYPE_CHECKING, Dict, Iterable, List, Optional, Tuple, Type, Union
 
 import numpy as np
 import torch
@@ -13,13 +14,16 @@ import torch.distributed as dist
 import torch.nn as nn
 from numpy.typing import NDArray
 from torch import Tensor
-from torch.nn import Module, Sequential, functional
+from torch.nn import Identity, Module, Sequential, functional
 from torch.nn.modules import CrossMapLRN2d, GroupNorm, LayerNorm, LocalResponseNorm
 from torch.nn.modules.batchnorm import _NormBase
 from torch.nn.parameter import Parameter
 from torchvision.ops import StochasticDepth
 
 from lightly.utils import dependency
+
+if TYPE_CHECKING:
+    from timm.models.vision_transformer import VisionTransformer
 
 
 @torch.no_grad()
@@ -848,3 +852,41 @@ def normalize_mean_var(x: Tensor, dim: int = -1, eps: float = 1.0e-6) -> Tensor:
     mean = x.mean(dim=dim, keepdim=True)
     var = x.var(dim=dim, keepdim=True)
     return (x - mean) / (var + eps).sqrt()
+
+
+def update_drop_path_rate(
+    model: VisionTransformer,
+    drop_path_rate: float,
+    mode: str = "linear",
+) -> None:
+    """Updates the drop path rate in a TIMM VisionTransformer model.
+
+    Args:
+        model:
+            TIMM VisionTransformer model.
+        drop_path_rate:
+            Maximum drop path rate.
+        mode:
+            Drop path rate update mode. Can be "linear" or "uniform". Linear increases
+            the drop path rate from 0 to drop_path_rate over the depth of the model.
+            Uniform sets the drop path rate to drop_path_rate for all blocks.
+    """
+    from timm.layers import DropPath
+
+    total_depth = len(model.blocks)
+    if mode == "linear":
+        drop_probabilities = np.linspace(0, drop_path_rate, total_depth)
+    elif mode == "uniform":
+        drop_probabilities = [drop_path_rate for _ in range(total_depth)]
+    else:
+        raise ValueError(
+            f"Unknown mode: '{mode}', supported modes are 'linear' and 'uniform'."
+        )
+
+    for block, drop_prob in zip(model.blocks, drop_probabilities):
+        if drop_prob > 0.0:
+            block.drop_path1 = DropPath(drop_prob=drop_path_rate)
+            block.drop_path2 = DropPath(drop_prob=drop_path_rate)
+        else:
+            block.drop_path1 = Identity()
+            block.drop_path2 = Identity()
