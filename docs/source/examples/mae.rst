@@ -22,7 +22,7 @@ Reference:
 
     .. code-block:: bash
 
-        pip install "timm>=0.9.9"
+        pip install "lightly[timm]"
 
 .. tabs::
     .. tab:: PyTorch

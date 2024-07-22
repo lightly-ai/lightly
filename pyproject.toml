@@ -56,7 +56,7 @@ dynamic = ["version", "readme"]
 
 [project.optional-dependencies]
 all = [
-  "lightly[dev, video]"
+  "lightly[dev,timm,video]"
 ]
 dev = [
   "tox",
@@ -134,6 +134,7 @@ openapi = [
   "pydantic >= 1.10.5",
   "aenum >= 3.1.11"
 ]
+timm = ["timm>=1.0.3"]
 video = ["av>=8.0.3"]
 
 [project.urls]
