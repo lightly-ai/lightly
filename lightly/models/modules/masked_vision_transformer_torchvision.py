@@ -19,14 +19,21 @@ class MaskedVisionTransformerTorchvision(MaskedVisionTransformer, Module):
             The VisionTransformer object of Torchvision.
         mask_token:
             The mask token.
+        weight_initialization:
+            The weight initialization method. Valid options are ['', 'skip']. 'skip'
+            skips the weight initialization and '' uses the default weight
+            initialization.
+        antialias:
+            Whether to use antialiasing when resampling the positional embeddings.
 
     """
 
     def __init__(
         self,
         vit: VisionTransformer,
-        initialize_weights: bool = True,
         mask_token: Optional[Parameter] = None,
+        weight_initialization: str = "",
+        antialias: bool = True,
     ) -> None:
         super().__init__()
         self.vit = vit
@@ -35,8 +42,15 @@ class MaskedVisionTransformerTorchvision(MaskedVisionTransformer, Module):
             if mask_token is not None
             else Parameter(torch.zeros(1, 1, self.vit.hidden_dim))
         )
-        if initialize_weights:
+        if weight_initialization not in ("", "skip"):
+            raise ValueError(
+                f"Invalid weight initialization method: '{weight_initialization}'. "
+                "Valid options are: ['', 'skip']."
+            )
+        if weight_initialization != "skip":
             self._initialize_weights()
+
+        self.antialias = antialias
 
     @property
     def sequence_length(self) -> int:
@@ -70,6 +84,7 @@ class MaskedVisionTransformerTorchvision(MaskedVisionTransformer, Module):
             ),
             scale_factor=math.sqrt(npatch / N),
             mode="bicubic",
+            antialias=self.antialias,
         )
         pos_embedding = pos_embedding.permute(0, 2, 3, 1).view(1, -1, dim)
         return torch.cat((class_emb.unsqueeze(0), pos_embedding), dim=1)
