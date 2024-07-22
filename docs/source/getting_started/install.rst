@@ -30,14 +30,14 @@ If you want to work with video files you need to additionally install
 
 .. code-block:: bash
 
-    pip install av
+    pip install "lightly[video]"
 
-If you want to work use the Masked Autoencoder you need to additionally install
+If you want to work with the Masked Autoencoder you need to additionally install
 `TIMM <https://github.com/huggingface/pytorch-image-models>`_.
 
 .. code-block:: bash
 
-    pip install "timm>=0.9.9"
+    pip install "lightly[timm]"
 
 Next Steps
 ------------
