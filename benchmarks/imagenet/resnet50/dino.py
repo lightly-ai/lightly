@@ -31,9 +31,9 @@ class DINO(LightningModule):
         resnet = resnet50()
         resnet.fc = Identity()  # Ignore classification head
         self.backbone = resnet
-        self.projection_head = DINOProjectionHead(freeze_last_layer=1)
+        self.projection_head = DINOProjectionHead()
         self.student_backbone = copy.deepcopy(self.backbone)
-        self.student_projection_head = DINOProjectionHead()
+        self.student_projection_head = DINOProjectionHead(freeze_last_layer=1)
         self.criterion = DINOLoss()
 
         self.online_classifier = OnlineLinearClassifier(num_classes=num_classes)
