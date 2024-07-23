@@ -82,14 +82,17 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer, Module):
     def forward_intermediates(
         self,
         images: Tensor,
+        norm: bool = False,
         idx_mask: Optional[Tensor] = None,
         idx_keep: Optional[Tensor] = None,
     ) -> Tuple[Tensor, List[Tensor]]:
-        """Encode input images.
+        """Encode input images and return features from the intermediate layers.
 
         Args:
             images:
                 Batch of input images.
+            norm:
+                Apply norm layer to all intermediates.
             idx_mask:
                 Tensor with shape (batch_size, num_tokens_to_mask) where each
                 entry is an index of the token to mask in the respective batch.
@@ -100,7 +103,8 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer, Module):
                 If specified, only the indexed tokens will be encoded.
 
         Returns:
-            Batch of encoded output tokens with shape (batch_size, self.sequence_length, vit.embed_dim).
+            Tuple of batch of encoded output tokens and a list of intermediate features
+            from each layer with shape (batch_size, self.sequence_length, vit.embed_dim).
         """
         # preprocess images, convert to tokens and add positional embeddings
         tokens = self.preprocess(images=images, idx_mask=idx_mask, idx_keep=idx_keep)
@@ -110,7 +114,7 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer, Module):
         intermediates: List[Tensor] = []
         for blk in self.vit.blocks:
             tokens = blk(tokens)
-            intermediates.append(self.vit.norm(tokens))
+            intermediates.append(self.vit.norm(tokens) if norm else tokens)
 
         # normalize
         out: Tensor = self.vit.norm(tokens)
@@ -185,8 +189,8 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer, Module):
         # apply Transformer blocks
         tokens = self.vit.blocks(tokens)
         # normalize
-        out: Tensor = self.vit.norm(tokens)
-        return out
+        tokens: Tensor = self.vit.norm(tokens)
+        return tokens
 
     def images_to_tokens(self, images: Tensor) -> Tensor:
         """Converts images into patch tokens.
