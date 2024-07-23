@@ -24,10 +24,10 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer, Module):
     """
 
     def __init__(
-            self,
-            vit: VisionTransformer,
-            initialize_weights: bool = True,
-            mask_token: Optional[Parameter] = None,
+        self,
+        vit: VisionTransformer,
+        initialize_weights: bool = True,
+        mask_token: Optional[Parameter] = None,
     ) -> None:
         super().__init__()
         self.vit = vit
@@ -45,10 +45,10 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer, Module):
         return seq_len
 
     def forward(
-            self,
-            images: Tensor,
-            idx_mask: Optional[Tensor] = None,
-            idx_keep: Optional[Tensor] = None,
+        self,
+        images: Tensor,
+        idx_mask: Optional[Tensor] = None,
+        idx_keep: Optional[Tensor] = None,
     ) -> Tensor:
         """Returns encoded class tokens from a batch of images.
 
@@ -80,10 +80,10 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer, Module):
         return x
 
     def forward_intermediates(
-            self,
-            images: Tensor,
-            idx_mask: Optional[Tensor] = None,
-            idx_keep: Optional[Tensor] = None,
+        self,
+        images: Tensor,
+        idx_mask: Optional[Tensor] = None,
+        idx_keep: Optional[Tensor] = None,
     ) -> List[Tensor]:
         """Encode input images.
 
@@ -116,10 +116,10 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer, Module):
         return intermediates
 
     def preprocess(
-            self,
-            images: Tensor,
-            idx_mask: Optional[Tensor] = None,
-            idx_keep: Optional[Tensor] = None,
+        self,
+        images: Tensor,
+        idx_mask: Optional[Tensor] = None,
+        idx_keep: Optional[Tensor] = None,
     ) -> Tensor:
         """
         preprocess images, convert to tokens and add positional embeddings
@@ -156,10 +156,10 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer, Module):
         return tokens
 
     def encode(
-            self,
-            images: Tensor,
-            idx_mask: Optional[Tensor] = None,
-            idx_keep: Optional[Tensor] = None,
+        self,
+        images: Tensor,
+        idx_mask: Optional[Tensor] = None,
+        idx_keep: Optional[Tensor] = None,
     ) -> Tensor:
         """Encode input images.
 
