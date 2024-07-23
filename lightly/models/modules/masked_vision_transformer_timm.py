@@ -235,7 +235,8 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer, Module):
         torch.nn.init.xavier_uniform_(w.view([w.shape[0], -1]))
 
         # Initialize the class token.
-        torch.nn.init.normal_(self.vit.cls_token, std=0.02)
+        if self.vit.has_class_token:
+            torch.nn.init.normal_(self.vit.cls_token, std=0.02)
 
         # initialize nn.Linear and nn.LayerNorm
         self.apply(_init_weights)

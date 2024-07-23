@@ -11,57 +11,7 @@ if not dependency.timm_vit_available():
     pytest.skip("TIMM vision transformer is not available", allow_module_level=True)
 
 
-from timm.models.vision_transformer import VisionTransformer, vit_base_patch32_224
-
-from lightly.models.modules import MAEDecoderTIMM, MaskedVisionTransformerTIMM
-
-
-class TestMaskedVisionTransformerTIMM(unittest.TestCase):
-    def _vit(self) -> VisionTransformer:
-        return vit_base_patch32_224()
-
-    def test_from_vit(self) -> None:
-        MaskedVisionTransformerTIMM(vit=self._vit())
-
-    def _test_forward(
-        self, device: torch.device, batch_size: int = 8, seed: int = 0
-    ) -> None:
-        torch.manual_seed(seed)
-        vit = self._vit()
-        backbone = MaskedVisionTransformerTIMM(vit=vit).to(device)
-        images = torch.rand(
-            batch_size, 3, vit.patch_embed.img_size[0], vit.patch_embed.img_size[0]
-        ).to(device)
-        _idx_keep, _ = utils.random_token_mask(
-            size=(batch_size, backbone.sequence_length),
-            device=device,
-        )
-        for idx_keep in [None, _idx_keep]:
-            with self.subTest(idx_keep=idx_keep):
-                class_tokens = backbone(images=images, idx_keep=idx_keep)
-
-                # output shape must be correct
-                expected_shape = [batch_size, vit.embed_dim]
-                self.assertListEqual(list(class_tokens.shape), expected_shape)
-
-                # output must have reasonable numbers
-                self.assertTrue(torch.all(torch.not_equal(class_tokens, torch.inf)))
-
-    def test_forward(self) -> None:
-        self._test_forward(torch.device("cpu"))
-
-    @unittest.skipUnless(torch.cuda.is_available(), "Cuda not available.")
-    def test_forward_cuda(self) -> None:
-        self._test_forward(torch.device("cuda"))
-
-    def test_images_to_tokens(self) -> None:
-        torch.manual_seed(0)
-        vit = self._vit()
-        backbone = MaskedVisionTransformerTIMM(vit=vit)
-        images = torch.rand(2, 3, 224, 224)
-        assert torch.all(
-            vit.patch_embed(images) == backbone.images_to_tokens(images=images)
-        )
+from lightly.models.modules import MAEDecoderTIMM
 
 
 class TestMAEDecoderTIMM(unittest.TestCase):
