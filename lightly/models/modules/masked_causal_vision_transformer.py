@@ -1,4 +1,4 @@
-from typing import Callable, Literal, Optional, Tuple, Type, Union
+from typing import Callable, Optional, Tuple, Type, Union
 
 import torch
 import torch.nn.functional as F
@@ -163,7 +163,7 @@ class MaskedCausalVisionTransformer(VisionTransformer):  # type: ignore[misc]
         patch_size: Union[int, Tuple[int, int]] = 16,
         in_chans: int = 3,
         num_classes: int = 1000,
-        global_pool: Literal["", "avg", "token", "map"] = "",
+        global_pool: str = "",
         embed_dim: int = 768,
         depth: int = 12,
         num_heads: int = 12,
@@ -184,7 +184,7 @@ class MaskedCausalVisionTransformer(VisionTransformer):  # type: ignore[misc]
         proj_drop_rate: float = 0.0,
         attn_drop_rate: float = 0.0,
         drop_path_rate: float = 0.0,
-        weight_init: Literal["skip", "jax", "jax_nlhb", "moco", ""] = "",
+        weight_init: str = "",
         embed_layer: Callable = PatchEmbed,  # type: ignore[type-arg]
         norm_layer: Optional[LayerType] = None,
         act_layer: Optional[LayerType] = None,
