@@ -21,8 +21,8 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer, Module):
         mask_token:
             The mask token.
         weight_initialization:
-            The weight initialization method. Valid options are ['', 'skip']. 'skip'
-            skips the weight initialization and '' uses the default weight
+            The weight initialization method. Valid options are ['', 'skip']. '' uses
+            the default MAE weight initialization and 'skip' skips the weight
             initialization.
         antialias:
             Whether to use antialiasing when resampling the positional embeddings.
