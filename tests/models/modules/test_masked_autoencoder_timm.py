@@ -55,11 +55,12 @@ class TestMaskedVisionTransformerTIMM(unittest.TestCase):
         self._test_forward(torch.device("cuda"))
 
     def _test_forward_intermediates(
-            self, device: torch.device, batch_size: int = 8, seed: int = 0
+        self, device: torch.device, batch_size: int = 8, seed: int = 0
     ) -> None:
         torch.manual_seed(seed)
         vit = self._vit()
         backbone = MaskedVisionTransformerTIMM(vit=vit).to(device)
+        expected_sequence_length = backbone.sequence_length
         images = torch.rand(
             batch_size, 3, vit.patch_embed.img_size[0], vit.patch_embed.img_size[0]
         ).to(device)
@@ -67,7 +68,7 @@ class TestMaskedVisionTransformerTIMM(unittest.TestCase):
             size=(batch_size, backbone.sequence_length),
             device=device,
         )
-        for idx_keep in [None, _idx_keep]:
+        for idx_keep, expected_sequence_length in [(None, 50), (_idx_keep, 20)]:
             with self.subTest(idx_keep=idx_keep):
                 class_tokens = backbone(images=images, idx_keep=idx_keep)
 
@@ -75,10 +76,22 @@ class TestMaskedVisionTransformerTIMM(unittest.TestCase):
                 expected_shape = [batch_size, vit.embed_dim]
                 self.assertListEqual(list(class_tokens.shape), expected_shape)
 
-                intermediates = backbone.forward_intermediates(
+                output, intermediates = backbone.forward_intermediates(
                     images=images, idx_keep=idx_keep
                 )
+
                 self.assertTrue(len(intermediates) == len(vit.blocks))
+
+                # output shape must be correct
+                expected_intermediates_shape = [
+                    batch_size,
+                    expected_sequence_length,
+                    vit.embed_dim,
+                ]
+                for intermediate in intermediates:
+                    self.assertListEqual(
+                        list(intermediate.shape), expected_intermediates_shape
+                    )
 
                 # output must have reasonable numbers
                 self.assertTrue(torch.all(torch.not_equal(class_tokens, torch.inf)))
