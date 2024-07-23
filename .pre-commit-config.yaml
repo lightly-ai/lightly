@@ -6,15 +6,15 @@ repos:
   - id: check-added-large-files # prevent commit of files >500kB
     args: ['--maxkb=500']
 - repo: https://github.com/psf/black
-  rev: 23.1.0
+  rev: 23.1.0  # aligned with the version defined in pyproject.toml
   hooks:
   - id: black
 - repo: https://github.com/pycqa/isort
-  rev: 5.11.5
+  rev: 5.11.5  # aligned with the version defined in pyproject.toml
   hooks:
   - id: isort
 - repo: https://github.com/pre-commit/mirrors-mypy
-  rev: v1.4.1
+  rev: v1.4.1  # aligned with the version defined in pyproject.toml
   hooks:
   - id: mypy
 - repo: local
