@@ -82,9 +82,9 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer, Module):
     def forward_intermediates(
         self,
         images: Tensor,
-        norm: bool = False,
         idx_mask: Optional[Tensor] = None,
         idx_keep: Optional[Tensor] = None,
+        norm: bool = False,
     ) -> Tuple[Tensor, List[Tensor]]:
         """Encode input images and return features from the intermediate layers.
 
