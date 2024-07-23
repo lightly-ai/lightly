@@ -5,6 +5,18 @@ repos:
   - id: detect-private-key      # check for private keys
   - id: check-added-large-files # prevent commit of files >500kB
     args: ['--maxkb=500']
+- repo: https://github.com/psf/black
+  rev: 23.1.0
+  hooks:
+  - id: black
+- repo: https://github.com/pycqa/isort
+  rev: 5.11.5
+  hooks:
+  - id: isort
+- repo: https://github.com/pre-commit/mirrors-mypy
+  rev: v1.4.1
+  hooks:
+  - id: mypy
 - repo: local
   hooks:
   - id: pytest-check                     # run all tests
