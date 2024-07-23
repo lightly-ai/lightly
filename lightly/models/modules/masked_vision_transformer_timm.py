@@ -1,5 +1,5 @@
 import math
-from typing import Optional
+from typing import Optional, List
 
 import torch
 import torch.nn as nn
@@ -24,10 +24,10 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer, Module):
     """
 
     def __init__(
-        self,
-        vit: VisionTransformer,
-        initialize_weights: bool = True,
-        mask_token: Optional[Parameter] = None,
+            self,
+            vit: VisionTransformer,
+            initialize_weights: bool = True,
+            mask_token: Optional[Parameter] = None,
     ) -> None:
         super().__init__()
         self.vit = vit
@@ -45,10 +45,10 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer, Module):
         return seq_len
 
     def forward(
-        self,
-        images: Tensor,
-        idx_mask: Optional[Tensor] = None,
-        idx_keep: Optional[Tensor] = None,
+            self,
+            images: Tensor,
+            idx_mask: Optional[Tensor] = None,
+            idx_keep: Optional[Tensor] = None,
     ) -> Tensor:
         """Returns encoded class tokens from a batch of images.
 
@@ -74,21 +74,97 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer, Module):
         if self.vit.attn_pool is not None:
             x = self.vit.attn_pool(x)
         elif self.vit.global_pool == "avg":
-            x = x[:, self.vit.num_prefix_tokens :].mean(dim=1)
+            x = x[:, self.vit.num_prefix_tokens:].mean(dim=1)
         elif self.vit.global_pool:
             x = x[:, 0]  # class token
         return x
 
+    def forward_intermediates(
+            self,
+            images: Tensor,
+            idx_mask: Optional[Tensor] = None,
+            idx_keep: Optional[Tensor] = None,
+    ) -> List[Tensor]:
+        """Encode input images.
+
+                Args:
+                    images:
+                        Batch of input images.
+                    idx_mask:
+                        Tensor with shape (batch_size, num_tokens_to_mask) where each
+                        entry is an index of the token to mask in the respective batch.
+                        If specified, the indexed tokens are masked with self.mask_token.
+                    idx_keep:
+                        Tensor with shape (batch_size, num_tokens_to_keep) where each
+                        entry is an index of the token to keep in the respective batch.
+                        If specified, only the indexed tokens will be encoded.
+
+                Returns:
+                    Batch of encoded output tokens.
+                """
+        # preprocess images, convert to tokens and add positional embeddings
+        tokens = self.preprocess(images=images, idx_mask=idx_mask, idx_keep=idx_keep)
+        # normalization layer
+        tokens = self.vit.norm_pre(tokens)
+
+        blocks = self.vit.blocks
+        intermediates: List[Tensor] = []
+        for i, blk in enumerate(blocks):
+            tokens = blk(tokens)
+            intermediates.append(tokens)
+
+        return intermediates
+
+    def preprocess(
+            self,
+            images: Tensor,
+            idx_mask: Optional[Tensor] = None,
+            idx_keep: Optional[Tensor] = None,
+    ) -> Tensor:
+        """
+        preprocess images, convert to tokens and add positional embeddings
+
+        Args:
+            images:
+                Batch of input images.
+            idx_mask:
+                Tensor with shape (batch_size, num_tokens_to_mask) where each
+                entry is an index of the token to mask in the respective batch.
+                If specified, the indexed tokens are masked with self.mask_token.
+            idx_keep:
+                Tensor with shape (batch_size, num_tokens_to_keep) where each
+                entry is an index of the token to keep in the respective batch.
+                If specified, only the indexed tokens will be encoded.
+
+        Returns:
+            Processed tokens for further processing.
+
+        """
+        # convert images to tokens
+        tokens = self.images_to_tokens(images)
+        # add prefix tokens if needed
+        tokens = self.add_prefix_tokens(tokens)
+
+        if idx_mask is not None:
+            tokens = utils.mask_at_index(tokens, idx_mask, self.mask_token)
+        # add positional encoding
+        tokens = self.add_pos_embed(tokens)
+
+        if idx_keep is not None:
+            tokens = utils.get_at_index(tokens, idx_keep)
+
+        return tokens
+
     def encode(
-        self,
-        images: Tensor,
-        idx_mask: Optional[Tensor] = None,
-        idx_keep: Optional[Tensor] = None,
+            self,
+            images: Tensor,
+            idx_mask: Optional[Tensor] = None,
+            idx_keep: Optional[Tensor] = None,
     ) -> Tensor:
         """Encode input images.
 
         Args:
-            input:
+            images:
                 Batch of input images.
             idx_mask:
                 Tensor with shape (batch_size, num_tokens_to_mask) where each
@@ -102,24 +178,14 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer, Module):
         Returns:
             Batch of encoded output tokens.
         """
-        # convert images to tokens
-        input = self.images_to_tokens(images)
-        # add prefix tokens if needed
-        input = self.add_prefix_tokens(input)
-
-        if idx_mask is not None:
-            input = utils.mask_at_index(input, idx_mask, self.mask_token)
-        # add positional encoding
-        input = self.add_pos_embed(input)
-
-        if idx_keep is not None:
-            input = utils.get_at_index(input, idx_keep)
+        # preprocess images, convert to tokens and add positional embeddings
+        tokens = self.preprocess(images=images, idx_mask=idx_mask, idx_keep=idx_keep)
         # normalization layer
-        input = self.vit.norm_pre(input)
+        post_norm = self.vit.norm_pre(tokens)
         # apply Transformer blocks
-        input = self.vit.blocks(input)
+        trunk = self.vit.blocks(post_norm)
         # normalize
-        out: Tensor = self.vit.norm(input)
+        out: Tensor = self.vit.norm(trunk)
         return out
 
     def images_to_tokens(self, images: Tensor) -> Tensor:
@@ -173,7 +239,7 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer, Module):
         """
 
         x_prefix = x[:, : self.vit.num_prefix_tokens, :]
-        x = x[:, self.vit.num_prefix_tokens :, :]
+        x = x[:, self.vit.num_prefix_tokens:, :]
         if self.vit.dynamic_img_size:
             x = x.transpose(1, 2)  # NLC -> NCL
             total_size = torch.numel(x)
