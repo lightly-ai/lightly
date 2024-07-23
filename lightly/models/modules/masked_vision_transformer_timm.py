@@ -183,13 +183,13 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer, Module):
             Batch of encoded output tokens.
         """
         # preprocess images, convert to tokens and add positional embeddings
-        tokens = self.preprocess(images=images, idx_mask=idx_mask, idx_keep=idx_keep)
+        tokens: Tensor = self.preprocess(images=images, idx_mask=idx_mask, idx_keep=idx_keep)
         # normalization layer
         tokens = self.vit.norm_pre(tokens)
         # apply Transformer blocks
         tokens = self.vit.blocks(tokens)
         # normalize
-        tokens: Tensor = self.vit.norm(tokens)
+        tokens = self.vit.norm(tokens)
         return tokens
 
     def images_to_tokens(self, images: Tensor) -> Tensor:
