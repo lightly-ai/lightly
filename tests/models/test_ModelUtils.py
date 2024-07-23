@@ -5,6 +5,7 @@ from typing import List
 import pytest
 import torch
 import torch.nn as nn
+from torch.nn import Identity
 
 from lightly.models import utils
 from lightly.models.utils import (
@@ -538,3 +539,52 @@ def test_normalize_mean_var() -> None:
     norm = utils.normalize_mean_var(x)
     assert torch.allclose(norm.mean(dim=-1), torch.tensor(0.0), rtol=0.0001, atol=1e-5)
     assert torch.allclose(norm.var(dim=-1), torch.tensor(1.0), rtol=0.0001, atol=1e-5)
+
+
+def test_update_drop_path_rate__uniform() -> None:
+    pytest.importorskip("timm.models.vision_transformer")
+    from timm.layers import DropPath
+    from timm.models.vision_transformer import VisionTransformer
+
+    model = VisionTransformer(drop_path_rate=0.2, depth=4)
+    utils.update_drop_path_rate(model=model, drop_path_rate=0.1, mode="uniform")
+
+    for drop_path in [
+        model.blocks[0].drop_path1,
+        model.blocks[0].drop_path2,
+        model.blocks[-1].drop_path1,
+        model.blocks[-1].drop_path2,
+    ]:
+        assert isinstance(drop_path, DropPath)
+        assert drop_path.drop_prob == 0.1
+
+
+def test_update_drop_path_rate__linear() -> None:
+    pytest.importorskip("timm.models.vision_transformer")
+    from timm.layers import DropPath
+    from timm.models.vision_transformer import VisionTransformer
+
+    model = VisionTransformer(drop_path_rate=0, depth=4)
+    utils.update_drop_path_rate(model=model, drop_path_rate=0.1, mode="linear")
+
+    for drop_path in [
+        model.blocks[0].drop_path1,
+        model.blocks[0].drop_path2,
+    ]:
+        assert isinstance(drop_path, Identity)
+
+    for drop_path in [
+        model.blocks[-1].drop_path1,
+        model.blocks[-1].drop_path2,
+    ]:
+        assert isinstance(drop_path, DropPath)
+        assert drop_path.drop_prob == 0.1
+
+
+def test_update_drop_path_rate__unknown_mode() -> None:
+    pytest.importorskip("timm.models.vision_transformer")
+    from timm.models.vision_transformer import VisionTransformer
+
+    model = VisionTransformer(drop_path_rate=0, depth=4)
+    with pytest.raises(ValueError, match="Unknown mode"):
+        utils.update_drop_path_rate(model=model, drop_path_rate=0.1, mode="unknown")
