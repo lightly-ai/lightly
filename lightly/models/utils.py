@@ -553,7 +553,7 @@ def random_block_mask(
     mask_ratio: float = 0.5,
     min_image_mask_ratio: float = 0.1,
     max_image_mask_ratio: float = 0.5,
-    min_num_mask_per_block: int = 2,
+    min_num_mask_per_block: int = 4,
     max_num_mask_per_block: Optional[int] = None,
     min_aspect: float = 0.3,
     max_aspect: Optional[float] = None,
@@ -642,7 +642,7 @@ def random_block_mask(
 def random_block_mask_image(
     size: Tuple[int, int],
     num_mask: int,
-    min_num_mask_per_block: int = 2,
+    min_num_mask_per_block: int = 4,
     max_num_mask_per_block: Optional[int] = None,
     min_aspect: float = 0.3,
     max_aspect: Optional[float] = None,
