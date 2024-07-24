@@ -38,6 +38,7 @@ class MaskedVisionTransformer(ABC, Module):
     ) -> Tuple[Tensor, List[Tensor]]:
         ...
 
+    @abstractmethod
     def encode(
         self,
         images: Tensor,
