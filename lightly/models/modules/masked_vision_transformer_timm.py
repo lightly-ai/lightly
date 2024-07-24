@@ -33,8 +33,8 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
         self,
         vit: VisionTransformer,
         mask_token: Optional[Parameter] = None,
-        antialias: bool = True,
         weight_initialization: str = "",
+        antialias: bool = True,
     ) -> None:
         super().__init__()
         self.vit = vit
