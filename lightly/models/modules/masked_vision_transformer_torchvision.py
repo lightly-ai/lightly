@@ -1,5 +1,5 @@
 import math
-from typing import Optional
+from typing import List, Optional, Tuple
 
 import torch
 import torch.nn as nn
@@ -11,7 +11,7 @@ from lightly.models import utils
 from lightly.models.modules.masked_vision_transformer import MaskedVisionTransformer
 
 
-class MaskedVisionTransformerTorchvision(MaskedVisionTransformer, Module):
+class MaskedVisionTransformerTorchvision(MaskedVisionTransformer):
     """Masked Vision Transformer class using Torchvision.
 
     Attributes:
@@ -19,14 +19,20 @@ class MaskedVisionTransformerTorchvision(MaskedVisionTransformer, Module):
             The VisionTransformer object of Torchvision.
         mask_token:
             The mask token.
+        weight_initialization:
+            The weight initialization method. Valid options are ['', 'skip']. '' uses
+            the default MAE weight initialization and 'skip' skips the weight
+        antialias:
+            Whether to use antialiasing when resampling the positional embeddings.
 
     """
 
     def __init__(
         self,
         vit: VisionTransformer,
-        initialize_weights: bool = True,
         mask_token: Optional[Parameter] = None,
+        weight_initialization: str = "",
+        antialias: bool = True,
     ) -> None:
         super().__init__()
         self.vit = vit
@@ -35,8 +41,15 @@ class MaskedVisionTransformerTorchvision(MaskedVisionTransformer, Module):
             if mask_token is not None
             else Parameter(torch.zeros(1, 1, self.vit.hidden_dim))
         )
-        if initialize_weights:
+        if weight_initialization not in ("", "skip"):
+            raise ValueError(
+                f"Invalid weight initialization method: '{weight_initialization}'. "
+                "Valid options are: ['', 'skip']."
+            )
+        if weight_initialization != "skip":
             self._initialize_weights()
+
+        self.antialias = antialias
 
     @property
     def sequence_length(self) -> int:
@@ -70,6 +83,7 @@ class MaskedVisionTransformerTorchvision(MaskedVisionTransformer, Module):
             ),
             scale_factor=math.sqrt(npatch / N),
             mode="bicubic",
+            antialias=self.antialias,
         )
         pos_embedding = pos_embedding.permute(0, 2, 3, 1).view(1, -1, dim)
         return torch.cat((class_emb.unsqueeze(0), pos_embedding), dim=1)
@@ -103,6 +117,17 @@ class MaskedVisionTransformerTorchvision(MaskedVisionTransformer, Module):
         out = self.encode(images, idx_mask=idx_mask, idx_keep=idx_keep)
         class_token = out[:, 0]
         return class_token
+
+    def forward_intermediates(
+        self,
+        images: Tensor,
+        idx_mask: Optional[Tensor] = None,
+        idx_keep: Optional[Tensor] = None,
+        norm: bool = False,
+    ) -> Tuple[Tensor, List[Tensor]]:
+        raise NotImplementedError(
+            "forward_intermediates is not implemented for this model."
+        )
 
     def encode(
         self,
