@@ -93,6 +93,7 @@ class MaskedVisionTransformerTorchvision(MaskedVisionTransformer):
         images: Tensor,
         idx_mask: Optional[Tensor] = None,
         idx_keep: Optional[Tensor] = None,
+        mask: Optional[Tensor] = None,
     ) -> Tensor:
         """Returns encoded class tokens from a batch of images.
 
@@ -108,13 +109,17 @@ class MaskedVisionTransformerTorchvision(MaskedVisionTransformer):
                 entry is an index of the token to keep in the respective batch.
                 If specified, only the indexed tokens will be passed to the
                 encoder.
+            mask:
+                Tensor with shape (batch_size, sequence_length) indicating which tokens
+                should be masked. Tokens where the mask is True will be masked with
+                self.mask_token.
 
         Returns:
             Tensor with shape (batch_size, vit.hidden_dim) containing the
             encoded class token for every image.
 
         """
-        out = self.encode(images, idx_mask=idx_mask, idx_keep=idx_keep)
+        out = self.encode(images, idx_mask=idx_mask, idx_keep=idx_keep, mask=mask)
         class_token = out[:, 0]
         return class_token
 
@@ -124,6 +129,7 @@ class MaskedVisionTransformerTorchvision(MaskedVisionTransformer):
         idx_mask: Optional[Tensor] = None,
         idx_keep: Optional[Tensor] = None,
         norm: bool = False,
+        mask: Optional[Tensor] = None,
     ) -> Tuple[Tensor, List[Tensor]]:
         raise NotImplementedError(
             "forward_intermediates is not implemented for this model."
@@ -134,6 +140,7 @@ class MaskedVisionTransformerTorchvision(MaskedVisionTransformer):
         images: Tensor,
         idx_mask: Optional[Tensor] = None,
         idx_keep: Optional[Tensor] = None,
+        mask: Optional[Tensor] = None,
     ) -> Tensor:
         """Encode input images.
 
@@ -148,6 +155,10 @@ class MaskedVisionTransformerTorchvision(MaskedVisionTransformer):
                 Tensor with shape (batch_size, num_tokens_to_keep) where each
                 entry is an index of the token to keep in the respective batch.
                 If specified, only the indexed tokens will be encoded.
+            mask:
+                Tensor with shape (batch_size, sequence_length) indicating which tokens
+                should be masked. Tokens where the mask is True will be masked with
+                self.mask_token.
 
         Returns:
             Batch of encoded output tokens.
@@ -158,7 +169,11 @@ class MaskedVisionTransformerTorchvision(MaskedVisionTransformer):
         input = self.add_prefix_tokens(input)
 
         if idx_mask is not None:
-            input = utils.mask_at_index(input, idx_mask, self.mask_token)
+            input = utils.mask_at_index(
+                tokens=input, index=idx_mask, mask_token=self.mask_token
+            )
+        elif mask is not None:
+            input = utils.mask_bool(tokens=input, mask=mask, mask_token=self.mask_token)
         # add positional encoding
         input = self.add_pos_embed(input)
 

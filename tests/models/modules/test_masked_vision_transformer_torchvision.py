@@ -84,7 +84,11 @@ class TestMaskedVisionTransformerTorchvision(MaskedVisionTransformerTest):
 
     @pytest.mark.skip(reason="Torchvision ViT does not support forward intermediates")
     def test_forward_intermediates(
-        self, device: str, mask_ratio: Optional[float], expected_sequence_length: int
+        self,
+        device: str,
+        idx_mask_ratio: Optional[float],
+        bool_mask_ratio: Optional[float],
+        expected_sequence_length: int,
     ) -> None:
         ...
 
