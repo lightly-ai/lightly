@@ -85,7 +85,8 @@ class TestMaskedVisionTransformerTorchvision(MaskedVisionTransformerTest):
     @pytest.mark.skip(reason="Torchvision ViT does not support forward intermediates")
     def test_forward_intermediates(
         self, device: str, mask_ratio: Optional[float], expected_sequence_length: int
-    ) -> None: ...
+    ) -> None:
+        ...
 
     @pytest.mark.skip(reason="Torchvision ViT does not support reg tokens")
     def test_add_prefix_tokens(
@@ -94,7 +95,8 @@ class TestMaskedVisionTransformerTorchvision(MaskedVisionTransformerTest):
         class_token: bool,
         reg_tokens: int,
         expected_sequence_length: int,
-    ) -> None: ...
+    ) -> None:
+        ...
 
     @pytest.mark.parametrize("device", ["cpu", "cuda"])
     @pytest.mark.parametrize(
