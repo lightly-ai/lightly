@@ -11,10 +11,10 @@ from torch import nn
 from lightly.loss.tico_loss import TiCoLoss
 from lightly.models.modules.heads import TiCoProjectionHead
 from lightly.models.utils import deactivate_requires_grad, update_momentum
-from lightly.transforms.byol_transform import (
-    BYOLTransform,
-    BYOLView1Transform,
-    BYOLView2Transform,
+from lightly.transforms.tico_transform import (
+    TiCoTransform,
+    TiCoView1Transform,
+    TiCoView2Transform,
 )
 from lightly.utils.scheduler import cosine_schedule
 
@@ -51,11 +51,11 @@ model = TiCo(backbone)
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
 
-# TiCo uses BYOL augmentations.
+# TiCo uses the same augmentations as BYOL.
 # We disable resizing and gaussian blur for cifar10.
-transform = BYOLTransform(
-    view_1_transform=BYOLView1Transform(input_size=32, gaussian_blur=0.0),
-    view_2_transform=BYOLView2Transform(input_size=32, gaussian_blur=0.0),
+transform = TiCoTransform(
+    view_1_transform=TiCoView1Transform(input_size=32, gaussian_blur=0.0),
+    view_2_transform=TiCoView1Transform(input_size=32, gaussian_blur=0.0),
 )
 dataset = torchvision.datasets.CIFAR10(
     "datasets/cifar10", download=True, transform=transform
