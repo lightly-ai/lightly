@@ -349,6 +349,15 @@ def test_random_block_mask__min_max_image_mask_ratio(
     )
 
 
+@pytest.mark.parametrize("device", ["cpu", "cuda"])
+def test_random_block_mask__device(device: str) -> None:
+    if device == "cuda" and not torch.cuda.is_available():
+        pytest.skip("CUDA not available")
+
+    mask = utils.random_block_mask(size=(2, 14, 14), device=device)
+    assert mask.device.type == device
+
+
 @pytest.mark.parametrize(
     "size,num_mask,min_num_mask_per_block,max_num_mask_per_block",
     [
@@ -440,6 +449,9 @@ def test_random_block_mask_image__aspect_ratio_fail() -> None:
 
 @pytest.mark.parametrize("device", ["cpu", "cuda"])
 def test_random_block_mask_image__device(device: str) -> None:
+    if device == "cuda" and not torch.cuda.is_available():
+        pytest.skip("CUDA not available")
+
     mask = utils.random_block_mask_image(
         size=(14, 14),
         num_mask=10,
