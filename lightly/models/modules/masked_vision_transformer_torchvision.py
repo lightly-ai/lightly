@@ -1,5 +1,5 @@
 import math
-from typing import Optional
+from typing import List, Optional, Tuple
 
 import torch
 import torch.nn as nn
@@ -11,7 +11,7 @@ from lightly.models import utils
 from lightly.models.modules.masked_vision_transformer import MaskedVisionTransformer
 
 
-class MaskedVisionTransformerTorchvision(MaskedVisionTransformer, Module):
+class MaskedVisionTransformerTorchvision(MaskedVisionTransformer):
     """Masked Vision Transformer class using Torchvision.
 
     Attributes:
@@ -117,6 +117,17 @@ class MaskedVisionTransformerTorchvision(MaskedVisionTransformer, Module):
         out = self.encode(images, idx_mask=idx_mask, idx_keep=idx_keep)
         class_token = out[:, 0]
         return class_token
+
+    def forward_intermediates(
+        self,
+        images: Tensor,
+        idx_mask: Optional[Tensor] = None,
+        idx_keep: Optional[Tensor] = None,
+        norm: bool = False,
+    ) -> Tuple[Tensor, List[Tensor]]:
+        raise NotImplementedError(
+            "forward_intermediates is not implemented for this model."
+        )
 
     def encode(
         self,

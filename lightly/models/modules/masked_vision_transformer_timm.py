@@ -12,7 +12,7 @@ from lightly.models import utils
 from lightly.models.modules.masked_vision_transformer import MaskedVisionTransformer
 
 
-class MaskedVisionTransformerTIMM(MaskedVisionTransformer, Module):
+class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
     """Masked Vision Transformer class using TIMM.
 
     Attributes:
