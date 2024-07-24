@@ -25,20 +25,24 @@ class MaskedVisionTransformerTest(ABC):
         mask_token: Optional[Parameter] = None,
         antialias: bool = True,
         weight_initialization: str = "",
-    ) -> MaskedVisionTransformer:
-        ...
+    ) -> MaskedVisionTransformer: ...
 
     @abstractmethod
-    def test__init__mask_token(self, mask_token: Optional[Parameter]) -> None:
-        ...
+    def test__init__mask_token(self, mask_token: Optional[Parameter]) -> None: ...
 
     @abstractmethod
-    def test__init__weight_initialization(self, mocker: MockerFixture) -> None:
-        ...
+    def test__init__weight_initialization(self, mocker: MockerFixture) -> None: ...
 
     @abstractmethod
-    def test__init__weight_initialization__skip(self, mocker: MockerFixture) -> None:
-        ...
+    def test__init__weight_initialization__skip(
+        self, mocker: MockerFixture
+    ) -> None: ...
+
+    def test__init__weight_initialization__invalid(self) -> None:
+        with pytest.raises(ValueError):
+            self.get_masked_vit(
+                patch_size=32, depth=1, num_heads=1, weight_initialization="invalid"
+            )
 
     def test_sequence_length(self) -> None:
         # TODO(Guarin, 07/2024): Support reg_tokens > 0 and test the sequence length
