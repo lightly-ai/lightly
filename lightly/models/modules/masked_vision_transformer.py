@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import List, Optional, Tuple
 
 from torch import Tensor
+from torch.nn import Module
 
 
-class MaskedVisionTransformer(ABC):
+class MaskedVisionTransformer(ABC, Module):
     """
     Abstract base class for Masked Vision Transformer models.
 
@@ -13,6 +14,11 @@ class MaskedVisionTransformer(ABC):
     tokenization of images, and various operations needed for the transformer.
     """
 
+    @property
+    @abstractmethod
+    def sequence_length(self) -> int:
+        ...
+
     @abstractmethod
     def forward(
         self,
@@ -20,16 +26,35 @@ class MaskedVisionTransformer(ABC):
         idx_mask: Optional[Tensor] = None,
         idx_keep: Optional[Tensor] = None,
     ) -> Tensor:
-        pass
+        ...
+
+    @abstractmethod
+    def forward_intermediates(
+        self,
+        images: Tensor,
+        idx_mask: Optional[Tensor] = None,
+        idx_keep: Optional[Tensor] = None,
+        norm: bool = False,
+    ) -> Tuple[Tensor, List[Tensor]]:
+        ...
+
+    @abstractmethod
+    def encode(
+        self,
+        images: Tensor,
+        idx_mask: Optional[Tensor] = None,
+        idx_keep: Optional[Tensor] = None,
+    ) -> Tensor:
+        ...
 
     @abstractmethod
     def images_to_tokens(self, images: Tensor) -> Tensor:
-        pass
+        ...
 
     @abstractmethod
     def add_prefix_tokens(self, x: Tensor) -> Tensor:
-        pass
+        ...
 
     @abstractmethod
     def add_pos_embed(self, x: Tensor) -> Tensor:
-        pass
+        ...

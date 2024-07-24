@@ -12,7 +12,7 @@ from lightly.models import utils
 from lightly.models.modules.masked_vision_transformer import MaskedVisionTransformer
 
 
-class MaskedVisionTransformerTIMM(MaskedVisionTransformer, Module):
+class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
     """Masked Vision Transformer class using TIMM.
 
     Attributes:
@@ -20,14 +20,21 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer, Module):
             The VisionTransformer object of TIMM.
         mask_token:
             The mask token.
+        weight_initialization:
+            The weight initialization method. Valid options are ['', 'skip']. '' uses
+            the default MAE weight initialization and 'skip' skips the weight
+            initialization.
+        antialias:
+            Whether to use antialiasing when resampling the positional embeddings.
 
     """
 
     def __init__(
         self,
         vit: VisionTransformer,
-        initialize_weights: bool = True,
         mask_token: Optional[Parameter] = None,
+        weight_initialization: str = "",
+        antialias: bool = True,
     ) -> None:
         super().__init__()
         self.vit = vit
@@ -36,8 +43,16 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer, Module):
             if mask_token is not None
             else Parameter(torch.zeros(1, 1, self.vit.embed_dim))
         )
-        if initialize_weights:
+
+        if weight_initialization not in ("", "skip"):
+            raise ValueError(
+                f"Invalid weight initialization method: '{weight_initialization}'. "
+                "Valid options are: ['', 'skip']."
+            )
+        if weight_initialization != "skip":
             self._initialize_weights()
+
+        self.antialias = antialias
 
     @property
     def sequence_length(self) -> int:
@@ -268,6 +283,7 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer, Module):
                 num_prefix_tokens=(
                     0 if self.vit.no_embed_class else self.vit.num_prefix_tokens
                 ),
+                antialias=self.antialias,
             )
             x = x.view(B, -1, C)
         else:
@@ -291,7 +307,8 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer, Module):
         torch.nn.init.xavier_uniform_(w.view([w.shape[0], -1]))
 
         # Initialize the class token.
-        torch.nn.init.normal_(self.vit.cls_token, std=0.02)
+        if self.vit.has_class_token:
+            torch.nn.init.normal_(self.vit.cls_token, std=0.02)
 
         # initialize nn.Linear and nn.LayerNorm
         self.apply(_init_weights)
