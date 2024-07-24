@@ -1,6 +1,7 @@
 import copy
+import random
 import unittest
-from typing import List
+from typing import List, Optional, Tuple
 
 import pytest
 import torch
@@ -299,6 +300,152 @@ class TestModelUtils(unittest.TestCase):
     @unittest.skipUnless(torch.cuda.is_available(), "No cuda available")
     def test_random_token_mask_cuda(self):
         self._test_random_token_mask_parameters(device="cuda")
+
+
+@pytest.mark.parametrize(
+    "mask_ratio, expected_num_images_masked",
+    [
+        (0.0, 0),
+        (0.4, 2),
+        (0.6, 3),
+        (1.0, 5),
+    ],
+)
+def test_random_block_mask__mask_ratio(
+    mask_ratio: float, expected_num_images_masked: int
+) -> None:
+    mask = utils.random_block_mask(
+        size=(5, 14, 14),
+        mask_ratio=mask_ratio,
+    )
+    num_images_masked = sum(m.sum() > 0 for m in mask)
+    assert num_images_masked == expected_num_images_masked
+
+
+@pytest.mark.parametrize(
+    "min_image_mask_ratio, max_image_mask_ratio",
+    [(0.0, 0.0), (0.4, 0.6), (1.0, 1.0)],
+)
+def test_random_block_mask__min_max_image_mask_ratio(
+    min_image_mask_ratio: float, max_image_mask_ratio: float
+) -> None:
+    torch.manual_seed(0)
+    random.seed(0)
+    mask = utils.random_block_mask(
+        size=(5, 14, 14),
+        min_image_mask_ratio=min_image_mask_ratio,
+        max_image_mask_ratio=max_image_mask_ratio,
+        min_num_mask_per_block=0,
+    )
+    num_masked = mask.sum()
+    num_patches = 5 * 14 * 14
+    # Divide lower bound by 4 because the bound is not strict as fewer patches than
+    # min_image_mask_ratio * num_patches can be masked. This is because there is a
+    # limited number of attempts to find a valid mask that satisfies all constraints.
+    assert (
+        min_image_mask_ratio * num_patches / 4
+        <= num_masked
+        <= max_image_mask_ratio * num_patches
+    )
+
+
+@pytest.mark.parametrize(
+    "size,num_mask,min_num_mask_per_block,max_num_mask_per_block",
+    [
+        ((8, 12), 0, 0, None),
+        ((8, 12), 10, 0, None),
+        ((8, 12), 10, 4, None),
+        ((8, 12), 10, 10, None),
+        ((8, 12), 10, 0, 4),
+        ((8, 12), 10, 0, 10),
+        ((8, 12), 8 * 12, 1, None),
+    ],
+)
+def test_random_block_mask_image__num_mask_per_block(
+    size: Tuple[int, int],
+    num_mask: int,
+    min_num_mask_per_block: int,
+    max_num_mask_per_block: Optional[int],
+) -> None:
+    torch.manual_seed(0)
+    random.seed(0)
+    mask = utils.random_block_mask_image(
+        size=size,
+        num_mask=num_mask,
+        min_num_mask_per_block=min_num_mask_per_block,
+        max_num_mask_per_block=max_num_mask_per_block,
+    )
+    assert min_num_mask_per_block <= mask.sum() <= num_mask
+    assert mask.shape == size
+
+
+def test_random_block_mask_image__num_mask_per_block__fail() -> None:
+    with pytest.raises(
+        ValueError,
+        match=(
+            "max_num_mask_per_block must be greater or equal to min_num_mask_per_block"
+        ),
+    ):
+        utils.random_block_mask_image(
+            size=(14, 14),
+            num_mask=10,
+            min_num_mask_per_block=10,
+            max_num_mask_per_block=4,
+        )
+
+
+@pytest.mark.parametrize(
+    "min_aspect,max_aspect",
+    [
+        (0.1, None),
+        (0.1, 0.3),
+        (0.1, 3.0),
+        (0.3, 0.3),
+    ],
+)
+def test_random_block_mask_image__aspect_ratio(
+    min_aspect: float, max_aspect: Optional[float]
+) -> None:
+    mask = utils.random_block_mask_image(
+        size=(14, 14), num_mask=10, min_aspect=min_aspect, max_aspect=max_aspect
+    )
+    assert mask.sum() > 0
+
+
+def test_random_block_mask_image__aspect_ratio_one() -> None:
+    """With aspect ratio 1.0 and num_mask=min_num_mask_per_block we expect a single,
+    square masked block."""
+    mask = utils.random_block_mask_image(
+        size=(14, 14),
+        num_mask=9,
+        min_num_mask_per_block=9,
+        min_aspect=1.0,
+        max_aspect=1.0,
+    )
+    assert mask.sum(dim=0).max() == 3
+    assert mask.sum(dim=1).max() == 3
+
+
+def test_random_block_mask_image__aspect_ratio_fail() -> None:
+    with pytest.raises(
+        ValueError, match="max_aspect must be greater or equal to min_aspect"
+    ):
+        utils.random_block_mask_image(
+            size=(14, 14),
+            num_mask=10,
+            min_aspect=3.0,
+            max_aspect=1.0,
+        )
+
+
+@pytest.mark.parametrize("device", ["cpu", "cuda"])
+def test_random_block_mask_image__device(device: str) -> None:
+    mask = utils.random_block_mask_image(
+        size=(14, 14),
+        num_mask=10,
+        device=device,
+    )
+    assert mask.device.type == device
 
 
 @pytest.mark.parametrize(
