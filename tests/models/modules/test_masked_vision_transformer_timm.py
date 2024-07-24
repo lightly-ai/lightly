@@ -93,6 +93,53 @@ class TestMaskedVisionTransformerTIMM:
 
     @pytest.mark.parametrize("device", ["cpu", "cuda"])
     @pytest.mark.parametrize(
+        "mask_ratio, expected_sequence_length", [(None, 50), (0.6, 20)]
+    )
+    def test_forward_intermediates(
+        self, device: str, mask_ratio: Optional[float], expected_sequence_length: int
+    ) -> None:
+        if device == "cuda" and not torch.cuda.is_available():
+            pytest.skip("CUDA not available.")
+
+        torch.manual_seed(0)
+        batch_size = 8
+        embed_dim = 768
+        vit = VisionTransformer(
+            patch_size=32, depth=2, num_heads=2, embed_dim=embed_dim
+        )
+        model = MaskedVisionTransformerTIMM(vit=vit).to(device)
+        images = torch.rand(
+            batch_size, 3, vit.patch_embed.img_size[0], vit.patch_embed.img_size[0]
+        ).to(device)
+
+        idx_keep = None
+        if mask_ratio is not None:
+            idx_keep, _ = utils.random_token_mask(
+                size=(batch_size, model.sequence_length),
+                device=device,
+                mask_ratio=mask_ratio,
+            )
+
+        output, intermediates = model.forward_intermediates(
+            images=images, idx_keep=idx_keep
+        )
+        expected_output = model.encode(images=images, idx_keep=idx_keep)
+
+        # output shape must be correct
+        assert output.shape == (batch_size, expected_sequence_length, embed_dim)
+        # output should be same as from encode
+        assert torch.allclose(output, expected_output)
+        # intermediates must have reasonable numbers
+        for intermediate in intermediates:
+            assert intermediate.shape == (
+                batch_size,
+                expected_sequence_length,
+                embed_dim,
+            )
+            assert torch.all(torch.not_equal(intermediate, torch.inf))
+
+    @pytest.mark.parametrize("device", ["cpu", "cuda"])
+    @pytest.mark.parametrize(
         "mask_ratio,expected_sequence_length", [(None, 50), (0.6, 20)]
     )
     def test_encode(
