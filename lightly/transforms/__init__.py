@@ -34,6 +34,11 @@ from lightly.transforms.simsiam_transform import SimSiamTransform, SimSiamViewTr
 from lightly.transforms.smog_transform import SMoGTransform, SmoGViewTransform
 from lightly.transforms.solarize import RandomSolarization
 from lightly.transforms.swav_transform import SwaVTransform, SwaVViewTransform
+from lightly.transforms.tico_transform import (
+    TiCoTransform,
+    TiCoView1Transform,
+    TiCoView2Transform,
+)
 from lightly.transforms.vicreg_transform import VICRegTransform, VICRegViewTransform
 from lightly.transforms.vicregl_transform import VICRegLTransform, VICRegLViewTransform
 from lightly.transforms.wmse_transform import WMSETransform
