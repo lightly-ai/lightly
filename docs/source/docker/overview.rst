@@ -39,7 +39,7 @@ We worked hard to make this happen and are very proud to present you with the fo
 
   * Check for exact duplicates and report them
 
-  * We expose the full Lightly SSL OSS framework config
+  * We expose the full Lightly\ **SSL** OSS framework config
 
 * Automated reporting of the datasets for each run
 
