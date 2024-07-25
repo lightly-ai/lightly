@@ -5,6 +5,7 @@ from typing import List
 import pytest
 import torch
 import torch.nn as nn
+from torch import Tensor
 from torch.nn import Identity
 
 from lightly.models import utils
@@ -299,6 +300,50 @@ class TestModelUtils(unittest.TestCase):
     @unittest.skipUnless(torch.cuda.is_available(), "No cuda available")
     def test_random_token_mask_cuda(self):
         self._test_random_token_mask_parameters(device="cuda")
+
+
+@pytest.mark.parametrize(
+    "mask, expected",
+    [
+        (
+            [
+                [0, 0, 0],
+                [0, 0, 0],
+            ],
+            [
+                [[2, 2], [2, 2], [2, 2]],
+                [[2, 2], [2, 2], [2, 2]],
+            ],
+        ),
+        (
+            [
+                [1, 1, 1],
+                [1, 1, 1],
+            ],
+            [
+                [[3, 3], [3, 3], [3, 3]],
+                [[3, 3], [3, 3], [3, 3]],
+            ],
+        ),
+        (
+            [
+                [0, 1, 0],
+                [1, 0, 1],
+            ],
+            [
+                [[2, 2], [3, 3], [2, 2]],
+                [[3, 3], [2, 2], [3, 3]],
+            ],
+        ),
+    ],
+)
+def test_mask_ones(mask: Tensor, expected: Tensor) -> None:
+    tokens = torch.zeros(2, 3, 2) + 2
+    mask_token = torch.zeros(1, 1, 2) + 3
+    result = utils.mask_bool(
+        tokens=tokens, mask=torch.tensor(mask, dtype=torch.bool), mask_token=mask_token
+    )
+    assert torch.allclose(result, torch.tensor(expected, dtype=torch.float))
 
 
 @pytest.mark.parametrize(
