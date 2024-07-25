@@ -22,7 +22,8 @@ class MaskedVisionTransformer(ABC, Module):
 
     @property
     @abstractmethod
-    def sequence_length(self) -> int: ...
+    def sequence_length(self) -> int:
+        ...
 
     @abstractmethod
     def forward(
@@ -40,20 +41,24 @@ class MaskedVisionTransformer(ABC, Module):
             idx_mask:
                 Tensor with shape (batch_size, num_tokens_to_mask) where each
                 entry is an index of the token to mask in the respective batch.
-                If specified, the indexed tokens are masked with self.mask_token.
+                Indices must be in the range [0, sequence_length).
+                If set, the indexed tokens are masked with self.mask_token.
+                Cannot be used in combination with mask argument.
             idx_keep:
                 Tensor with shape (batch_size, num_tokens_to_keep) where each
                 entry is an index of the token to keep in the respective batch.
-                If specified, only the indexed tokens will be passed to the
-                encoder.
+                Indices must be in the range [0, sequence_length).
+                If set, only the indexed tokens will be forwarded.
+                Is applied after any masking operation.
             mask:
-                Tensor with shape (batch_size, sequence_length) indicating which tokens
-                should be masked. Tokens where the mask is True will be replaced with
-                the mask token.
+                Boolean tensor with shape (batch_size, sequence_length) indicating
+                which tokens should be masked. Tokens where the mask is True will be
+                replaced with the mask token.
+                Cannot be used in combination with idx_mask argument.
 
         Returns:
-            Tensor with shape (batch_size, embed_dim) containing the
-            encoded class token for every image.
+            Tensor with shape (batch_size, embed_dim) containing the encoded class token
+            for every image.
 
         """
         ...
@@ -71,25 +76,33 @@ class MaskedVisionTransformer(ABC, Module):
 
         Args:
             images:
-                Batch of input images.
+                Tensor with shape (batch_size, channels, image_height, image_width).
             idx_mask:
                 Tensor with shape (batch_size, num_tokens_to_mask) where each
                 entry is an index of the token to mask in the respective batch.
+                Indices must be in the range [0, sequence_length).
                 If specified, the indexed tokens are masked with self.mask_token.
+                Cannot be used in combination with mask argument.
             idx_keep:
                 Tensor with shape (batch_size, num_tokens_to_keep) where each
                 entry is an index of the token to keep in the respective batch.
-                If specified, only the indexed tokens will be encoded.
+                Indices must be in the range [0, sequence_length).
+                If set, only the indexed tokens will be forwarded.
+                Is applied after any masking operation.
             norm:
                 Apply norm layer to all intermediates.
             mask:
-                Tensor with shape (batch_size, sequence_length) indicating which tokens
-                should be masked. Tokens where the mask is True will be replaced with
-                the mask token.
+                Boolean tensor with shape (batch_size, sequence_length) indicating
+                which tokens should be masked. Tokens where the mask is True will be
+                replaced with the mask token.
+                Cannot be used in combination with idx_mask argument.
 
         Returns:
-            Tuple of batch of encoded output tokens and a list of intermediate features
-            from each layer with shape (batch_size, sequence_length, embed_dim).
+            Tuple of batch of encoded output tokens and a list of intermediate features.
+            The encoded output tokens have shape (batch_size, embed_dim) and each
+            intermediate feature has shape (batch_size, sequence_length, embed_dim).
+            If idx_keep is set, only num_tokens_to_keep tokens per sequence are
+            returned.
         """
         ...
 
@@ -105,22 +118,29 @@ class MaskedVisionTransformer(ABC, Module):
 
         Args:
             images:
-                Batch of input images.
+                Tensor with shape (batch_size, channels, image_height, image_width).
             idx_mask:
                 Tensor with shape (batch_size, num_tokens_to_mask) where each
                 entry is an index of the token to mask in the respective batch.
+                Indices must be in the range [0, sequence_length).
                 If specified, the indexed tokens are masked with self.mask_token.
+                Cannot be used in combination with mask argument.
             idx_keep:
                 Tensor with shape (batch_size, num_tokens_to_keep) where each
                 entry is an index of the token to keep in the respective batch.
-                If specified, only the indexed tokens will be encoded.
+                Indices must be in the range [0, sequence_length).
+                If set, only the indexed tokens will be encoded.
+                Is applied after any masking operation.
             mask:
-                Tensor with shape (batch_size, sequence_length) indicating which tokens
-                should be masked. Tokens where the mask is True will be replaced with
-                the mask token.
+                Boolean tensor with shape (batch_size, sequence_length) indicating
+                which tokens should be masked. Tokens where the mask is True will be
+                replaced with the mask token.
+                Cannot be used in combination with idx_mask argument.
 
         Returns:
-            Batch of encoded output tokens.
+            Tensor with shape (batch_size, sequence_length, embed_dim) containing the
+            encoded output tokens. If idx_keep is set, only num_tokens_to_keep tokens
+            per sequence are returned.
         """
         ...
 
@@ -135,22 +155,29 @@ class MaskedVisionTransformer(ABC, Module):
 
         Args:
             images:
-                Batch of input images.
+                Tensor with shape (batch_size, channels, image_height, image_width).
             idx_mask:
                 Tensor with shape (batch_size, num_tokens_to_mask) where each
                 entry is an index of the token to mask in the respective batch.
+                Indices must be in the range [0, sequence_length).
                 If specified, the indexed tokens are masked with self.mask_token.
+                Cannot be used in combination with mask argument.
             idx_keep:
                 Tensor with shape (batch_size, num_tokens_to_keep) where each
                 entry is an index of the token to keep in the respective batch.
-                If specified, only the indexed tokens will be encoded.
+                Indices must be in the range [0, sequence_length).
+                If set, only the indexed tokens will be returned.
+                Is applied after any masking operation.
             mask:
                 Tensor with shape (batch_size, sequence_length) indicating which tokens
                 should be masked. Tokens where the mask is True will be masked with
                 self.mask_token.
 
         Returns:
-            Batch of preprocessed tokens.
+            Tensor with shape (batch_size, sequence_length, embed_dim) containing the
+            preprocessed tokens. If idx_keep is set, only num_tokens_to_keep tokens
+            per sequence are returned. Any class or prefix tokens are prepended to the
+            sequence.
         """
         if idx_mask is not None and mask is not None:
             raise ValueError("idx_mask and mask cannot both be set at the same time.")
@@ -158,7 +185,7 @@ class MaskedVisionTransformer(ABC, Module):
         # convert images to tokens
         tokens = self.images_to_tokens(images)
         # add prefix tokens if needed
-        tokens = self.add_prefix_tokens(tokens)
+        tokens = self.prepend_prefix_tokens(tokens)
 
         if idx_mask is not None:
             tokens = utils.mask_at_index(
@@ -183,37 +210,42 @@ class MaskedVisionTransformer(ABC, Module):
 
         Args:
             images:
-                Tensor with shape (batch_size, channels, image_size, image_size).
+                Tensor with shape (batch_size, channels, image_height, image_width).
 
         Returns:
-            Tensor with shape (batch_size, num_patches, embed_dim)
-            containing the patch tokens (excluding prefix tokens).
+            Tensor with shape (batch_size, num_patches, embed_dim) containing the
+            patch tokens (excluding prefix tokens).
         """
         ...
 
-    @abstractmethod
+    # Keep for backwards compatibility.
     def add_prefix_tokens(self, x: Tensor) -> Tensor:
-        """Adds prefix tokens to image patch tokens.
+        return self.prepend_prefix_tokens(x)
+
+    @abstractmethod
+    def prepend_prefix_tokens(self, x: Tensor) -> Tensor:
+        """Prepends prefix tokens to the input patch tokens.
 
         Args:
             x:
-                Tensor with shape (batch_size, num_patches, embed_dim)
-                containing the image patch tokens
+                Tensor with shape (batch_size, num_patches, embed_dim) containing patch
+                tokens.
 
         Returns:
             Tensor with shape (batch_size, sequence_length, embed_dim) containing
-            the image patch tokens and prefix tokens.
+            the prefix and patch tokens. The prefix tokens are prepended to the
+            sequence.
         """
         ...
 
     @abstractmethod
     def add_pos_embed(self, x: Tensor) -> Tensor:
-        """Adds positional embeddings to the input tensor based on the Vision Transformer
-        (ViT) architecture in vit.
+        """Adds positional embeddings to the input tokens.
 
         Args:
             x:
-                Input tensor with shape (batch_size, sequence_length, embed_dim).
+                Tensor with shape (batch_size, sequence_length, embed_dim) containing
+                the input tokens. Must include prefix tokens.
 
         Returns:
             Tensor after adding positional embeddings, with the same shape as the input.

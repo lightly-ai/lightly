@@ -266,6 +266,21 @@ class MaskedVisionTransformerTest(ABC):
         # why we check for 1_000 instead.
         assert (tokens > 1_000).sum() == batch_size * expected_num_masked * embed_dim
 
+    def test_preprocess__fail_idx_mask_and_mask(self) -> None:
+        batch_size = 8
+        model = self.get_masked_vit(patch_size=32, depth=2, num_heads=2, embed_dim=768)
+        _, idx_mask, mask = self.get_masks(
+            batch_size=batch_size,
+            idx_mask_ratio=0.6,
+            bool_mask_ratio=0.6,
+            sequence_length=model.sequence_length,
+        )
+        images = images = torch.rand(batch_size, 3, 224, 224)
+        with pytest.raises(
+            ValueError, match="idx_mask and mask cannot both be set at the same time"
+        ):
+            model.preprocess(images=images, idx_mask=idx_mask, mask=mask)
+
     @pytest.mark.parametrize("device", ["cpu", "cuda"])
     def test_images_to_tokens(self, device: str) -> None:
         if device == "cuda" and not torch.cuda.is_available():
@@ -290,7 +305,7 @@ class MaskedVisionTransformerTest(ABC):
             # (True, 2, 52), TODO(Guarin, 07/2024): Support reg_tokens > 0
         ],
     )
-    def test_add_prefix_tokens(
+    def test_prepend_prefix_tokens(
         self,
         device: str,
         class_token: bool,
@@ -309,7 +324,11 @@ class MaskedVisionTransformerTest(ABC):
             reg_tokens=reg_tokens,
         ).to(device)
         x = torch.rand(2, 49, 768).to(device)
-        assert model.add_prefix_tokens(x).shape == (2, expected_sequence_length, 768)
+        assert model.prepend_prefix_tokens(x).shape == (
+            2,
+            expected_sequence_length,
+            768,
+        )
 
     @pytest.mark.parametrize("device", ["cpu", "cuda"])
     @pytest.mark.parametrize(
@@ -348,7 +367,7 @@ class MaskedVisionTransformerTest(ABC):
         idx_mask_ratio: Optional[float],
         bool_mask_ratio: Optional[float],
         sequence_length: int,
-        device: str,
+        device: Optional[str] = None,
         idx_keep_none: bool = False,
     ) -> Tuple[Optional[Tensor], Optional[Tensor], Optional[Tensor]]:
         idx_keep = None

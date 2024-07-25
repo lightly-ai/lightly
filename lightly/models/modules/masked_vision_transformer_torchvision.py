@@ -131,7 +131,9 @@ class MaskedVisionTransformerTorchvision(MaskedVisionTransformer):
         tokens: Tensor = x.flatten(2).transpose(1, 2)
         return tokens
 
-    def add_prefix_tokens(self, x: Tensor, prepend_class_token: bool = True) -> Tensor:
+    def prepend_prefix_tokens(
+        self, x: Tensor, prepend_class_token: bool = True
+    ) -> Tensor:
         if prepend_class_token:
             x = utils.prepend_class_token(x, self.vit.class_token)
         return x

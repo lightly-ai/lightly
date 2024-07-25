@@ -126,7 +126,7 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
             tokens = tokens.flatten(2).transpose(1, 2)  # NCHW -> NLC
         return tokens
 
-    def add_prefix_tokens(self, x: Tensor) -> Tensor:
+    def prepend_prefix_tokens(self, x: Tensor) -> Tensor:
         prefix_tokens = []
         if self.vit.cls_token is not None:
             prefix_tokens.append(self.vit.cls_token.expand(x.shape[0], -1, -1))
