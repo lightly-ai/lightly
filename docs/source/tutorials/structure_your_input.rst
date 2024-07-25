@@ -10,26 +10,26 @@ It you want to use your own data, the ability to quickly create datasets and dat
 
 In this tutorial, we will provide a brief overview of the `LightlyDataset <https://docs.lightly.ai/self-supervised-learning/lightly.data.html#lightly.data.dataset.LightlyDataset>`_
 and go through examples of using datasets from various open-source libraries such as PyTorch and
-Hugging Face with Lightly SSL. We will also look into how we can create dataloaders
+Hugging Face with Lightly\ **SSL**. We will also look into how we can create dataloaders
 for video tasks while incorporating weak labels.
 
 
 LightlyDataset
 --------------
 
-The LightlyDataset class aims to provide a uniform data interface for all models and functions in the Lightly SSL package.
+The LightlyDataset class aims to provide a uniform data interface for all models and functions in the Lightly\ **SSL** package.
 It allows us to create both image and video dataset classes with or without labels.
 
 Supported File Types
 ^^^^^^^^^^^^^^^^^^^^
 
-Since Lightly SSL uses `Pillow <https://github.com/python-pillow/Pillow>`_
+Since Lightly\ **SSL** uses `Pillow <https://github.com/python-pillow/Pillow>`_
 for image loading, it supports all the image formats supported by Pillow.
 
 - .jpg, .png, .tiff and 
   `many more <https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html>`_
 
-Lightly SSL uses `torchvision <https://github.com/pytorch/vision>`_ and
+Lightly\ **SSL** uses `torchvision <https://github.com/pytorch/vision>`_ and
 `PyAV <https://github.com/PyAV-Org/PyAV>`_ for video loading. The following formats are supported.
 
 - .mov, .mp4 and .avi
@@ -94,7 +94,7 @@ and the dataset class will assign each image its subdirectory as label.
 Video Datasets
 ^^^^^^^^^^^^^^
 
-The Lightly SSL package also has native support for videos (`.mov`, `.mp4`, and `.avi` file extensions are supported),
+The Lightly\ **SSL** package also has native support for videos (`.mov`, `.mp4`, and `.avi` file extensions are supported),
 without having to extract the frames first. This can save a lot of disk space as video files are
 typically strongly compressed. No matter if your videos are in one flat directory or distributed across subdirectories,
 you can simply pass the path into the LightlyDataset constructor.
@@ -122,7 +122,7 @@ The dataset assigns each video frame its video as label.
 
 .. note::
 
-   To use video-specific features of Lightly SSL download the necessary extra dependencies `pip install "lightly[video]"`. Furthermore,
+   To use video-specific features of Lightly\ **SSL** download the necessary extra dependencies `pip install "lightly[video]"`. Furthermore,
    randomly accessing video frames is slower compared to accessing the extracted frames on disk. However,
    by working directly on video files, one can save a lot of disk space because the frames do not have to
    be extracted beforehand.
@@ -130,7 +130,7 @@ The dataset assigns each video frame its video as label.
 PyTorch Datasets
 ----------------
 
-You can also use native `torchvision <https://pytorch.org/vision/main/datasets.html>`_ datasets with Lightly SSL directly.
+You can also use native `torchvision <https://pytorch.org/vision/main/datasets.html>`_ datasets with Lightly\ **SSL** directly.
 Just create a dataset as you normally would and apply transforms for greater control over the dataloader. For example, the
 :ref:`simclr` self-supervised learning method expects two views of an input image. To achieve this, we can use the `SimCLRTransform`
 while creating the dataset instance, which will lead to the dataloader returning two views per batch.
@@ -163,7 +163,7 @@ helper method and then create a native PyTorch dataloader.
 
     dataset = load_dataset("uoft-cs/cifar10", trust_remote_code=True)
 
-    ## Use pre-defined set of transformations from Lightly SSL
+    ## Use pre-defined set of transformations from LightlySSL
     transform = SimCLRTransform()
 
     def apply_transform(batch: Dict[str, Any])-> Dict[str, Any]:
@@ -186,7 +186,7 @@ that is invariant to these different crops. When using a operation such as grays
 it will produce a representation that is invariant to the color information [1]_.
 
 We can use off the shelf augmentations from libraries like `torchvision transforms <https://pytorch.org/vision/stable/transforms.html>`_
-and `albumentations <https://albumentations.ai/docs/>`_ or the ones offered by Lightly SSL's
+and `albumentations <https://albumentations.ai/docs/>`_ or the ones offered by Lightly\ **SSL**'s
 `transforms <https://docs.lightly.ai/self-supervised-learning/lightly.transforms.html>`_ submodule while creating our datasets.
 
 .. code-block:: python
@@ -229,8 +229,8 @@ and `albumentations <https://albumentations.ai/docs/>`_ or the ones offered by L
 Conclusion
 ----------
 
-In this tutorial, we went through examples of using various open-source packages to create datasets and dataloaders with Lightly SSL,
-and how they can be used in a training pipeline. We saw how Lightly SSL is flexible enough to work with all major data sources,
+In this tutorial, we went through examples of using various open-source packages to create datasets and dataloaders with Lightly\ **SSL**,
+and how they can be used in a training pipeline. We saw how Lightly\ **SSL** is flexible enough to work with all major data sources,
 and how we can write training pipelines that work with any format.
 
 Now that we are are familiar with creating datasets and dataloaders, lets'
