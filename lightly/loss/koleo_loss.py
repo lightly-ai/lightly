@@ -46,6 +46,6 @@ class KoLeoLoss(Module):
         cos_sim.fill_diagonal_(-2)
         # Get nearest neighbors.
         nn_idx = cos_sim.argmax(dim=1)
-        nn_dist = self.pairwise_distance(x, x[nn_idx])
+        nn_dist: Tensor = self.pairwise_distance(x, x[nn_idx])
         loss = -(nn_dist + self.eps).log().mean()
         return loss
