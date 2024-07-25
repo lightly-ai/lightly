@@ -3,7 +3,7 @@
 Command-line tool
 =================
 
-The Lightly SSL framework provides you with a command-line interface (CLI) to train 
+The Lightly\ **SSL** framework provides you with a command-line interface (CLI) to train 
 self-supervised models and create embeddings without having to write a single 
 line of code.
 
@@ -24,16 +24,16 @@ the CLI.
     </div>
 
 
-Check the installation of Lightly SSL
+Check the installation of LightlySSL
 -------------------------------------
-To see if the Lightly SSL command-line tool was installed correctly, you can run the
-following command which will print the version of the installed Lightly SSL package:
+To see if the Lightly\ **SSL** command-line tool was installed correctly, you can run the
+following command which will print the version of the installed Lightly\ **SSL** package:
 
 .. code-block:: bash
 
     lightly-version
 
-If Lightly SSL was installed correctly, you should see something like this:
+If Lightly\ **SSL** was installed correctly, you should see something like this:
 
 .. code-block:: bash
 
