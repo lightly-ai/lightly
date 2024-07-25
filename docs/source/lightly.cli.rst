@@ -35,7 +35,7 @@ lightly.cli
 .config.config.yaml
 -------------------
 
-The default settings for all command line tools in the Lightly SSL Python package are stored in a YAML config file.
+The default settings for all command line tools in the Lightly\ **SSL** Python package are stored in a YAML config file.
 The config file is distributed along with the Python package and can be adapted to fit custom requirements.
 
 The arguments are grouped into namespaces. For example, everything related to the embedding model is grouped under
