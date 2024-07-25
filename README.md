@@ -19,7 +19,7 @@ a single command, please contact sales@lightly.ai.
 
 We've also built a whole platform on top, with additional features for active learning
 and [data curation](https://docs.lightly.ai/docs/what-is-lightly). If you're interested in the
-Lightly Worker Solution to easily process millions of samples and run [powerful algorithms](https://docs.lightly.ai/docs/selection)
+Lightly Worker Solution to easily process millions of samples and run [powerful algorithms](https://docs.lightly.ai/docs/customize-a-selection)
 on your data, check out [lightly.ai](https://www.lightly.ai). It's free to get started!
 
 ## Features
