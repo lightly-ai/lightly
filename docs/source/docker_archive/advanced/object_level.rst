@@ -276,8 +276,7 @@ provides:
 
 - Select a subset of your data using our :ref:`Sampling Algorithms <plaform-sampling>`
 - Select new samples to add to your dataset using :ref:`Active Learning <ref-docker-active-learning>`
-- Prepare images for labelling by :ref:`exporting them to LabelStudio <lightly-tutorial-export-labelstudio>`
-
+- Prepare images for labelling by `exporting them to LabelStudio <https://docs.lightly.ai/docs/labelstudio-integration>`_
 
 Multiple Object Level Runs
 --------------------------
