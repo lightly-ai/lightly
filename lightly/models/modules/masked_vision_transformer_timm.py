@@ -100,59 +100,6 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
 
         return out, intermediates
 
-    def preprocess(
-        self,
-        images: Tensor,
-        idx_mask: Optional[Tensor] = None,
-        idx_keep: Optional[Tensor] = None,
-        mask: Optional[Tensor] = None,
-    ) -> Tensor:
-        """Convert images to tokens, add positional embeddings, and apply masking.
-
-        Args:
-            images:
-                Batch of input images.
-            idx_mask:
-                Tensor with shape (batch_size, num_tokens_to_mask) where each
-                entry is an index of the token to mask in the respective batch.
-                If specified, the indexed tokens are masked with self.mask_token.
-            idx_keep:
-                Tensor with shape (batch_size, num_tokens_to_keep) where each
-                entry is an index of the token to keep in the respective batch.
-                If specified, only the indexed tokens will be encoded.
-            mask:
-                Tensor with shape (batch_size, sequence_length) indicating which tokens
-                should be masked. Tokens where the mask is True will be masked with
-                self.mask_token.
-
-        Returns:
-            Batch of preprocessed tokens.
-        """
-        if idx_mask is not None and mask is not None:
-            raise ValueError("idx_mask and mask cannot both be set at the same time.")
-
-        # convert images to tokens
-        tokens = self.images_to_tokens(images)
-        # add prefix tokens if needed
-        tokens = self.add_prefix_tokens(tokens)
-
-        if idx_mask is not None:
-            tokens = utils.mask_at_index(
-                tokens=tokens, index=idx_mask, mask_token=self.mask_token
-            )
-        elif mask is not None:
-            tokens = utils.mask_bool(
-                tokens=tokens, mask=mask, mask_token=self.mask_token
-            )
-
-        # add positional encoding
-        tokens = self.add_pos_embed(tokens)
-
-        if idx_keep is not None:
-            tokens = utils.get_at_index(tokens, idx_keep)
-
-        return tokens
-
     def encode(
         self,
         images: Tensor,

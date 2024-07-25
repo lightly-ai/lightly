@@ -118,24 +118,11 @@ class MaskedVisionTransformerTorchvision(MaskedVisionTransformer):
         idx_keep: Optional[Tensor] = None,
         mask: Optional[Tensor] = None,
     ) -> Tensor:
-        # convert images to tokens
-        input = self.images_to_tokens(images)
-        # add prefix tokens if needed
-        input = self.add_prefix_tokens(input)
-
-        if idx_mask is not None:
-            input = utils.mask_at_index(
-                tokens=input, index=idx_mask, mask_token=self.mask_token
-            )
-        elif mask is not None:
-            input = utils.mask_bool(tokens=input, mask=mask, mask_token=self.mask_token)
-        # add positional encoding
-        input = self.add_pos_embed(input)
-
-        if idx_keep is not None:
-            input = utils.get_at_index(input, idx_keep)
+        tokens = self.preprocess(
+            images=images, idx_mask=idx_mask, idx_keep=idx_keep, mask=mask
+        )
         out: Tensor = self.vit.encoder.ln(
-            self.vit.encoder.layers(self.vit.encoder.dropout(input))
+            self.vit.encoder.layers(self.vit.encoder.dropout(tokens))
         )
         return out
 

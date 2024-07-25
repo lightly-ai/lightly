@@ -64,15 +64,19 @@ class MaskedVisionTransformerTest(ABC):
         expected_sequence_length = 49 + 1 + 0
         assert model.sequence_length == expected_sequence_length
 
+    @pytest.mark.slow
     @pytest.mark.parametrize("device", ["cpu", "cuda"])
     @pytest.mark.parametrize(
-        "idx_mask_ratio, bool_mask_ratio", [(None, None), (0.6, None), (None, 0.6)]
+        "idx_mask_ratio, bool_mask_ratio",
+        [(None, None), (0.6, None), (None, 0.6)],
     )
+    @pytest.mark.parametrize("idx_keep_none", [False, True])
     def test_forward(
         self,
         device: str,
         idx_mask_ratio: Optional[float],
         bool_mask_ratio: Optional[float],
+        idx_keep_none: bool,
     ) -> None:
         if device == "cuda" and not torch.cuda.is_available():
             pytest.skip("CUDA not available.")
@@ -85,32 +89,37 @@ class MaskedVisionTransformerTest(ABC):
         ).to(device)
         images = torch.rand(batch_size, 3, 224, 224).to(device)
 
-        idx_keep, _, mask = self.get_masks(
+        idx_keep, idx_mask, mask = self.get_masks(
             batch_size=batch_size,
             idx_mask_ratio=idx_mask_ratio,
             bool_mask_ratio=bool_mask_ratio,
             sequence_length=model.sequence_length,
             device=device,
+            idx_keep_none=idx_keep_none,
         )
 
-        class_tokens = model(images=images, idx_keep=idx_keep, mask=mask)
+        class_tokens = model(
+            images=images, idx_keep=idx_keep, idx_mask=idx_mask, mask=mask
+        )
 
-        # output shape must be correct
+        # Output shape must be correct.
         assert class_tokens.shape == (batch_size, embed_dim)
-        # output must have reasonable numbers
+        # Output must have reasonable numbers.
         assert torch.all(torch.isfinite(class_tokens))
 
+    @pytest.mark.slow
     @pytest.mark.parametrize("device", ["cpu", "cuda"])
     @pytest.mark.parametrize(
-        "idx_mask_ratio, bool_mask_ratio, expected_sequence_length",
-        [(None, None, 50), (0.6, None, 20), (None, 0.6, 50)],
+        "idx_mask_ratio, bool_mask_ratio",
+        [(None, None), (0.6, None), (None, 0.6)],
     )
+    @pytest.mark.parametrize("idx_keep_none", [False, True])
     def test_forward_intermediates(
         self,
         device: str,
         idx_mask_ratio: Optional[float],
         bool_mask_ratio: Optional[float],
-        expected_sequence_length: int,
+        idx_keep_none: bool,
     ) -> None:
         if device == "cuda" and not torch.cuda.is_available():
             pytest.skip("CUDA not available.")
@@ -123,43 +132,44 @@ class MaskedVisionTransformerTest(ABC):
         ).to(device)
         images = torch.rand(batch_size, 3, 224, 224).to(device)
 
-        idx_keep, _, mask = self.get_masks(
+        idx_keep, idx_mask, mask = self.get_masks(
             batch_size=batch_size,
             idx_mask_ratio=idx_mask_ratio,
             bool_mask_ratio=bool_mask_ratio,
             sequence_length=model.sequence_length,
             device=device,
+            idx_keep_none=idx_keep_none,
         )
 
         output, intermediates = model.forward_intermediates(
-            images=images, idx_keep=idx_keep, mask=mask
+            images=images, idx_keep=idx_keep, idx_mask=idx_mask, mask=mask
         )
-        expected_output = model.encode(images=images, idx_keep=idx_keep, mask=mask)
+        expected_output = model.encode(
+            images=images, idx_keep=idx_keep, idx_mask=idx_mask, mask=mask
+        )
 
-        # output shape must be correct
-        assert output.shape == (batch_size, expected_sequence_length, embed_dim)
-        # output should be same as from encode
+        # Output shape must be correct.
+        assert output.shape == expected_output.shape
+        # Output should be same as from encode.
         assert torch.allclose(output, expected_output)
-        # intermediates must have reasonable numbers
+        # Intermediates must have reasonable numbers.
         for intermediate in intermediates:
-            assert intermediate.shape == (
-                batch_size,
-                expected_sequence_length,
-                embed_dim,
-            )
+            assert intermediate.shape == expected_output.shape
             assert torch.all(torch.isfinite(intermediate))
 
+    @pytest.mark.slow
     @pytest.mark.parametrize("device", ["cpu", "cuda"])
     @pytest.mark.parametrize(
-        "idx_mask_ratio, bool_mask_ratio, expected_sequence_length",
-        [(None, None, 50), (0.6, None, 20), (None, 0.6, 50)],
+        "idx_mask_ratio, bool_mask_ratio",
+        [(None, None), (0.6, None), (None, 0.6)],
     )
+    @pytest.mark.parametrize("idx_keep_none", [False, True])
     def test_encode(
         self,
         device: str,
         idx_mask_ratio: Optional[float],
         bool_mask_ratio: Optional[float],
-        expected_sequence_length: int,
+        idx_keep_none: bool,
     ) -> None:
         if device == "cuda" and not torch.cuda.is_available():
             pytest.skip("CUDA not available.")
@@ -168,21 +178,93 @@ class MaskedVisionTransformerTest(ABC):
         batch_size = 8
         embed_dim = 768
         model = self.get_masked_vit(
-            patch_size=32, depth=2, num_heads=2, embed_dim=embed_dim
+            patch_size=32,
+            depth=2,
+            num_heads=2,
+            embed_dim=embed_dim,
         ).to(device)
         images = torch.rand(batch_size, 3, 224, 224).to(device)
 
-        idx_keep, _, mask = self.get_masks(
+        idx_keep, idx_mask, mask = self.get_masks(
             batch_size=batch_size,
             idx_mask_ratio=idx_mask_ratio,
             bool_mask_ratio=bool_mask_ratio,
             sequence_length=model.sequence_length,
             device=device,
+            idx_keep_none=idx_keep_none,
         )
 
-        tokens = model.encode(images=images, idx_keep=idx_keep, mask=mask)
-        assert tokens.shape == (batch_size, expected_sequence_length, embed_dim)
+        tokens = model.encode(
+            images=images, idx_keep=idx_keep, idx_mask=idx_mask, mask=mask
+        )
+        # Output shape must be correct..
+        assert tokens.ndim == 3
+        assert tokens.shape[0] == batch_size
+        # Sequence length depends on idx_keep.
+        assert 20 <= tokens.shape[1] <= 50
+        assert tokens.shape[2] == embed_dim
+        #
         assert torch.all(torch.isfinite(tokens))
+
+    @pytest.mark.parametrize("device", ["cpu", "cuda"])
+    @pytest.mark.parametrize(
+        (
+            "idx_mask_ratio, bool_mask_ratio, idx_keep_none, expected_sequence_length, "
+            "expected_num_masked"
+        ),
+        [
+            (None, None, False, 50, 0),
+            (None, None, True, 50, 0),
+            # No masked because idx_keep != None which only returns unmasked tokens.
+            (0.6, None, False, 20, 0),
+            (0.6, None, True, 50, 30),
+            (None, 0.6, False, 50, 30),
+            (None, 0.6, True, 50, 30),
+        ],
+    )
+    def test_preprocess(
+        self,
+        device: str,
+        idx_mask_ratio: Optional[float],
+        bool_mask_ratio: Optional[float],
+        idx_keep_none: bool,
+        expected_sequence_length: int,
+        expected_num_masked: int,
+    ) -> None:
+        if device == "cuda" and not torch.cuda.is_available():
+            pytest.skip("CUDA not available.")
+
+        torch.manual_seed(0)
+        batch_size = 8
+        embed_dim = 768
+        # Create mask token with large value to check if it is used correctly.
+        mask_token = Parameter(torch.zeros(1, 1, embed_dim) + 10_000)
+        model = self.get_masked_vit(
+            patch_size=32,
+            depth=2,
+            num_heads=2,
+            embed_dim=embed_dim,
+            mask_token=mask_token,
+        ).to(device)
+        images = torch.rand(batch_size, 3, 224, 224).to(device)
+
+        idx_keep, idx_mask, mask = self.get_masks(
+            batch_size=batch_size,
+            idx_mask_ratio=idx_mask_ratio,
+            bool_mask_ratio=bool_mask_ratio,
+            sequence_length=model.sequence_length,
+            device=device,
+            idx_keep_none=idx_keep_none,
+        )
+
+        tokens = model.preprocess(
+            images=images, idx_keep=idx_keep, idx_mask=idx_mask, mask=mask
+        )
+        assert tokens.shape == (batch_size, expected_sequence_length, embed_dim)
+        # Check if the mask token was used correctly. Note that the actual value
+        # can be smaller than 10_000 because the positional embedding is added. This is
+        # why we check for 1_000 instead.
+        assert (tokens > 1_000).sum() == batch_size * expected_num_masked * embed_dim
 
     @pytest.mark.parametrize("device", ["cpu", "cuda"])
     def test_images_to_tokens(self, device: str) -> None:
@@ -267,6 +349,7 @@ class MaskedVisionTransformerTest(ABC):
         bool_mask_ratio: Optional[float],
         sequence_length: int,
         device: str,
+        idx_keep_none: bool = False,
     ) -> Tuple[Optional[Tensor], Optional[Tensor], Optional[Tensor]]:
         idx_keep = None
         idx_mask = None
@@ -276,6 +359,8 @@ class MaskedVisionTransformerTest(ABC):
                 mask_ratio=idx_mask_ratio,
                 device=device,
             )
+        if idx_keep_none:
+            idx_keep = None
 
         mask = None
         if bool_mask_ratio is not None:
