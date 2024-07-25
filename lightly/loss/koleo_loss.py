@@ -19,6 +19,12 @@ class KoLeoLoss(Module):
 
         - [0]: Spreading vectors for similarity search, 2019, https://arxiv.org/abs/1806.03198
         - [1]: https://github.com/facebookresearch/dinov2/blob/main/dinov2/loss/koleo_loss.py
+
+        Attributes:
+            p:
+                The norm degree for pairwise distance calculation.
+            eps:
+                Small value to avoid division by zero.
         """
         super().__init__()
         self.p = p
