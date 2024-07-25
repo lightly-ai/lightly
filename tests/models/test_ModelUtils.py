@@ -1,12 +1,13 @@
 import copy
 import unittest
-from typing import List
+from typing import List, Optional
 
 import pytest
 import torch
 import torch.nn as nn
+from pytest_mock import MockerFixture
 from torch import Tensor
-from torch.nn import Identity
+from torch.nn import Identity, Parameter
 
 from lightly.models import utils
 from lightly.models.utils import (
@@ -571,6 +572,35 @@ def test_get_named_leaf_modules() -> None:
     assert utils.get_named_leaf_modules(linear1) == {"": linear1}
     assert utils.get_named_leaf_modules(sequential1) == {"0": linear1, "1": linear2}
     assert utils.get_named_leaf_modules(sequential2) == {"0.0": linear1, "0.1": linear2}
+
+
+@pytest.mark.parametrize(
+    "strategy, expected_fn",
+    [
+        ("learn", "initialize_learnable_positional_embedding"),
+        ("sincos", "initialize_2d_sine_cosine_positional_embedding"),
+        ("skip", None),
+    ],
+)
+def test_initialize_positional_embedding(
+    strategy: str, expected_fn: Optional[str], mocker: MockerFixture
+) -> None:
+    if expected_fn is not None:
+        mock_fn = mocker.spy(utils, expected_fn)
+    pos_embedding = Parameter(torch.rand(1, 1, 64))
+    utils.initialize_positional_embedding(
+        pos_embedding=pos_embedding, strategy=strategy, num_prefix_tokens=1
+    )
+    if expected_fn is not None:
+        mock_fn.assert_called_once()
+
+
+def test_initialize_learnable_positional_embedding() -> None:
+    pos_embedding = Parameter(torch.ones(1, 1, 64) * 10)
+    utils.initialize_learnable_positional_embedding(pos_embedding)
+    assert pos_embedding.requires_grad
+    # Trunc normal should clip values to small size.
+    assert torch.all(pos_embedding.abs() < 5)
 
 
 def test_normalize_mean_var() -> None:
