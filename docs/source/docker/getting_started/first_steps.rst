@@ -27,7 +27,7 @@ The Lightly Worker follows a train, embed, select workflow:
 
 The Lightly Worker can be easily triggered from your Python code. There are various parameters you can
 configure and we also expose the full configuration of the Lightly self-supervised learning framework.
-You can use the Lightly Worker to train a self-supervised model instead of using the Lightly SSL framework.
+You can use the Lightly Worker to train a self-supervised model instead of using the Lightly\ **SSL** framework.
 
 Using Docker
 -------------
@@ -351,9 +351,9 @@ epochs on the input images before embedding the images and selecting from them.
     )
 
 You may not always want to train for exactly 100 epochs with the default settings.
-The Lightly Worker is a wrapper around the Lightly SSL Python package.
+The Lightly Worker is a wrapper around the Lightly\ **SSL** Python package.
 Hence, for training and embedding the user can access and set all the settings
-known from the Lightly SSL Python package.
+known from the Lightly\ **SSL** Python package.
 
 Here are some of the most common parameters for the **lightly_config**
 you might want to change:
@@ -365,7 +365,7 @@ you might want to change:
 
 .. code-block:: python
     :emphasize-lines: 24, 35
-    :caption: Setting the Lightly SSL parameters from Python
+    :caption: Setting the Lightly\ **SSL** parameters from Python
 
     scheduled_run_id = client.schedule_compute_worker_run(
         worker_config={
