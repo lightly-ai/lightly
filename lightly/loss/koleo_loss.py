@@ -38,7 +38,7 @@ class KoLeoLoss(Module):
             x:
                 Tensor with shape (batch_size, embedding_size).
         Returns:
-            KoLeo Loss value.
+            Loss value.
         """
         x = functional.normalize(x, p=2, dim=-1, eps=self.eps)
         # Calculate cosine similarity.
