@@ -140,7 +140,7 @@ Don't forget to tag the image again after pulling it.
           instead of `latest`. We follow semantic versioning standards. 
 
 
-Furthermore, we always recommend using the latest version of the Lightly SSL python package 
+Furthermore, we always recommend using the latest version of the Lightly\ **SSL** python package 
 alongside the latest version of the Lightly Worker. You can update the 
 pip package using the following command.
 

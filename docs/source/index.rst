@@ -7,7 +7,7 @@
 .. image:: ../logos/lightly_SSL_logo_crop.png
    :width: 600
    :align: center
-   :alt: Lightly SSL Self-Supervised Learning
+   :alt: LightlySSL Self-Supervised Learning
 
 
 Documentation
@@ -20,11 +20,11 @@ Documentation
           within millions of unlabeled images or video frames stored in your cloud storage or locally,
           please follow our `Lightly Worker documentation <https://docs.lightly.ai/>`_.
 
-Lightly SSL is a computer vision framework for self-supervised learning.
+Lightly\ **SSL** is a computer vision framework for self-supervised learning.
 
-With Lightly SSL you can train deep learning models using self-supervision. 
+With Lightly\ **SSL** you can train deep learning models using self-supervision. 
 This means, that you don’t require any labels to train a model. 
-Lightly SSL has been built to help you understand and work with large unlabeled 
+Lightly\ **SSL** has been built to help you understand and work with large unlabeled 
 datasets. It is built on top of PyTorch and therefore fully compatible with 
 other frameworks such as Fast.ai.
 

@@ -37,7 +37,7 @@ them.
 
 
 The docker solution can be used as a command-line interface. You run the container, tell it where to find data, and where to store the result. That's it.
-There are various parameters you can pass to the container. We put a lot of effort to also expose the full Lightly SSL framework configuration.
+There are various parameters you can pass to the container. We put a lot of effort to also expose the full Lightly\ **SSL** framework configuration.
 You could use the docker solution to train a self-supervised model instead of using the Python framework.
 
 Before jumping into the detail let's have a look at some basics.
