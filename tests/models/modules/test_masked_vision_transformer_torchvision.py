@@ -93,7 +93,7 @@ class TestMaskedVisionTransformerTorchvision(MaskedVisionTransformerTest):
         ...
 
     @pytest.mark.skip(reason="Torchvision ViT does not support reg tokens")
-    def test_add_prefix_tokens(
+    def test_prepend_prefix_tokens(
         self,
         device: str,
         class_token: bool,
