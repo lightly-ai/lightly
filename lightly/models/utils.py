@@ -638,10 +638,10 @@ def random_block_mask(
     probs = torch.linspace(
         min_image_mask_ratio, max_image_mask_ratio, num_images_masked + 1
     ).tolist()
-    masks = []
+    image_masks = []
     for prob_min, prob_max in zip(probs[:-1], probs[1:]):
         num_mask = int(H * W * random.uniform(prob_min, prob_max))
-        masks.append(
+        image_masks.append(
             random_block_mask_image(
                 size=(H, W),
                 num_masks=num_mask,
@@ -654,11 +654,9 @@ def random_block_mask(
             )
         )
     for _ in range(num_images_masked, B):
-        masks.append(torch.zeros((H, W), dtype=torch.bool, device=device))
-    # random.shuffle(masks)
-    for mask in masks:
-        print(mask.shape)
-    return torch.stack(masks)
+        image_masks.append(torch.zeros((H, W), dtype=torch.bool, device=device))
+    random.shuffle(image_masks)
+    return torch.stack(image_masks)
 
 
 def random_block_mask_image(
@@ -728,11 +726,11 @@ def random_block_mask_image(
             if w < W and h < H:
                 top = random.randint(0, H - h)
                 left = random.randint(0, W - w)
-                num_masked = mask[top : top + h, left : left + w].sum().item()
-                new_masked = h * w - num_masked
-                if 0 < new_masked <= max_new_masked:
+                num_already_masked = mask[top : top + h, left : left + w].sum().item()
+                num_new_masked = h * w - num_already_masked
+                if 0 < num_new_masked <= max_new_masked:
                     mask[top : top + h, left : left + w] = 1
-                    delta += new_masked
+                    delta += num_new_masked
             if delta > 0:
                 break
         if delta == 0:
