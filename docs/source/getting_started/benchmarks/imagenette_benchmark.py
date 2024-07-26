@@ -69,7 +69,6 @@ import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 import torchvision
-from pl_bolts.optimizers.lars import LARS
 from pytorch_lightning.loggers import TensorBoardLogger
 from timm.models.vision_transformer import vit_base_patch32_224
 from torchvision.models.vision_transformer import VisionTransformer
@@ -115,6 +114,7 @@ from lightly.transforms import (
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils import scheduler
 from lightly.utils.benchmarking import BenchmarkModule
+from lightly.utils.lars import LARS
 
 logs_root_dir = os.path.join(os.getcwd(), "benchmark_logs")
 
