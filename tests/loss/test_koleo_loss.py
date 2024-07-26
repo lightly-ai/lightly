@@ -1,3 +1,5 @@
+import math
+
 import pytest
 import torch
 import torch.nn as nn
@@ -14,7 +16,8 @@ class TestKoLeoLoss:
         "x, expected_loss",
         [
             (torch.tensor([[1.0]]), 17.7275),
-            (torch.tensor([[1.0, 1.0]]), 17.5393),
+            (torch.tensor([[0.0, 1.0], [0.0, -1.0]]), -math.log(2)),
+            (torch.tensor([[0.0, 1.0], [1.0, 0.0]]), -math.log(2**0.5)),
             (
                 torch.tensor(
                     [
