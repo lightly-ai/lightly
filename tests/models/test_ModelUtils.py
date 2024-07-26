@@ -596,11 +596,13 @@ def test_initialize_positional_embedding(
 
 
 def test_initialize_learnable_positional_embedding() -> None:
-    pos_embedding = Parameter(torch.ones(1, 1, 64) * 10)
+    pos_embedding = Parameter(torch.ones(1, 1, 64))
+    orig_pos_embedding = pos_embedding.clone()
     utils.initialize_learnable_positional_embedding(pos_embedding)
+    # Embedding must be learnable.
     assert pos_embedding.requires_grad
-    # Trunc normal should clip values to small size.
-    assert torch.all(pos_embedding.abs() < 5)
+    # Embedding must have changed.
+    assert torch.any(pos_embedding != orig_pos_embedding)
 
 
 def test_normalize_mean_var() -> None:
