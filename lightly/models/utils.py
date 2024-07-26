@@ -783,6 +783,10 @@ def initialize_positional_embedding(
 def initialize_learnable_positional_embedding(pos_embedding: Parameter) -> None:
     """Initializes a learnable positional embedding.
 
+    Uses standard initialization for ViT models, see [0].
+
+    - [0]: https://github.com/huggingface/pytorch-image-models/blob/cec70b6779ea81cec0ca08ee4a257b52affd235a/timm/models/vision_transformer.py#L590
+
     Args:
         pos_embedding:
             Positional embedding parameter.
