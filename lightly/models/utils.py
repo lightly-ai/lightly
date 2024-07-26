@@ -371,7 +371,8 @@ def set_at_index(
 def mask_at_index(
     tokens: torch.Tensor, index: torch.Tensor, mask_token: torch.Tensor
 ) -> torch.Tensor:
-    """Copies mask token into the input tensor at the given indices.
+    """Returns a tensor where the tokens at the given indices are replaced by the
+    mask token.
 
     Args:
         tokens:
@@ -388,6 +389,27 @@ def mask_at_index(
     """
     mask = tokens.new_zeros(tokens.shape)
     mask = set_at_index(mask, index, 1)
+    return (1 - mask) * tokens + mask * mask_token
+
+
+def mask_bool(tokens: Tensor, mask: Tensor, mask_token: Tensor) -> Tensor:
+    """Returns a tensor with tokens replaced by the mask tokens in all positions where
+    the mask is True.
+
+    Args:
+        tokens:
+            Tokens tensor with shape (batch_size, sequence_length, dim).
+        mask:
+            Boolean mask tensor with shape (batch_size, sequence_length).
+        mask_token:
+            Mask token with shape (1, 1, dim).
+
+    Returns:
+        Tokens tensor with shape (batch_size, sequence_length, dim) where tokens[i, j]
+        is replaced by the mask token if mask[i, j] is True.
+    """
+    # Convert to int for multiplication.
+    mask = mask.unsqueeze(-1).to(torch.bool).to(torch.int)
     return (1 - mask) * tokens + mask * mask_token
 
 
