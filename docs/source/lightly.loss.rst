@@ -20,6 +20,9 @@ lightly.loss
 .. autoclass:: lightly.loss.hypersphere_loss.HypersphereLoss
    :members:
 
+.. autoclass:: lightly.loss.koleo_loss.KoLeoLoss
+   :members:
+
 .. autoclass:: lightly.loss.memory_bank.MemoryBankModule
    :members:
 
