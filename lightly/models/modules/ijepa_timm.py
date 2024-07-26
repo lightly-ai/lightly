@@ -13,6 +13,7 @@ def apply_masks(
     x: torch.Tensor, masks: Union[torch.Tensor, List[torch.Tensor]]
 ) -> torch.Tensor:
     """
+    From https://github.com/facebookresearch/ijepa/blob/main/src/masks/utils.py
     Apply masks to the input tensor.
 
     Args:
@@ -121,7 +122,10 @@ class IJEPAPredictorTIMM(nn.Module):
             masks_x is not None
         ), "Cannot run predictor without mask indices"
 
-        B = len(x) // len(masks_x)
+        len_masks_x = len(masks_x) if isinstance(masks_x, list) else 1
+        len_masks = len(masks) if isinstance(masks, list) else 1
+
+        B = len(x) // len_masks_x
         x = self.predictor_embed(x)
         x_pos_embed = self.predictor_pos_embed.repeat(B, 1, 1)
 
@@ -130,11 +134,11 @@ class IJEPAPredictorTIMM(nn.Module):
 
         pos_embs = self.predictor_pos_embed.repeat(B, 1, 1)
         pos_embs = apply_masks(pos_embs, masks)
-        pos_embs = self.repeat_interleave_batch(pos_embs, B, repeat=len(masks_x))
+        pos_embs = self.repeat_interleave_batch(pos_embs, B, repeat=len_masks_x)
         pred_tokens = self.mask_token.repeat(pos_embs.size(0), pos_embs.size(1), 1)
 
         pred_tokens += pos_embs
-        x = x.repeat(len(masks), 1, 1)
+        x = x.repeat(len_masks, 1, 1)
         x = torch.cat([x, pred_tokens], dim=1)
 
         for blk in self.predictor_blocks:
