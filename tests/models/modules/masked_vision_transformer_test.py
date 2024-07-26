@@ -26,6 +26,7 @@ class MaskedVisionTransformerTest(ABC):
         mask_token: Optional[Parameter] = None,
         antialias: bool = True,
         weight_initialization: str = "",
+        pos_embed_initialization: str = "sincos",
     ) -> MaskedVisionTransformer:
         ...
 
@@ -46,6 +47,17 @@ class MaskedVisionTransformerTest(ABC):
             self.get_masked_vit(
                 patch_size=32, depth=1, num_heads=1, weight_initialization="invalid"
             )
+
+    def test__init__pos_embed_initialization(self, mocker: MockerFixture) -> None:
+        mock_initialize_positional_embedding = mocker.spy(
+            utils, "initialize_positional_embedding"
+        )
+        self.get_masked_vit(
+            patch_size=32, depth=1, num_heads=1, pos_embed_initialization="learn"
+        )
+        mock_initialize_positional_embedding.assert_called_once()
+        _, call_kwargs = mock_initialize_positional_embedding.call_args
+        assert call_kwargs["strategy"] == "learn"
 
     def test_sequence_length(self) -> None:
         # TODO(Guarin, 07/2024): Support reg_tokens > 0 and test the sequence length

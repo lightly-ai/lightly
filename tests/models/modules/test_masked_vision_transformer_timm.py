@@ -34,6 +34,7 @@ class TestMaskedVisionTransformerTIMM(MaskedVisionTransformerTest):
         mask_token: Optional[Parameter] = None,
         antialias: bool = True,
         weight_initialization: str = "",
+        pos_embed_initialization: str = "sincos",
     ) -> MaskedVisionTransformerTIMM:
         vit = VisionTransformer(
             patch_size=patch_size,
@@ -50,6 +51,7 @@ class TestMaskedVisionTransformerTIMM(MaskedVisionTransformerTest):
             mask_token=mask_token,
             weight_initialization=weight_initialization,
             antialias=antialias,
+            pos_embed_initialization=pos_embed_initialization,
         )
 
     @pytest.mark.parametrize("mask_token", [None, Parameter(torch.rand(1, 1, 768))])

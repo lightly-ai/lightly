@@ -26,6 +26,9 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
             initialization.
         antialias:
             Whether to use antialiasing when resampling the positional embeddings.
+        pos_embed_initialization:
+            The strategy to initialize the positional embeddings. Valid options are
+            ['learn', 'sincos', 'skip'].
 
     """
 
@@ -35,6 +38,7 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
         mask_token: Optional[Parameter] = None,
         weight_initialization: str = "",
         antialias: bool = True,
+        pos_embed_initialization: str = "sincos",
     ) -> None:
         super().__init__()
         self.vit = vit
@@ -51,6 +55,12 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
             )
         if weight_initialization != "skip":
             self._initialize_weights()
+
+        utils.initialize_positional_embedding(
+            pos_embedding=self.vit.pos_embed,
+            strategy=pos_embed_initialization,
+            num_prefix_tokens=self.vit.num_prefix_tokens,
+        )
 
         self.antialias = antialias
 
@@ -190,10 +200,6 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
 
         # initialize nn.Linear and nn.LayerNorm
         self.apply(_init_weights)
-
-        utils.initialize_2d_sine_cosine_positional_embedding(
-            pos_embedding=self.vit.pos_embed, has_class_token=self.vit.has_class_token
-        )
 
 
 def _init_weights(module: Module) -> None:
