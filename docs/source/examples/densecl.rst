@@ -4,7 +4,7 @@ DenseCL
 =======
 
 Example implementation of the DenseCL architecture. DenseCL is an extension of
-:ref:`moco`that uses a dense contrastive loss to improve the quality of the learned
+:ref:`moco` that uses a dense contrastive loss to improve the quality of the learned
 representations for object detection and segmentation tasks. While initially designed
 for MoCo, DenseCL can also be combined with other self-supervised learning methods.
 
