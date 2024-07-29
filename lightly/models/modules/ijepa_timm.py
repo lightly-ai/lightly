@@ -34,6 +34,8 @@ class IJEPAPredictorTIMM(nn.Module):
             If True, add bias to the query, key, and value tensors.
         mlp_ratio:
             Ratio of mlp hidden dim to embedding dim.
+        drop_path_rate:
+            Drop paths (Stochastic Depth) per sample.
         proj_drop_rate:
             Percentage of elements set to zero after the MLP in the transformer.
         attn_drop_rate:
