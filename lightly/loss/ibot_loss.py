@@ -3,6 +3,8 @@ from torch import Tensor
 from torch.nn import Module
 from torch.nn import functional as F
 
+from lightly.models.modules.center import Center
+
 
 class iBOTPatchLoss(Module):
     """Implementation of the iBOT patch loss [0] as used in DINOv2 [1].
@@ -18,10 +20,29 @@ class iBOTPatchLoss(Module):
             Temperature of the softmax for the student outputs.
     """
 
-    def __init__(self, temperature: float = 0.1) -> None:
-        self.temperature = temperature
+    def __init__(
+        self,
+        output_dim: int,
+        teacher_temp: float = 0.04,
+        student_temp: float = 0.1,
+        center_mode: str = "mean",
+        center_momentum: float = 0.9,
+    ) -> None:
+        super().__init__()
+        self.teacher_temp = teacher_temp
+        self.student_temperature = student_temp
+        self.center = Center(
+            size=(1, output_dim),
+            mode=center_mode,
+            momentum=center_momentum,
+        )
 
-    def forward(self, teacher_out: Tensor, student_out: Tensor, mask: Tensor) -> Tensor:
+    def forward(
+        self,
+        teacher_out: Tensor,
+        student_out: Tensor,
+        mask: Tensor,
+    ) -> Tensor:
         """Forward pass through the iBOT patch loss.
 
         Args:
@@ -34,15 +55,19 @@ class iBOTPatchLoss(Module):
             mask:
                 Boolean tensor with shape (B, H, W) containing the token mask.
                 Exactly B * N entries must be set to True in the mask.
+
         Returns:
             Loss value.
         """
-        # TODO: Add centering.
-
         # Calculate cross entropy loss.
-        student_log_softmax = F.log_softmax(student_out / self.temperature, dim=-1)
+        teacher_softmax = F.softmax(
+            (teacher_out - self.center.value) / self.teacher_temp, dim=-1
+        )
+        student_log_softmax = F.log_softmax(
+            student_out / self.student_temperature, dim=-1
+        )
         # (B * N, D) -> (B * N)
-        loss = -torch.sum(teacher_out * student_log_softmax, dim=-1)
+        loss = -torch.sum(teacher_softmax * student_log_softmax, dim=-1)
 
         # Get weights.
         # (B, H, W) -> (B, 1, 1)
@@ -54,4 +79,7 @@ class iBOTPatchLoss(Module):
 
         # Apply weighthing.
         B = mask.shape[0]
-        return (loss * weight).sum() / B
+        loss = (loss * weight).sum() / B
+
+        self.center.update(teacher_out)
+        return loss
