@@ -17,6 +17,8 @@ repos:
   rev: v1.4.1  # aligned with the version defined in pyproject.toml
   hooks:
   - id: mypy
+    additional_dependencies:
+      - 'numpy'
 - repo: local
   hooks:
   - id: pytest-check                     # run all tests

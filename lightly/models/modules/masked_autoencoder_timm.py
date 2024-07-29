@@ -8,6 +8,7 @@ from torch import Tensor
 from torch.nn import LayerNorm, Linear, Module, Parameter, Sequential
 
 from lightly.models import utils
+from lightly.models.modules.masked_vision_transformer_timm import _init_weights
 
 
 class MAEDecoderTIMM(Module):
@@ -113,7 +114,7 @@ class MAEDecoderTIMM(Module):
             Tensor with shape (batch_size, seq_length, out_dim).
 
         """
-        out = self.embed(input)
+        out: Tensor = self.embed(input)
         out = self.decode(out)
         return self.predict(out)
 
@@ -176,13 +177,3 @@ class MAEDecoderTIMM(Module):
             pos_embedding=self.decoder_pos_embed, has_class_token=True
         )
         self.apply(_init_weights)
-
-
-def _init_weights(module: Module) -> None:
-    if isinstance(module, Linear):
-        nn.init.xavier_uniform_(module.weight)
-        if isinstance(module, Linear) and module.bias is not None:
-            nn.init.constant_(module.bias, 0)
-    elif isinstance(module, LayerNorm):
-        nn.init.constant_(module.bias, 0)
-        nn.init.constant_(module.weight, 1.0)
