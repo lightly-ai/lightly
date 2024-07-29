@@ -15,7 +15,7 @@ import torch.distributed as dist
 import torch.nn as nn
 from numpy.typing import NDArray
 from torch import Tensor
-from torch.nn import Identity, Module, Sequential, functional
+from torch.nn import Identity, Module, Sequential, functional, init
 from torch.nn.modules import CrossMapLRN2d, GroupNorm, LayerNorm, LocalResponseNorm
 from torch.nn.modules.batchnorm import _NormBase
 from torch.nn.parameter import Parameter
@@ -911,6 +911,59 @@ def add_stochastic_depth_to_blocks(vit: Module, prob: float = 0.0, mode="row") -
         if isinstance(mod, EncoderBlock):
             mod.dropout = Sequential(mod.dropout, StochasticDepth(p=prob, mode=mode))
             mod.mlp = Sequential(mod.mlp, StochasticDepth(p=prob, mode=mode))
+
+
+def initialize_positional_embedding(
+    pos_embedding: Parameter,
+    strategy: str,
+    num_prefix_tokens: int,
+) -> None:
+    """Initializes the positional embedding with the given strategy.
+
+    Args:
+        pos_embedding:
+            Positional embedding parameter.
+        strategy:
+            Positional embedding initialization strategy. Valid options are:
+            ['learn', 'sincos', 'skip']. 'learn' makes the embedding learnable,
+            'sincos' creates a fixed 2D sine-cosine positional embedding, and 'skip'
+            does not initialize the positional embedding.
+
+        num_prefix_tokens:
+            Number of prefix tokens in the positional embedding. This includes the class
+            token.
+    """
+    strategies = ["learn", "sincos", "skip"]
+    if strategy not in strategies:
+        raise ValueError(
+            f"Invalid positional embedding strategy: '{strategy}'. Valid options are: "
+            f"{strategies}."
+        )
+
+    if strategy == "learn":
+        initialize_learnable_positional_embedding(pos_embedding)
+    elif strategy == "sincos":
+        initialize_2d_sine_cosine_positional_embedding(
+            pos_embedding=pos_embedding,
+            has_class_token=num_prefix_tokens > 0,
+        )
+    elif strategy == "skip":
+        return
+
+
+def initialize_learnable_positional_embedding(pos_embedding: Parameter) -> None:
+    """Initializes a learnable positional embedding.
+
+    Uses standard initialization for ViT models, see [0].
+
+    - [0]: https://github.com/huggingface/pytorch-image-models/blob/cec70b6779ea81cec0ca08ee4a257b52affd235a/timm/models/vision_transformer.py#L590
+
+    Args:
+        pos_embedding:
+            Positional embedding parameter.
+    """
+    init.trunc_normal_(pos_embedding, std=0.02)
+    pos_embedding.requires_grad = True
 
 
 def initialize_2d_sine_cosine_positional_embedding(

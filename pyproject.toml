@@ -38,7 +38,7 @@ dependencies = [
   "certifi>=14.05.14",
   "hydra-core>=1.0.0",
   "lightly_utils~=0.0.0",
-  "numpy>=1.18.1, <2",
+  "numpy>=1.18.1",
   "python_dateutil>=2.5.3",
   "requests>=2.23.0",
   "six>=1.10",
@@ -81,7 +81,6 @@ dev = [
   "pandas",
   "toml",
   "torchmetrics",
-  "lightning-bolts", # for LARS optimizer
   # black, isort and mypy should be the same version as defined in .pre-commit-config.yaml
   "black==23.1.0", # frozen version to avoid differences between CI and local dev machines
   "isort==5.11.5", # frozen version to avoid differences between CI and local dev machines

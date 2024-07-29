@@ -34,8 +34,6 @@ import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 import torchvision
-from pl_bolts.optimizers.lars import LARS
-from pl_bolts.optimizers.lr_scheduler import linear_warmup_decay
 from pytorch_lightning.loggers import TensorBoardLogger
 from torch.optim.lr_scheduler import LambdaLR
 
@@ -59,6 +57,8 @@ from lightly.transforms import (
 )
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils.benchmarking import BenchmarkModule
+from lightly.utils.lars import LARS
+from lightly.utils.scheduler import CosineWarmupScheduler
 
 logs_root_dir = os.path.join(os.getcwd(), "benchmark_logs")
 
@@ -306,13 +306,10 @@ class SimCLRModel(BenchmarkModule):
             weight_decay=1e-6,
         )
         scheduler = {
-            "scheduler": LambdaLR(
+            "scheduler": CosineWarmupScheduler(
                 optimizer=optim,
-                lr_lambda=linear_warmup_decay(
-                    warmup_steps=steps_per_epoch * 10,
-                    total_steps=steps_per_epoch * max_epochs,
-                    cosine=True,
-                ),
+                warmup_epochs=steps_per_epoch * 10,
+                max_epochs=steps_per_epoch * max_epochs,
             ),
             "interval": "step",
             "frequency": 1,
@@ -409,13 +406,10 @@ class BarlowTwinsModel(BenchmarkModule):
             weight_decay=1.5 * 1e-6,
         )
         scheduler = {
-            "scheduler": LambdaLR(
+            "scheduler": CosineWarmupScheduler(
                 optimizer=optim,
-                lr_lambda=linear_warmup_decay(
-                    warmup_steps=steps_per_epoch * 10,
-                    total_steps=steps_per_epoch * max_epochs,
-                    cosine=True,
-                ),
+                warmup_epochs=steps_per_epoch * 10,
+                max_epochs=steps_per_epoch * max_epochs,
             ),
             "interval": "step",
             "frequency": 1,
@@ -482,13 +476,10 @@ class BYOLModel(BenchmarkModule):
             weight_decay=1.5 * 1e-6,
         )
         scheduler = {
-            "scheduler": LambdaLR(
+            "scheduler": CosineWarmupScheduler(
                 optimizer=optim,
-                lr_lambda=linear_warmup_decay(
-                    warmup_steps=steps_per_epoch * 10,
-                    total_steps=steps_per_epoch * max_epochs,
-                    cosine=True,
-                ),
+                warmup_epochs=steps_per_epoch * 10,
+                max_epochs=steps_per_epoch * max_epochs,
             ),
             "interval": "step",
             "frequency": 1,
@@ -583,13 +574,10 @@ class SwaVModel(BenchmarkModule):
             weight_decay=1e-6,
         )
         scheduler = {
-            "scheduler": LambdaLR(
+            "scheduler": CosineWarmupScheduler(
                 optimizer=optim,
-                lr_lambda=linear_warmup_decay(
-                    warmup_steps=steps_per_epoch * 10,
-                    total_steps=steps_per_epoch * max_epochs,
-                    cosine=True,
-                ),
+                warmup_epochs=steps_per_epoch * 10,
+                max_epochs=steps_per_epoch * max_epochs,
             ),
             "interval": "step",
             "frequency": 1,
@@ -648,13 +636,10 @@ class DINOModel(BenchmarkModule):
             momentum=0.9,
         )
         scheduler = {
-            "scheduler": LambdaLR(
+            "scheduler": CosineWarmupScheduler(
                 optimizer=optim,
-                lr_lambda=linear_warmup_decay(
-                    warmup_steps=steps_per_epoch * 10,
-                    total_steps=steps_per_epoch * max_epochs,
-                    cosine=True,
-                ),
+                warmup_epochs=steps_per_epoch * 10,
+                max_epochs=steps_per_epoch * max_epochs,
             ),
             "interval": "step",
             "frequency": 1,

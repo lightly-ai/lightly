@@ -36,6 +36,7 @@ class TestMaskedVisionTransformerTorchvision(MaskedVisionTransformerTest):
         mask_token: Optional[Parameter] = None,
         antialias: bool = True,
         weight_initialization: str = "",
+        pos_embed_initialization: str = "sincos",
     ) -> MaskedVisionTransformerTorchvision:
         assert class_token, "Torchvision ViT has always a class token"
         assert reg_tokens == 0, "Torchvision ViT does not support reg tokens"
@@ -52,6 +53,7 @@ class TestMaskedVisionTransformerTorchvision(MaskedVisionTransformerTest):
             mask_token=mask_token,
             weight_initialization=weight_initialization,
             antialias=antialias,
+            pos_embed_initialization=pos_embed_initialization,
         )
 
     @pytest.mark.parametrize("mask_token", [None, Parameter(torch.rand(1, 1, 768))])
