@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import math
+import random
 import warnings
 from typing import TYPE_CHECKING, Dict, Iterable, List, Optional, Tuple, Type, Union
 
@@ -566,6 +567,176 @@ def random_prefix_mask(
     )
     indices = torch.randint(0, max_prefix_length, (batch_size, 1), device=device)
     mask = arange >= indices
+    return mask
+
+
+def random_block_mask(
+    size: Tuple[int, int, int],
+    batch_mask_ratio: float = 0.5,
+    min_image_mask_ratio: float = 0.1,
+    max_image_mask_ratio: float = 0.5,
+    min_num_masks_per_block: int = 4,
+    max_num_masks_per_block: Optional[int] = None,
+    min_block_aspect_ratio: float = 0.3,
+    max_block_aspect_ratio: Optional[float] = None,
+    max_attempts_per_block: int = 10,
+    device: Optional[Union[torch.device, str]] = None,
+) -> Tensor:
+    """Creates a random block mask for a batch of images.
+
+    A block is in this context a rectangle of patches in an image that are
+    masked together. The function generates block masks until the desired number of
+    patches per image are masked. DINOv2 uses a more complex masking strategy that
+    only generates masks for mask_ratio of the images. On top of that, it also masks
+    a different number of patches for every image. This is controlled by the
+    min_image_mask_ratio and max_image_mask_ratio arguments.
+
+    Based on the implementation of the block mask in DINOv2 [0]. For details see [1]
+    and [2].
+
+    - [0]: DINOv2, 2023, https://arxiv.org/abs/2304.07193
+    - [1]: https://github.com/facebookresearch/dinov2/blob/main/dinov2/data/masking.py
+    - [2]: https://github.com/facebookresearch/dinov2/blob/main/dinov2/data/collate.py
+
+    Args:
+        size:
+            Size of the image batch for which to generate masks.
+            Should be (batch_size, height, width).
+        batch_mask_ratio:
+            Percentage of images per batch for which to generate block masks.
+            The remaining images are not masked.
+        min_image_mask_ratio:
+            Minimum percentage of the image to mask. In practice, fewer than
+            min_image_mask_ratio patches of the image can be masked due to additional
+            constraints.
+        max_image_mask_ratio:
+            Maximum percentage of the image to mask.
+        min_num_masks_per_block:
+            Minimum number of patches to mask per block.
+        max_num_masks_per_block:
+            Maximum number of patches to mask per block.
+        min_block_aspect_ratio:
+            Minimum aspect ratio (height/width) of a masked block.
+        max_block_aspect_ratio:
+            Maximum aspect ratio (height/width) of a masked block.
+        max_attempts_per_block:
+            Maximum number of attempts to find a valid block mask for an image.
+        device:
+            Device on which to create the mask.
+    Returns:
+        A boolean tensor with shape (batch_size, height, width) where each entry
+        is True if the patch should be masked and False otherwise.
+    """
+
+    if max_image_mask_ratio < min_image_mask_ratio:
+        raise ValueError(
+            "max_image_mask_ratio must be greater or equal to min_image_mask_ratio."
+        )
+
+    B, H, W = size
+    num_images_masked = int(B * batch_mask_ratio)
+    probs = torch.linspace(
+        min_image_mask_ratio, max_image_mask_ratio, num_images_masked + 1
+    ).tolist()
+    image_masks = []
+    for prob_min, prob_max in zip(probs[:-1], probs[1:]):
+        num_mask = int(H * W * random.uniform(prob_min, prob_max))
+        image_masks.append(
+            random_block_mask_image(
+                size=(H, W),
+                num_masks=num_mask,
+                min_num_masks_per_block=min_num_masks_per_block,
+                max_num_masks_per_block=max_num_masks_per_block,
+                min_block_aspect_ratio=min_block_aspect_ratio,
+                max_block_aspect_ratio=max_block_aspect_ratio,
+                max_attempts_per_block=max_attempts_per_block,
+                device=device,
+            )
+        )
+    for _ in range(num_images_masked, B):
+        image_masks.append(torch.zeros((H, W), dtype=torch.bool, device=device))
+    random.shuffle(image_masks)
+    return torch.stack(image_masks)
+
+
+def random_block_mask_image(
+    size: Tuple[int, int],
+    num_masks: int,
+    min_num_masks_per_block: int = 4,
+    max_num_masks_per_block: Optional[int] = None,
+    min_block_aspect_ratio: float = 0.3,
+    max_block_aspect_ratio: Optional[float] = None,
+    max_attempts_per_block: int = 10,
+    device: Optional[Union[torch.device, str]] = None,
+) -> Tensor:
+    """Creates a random block mask for a single image.
+
+    Args:
+        size:
+            Size of the image for which to generate a mask.
+            Should be (height, width).
+        num_masks:
+            Number of patches to mask.
+        min_num_masks_per_block:
+            Minimum number of patches to mask per block.
+        max_num_masks_per_block:
+            Maximum number of patches to mask per block.
+        min_block_aspect_ratio:
+            Minimum aspect ratio (height/width) of a masked block.
+        max_block_aspect_ratio:
+            Maximum aspect ratio (height/width) of a masked block.
+        max_attempts_per_block:
+            Maximum number of attempts to find a valid block mask.
+        device:
+            Device on which to create the mask.
+    Returns:
+        A boolean tensor with shape (height, width) where each entry is True if the
+        patch should be masked and False otherwise.
+    """
+
+    if max_block_aspect_ratio is None:
+        max_block_aspect_ratio = 1 / min_block_aspect_ratio
+    if max_num_masks_per_block is None:
+        max_num_masks_per_block = num_masks
+
+    if max_num_masks_per_block < min_num_masks_per_block:
+        raise ValueError(
+            "max_num_masks_per_block must be greater or equal to min_num_masks_per_block."
+        )
+    if max_block_aspect_ratio < min_block_aspect_ratio:
+        raise ValueError(
+            "max_block_aspect_ratio must be greater or equal to min_block_aspect_ratio."
+        )
+
+    log_min_aspect = math.log(min_block_aspect_ratio)
+    log_max_aspect = math.log(max_block_aspect_ratio)
+
+    H, W = size
+    mask = torch.zeros((H, W), dtype=torch.bool, device=device)
+    mask_count = 0
+    while mask_count < num_masks:
+        # Try masking a block
+        max_new_masked = min(num_masks - mask_count, max_num_masks_per_block)
+        delta = 0
+        for _ in range(max_attempts_per_block):
+            target_area = random.uniform(min_num_masks_per_block, max_new_masked)
+            aspect_ratio = math.exp(random.uniform(log_min_aspect, log_max_aspect))
+            h = int(round(math.sqrt(target_area * aspect_ratio)))
+            w = int(round(math.sqrt(target_area / aspect_ratio)))
+            if w < W and h < H:
+                top = random.randint(0, H - h)
+                left = random.randint(0, W - w)
+                num_already_masked = mask[top : top + h, left : left + w].sum().item()
+                num_new_masked = h * w - num_already_masked
+                if 0 < num_new_masked <= max_new_masked:
+                    mask[top : top + h, left : left + w] = 1
+                    delta += num_new_masked
+            if delta > 0:
+                break
+        if delta == 0:
+            break
+        else:
+            mask_count += delta
     return mask
 
 
