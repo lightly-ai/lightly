@@ -1,4 +1,6 @@
-Benchmarks 
+.. _lightly-benchmarks:
+
+Benchmarks
 ===================================
 Implemented models and their performance on various datasets. Hyperparameters are not tuned for maximum accuracy.
 
