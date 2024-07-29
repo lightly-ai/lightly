@@ -1,10 +1,7 @@
 import pytest
 import torch
-import torch.distributed as dist
-import torch.nn.functional as F
-from torch import nn
 
-from lightly.loss.ibot_loss import iBOTPatchLoss
+from lightly.loss.ibot_loss import IBOTPatchLoss
 
 
 class TestIBOTPatchLoss:
@@ -13,7 +10,7 @@ class TestIBOTPatchLoss:
         if not torch.cuda.is_available() and device == "cuda":
             pytest.skip("CUDA not available")
 
-        criterion = iBOTPatchLoss(output_dim=2, teacher_temp=0.1, student_temp=0.2)
+        criterion = IBOTPatchLoss(output_dim=2, teacher_temp=0.1, student_temp=0.2)
         teacher_out = torch.tensor([[0.1, 0.2], [0.3, 0.4], [0.5, 0.6]])
         student_out = torch.tensor([[0.7, 0.8], [0.9, 1.0], [1.1, 1.2]])
         mask = torch.tensor(

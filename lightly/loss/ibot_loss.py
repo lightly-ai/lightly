@@ -6,7 +6,7 @@ from torch.nn import functional as F
 from lightly.models.modules.center import Center
 
 
-class iBOTPatchLoss(Module):
+class IBOTPatchLoss(Module):
     """Implementation of the iBOT patch loss [0] as used in DINOv2 [1].
 
     Implementation is based on [2].
