@@ -45,11 +45,7 @@ if _dependency.torchvision_vit_available():
 if _dependency.timm_vit_available():
     # Requires timm >= 0.9.9
     from lightly.models.modules.heads_timm import AIMPredictionHead
-    from lightly.models.modules.ijepa_timm import (
-        IJEPABackboneTIMM,
-        IJEPAEncoderTIMM,
-        IJEPAPredictorTIMM,
-    )
+    from lightly.models.modules.ijepa_timm import IJEPAPredictorTIMM
     from lightly.models.modules.masked_autoencoder_timm import MAEDecoderTIMM
     from lightly.models.modules.masked_causal_vision_transformer import (
         MaskedCausalVisionTransformer,
