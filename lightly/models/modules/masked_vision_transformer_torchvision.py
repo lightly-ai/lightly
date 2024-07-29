@@ -24,6 +24,9 @@ class MaskedVisionTransformerTorchvision(MaskedVisionTransformer):
             the default MAE weight initialization and 'skip' skips the weight
         antialias:
             Whether to use antialiasing when resampling the positional embeddings.
+        pos_embed_initialization:
+            The strategy to initialize the positional embeddings. Valid options are
+            ['learn', 'sincos', 'skip'].
 
     """
 
@@ -33,6 +36,7 @@ class MaskedVisionTransformerTorchvision(MaskedVisionTransformer):
         mask_token: Optional[Parameter] = None,
         weight_initialization: str = "",
         antialias: bool = True,
+        pos_embed_initialization: str = "sincos",
     ) -> None:
         super().__init__()
         self.vit = vit
@@ -48,6 +52,12 @@ class MaskedVisionTransformerTorchvision(MaskedVisionTransformer):
             )
         if weight_initialization != "skip":
             self._initialize_weights()
+
+        utils.initialize_positional_embedding(
+            pos_embedding=self.vit.encoder.pos_embedding,
+            strategy=pos_embed_initialization,
+            num_prefix_tokens=1,  # class token
+        )
 
         self.antialias = antialias
 
@@ -152,12 +162,6 @@ class MaskedVisionTransformerTorchvision(MaskedVisionTransformer):
 
         # Initialize the class token.
         torch.nn.init.normal_(self.vit.class_token, std=0.02)
-
-        # Initialize positional encoding.
-        utils.initialize_2d_sine_cosine_positional_embedding(
-            pos_embedding=self.vit.encoder.pos_embedding,
-            has_class_token=True,
-        )
 
         # Initialize linear layers.
         _initialize_linear_layers(self)
