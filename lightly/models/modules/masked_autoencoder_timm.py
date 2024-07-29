@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 from timm.models.vision_transformer import Block
 from torch import Tensor
-from torch.nn import LayerNorm, Linear, Module, Parameter, Sequential
+from torch.nn import LayerNorm, Module, Parameter, Sequential
 
 from lightly.models import utils
 from lightly.models.modules.masked_vision_transformer_timm import _init_weights
