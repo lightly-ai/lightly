@@ -38,14 +38,11 @@ from lightly.transforms.utils import IMAGENET_NORMALIZE
 # -----------------------------
 #
 # Let's use the resnet50 model pre-trained on ImageNet1k using
-# the `SimCLR <https://arxiv.org/abs/2002.05709>`_ method. We will
-# download the model weights from the S3 bucket and store them in memory
-#
-# .. code-block:: console
-#
-#   wget -O weights.ckpt https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_simclr_2023-06-22_09-11-13/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt
+# the `SimCLR <https://arxiv.org/abs/2002.05709>`_ method.
 #
 # You can browse other model checkpoints at :ref:`lightly-benchmarks`.
+
+checkpoint_url = "https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_simclr_2023-06-22_09-11-13/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt"
 
 # %%
 # Tensorboard Logger
@@ -156,7 +153,7 @@ model = resnet50()
 num_feats = model.fc.in_features
 
 # Load the checkpoint
-checkpoint = torch.load("/content/weights.ckpt", map_location="cpu")
+checkpoint = torch.hub.load_state_dict_from_url(url=checkpoint_url, map_location=device)
 
 # Remove 'backbone.' prefix from keys in state_dict
 backbone_state_dict = {
