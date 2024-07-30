@@ -28,9 +28,9 @@ PyTorch Lightning and Weights & Biases.
 import pytorch_lightning as pl
 import torch
 import torch.nn as nn
-import torchvision
 import wandb
 from lightning.pytorch.loggers import WandbLogger
+from torchvision import transforms
 
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 
@@ -100,25 +100,29 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 # and to learn more about the different augmentations and learned invariances please refer to
 # :ref:`lightly-advanced`.
 
+from torch.utils.data import DataLoader
+from torchvision.datasets import Food101
+
 num_classes = 101
 
+
 # Training Transformations
-train_transform = torchvision.transforms.Compose(
+train_transform = transforms.Compose(
     [
-        torchvision.transforms.RandomResizedCrop(input_size),
-        torchvision.transforms.RandomHorizontalFlip(),
-        torchvision.transforms.ToTensor(),
-        torchvision.transforms.Normalize(
+        transforms.RandomResizedCrop(input_size),
+        transforms.RandomHorizontalFlip(),
+        transforms.ToTensor(),
+        transforms.Normalize(
             mean=IMAGENET_NORMALIZE["mean"],
             std=IMAGENET_NORMALIZE["std"],
         ),
     ]
 )
-train_dataset = torchvision.datasets.Food101(
+train_dataset = Food101(
     "datasets/food101", split="train", download=True, transform=train_transform
 )
 
-train_dataloader = torch.utils.data.DataLoader(
+train_dataloader = DataLoader(
     train_dataset,
     batch_size=batch_size,
     shuffle=True,
@@ -127,20 +131,20 @@ train_dataloader = torch.utils.data.DataLoader(
 )
 
 # Test Transformations
-test_transform = torchvision.transforms.Compose(
+test_transform = transforms.Compose(
     [
-        torchvision.transforms.Resize(input_size),
-        torchvision.transforms.ToTensor(),
-        torchvision.transforms.Normalize(
+        transforms.Resize(input_size),
+        transforms.ToTensor(),
+        transforms.Normalize(
             mean=IMAGENET_NORMALIZE["mean"],
             std=IMAGENET_NORMALIZE["std"],
         ),
     ]
 )
-test_dataset = torchvision.datasets.Food101(
+test_dataset = Food101(
     "datasets/food101", split="test", download=True, transform=test_transform
 )
-test_dataloader = torch.utils.data.DataLoader(
+test_dataloader = DataLoader(
     test_dataset,
     batch_size=batch_size,
     shuffle=True,
@@ -154,9 +158,10 @@ test_dataloader = torch.utils.data.DataLoader(
 # Having chosen a model checkpoint to load, we will now create a
 # PyTorch Module using the pre-trained weights.
 
+from torchvision.models import resnet50
 
 # Initialize the ResNet-50 model
-model = torchvision.models.resnet50()
+model = resnet50()
 num_feats = model.fc.in_features
 
 # Load the checkpoint
@@ -180,7 +185,7 @@ model.fc = nn.Linear(num_feats, num_classes)
 # --------------------------------------
 # Now let's creat a PyTorch Lightning Module to finetune our pre-trained model.
 
-
+from torch.optim import AdamW
 from torchmetrics import Accuracy
 
 
@@ -201,13 +206,23 @@ class FinetuningModel(pl.LightningModule):
         logits = self(x)
         loss = self.loss_fn(logits, y)
         self.log("train_loss", loss)
-        _, preds = torch.max(logits, 1)
+        preds = torch.argmax(logits, dim=1)
         acc = self.train_accuracy(preds, y)
         self.log("train_accuracy", acc)
         return loss
 
+    def validation_step(self, batch, batch_idx):
+        x, y = batch
+        logits = self(x)
+        loss = self.loss_fn(logits, y)
+        self.log("test_loss", loss)
+        preds = torch.argmax(logits, dim=1)
+        acc = self.test_accuracy(preds, y)
+        self.log("test_accuracy", acc)
+        return loss
+
     def configure_optimizers(self):
-        optimizer = torch.optim.AdamW(self.parameters(), lr=self.hparams.lr)
+        optimizer = AdamW(self.parameters(), lr=self.hparams.lr)
         return optimizer
 
 
@@ -224,7 +239,11 @@ trainer = pl.Trainer(
     max_epochs=num_train_epochs, devices=1, logger=wandb_logger, accelerator=device
 )
 
-trainer.fit(model=finetuning_model, train_dataloaders=train_dataloader)
+trainer.fit(
+    model=finetuning_model,
+    train_dataloaders=train_dataloader,
+    val_dataloaders=test_dataloader,
+)
 
 wandb.finish()
 
