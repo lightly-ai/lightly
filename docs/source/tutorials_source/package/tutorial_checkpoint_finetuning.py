@@ -153,7 +153,7 @@ model = resnet50()
 num_feats = model.fc.in_features
 
 # Load the checkpoint
-checkpoint = torch.hub.load_state_dict_from_url(url=checkpoint_url, map_location="cpu")
+checkpoint = torch.hub.load_state_dict_from_url(url=checkpoint_url, map_location=device)
 
 # Remove 'backbone.' prefix from keys in state_dict
 backbone_state_dict = {
