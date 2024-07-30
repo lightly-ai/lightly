@@ -10,7 +10,7 @@ hyperparameter configurations are available here :ref:`lightly-benchmarks`.
 
 In this tutorial, we will learn how to use these pre-trained model checkpoints
 to fine-tune an image classification model for the Food-101 dataset using
-PyTorch Lightning and Weights & Biases.
+PyTorch Lightning.
 """
 
 # %%
@@ -22,14 +22,13 @@ PyTorch Lightning and Weights & Biases.
 #
 # .. code-block:: console
 #
-#   pip install lightly torchmetrics wandb
+#   pip install lightly torchmetrics
 
 
 import pytorch_lightning as pl
 import torch
 import torch.nn as nn
-import wandb
-from lightning.pytorch.loggers import WandbLogger
+from lightning.pytorch.loggers import TensorBoardLogger
 from torchvision import transforms
 
 from lightly.transforms.utils import IMAGENET_NORMALIZE
@@ -49,20 +48,12 @@ from lightly.transforms.utils import IMAGENET_NORMALIZE
 # You can browse other model checkpoints at :ref:`lightly-benchmarks`.
 
 # %%
-# Configure Weights & Biases
+# Tensorboard Logger
 # ---------------------------
 #
-# We will use the [WandbLogger](https://docs.wandb.ai/guides/integrations/lightning)
-# to log our experiments.
 
+tb_logger = TensorBoardLogger("tb_logs", name="lightly_finetuning")
 
-wandb.login()
-wandb.init(
-    project="lightly_finetuning",
-    job_type="finetune",
-)
-
-wandb_logger = WandbLogger()
 
 # %%
 # Configuration
@@ -183,7 +174,7 @@ model.fc = nn.Linear(num_feats, num_classes)
 # %%
 # Create a FineTuning Lightning Module
 # --------------------------------------
-# Now let's creat a PyTorch Lightning Module to finetune our pre-trained model.
+# Now let's create a PyTorch Lightning Module to finetune our pre-trained model.
 
 from torch.optim import AdamW
 from torchmetrics import Accuracy
@@ -236,7 +227,7 @@ class FinetuningModel(pl.LightningModule):
 finetuning_model = FinetuningModel(model, lr=learning_rate, num_classes=num_classes)
 
 trainer = pl.Trainer(
-    max_epochs=num_train_epochs, devices=1, logger=wandb_logger, accelerator=device
+    max_epochs=num_train_epochs, devices=1, logger=tb_logger, accelerator=device
 )
 
 trainer.fit(
@@ -244,8 +235,6 @@ trainer.fit(
     train_dataloaders=train_dataloader,
     val_dataloaders=test_dataloader,
 )
-
-wandb.finish()
 
 # %%
 # Next Steps
