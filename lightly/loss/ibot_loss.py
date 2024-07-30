@@ -68,7 +68,7 @@ class IBOTPatchLoss(Module):
         Returns:
             Loss value.
         """
-        # B = batch size, N = sequence length, D = embed dim
+        # B = batch size, N = sequence length = number of masked tokens, D = embed dim
         # H = height (in tokens), W = width (in tokens)
         # Note that N <= H * W depending on how many tokens are masked.
 
