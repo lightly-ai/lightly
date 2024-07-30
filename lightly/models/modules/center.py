@@ -1,4 +1,4 @@
-from typing import Callable, Tuple
+from typing import Tuple
 
 import torch
 import torch.distributed as dist
@@ -37,15 +37,14 @@ class Center(Module):
     ) -> None:
         super().__init__()
 
-        modes = ["mean"]
-        self._center_fn: Callable[[Tensor], Tensor]
-        if mode not in modes:
-            raise ValueError(f"Unknown mode '{mode}'. Valid modes are {modes}.")
-        if mode == "mean":
-            self._center_fn = self._center_mean
-        else:
-            raise NotImplementedError(f"Mode '{mode}' is not implemented.")
-
+        mode_to_fn = {
+            "mean": self._center_mean,
+        }
+        if mode not in mode_to_fn:
+            raise ValueError(
+                f"Unknown mode '{mode}'. Valid modes are {sorted(mode_to_fn.keys())}."
+            )
+        self._center_fn = mode_to_fn[mode]
         self.size = size
         self.dim = tuple(i for i, s in enumerate(size) if s == 1)
 

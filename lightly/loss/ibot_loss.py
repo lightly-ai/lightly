@@ -16,8 +16,16 @@ class IBOTPatchLoss(Module):
     - [2]: https://github.com/facebookresearch/dinov2/blob/main/dinov2/loss/ibot_patch_loss.py
 
     Attributes:
-        temperature:
-            Temperature of the softmax for the student outputs.
+        output_dim:
+            Dimension of the model output.
+        teacher_temp:
+            Temperature for the teacher output.
+        student_temp:
+            Temperature for the student output.
+        center_mode:
+            Mode for center calculation. Only 'mean' is supported.
+        center_momentum:
+            Momentum term for the center update.
     """
 
     def __init__(
@@ -47,18 +55,23 @@ class IBOTPatchLoss(Module):
 
         Args:
             teacher_out:
-                Tensor with shape (B * N, D) containing the teacher output of the masked
-                tokens.
+                Tensor with shape (batch_size * sequence_length, embed_dim) containing
+                the teacher output of the masked tokens.
             student_out:
-                Tensor with shape (B * N, D) containing the student output of the masked
-                tokens.
+                Tensor with shape (batch_size * sequence_length, embed_dim) containing
+                the student output of the masked tokens.
             mask:
-                Boolean tensor with shape (B, H, W) containing the token mask.
-                Exactly B * N entries must be set to True in the mask.
+                Boolean tensor with shape (batch_size, height, width) containing the
+                token mask. Exactly batch_size * sequence_length entries must be set to
+                True in the mask.
 
         Returns:
             Loss value.
         """
+        # B = batch size, N = sequence length, D = embed dim
+        # H = height (in tokens), W = width (in tokens)
+        # Note that N <= H * W depending on how many tokens are masked.
+
         # Calculate cross entropy loss.
         teacher_softmax = F.softmax(
             (teacher_out - self.center.value) / self.teacher_temp, dim=-1
@@ -71,13 +84,11 @@ class IBOTPatchLoss(Module):
 
         # Get weights.
         # (B, H, W) -> (B, 1, 1)
-        num_masked_per_image = (
-            mask.sum(dim=(1, 2), keepdim=True).clamp(min=1.0).clamp(min=1.0)
-        )
+        num_masked_per_image = mask.sum(dim=(1, 2), keepdim=True).clamp(min=1.0)
         # (B, 1, 1) -> (B, H, W) -> (B * N)
         weight = (1.0 / num_masked_per_image).expand_as(mask)[mask]
 
-        # Apply weighthing.
+        # Apply weighting.
         B = mask.shape[0]
         loss = (loss * weight).sum() / B
 

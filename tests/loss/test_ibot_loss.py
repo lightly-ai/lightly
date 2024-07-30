@@ -10,19 +10,29 @@ class TestIBOTPatchLoss:
         if not torch.cuda.is_available() and device == "cuda":
             pytest.skip("CUDA not available")
 
-        criterion = IBOTPatchLoss(output_dim=2, teacher_temp=0.1, student_temp=0.2)
+        criterion = IBOTPatchLoss(
+            output_dim=2,
+            teacher_temp=0.1,
+            student_temp=0.2,
+            center_mode="mean",
+            center_momentum=0.9,
+        )
         teacher_out = torch.tensor([[0.1, 0.2], [0.3, 0.4], [0.5, 0.6]])
         student_out = torch.tensor([[0.7, 0.8], [0.9, 1.0], [1.1, 1.2]])
         mask = torch.tensor(
-            [[[True, False], [True, False]], [[False, False], [False, True]]]
+            [
+                [[True, False], [True, False]],
+                [[False, False], [False, True]],
+                [[False, False], [False, False]],
+            ]
         )
 
         loss = criterion.forward(
             teacher_out=teacher_out, student_out=student_out, mask=mask
         )
-        assert loss == pytest.approx(0.6085, rel=0.0001)
-        assert torch.all(criterion.center.value != 0)  # Check center was updated
-
+        assert loss == pytest.approx(0.4057, rel=0.0001)
+        expected_center = 0.1 * teacher_out.mean(0)
+        assert torch.all(torch.isclose(criterion.center.value, expected_center))
         # Loss value was calculated with the original implementation from:
         # https://github.com/facebookresearch/dinov2/blob/main/dinov2/loss/ibot_patch_loss.py
         #
