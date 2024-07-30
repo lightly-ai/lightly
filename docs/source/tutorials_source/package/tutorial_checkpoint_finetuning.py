@@ -121,8 +121,8 @@ train_dataloader = DataLoader(
     num_workers=num_workers,
 )
 
-# Test Transformations
-test_transform = transforms.Compose(
+# Validation Transformations
+val_transform = transforms.Compose(
     [
         transforms.Resize(input_size),
         transforms.ToTensor(),
@@ -132,11 +132,11 @@ test_transform = transforms.Compose(
         ),
     ]
 )
-test_dataset = Food101(
-    "datasets/food101", split="test", download=True, transform=test_transform
+val_dataset = Food101(
+    "datasets/food101", split="test", download=True, transform=val_transform
 )
-test_dataloader = DataLoader(
-    test_dataset,
+val_dataloader = DataLoader(
+    val_dataset,
     batch_size=batch_size,
     shuffle=True,
     drop_last=True,
@@ -186,7 +186,7 @@ class FinetuningModel(pl.LightningModule):
         self.save_hyperparameters()
         self.model = model
         self.train_accuracy = Accuracy(task="multiclass", num_classes=num_classes)
-        self.test_accuracy = Accuracy(task="multiclass", num_classes=num_classes)
+        self.val_accuracy = Accuracy(task="multiclass", num_classes=num_classes)
         self.loss_fn = nn.CrossEntropyLoss()
 
     def forward(self, x):
@@ -206,10 +206,10 @@ class FinetuningModel(pl.LightningModule):
         x, y = batch
         logits = self(x)
         loss = self.loss_fn(logits, y)
-        self.log("test_loss", loss)
+        self.log("val_loss", loss)
         preds = torch.argmax(logits, dim=1)
-        acc = self.test_accuracy(preds, y)
-        self.log("test_accuracy", acc)
+        acc = self.val_accuracy(preds, y)
+        self.log("val_accuracy", acc)
         return loss
 
     def configure_optimizers(self):
@@ -233,7 +233,7 @@ trainer = pl.Trainer(
 trainer.fit(
     model=finetuning_model,
     train_dataloaders=train_dataloader,
-    val_dataloaders=test_dataloader,
+    val_dataloaders=val_dataloader,
 )
 
 # %%
