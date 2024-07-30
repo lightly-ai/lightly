@@ -28,7 +28,7 @@ PyTorch Lightning.
 import pytorch_lightning as pl
 import torch
 import torch.nn as nn
-from lightning.pytorch.loggers import TensorBoardLogger
+from pytorch_lightning.loggers import TensorBoardLogger
 from torchvision import transforms
 
 from lightly.transforms.utils import IMAGENET_NORMALIZE
