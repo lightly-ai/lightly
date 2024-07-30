@@ -65,14 +65,14 @@ class TestMaskedVisionTransformerTIMM(MaskedVisionTransformerTest):
         assert isinstance(model.mask_token, Parameter)
 
     def test__init__weight_initialization(self, mocker: MockerFixture) -> None:
-        mock_init_weights = mocker.spy(masked_vision_transformer_timm, "_init_weights")
+        mock_init_weights = mocker.spy(masked_vision_transformer_timm, "init_weights")
         self.get_masked_vit(
             patch_size=32, depth=1, num_heads=1, weight_initialization=""
         )
         mock_init_weights.assert_called()
 
     def test__init__weight_initialization__skip(self, mocker: MockerFixture) -> None:
-        mock_init_weights = mocker.spy(masked_vision_transformer_timm, "_init_weights")
+        mock_init_weights = mocker.spy(masked_vision_transformer_timm, "init_weights")
         self.get_masked_vit(
             patch_size=32, depth=1, num_heads=1, weight_initialization="skip"
         )
