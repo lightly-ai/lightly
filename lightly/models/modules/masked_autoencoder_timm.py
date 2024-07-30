@@ -8,7 +8,7 @@ from torch import Tensor
 from torch.nn import LayerNorm, Module, Parameter, Sequential
 
 from lightly.models import utils
-from lightly.models.modules.masked_vision_transformer_timm import _init_weights
+from lightly.models.modules.masked_vision_transformer_timm import init_weights
 
 
 class MAEDecoderTIMM(Module):
@@ -114,7 +114,7 @@ class MAEDecoderTIMM(Module):
             Tensor with shape (batch_size, seq_length, out_dim).
 
         """
-        out: Tensor = self.embed(input)
+        out = self.embed(input)
         out = self.decode(out)
         return self.predict(out)
 
@@ -176,4 +176,4 @@ class MAEDecoderTIMM(Module):
         utils.initialize_2d_sine_cosine_positional_embedding(
             pos_embedding=self.decoder_pos_embed, has_class_token=True
         )
-        self.apply(_init_weights)
+        self.apply(init_weights)
