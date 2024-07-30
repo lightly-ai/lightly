@@ -199,10 +199,10 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
             torch.nn.init.normal_(self.vit.cls_token, std=0.02)
 
         # initialize nn.Linear and nn.LayerNorm
-        self.apply(_init_weights)
+        self.apply(init_weights)
 
 
-def _init_weights(module: Module) -> None:
+def init_weights(module: Module) -> None:
     if isinstance(module, Linear):
         nn.init.xavier_uniform_(module.weight)
         if isinstance(module, Linear) and module.bias is not None:
