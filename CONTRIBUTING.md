@@ -159,7 +159,7 @@ Follow these steps to start contributing:
    ```
 
 7. Once you are satisfied, go to the webpage of your fork on GitHub.
-   Click on 'Pull request' to send your changes to the project maintainers for review
+   Click on 'Pull request' to send your changes to the project maintainers for review.
 
 8. It's ok if maintainers ask you for changes. It happens to core contributors
    too! So everyone can see the changes in the Pull request, work in your local
@@ -167,9 +167,9 @@ Follow these steps to start contributing:
    the pull request.
 
 9. We have a extensive Continuous Integration system that runs tests on all Pull Requests. This
-   is to make sure that the changes introduced by the commits doesn’t introduce errors. When
-   all CI tests in a workflow pass, it implies that the changes introduced by a commit does not introduce any errors.
-   We have workflows that check unit tests, dependencies and formatting.
+   is to make sure that the changes introduced by the commits don’t introduce errors. When
+   all CI tests in a workflow pass, it implies that the changes introduced by a commit do not introduce any errors.
+   We have workflows that check unit tests, dependencies, and formatting.
 
 ### Style guide
 
