@@ -90,7 +90,28 @@ Follow these steps to start contributing:
 5. **(Optional)** Install pre-commit hooks, for more details refer to our [pre-commit instructions](./PRECOMMITHOOKS.md):
 
    ```bash
+   $ pip install pre-commit
    $ pre-commit install
+   ```
+
+   We use pre-commit hooks to identify simple issues before submission to code review. In particular, our hooks currently check for:
+   * Private keys in the commit
+   * Large files in the commit (>500kB)
+   * Run formatting checks using `black`, `isort` and `mypy`.
+   * Units which don't pass their unit tests (on push only)
+
+   You can verify that the hooks were installed correctly with
+   ```
+   $ pre-commit run --all-files
+   ```
+   The output should look like this:
+   ```
+   $ pre-commit run --all-files
+   Detect Private Key................................Passed
+   Check for added large files.......................Passed
+   black.............................................Passed
+   isort.............................................Passed
+   mypy..............................................Passed
    ```
 
 6. Develop the features on your branch.
@@ -138,12 +159,17 @@ Follow these steps to start contributing:
    ```
 
 7. Once you are satisfied, go to the webpage of your fork on GitHub.
-   Click on 'Pull request' to send your changes to the project maintainers for review.
+   Click on 'Pull request' to send your changes to the project maintainers for review
 
 8. It's ok if maintainers ask you for changes. It happens to core contributors
    too! So everyone can see the changes in the Pull request, work in your local
    branch and push the changes to your fork. They will automatically appear in
    the pull request.
+
+9. We have a extensive Continuous Integration system that runs tests on all Pull Requests. This
+   is to make sure that the changes introduced by the commits doesn’t introduce errors. When
+   all CI tests in a workflow pass, it implies that the changes introduced by a commit does not introduce any errors.
+   We have workflows that check unit tests, dependencies and formatting.
 
 ### Style guide
 
