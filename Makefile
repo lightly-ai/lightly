@@ -142,7 +142,7 @@ install-api-only:
 
 # Install package with minimal dependencies.
 # 
-# This command is split into two steps:
+# This command is split into multiple steps:
 # 1. Install the dev dependencies to be able to run tests. We don't want to use
 #    the minimal versions for these dependencies.
 # 2. Then we reinstall the package with minimal dependencies.
