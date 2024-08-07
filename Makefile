@@ -123,7 +123,7 @@ EDITABLE=-e
 endif
 
 # All extras without dev requirements.
-EXTRAS = [openapi,timm,video]
+EXTRAS = [matplotlib,openapi,timm,video]
 
 # Date until which dependencies installed with --exclude-newer must have been released.
 # Dependencies released after this date are ignored.

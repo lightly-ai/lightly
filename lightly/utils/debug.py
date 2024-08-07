@@ -10,9 +10,12 @@ try:
     import matplotlib.pyplot as plt
 except ModuleNotFoundError:
     plt = ModuleNotFoundError(
-        "Matplotlib is not installed on your system. Please install it to use the plotting"
-        "functionalities. See https://matplotlib.org/ for installation instructions."
+        "Matplotlib is not installed on your system. Please install it to use the "
+        "plotting functionalities. You can install it with "
+        "'pip install lightly[matplotlib]'."
     )
+except ImportError as ex:
+    plt = ex
 
 
 def _check_matplotlib_available() -> None:

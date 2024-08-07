@@ -95,6 +95,7 @@ openapi = [
 ]
 timm = ["timm>=0.9.9"]
 video = ["av>=8.0.3"]
+matplotlib = ["matplotlib>=3"]
 
 [project.urls]
 "Homepage" = "https://www.lightly.ai"
