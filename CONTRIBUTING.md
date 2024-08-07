@@ -87,6 +87,13 @@ Follow these steps to start contributing:
    $ pip install -e ".[dev]"
    ```
 
+   If you are using [uv](https://github.com/astral-sh/uv) instead of pip, you can use
+   the following command:
+
+   ```bash
+   $ make install-dev
+   ```
+
 5. **(Optional)** Install pre-commit hooks, for more details refer to our [pre-commit instructions](./PRECOMMITHOOKS.md):
 
    ```bash
