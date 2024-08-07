@@ -43,10 +43,10 @@ dependencies = [
   "requests>=2.23.0",
   "six>=1.10",
   "tqdm>=4.44",
-  "torch>=1.10.0",
-  "torchvision>=0.11.0",
+  "torch",
+  "torchvision",
   "pydantic>=1.10.5",
-  "pytorch_lightning>=1.6",
+  "pytorch_lightning>=1.0.4",
   "urllib3>=1.25.3",
   "aenum>=3.1.11"
 ]
@@ -54,7 +54,7 @@ dynamic = ["version", "readme"]
 
 [project.optional-dependencies]
 all = [
-  "lightly[dev,timm,video]"
+  "lightly[dev,matplotlib,minimal,timm,video]"
 ]
 dev = [
   "tox",
@@ -86,6 +86,13 @@ dev = [
   "types-python-dateutil",
   "types-toml"
 ]
+# Minimal dependencies against which we test. Older versions might work depending on the
+# functionality used.
+minimal = [
+  "torch>=1.10.0",
+  "torchvision>=0.11.0",
+  "pytorch_lightning>=1.6",
+]
 openapi = [
   "python_dateutil>=2.5.3",
   "setuptools>=21.0.0",
@@ -96,6 +103,7 @@ openapi = [
 timm = ["timm>=0.9.9"]
 video = ["av>=8.0.3"]
 matplotlib = ["matplotlib>=3"]
+
 
 [project.urls]
 "Homepage" = "https://www.lightly.ai"

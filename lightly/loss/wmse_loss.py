@@ -9,6 +9,7 @@ import torch.nn.functional as F
 try:
     import torch.linalg.solve_triangular
 except ImportError:
+    # Only available in PyTorch >=1.11.
     SOLVE_TRIANGULAR_AVAILABLE = False
 else:
     SOLVE_TRIANGULAR_AVAILABLE = True

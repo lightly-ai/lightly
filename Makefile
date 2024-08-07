@@ -122,9 +122,6 @@ else
 EDITABLE=-e
 endif
 
-# All extras without dev requirements.
-EXTRAS = [matplotlib,openapi,timm,video]
-
 # Date until which dependencies installed with --exclude-newer must have been released.
 # Dependencies released after this date are ignored.
 EXCLUDE_NEWER_DATE="2024-08-07"
@@ -164,17 +161,17 @@ install-api-only:
 .PHONY: install-minimal
 install-minimal:
 	uv pip install --exclude-newer ${EXCLUDE_NEWER_DATE} ${EDITABLE} ".[dev]"
-	uv pip install --resolution=lowest-direct --exclude-newer ${EXCLUDE_NEWER_DATE} --reinstall ${EDITABLE} .
+	uv pip install --resolution=lowest-direct --exclude-newer ${EXCLUDE_NEWER_DATE} --reinstall ${EDITABLE} ".[minimal]"
 	uv pip install --exclude-newer ${EXCLUDE_NEWER_DATE} --reinstall "setuptools<50"
 
 # Install package with minimal dependencies including extras.
 # See install-minimal for explanation of flags.
-# We use ".${EXTRAS}" instead of --all-extras because --all-extras includes the dev
-# dependencies for which we don't want to install the minimal versions.
+# We do not use --all-extras because it includes the dev dependencies for which we don't
+# want to install the minimal versions.
 .PHONY: install-minimal-extras
 install-minimal-extras:
 	uv pip install --exclude-newer ${EXCLUDE_NEWER_DATE} ${EDITABLE} ".[dev]"
-	uv pip install --resolution=lowest-direct --exclude-newer ${EXCLUDE_NEWER_DATE} --reinstall ${EDITABLE} ".${EXTRAS}" --requirement pyproject.toml
+	uv pip install --resolution=lowest-direct --exclude-newer ${EXCLUDE_NEWER_DATE} --reinstall ${EDITABLE} ".[matplotlib,minimal,timm,video]" --requirement pyproject.toml
 	uv pip install --exclude-newer ${EXCLUDE_NEWER_DATE} --reinstall "setuptools<50"
 
 # Install package with fixed dependencies.
