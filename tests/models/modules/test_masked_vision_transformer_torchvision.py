@@ -36,6 +36,7 @@ class TestMaskedVisionTransformerTorchvision(MaskedVisionTransformerTest):
         mask_token: Optional[Parameter] = None,
         antialias: bool = True,
         weight_initialization: str = "",
+        pos_embed_initialization: str = "sincos",
     ) -> MaskedVisionTransformerTorchvision:
         assert class_token, "Torchvision ViT has always a class token"
         assert reg_tokens == 0, "Torchvision ViT does not support reg tokens"
@@ -52,6 +53,7 @@ class TestMaskedVisionTransformerTorchvision(MaskedVisionTransformerTest):
             mask_token=mask_token,
             weight_initialization=weight_initialization,
             antialias=antialias,
+            pos_embed_initialization=pos_embed_initialization,
         )
 
     @pytest.mark.parametrize("mask_token", [None, Parameter(torch.rand(1, 1, 768))])
@@ -84,12 +86,16 @@ class TestMaskedVisionTransformerTorchvision(MaskedVisionTransformerTest):
 
     @pytest.mark.skip(reason="Torchvision ViT does not support forward intermediates")
     def test_forward_intermediates(
-        self, device: str, mask_ratio: Optional[float], expected_sequence_length: int
+        self,
+        device: str,
+        idx_mask_ratio: Optional[float],
+        bool_mask_ratio: Optional[float],
+        expected_sequence_length: int,
     ) -> None:
         ...
 
     @pytest.mark.skip(reason="Torchvision ViT does not support reg tokens")
-    def test_add_prefix_tokens(
+    def test_prepend_prefix_tokens(
         self,
         device: str,
         class_token: bool,

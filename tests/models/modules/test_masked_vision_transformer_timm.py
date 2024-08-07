@@ -34,6 +34,7 @@ class TestMaskedVisionTransformerTIMM(MaskedVisionTransformerTest):
         mask_token: Optional[Parameter] = None,
         antialias: bool = True,
         weight_initialization: str = "",
+        pos_embed_initialization: str = "sincos",
     ) -> MaskedVisionTransformerTIMM:
         vit = VisionTransformer(
             patch_size=patch_size,
@@ -50,6 +51,7 @@ class TestMaskedVisionTransformerTIMM(MaskedVisionTransformerTest):
             mask_token=mask_token,
             weight_initialization=weight_initialization,
             antialias=antialias,
+            pos_embed_initialization=pos_embed_initialization,
         )
 
     @pytest.mark.parametrize("mask_token", [None, Parameter(torch.rand(1, 1, 768))])
@@ -63,14 +65,14 @@ class TestMaskedVisionTransformerTIMM(MaskedVisionTransformerTest):
         assert isinstance(model.mask_token, Parameter)
 
     def test__init__weight_initialization(self, mocker: MockerFixture) -> None:
-        mock_init_weights = mocker.spy(masked_vision_transformer_timm, "_init_weights")
+        mock_init_weights = mocker.spy(masked_vision_transformer_timm, "init_weights")
         self.get_masked_vit(
             patch_size=32, depth=1, num_heads=1, weight_initialization=""
         )
         mock_init_weights.assert_called()
 
     def test__init__weight_initialization__skip(self, mocker: MockerFixture) -> None:
-        mock_init_weights = mocker.spy(masked_vision_transformer_timm, "_init_weights")
+        mock_init_weights = mocker.spy(masked_vision_transformer_timm, "init_weights")
         self.get_masked_vit(
             patch_size=32, depth=1, num_heads=1, weight_initialization="skip"
         )

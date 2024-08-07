@@ -9,7 +9,7 @@ Configuration
     The old workflow described in these docs will not be supported with new Lightly Worker versions above 2.6.
     Please switch to our `new documentation page <https://docs.lightly.ai/docs>`_ instead.
 
-As the Lightly SSL framework the docker solution can be configured using Hydra.
+As the Lightly\ **SSL** framework the docker solution can be configured using Hydra.
 
 The example below shows how the `token` parameter can be set when running the docker container.
 

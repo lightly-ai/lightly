@@ -1,11 +1,14 @@
 import copy
+import random
 import unittest
-from typing import List
+from typing import List, Optional, Tuple
 
 import pytest
 import torch
 import torch.nn as nn
-from torch.nn import Identity
+from pytest_mock import MockerFixture
+from torch import Tensor
+from torch.nn import Identity, Parameter
 
 from lightly.models import utils
 from lightly.models.utils import (
@@ -302,6 +305,212 @@ class TestModelUtils(unittest.TestCase):
 
 
 @pytest.mark.parametrize(
+    "mask, expected",
+    [
+        (
+            [
+                [0, 0, 0],
+                [0, 0, 0],
+            ],
+            [
+                [[2, 2], [2, 2], [2, 2]],
+                [[2, 2], [2, 2], [2, 2]],
+            ],
+        ),
+        (
+            [
+                [1, 1, 1],
+                [1, 1, 1],
+            ],
+            [
+                [[3, 3], [3, 3], [3, 3]],
+                [[3, 3], [3, 3], [3, 3]],
+            ],
+        ),
+        (
+            [
+                [0, 1, 0],
+                [1, 0, 1],
+            ],
+            [
+                [[2, 2], [3, 3], [2, 2]],
+                [[3, 3], [2, 2], [3, 3]],
+            ],
+        ),
+    ],
+)
+def test_mask_bool(mask: Tensor, expected: Tensor) -> None:
+    tokens = torch.zeros(2, 3, 2) + 2
+    mask_token = torch.zeros(1, 1, 2) + 3
+    result = utils.mask_bool(
+        tokens=tokens, mask=torch.tensor(mask, dtype=torch.bool), mask_token=mask_token
+    )
+    assert torch.allclose(result, torch.tensor(expected, dtype=torch.float))
+
+
+@pytest.mark.parametrize(
+    "mask_ratio, expected_num_images_masked",
+    [
+        (0.0, 0),
+        (0.4, 2),
+        (0.6, 3),
+        (1.0, 5),
+    ],
+)
+def test_random_block_mask__mask_ratio(
+    mask_ratio: float, expected_num_images_masked: int
+) -> None:
+    mask = utils.random_block_mask(
+        size=(5, 14, 14),
+        batch_mask_ratio=mask_ratio,
+    )
+    num_images_masked = sum(m.sum() > 0 for m in mask)
+    assert num_images_masked == expected_num_images_masked
+
+
+@pytest.mark.parametrize(
+    "min_image_mask_ratio, max_image_mask_ratio",
+    [(0.0, 0.0), (0.4, 0.6), (1.0, 1.0)],
+)
+def test_random_block_mask__min_max_image_mask_ratio(
+    min_image_mask_ratio: float, max_image_mask_ratio: float
+) -> None:
+    torch.manual_seed(0)
+    random.seed(0)
+    mask = utils.random_block_mask(
+        size=(5, 14, 14),
+        min_image_mask_ratio=min_image_mask_ratio,
+        max_image_mask_ratio=max_image_mask_ratio,
+        min_num_masks_per_block=0,
+    )
+    num_masked = mask.sum()
+    num_patches = 5 * 14 * 14
+    # Divide lower bound by 4 because the bound is not strict as fewer patches than
+    # min_image_mask_ratio * num_patches can be masked. This is because there is a
+    # limited number of attempts to find a valid mask that satisfies all constraints.
+    assert (
+        min_image_mask_ratio * num_patches / 4
+        <= num_masked
+        <= max_image_mask_ratio * num_patches
+    )
+
+
+@pytest.mark.parametrize("device", ["cpu", "cuda"])
+def test_random_block_mask__device(device: str) -> None:
+    if device == "cuda" and not torch.cuda.is_available():
+        pytest.skip("CUDA not available")
+
+    mask = utils.random_block_mask(size=(2, 14, 14), device=device)
+    assert mask.device.type == device
+
+
+@pytest.mark.parametrize(
+    "size,num_masks,min_num_masks_per_block,max_num_masks_per_block",
+    [
+        ((8, 12), 0, 0, None),
+        ((8, 12), 10, 0, None),
+        ((8, 12), 10, 4, None),
+        ((8, 12), 10, 10, None),
+        ((8, 12), 10, 0, 4),
+        ((8, 12), 10, 0, 10),
+        ((8, 12), 8 * 12, 1, None),
+    ],
+)
+def test_random_block_mask_image__num_mask_per_block(
+    size: Tuple[int, int],
+    num_masks: int,
+    min_num_masks_per_block: int,
+    max_num_masks_per_block: Optional[int],
+) -> None:
+    torch.manual_seed(0)
+    random.seed(0)
+    mask = utils.random_block_mask_image(
+        size=size,
+        num_masks=num_masks,
+        min_num_masks_per_block=min_num_masks_per_block,
+        max_num_masks_per_block=max_num_masks_per_block,
+    )
+    assert min_num_masks_per_block <= mask.sum() <= num_masks
+    assert mask.shape == size
+
+
+def test_random_block_mask_image__num_mask_per_block__fail() -> None:
+    with pytest.raises(
+        ValueError,
+        match=(
+            "max_num_masks_per_block must be greater or equal to min_num_masks_per_block"
+        ),
+    ):
+        utils.random_block_mask_image(
+            size=(14, 14),
+            num_masks=10,
+            min_num_masks_per_block=10,
+            max_num_masks_per_block=4,
+        )
+
+
+@pytest.mark.parametrize(
+    "min_block_aspect_ratio,max_block_aspect_ratio",
+    [
+        (0.1, None),
+        (0.1, 0.3),
+        (0.1, 3.0),
+        (0.3, 0.3),
+    ],
+)
+def test_random_block_mask_image__aspect_ratio(
+    min_block_aspect_ratio: float, max_block_aspect_ratio: Optional[float]
+) -> None:
+    mask = utils.random_block_mask_image(
+        size=(14, 14),
+        num_masks=10,
+        min_block_aspect_ratio=min_block_aspect_ratio,
+        max_block_aspect_ratio=max_block_aspect_ratio,
+    )
+    assert mask.sum() > 0
+
+
+def test_random_block_mask_image__aspect_ratio_one() -> None:
+    """With aspect ratio 1.0 and num_mask=min_num_masks_per_block we expect a single,
+    square masked block."""
+    mask = utils.random_block_mask_image(
+        size=(14, 14),
+        num_masks=9,
+        min_num_masks_per_block=9,
+        min_block_aspect_ratio=1.0,
+        max_block_aspect_ratio=1.0,
+    )
+    assert mask.sum(dim=0).max() == 3
+    assert mask.sum(dim=1).max() == 3
+
+
+def test_random_block_mask_image__aspect_ratio_fail() -> None:
+    with pytest.raises(
+        ValueError,
+        match="max_block_aspect_ratio must be greater or equal to min_block_aspect_ratio",
+    ):
+        utils.random_block_mask_image(
+            size=(14, 14),
+            num_masks=10,
+            min_block_aspect_ratio=3.0,
+            max_block_aspect_ratio=1.0,
+        )
+
+
+@pytest.mark.parametrize("device", ["cpu", "cuda"])
+def test_random_block_mask_image__device(device: str) -> None:
+    if device == "cuda" and not torch.cuda.is_available():
+        pytest.skip("CUDA not available")
+
+    mask = utils.random_block_mask_image(
+        size=(14, 14),
+        num_masks=10,
+        device=device,
+    )
+    assert mask.device.type == device
+
+
+@pytest.mark.parametrize(
     "x, y, expected",
     [
         # Tests with x, y having shape (1, 2, 2)
@@ -526,6 +735,37 @@ def test_get_named_leaf_modules() -> None:
     assert utils.get_named_leaf_modules(linear1) == {"": linear1}
     assert utils.get_named_leaf_modules(sequential1) == {"0": linear1, "1": linear2}
     assert utils.get_named_leaf_modules(sequential2) == {"0.0": linear1, "0.1": linear2}
+
+
+@pytest.mark.parametrize(
+    "strategy, expected_fn",
+    [
+        ("learn", "initialize_learnable_positional_embedding"),
+        ("sincos", "initialize_2d_sine_cosine_positional_embedding"),
+        ("skip", None),
+    ],
+)
+def test_initialize_positional_embedding(
+    strategy: str, expected_fn: Optional[str], mocker: MockerFixture
+) -> None:
+    if expected_fn is not None:
+        mock_fn = mocker.spy(utils, expected_fn)
+    pos_embedding = Parameter(torch.rand(1, 1, 64))
+    utils.initialize_positional_embedding(
+        pos_embedding=pos_embedding, strategy=strategy, num_prefix_tokens=1
+    )
+    if expected_fn is not None:
+        mock_fn.assert_called_once()
+
+
+def test_initialize_learnable_positional_embedding() -> None:
+    pos_embedding = Parameter(torch.ones(1, 1, 64))
+    orig_pos_embedding = pos_embedding.clone()
+    utils.initialize_learnable_positional_embedding(pos_embedding)
+    # Embedding must be learnable.
+    assert pos_embedding.requires_grad
+    # Embedding must have changed.
+    assert torch.any(pos_embedding != orig_pos_embedding)
 
 
 def test_normalize_mean_var() -> None:

@@ -3,7 +3,7 @@
 Advanced Concepts in Self-Supervised Learning
 =============================================
 
-In this section, we will have a look at some more advanced topics around Lightly SSL.
+In this section, we will have a look at some more advanced topics around Lightly\ **SSL**.
 
 Augmentations
 -------------
@@ -76,8 +76,8 @@ Some interesting papers regarding invariances in self-supervised learning:
 Transforms
 ^^^^^^^^^^
 
-Lightly SSL uses `Torchvision transforms <https://pytorch.org/vision/stable/transforms.html>`_
-to apply augmentations to images. The Lightly SSL :py:mod:`~lightly.transforms` module
+Lightly\ **SSL** uses `Torchvision transforms <https://pytorch.org/vision/stable/transforms.html>`_
+to apply augmentations to images. The Lightly\ **SSL** :py:mod:`~lightly.transforms` module
 exposes transforms for common self-supervised learning methods.
 
 The most important difference compared to transforms for other tasks, such as
@@ -95,9 +95,9 @@ while :ref:`dino` uses two global and multiple, smaller local views per image.
 Custom Transforms
 ^^^^^^^^^^^^^^^^^
 
-There are three ways how you can customize augmentations in Lightly SSL:
+There are three ways how you can customize augmentations in Lightly\ **SSL**:
 
-1. Modify the parameters of the :py:mod:`~lightly.transforms` provided by Lightly SSL:
+1. Modify the parameters of the :py:mod:`~lightly.transforms` provided by Lightly\ **SSL**:
   
   .. code-block:: python
 
@@ -171,7 +171,7 @@ Previewing Augmentations
 
 It often can be very useful to understand how the image augmentations we pick affect
 the input dataset. We provide a few helper methods that make it very easy to 
-preview augmentations using Lightly SSL.
+preview augmentations using Lightly\ **SSL**.
 
 .. literalinclude:: code_examples/plot_image_augmentations.py
 
@@ -212,7 +212,7 @@ our DINO model would see during training.
 Models
 ------
 
-See the :ref:`models` section for a list of models that are available in Lightly SSL.
+See the :ref:`models` section for a list of models that are available in Lightly\ **SSL**.
 
 Do you know a model that should be on this list? Please add an `issue <https://github.com/lightly-ai/lightly/issues>`_
 on GitHub :)
@@ -222,14 +222,14 @@ other vision model. When creating a self-supervised learning model you pass it a
 backbone. You need to make sure the backbone output dimension matches the input
 dimension of the head component for the respective self-supervised model.
 
-Lightly SSL has a built-in generator for ResNets. However, the model architecture slightly
+Lightly\ **SSL** has a built-in generator for ResNets. However, the model architecture slightly
 differs from the official ResNet implementation. The difference is in the first few
-layers. Whereas the official ResNet starts with a 7x7 convolution the one from Lightly SSL
+layers. Whereas the official ResNet starts with a 7x7 convolution the one from Lightly\ **SSL**
 has a 3x3 convolution. 
 
 * The 3x3 convolution variant is more efficient (fewer parameters and faster 
   processing) and is better suited for small input images (32x32 pixels or 64x64 pixels). 
-  We recommend using the Lightly SSL variant for cifar10 or running the model on a microcontroller 
+  We recommend using the Lightly\ **SSL** variant for cifar10 or running the model on a microcontroller 
   (see https://github.com/ARM-software/EndpointAI/tree/master/ProofOfConcepts/Vision/OpenMvMaskDefaults)
 * However, the 7x7 convolution variant is better suited for larger images 
   since the number of features is smaller due to the stride and additional 
@@ -241,7 +241,7 @@ has a 3x3 convolution.
 
   from torch import nn
 
-  # Create a Lightly SSL ResNet.
+  # Create a Lightly\ **SSL** ResNet.
   from lightly.models import ResNetGenerator
   resnet = ResNetGenerator('resnet-18')
   # Ignore the classification layer as we want the features as output.
@@ -267,7 +267,7 @@ has a 3x3 convolution.
 
   resnet_simclr = SimCLR(backbone, hidden_dim=512, out_dim=128)
 
-You can also use **custom backbones** with Lightly SSL. We provide a 
+You can also use **custom backbones** with Lightly\ **SSL**. We provide a 
 `colab notebook to show how you can use torchvision or timm models
 <https://colab.research.google.com/drive/1ubepXnpANiWOSmq80e-mqAxjLx53m-zu?usp=sharing>`_.
 

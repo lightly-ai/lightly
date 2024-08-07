@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: Susmelj
+    given-names: Igor
+  - family-names: Heller
+    given-names: Matthias
+  - family-names: Wirth
+    given-names: Philipp
+  - family-names: Prescott
+    given-names: Jeremy
+  - family-names: Ebner
+    given-names: Malte
+  - name: "et al."
+title: "Lightly"
+type: software
+url: "https://github.com/lightly-ai/lightly"
+date-released: 2020

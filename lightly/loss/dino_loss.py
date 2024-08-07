@@ -1,12 +1,14 @@
 from typing import List
 
 import torch
-import torch.distributed as dist
-import torch.nn as nn
 import torch.nn.functional as F
+from torch import Tensor
+from torch.nn import Module
+
+from lightly.models.modules.center import Center
 
 
-class DINOLoss(nn.Module):
+class DINOLoss(Module):
     """
     Implementation of the loss described in 'Emerging Properties in
     Self-Supervised Vision Transformers'. [0]
@@ -61,14 +63,21 @@ class DINOLoss(nn.Module):
         warmup_teacher_temp_epochs: int = 30,
         student_temp: float = 0.1,
         center_momentum: float = 0.9,
+        center_mode: str = "mean",
     ):
         super().__init__()
         self.warmup_teacher_temp_epochs = warmup_teacher_temp_epochs
         self.teacher_temp = teacher_temp
         self.student_temp = student_temp
-        self.center_momentum = center_momentum
 
-        self.register_buffer("center", torch.zeros(1, 1, output_dim))
+        self._center = Center(
+            size=(1, 1, output_dim),
+            mode=center_mode,
+            momentum=center_momentum,
+            _register_buffer=False,
+        )
+        self.register_buffer("center", self._center.center)
+
         # we apply a warm up for the teacher temperature because
         # a too high temperature makes the training instable at the beginning
         self.teacher_temp_schedule = torch.linspace(
@@ -77,26 +86,39 @@ class DINOLoss(nn.Module):
             steps=warmup_teacher_temp_epochs,
         )
 
+    # Center momentum is registered as property for backwards compatibility as it used
+    # to be stored as attribute.
+    @property
+    def center_momentum(self) -> float:
+        return self._center.momentum
+
+    @center_momentum.setter
+    def center_momentum(self, value: float) -> None:
+        self._center.momentum = value
+
     def forward(
         self,
-        teacher_out: List[torch.Tensor],
-        student_out: List[torch.Tensor],
+        teacher_out: List[Tensor],
+        student_out: List[Tensor],
         epoch: int,
-    ) -> torch.Tensor:
+    ) -> Tensor:
         """Cross-entropy between softmax outputs of the teacher and student
         networks.
 
         Args:
             teacher_out:
-                List of view feature tensors from the teacher model. Each
-                tensor is assumed to contain features from one view of the batch
-                and have length batch_size.
+                List of tensors with shape (batch_size, output_dim) containing features
+                from the teacher model. Each tensor must represent one view of the
+                batch.
             student_out:
-                List of view feature tensors from the student model. Each tensor
-                is assumed to contain features from one view of the batch and
-                have length batch_size.
+                List of tensors with shape (batch_size, output_dim) containing features
+                from the student model. Each tensor must represent one view of the
+                batch.
             epoch:
                 The current training epoch.
+            update_center:
+                If True, the center used for the teacher output is updated after the
+                loss calculation.
 
         Returns:
             The average cross-entropy loss.
@@ -109,7 +131,7 @@ class DINOLoss(nn.Module):
             teacher_temp = self.teacher_temp
 
         teacher_out = torch.stack(teacher_out)
-        t_out = F.softmax((teacher_out - self.center) / teacher_temp, dim=-1)
+        t_out = F.softmax((teacher_out - self._center.value) / teacher_temp, dim=-1)
 
         student_out = torch.stack(student_out)
         s_out = F.log_softmax(student_out / self.student_temp, dim=-1)
@@ -129,20 +151,13 @@ class DINOLoss(nn.Module):
         return loss
 
     @torch.no_grad()
-    def update_center(self, teacher_out: torch.Tensor) -> None:
+    def update_center(self, teacher_out: Tensor) -> None:
         """Moving average update of the center used for the teacher output.
 
         Args:
             teacher_out:
-                Stacked output from the teacher model.
+                Tensor with shape (num_views, batch_size, output_dim) containing
+                features from the teacher model.
 
         """
-        batch_center = torch.mean(teacher_out, dim=(0, 1), keepdim=True)
-        if dist.is_available() and dist.is_initialized():
-            dist.all_reduce(batch_center)
-            batch_center = batch_center / dist.get_world_size()
-
-        # ema update
-        self.center = self.center * self.center_momentum + batch_center * (
-            1 - self.center_momentum
-        )
+        self._center.update(teacher_out)

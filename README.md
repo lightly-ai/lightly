@@ -1,4 +1,4 @@
-![Lightly SSL self-supervised learning Logo](docs/logos/lightly_SSL_logo_crop.png)
+![LightlySSL self-supervised learning Logo](docs/logos/lightly_SSL_logo_crop.png)
 
 ![GitHub](https://img.shields.io/github/license/lightly-ai/lightly)
 ![Unit Tests](https://github.com/lightly-ai/lightly/workflows/Unit%20Tests/badge.svg)
@@ -7,7 +7,7 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Discord](https://img.shields.io/discord/752876370337726585?logo=discord&logoColor=white&label=discord&color=7289da)](https://discord.gg/xvNJW94)
 
-Lightly SSL is a computer vision framework for self-supervised learning.
+Lightly**SSL** is a computer vision framework for self-supervised learning.
 
 - [Documentation](https://docs.lightly.ai/self-supervised-learning/)
 - [Github](https://github.com/lightly-ai/lightly)
@@ -19,7 +19,7 @@ a single command, please contact sales@lightly.ai.
 
 We've also built a whole platform on top, with additional features for active learning
 and [data curation](https://docs.lightly.ai/docs/what-is-lightly). If you're interested in the
-Lightly Worker Solution to easily process millions of samples and run [powerful algorithms](https://docs.lightly.ai/docs/selection)
+Lightly Worker Solution to easily process millions of samples and run [powerful algorithms](https://docs.lightly.ai/docs/customize-a-selection)
 on your data, check out [lightly.ai](https://www.lightly.ai). It's free to get started!
 
 ## Features
@@ -68,6 +68,7 @@ Want to jump to the tutorials and see Lightly in action?
 - [Train SimSiam on Satellite Images](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_simsiam_esa.html)
 - [Use Lightly with Custom Augmentations](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_custom_augmentations.html)
 - [Pre-train a Detectron2 Backbone with Lightly](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_pretrain_detectron2.html)
+- [Finetuning Lightly Checkpoints](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_checkpoint_finetuning.html)
 
 Community and partner projects:
 
@@ -411,16 +412,3 @@ You can find out more about the company and it's services by following the links
 - [Homepage](https://www.lightly.ai)
 - [Web-App](https://app.lightly.ai)
 - [Lightly Solution Documentation (Lightly Worker & API)](https://docs.lightly.ai/)
-
-## BibTeX
-
-If you want to cite the framework feel free to use this:
-
-```bibtex
-@article{susmelj2020lightly,
-  title={Lightly},
-  author={Igor Susmelj and Matthias Heller and Philipp Wirth and Jeremy Prescott and Malte Ebner et al.},
-  journal={GitHub. Note: https://github.com/lightly-ai/lightly},
-  year={2020}
-}
-```
