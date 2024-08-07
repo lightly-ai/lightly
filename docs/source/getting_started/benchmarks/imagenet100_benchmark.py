@@ -45,6 +45,7 @@ from lightly.loss import (
     NTXentLoss,
     SwaVLoss,
 )
+from lightly.lr_schedulers import CosineWarmupLR
 from lightly.models import modules, utils
 from lightly.models.modules import heads
 from lightly.transforms import (
@@ -58,7 +59,6 @@ from lightly.transforms import (
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils.benchmarking import BenchmarkModule
 from lightly.utils.lars import LARS
-from lightly.utils.scheduler import CosineWarmupScheduler
 
 logs_root_dir = os.path.join(os.getcwd(), "benchmark_logs")
 
@@ -306,7 +306,7 @@ class SimCLRModel(BenchmarkModule):
             weight_decay=1e-6,
         )
         scheduler = {
-            "scheduler": CosineWarmupScheduler(
+            "scheduler": CosineWarmupLR(
                 optimizer=optim,
                 warmup_epochs=steps_per_epoch * 10,
                 max_epochs=steps_per_epoch * max_epochs,
@@ -406,7 +406,7 @@ class BarlowTwinsModel(BenchmarkModule):
             weight_decay=1.5 * 1e-6,
         )
         scheduler = {
-            "scheduler": CosineWarmupScheduler(
+            "scheduler": CosineWarmupLR(
                 optimizer=optim,
                 warmup_epochs=steps_per_epoch * 10,
                 max_epochs=steps_per_epoch * max_epochs,
@@ -476,7 +476,7 @@ class BYOLModel(BenchmarkModule):
             weight_decay=1.5 * 1e-6,
         )
         scheduler = {
-            "scheduler": CosineWarmupScheduler(
+            "scheduler": CosineWarmupLR(
                 optimizer=optim,
                 warmup_epochs=steps_per_epoch * 10,
                 max_epochs=steps_per_epoch * max_epochs,
@@ -574,7 +574,7 @@ class SwaVModel(BenchmarkModule):
             weight_decay=1e-6,
         )
         scheduler = {
-            "scheduler": CosineWarmupScheduler(
+            "scheduler": CosineWarmupLR(
                 optimizer=optim,
                 warmup_epochs=steps_per_epoch * 10,
                 max_epochs=steps_per_epoch * max_epochs,
@@ -636,7 +636,7 @@ class DINOModel(BenchmarkModule):
             momentum=0.9,
         )
         scheduler = {
-            "scheduler": CosineWarmupScheduler(
+            "scheduler": CosineWarmupLR(
                 optimizer=optim,
                 warmup_epochs=steps_per_epoch * 10,
                 max_epochs=steps_per_epoch * max_epochs,

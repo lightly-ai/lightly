@@ -73,6 +73,7 @@ from pytorch_lightning.loggers import TensorBoardLogger
 from timm.models.vision_transformer import vit_base_patch32_224
 from torchvision.models.vision_transformer import VisionTransformer
 
+import lightly.schedulers.cosine_scheduler
 from lightly.data import LightlyDataset
 from lightly.loss import (
     BarlowTwinsLoss,
@@ -847,7 +848,7 @@ class MAEModel(BenchmarkModule):
             weight_decay=0.05,
             betas=(0.9, 0.95),
         )
-        cosine_scheduler = scheduler.CosineWarmupScheduler(
+        cosine_scheduler = scheduler.CosineWarmupLRScheduler(
             optim, self.warmup_epochs, max_epochs
         )
         return [optim], [cosine_scheduler]
@@ -924,7 +925,7 @@ class MSNModel(BenchmarkModule):
             weight_decay=0.05,
             betas=(0.9, 0.95),
         )
-        cosine_scheduler = scheduler.CosineWarmupScheduler(
+        cosine_scheduler = scheduler.CosineWarmupLRScheduler(
             optim, self.warmup_epochs, max_epochs
         )
         return [optim], [cosine_scheduler]
@@ -1000,7 +1001,7 @@ class PMSNModel(BenchmarkModule):
             weight_decay=0.05,
             betas=(0.9, 0.95),
         )
-        cosine_scheduler = scheduler.CosineWarmupScheduler(
+        cosine_scheduler = scheduler.CosineWarmupLRScheduler(
             optim, self.warmup_epochs, max_epochs
         )
         return [optim], [cosine_scheduler]
@@ -1171,7 +1172,7 @@ class SimMIMModel(BenchmarkModule):
             weight_decay=0.05,
             betas=(0.9, 0.999),
         )
-        cosine_scheduler = scheduler.CosineWarmupScheduler(
+        cosine_scheduler = scheduler.CosineWarmupLRScheduler(
             optim, self.warmup_epochs, max_epochs
         )
         return [optim], [cosine_scheduler]
@@ -1207,7 +1208,7 @@ class VICRegModel(BenchmarkModule):
             weight_decay=1e-4,
             momentum=0.9,
         )
-        cosine_scheduler = scheduler.CosineWarmupScheduler(
+        cosine_scheduler = scheduler.CosineWarmupLRScheduler(
             optim, self.warmup_epochs, max_epochs
         )
         return [optim], [cosine_scheduler]
@@ -1260,7 +1261,7 @@ class VICRegLModel(BenchmarkModule):
             weight_decay=1e-4,
             momentum=0.9,
         )
-        cosine_scheduler = scheduler.CosineWarmupScheduler(
+        cosine_scheduler = scheduler.CosineWarmupLRScheduler(
             optim, self.warmup_epochs, max_epochs
         )
         return [optim], [cosine_scheduler]
@@ -1296,7 +1297,9 @@ class TiCoModel(BenchmarkModule):
 
     def training_step(self, batch, batch_index):
         (x0, x1), _, _ = batch
-        momentum = scheduler.cosine_schedule(self.current_epoch, max_epochs, 0.996, 1)
+        momentum = lightly.schedulers.cosine_scheduler.cosine_schedule(
+            self.current_epoch, max_epochs, 0.996, 1
+        )
         utils.update_momentum(self.backbone, self.backbone_momentum, m=momentum)
         utils.update_momentum(
             self.projection_head, self.projection_head_momentum, m=momentum
@@ -1315,7 +1318,7 @@ class TiCoModel(BenchmarkModule):
             weight_decay=1e-4,
             momentum=0.9,
         )
-        cosine_scheduler = scheduler.CosineWarmupScheduler(
+        cosine_scheduler = scheduler.CosineWarmupLRScheduler(
             optim, self.warmup_epochs, max_epochs
         )
         return [optim], [cosine_scheduler]

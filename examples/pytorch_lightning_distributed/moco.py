@@ -12,8 +12,8 @@ from torch import nn
 from lightly.loss import NTXentLoss
 from lightly.models.modules import MoCoProjectionHead
 from lightly.models.utils import deactivate_requires_grad, update_momentum
+from lightly.schedulers import cosine_schedule
 from lightly.transforms.moco_transform import MoCoV2Transform
-from lightly.utils.scheduler import cosine_schedule
 
 
 class MoCo(pl.LightningModule):

@@ -12,8 +12,8 @@ from torch import nn
 from lightly.loss import MMCRLoss
 from lightly.models.modules import MMCRProjectionHead
 from lightly.models.utils import deactivate_requires_grad, update_momentum
+from lightly.schedulers import cosine_schedule
 from lightly.transforms.mmcr_transform import MMCRTransform
-from lightly.utils.scheduler import cosine_schedule
 
 
 class MMCR(pl.LightningModule):

@@ -11,8 +11,8 @@ from torch import nn
 from lightly.loss import NTXentLoss
 from lightly.models import utils
 from lightly.models.modules import DenseCLProjectionHead
+from lightly.schedulers import cosine_schedule
 from lightly.transforms import DenseCLTransform
-from lightly.utils.scheduler import cosine_schedule
 
 
 class DenseCL(nn.Module):

@@ -11,8 +11,8 @@ from torch import nn
 from lightly.loss import DINOLoss
 from lightly.models.modules import DINOProjectionHead
 from lightly.models.utils import deactivate_requires_grad, update_momentum
+from lightly.schedulers import cosine_schedule
 from lightly.transforms.dino_transform import DINOTransform
-from lightly.utils.scheduler import cosine_schedule
 
 
 class DINO(torch.nn.Module):

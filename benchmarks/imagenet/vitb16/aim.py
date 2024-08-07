@@ -7,12 +7,12 @@ from torch.nn import MSELoss
 from torch.optim import AdamW
 from torch.optim.optimizer import Optimizer
 
+from lightly.lr_schedulers import CosineWarmupLR
 from lightly.models import utils
 from lightly.models.modules import AIMPredictionHead, MaskedCausalVisionTransformer
 from lightly.models.utils import get_2d_sincos_pos_embed, random_prefix_mask
 from lightly.transforms import AIMTransform
 from lightly.utils.benchmarking import OnlineLinearClassifier
-from lightly.utils.scheduler import CosineWarmupScheduler
 
 
 class AIM(LightningModule):
@@ -129,7 +129,7 @@ class AIM(LightningModule):
             betas=(0.9, 0.95),
         )
         scheduler = {
-            "scheduler": CosineWarmupScheduler(
+            "scheduler": CosineWarmupLR(
                 optimizer=optimizer,
                 warmup_epochs=31250 / 125000 * self.trainer.estimated_stepping_batches,
                 max_epochs=self.trainer.estimated_stepping_batches,

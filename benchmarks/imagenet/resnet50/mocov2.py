@@ -9,6 +9,7 @@ from torch.optim import SGD
 from torchvision.models import resnet50
 
 from lightly.loss import NTXentLoss
+from lightly.lr_schedulers import CosineWarmupLR
 from lightly.models.modules import MoCoProjectionHead
 from lightly.models.utils import (
     batch_shuffle,
@@ -18,7 +19,6 @@ from lightly.models.utils import (
 )
 from lightly.transforms import MoCoV2Transform
 from lightly.utils.benchmarking import OnlineLinearClassifier
-from lightly.utils.scheduler import CosineWarmupScheduler
 
 
 class MoCoV2(LightningModule):
@@ -132,7 +132,7 @@ class MoCoV2(LightningModule):
             weight_decay=1e-4,
         )
         scheduler = {
-            "scheduler": CosineWarmupScheduler(
+            "scheduler": CosineWarmupLR(
                 optimizer=optimizer,
                 warmup_epochs=0,
                 max_epochs=int(self.trainer.estimated_stepping_batches),

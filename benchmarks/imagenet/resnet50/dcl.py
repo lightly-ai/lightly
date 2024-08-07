@@ -8,12 +8,12 @@ from torch.nn import Identity
 from torchvision.models import resnet50
 
 from lightly.loss.dcl_loss import DCLLoss
+from lightly.lr_schedulers import CosineWarmupLR
 from lightly.models.modules import SimCLRProjectionHead
 from lightly.models.utils import get_weight_decay_parameters
 from lightly.transforms import SimCLRTransform
 from lightly.utils.benchmarking import OnlineLinearClassifier
 from lightly.utils.lars import LARS
-from lightly.utils.scheduler import CosineWarmupScheduler
 
 
 class DCL(LightningModule):
@@ -95,7 +95,7 @@ class DCL(LightningModule):
             weight_decay=1e-6,
         )
         scheduler = {
-            "scheduler": CosineWarmupScheduler(
+            "scheduler": CosineWarmupLR(
                 optimizer=optimizer,
                 warmup_epochs=int(
                     self.trainer.estimated_stepping_batches

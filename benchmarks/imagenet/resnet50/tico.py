@@ -8,16 +8,17 @@ from torch.nn import Identity
 from torchvision.models import resnet50
 
 from lightly.loss.tico_loss import TiCoLoss
+from lightly.lr_schedulers import CosineWarmupLR
 from lightly.models.modules.heads import TiCoProjectionHead
 from lightly.models.utils import (
     deactivate_requires_grad,
     get_weight_decay_parameters,
     update_momentum,
 )
+from lightly.schedulers import cosine_schedule
 from lightly.transforms import BYOLTransform
 from lightly.utils.benchmarking import OnlineLinearClassifier
 from lightly.utils.lars import LARS
-from lightly.utils.scheduler import CosineWarmupScheduler, cosine_schedule
 
 
 class TiCo(LightningModule):
@@ -121,7 +122,7 @@ class TiCo(LightningModule):
             weight_decay=1.5e-6,
         )
         scheduler = {
-            "scheduler": CosineWarmupScheduler(
+            "scheduler": CosineWarmupLR(
                 optimizer=optimizer,
                 warmup_epochs=int(
                     self.trainer.estimated_stepping_batches

@@ -9,10 +9,10 @@ from torch.utils.data import DataLoader
 from torchvision import transforms as T
 
 from lightly.data import LightlyDataset
+from lightly.lr_schedulers import CosineWarmupLR
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils.benchmarking import LinearClassifier, MetricCallback
 from lightly.utils.lars import LARS
-from lightly.utils.scheduler import CosineWarmupScheduler
 
 
 class LinearEvalClassifier(LinearClassifier):
@@ -49,7 +49,7 @@ class LinearEvalClassifier(LinearClassifier):
             weight_decay=0.0,
         )
         scheduler = {
-            "scheduler": CosineWarmupScheduler(
+            "scheduler": CosineWarmupLR(
                 optimizer=optimizer,
                 warmup_epochs=(
                     self.trainer.estimated_stepping_batches

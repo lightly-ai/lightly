@@ -7,12 +7,12 @@ from torch.nn import Identity
 from torchvision.models import resnet50
 
 from lightly.loss.vicreg_loss import VICRegLoss
+from lightly.lr_schedulers import CosineWarmupLR
 from lightly.models.modules.heads import VICRegProjectionHead
 from lightly.models.utils import get_weight_decay_parameters
 from lightly.transforms.vicreg_transform import VICRegTransform
 from lightly.utils.benchmarking import OnlineLinearClassifier
 from lightly.utils.lars import LARS
-from lightly.utils.scheduler import CosineWarmupScheduler
 
 
 class VICReg(LightningModule):
@@ -92,7 +92,7 @@ class VICReg(LightningModule):
             weight_decay=1e-6,
         )
         scheduler = {
-            "scheduler": CosineWarmupScheduler(
+            "scheduler": CosineWarmupLR(
                 optimizer=optimizer,
                 warmup_epochs=(
                     self.trainer.estimated_stepping_batches

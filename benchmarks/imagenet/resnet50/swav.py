@@ -9,13 +9,13 @@ from torch.nn import functional as F
 from torchvision.models import resnet50
 
 from lightly.loss.swav_loss import SwaVLoss
+from lightly.lr_schedulers import CosineWarmupLR
 from lightly.models.modules import SwaVProjectionHead, SwaVPrototypes
 from lightly.models.modules.memory_bank import MemoryBankModule
 from lightly.models.utils import get_weight_decay_parameters
 from lightly.transforms import SwaVTransform
 from lightly.utils.benchmarking import OnlineLinearClassifier
 from lightly.utils.lars import LARS
-from lightly.utils.scheduler import CosineWarmupScheduler
 
 CROP_COUNTS: Tuple[int, int] = (2, 6)
 
@@ -154,7 +154,7 @@ class SwAV(LightningModule):
             weight_decay=1e-6,
         )
         scheduler = {
-            "scheduler": CosineWarmupScheduler(
+            "scheduler": CosineWarmupLR(
                 optimizer=optimizer,
                 warmup_epochs=int(
                     self.trainer.estimated_stepping_batches

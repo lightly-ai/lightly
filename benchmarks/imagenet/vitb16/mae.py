@@ -8,11 +8,11 @@ from torch import Tensor
 from torch.nn import MSELoss, Parameter
 from torch.optim import AdamW
 
+from lightly.lr_schedulers import CosineWarmupLR
 from lightly.models import utils
 from lightly.models.modules import MAEDecoderTIMM, MaskedVisionTransformerTIMM
 from lightly.transforms import MAETransform
 from lightly.utils.benchmarking import OnlineLinearClassifier
-from lightly.utils.scheduler import CosineWarmupScheduler
 
 
 class MAE(LightningModule):
@@ -138,7 +138,7 @@ class MAE(LightningModule):
             betas=(0.9, 0.95),
         )
         scheduler = {
-            "scheduler": CosineWarmupScheduler(
+            "scheduler": CosineWarmupLR(
                 optimizer=optimizer,
                 warmup_epochs=(
                     self.trainer.estimated_stepping_batches

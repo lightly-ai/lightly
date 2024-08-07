@@ -13,12 +13,12 @@ from lightly.loss import NegativeCosineSimilarity
 from lightly.models.modules import BYOLProjectionHead
 from lightly.models.modules.heads import BYOLPredictionHead
 from lightly.models.utils import deactivate_requires_grad, update_momentum
+from lightly.schedulers import cosine_schedule
 from lightly.transforms.byol_transform import (
     BYOLTransform,
     BYOLView1Transform,
     BYOLView2Transform,
 )
-from lightly.utils.scheduler import cosine_schedule
 
 
 class BYOL(pl.LightningModule):
