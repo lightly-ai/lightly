@@ -10,9 +10,9 @@ try:
     import torch.linalg.solve_triangular
 except ImportError:
     # Only available in PyTorch >=1.11.
-    SOLVE_TRIANGULAR_AVAILABLE = False
+    _SOLVE_TRIANGULAR_AVAILABLE = False
 else:
-    SOLVE_TRIANGULAR_AVAILABLE = True
+    _SOLVE_TRIANGULAR_AVAILABLE = True
 
 
 def norm_mse_loss(x0: torch.Tensor, x1: torch.Tensor) -> torch.Tensor:
@@ -38,7 +38,7 @@ class Whitening2d(nn.Module):
     ):
         super(Whitening2d, self).__init__()
 
-        if not SOLVE_TRIANGULAR_AVAILABLE:
+        if not _SOLVE_TRIANGULAR_AVAILABLE:
             raise RuntimeError(
                 "Whitening2d depends on torch.linalg.solve_triangular which is not "
                 "available in your PyTorch installation. Please update to PyTorch 1.11 "
