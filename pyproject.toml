@@ -43,14 +43,14 @@ dependencies = [
   "requests>=2.23.0",
   "six>=1.10",
   "tqdm>=4.44",
-  "torch",
-  "torchvision",
-  "pydantic >= 1.10.5",
+  "torch>=1.11.0",
+  "torchvision>=0.12.0",
+  "pydantic>=1.10.5",
   # Note: pytorch_lightning>=1.5 is required for CLI
   # https://github.com/lightly-ai/lightly/issues/912
   "pytorch_lightning>=1.0.4",
-  "urllib3 >= 1.25.3",
-  "aenum >= 3.1.11"
+  "urllib3>=1.25.3",
+  "aenum>=3.1.11"
 ]
 dynamic = ["version", "readme"]
 
@@ -89,11 +89,11 @@ dev = [
   "types-toml"
 ]
 openapi = [
-  "python_dateutil >= 2.5.3",
-  "setuptools >= 21.0.0",
-  "urllib3 >= 1.25.3",
-  "pydantic >= 1.10.5",
-  "aenum >= 3.1.11"
+  "python_dateutil>=2.5.3",
+  "setuptools>=21.0.0",
+  "urllib3>=1.25.3",
+  "pydantic>=1.10.5",
+  "aenum>=3.1.11"
 ]
 timm = ["timm>=0.9.9"]
 video = ["av>=8.0.3"]
