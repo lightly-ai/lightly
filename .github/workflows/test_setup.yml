@@ -58,6 +58,7 @@ jobs:
           lightly-version
       - name: Test CLI on Dataset
         run: |
+          source .venv/bin/activate
           LIGHTLY_SERVER_LOCATION="localhost:-1"
           git clone https://github.com/alexeygrigorev/clothing-dataset-small clothing_dataset_small
           INPUT_DIR_1="clothing_dataset_small/test/dress"
