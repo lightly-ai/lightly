@@ -19,18 +19,20 @@ jobs:
         if [ ! -f "/etc/lsb-release" ] ; then
           echo "DISTRIB_RELEASE=18.04" > /etc/lsb-release
         fi
-    - name: Set up Python
+    - name: Set Up Python
       uses: actions/setup-python@v5
       with:
         python-version: "3.7"
-        cache: pip
-        cache-dependency-path: |
-          pyproject.toml
-    - name: Install Dependencies and lightly
-      run: pip install -e '.[all]'
+    - name: Set Up Environment
+      run: |
+        make install-uv reset-venv
+        source .venv/bin/activate
+        make install-fixed-extras
     - name: Run Format Check
       run: |
+        source .venv/bin/activate
         make format-check
     - name: Run Type Check
       run: |
+        source .venv/bin/activate
         make type-check

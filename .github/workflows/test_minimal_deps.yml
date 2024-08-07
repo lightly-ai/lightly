@@ -33,23 +33,20 @@ jobs:
     strategy:
       matrix:
         python: ["3.7"]
-
+        dependencies: ["minimal", "minimal-extras"]
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python
+      - name: Set Up Python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
-          cache: pip
-          cache-dependency-path: |
-            pyproject.toml
-      - name: Install Minimal Dependencies
+      - name: Set Up Environment
         run: |
-          sudo apt-get install libavformat-dev libavdevice-dev
-          pip install -e ."[minimal]"
-      - name: Install Package Without Dependencies
-        run: pip install --no-deps .
+          make install-uv reset-venv
+          source .venv/bin/activate
+          make install-${{ matrix.dependencies }}
       - name: Run Tests
         run: |
+          source .venv/bin/activate
           export LIGHTLY_SERVER_LOCATION="localhost:-1"
           python -m pytest -s -v --runslow

@@ -37,17 +37,18 @@ jobs:
           if [ ! -f "/etc/lsb-release" ] ; then
             echo "DISTRIB_RELEASE=18.04" > /etc/lsb-release
           fi
-      - name: Set up Python 3.7
+      - name: Set Up Python
         uses: actions/setup-python@v5
         with:
           python-version: 3.7
-          cache: pip
-          cache-dependency-path: |
-            pyproject.toml
-      - name: Install Dependencies and lightly
-        run: pip install .
-      - name: basic tests of CLI
+      - name: Set Up Environment
         run: |
+          make install-uv reset-venv
+          source .venv/bin/activate
+          make install-fixed
+      - name: Test CLI
+        run: |
+          source .venv/bin/activate
           LIGHTLY_SERVER_LOCATION="localhost:-1"
           lightly-crop --help
           lightly-train --help
@@ -55,7 +56,7 @@ jobs:
           lightly-magic --help
           lightly-download --help
           lightly-version
-      - name: test of CLI on a real dataset
+      - name: Test CLI on Dataset
         run: |
           LIGHTLY_SERVER_LOCATION="localhost:-1"
           git clone https://github.com/alexeygrigorev/clothing-dataset-small clothing_dataset_small
