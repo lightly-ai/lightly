@@ -149,6 +149,8 @@ install-api-only:
 # 1. Install the dev dependencies to be able to run tests. We don't want to use
 #    the minimal versions for these dependencies.
 # 2. Then we reinstall the package with minimal dependencies.
+# 3. Finally we install setuptools<50. This is necessary for compatibility with old
+#    PyTorch Lightning versions that do not include the correct setuptools dependencies.
 #
 # Explanation of flags:
 # --exclude-newer: We don't want to install dependencies released after that date to
@@ -163,6 +165,7 @@ install-api-only:
 install-minimal:
 	uv pip install --exclude-newer ${EXCLUDE_NEWER_DATE} ${EDITABLE} ".[dev]"
 	uv pip install --resolution=lowest-direct --exclude-newer ${EXCLUDE_NEWER_DATE} --reinstall ${EDITABLE} .
+	uv pip install --exclude-newer ${EXCLUDE_NEWER_DATE} --reinstall "setuptools<50"
 
 # Install package with minimal dependencies including extras.
 # See install-minimal for explanation of flags.
@@ -172,6 +175,7 @@ install-minimal:
 install-minimal-extras:
 	uv pip install --exclude-newer ${EXCLUDE_NEWER_DATE} ${EDITABLE} ".[dev]"
 	uv pip install --resolution=lowest-direct --exclude-newer ${EXCLUDE_NEWER_DATE} --reinstall ${EDITABLE} ".${EXTRAS}" --requirement pyproject.toml
+	uv pip install --exclude-newer ${EXCLUDE_NEWER_DATE} --reinstall "setuptools<50"
 
 # Install package with fixed dependencies.
 .PHONY: install-fixed

@@ -43,10 +43,10 @@ dependencies = [
   "requests>=2.23.0",
   "six>=1.10",
   "tqdm>=4.44",
-  "torch>=1.11.0",
-  "torchvision>=0.12.0",
+  "torch>=1.10.0",
+  "torchvision>=0.11.0",
   "pydantic>=1.10.5",
-  "pytorch_lightning>=1.7.1",
+  "pytorch_lightning>=1.6",
   "urllib3>=1.25.3",
   "aenum>=3.1.11"
 ]

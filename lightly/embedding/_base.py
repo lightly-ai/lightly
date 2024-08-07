@@ -9,7 +9,7 @@ from typing import Any, List, Optional, Sequence, Tuple, Union
 import omegaconf
 from omegaconf import DictConfig
 from pytorch_lightning import LightningModule, Trainer
-from pytorch_lightning.callbacks.callback import Callback
+from pytorch_lightning.callbacks import Callback
 from torch import Tensor
 from torch.nn import Module
 from torch.optim import Optimizer
