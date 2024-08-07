@@ -15,6 +15,7 @@ except ModuleNotFoundError:
         "'pip install lightly[matplotlib]'."
     )
 except ImportError as ex:
+    # Matplotlib import can fail if an incompatible dateutil version is installed.
     plt = ex
 
 
