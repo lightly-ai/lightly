@@ -1,9 +1,8 @@
 import time
 import warnings
-from typing import Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Dict, List, Optional, Union
 
 import numpy as np
-from numpy.typing import NDArray
 
 from lightly.active_learning.config.selection_config import SelectionConfig
 from lightly.openapi_generated.swagger_client.models import (
@@ -15,6 +14,9 @@ from lightly.openapi_generated.swagger_client.models import (
     SamplingCreateRequest,
     TagData,
 )
+
+if TYPE_CHECKING:
+    from numpy.typing import NDArray
 
 
 def _parse_active_learning_scores(scores: Union[np.ndarray, List]):

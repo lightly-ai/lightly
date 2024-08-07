@@ -13,7 +13,6 @@ import numpy as np
 import torch
 import torch.distributed as dist
 import torch.nn as nn
-from numpy.typing import NDArray
 from torch import Tensor
 from torch.nn import Identity, Module, Sequential, functional, init
 from torch.nn.modules import CrossMapLRN2d, GroupNorm, LayerNorm, LocalResponseNorm
@@ -24,6 +23,7 @@ from torchvision.ops import StochasticDepth
 from lightly.utils import dependency
 
 if TYPE_CHECKING:
+    from numpy.typing import NDArray
     from timm.models.vision_transformer import VisionTransformer
 
 
