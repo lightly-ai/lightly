@@ -1,3 +1,5 @@
+# pip install lightly[timm]
+
 import copy
 
 import torch

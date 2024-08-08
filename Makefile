@@ -190,4 +190,6 @@ install-latest:
 # Generate Notebooks from examples
 .PHONY: generate-example-notebooks
 generate-example-notebooks:
-	python examples/notebooks/create_example_nbs.py examples/pytorch examples/notebooks
+	python examples/create_example_nbs.py examples/pytorch examples/notebooks/pytorch
+	python examples/create_example_nbs.py examples/pytorch_lightning examples/notebooks/pytorch_lightning
+	python examples/create_example_nbs.py examples/pytorch_lightning_distributed examples/notebooks/pytorch_lightning_distributed

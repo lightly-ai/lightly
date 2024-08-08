@@ -1,3 +1,5 @@
+# pip install lightly
+
 import torch
 import torchvision
 from torch import nn

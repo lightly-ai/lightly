@@ -1,3 +1,5 @@
+# pip install lightly
+
 import pytorch_lightning as pl
 import torch
 import torchvision
