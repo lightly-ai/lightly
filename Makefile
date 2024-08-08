@@ -185,3 +185,9 @@ install-pinned-extras:
 .PHONY: install-latest
 install-latest:
 	uv pip install --upgrade --reinstall ${EDITABLE} . --all-extras --requirement pyproject.toml
+
+
+# Generate Notebooks from examples
+.PHONY: generate-example-notebooks
+generate-example-notebooks:
+	python examples/notebooks/create_example_nbs.py examples/pytorch examples/notebooks
