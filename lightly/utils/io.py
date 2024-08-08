@@ -2,15 +2,18 @@
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
+from __future__ import annotations
 
 import csv
 import json
 import re
 from itertools import compress
-from typing import Any, Dict, List, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Union
 
 import numpy as np
-from numpy.typing import NDArray
+
+if TYPE_CHECKING:
+    from numpy.typing import NDArray
 
 
 def check_embeddings(path: str, remove_additional_columns: bool = False) -> None:

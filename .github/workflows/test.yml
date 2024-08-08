@@ -42,29 +42,31 @@ jobs:
           if [ ! -f "/etc/lsb-release" ] ; then
             echo "DISTRIB_RELEASE=18.04" > /etc/lsb-release
           fi
-      - name: Set up Python
+      - name: Set Up Python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
-          cache: pip
-          cache-dependency-path: |
-            pyproject.toml
-      - name: Install Dependencies and lightly
-        run: pip install -e '.[all]'
+      - name: Set Up Environment
+        run: |
+          make install-uv reset-venv
+          source .venv/bin/activate
+          make install-pinned-extras
       - name: Clean Previous Coverage Data
         run: rm -f .coverage
       - name: Run Pytest (Python 3.7)
         if: matrix.python == '3.7'
         run: |
+          source .venv/bin/activate
           export LIGHTLY_SERVER_LOCATION="localhost:-1"
           python -m pytest -s -v --runslow --ignore=./lightly/openapi_generated/
       - name: Run Pytest with Coverage (Python 3.10)
         if: matrix.python == '3.10'
         run: |
+          source .venv/bin/activate
           export LIGHTLY_SERVER_LOCATION="localhost:-1"
-          pip install pytest-cov==5.0.0
+          uv pip install pytest-cov==5.0.0
           python -m pytest -s -v --runslow --cov=./lightly --cov-report=xml --ignore=./lightly/openapi_generated/
-      - name: Upload coverage to Codecov
+      - name: Upload Coverage to Codecov
         if: matrix.python == '3.10'
         uses: codecov/codecov-action@v4
         with:

@@ -14,16 +14,20 @@ jobs:
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
-    - name: Set up Python 3.7
+    - name: Set Up Python
       uses: actions/setup-python@v5
       with:
         python-version: 3.7
         cache: pip
         cache-dependency-path: |
           pyproject.toml
-    - name: Install Dependencies and lightly
-      run: pip install .
-    - name: run unmocked tests
+    - name: Set Up Environment
       run: |
+        make install-uv reset-venv
+        source .venv/bin/activate
+        make install-pinned
+    - name: Run Unmocked Tests
+      run: |
+        source .venv/bin/activate
         export LIGHTLY_SERVER_LOCATION=${{ secrets.LIGHTLY_SERVER_LOCATION }}
         bash tests/UNMOCKED_end2end_tests/run_all_unmocked_tests.sh ${{ secrets.DUMMY_USER_TOKEN_STAGING }}
