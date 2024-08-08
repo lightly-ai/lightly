@@ -30,3 +30,10 @@ jobs:
       - name: Convert using Script
         run: |
           make generate-example-notebooks
+      - name: Check for diff
+        run: |
+          git add examples/notebooks/
+          if ! git diff --cached --exit-code; then
+            echo "Notebooks have changed! Please commit the changes."
+            exit 1
+          fi
