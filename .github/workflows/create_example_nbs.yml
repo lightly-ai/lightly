@@ -1,0 +1,32 @@
+name: "Convert Examples to Notebooks"
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "examples/pytorch/**.py"
+  pull_request:
+    branches: [main]
+    paths:
+      - "examples/pytorch/**.py"
+  workflow_dispatch:
+
+jobs:
+  convert-to-nbs:
+    name: "Convert examples to notebooks"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Set Up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.7
+      - name: Set Up Environment
+        run: |
+          make install-uv reset-venv
+          source .venv/bin/activate
+          uv pip install nbformat jupytext
+      - name: Convert using Script
+        run: |
+          python .github/scripts/create_example_nbs.py examples/pytorch examples/notebooks
