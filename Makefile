@@ -175,13 +175,14 @@ install-minimal-extras:
 	uv pip install --exclude-newer ${EXCLUDE_NEWER_DATE} --reinstall "setuptools<50"
 
 # Install package with dependencies pinned to the latest compatible version available at
-# EXCLUDE_NEWER_DATE.
+# EXCLUDE_NEWER_DATE. This keeps CI stable if new versions of dependencies are released.
 .PHONY: install-pinned
 install-pinned:
 	uv pip install --exclude-newer ${EXCLUDE_NEWER_DATE} --reinstall ${EDITABLE} . --requirement pyproject.toml
 
 # Install package with all extras and dependencies pinned to the latest compatible
-# version available at EXCLUDE_NEWER_DATE.
+# version available at EXCLUDE_NEWER_DATE. This keeps CI stable if new versions of
+# dependencies are released.
 .PHONY: install-pinned-extras
 install-pinned-extras:
 	uv pip install --exclude-newer ${EXCLUDE_NEWER_DATE} --reinstall ${EDITABLE} . --all-extras --requirement pyproject.toml
