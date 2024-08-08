@@ -29,4 +29,4 @@ jobs:
           uv pip install nbformat jupytext
       - name: Convert using Script
         run: |
-          python .github/scripts/create_example_nbs.py examples/pytorch examples/notebooks
+          make generate-example-notebooks
