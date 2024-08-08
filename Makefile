@@ -8,7 +8,7 @@
 help:
 
 ## make clean
-clean: clean-tox clean-build clean-pyc clean-out
+clean: clean-build clean-pyc clean-out
 
 ## remove build artifacts
 clean-build:
@@ -30,9 +30,6 @@ clean-out:
 	rm -fr lightly_epoch_*.ckpt
 	rm -fr last.ckpt
 
-## remove tox cache
-clean-tox:
-	rm -fr .tox
 
 # format code with isort and black
 format:
@@ -84,9 +81,6 @@ dist: clean
 uninstall: clean
 	pip uninstall lightly
 
-## run tests in tox envs
-tox:
-	tox
 
 ## helper for renaming
 find: 
