@@ -19,6 +19,12 @@ repos:
   - id: mypy
     additional_dependencies:
       - 'numpy'
+- repo: https://github.com/nbQA-dev/nbQA
+  rev: 1.8.7
+  hooks:
+    - id: nbqa-black
+    - id: nbqa-isort
+      args: ["--profile=black"]
 - repo: local
   hooks:
   - id: pytest-check                     # run all tests
