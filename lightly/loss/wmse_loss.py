@@ -6,6 +6,14 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+try:
+    import torch.linalg.solve_triangular
+except ImportError:
+    # Only available in PyTorch >=1.11.
+    _SOLVE_TRIANGULAR_AVAILABLE = False
+else:
+    _SOLVE_TRIANGULAR_AVAILABLE = True
+
 
 def norm_mse_loss(x0: torch.Tensor, x1: torch.Tensor) -> torch.Tensor:
     """Normalized MSE Loss as implemented in https://github.com/htdt/self-supervised."""
@@ -29,6 +37,14 @@ class Whitening2d(nn.Module):
         eps: float = 0,
     ):
         super(Whitening2d, self).__init__()
+
+        if not _SOLVE_TRIANGULAR_AVAILABLE:
+            raise RuntimeError(
+                "Whitening2d depends on torch.linalg.solve_triangular which is not "
+                "available in your PyTorch installation. Please update to PyTorch 1.11 "
+                "or newer."
+            )
+
         self.running_mean: torch.Tensor
         self.running_variance: torch.Tensor
         self.num_features = num_features

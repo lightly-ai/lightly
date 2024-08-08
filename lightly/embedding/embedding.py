@@ -3,12 +3,13 @@
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
+from __future__ import annotations
+
 import time
-from typing import List, Optional, Tuple
+from typing import TYPE_CHECKING, List, Optional, Tuple
 
 import numpy as np
 import torch
-from numpy.typing import NDArray
 from torch.nn import Module
 from torch.optim import Optimizer
 from torch.optim.lr_scheduler import _LRScheduler
@@ -19,6 +20,9 @@ from lightly.data import LightlyDataset
 from lightly.embedding._base import BaseEmbedding
 from lightly.utils.benchmarking import BenchmarkModule
 from lightly.utils.reordering import sort_items_by_keys
+
+if TYPE_CHECKING:
+    from numpy.typing import NDArray
 
 
 class SelfSupervisedEmbedding(BaseEmbedding):
