@@ -122,6 +122,7 @@ train_dataloader = DataLoader(
 val_transform = transforms.Compose(
     [
         transforms.Resize(input_size),
+        transforms.CenterCrop(input_size),
         transforms.ToTensor(),
         transforms.Normalize(
             mean=IMAGENET_NORMALIZE["mean"],
