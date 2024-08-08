@@ -27,7 +27,7 @@ jobs:
       run: |
         make install-uv reset-venv
         source .venv/bin/activate
-        make install-fixed-extras
+        make install-pinned-extras
     - name: Run Format Check
       run: |
         source .venv/bin/activate

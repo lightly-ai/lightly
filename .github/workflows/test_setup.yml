@@ -45,7 +45,7 @@ jobs:
         run: |
           make install-uv reset-venv
           source .venv/bin/activate
-          make install-fixed
+          make install-pinned
       - name: Test CLI
         run: |
           source .venv/bin/activate
