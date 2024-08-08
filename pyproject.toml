@@ -57,7 +57,6 @@ all = [
   "lightly[dev,matplotlib,minimal,timm,video]"
 ]
 dev = [
-  "tox",
   "sphinx",
   "pylint",
   "pytest",
