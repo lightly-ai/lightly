@@ -35,9 +35,10 @@ def covert_to_nbs(scripts_dir: Path, notebooks_dir: Path) -> None:
             scripts_dir
         ).with_suffix(".ipynb")
         print(f"Converting {py_file_path} to notebook...")
-        # notebook = nbformat.read(str(py_file_path), as_version=nbformat.NO_CONVERT)
         notebook = jupytext.read(py_file_path)
         notebook = add_installation_cell(notebook, py_file_path)
+        if len(notebook.cells) > 1:
+            notebook.cells.pop(2)
         # Make cell ids deterministic to avoid changing ids everytime a notebook is (re)generated.
         for i, cell in enumerate(notebook.cells):
             cell.id = str(i)
