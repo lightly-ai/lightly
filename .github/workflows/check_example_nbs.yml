@@ -29,6 +29,7 @@ jobs:
           make install-pinned-extras
       - name: Convert using Script
         run: |
+          source .venv/bin/activate
           make generate-example-notebooks
       - name: Check for diff
         run: |
