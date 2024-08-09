@@ -1,19 +1,19 @@
-name: "Convert Examples to Notebooks"
+name: "Check Example Notebooks"
 
 on:
   push:
-    branches: [main]
+    branches: [master]
     paths:
-      - "examples/pytorch/**.py"
+      - "examples/**/*.py"
   pull_request:
-    branches: [main]
+    branches: [master]
     paths:
-      - "examples/pytorch/**.py"
+      - "examples/**/*.py"
   workflow_dispatch:
 
 jobs:
   convert-to-nbs:
-    name: "Convert examples to notebooks"
+    name: "Check Example Notebooks"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -26,7 +26,7 @@ jobs:
         run: |
           make install-uv reset-venv
           source .venv/bin/activate
-          uv pip install nbformat jupytext
+          make install-pinned-extras
       - name: Convert using Script
         run: |
           make generate-example-notebooks
@@ -34,6 +34,6 @@ jobs:
         run: |
           git add examples/notebooks/
           if ! git diff --cached --exit-code; then
-            echo "Notebooks have changed! Please commit the changes."
+            echo "Notebooks have changed! Please run `make generate-example-notebooks` and commit the changes."
             exit 1
           fi

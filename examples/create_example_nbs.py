@@ -5,18 +5,23 @@ import jupytext
 import nbformat
 from nbformat import NotebookNode
 
+instruction: str = "This example requires the following dependencies to be installed:"
 
-def add_installation_cell(nb: NotebookNode, script_path: str = None) -> NotebookNode:
+
+def add_installation_cell(nb: NotebookNode, script_path: Path) -> NotebookNode:
     # Find installation snippet
     with open(script_path, "r") as f:
         for line in f:
             line = line.strip()
             if line.startswith("# pip install"):
                 pip_command = "!" + line.lstrip("# ").strip()
+                # instruction cell
+                instruction_cell = nbformat.v4.new_markdown_cell(instruction)
                 # Create a new code cell
                 code_cell = nbformat.v4.new_code_cell(pip_command)
-                # Add the code cell to the beginning of the notebook
-                nb.cells.insert(0, code_cell)
+                # Add the cells to the notebooks
+                nb.cells.insert(0, instruction_cell)
+                nb.cells.insert(1, code_cell)
                 break
 
     return nb
