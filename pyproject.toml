@@ -83,7 +83,9 @@ dev = [
   "isort==5.11.5", # frozen version to avoid differences between CI and local dev machines
   "mypy==1.4.1", # frozen version to avoid differences between CI and local dev machines
   "types-python-dateutil",
-  "types-toml"
+  "types-toml",
+  "nbformat",
+  "jupytext"
 ]
 # Minimal dependencies against which we test. Older versions might work depending on the
 # functionality used.
@@ -350,3 +352,7 @@ module = [
     "lightly.openapi_generated.*",
 ]
 ignore_errors = true
+
+[tool.jupytext]
+notebook_metadata_filter="-all"
+cell_metadata_filter="-all"
