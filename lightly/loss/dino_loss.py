@@ -5,7 +5,8 @@ import torch.nn.functional as F
 from torch import Tensor
 from torch.nn import Module
 
-from lightly.models.modules.center import Center
+from lightly.models.modules import center
+from lightly.models.modules.center import CENTER_MODE_TO_FUNCTION
 
 
 class DINOLoss(Module):
@@ -66,17 +67,21 @@ class DINOLoss(Module):
         center_mode: str = "mean",
     ):
         super().__init__()
+        if center_mode not in CENTER_MODE_TO_FUNCTION:
+            raise ValueError(
+                f"Unknown mode '{center_mode}'. Valid modes are "
+                f"{sorted(CENTER_MODE_TO_FUNCTION.keys())}."
+            )
+        self._center_fn = CENTER_MODE_TO_FUNCTION[center_mode]
+
         self.warmup_teacher_temp_epochs = warmup_teacher_temp_epochs
         self.teacher_temp = teacher_temp
         self.student_temp = student_temp
+        self.center_momentum = center_momentum
 
-        self._center = Center(
-            size=(1, 1, output_dim),
-            mode=center_mode,
-            momentum=center_momentum,
-            _register_buffer=False,
-        )
-        self.register_buffer("center", self._center.center)
+        # TODO(Guarin, 08/24): Refactor this to use the Center module directly once
+        # we do a breaking change.
+        self.register_buffer("center", torch.zeros(1, 1, output_dim))
 
         # we apply a warm up for the teacher temperature because
         # a too high temperature makes the training instable at the beginning
@@ -85,16 +90,6 @@ class DINOLoss(Module):
             end=teacher_temp,
             steps=warmup_teacher_temp_epochs,
         )
-
-    # Center momentum is registered as property for backwards compatibility as it used
-    # to be stored as attribute.
-    @property
-    def center_momentum(self) -> float:
-        return self._center.momentum
-
-    @center_momentum.setter
-    def center_momentum(self, value: float) -> None:
-        self._center.momentum = value
 
     def forward(
         self,
@@ -131,7 +126,7 @@ class DINOLoss(Module):
             teacher_temp = self.teacher_temp
 
         teacher_out = torch.stack(teacher_out)
-        t_out = F.softmax((teacher_out - self._center.value) / teacher_temp, dim=-1)
+        t_out = F.softmax((teacher_out - self.center) / teacher_temp, dim=-1)
 
         student_out = torch.stack(student_out)
         s_out = F.log_softmax(student_out / self.student_temp, dim=-1)
@@ -160,4 +155,7 @@ class DINOLoss(Module):
                 features from the teacher model.
 
         """
-        self._center.update(teacher_out)
+        batch_center = self._center_fn(x=teacher_out, dim=(0, 1))
+        self.center = center.center_momentum(
+            center=self.center, batch_center=batch_center, momentum=self.center_momentum
+        )

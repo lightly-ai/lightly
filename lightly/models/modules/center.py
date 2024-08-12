@@ -23,9 +23,6 @@ class Center(Module):
             Mode to compute the center. Currently only 'mean' is supported.
         momentum:
             Momentum term for the center calculation.
-        _register_buffer:
-            Deprecated, do not use. This argument is only kept for backwards
-            compatibility with DINOLoss.
     """
 
     def __init__(
@@ -33,30 +30,18 @@ class Center(Module):
         size: Tuple[int, ...],
         mode: str = "mean",
         momentum: float = 0.9,
-        _register_buffer: bool = True,
     ) -> None:
         super().__init__()
-
-        mode_to_fn = {
-            "mean": self._center_mean,
-        }
-        if mode not in mode_to_fn:
+        if mode not in CENTER_MODE_TO_FUNCTION:
             raise ValueError(
-                f"Unknown mode '{mode}'. Valid modes are {sorted(mode_to_fn.keys())}."
+                f"Unknown mode '{mode}'. Valid modes are "
+                f"{sorted(CENTER_MODE_TO_FUNCTION.keys())}."
             )
-        self._center_fn = mode_to_fn[mode]
+        self._center_fn = CENTER_MODE_TO_FUNCTION[mode]
+
         self.size = size
         self.dim = tuple(i for i, s in enumerate(size) if s == 1)
-
-        center = torch.zeros(self.size)
-        if _register_buffer:
-            self.register_buffer("center", center)
-        else:
-            # Do not register buffer for backwards compatilibity with DINOLoss as the
-            # loss already registers the buffer. If we register it here again there will
-            # be an extra entry in the state dict.
-            self.center = center
-
+        self.register_buffer("center", torch.zeros(self.size))
         self.momentum = momentum
 
     @property
@@ -74,20 +59,33 @@ class Center(Module):
                 Feature tensor used to update the center. Must have the same number of
                 dimensions as self.size.
         """
-        batch_center = self._center_fn(x)
-        # Use copy for backwards compatibility with DINOLoss.
-        self.center.copy_(self._center_momentum(batch_center))
+        batch_center = self._center_fn(x=x, dim=self.dim)
+        self.center = center_momentum(
+            center=self.center, batch_center=batch_center, momentum=self.momentum
+        )
 
     @torch.no_grad()
     def _center_mean(self, x: Tensor) -> Tensor:
         """Returns the center of the input tensor by calculating the mean."""
-        batch_center = torch.mean(x, dim=self.dim, keepdim=True)
-        if dist.is_available() and dist.is_initialized():
-            dist.all_reduce(batch_center)
-            batch_center = batch_center / dist.get_world_size()
-        return batch_center
+        return center_mean(x=x, dim=self.dim)
 
-    @torch.no_grad()
-    def _center_momentum(self, batch_center: Tensor) -> Tensor:
-        """Returns the new center with momentum update."""
-        return self.center * self.momentum + batch_center * (1 - self.momentum)
+
+@torch.no_grad()
+def center_mean(x: Tensor, dim: Tuple[int, ...]) -> Tensor:
+    """Returns the center of the input tensor by calculating the mean."""
+    batch_center = torch.mean(x, dim=dim, keepdim=True)
+    if dist.is_available() and dist.is_initialized():
+        dist.all_reduce(batch_center)
+        batch_center = batch_center / dist.get_world_size()
+    return batch_center
+
+
+@torch.no_grad()
+def center_momentum(center: Tensor, batch_center: Tensor, momentum: float) -> Tensor:
+    """Returns the new center with momentum update."""
+    return center * momentum + batch_center * (1 - momentum)
+
+
+CENTER_MODE_TO_FUNCTION = {
+    "mean": center_mean,
+}

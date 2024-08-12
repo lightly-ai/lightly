@@ -3,11 +3,13 @@ import itertools
 import unittest
 
 import numpy as np
+import pytest
 import torch
 import torch.nn.functional as F
 from torch import nn
 
 from lightly.loss import DINOLoss
+from lightly.models.modules.center import Center
 from lightly.models.utils import deactivate_requires_grad
 
 
@@ -258,3 +260,16 @@ class TestDINOLoss(unittest.TestCase):
             student_temp=[0.05, 0.1, 0.2],
             center_momentum=[0.5, 0.9, 0.95],
         )
+
+
+def test_center__equivalence() -> None:
+    """Check that DINOLoss.update_center is equivalent to Center.update.
+
+    TODO(Guarin, 08/24): Remove this test once DINOLoss uses Center internally.
+    """
+    criterion = DINOLoss(output_dim=32, center_momentum=0.9)
+    center = Center(size=(1, 1, 32), momentum=0.9)
+    x = torch.rand(2, 32)
+    criterion.update_center(teacher_out=x)
+    center.update(x=x)
+    assert torch.allclose(criterion.center, center.value)
