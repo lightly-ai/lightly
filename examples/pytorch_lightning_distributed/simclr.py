@@ -1,3 +1,4 @@
+# This example requires the following dependencies to be installed:
 # pip install lightly
 
 import pytorch_lightning as pl
