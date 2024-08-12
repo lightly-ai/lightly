@@ -1,24 +1,30 @@
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v2.3.0
+  rev: v4.6.0
   hooks:
   - id: detect-private-key      # check for private keys
   - id: check-added-large-files # prevent commit of files >500kB
     args: ['--maxkb=500']
 - repo: https://github.com/psf/black
-  rev: 23.1.0  # aligned with the version defined in pyproject.toml
+  rev: 24.8.0  # aligned with the version defined in pyproject.toml
   hooks:
   - id: black
 - repo: https://github.com/pycqa/isort
-  rev: 5.11.5  # aligned with the version defined in pyproject.toml
+  rev: 5.13.2  # aligned with the version defined in pyproject.toml
   hooks:
   - id: isort
 - repo: https://github.com/pre-commit/mirrors-mypy
-  rev: v1.4.1  # aligned with the version defined in pyproject.toml
+  rev: v1.11.1  # aligned with the version defined in pyproject.toml
   hooks:
   - id: mypy
     additional_dependencies:
       - 'numpy'
+- repo: https://github.com/nbQA-dev/nbQA
+  rev: 1.8.7
+  hooks:
+    - id: nbqa-black
+    - id: nbqa-isort
+      args: ["--profile=black"]
 - repo: local
   hooks:
   - id: pytest-check                     # run all tests
