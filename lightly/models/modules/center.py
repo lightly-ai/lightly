@@ -33,12 +33,13 @@ class Center(Module):
     ) -> None:
         super().__init__()
 
-        self._center_fn = CENTER_MODE_TO_FUNCTION.get(mode)
-        if self._center_fn is None:
+        center_fn = CENTER_MODE_TO_FUNCTION.get(mode)
+        if center_fn is None:
             raise ValueError(
                 f"Unknown mode '{mode}'. Valid modes are "
                 f"{sorted(CENTER_MODE_TO_FUNCTION.keys())}."
             )
+        self._center_fn = center_fn
 
         self.size = size
         self.dim = tuple(i for i, s in enumerate(size) if s == 1)
