@@ -1,0 +1,41 @@
+name: "Check Example Notebooks"
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "examples/**/*.py"
+  pull_request:
+    branches: [master]
+    paths:
+      - "examples/**/*.py"
+  workflow_dispatch:
+
+jobs:
+  convert-to-nbs:
+    name: "Check Example Notebooks"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Set Up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.7
+      - name: Set Up Environment
+        run: |
+          make install-uv reset-venv
+          source .venv/bin/activate
+          make install-pinned-extras
+      - name: Convert using Script
+        run: |
+          source .venv/bin/activate
+          make generate-example-notebooks
+      - name: Check for diff
+        run: |
+          source .venv/bin/activate
+          git add examples/notebooks/
+          if ! git diff --cached --exit-code; then
+            echo "Notebooks have changed! Please run `make generate-example-notebooks` and commit the changes."
+            exit 1
+          fi
