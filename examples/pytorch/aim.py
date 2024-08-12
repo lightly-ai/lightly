@@ -1,3 +1,4 @@
+# This example requires the following dependencies to be installed:
 # pip install "lightly[timm]"
 
 # Note: The model and training settings do not follow the reference settings

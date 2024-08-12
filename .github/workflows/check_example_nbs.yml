@@ -33,6 +33,7 @@ jobs:
           make generate-example-notebooks
       - name: Check for diff
         run: |
+          source .venv/bin/activate
           git add examples/notebooks/
           if ! git diff --cached --exit-code; then
             echo "Notebooks have changed! Please run `make generate-example-notebooks` and commit the changes."

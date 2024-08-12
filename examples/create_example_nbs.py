@@ -5,8 +5,6 @@ import jupytext
 import nbformat
 from nbformat import NotebookNode
 
-instruction: str = "This example requires the following dependencies to be installed:"
-
 
 def add_installation_cell(nb: NotebookNode, script_path: Path) -> NotebookNode:
     # Find installation snippet
@@ -15,12 +13,9 @@ def add_installation_cell(nb: NotebookNode, script_path: Path) -> NotebookNode:
             line = line.strip()
             if line.startswith("# pip install"):
                 pip_command = "!" + line.lstrip("# ").strip()
-                # instruction cell
-                instruction_cell = nbformat.v4.new_markdown_cell(instruction)
                 # Create a new code cell
                 code_cell = nbformat.v4.new_code_cell(pip_command)
-                # Add the cells to the notebooks
-                nb.cells.insert(0, instruction_cell)
+                # Add the cell to the notebook
                 nb.cells.insert(1, code_cell)
                 break
 
@@ -37,8 +32,6 @@ def covert_to_nbs(scripts_dir: Path, notebooks_dir: Path) -> None:
         print(f"Converting {py_file_path} to notebook...")
         notebook = jupytext.read(py_file_path)
         notebook = add_installation_cell(notebook, py_file_path)
-        if len(notebook.cells) > 1:
-            notebook.cells.pop(2)
         # Make cell ids deterministic to avoid changing ids everytime a notebook is (re)generated.
         for i, cell in enumerate(notebook.cells):
             cell.id = str(i)
