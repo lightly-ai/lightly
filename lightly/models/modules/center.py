@@ -41,6 +41,7 @@ class Center(Module):
 
         self.size = size
         self.dim = tuple(i for i, s in enumerate(size) if s == 1)
+        self.center: Tensor  # For mypy
         self.register_buffer("center", torch.zeros(self.size))
         self.momentum = momentum
 
