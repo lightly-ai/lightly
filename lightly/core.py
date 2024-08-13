@@ -127,9 +127,15 @@ def train_model_and_embed_images(
 def train_embedding_model(config_path: str = None, **kwargs):
     """Train a self-supervised model.
 
-    Calls the same function as lightly-train. All arguments passed to
-    lightly-train can also be passed to this function (see below for an
+    Calls the same function as lightly-train-deprecated. All arguments passed to
+    lightly-train-deprecated can also be passed to this function (see below for an
     example).
+
+    Warning: This functionality is deprecated since version 1.6. The lightly-train
+    command was renamed to lightly-train-deprecated in version 1.6 and will be
+    completely removed in version 1.7. If you would like to continue using the
+    command, please create an issue on the issue tracker at
+    https://github.com/lightly-ai/lightly/issues or contact us at info@lightly.ai
 
     Args:
         config_path:
@@ -162,7 +168,7 @@ def train_embedding_model(config_path: str = None, **kwargs):
         >>> checkpoint_path = lightly.train_embedding_model(
         >>>     input_dir='path/to/data', loader=my_loader)
         >>> # the command above is equivalent to:
-        >>> # lightly-train input_dir='path/to/data' loader.batch_size=100 loader.num_workers=8
+        >>> # lightly-train-deprecated input_dir='path/to/data' loader.batch_size=100 loader.num_workers=8
     """
     config_path = _get_config_path(config_path)
     config_args = _load_config_file(config_path)
@@ -174,9 +180,15 @@ def train_embedding_model(config_path: str = None, **kwargs):
 def embed_images(checkpoint: str, config_path: str = None, **kwargs):
     """Embed images with a self-supervised model.
 
-    Calls the same function as lightly-embed. All arguments passed to
-    lightly-embed can also be passed to this function (see below for an
+    Calls the same function as lightly-embed-deprecated. All arguments passed to
+    lightly-embed-deprecated can also be passed to this function (see below for an
     example).
+
+    Warning: This functionality is deprecated since version 1.6. The lightly-embed
+    command was renamed to lightly-embed-deprecated in version 1.6 and will be
+    completely removed in version 1.7. If you would like to continue using the
+    command, please create an issue on the issue tracker at
+    https://github.com/lightly-ai/lightly/issues or contact us at info@lightly.ai
 
     Args:
         checkpoint:
@@ -208,7 +220,7 @@ def embed_images(checkpoint: str, config_path: str = None, **kwargs):
         >>> embeddings, _, _ = lightly.embed_images(
         >>>     my_checkpoint_path, input_dir='path/to/data', collate=my_collate)
         >>> # the command above is equivalent to:
-        >>> # lightly-embed input_dir='path/to/data' collate.input_size=256
+        >>> # lightly-embed-deprecated input_dir='path/to/data' collate.input_size=256
 
     """
     config_path = _get_config_path(config_path)

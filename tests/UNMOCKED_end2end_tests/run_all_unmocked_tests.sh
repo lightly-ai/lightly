@@ -22,10 +22,10 @@ python tests/UNMOCKED_end2end_tests/create_custom_metadata_from_input_dir.py $IN
 
 # Run the tests
 echo "############################### Test 1"
-lightly-magic input_dir=$INPUT_DIR trainer.max_epochs=0
+lightly-magic-deprecated input_dir=$INPUT_DIR trainer.max_epochs=0
 
 echo "############################### Test 2"
-lightly-magic input_dir=$INPUT_DIR trainer.max_epochs=1
+lightly-magic-deprecated input_dir=$INPUT_DIR trainer.max_epochs=1
 
 echo "############################### Delete dataset again"
 rm -rf $DIR_DATASET

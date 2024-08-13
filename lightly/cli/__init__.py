@@ -1,6 +1,19 @@
 """ The lightly.cli module provides a console interface
     for training self-supervised models, embedding,
     and filtering datasets
+
+    Warning: Most commands of the CLI are deprecated since version 1.6.
+    
+    The following commands were renamed in version 1.6 and will be removed in version
+    1.7:
+    - `lightly-crop` -> `lightly-crop-deprecated`
+    - `lightly-train` -> `lightly-train-deprecated`
+    - `lightly-embed` -> `lightly-embed-deprecated`
+    - `lightly-magic` -> `lightly-magic-deprecated`
+
+    If you would like to continue using these commands, please create an issue on the
+    issue tracker at https://github.com/lightly-ai/lightly/issues or contact us
+    at info@lightly.ai
 """
 
 # Copyright (c) 2020. Lightly AG and its affiliates.

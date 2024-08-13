@@ -86,7 +86,7 @@ class TestCLICrop(MockedApiWorkflowSetup):
             yaml.dump(yaml_dict, file)
 
     def parse_cli_string(self, cli_words: str):
-        cli_words = cli_words.replace("lightly-crop ", "")
+        cli_words = cli_words.replace("lightly-crop-deprecated ", "")
         cli_words = re.split("=| ", cli_words)
         assert len(cli_words) % 2 == 0
         dict_keys = cli_words[0::2]
@@ -97,7 +97,7 @@ class TestCLICrop(MockedApiWorkflowSetup):
             self.cfg[key] = value
 
     def test_parse_cli_string(self):
-        cli_string = "lightly-crop label_dir=/blub"
+        cli_string = "lightly-crop-deprecated label_dir=/blub"
         self.parse_cli_string(cli_string)
         self.assertEqual(self.cfg["label_dir"], "/blub")
 
@@ -143,12 +143,12 @@ class TestCLICrop(MockedApiWorkflowSetup):
                 )
 
     def test_crop_with_class_names(self):
-        cli_string = "lightly-crop crop_padding=0.1"
+        cli_string = "lightly-crop-deprecated crop_padding=0.1"
         self.parse_cli_string(cli_string)
         lightly.cli.crop_cli(self.cfg)
 
     def test_crop_without_class_names(self):
-        cli_string = "lightly-crop crop_padding=0.1"
+        cli_string = "lightly-crop-deprecated crop_padding=0.1"
         self.parse_cli_string(cli_string)
         self.cfg["label_names_file"] = ""
         lightly.cli.crop_cli(self.cfg)

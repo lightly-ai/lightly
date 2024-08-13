@@ -1,8 +1,14 @@
 # -*- coding: utf-8 -*-
 """**Lightly Embed:** Embed images with one command.
 
-This module contains the entrypoint for the **lightly-embed**
+This module contains the entrypoint for the **lightly-embed-deprecated**
 command-line interface.
+
+Warning: This functionality is deprecated since version 1.6. The `lightly-embed` command
+was renamed to `lightly-embed-deprecated` in version 1.6 and will be completely removed
+in version 1.7. If you would like to continue using the command, please create an issue
+on the issue tracker at https://github.com/lightly-ai/lightly/issues or contact us at
+info@lightly.ai
 """
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
@@ -23,7 +29,7 @@ from lightly.cli._helpers import (
     get_model_from_config,
 )
 from lightly.data import LightlyDataset
-from lightly.utils.hipify import bcolors
+from lightly.utils.hipify import bcolors, print_as_warning
 from lightly.utils.io import save_embeddings
 
 
@@ -40,6 +46,13 @@ def _embed_cli(
             Embeddings are of shape (n_samples, embedding_size)
             len(labels) = len(filenames) = n_samples
     """
+    print_as_warning(
+        "The lightly-embed-deprecated command is deprecated since version 1.6 and "
+        "will be removed in version 1.7. If you would like to continue using the "
+        "command, please create an issue on the issue tracker at "
+        "https://github.com/lightly-ai/lightly/issues or contact us at "
+        "info@lightly.ai"
+    )
     input_dir = cfg["input_dir"]
     if input_dir and is_cli_call:
         input_dir = fix_input_path(input_dir)
@@ -97,6 +110,12 @@ def _embed_cli(
 def embed_cli(cfg) -> str:
     """Embed images from the command-line.
 
+    Warning: This functionality is deprecated since version 1.6. The lightly-embed
+    command was renamed to lightly-embed-deprecated in version 1.6 and will be
+    completely removed in version 1.7. If you would like to continue using the
+    command, please create an issue on the issue tracker at
+    https://github.com/lightly-ai/lightly/issues or contact us at info@lightly.ai
+
     Args:
         cfg:
             The default configs are loaded from the config file.
@@ -115,13 +134,13 @@ def embed_cli(cfg) -> str:
 
     Examples:
         >>> # embed images with default settings and a lightly model
-        >>> lightly-embed input_dir=data/
+        >>> lightly-embed-deprecated input_dir=data/
         >>>
         >>> # embed images with default settings and a custom checkpoint
-        >>> lightly-embed input_dir=data/ checkpoint=my_checkpoint.ckpt
+        >>> lightly-embed-deprecated input_dir=data/ checkpoint=my_checkpoint.ckpt
         >>>
         >>> # embed images with custom settings
-        >>> lightly-embed input_dir=data/ model.num_ftrs=32
+        >>> lightly-embed-deprecated input_dir=data/ model.num_ftrs=32
 
     """
     return _embed_cli(cfg)

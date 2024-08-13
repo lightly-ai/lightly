@@ -7,6 +7,22 @@ The Lightly\ **SSL** framework provides you with a command-line interface (CLI) 
 self-supervised models and create embeddings without having to write a single 
 line of code.
 
+.. warning::
+
+    Most commands of the CLI are deprecated since version 1.6.
+
+    The following commands were renamed in version 1.6 and will be removed in version
+    1.7:
+    - `lightly-crop` -> `lightly-crop-deprecated`
+    - `lightly-train` -> `lightly-train-deprecated`
+    - `lightly-embed` -> `lightly-embed-deprecated`
+    - `lightly-magic` -> `lightly-magic-deprecated`
+
+    If you would like to continue using these commands, please create an issue on the
+    :ref:`issue tracker <https://github.com/lightly-ai/lightly/issues>`_ or contact us
+    at info@lightly.ai
+
+
 You can also have a look at this video to get an overview of how to work with 
 the CLI.
 
@@ -41,6 +57,13 @@ If Lightly\ **SSL** was installed correctly, you should see something like this:
 
 Crop Images using Labels or Predictions
 ---------------------------------------------------
+
+.. warning::
+
+    This functionality is deprecated since version 1.6. The `lightly-crop` command
+    was renamed to `lightly-crop-deprecated` in version 1.6 and will be completely
+    removed in version 1.7.
+
 For some tasks, self-supervised learning on an image level has disadvantages. For 
 example, when training an object detection model we care about local features
 describing the objects rather than features describing the full image.
@@ -49,17 +72,17 @@ One simple trick to overcome this limitation, is to use labels or to use a pre-t
 to get bounding boxes around the objects and then cropping the objects out of the
 image.
 
-We can do this using the **lightly-crop** CLI command. The CLI command crops 
+We can do this using the **lightly-crop-deprecated** CLI command. The CLI command crops 
 objects out of the input images based on labels and copies them into an output folder.
 The new folder consists now of the cropped images.
 
 .. code-block:: bash
 
     # Crop images and set the crop to be 20% around the bounding box
-    lightly-crop input_dir=images label_dir=labels output_dir=cropped_images crop_padding=0.2
+    lightly-crop-deprecated input_dir=images label_dir=labels output_dir=cropped_images crop_padding=0.2
 
     # Crop images and use the class names in the filename
-    lightly-crop input_dir=images label_dir=labels output_dir=cropped_images \
+    lightly-crop-deprecated input_dir=images label_dir=labels output_dir=cropped_images \
                  label_names_file=data.yaml
 
 The labels should be in the yolo format. For each image you should have a
@@ -78,12 +101,19 @@ An example for the label names .yaml file:
 
     names: [cat, dog]
 
-You can use the output of the lightly-crop command as the *input_dir* for your
-lightly-train command.
+You can use the output of the lightly-crop-deprecated command as the *input_dir* for your
+lightly-train-deprecated command.
 
 Training and Embedding in a Go – Magic
 ---------------------------------------------------
-Lightly-magic is a singular command for training a self-supervised model and use it to compute embeddings
+
+.. warning::
+
+    This functionality is deprecated since version 1.6. The `lightly-magic` command
+    was renamed to `lightly-magic-deprecated` in version 1.6 and will be completely
+    removed in version 1.7.
+
+Lightly-magic-deprecated is a singular command for training a self-supervised model and use it to compute embeddings
 
 * To start with, we need to input the directory of the dataset, pass it to input_dir.
 * It requires information on the number of epochs to perform, set trainer.max_epochs.
@@ -98,12 +128,12 @@ Lightly-magic is a singular command for training a self-supervised model and use
     # Embed images from an input directory
     # Setting trainer.max_epochs=10 trains a model for 10 epochs.
     # loader.num_workers=8 specifies the number of cpu cores used for loading images.
-    lightly-magic input_dir=data_dir trainer.max_epochs=10 loader.num_workers=8
+    lightly-magic-deprecated input_dir=data_dir trainer.max_epochs=10 loader.num_workers=8
 
 
     # To use a custom batch size, pass the batch size to loader.batch_size parameter
     # updating the previous example by passing value for loader.batch_size
-    lightly-magic input_dir=data_dir trainer.max_epochs=10 loader.batch_size=128 \
+    lightly-magic-deprecated input_dir=data_dir trainer.max_epochs=10 loader.batch_size=128 \
     loader.num_workers=8
 
 
@@ -111,6 +141,13 @@ Lightly-magic is a singular command for training a self-supervised model and use
 
 Train a model using the CLI
 ---------------------------------------
+
+.. warning::
+
+    This functionality is deprecated since version 1.6. The `lightly-train` command
+    was renamed to `lightly-train-deprecated` in version 1.6 and will be completely
+    removed in version 1.7.
+
 Training a model using default parameters can be done with just one command. Let's
 assume you have a folder of cat images named `cat` and want to train a model on it.
 You can use the following command to train a model and save the checkpoint:
@@ -118,23 +155,23 @@ You can use the following command to train a model and save the checkpoint:
 .. code-block:: bash
 
     # train a model using default parameters
-    lightly-train input_dir=cat
+    lightly-train-deprecated input_dir=cat
 
     # train a model for 5 epochs
-    lightly-train input_dir=cat trainer.max_epochs=5
+    lightly-train-deprecated input_dir=cat trainer.max_epochs=5
 
     # continue training from a checkpoint for another 10 epochs
-    lightly-train input_dir=cat trainer.max_epochs=10 checkpoint=mycheckpoint.ckpt
+    lightly-train-deprecated input_dir=cat trainer.max_epochs=10 checkpoint=mycheckpoint.ckpt
 
     # continue training from the last checkpoint
-    lightly-train input_dir=cat trainer.max_epochs=10 \
+    lightly-train-deprecated input_dir=cat trainer.max_epochs=10 \
                   checkpoint=$LIGHTLY_LAST_CHECKPOINT_PATH
 
     # train with multiple gpus
     # the total batch size will be trainer.gpus * loader.batch_size
-    lightly-train input_dir=data_dir trainer.gpus=2
+    lightly-train-deprecated input_dir=data_dir trainer.gpus=2
 
-The path to the latest checkpoint you created using the `lightly-train` command
+The path to the latest checkpoint you created using the `lightly-train-deprecated` command
 will be saved under an environment variable named LIGHTLY_LAST_CHECKPOINT_PATH.
 This can be useful for continuing training or for creating embeddings from
 a checkpoint.
@@ -143,7 +180,7 @@ For a full list of supported arguments run
 
 .. code-block:: bash
     
-    lightly-train --help
+    lightly-train-deprecated --help
 
 
 You can get an overview of the various CLI parameters you can set in 
@@ -159,15 +196,15 @@ Once you have a trained model checkpoint, you can create an embedding of a datas
 .. code-block:: bash
 
     # use pre-trained models provided by Lighly
-    lightly-embed input_dir=cat
+    lightly-embed-deprecated input_dir=cat
 
     # use custom checkpoint
-    lightly-embed input_dir=cat checkpoint=mycheckpoint.ckpt
+    lightly-embed-deprecated input_dir=cat checkpoint=mycheckpoint.ckpt
 
     # use the last checkpoint you created
-    lightly-embed input_dir=cat checkpoint=$LIGHTLY_LAST_CHECKPOINT_PATH
+    lightly-embed-deprecated input_dir=cat checkpoint=$LIGHTLY_LAST_CHECKPOINT_PATH
 
-The path to the latest embeddings you created using the `lightly-embed` command
+The path to the latest embeddings you created using the `lightly-embed-deprecated` command
 will be saved under an environment variable named LIGHTLY_LAST_EMBEDDING_PATH.
 
 The embeddings.csv file should look like the following:
@@ -197,40 +234,37 @@ without the need to download them explicitly.
 .. code-block:: bash
 
     # download a list of files
-    lightly-download tag_name=my_tag_name dataset_id=your_dataset_id token=your_token
+    lightly-download-deprecated tag_name=my_tag_name dataset_id=your_dataset_id token=your_token
 
     # download the images and store them in an output directory
-    lightly-download tag_name=my_tag_name dataset_id=your_dataset_id token=your_token \
+    lightly-download-deprecated tag_name=my_tag_name dataset_id=your_dataset_id token=your_token \
                      output_dir=path/to/output/dir
 
     # copy images from an input directory to an output directory
-    lightly-download tag_name=my_tag_name dataset_id=your_dataset_id token=your_token \
+    lightly-download-deprecated tag_name=my_tag_name dataset_id=your_dataset_id token=your_token \
                      input_dir=path/to/input/dir output_dir=path/to/output/dir
 
 .. _ref-breakdown-lightly-magic:
 
-Breakdown of lightly-magic
---------------------------
+Breakdown of lightly-magic-deprecated
+-------------------------------------
 
-If you want to break the lightly-magic command into separate steps,
+.. warning::
+
+    This functionality is deprecated since version 1.6. The `lightly-magic` command
+    was renamed to `lightly-magic-deprecated` in version 1.6 and will be completely
+    removed in version 1.7.
+
+If you want to break the lightly-magic-deprecated command into separate steps,
 you can use the following:
 
 .. code-block:: bash
 
-    # lightly-magic command
-    lightly-magic input_dir=data_dir
+    # lightly-magic-deprecated command
+    lightly-magic-deprecated input_dir=data_dir
     # equivalent breakdown into single commands
 
     # train the embedding model
-    lightly-train input_dir=data_dir
+    lightly-train-deprecated input_dir=data_dir
     # embed the images with the embedding model just trained
-    lightly-embed input_dir=data_dir checkpoint=$LIGHTLY_LAST_CHECKPOINT_PATH
-
-
-
-
-    
-
-
-
-
+    lightly-embed-deprecated input_dir=data_dir checkpoint=$LIGHTLY_LAST_CHECKPOINT_PATH

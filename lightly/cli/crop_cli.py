@@ -1,8 +1,14 @@
 # -*- coding: utf-8 -*-
 """**Lightly Train:** Train a self-supervised model from the command-line.
 
-This module contains the entrypoint for the **lightly-train**
+This module contains the entrypoint for the **lightly-crop-deprecated**
 command-line interface.
+
+Warning: This functionality is deprecated since version 1.6. The `lightly-crop` command
+was renamed to `lightly-crop-deprecated` in version 1.6 and will be completely removed
+in version 1.7. If you would like to continue using the command, please create an issue
+on the issue tracker at https://github.com/lightly-ai/lightly/issues or contact us at
+info@lightly.ai
 """
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
@@ -76,6 +82,12 @@ def _crop_cli(cfg, is_cli_call=True):
 def crop_cli(cfg):
     """Crops images into one sub-image for each object.
 
+    Warning: This functionality is deprecated since version 1.6. The lightly-crop
+    command was renamed to lightly-crop-deprecated in version 1.6 and will be
+    completely removed in version 1.7. If you would like to continue using the
+    command, please create an issue on the issue tracker at
+    https://github.com/lightly-ai/lightly/issues or contact us at info@lightly.ai
+
     Args:
         cfg:
             The default configs are loaded from the config file.
@@ -102,10 +114,10 @@ def crop_cli(cfg):
 
     Examples:
         >>> # Crop images and set the crop to be 20% around the bounding box
-        >>> lightly-crop input_dir=data/images label_dir=data/labels output_dir=data/cropped_images crop_padding=0.2
+        >>> lightly-crop-deprecated input_dir=data/images label_dir=data/labels output_dir=data/cropped_images crop_padding=0.2
 
         >>> # Crop images and use the class names in the filename
-        >>> lightly-crop input_dir=data/images label_dir=data/labels output_dir=data/cropped_images label_names_file=data/data.yaml
+        >>> lightly-crop-deprecated input_dir=data/images label_dir=data/labels output_dir=data/cropped_images label_names_file=data/data.yaml
 
     """
     return _crop_cli(cfg)

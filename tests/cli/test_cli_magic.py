@@ -48,7 +48,7 @@ class TestCLIMagic(MockedApiWorkflowSetup):
             data[0].save(path)
 
     def parse_cli_string(self, cli_words: str):
-        cli_words = cli_words.replace("lightly-magic ", "")
+        cli_words = cli_words.replace("lightly-magic-deprecated ", "")
         cli_words = re.split("=| ", cli_words)
         assert len(cli_words) % 2 == 0
         dict_keys = cli_words[0::2]
@@ -73,13 +73,13 @@ class TestCLIMagic(MockedApiWorkflowSetup):
                 )
 
     def test_parse_cli_string(self):
-        cli_string = "lightly-magic trainer.max_epochs=3"
+        cli_string = "lightly-magic-deprecated trainer.max_epochs=3"
         self.parse_cli_string(cli_string)
         self.assertEqual(self.cfg["trainer"]["max_epochs"], 3)
 
     def test_magic_with_trainer(self):
         MockedApiWorkflowClient.n_dims_embeddings_on_server = 32
-        cli_string = "lightly-magic trainer.max_epochs=1"
+        cli_string = "lightly-magic-deprecated trainer.max_epochs=1"
         self.parse_cli_string(cli_string)
         cli.lightly_cli(self.cfg)
 

@@ -114,13 +114,15 @@ matplotlib = ["matplotlib>=3"]
 "Discord" = "https://discord.gg/xvNJW94"
 
 [project.scripts]
-lightly-crop = "lightly.cli.crop_cli:entry"
 lightly-download = "lightly.cli.download_cli:entry"
-lightly-embed = "lightly.cli.embed_cli:entry"
-lightly-magic = "lightly.cli.lightly_cli:entry"
 lightly-serve = "lightly.cli.serve_cli:entry"
-lightly-train = "lightly.cli.train_cli:entry"
 lightly-version = "lightly.cli.version_cli:entry"
+
+lightly-crop-deprecated = "lightly.cli.crop_cli:entry"
+lightly-embed-deprecated = "lightly.cli.embed_cli:entry"
+lightly-magic-deprecated = "lightly.cli.lightly_cli:entry"
+lightly-train-deprecated = "lightly.cli.train_cli:entry"
+
 
 [tool.setuptools.packages.find]
 include = ["lightly*"]
