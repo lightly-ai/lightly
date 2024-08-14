@@ -131,11 +131,14 @@ def train_embedding_model(config_path: str = None, **kwargs):
     lightly-train-deprecated can also be passed to this function (see below for an
     example).
 
-    Warning: This functionality is deprecated since version 1.6. The lightly-train
-    command was renamed to lightly-train-deprecated in version 1.6 and will be
-    completely removed in version 1.7. If you would like to continue using the
-    command, please create an issue on the issue tracker at
-    https://github.com/lightly-ai/lightly/issues or contact us at info@lightly.ai
+    .. warning::
+
+        This functionality is deprecated since version 1.6. The lightly-train
+        command was renamed to lightly-train-deprecated in version 1.6 and will be
+        completely removed in version 1.7. If you would like to continue using the
+        command, please create an issue on the
+        `issue tracker <https://github.com/lightly-ai/lightly/issues>`_ or contact us at
+        info@lightly.ai
 
     Args:
         config_path:
@@ -184,11 +187,14 @@ def embed_images(checkpoint: str, config_path: str = None, **kwargs):
     lightly-embed-deprecated can also be passed to this function (see below for an
     example).
 
-    Warning: This functionality is deprecated since version 1.6. The lightly-embed
-    command was renamed to lightly-embed-deprecated in version 1.6 and will be
-    completely removed in version 1.7. If you would like to continue using the
-    command, please create an issue on the issue tracker at
-    https://github.com/lightly-ai/lightly/issues or contact us at info@lightly.ai
+    .. warning::
+
+        This functionality is deprecated since version 1.6. The lightly-embed
+        command was renamed to lightly-embed-deprecated in version 1.6 and will be
+        completely removed in version 1.7. If you would like to continue using the
+        command, please create an issue on the
+        `issue tracker <https://github.com/lightly-ai/lightly/issues>`_ or contact us at
+        info@lightly.ai
 
     Args:
         checkpoint:

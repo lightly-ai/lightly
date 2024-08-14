@@ -3,12 +3,6 @@
 
 This module contains the entrypoint for the **lightly-train-deprecated**
 command-line interface.
-
-Warning: This functionality is deprecated since version 1.6. The `lightly-train` command
-was renamed to `lightly-train-deprecated` in version 1.6 and will be completely removed
-in version 1.7. If you would like to continue using the command, please create an issue
-on the issue tracker at https://github.com/lightly-ai/lightly/issues or contact us at
-info@lightly.ai
 """
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
@@ -159,9 +153,9 @@ def _train_cli(cfg, is_cli_call=True):
     print(
         f"Best model is stored at: {bcolors.OKBLUE}{encoder.checkpoint}{bcolors.ENDC}"
     )
-    os.environ[
-        cfg["environment_variable_names"]["lightly_last_checkpoint_path"]
-    ] = encoder.checkpoint
+    os.environ[cfg["environment_variable_names"]["lightly_last_checkpoint_path"]] = (
+        encoder.checkpoint
+    )
     return encoder.checkpoint
 
 
@@ -169,11 +163,14 @@ def _train_cli(cfg, is_cli_call=True):
 def train_cli(cfg):
     """Train a self-supervised model from the command-line.
 
-    Warning: This functionality is deprecated since version 1.6. The lightly-train
-    command was renamed to lightly-train-deprecated in version 1.6 and will be
-    completely removed in version 1.7. If you would like to continue using the
-    command, please create an issue on the issue tracker at
-    https://github.com/lightly-ai/lightly/issues or contact us at info@lightly.ai
+    .. warning::
+
+        This functionality is deprecated since version 1.6. The lightly-train
+        command was renamed to lightly-train-deprecated in version 1.6 and will be
+        completely removed in version 1.7. If you would like to continue using the
+        command, please create an issue on the
+        `issue tracker <https://github.com/lightly-ai/lightly/issues>`_
+        or contact us at info@lightly.ai
 
     Args:
         cfg:

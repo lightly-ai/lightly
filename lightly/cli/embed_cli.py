@@ -3,12 +3,6 @@
 
 This module contains the entrypoint for the **lightly-embed-deprecated**
 command-line interface.
-
-Warning: This functionality is deprecated since version 1.6. The `lightly-embed` command
-was renamed to `lightly-embed-deprecated` in version 1.6 and will be completely removed
-in version 1.7. If you would like to continue using the command, please create an issue
-on the issue tracker at https://github.com/lightly-ai/lightly/issues or contact us at
-info@lightly.ai
 """
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
@@ -98,9 +92,9 @@ def _embed_cli(
         path = os.path.join(os.getcwd(), "embeddings.csv")
         save_embeddings(path, embeddings, labels, filenames)
         print(f"Embeddings are stored at {bcolors.OKBLUE}{path}{bcolors.ENDC}")
-        os.environ[
-            cfg["environment_variable_names"]["lightly_last_embedding_path"]
-        ] = path
+        os.environ[cfg["environment_variable_names"]["lightly_last_embedding_path"]] = (
+            path
+        )
         return path
 
     return embeddings, labels, filenames
@@ -110,11 +104,14 @@ def _embed_cli(
 def embed_cli(cfg) -> str:
     """Embed images from the command-line.
 
-    Warning: This functionality is deprecated since version 1.6. The lightly-embed
-    command was renamed to lightly-embed-deprecated in version 1.6 and will be
-    completely removed in version 1.7. If you would like to continue using the
-    command, please create an issue on the issue tracker at
-    https://github.com/lightly-ai/lightly/issues or contact us at info@lightly.ai
+    .. warning::
+
+        This functionality is deprecated since version 1.6. The lightly-embed
+        command was renamed to lightly-embed-deprecated in version 1.6 and will be
+        completely removed in version 1.7. If you would like to continue using the
+        command, please create an issue on the
+        `issue tracker <https://github.com/lightly-ai/lightly/issues>`_
+        or contact us at info@lightly.ai
 
     Args:
         cfg:

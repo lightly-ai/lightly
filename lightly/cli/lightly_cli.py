@@ -3,12 +3,6 @@
 
 This module contains the entrypoint for the **lightly-magic-deprecated**
 command-line interface.
-
-Warning: This functionality is deprecated since version 1.6. The `lightly-train` command
-was renamed to `lightly-train-deprecated` in version 1.6 and will be completely removed
-in version 1.7. If you would like to continue using the command, please create an issue
-on the issue tracker at https://github.com/lightly-ai/lightly/issues or contact us at
-info@lightly.ai
 """
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
@@ -54,11 +48,14 @@ def _lightly_cli(cfg, is_cli_call=True):
 def lightly_cli(cfg):
     """Train a self-supervised model and use it to embed your dataset.
 
-    Warning: This functionality is deprecated since version 1.6. The lightly-magic
-    command was renamed to lightly-magic-deprecated in version 1.6 and will be
-    completely removed in version 1.7. If you would like to continue using the
-    command, please create an issue on the issue tracker at
-    https://github.com/lightly-ai/lightly/issues or contact us at info@lightly.ai
+    .. warning::
+
+        This functionality is deprecated since version 1.6. The lightly-magic
+        command was renamed to lightly-magic-deprecated in version 1.6 and will be
+        completely removed in version 1.7. If you would like to continue using the
+        command, please create an issue on the
+        `issue tracker <https://github.com/lightly-ai/lightly/issues>`_
+        or contact us at info@lightly.ai
 
     Args:
         cfg:
