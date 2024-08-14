@@ -38,7 +38,7 @@ backbone = timm.create_model(model_name="efficientnet_b0")
 
 
 # %%
-# Using a timm model as a backbone
+# Using a timm Model as a Backbone
 # ---------------------------------
 #
 # We can now use this model as a backbone for training. Let's see how we can
