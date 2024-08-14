@@ -1,12 +1,12 @@
 """
 .. _lightly-timm-backbone-tutorial-8:
 
-Tutorial 8: Using timm models as backbones
+Tutorial 8: Using timm Models as Backbones
 ===========================================
 
-You can use LightlySSL to pre-train any model using self-supervised learning since they
-share a similar workflow. All methods have a base model (the backbone), which can be any
-fundamental model such as ResNet or MobileNet.
+You can use LightlySSL to pre-train any timm model using self-supervised learning since
+most methods share a similar workflow. All methods have a base model (the backbone), which
+can be any fundamental model such as ResNet or MobileNet.
 
 In this tutorial, we will learn how to use a model architecture from the timm library
 as a backbone in a self-supervised learning workflow.
@@ -34,23 +34,14 @@ import torch.nn as nn
 # `create_model() <https://huggingface.co/docs/timm/v1.0.8/en/reference/models#timm.create_model>`_
 # function. For example, we can use the following snippet to create an efficient model.
 
-model = timm.create_model(model_name="efficientnet_b0")
+backbone = timm.create_model(model_name="efficientnet_b0")
 
-# %%
-# To use a model from timm as a backbone for a self supervised learning method
-# we need to remove the last linear layer. We can use the children helper method
-# to break down a model into its constituent layers and then convert into a list
-# to filter out the necessary layers
-
-backbone = nn.Sequential(
-    *list(model.children())[:-1],
-)
 
 # %%
 # Using a timm model as a backbone
 # ---------------------------------
 #
-# We can now use this model as a backbone for a method, Let's see how we can
+# We can now use this model as a backbone for training. Let's see how we can
 # create a torch module for the `SimCLR <https://arxiv.org/abs/2002.05709>`_ method.
 
 from lightly.models.modules.heads import SimCLRProjectionHead
@@ -63,7 +54,8 @@ class SimCLR(torch.nn.Module):
         self.projection_head = SimCLRProjectionHead(feature_dim, feature_dim, out_dim)
 
     def forward(self, x):
-        h = self.backbone(x).flatten(start_dim=1)
+        features = self.backbone.forward_features(x)
+        h = self.backbone.global_pool(features).flatten(start_dim=1)
         z = self.projection_head(h)
         return z
 
@@ -80,6 +72,8 @@ out_b = simclr(input_b)
 # Next Steps
 # ------------
 #
+# For an indepth tutorial on fine-tuning a model using `SimCLR <https://arxiv.org/abs/2002.05709>`_
+# you can refer to our fine-tuning :ref:`lightly-checkpoint-finetuning-tutorial-7`.
 # Interested in pre-training your own self-supervised models? Check out our other
 # tutorials:
 #
