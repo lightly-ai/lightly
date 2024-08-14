@@ -69,6 +69,7 @@ Want to jump to the tutorials and see Lightly in action?
 - [Use Lightly with Custom Augmentations](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_custom_augmentations.html)
 - [Pre-train a Detectron2 Backbone with Lightly](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_pretrain_detectron2.html)
 - [Finetuning Lightly Checkpoints](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_checkpoint_finetuning.html)
+- [Using timm Models as Backbones](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_timm_backbone.html)
 
 Community and partner projects:
 
@@ -133,7 +134,7 @@ class SimCLR(torch.nn.Module):
         return z
 
 
-# Use a resnet backbone.
+# Use a resnet backbone from torchvision.
 backbone = torchvision.models.resnet18()
 # Ignore the classification head as we only want the features.
 backbone.fc = torch.nn.Identity()
