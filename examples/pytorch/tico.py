@@ -14,11 +14,7 @@ from torch import nn
 from lightly.loss.tico_loss import TiCoLoss
 from lightly.models.modules.heads import TiCoProjectionHead
 from lightly.models.utils import deactivate_requires_grad, update_momentum
-from lightly.transforms.tico_transform import (
-    TiCoTransform,
-    TiCoView1Transform,
-    TiCoView2Transform,
-)
+from lightly.transforms import TiCoTransform, TiCoView1Transform, TiCoView2Transform
 from lightly.utils.scheduler import cosine_schedule
 
 
@@ -58,7 +54,7 @@ model.to(device)
 # We disable resizing and gaussian blur for cifar10.
 transform = TiCoTransform(
     view_1_transform=TiCoView1Transform(input_size=32, gaussian_blur=0.0),
-    view_2_transform=TiCoView1Transform(input_size=32, gaussian_blur=0.0),
+    view_2_transform=TiCoView2Transform(input_size=32, gaussian_blur=0.0),
 )
 dataset = torchvision.datasets.CIFAR10(
     "datasets/cifar10", download=True, transform=transform

@@ -9,12 +9,8 @@ from torchvision.models import resnet50
 
 from lightly.loss.tico_loss import TiCoLoss
 from lightly.models.modules.heads import TiCoProjectionHead
-from lightly.models.utils import (
-    deactivate_requires_grad,
-    get_weight_decay_parameters,
-    update_momentum,
-)
-from lightly.transforms import BYOLTransform
+from lightly.models.utils import get_weight_decay_parameters, update_momentum
+from lightly.transforms import TiCoTransform
 from lightly.utils.benchmarking import OnlineLinearClassifier
 from lightly.utils.lars import LARS
 from lightly.utils.scheduler import CosineWarmupScheduler, cosine_schedule
@@ -135,5 +131,4 @@ class TiCo(LightningModule):
         return [optimizer], [scheduler]
 
 
-# TiCo uses BYOL augmentations.
-transform = BYOLTransform()
+transform = TiCoTransform()
