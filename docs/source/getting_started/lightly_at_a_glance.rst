@@ -221,28 +221,8 @@ Furthermore, the ResNet backbone can be used for transfer and few-shot learning.
     on a folder 'cats' with subfolders 'Maine Coon', 'Bengal' and 'British Shorthair'
     Lightly\ **SSL** automatically returns the enumerated labels as a list.
 
-Lightly\ **SSL** in Three Lines
---------------------------
 
-Lightly\ **SSL** also offers an easy-to-use interface. The following lines show how the package can 
-be used to train a model with self-supervision and create embeddings with only three lines
-of code.
-
-.. code-block:: python
-
-    from lightly.core import train_embedding_model, embed_images
-
-    # first we train our model for 10 epochs
-    checkpoint = train_embedding_model(input_dir='./my/cute/cats/dataset/', trainer={'max_epochs': 10})
-
-    # let's embed our 'cats' dataset using our trained model
-    embeddings, labels, filenames = embed_images(input_dir='./my/cute/cats/dataset/', checkpoint=checkpoint)
-
-    # now, let's inspect the shape of our embeddings
-    print(embeddings.shape)
-
-
-What's next?
+What's Next?
 ------------
 Get started by :ref:`rst-installing` and follow through the tutorials to 
 learn how to get the most out of using Lightly:
