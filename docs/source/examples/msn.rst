@@ -20,6 +20,9 @@ See :ref:`PMSN` for a version of MSN for datasets with non-uniform class distrib
 .. tabs::
     .. tab:: PyTorch
 
+        .. image:: https://colab.research.google.com/assets/colab-badge.svg
+            :target: https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/msn.ipynb
+
         This example can be run from the command line with::
 
             python lightly/examples/pytorch/msn.py
@@ -28,6 +31,9 @@ See :ref:`PMSN` for a version of MSN for datasets with non-uniform class distrib
 
     .. tab:: Lightning
 
+        .. image:: https://colab.research.google.com/assets/colab-badge.svg
+            :target: https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/msn.ipynb
+
         This example can be run from the command line with::
 
             python lightly/examples/pytorch_lightning/msn.py
@@ -35,6 +41,9 @@ See :ref:`PMSN` for a version of MSN for datasets with non-uniform class distrib
         .. literalinclude:: ../../../examples/pytorch_lightning/msn.py
 
     .. tab:: Lightning Distributed
+
+        .. image:: https://colab.research.google.com/assets/colab-badge.svg
+            :target: https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning_distributed/msn.ipynb
 
         This example runs on multiple gpus using Distributed Data Parallel (DDP)
         training with Pytorch Lightning. At least one GPU must be available on 

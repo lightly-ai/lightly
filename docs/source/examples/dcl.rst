@@ -34,6 +34,9 @@ with DCL loss.
 .. tabs::
     .. tab:: PyTorch
 
+        .. image:: https://colab.research.google.com/assets/colab-badge.svg
+            :target: https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/dcl.ipynb
+
         This example can be run from the command line with::
 
             python lightly/examples/pytorch/dcl.py
@@ -42,6 +45,9 @@ with DCL loss.
 
     .. tab:: Lightning
 
+        .. image:: https://colab.research.google.com/assets/colab-badge.svg
+            :target: https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/dcl.ipynb
+
         This example can be run from the command line with::
 
             python lightly/examples/pytorch_lightning/dcl.py
@@ -49,6 +55,9 @@ with DCL loss.
         .. literalinclude:: ../../../examples/pytorch_lightning/dcl.py
 
     .. tab:: Lightning Distributed
+
+        .. image:: https://colab.research.google.com/assets/colab-badge.svg
+            :target: https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning_distributed/dcl.ipynb
 
         This example runs on multiple gpus using Distributed Data Parallel (DDP)
         training with Pytorch Lightning. At least one GPU must be available on 
