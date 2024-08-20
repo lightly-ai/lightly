@@ -19,6 +19,9 @@ Reference:
 .. tabs::
     .. tab:: PyTorch
 
+        .. image:: https://colab.research.google.com/assets/colab-badge.svg
+            :target: https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/aim.ipynb
+
         This example can be run from the command line with::
 
             python lightly/examples/pytorch/aim.py
@@ -27,6 +30,9 @@ Reference:
 
     .. tab:: Lightning
 
+        .. image:: https://colab.research.google.com/assets/colab-badge.svg
+            :target: https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/aim.ipynb
+
         This example can be run from the command line with::
 
             python lightly/examples/pytorch_lightning/aim.py
@@ -34,6 +40,9 @@ Reference:
         .. literalinclude:: ../../../examples/pytorch_lightning/aim.py
 
     .. tab:: Lightning Distributed
+
+        .. image:: https://colab.research.google.com/assets/colab-badge.svg
+            :target: https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning_distributed/aim.ipynb
 
         This example runs on multiple gpus using Distributed Data Parallel (DDP)
         training with Pytorch Lightning. At least one GPU must be available on 

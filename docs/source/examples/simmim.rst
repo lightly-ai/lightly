@@ -15,6 +15,9 @@ Reference:
 .. tabs::
     .. tab:: PyTorch
 
+        .. image:: https://colab.research.google.com/assets/colab-badge.svg
+            :target: https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/simmim.ipynb
+
         This example can be run from the command line with::
 
             python lightly/examples/pytorch/simmim.py
@@ -23,6 +26,9 @@ Reference:
 
     .. tab:: Lightning
 
+        .. image:: https://colab.research.google.com/assets/colab-badge.svg
+            :target: https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/simmim.ipynb
+
         This example can be run from the command line with::
 
             python lightly/examples/pytorch_lightning/simmim.py
@@ -30,6 +36,9 @@ Reference:
         .. literalinclude:: ../../../examples/pytorch_lightning/simmim.py
 
     .. tab:: Lightning Distributed
+
+        .. image:: https://colab.research.google.com/assets/colab-badge.svg
+            :target: https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning_distributed/simmim.ipynb
 
         This example runs on multiple gpus using Distributed Data Parallel (DDP)
         training with Pytorch Lightning. At least one GPU must be available on 
