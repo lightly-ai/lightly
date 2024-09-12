@@ -12,8 +12,7 @@ def cosine_schedule(
     end_value: float,
     period: Optional[int] = None,
 ) -> float:
-    """Use cosine decay to gradually modify start_value to reach target end_value during
-    iterations.
+    """Use cosine decay to gradually modify start_value to reach target end_value.
 
     Args:
         step:
@@ -24,9 +23,9 @@ def cosine_schedule(
             Starting value.
         end_value:
             Target value.
-        period (optional):
+        period:
             The number of steps over which the cosine function completes a full cycle.
-            If not provided, it defaults to max_steps.
+            Defaults to max_steps.
 
     Returns:
         Cosine decay value.
@@ -65,6 +64,76 @@ def cosine_schedule(
             / 2
         )
     return decay
+
+
+def cosine_warmup_schedule(
+    step: int,
+    max_steps: int,
+    start_value: float,
+    end_value: float,
+    warmup_steps: int,
+    warmup_start_value: float,
+    warmup_end_value: Optional[float] = None,
+    period: Optional[int] = None,
+) -> float:
+    """Use cosine decay to gradually modify start_value to reach target end_value.
+
+    Uses linear warmup for the first warmup_steps steps.
+
+    Args:
+        step:
+            Current step number.
+        max_steps:
+            Total number of steps.
+        start_value:
+            Starting value.
+        end_value:
+            Target value.
+        warmup_steps:
+            Number of steps for warmup.
+        warmup_start_value:
+            Starting value for warmup.
+        warmup_end_value:
+            Target value for warmup. Defaults to start_value.
+        period:
+            The number of steps over which the cosine function completes a full cycle.
+            Defaults to max_steps - warmup_steps.
+    Returns:
+        Cosine decay value.
+    """
+    if warmup_steps < 0:
+        raise ValueError("Warmup steps can't be negative")
+    if warmup_steps > max_steps:
+        raise ValueError("Warmup steps must be <= max_steps")
+    if step > max_steps:
+        warnings.warn(
+            f"Current step number {step} exceeds max_steps {max_steps}.",
+            category=RuntimeWarning,
+        )
+
+    if warmup_end_value is None:
+        warmup_end_value = start_value
+
+    if step < warmup_steps:
+        return (
+            warmup_start_value
+            + (warmup_end_value - warmup_start_value) * (step + 1) / warmup_steps
+        )
+    elif period is not None:
+        return cosine_schedule(
+            step=step - warmup_steps,
+            max_steps=1,
+            start_value=start_value,
+            end_value=end_value,
+            period=period,
+        )
+    else:
+        return cosine_schedule(
+            step=step - warmup_steps,
+            max_steps=max_steps - warmup_steps,
+            start_value=start_value,
+            end_value=end_value,
+        )
 
 
 class CosineWarmupScheduler(torch.optim.lr_scheduler.LambdaLR):
@@ -126,20 +195,13 @@ class CosineWarmupScheduler(torch.optim.lr_scheduler.LambdaLR):
             Scaled learning rate.
 
         """
-        if epoch < self.warmup_epochs:
-            return self.start_value * (epoch + 1) / self.warmup_epochs
-        elif self.period is not None:
-            return cosine_schedule(
-                step=epoch - self.warmup_epochs,
-                max_steps=1,
-                start_value=self.start_value,
-                end_value=self.end_value,
-                period=self.period,
-            )
-        else:
-            return cosine_schedule(
-                step=epoch - self.warmup_epochs,
-                max_steps=self.max_epochs - self.warmup_epochs,
-                start_value=self.start_value,
-                end_value=self.end_value,
-            )
+        return cosine_warmup_schedule(
+            step=epoch,
+            max_steps=self.max_epochs,
+            start_value=self.start_value,
+            end_value=self.end_value,
+            warmup_steps=self.warmup_epochs,
+            warmup_start_value=0.0,
+            warmup_end_value=self.start_value,
+            period=self.period,
+        )
