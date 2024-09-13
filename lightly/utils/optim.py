@@ -22,6 +22,8 @@ def update_param_groups(
             A list of dicts with key value pairs. Each dict must contain a key "name"
             that specifies the name of the param group(s) that should be updated. All
             values of the dict will be updated in the param group(s) with the same name.
+            If a key is in default_update and in updates, the value in updates has
+            precedence.
 
     Examples:
         >>> optimizer = torch.optim.SGD(
@@ -65,8 +67,8 @@ def update_param_groups(
         updates = []
 
     # Update the optimizer's param_groups with the provided default values.
-    for param_group in optimizer.param_groups:
-        for key, value in default_update.items():
+    for key, value in default_update.items():
+        for param_group in optimizer.param_groups:
             # Update the value only if it already exists in the param_group, we don't
             # want to accidentally add new keys/values.
             if key in param_group:
