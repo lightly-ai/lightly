@@ -7,24 +7,25 @@ from torch.optim import SGD
 from lightly.utils import optim
 
 
-def test_update_param_groups():
+def test_update_param_groups() -> None:
+    params: List[Dict[Any, Any]] = [
+        {
+            "name": "default",
+            "params": Linear(1, 1).parameters(),
+        },
+        {
+            "name": "no_wd",
+            "params": Linear(1, 1).parameters(),
+            "weight_decay": 0.0,
+        },
+        {
+            "name": "wd",
+            "params": Linear(1, 1).parameters(),
+            "weight_decay": 0.5,
+        },
+    ]
     optimizer = SGD(
-        [
-            {
-                "name": "default",
-                "params": Linear(1, 1).parameters(),
-            },
-            {
-                "name": "no_wd",
-                "params": Linear(1, 1).parameters(),
-                "weight_decay": 0.0,
-            },
-            {
-                "name": "wd",
-                "params": Linear(1, 1).parameters(),
-                "weight_decay": 0.5,
-            },
-        ],
+        params=params,
         lr=0.1,
         weight_decay=0.2,
     )
@@ -57,7 +58,7 @@ def test_update_param_groups__default_no_add_entry() -> None:
     assert "unknown" not in optimizer.param_groups[0]
 
 
-@pytest.mark.parametrize(
+@pytest.mark.parametrize(  # type: ignore[misc]
     "updates, match",
     [
         ([{"name": "unknown"}], "No param group with name 'unknown' in optimizer."),
