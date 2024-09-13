@@ -32,16 +32,16 @@ def cosine_schedule(
 
     """
     if step < 0:
-        raise ValueError("Current step number can't be negative")
+        raise ValueError(f"Current step number {step} can't be negative")
     if max_steps < 1:
-        raise ValueError("Total step number must be >= 1")
+        raise ValueError(f"Total step number {max_steps} must be >= 1")
     if period is None and step > max_steps:
         warnings.warn(
             f"Current step number {step} exceeds max_steps {max_steps}.",
             category=RuntimeWarning,
         )
     if period is not None and period <= 0:
-        raise ValueError("Period must be >= 1")
+        raise ValueError(f"Period {period} must be >= 1")
 
     decay: float
     if period is not None:  # "cycle" based on period, if provided
@@ -102,9 +102,9 @@ def cosine_warmup_schedule(
         Cosine decay value.
     """
     if warmup_steps < 0:
-        raise ValueError("Warmup steps can't be negative")
+        raise ValueError(f"Warmup steps {warmup_steps} can't be negative")
     if warmup_steps > max_steps:
-        raise ValueError("Warmup steps must be <= max_steps")
+        raise ValueError(f"Warmup steps {warmup_steps} must be <= max_steps")
     if step > max_steps:
         warnings.warn(
             f"Current step number {step} exceeds max_steps {max_steps}.",
@@ -115,24 +115,21 @@ def cosine_warmup_schedule(
         warmup_end_value = start_value
 
     if step < warmup_steps:
+        # Use step + 1 to reach warmup_end_value at end of warmup. This means that the
+        # initial warmup_start_value is skipped which is oftentimes desired when setting
+        # it to 0 as this would result in no parameter updates.
         return (
             warmup_start_value
             + (warmup_end_value - warmup_start_value) * (step + 1) / warmup_steps
         )
-    elif period is not None:
+    else:
+        max_steps = max_steps - warmup_steps if period is None else 1
         return cosine_schedule(
             step=step - warmup_steps,
-            max_steps=1,
+            max_steps=max_steps,
             start_value=start_value,
             end_value=end_value,
             period=period,
-        )
-    else:
-        return cosine_schedule(
-            step=step - warmup_steps,
-            max_steps=max_steps - warmup_steps,
-            start_value=start_value,
-            end_value=end_value,
         )
 
 
