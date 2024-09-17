@@ -188,7 +188,7 @@ class TestDownload(unittest.TestCase):
     def test_download_all_video_frames_timeout(self):
         with tempfile.NamedTemporaryFile(suffix=".avi") as file:
             _generate_video(file.name)
-            with self.assertRaisesRegexp(
+            with self.assertRaisesRegex(
                 RuntimeError,
                 "Maximum retries exceeded.*av.error.ExitError.*Immediate exit requested.*",
             ):
@@ -237,7 +237,7 @@ class TestDownload(unittest.TestCase):
         with tempfile.NamedTemporaryFile(suffix=".avi") as file:
             n_frames = 5
             _generate_video(file.name, n_frames)
-            with self.assertRaisesRegexp(
+            with self.assertRaisesRegex(
                 RuntimeError,
                 "Maximum retries exceeded.*av.error.ExitError.*Immediate exit requested.*",
             ):
@@ -436,7 +436,7 @@ class TestDownload(unittest.TestCase):
     def test_download_video_Frame_count_timeout(self):
         with tempfile.NamedTemporaryFile(suffix=".avi") as file:
             _generate_video(file.name)
-            with self.assertRaisesRegexp(
+            with self.assertRaisesRegex(
                 RuntimeError,
                 "Maximum retries exceeded.*av.error.ExitError.*Immediate exit requested.*",
             ):
