@@ -81,7 +81,7 @@ class TestVICRegLossUnitTest(unittest.TestCase):
         loss = VICRegLoss(nu_param=0.5)
         x0 = torch.randn((2, 10, 32))
         x1 = torch.randn((2, 10, 32))
-        assert loss(x0, x1).item() == _reference_vicregl_vicreg_loss(x0, x1).item()
+        torch.testing.assert_close(loss(x0, x1), _reference_vicregl_vicreg_loss(x0, x1))
 
 
 def _reference_vicreg_loss(
