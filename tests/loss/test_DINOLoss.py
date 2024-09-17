@@ -221,11 +221,11 @@ class TestDINOLoss(unittest.TestCase):
                 for param, orig_param in zip(
                     student.parameters(), orig_student.parameters()
                 ):
-                    self.assertTrue(torch.allclose(param, orig_param))
+                    torch.testing.assert_close(param, orig_param)
                 for param, orig_param in zip(
                     teacher.parameters(), orig_teacher.parameters()
                 ):
-                    self.assertTrue(torch.allclose(param, orig_param))
+                    torch.testing.assert_close(param, orig_param)
 
         def test_all(**kwargs):
             """Tests all combinations of the input parameters"""
