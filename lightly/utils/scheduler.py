@@ -144,13 +144,17 @@ class CosineWarmupScheduler(torch.optim.lr_scheduler.LambdaLR):
         max_epochs:
             Total number of training epochs or steps.
         last_epoch:
-            The index of last epoch or step. Default: -1
+            The index of last epoch or step.
         start_value:
-            Starting learning rate scale. Default: 1.0
+            Starting learning rate.
         end_value:
-            Target learning rate scale. Default: 0.001
+            Target learning rate.
         verbose:
-            If True, prints a message to stdout for each update. Default: False.
+            If True, prints a message to stdout for each update.
+        warmup_start_value:
+            Starting learning rate for warmup.
+        warmup_end_value:
+            Target learning rate for warmup. Defaults to start_value.
 
     Note: The `epoch` arguments do not necessarily have to be epochs. Any step or index
     can be used. The naming follows the Pytorch convention to use `epoch` for the steps
@@ -167,12 +171,16 @@ class CosineWarmupScheduler(torch.optim.lr_scheduler.LambdaLR):
         end_value: float = 0.001,
         period: Optional[int] = None,
         verbose: bool = False,
+        warmup_start_value: float = 0.0,
+        warmup_end_value: Optional[float] = None,
     ) -> None:
         self.warmup_epochs = warmup_epochs
         self.max_epochs = max_epochs
         self.start_value = start_value
         self.end_value = end_value
         self.period = period
+        self.warmup_start_value = warmup_start_value
+        self.warmup_end_value = warmup_end_value
         super().__init__(
             optimizer=optimizer,
             lr_lambda=self.scale_lr,
@@ -198,7 +206,7 @@ class CosineWarmupScheduler(torch.optim.lr_scheduler.LambdaLR):
             start_value=self.start_value,
             end_value=self.end_value,
             warmup_steps=self.warmup_epochs,
-            warmup_start_value=0.0,
-            warmup_end_value=self.start_value,
+            warmup_start_value=self.warmup_start_value,
+            warmup_end_value=self.warmup_end_value,
             period=self.period,
         )
