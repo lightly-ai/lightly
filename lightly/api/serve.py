@@ -10,7 +10,7 @@ def get_server(
     paths: Sequence[Path],
     host: str,
     port: int,
-):
+) -> ThreadingHTTPServer:
     """Returns an HTTP server that serves a local datasource.
 
     Args:
@@ -42,7 +42,7 @@ def get_server(
             self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
             self.end_headers()
 
-        def send_response_only(self, code, message=None):
+        def send_response_only(self, code: int, message: str|None=None) -> None:
             super().send_response_only(code, message)
             self.send_header(
                 "Cache-Control", "no-store, must-revalidate, no-cache, max-age=-1"
