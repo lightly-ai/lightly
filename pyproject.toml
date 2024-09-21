@@ -224,7 +224,6 @@ exclude = '''(?x)(
     lightly/api/api_workflow_download_dataset.py |
     lightly/api/bitmask.py |
     lightly/api/_version_checking.py |
-    lightly/api/serve.py |
     lightly/api/patch.py |
     lightly/api/swagger_api_client.py |
     lightly/api/api_workflow_collaboration.py |
