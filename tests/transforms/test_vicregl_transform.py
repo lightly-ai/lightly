@@ -1,6 +1,9 @@
+from typing import List
 from PIL import Image
+from torch import Tensor
 
 from lightly.transforms.vicregl_transform import VICRegLTransform, VICRegLViewTransform
+from .. import helpers
 
 
 def test_view_on_pil_image() -> None:
@@ -19,7 +22,7 @@ def test_multi_view_on_pil_image() -> None:
         local_grid_size=2,
     )
     sample = Image.new("RGB", (100, 100))
-    output = multi_view_transform(sample)
+    output = helpers.assert_list_tensor(multi_view_transform(sample))
     assert len(output) == 16  # (2 global crops * 2) + (6 local crops * 2)
     global_views = output[:2]
     local_views = output[2:8]
