@@ -78,7 +78,8 @@ class RandomRotateDegrees:
             Rotated image or original image.
 
         """
-        return self.transform(image)
+        rot_image: Union[Image, Tensor] = self.transform(image)
+        return rot_image
 
 
 def random_rotation_transform(
