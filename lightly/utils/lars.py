@@ -1,8 +1,7 @@
-from typing import Any, Callable, Dict, Optional, Union
+from typing import Any, Callable, Dict, Optional, overload
 
 import torch
-from torch import Tensor
-from torch.optim.optimizer import Optimizer, required  # type: ignore[attr-defined]
+from torch.optim.optimizer import Optimizer
 
 
 class LARS(Optimizer):
@@ -69,7 +68,7 @@ class LARS(Optimizer):
     def __init__(
         self,
         params: Any,
-        lr: float = required,
+        lr: float,
         momentum: float = 0,
         dampening: float = 0,
         weight_decay: float = 0,
@@ -77,7 +76,7 @@ class LARS(Optimizer):
         trust_coefficient: float = 0.001,
         eps: float = 1e-8,
     ):
-        if lr is not required and lr < 0.0:
+        if lr < 0.0:
             raise ValueError(f"Invalid learning rate: {lr}")
         if momentum < 0.0:
             raise ValueError(f"Invalid momentum value: {momentum}")
@@ -103,6 +102,15 @@ class LARS(Optimizer):
 
         for group in self.param_groups:
             group.setdefault("nesterov", False)
+    
+    # Type ignore for overloads is required for Python 3.7
+    @overload # type: ignore[override]
+    def step(self, closure: None = None) -> None: 
+        ...
+
+    @overload # type: ignore[override]
+    def step(self, closure: Callable[[], float]) -> float: 
+        ...
 
     @torch.no_grad()
     def step(self, closure: Optional[Callable[[], float]] = None) -> Optional[float]:
