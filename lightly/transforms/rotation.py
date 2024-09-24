@@ -1,7 +1,7 @@
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
-from typing import Tuple, Union
+from typing import Callable, Tuple, Union
 
 import numpy as np
 import torchvision.transforms as T
@@ -65,7 +65,7 @@ class RandomRotateDegrees:
     """
 
     def __init__(self, prob: float, degrees: Union[float, Tuple[float, float]]):
-        self.transform = T.RandomApply([T.RandomRotation(degrees=degrees)], p=prob)
+        self.transform: Callable[[Union[Image, Tensor]], Union[Image, Tensor]] = T.RandomApply([T.RandomRotation(degrees=degrees)], p=prob)
 
     def __call__(self, image: Union[Image, Tensor]) -> Union[Image, Tensor]:
         """Rotates the images with a given probability.
@@ -78,8 +78,7 @@ class RandomRotateDegrees:
             Rotated image or original image.
 
         """
-        rot_image: Union[Image, Tensor] = self.transform(image)
-        return rot_image
+        return self.transform(image)
 
 
 def random_rotation_transform(
