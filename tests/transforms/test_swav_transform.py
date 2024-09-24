@@ -1,7 +1,9 @@
 from PIL import Image
 
 from lightly.transforms.swav_transform import SwaVTransform, SwaVViewTransform
+
 from .. import helpers
+
 
 def test_view_on_pil_image() -> None:
     single_view_transform = SwaVViewTransform()

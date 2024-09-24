@@ -1,6 +1,7 @@
 from PIL import Image
 
 from lightly.transforms.msn_transform import MSNTransform, MSNViewTransform
+
 from .. import helpers
 
 

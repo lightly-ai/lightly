@@ -1,6 +1,7 @@
 from PIL import Image
 
 from lightly.transforms.moco_transform import MoCoV1Transform, MoCoV2Transform
+
 from .. import helpers
 
 

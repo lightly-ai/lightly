@@ -1,6 +1,7 @@
 from PIL import Image
 
 from lightly.transforms import DenseCLTransform
+
 from .. import helpers
 
 

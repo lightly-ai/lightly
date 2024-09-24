@@ -1,7 +1,9 @@
 from PIL import Image
 
 from lightly.transforms.fast_siam_transform import FastSiamTransform
+
 from .. import helpers
+
 
 def test_multi_view_on_pil_image() -> None:
     multi_view_transform = FastSiamTransform(num_views=3, input_size=32)

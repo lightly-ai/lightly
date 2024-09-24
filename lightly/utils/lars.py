@@ -102,14 +102,14 @@ class LARS(Optimizer):
 
         for group in self.param_groups:
             group.setdefault("nesterov", False)
-    
+
     # Type ignore for overloads is required for Python 3.7
-    @overload # type: ignore[override]
-    def step(self, closure: None = None) -> None: 
+    @overload  # type: ignore[override]
+    def step(self, closure: None = None) -> None:
         ...
 
-    @overload # type: ignore[override]
-    def step(self, closure: Callable[[], float]) -> float: 
+    @overload  # type: ignore[override]
+    def step(self, closure: Callable[[], float]) -> float:
         ...
 
     @torch.no_grad()

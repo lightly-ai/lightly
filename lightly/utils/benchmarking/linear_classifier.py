@@ -131,9 +131,9 @@ class LinearClassifier(LightningModule):
 
     # Type ignore is needed because return type of LightningModule.configure_optimizers
     # is complicated and typing changes between versions.
-    def configure_optimizers( # type: ignore[override]
+    def configure_optimizers(  # type: ignore[override]
         self,
-    ) -> Tuple[List[Optimizer], List[Dict[str, Union[Any, str]]]]: 
+    ) -> Tuple[List[Optimizer], List[Dict[str, Union[Any, str]]]]:
         parameters = list(self.classification_head.parameters())
         if not self.freeze_model:
             parameters += self.model.parameters()

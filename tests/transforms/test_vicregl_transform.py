@@ -1,8 +1,10 @@
 from typing import List
+
 from PIL import Image
 from torch import Tensor
 
 from lightly.transforms.vicregl_transform import VICRegLTransform, VICRegLViewTransform
+
 from .. import helpers
 
 

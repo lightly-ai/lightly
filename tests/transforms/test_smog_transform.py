@@ -1,6 +1,7 @@
 from PIL import Image
 
 from lightly.transforms.smog_transform import SMoGTransform, SmoGViewTransform
+
 from .. import helpers
 
 

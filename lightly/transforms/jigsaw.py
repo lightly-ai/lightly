@@ -10,7 +10,6 @@ from PIL.Image import Image as PILImage
 from torch import Tensor
 from torchvision import transforms as T
 
-
 if TYPE_CHECKING:
     from numpy.typing import NDArray
 

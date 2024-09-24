@@ -1,6 +1,7 @@
 from PIL import Image
 
 from lightly.transforms.vicreg_transform import VICRegTransform, VICRegViewTransform
+
 from .. import helpers
 
 
