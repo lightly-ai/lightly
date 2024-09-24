@@ -219,6 +219,7 @@ class DINOViewTransform:
             T.RandomResizedCrop(
                 size=crop_size,
                 scale=crop_scale,
+                # Type ignore needed because BICUBIC is not recognized as an attribute.
                 interpolation=PIL.Image.BICUBIC,  # type: ignore[attr-defined]
             ),
             T.RandomHorizontalFlip(p=hf_prob),
