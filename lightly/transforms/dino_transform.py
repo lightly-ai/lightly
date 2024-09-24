@@ -219,7 +219,7 @@ class DINOViewTransform:
             T.RandomResizedCrop(
                 size=crop_size,
                 scale=crop_scale,
-                interpolation=PIL.Image.BICUBIC,
+                interpolation=PIL.Image.BICUBIC, # type: ignore[attr-defined]
             ),
             T.RandomHorizontalFlip(p=hf_prob),
             T.RandomVerticalFlip(p=vf_prob),
