@@ -11,6 +11,9 @@ jobs:
   test:
     name: Check
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.7", "3.12"]
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
@@ -22,7 +25,7 @@ jobs:
     - name: Set Up Python
       uses: actions/setup-python@v5
       with:
-        python-version: "3.7"
+        python-version: ${{ matrix.python }}
     - name: Set Up Environment
       run: |
         make install-uv reset-venv
