@@ -145,7 +145,6 @@ omit = ["lightly/openapi_generated/*"]
 
 [tool.mypy]
 ignore_missing_imports = true
-python_version = "3.10"
 warn_unused_configs = true
 strict_equality = true
 
@@ -167,7 +166,7 @@ no_implicit_optional = true
 strict_optional = true
 
 # Configuring warnings
-warn_unused_ignores = true
+warn_unused_ignores = false   # Different ignores are required for different Python versions
 warn_no_return = true
 warn_return_any = true
 warn_redundant_casts = true

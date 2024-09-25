@@ -56,29 +56,30 @@ class SplitBatchNorm(nn.BatchNorm2d):
 
         # during training, use different stats for each split and otherwise
         # use the stats from the first split
+        momentum = 0.0 if self.momentum is None else self.momentum
         if self.training or not self.track_running_stats:
             result = nn.functional.batch_norm(
-                input.view(-1, C * self.num_splits, H, W),
-                self.running_mean,
-                self.running_var,
-                self.weight.repeat(self.num_splits),
-                self.bias.repeat(self.num_splits),
-                True,
-                self.momentum,
-                self.eps,
+                input=input.view(-1, C * self.num_splits, H, W),
+                running_mean=self.running_mean,
+                running_var=self.running_var,
+                weight=self.weight.repeat(self.num_splits),
+                bias=self.bias.repeat(self.num_splits),
+                training=True,
+                momentum=momentum,
+                eps=self.eps,
             ).view(N, C, H, W)
         else:
             # We have to ignore the type errors here, because we know that running_mean
             # and running_var are not None, but the type checker does not.
             result = nn.functional.batch_norm(
-                input,
-                self.running_mean[: self.num_features],  # type: ignore[index]
-                self.running_var[: self.num_features],  # type: ignore[index]
-                self.weight,
-                self.bias,
-                False,
-                self.momentum,
-                self.eps,
+                input=input,
+                running_mean=self.running_mean[: self.num_features],  # type: ignore[index]
+                running_var=self.running_var[: self.num_features],  # type: ignore[index]
+                weight=self.weight,
+                bias=self.bias,
+                training=False,
+                momentum=momentum,
+                eps=self.eps,
             )
 
         return result
