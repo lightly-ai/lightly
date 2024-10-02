@@ -42,3 +42,5 @@ from lightly.transforms.tico_transform import (
 from lightly.transforms.vicreg_transform import VICRegTransform, VICRegViewTransform
 from lightly.transforms.vicregl_transform import VICRegLTransform, VICRegLViewTransform
 from lightly.transforms.wmse_transform import WMSETransform
+from lightly.transforms.rfft2d_transform import RFFT2DTransform
+from lightly.transforms.irfft2d_transform import IRFFT2DTransform
