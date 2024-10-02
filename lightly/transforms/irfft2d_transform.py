@@ -1,6 +1,8 @@
 from typing import Tuple
+
 import torch
 from torch import Tensor
+
 
 class IRFFT2DTransform:
     """Inverse 2D Fast Fourier Transform (IRFFT2D) Transformation.
@@ -31,5 +33,5 @@ class IRFFT2DTransform:
         Returns:
             Tensor: Reconstructed image after applying IRFFT2D, of shape (C, H, W).
         """
-        reconstructed_image = torch.fft.irfft2(freq_image, s=self.shape)  
+        reconstructed_image = torch.fft.irfft2(freq_image, s=self.shape)
         return reconstructed_image

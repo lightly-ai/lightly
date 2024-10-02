@@ -1,8 +1,10 @@
 from typing import Union
+
 import torch
+import torchvision.transforms as transforms
 from PIL import Image
 from torch import Tensor
-import torchvision.transforms as transforms
+
 
 class RFFT2DTransform:
     """2D Fast Fourier Transform (RFFT2D) Transformation.
@@ -19,23 +21,22 @@ class RFFT2DTransform:
     """
 
     def __init__(self):
-        self.to_tensor = transforms.ToTensor()  
-        self.to_pil = transforms.ToPILImage()   
+        self.to_tensor = transforms.ToTensor()
+        self.to_pil = transforms.ToPILImage()
 
     def __call__(self, image: Union[Tensor, Image.Image]) -> torch.Tensor:
         """Applies the 2D Fast Fourier Transform (RFFT2D) to the input image.
 
         Args:
-            image (Union[Tensor, PIL.Image.Image]): 
+            image (Union[Tensor, PIL.Image.Image]):
                 Input image in either PIL.Image format or as a Tensor of shape (C, H, W).
 
         Returns:
             Tensor: The image in the frequency domain after applying RFFT2D, of shape (C, H, W).
         """
 
-        
         if isinstance(image, Image.Image):
             image = self.to_tensor(image)
-        
+
         rfft_image = torch.fft.rfft2(image)
         return rfft_image
