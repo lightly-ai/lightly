@@ -20,7 +20,7 @@ class IRFFT2DTransform:
     def __init__(self, shape: Tuple[int, int]):
         """
         Args:
-            shape (Tuple[int, int]): The desired output shape (H, W) after applying the inverse FFT.
+            shape: The desired output shape (H, W) after applying the inverse FFT
         """
         self.shape = shape
 
@@ -28,10 +28,10 @@ class IRFFT2DTransform:
         """Applies the inverse 2D Fast Fourier Transform (IRFFT2D) to the input tensor.
 
         Args:
-            freq_image (Tensor): A tensor in the frequency domain of shape (C, H, W).
+            freq_image: A tensor in the frequency domain of shape (C, H, W).
 
         Returns:
             Tensor: Reconstructed image after applying IRFFT2D, of shape (C, H, W).
         """
-        reconstructed_image = torch.fft.irfft2(freq_image, s=self.shape)
+        reconstructed_image: Tensor = torch.fft.irfft2(freq_image, s=self.shape)
         return reconstructed_image
