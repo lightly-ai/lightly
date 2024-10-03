@@ -2,6 +2,7 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Sequence
 from urllib import parse
+from __future__ import annotations
 
 from lightly.data import _helpers
 
