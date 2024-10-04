@@ -399,7 +399,7 @@ make format
 - [Reverse Engineering Self-Supervised Learning, 2023](https://arxiv.org/abs/2305.15614)
 - [Learning Visual Representations via Language-Guided Sampling, 2023](https://arxiv.org/pdf/2302.12248.pdf)
 - [Self-Supervised Learning Methods for Label-Efficient Dental Caries Classification, 2022](https://www.mdpi.com/2075-4418/12/5/1237)
-- [DPCL: Constrative Representation Learning with Differential Privacy, 2022](https://assets.researchsquare.com/files/rs-1516950/v1_covered.pdf?c=1654486158)
+- [DPCL: Contrastive representation learning with differential privacy, 2022](https://assets.researchsquare.com/files/rs-1516950/v1_covered.pdf?c=1654486158)
 - [Decoupled Contrastive Learning, 2021](https://arxiv.org/abs/2110.06848)
 - [solo-learn: A Library of Self-supervised Methods for Visual Representation Learning, 2021](https://www.jmlr.org/papers/volume23/21-1155/21-1155.pdf)
 
