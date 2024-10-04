@@ -124,6 +124,7 @@ def batch_shuffle_distributed(batch: torch.Tensor) -> Tuple[torch.Tensor, torch.
     batch_gather = concat_all_gather(batch)
     batch_size_all = batch_gather.shape[0]
 
+    #Calculate the number of devices
     num_devices = batch_size_all // batch_size_this
 
     # random shuffle index
