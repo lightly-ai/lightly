@@ -212,8 +212,16 @@ def activate_requires_grad(model: nn.Module):
 def update_momentum(model: nn.Module, model_ema: nn.Module, m: float):
     """Updates parameters of `model_ema` with Exponential Moving Average of `model`
 
-    Momentum encoders are a crucial component fo models such as MoCo or BYOL.
+    Momentum encoders are a crucial component for models such as MoCo or BYOL.
 
+    Args:
+        model:
+            The current model.
+        model_ema:
+            The model with exponential moving average (EMA) parameters.
+        m:
+            The momentum factor, between 0 and 1.
+             
     Examples:
         >>> backbone = resnet18()
         >>> projection_head = MoCoProjectionHead()
