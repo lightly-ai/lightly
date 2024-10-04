@@ -166,11 +166,16 @@ def batch_unshuffle_distributed(
     batch_gather = concat_all_gather(batch)
     batch_size_all = batch_gather.shape[0]
 
+    # Calculate the number of devices
     num_devices = batch_size_all // batch_size_this
 
-    # restored index for this gpu
+    # Get the rank of the current device
     rank = dist.get_rank()
+    
+    # Index for this device after unshuffling
     idx_this = shuffle.view(num_devices, -1)[rank]
+    
+    # Returns the unshuffled batch for this device
     return batch_gather[idx_this]
 
 
