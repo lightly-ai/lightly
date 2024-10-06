@@ -357,7 +357,9 @@ def get_at_index(tokens: torch.Tensor, index: torch.Tensor) -> torch.Tensor:
         selected tokens.
 
     """
+    #Expand the index tensor to match the shape of tokens tensor
     index = expand_index_like(index, tokens)
+    
     return torch.gather(tokens, 1, index)
 
 
@@ -469,9 +471,16 @@ def patchify(images: torch.Tensor, patch_size: int) -> torch.Tensor:
 
     patch_h = patch_w = H // patch_size
     num_patches = patch_h * patch_w
+    
+    # Reshape images to form patches
     patches = images.reshape(shape=(N, C, patch_h, patch_size, patch_w, patch_size))
+    
+    # Reorder dimensions for patches
     patches = torch.einsum("nchpwq->nhwpqc", patches)
+    
+    # Flatten patches
     patches = patches.reshape(shape=(N, num_patches, patch_size**2 * C))
+    
     return patches
 
 
@@ -515,7 +524,7 @@ def random_token_mask(
             Size of the token batch for which to generate masks.
             Should be (batch_size, sequence_length).
         mask_ratio:
-            Percentage of tokens to mask.
+            Proportion of tokens to mask. Default is 0.6 .
         mask_class_token:
             If False the class token is never masked. If True the class token
             might be masked.
@@ -538,11 +547,11 @@ def random_token_mask(
 
     noise = torch.rand(batch_size, sequence_length, device=device)
     if not mask_class_token and sequence_length > 0:
-        # make sure that class token is not masked
+        # Make sure that class token is not masked
         noise[:, 0] = -1
         num_keep = max(1, num_keep + 1)
 
-    # get indices of tokens to keep
+    # Get indices of tokens to keep by sorting the noise
     indices = torch.argsort(noise, dim=1)
     idx_keep = indices[:, :num_keep]
     idx_mask = indices[:, num_keep:]
@@ -576,11 +585,18 @@ def random_prefix_mask(
 
     """
     batch_size, sequence_length = size
+    
+    # Create an arange tensor and expand it to match batch size
     arange = torch.arange(sequence_length, device=device).expand(
         batch_size, sequence_length
     )
+    
+    # Generate random indices for the prefix length
     indices = torch.randint(0, max_prefix_length, (batch_size, 1), device=device)
+    
+    # Create the mask based on arange and indices
     mask = arange >= indices
+    
     return mask
 
 
@@ -640,6 +656,9 @@ def random_block_mask(
     Returns:
         A boolean tensor with shape (batch_size, height, width) where each entry
         is True if the patch should be masked and False otherwise.
+    
+    Raises:
+           ValueError: If 'max_image_mask_ratio' is less than 'min_image_mask_ratio'.
     """
 
     if max_image_mask_ratio < min_image_mask_ratio:
@@ -647,6 +666,7 @@ def random_block_mask(
             "max_image_mask_ratio must be greater or equal to min_image_mask_ratio."
         )
 
+    # B is batch size(number of images), H is height, W is width
     B, H, W = size
     num_images_masked = int(B * batch_mask_ratio)
     probs = torch.linspace(
@@ -667,8 +687,11 @@ def random_block_mask(
                 device=device,
             )
         )
+    
+    # Add non-masked images to fill the batch
     for _ in range(num_images_masked, B):
         image_masks.append(torch.zeros((H, W), dtype=torch.bool, device=device))
+    
     random.shuffle(image_masks)
     return torch.stack(image_masks)
 
@@ -692,20 +715,24 @@ def random_block_mask_image(
         num_masks:
             Number of patches to mask.
         min_num_masks_per_block:
-            Minimum number of patches to mask per block.
+            Minimum number of patches to mask per block. Default is 4.
         max_num_masks_per_block:
             Maximum number of patches to mask per block.
         min_block_aspect_ratio:
-            Minimum aspect ratio (height/width) of a masked block.
+            Minimum aspect ratio (height/width) of a masked block. Default is 0.3.
         max_block_aspect_ratio:
             Maximum aspect ratio (height/width) of a masked block.
         max_attempts_per_block:
-            Maximum number of attempts to find a valid block mask.
+            Maximum number of attempts to find a valid block mask. Default is 10.
         device:
             Device on which to create the mask.
     Returns:
         A boolean tensor with shape (height, width) where each entry is True if the
         patch should be masked and False otherwise.
+
+    Raises:
+        ValueError: If 'max_num_masks_per_block' is less than 'min_num_masks_per_block' or
+                    if 'max_block_aspect_ratio' is less than 'min_block_aspect_ratio'    
     """
 
     if max_block_aspect_ratio is None:
@@ -765,20 +792,20 @@ def nearest_neighbors(
     Args:
         input_maps:
             A tensor of maps for which to find nearest neighbors.
-            It has size: [batch_size, input_map_size, feature_dimension]
+            It has shape: [batch_size, input_map_size, feature_dimension]
         candidate_maps:
             A tensor of maps to search for nearest neighbors.
-            It has size: [batch_size, candidate_map_size, feature_dimension]
+            It has shape: [batch_size, candidate_map_size, feature_dimension]
         distances:
             A tensor of distances between the maps in input_maps and candidate_maps.
-            It has size: [batch_size, input_map_size, candidate_map_size]
+            It has shape: [batch_size, input_map_size, candidate_map_size]
         num_matches:
             Number of nearest neighbors to return. If num_matches is None or -1,
             all the maps in candidate_maps are considered.
 
     Returns:
         A tuple of tensors, containing the nearest neighbors in input_maps and candidate_maps.
-        They both have size: [batch_size, input_map_size, feature_dimension]
+        They both have shape: [batch_size, input_map_size, feature_dimension]
     """
 
     if num_matches is None or num_matches == -1 or num_matches > input_maps.size(1):
@@ -801,7 +828,7 @@ def nearest_neighbors(
         input_maps, 1, min_indices.unsqueeze(-1).expand(-1, -1, feature_dimension)
     )  # [bsz, num_matches, feature_dimension]
 
-    # Create candidate maps in the same way as input maps, but using corrispondent candidate values
+    # Create candidate maps in the same way as input maps, but using corresponding candidate values
     selected_candidate_maps = torch.gather(
         candidate_maps, 1, topk_indices.expand(-1, -1, feature_dimension)
     )  # [bsz, input_map_size, feature_dimension]
@@ -823,16 +850,18 @@ def most_similar_index(
 
     Args:
         x:
-            Tensor with shape (B, N, C).
+            Tensor with shape (B, N, C) containing the features to compare.
         y:
-            Tensor with shape (B, N, C).
+            Tensor with shape (B, N, C) containing the features to search for similarity.
     Returns:
         Index with shape (B, N) such that y[i, index[i, j]] is most similar to x[i, j]
         over all y[i, ...].
 
     """
+    # Normalize the input tensors along the last dimension
     x = functional.normalize(x, dim=-1)
     y = functional.normalize(y, dim=-1)
+    
     similarity = torch.einsum("bnc,bmc->bnm", x, y)
     return similarity.argmax(dim=2)
 
@@ -880,13 +909,15 @@ def get_weight_decay_parameters(
         decay_bias:
             If True, bias parameters are decayed.
         norm_layers:
-            Tuple of normalization classes to decay if decay_norm is True.
+            Tuple of normalization classes to decay if decay_norm is True. Default is '_NORM_LAYERS'.
 
     Returns:
         (params, params_no_weight_decay) tuple.
     """
     params = []
     params_no_weight_decay = []
+    
+    # Iterate through each module and categorize its parameters into ones that should be decayed and those that should not
     for module in modules:
         for mod in module.modules():
             if isinstance(mod, norm_layers):
@@ -911,7 +942,19 @@ def get_named_leaf_modules(module: Module) -> Dict[str, Module]:
 
 
 def add_stochastic_depth_to_blocks(vit: Module, prob: float = 0.0, mode="row") -> None:
-    """Adds stochastic depth dropout to all transformer blocks."""
+    """Adds stochastic depth dropout to all transformer blocks in a Vision Transformer Model
+    
+    Args:
+        vit:
+            Vision Transformer Model to which stochastic depth dropout will be added.
+        prob:
+            Probability of dropping a layer. Default is 0.0.
+        mode:
+            Mode for stochastic depth. Default is "row".
+
+    Raises:
+        Runtime Error: If torchvision version is less than 0.12.   
+    """
     if dependency.torchvision_vit_available():
         # Requires torchvision >=0.12
         from torchvision.models.vision_transformer import EncoderBlock
@@ -942,18 +985,22 @@ def initialize_positional_embedding(
             ['learn', 'sincos', 'skip']. 'learn' makes the embedding learnable,
             'sincos' creates a fixed 2D sine-cosine positional embedding, and 'skip'
             does not initialize the positional embedding.
-
         num_prefix_tokens:
             Number of prefix tokens in the positional embedding. This includes the class
             token.
+    Raises:
+        ValueError: If an invalid strategy is provided.        
     """
     strategies = ["learn", "sincos", "skip"]
+    
+    # Validate the strategy
     if strategy not in strategies:
         raise ValueError(
             f"Invalid positional embedding strategy: '{strategy}'. Valid options are: "
             f"{strategies}."
         )
 
+    # Initialize the positional embedding based on the startegy
     if strategy == "learn":
         initialize_learnable_positional_embedding(pos_embedding)
     elif strategy == "sincos":
@@ -1050,11 +1097,13 @@ def get_2d_sine_cosine_positional_embedding_from_grid(
     """
     assert embed_dim % 2 == 0
 
-    # Use half of dimensions to encode grid_h.
+    # Use half of dimensions to encode grid_h
     # (grid_size * grid_size, embed_dim/2)
     emb_h = get_1d_sine_cosine_positional_embedding_from_positions(
         embed_dim // 2, grid[0]
     )
+    
+    # Use the other half of dimensions to encode grid_w
     # (grid_size * grid_size, embed_dim/2)
     emb_w = get_1d_sine_cosine_positional_embedding_from_positions(
         embed_dim // 2, grid[1]
@@ -1104,7 +1153,7 @@ def normalize_mean_var(x: Tensor, dim: int = -1, eps: float = 1.0e-6) -> Tensor:
             Dimension along which to compute mean and standard deviation. Takes last
             dimension by default.
         eps:
-            Epsilon value to avoid division by zero.
+            Epsilon value to avoid division by zero. Default is 1.0e-6
 
     Returns:
         Normalized tensor.
@@ -1129,11 +1178,15 @@ def update_drop_path_rate(
         mode:
             Drop path rate update mode. Can be "linear" or "uniform". Linear increases
             the drop path rate from 0 to drop_path_rate over the depth of the model.
-            Uniform sets the drop path rate to drop_path_rate for all blocks.
+            Uniform sets the drop path rate to drop_path_rate for all blocks. Default is "linear".
+    Raises:
+        ValueError : If an unknown mode is provided.        
     """
     from timm.layers import DropPath
 
     total_depth = len(model.blocks)
+    
+    # Determine drop path rates based on the specified mode
     if mode == "linear":
         drop_probabilities = np.linspace(0, drop_path_rate, total_depth)
     elif mode == "uniform":
@@ -1143,6 +1196,7 @@ def update_drop_path_rate(
             f"Unknown mode: '{mode}', supported modes are 'linear' and 'uniform'."
         )
 
+    # Update the drop path rate for each block in the model
     for block, drop_prob in zip(model.blocks, drop_probabilities):
         if drop_prob > 0.0:
             block.drop_path1 = DropPath(drop_prob=drop_path_rate)
