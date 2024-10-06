@@ -191,7 +191,6 @@ exclude = '''(?x)(
     lightly/cli/config/get_config.py |
     lightly/cli/train_cli.py |
     lightly/cli/_cli_simclr.py |
-    lightly/cli/_helpers.py |
     lightly/loss/ntx_ent_loss.py |
     lightly/loss/vicreg_loss.py |
     lightly/loss/tico_loss.py |
