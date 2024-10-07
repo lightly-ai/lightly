@@ -524,7 +524,7 @@ def random_token_mask(
             Size of the token batch for which to generate masks.
             Should be (batch_size, sequence_length).
         mask_ratio:
-            Proportion of tokens to mask. Default is 0.6 .
+            Proportion of tokens to mask.
         mask_class_token:
             If False the class token is never masked. If True the class token
             might be masked.
@@ -658,7 +658,7 @@ def random_block_mask(
         is True if the patch should be masked and False otherwise.
     
     Raises:
-           ValueError: If 'max_image_mask_ratio' is less than 'min_image_mask_ratio'.
+        ValueError: If 'max_image_mask_ratio' is less than 'min_image_mask_ratio'.
     """
 
     if max_image_mask_ratio < min_image_mask_ratio:
@@ -715,15 +715,15 @@ def random_block_mask_image(
         num_masks:
             Number of patches to mask.
         min_num_masks_per_block:
-            Minimum number of patches to mask per block. Default is 4.
+            Minimum number of patches to mask per block.
         max_num_masks_per_block:
             Maximum number of patches to mask per block.
         min_block_aspect_ratio:
-            Minimum aspect ratio (height/width) of a masked block. Default is 0.3.
+            Minimum aspect ratio (height/width) of a masked block.
         max_block_aspect_ratio:
             Maximum aspect ratio (height/width) of a masked block.
         max_attempts_per_block:
-            Maximum number of attempts to find a valid block mask. Default is 10.
+            Maximum number of attempts to find a valid block mask.
         device:
             Device on which to create the mask.
     Returns:
@@ -732,7 +732,7 @@ def random_block_mask_image(
 
     Raises:
         ValueError: If 'max_num_masks_per_block' is less than 'min_num_masks_per_block' or
-                    if 'max_block_aspect_ratio' is less than 'min_block_aspect_ratio'    
+            if 'max_block_aspect_ratio' is less than 'min_block_aspect_ratio'
     """
 
     if max_block_aspect_ratio is None:
@@ -909,7 +909,7 @@ def get_weight_decay_parameters(
         decay_bias:
             If True, bias parameters are decayed.
         norm_layers:
-            Tuple of normalization classes to decay if decay_norm is True. Default is '_NORM_LAYERS'.
+            Tuple of normalization classes to decay if decay_norm is True.
 
     Returns:
         (params, params_no_weight_decay) tuple.
@@ -948,7 +948,7 @@ def add_stochastic_depth_to_blocks(vit: Module, prob: float = 0.0, mode="row") -
         vit:
             Vision Transformer Model to which stochastic depth dropout will be added.
         prob:
-            Probability of dropping a layer. Default is 0.0.
+            Probability of dropping a layer.
         mode:
             Mode for stochastic depth. Default is "row".
 
@@ -1153,7 +1153,7 @@ def normalize_mean_var(x: Tensor, dim: int = -1, eps: float = 1.0e-6) -> Tensor:
             Dimension along which to compute mean and standard deviation. Takes last
             dimension by default.
         eps:
-            Epsilon value to avoid division by zero. Default is 1.0e-6
+            Epsilon value to avoid division by zero.
 
     Returns:
         Normalized tensor.
@@ -1178,9 +1178,9 @@ def update_drop_path_rate(
         mode:
             Drop path rate update mode. Can be "linear" or "uniform". Linear increases
             the drop path rate from 0 to drop_path_rate over the depth of the model.
-            Uniform sets the drop path rate to drop_path_rate for all blocks. Default is "linear".
+            Uniform sets the drop path rate to drop_path_rate for all blocks.
     Raises:
-        ValueError : If an unknown mode is provided.        
+        ValueError: If an unknown mode is provided.        
     """
     from timm.layers import DropPath
 
