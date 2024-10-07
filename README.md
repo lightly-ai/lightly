@@ -97,13 +97,12 @@ You can install Lightly and its dependencies from PyPI with:
 pip3 install lightly
 ```
 
-We strongly recommend that you install Lightly in a dedicated virtualenv, to avoid
-conflicting with your system packages.
+We strongly recommend installing Lightly in a dedicated virtualenv to avoid conflicts with your system packages.
 
 ### Lightly in Action
 
 With Lightly, you can use the latest self-supervised learning methods in a modular
-way using the full power of PyTorch. Experiment with different backbones,
+way using the full power of PyTorch. Experiment with various backbones,
 models, and loss functions. The framework has been designed to be easy to use
 from the ground up. [Find more examples in our docs](https://docs.lightly.ai/self-supervised-learning/examples/models.html).
 
