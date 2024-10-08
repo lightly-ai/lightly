@@ -5,12 +5,11 @@ import torch
 from torch import Tensor
 
 
-class RFMTransform:
+class RandomFrequencyMaskTransform:
     """2D Random Frequency Mask Transformation.
 
     This transformation applies a binary mask on the fourier transform,
-    across all channels. k% of frequencies are set to 0 with this.
-    k ranges [0.01, 0.1)
+    across all channels. A proportion of k frequencies are set to 0 with this.
 
     Input
         - Tensor: RFFT of a 2D Image (C, H, W) C-> No. of Channels
@@ -19,21 +18,24 @@ class RFMTransform:
 
     """
 
-    def __call__(self, fft_image: Tensor) -> Tensor:
-        k = np.random.uniform(0.01, 0.1)
-        # Mask: (C, H, W)
-        mask = torch.ones_like(fft_image)
+    def __init__(self, k: Tuple[float, float] = (0.01, 0.2)) -> None:
+        self.k = k
 
-        total_frequencies = torch.numel(fft_image[0])
-        num_frequencies_zeroed = int(total_frequencies * k)
-        zero_frequency_idxs = torch.randperm(total_frequencies)[:num_frequencies_zeroed]
+    def __call__(self, fft_image: Tensor) -> Tensor:
+        k = np.random.uniform(low=self.k[0], high=self.k[1])
 
         # Every mask for every channel will have same frequencies being turned off i.e. being set to zero
-        for c in range(mask.size(dim=0)):
-            mask[c].view(-1)[zero_frequency_idxs] = 0
-            # To retain majority of the semantic information. Please refer https://arxiv.org/abs/2312.02205
-            mask[c][0][0] = 1
+        mask_type = (
+            torch.rand(fft_image.shape[1:], device=fft_image.device) > k
+        )  # mask_type: (H, W)
+        mask_list = []  # Mask: (C, H, W)
 
+        for c in range(fft_image.size(dim=0)):
+            mask_list.append(mask_type)
+
+        mask = torch.stack(mask_list)
+        # To retain majority of the semantic information. Please refer https://arxiv.org/abs/2312.02205
+        mask[:, 0, 0] = 1
         masked_frequency_spectrum_image = fft_image * mask
 
         return masked_frequency_spectrum_image

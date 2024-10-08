@@ -1,10 +1,10 @@
 import torch
 
-from lightly.transforms import RFFT2DTransform, RFMTransform
+from lightly.transforms import RandomFrequencyMaskTransform, RFFT2DTransform
 
 
 def test() -> None:
-    rfm_transform = RFMTransform()
+    rfm_transform = RandomFrequencyMaskTransform()
     rfft2d_transform = RFFT2DTransform()
     image = torch.randn(3, 64, 64)
     fft_image = rfft2d_transform(image)
