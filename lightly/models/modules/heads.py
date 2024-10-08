@@ -628,6 +628,14 @@ class DINOProjectionHead(ProjectionHead):
         for param in self.last_layer.parameters():
             param.grad = None
 
+    def forward(self, x: Tensor) -> Tensor:
+            """Computes one forward pass through the head."""
+            x = self.layers(x)
+            # l2 normalization
+            x = nn.functional.normalize(x, dim=-1, p=2)
+            x = self.last_layer(x)
+            return x
+
     def _init_weights(self, module: nn.Module) -> None:
         """Initializes layers with a truncated normal distribution."""
         if isinstance(module, nn.Linear):
@@ -641,14 +649,7 @@ class DINOProjectionHead(ProjectionHead):
             if module.bias is not None:
                 nn.init.constant_(module.bias, 0)
 
-    def forward(self, x: Tensor) -> Tensor:
-        """Computes one forward pass through the head."""
-        x = self.layers(x)
-        # l2 normalization
-        x = nn.functional.normalize(x, dim=-1, p=2)
-        x = self.last_layer(x)
-        return x
-
+    
 
 class MMCRProjectionHead(ProjectionHead):
     """Projection head used for MMCR.
