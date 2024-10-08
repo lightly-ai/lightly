@@ -16,72 +16,6 @@ from lightly.data._helpers import DatasetFolder, _load_dataset_from_folder
 from lightly.data._video import VideoDataset
 
 
-def _get_filename_by_index(dataset, index):
-    """Default function which maps the index of an image to a filename."""
-    if isinstance(dataset, datasets.ImageFolder):
-        # filename is the path of the image relative to the dataset root
-        full_path = dataset.imgs[index][0]
-        return os.path.relpath(full_path, dataset.root)
-    elif isinstance(dataset, DatasetFolder):
-        # filename is the path of the image relative to the dataset root
-        full_path = dataset.samples[index][0]
-        return os.path.relpath(full_path, dataset.root)
-    elif isinstance(dataset, VideoDataset):
-        # filename is constructed by the video dataset
-        return dataset.get_filename(index)
-    else:
-        # dummy to prevent crashes
-        return str(index)
-
-
-def _ensure_dir(path):
-    """Makes sure that the directory at path exists."""
-    dirname = os.path.dirname(path)
-    os.makedirs(dirname, exist_ok=True)
-
-
-def _copy_image(input_dir, output_dir, filename):
-    """Copies an image from the input directory to the output directory."""
-    source = os.path.join(input_dir, filename)
-    target = os.path.join(output_dir, filename)
-    _ensure_dir(target)
-    shutil.copyfile(source, target)
-
-
-def _save_image(image, output_dir, filename, fmt):
-    """Saves an image in the output directory."""
-    target = os.path.join(output_dir, filename)
-    _ensure_dir(target)
-    try:
-        # try to save the image with the specified format or
-        # derive the format from the filename (if format=None)
-        image.save(target, format=fmt)
-    except ValueError:
-        # could not determine format from filename
-        image.save(target, format="png")
-
-
-def _dump_image(dataset, output_dir, filename, index, fmt):
-    """Saves a single image to the output directory.
-
-    Will copy the image from the input directory to the output directory
-    if possible. If not (e.g. for VideoDatasets), will load the image and
-    then save it to the output directory with the specified format.
-
-    """
-
-    if isinstance(dataset, datasets.ImageFolder):
-        # can safely copy the image from the input to the output directory
-        _copy_image(dataset.root, output_dir, filename)
-    elif isinstance(dataset, DatasetFolder):
-        # can safely copy the image from the input to the output directory
-        _copy_image(dataset.root, output_dir, filename)
-    else:
-        # need to load the image and save it to the output directory
-        image, _ = dataset[index]
-        _save_image(image, output_dir, filename, fmt)
-
-
 class LightlyDataset:
     """Provides a uniform data interface for the embedding models.
 
@@ -358,3 +292,69 @@ class LightlyDataset:
     def transform(self, t):
         """Setter for the transform of the dataset."""
         self.dataset.transform = t
+
+
+def _get_filename_by_index(dataset, index):
+    """Default function which maps the index of an image to a filename."""
+    if isinstance(dataset, datasets.ImageFolder):
+        # filename is the path of the image relative to the dataset root
+        full_path = dataset.imgs[index][0]
+        return os.path.relpath(full_path, dataset.root)
+    elif isinstance(dataset, DatasetFolder):
+        # filename is the path of the image relative to the dataset root
+        full_path = dataset.samples[index][0]
+        return os.path.relpath(full_path, dataset.root)
+    elif isinstance(dataset, VideoDataset):
+        # filename is constructed by the video dataset
+        return dataset.get_filename(index)
+    else:
+        # dummy to prevent crashes
+        return str(index)
+
+
+def _ensure_dir(path):
+    """Makes sure that the directory at path exists."""
+    dirname = os.path.dirname(path)
+    os.makedirs(dirname, exist_ok=True)
+
+
+def _copy_image(input_dir, output_dir, filename):
+    """Copies an image from the input directory to the output directory."""
+    source = os.path.join(input_dir, filename)
+    target = os.path.join(output_dir, filename)
+    _ensure_dir(target)
+    shutil.copyfile(source, target)
+
+
+def _save_image(image, output_dir, filename, fmt):
+    """Saves an image in the output directory."""
+    target = os.path.join(output_dir, filename)
+    _ensure_dir(target)
+    try:
+        # try to save the image with the specified format or
+        # derive the format from the filename (if format=None)
+        image.save(target, format=fmt)
+    except ValueError:
+        # could not determine format from filename
+        image.save(target, format="png")
+
+
+def _dump_image(dataset, output_dir, filename, index, fmt):
+    """Saves a single image to the output directory.
+
+    Will copy the image from the input directory to the output directory
+    if possible. If not (e.g. for VideoDatasets), will load the image and
+    then save it to the output directory with the specified format.
+
+    """
+
+    if isinstance(dataset, datasets.ImageFolder):
+        # can safely copy the image from the input to the output directory
+        _copy_image(dataset.root, output_dir, filename)
+    elif isinstance(dataset, DatasetFolder):
+        # can safely copy the image from the input to the output directory
+        _copy_image(dataset.root, output_dir, filename)
+    else:
+        # need to load the image and save it to the output directory
+        image, _ = dataset[index]
+        _save_image(image, output_dir, filename, fmt)

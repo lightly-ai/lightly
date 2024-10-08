@@ -19,11 +19,6 @@ except ImportError as ex:
     plt = ex
 
 
-def _check_matplotlib_available() -> None:
-    if isinstance(plt, Exception):
-        raise plt
-
-
 @torch.no_grad()
 def std_of_l2_normalized(z: torch.Tensor) -> torch.Tensor:
     """Calculates the mean of the standard deviation of z along each dimension.
@@ -168,3 +163,8 @@ def plot_augmented_images(
     fig.tight_layout()
 
     return fig
+
+
+def _check_matplotlib_available() -> None:
+    if isinstance(plt, Exception):
+        raise plt
