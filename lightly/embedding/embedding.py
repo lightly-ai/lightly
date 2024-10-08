@@ -103,7 +103,6 @@ class SelfSupervisedEmbedding(BaseEmbedding):
                 filenames:
                     The filenames from dataloader.dataset.get_filenames().
 
-
         Examples:
             >>> # embed images in vector space
             >>> embeddings, labels, fnames = encoder.embed(dataloader)
