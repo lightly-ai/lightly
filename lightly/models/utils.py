@@ -124,7 +124,7 @@ def batch_shuffle_distributed(batch: torch.Tensor) -> Tuple[torch.Tensor, torch.
     batch_gather = concat_all_gather(batch)
     batch_size_all = batch_gather.shape[0]
 
-    #Calculate the number of devices
+    # Calculate the number of devices
     num_devices = batch_size_all // batch_size_this
 
     # random shuffle index
@@ -171,10 +171,10 @@ def batch_unshuffle_distributed(
 
     # Get the rank of the current device
     rank = dist.get_rank()
-    
+
     # Index for this device after unshuffling
     idx_this = shuffle.view(num_devices, -1)[rank]
-    
+
     # Returns the unshuffled batch for this device
     return batch_gather[idx_this]
 
@@ -221,7 +221,7 @@ def update_momentum(model: nn.Module, model_ema: nn.Module, m: float):
             The model with exponential moving average (EMA) parameters.
         m:
             The momentum factor, between 0 and 1.
-             
+
     Examples:
         >>> backbone = resnet18()
         >>> projection_head = MoCoProjectionHead()
@@ -357,9 +357,9 @@ def get_at_index(tokens: torch.Tensor, index: torch.Tensor) -> torch.Tensor:
         selected tokens.
 
     """
-    #Expand the index tensor to match the shape of tokens tensor
+    # Expand the index tensor to match the shape of tokens tensor
     index = expand_index_like(index, tokens)
-    
+
     return torch.gather(tokens, 1, index)
 
 
@@ -471,16 +471,16 @@ def patchify(images: torch.Tensor, patch_size: int) -> torch.Tensor:
 
     patch_h = patch_w = H // patch_size
     num_patches = patch_h * patch_w
-    
+
     # Reshape images to form patches
     patches = images.reshape(shape=(N, C, patch_h, patch_size, patch_w, patch_size))
-    
+
     # Reorder dimensions for patches
     patches = torch.einsum("nchpwq->nhwpqc", patches)
-    
+
     # Flatten patches
     patches = patches.reshape(shape=(N, num_patches, patch_size**2 * C))
-    
+
     return patches
 
 
@@ -585,18 +585,18 @@ def random_prefix_mask(
 
     """
     batch_size, sequence_length = size
-    
+
     # Create an arange tensor and expand it to match batch size
     arange = torch.arange(sequence_length, device=device).expand(
         batch_size, sequence_length
     )
-    
+
     # Generate random indices for the prefix length
     indices = torch.randint(0, max_prefix_length, (batch_size, 1), device=device)
-    
+
     # Create the mask based on arange and indices
     mask = arange >= indices
-    
+
     return mask
 
 
@@ -656,7 +656,7 @@ def random_block_mask(
     Returns:
         A boolean tensor with shape (batch_size, height, width) where each entry
         is True if the patch should be masked and False otherwise.
-    
+
     Raises:
         ValueError: If 'max_image_mask_ratio' is less than 'min_image_mask_ratio'.
     """
@@ -687,11 +687,11 @@ def random_block_mask(
                 device=device,
             )
         )
-    
+
     # Add non-masked images to fill the batch
     for _ in range(num_images_masked, B):
         image_masks.append(torch.zeros((H, W), dtype=torch.bool, device=device))
-    
+
     random.shuffle(image_masks)
     return torch.stack(image_masks)
 
@@ -861,7 +861,7 @@ def most_similar_index(
     # Normalize the input tensors along the last dimension
     x = functional.normalize(x, dim=-1)
     y = functional.normalize(y, dim=-1)
-    
+
     similarity = torch.einsum("bnc,bmc->bnm", x, y)
     return similarity.argmax(dim=2)
 
@@ -916,7 +916,7 @@ def get_weight_decay_parameters(
     """
     params = []
     params_no_weight_decay = []
-    
+
     # Iterate through each module and categorize its parameters into ones that should be decayed and those that should not
     for module in modules:
         for mod in module.modules():
@@ -943,7 +943,7 @@ def get_named_leaf_modules(module: Module) -> Dict[str, Module]:
 
 def add_stochastic_depth_to_blocks(vit: Module, prob: float = 0.0, mode="row") -> None:
     """Adds stochastic depth dropout to all transformer blocks in a Vision Transformer Model
-    
+
     Args:
         vit:
             Vision Transformer Model to which stochastic depth dropout will be added.
@@ -953,7 +953,7 @@ def add_stochastic_depth_to_blocks(vit: Module, prob: float = 0.0, mode="row") -
             Mode for stochastic depth. Default is "row".
 
     Raises:
-        Runtime Error: If torchvision version is less than 0.12.   
+        Runtime Error: If torchvision version is less than 0.12.
     """
     if dependency.torchvision_vit_available():
         # Requires torchvision >=0.12
@@ -989,10 +989,10 @@ def initialize_positional_embedding(
             Number of prefix tokens in the positional embedding. This includes the class
             token.
     Raises:
-        ValueError: If an invalid strategy is provided.        
+        ValueError: If an invalid strategy is provided.
     """
     strategies = ["learn", "sincos", "skip"]
-    
+
     # Validate the strategy
     if strategy not in strategies:
         raise ValueError(
@@ -1102,7 +1102,7 @@ def get_2d_sine_cosine_positional_embedding_from_grid(
     emb_h = get_1d_sine_cosine_positional_embedding_from_positions(
         embed_dim // 2, grid[0]
     )
-    
+
     # Use the other half of dimensions to encode grid_w
     # (grid_size * grid_size, embed_dim/2)
     emb_w = get_1d_sine_cosine_positional_embedding_from_positions(
@@ -1180,12 +1180,12 @@ def update_drop_path_rate(
             the drop path rate from 0 to drop_path_rate over the depth of the model.
             Uniform sets the drop path rate to drop_path_rate for all blocks.
     Raises:
-        ValueError: If an unknown mode is provided.        
+        ValueError: If an unknown mode is provided.
     """
     from timm.layers import DropPath
 
     total_depth = len(model.blocks)
-    
+
     # Determine drop path rates based on the specified mode
     if mode == "linear":
         drop_probabilities = np.linspace(0, drop_path_rate, total_depth)
