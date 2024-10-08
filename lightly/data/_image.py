@@ -12,54 +12,6 @@ from torchvision import transforms
 from lightly.data._image_loaders import default_loader
 
 
-def _make_dataset(
-    directory, extensions=None, is_valid_file=None
-) -> List[Tuple[str, int]]:
-    """Returns a list of all image files with targets in the directory.
-
-    Args:
-        directory:
-            Root directory path (should not contain subdirectories!).
-        extensions:
-            Tuple of valid extensions.
-        is_valid_file:
-            Used to find valid files.
-
-    Returns:
-        List of instance tuples: (path_i, target_i = 0).
-
-    """
-
-    if extensions is None:
-        if is_valid_file is None:
-            ValueError("Both extensions and is_valid_file cannot be None")
-        else:
-            _is_valid_file = is_valid_file
-    else:
-
-        def is_valid_file_extension(filepath):
-            return filepath.lower().endswith(extensions)
-
-        if is_valid_file is None:
-            _is_valid_file = is_valid_file_extension
-        else:
-
-            def _is_valid_file(filepath):
-                return is_valid_file_extension(filepath) and is_valid_file(filepath)
-
-    instances = []
-    for f in os.scandir(directory):
-        if not _is_valid_file(f.path):
-            continue
-
-        # convention: the label of all images is 0, based on the fact that
-        # they are all in the same directory
-        item = (f.path, 0)
-        instances.append(item)
-
-    return sorted(instances, key=lambda x: x[0])  # sort by path
-
-
 class DatasetFolder(datasets.VisionDataset):
     """Implements a dataset folder.
 
@@ -135,3 +87,51 @@ class DatasetFolder(datasets.VisionDataset):
     def __len__(self):
         """Returns the number of samples in the dataset."""
         return len(self.samples)
+
+
+def _make_dataset(
+    directory, extensions=None, is_valid_file=None
+) -> List[Tuple[str, int]]:
+    """Returns a list of all image files with targets in the directory.
+
+    Args:
+        directory:
+            Root directory path (should not contain subdirectories!).
+        extensions:
+            Tuple of valid extensions.
+        is_valid_file:
+            Used to find valid files.
+
+    Returns:
+        List of instance tuples: (path_i, target_i = 0).
+
+    """
+
+    if extensions is None:
+        if is_valid_file is None:
+            ValueError("Both extensions and is_valid_file cannot be None")
+        else:
+            _is_valid_file = is_valid_file
+    else:
+
+        def is_valid_file_extension(filepath):
+            return filepath.lower().endswith(extensions)
+
+        if is_valid_file is None:
+            _is_valid_file = is_valid_file_extension
+        else:
+
+            def _is_valid_file(filepath):
+                return is_valid_file_extension(filepath) and is_valid_file(filepath)
+
+    instances = []
+    for f in os.scandir(directory):
+        if not _is_valid_file(f.path):
+            continue
+
+        # convention: the label of all images is 0, based on the fact that
+        # they are all in the same directory
+        item = (f.path, 0)
+        instances.append(item)
+
+    return sorted(instances, key=lambda x: x[0])  # sort by path
