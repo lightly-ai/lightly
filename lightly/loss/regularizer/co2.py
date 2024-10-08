@@ -65,6 +65,44 @@ class CO2Regularizer(MemoryBankModule):
         self.t_consistency = t_consistency
         self.alpha = alpha
 
+    def forward(self, out0: torch.Tensor, out1: torch.Tensor):
+        """Computes the CO2 regularization term for two model outputs.
+
+        Args:
+            out0:
+                Output projections of the first set of transformed images.
+            out1:
+                Output projections of the second set of transformed images.
+
+        Returns:
+            The regularization term multiplied by the weight factor alpha.
+
+        """
+
+        # normalize the output to length 1
+        out0 = torch.nn.functional.normalize(out0, dim=1)
+        out1 = torch.nn.functional.normalize(out1, dim=1)
+
+        # ask memory bank for negative samples and extend it with out1 if
+        # out1 requires a gradient, otherwise keep the same vectors in the
+        # memory bank (this allows for keeping the memory bank constant e.g.
+        # for evaluating the loss on the test set)
+        # if the memory_bank size is 0, negatives will be None
+        out1, negatives = super(CO2Regularizer, self).forward(out1, update=True)
+
+        # get log probabilities
+        p = self._get_pseudo_labels(out0, out1, negatives)
+        q = self._get_pseudo_labels(out1, out0, negatives)
+
+        # calculate symmetrized kullback leibler divergence
+        if self.log_target:
+            div = self.kl_div(p, q) + self.kl_div(q, p)
+        else:
+            # can't use log_target because of early torch version
+            div = self.kl_div(p, torch.exp(q)) + self.kl_div(q, torch.exp(p))
+
+        return self.alpha * 0.5 * div
+
     def _get_pseudo_labels(
         self, out0: torch.Tensor, out1: torch.Tensor, negatives: torch.Tensor = None
     ):
@@ -113,41 +151,3 @@ class CO2Regularizer(MemoryBankModule):
 
         # the input to kl_div is expected to be log(p)
         return torch.nn.functional.log_softmax(logits, dim=-1)
-
-    def forward(self, out0: torch.Tensor, out1: torch.Tensor):
-        """Computes the CO2 regularization term for two model outputs.
-
-        Args:
-            out0:
-                Output projections of the first set of transformed images.
-            out1:
-                Output projections of the second set of transformed images.
-
-        Returns:
-            The regularization term multiplied by the weight factor alpha.
-
-        """
-
-        # normalize the output to length 1
-        out0 = torch.nn.functional.normalize(out0, dim=1)
-        out1 = torch.nn.functional.normalize(out1, dim=1)
-
-        # ask memory bank for negative samples and extend it with out1 if
-        # out1 requires a gradient, otherwise keep the same vectors in the
-        # memory bank (this allows for keeping the memory bank constant e.g.
-        # for evaluating the loss on the test set)
-        # if the memory_bank size is 0, negatives will be None
-        out1, negatives = super(CO2Regularizer, self).forward(out1, update=True)
-
-        # get log probabilities
-        p = self._get_pseudo_labels(out0, out1, negatives)
-        q = self._get_pseudo_labels(out1, out0, negatives)
-
-        # calculate symmetrized kullback leibler divergence
-        if self.log_target:
-            div = self.kl_div(p, q) + self.kl_div(q, p)
-        else:
-            # can't use log_target because of early torch version
-            div = self.kl_div(p, torch.exp(q)) + self.kl_div(q, torch.exp(p))
-
-        return self.alpha * 0.5 * div
