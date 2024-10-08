@@ -34,6 +34,7 @@ Let's now load an image dataset and create a PyTorch dataloader.
 .. code-block:: python
 
     import torch
+    import lightly.data as data
 
     # Create a dataset from your image folder.
     dataset = data.LightlyDataset(
