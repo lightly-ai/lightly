@@ -25,6 +25,9 @@ def create_checkpoint_callback(
         dirpath:
             Where to save the checkpoint.
 
+    Returns:
+        ModelCheckpoint: The initialized checkpoint callback.
+
     """
     return ModelCheckpoint(
         dirpath=os.getcwd() if dirpath is None else dirpath,
@@ -39,7 +42,18 @@ def create_checkpoint_callback(
 def create_summary_callback(
     summary_callback_config: DictConfig, trainer_config: DictConfig
 ) -> ModelSummary:
-    """Creates a summary callback."""
+    """Creates a model summary callback based on the configuration.
+
+    Args:
+        summary_callback_config:
+            Configuration dictionary for the summary callback.
+        trainer_config:
+            Trainer configuration dictionary, which may include deprecated `weights_summary`.
+
+    Returns:
+        ModelSummary: The model summary callback.
+
+    """
     # TODO: Drop support for the "weights_summary" argument.
     weights_summary = trainer_config.get("weights_summary", None)
     if weights_summary not in [None, "None"]:
@@ -56,6 +70,10 @@ def _create_summary_callback(max_depth: int) -> ModelSummary:
     Args:
         max_depth:
             The maximum depth of layer nesting that the summary will include.
+
+    Returns:
+        ModelSummary: The initialized model summary callback.
+
     """
     return ModelSummary(max_depth=max_depth)
 
@@ -66,6 +84,17 @@ def _create_summary_callback_deprecated(weights_summary: str) -> ModelSummary:
     The ``weights_summary`` trainer argument was deprecated with the release
     of pytorch lightning 1.7 in 08/2022. Support for this will be removed
     in the future.
+
+    Args:
+        weights_summary:
+            The deprecated `weights_summary` argument value ("top" or "full").
+
+    Returns:
+        ModelSummary: The initialized model summary callback based on the `weights_summary` argument.
+
+    Raises:
+        ValueError: If an invalid value is provided for `weights_summary`.
+
     """
     print_as_warning(
         "The configuration parameter 'trainer.weights_summary' is deprecated."
