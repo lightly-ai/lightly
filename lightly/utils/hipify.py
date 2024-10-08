@@ -14,6 +14,13 @@ class bcolors:
     UNDERLINE = "\033[4m"
 
 
+def print_as_warning(message: str, warning_class: Type[Warning] = UserWarning) -> None:
+    old_format = copy.copy(warnings.formatwarning)
+    warnings.formatwarning = _custom_formatwarning
+    warnings.warn(message, warning_class)
+    warnings.formatwarning = old_format
+
+
 def _custom_formatwarning(
     message: Union[str, Warning],
     category: Type[Warning],
@@ -23,10 +30,3 @@ def _custom_formatwarning(
 ) -> str:
     # ignore everything except the message
     return f"{bcolors.WARNING}{message}{bcolors.WARNING}\n"
-
-
-def print_as_warning(message: str, warning_class: Type[Warning] = UserWarning) -> None:
-    old_format = copy.copy(warnings.formatwarning)
-    warnings.formatwarning = _custom_formatwarning
-    warnings.warn(message, warning_class)
-    warnings.formatwarning = old_format
