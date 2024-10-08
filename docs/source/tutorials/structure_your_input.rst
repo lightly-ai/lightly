@@ -6,7 +6,7 @@ Tutorial 1: Structure Your Input
 The modern-day open-source ecosystem has changed a lot over the years, and there are now
 many viable options for data pipelining. The `torchvision.data <https://pytorch.org/vision/main/datasets.html>`_ submodule provides a robust implementation for most use cases,
 and the `Hugging Face Hub <https://hf.co>`_ has emerged as a growing collection of datasets that span a variety of domains and tasks.
-It you want to use your own data, the ability to quickly create datasets and dataloaders is of prime importance.
+If you want to use your own data, the ability to quickly create datasets and dataloaders is of prime importance.
 
 In this tutorial, we will provide a brief overview of the `LightlyDataset <https://docs.lightly.ai/self-supervised-learning/lightly.data.html#lightly.data.dataset.LightlyDataset>`_
 and go through examples of using datasets from various open-source libraries such as PyTorch and
