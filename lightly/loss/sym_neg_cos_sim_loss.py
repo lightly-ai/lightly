@@ -40,10 +40,6 @@ class SymNegCosineSimilarityLoss(torch.nn.Module):
             DeprecationWarning,
         )
 
-    def _neg_cosine_simililarity(self, x, y):
-        v = -torch.nn.functional.cosine_similarity(x, y.detach(), dim=-1).mean()
-        return v
-
     def forward(self, out0: torch.Tensor, out1: torch.Tensor):
         """Forward pass through Symmetric Loss.
 
@@ -74,3 +70,7 @@ class SymNegCosineSimilarityLoss(torch.nn.Module):
         )
 
         return loss
+
+    def _neg_cosine_simililarity(self, x, y):
+        v = -torch.nn.functional.cosine_similarity(x, y.detach(), dim=-1).mean()
+        return v
