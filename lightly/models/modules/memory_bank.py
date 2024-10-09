@@ -98,40 +98,6 @@ class MemoryBankModule(Module):
         elif len(size_tuple) > 1:
             self._init_memory_bank(size=size_tuple)
 
-    @torch.no_grad()
-    def _init_memory_bank(self, size: Tuple[int, ...]) -> None:
-        """Initialize the memory bank.
-
-        Args:
-            size:
-                Size of the memory bank as (num_features, dim) tuple.
-
-        """
-        self.bank = torch.randn(size).type_as(self.bank)
-        self.bank = torch.nn.functional.normalize(self.bank, dim=-1)
-        self.bank_ptr = torch.zeros(1).type_as(self.bank_ptr)
-
-    @torch.no_grad()
-    def _dequeue_and_enqueue(self, batch: Tensor) -> None:
-        """Dequeue the oldest batch and add the latest one
-
-        Args:
-            batch:
-                The latest batch of keys to add to the memory bank.
-
-        """
-        if self.gather_distributed and dist.world_size() > 1:
-            batch = utils.concat_all_gather(batch)
-
-        batch_size = batch.shape[0]
-        ptr = int(self.bank_ptr)
-        if ptr + batch_size >= self.size[0]:
-            self.bank[ptr:] = batch[: self.size[0] - ptr].detach()
-            self.bank_ptr.zero_()
-        else:
-            self.bank[ptr : ptr + batch_size] = batch.detach()
-            self.bank_ptr[0] = ptr + batch_size
-
     def forward(
         self,
         output: Tensor,
@@ -176,3 +142,37 @@ class MemoryBankModule(Module):
             self._dequeue_and_enqueue(output)
 
         return output, bank
+
+    @torch.no_grad()
+    def _init_memory_bank(self, size: Tuple[int, ...]) -> None:
+        """Initialize the memory bank.
+
+        Args:
+            size:
+                Size of the memory bank as (num_features, dim) tuple.
+
+        """
+        self.bank = torch.randn(size).type_as(self.bank)
+        self.bank = torch.nn.functional.normalize(self.bank, dim=-1)
+        self.bank_ptr = torch.zeros(1).type_as(self.bank_ptr)
+
+    @torch.no_grad()
+    def _dequeue_and_enqueue(self, batch: Tensor) -> None:
+        """Dequeue the oldest batch and add the latest one
+
+        Args:
+            batch:
+                The latest batch of keys to add to the memory bank.
+
+        """
+        if self.gather_distributed and dist.world_size() > 1:
+            batch = utils.concat_all_gather(batch)
+
+        batch_size = batch.shape[0]
+        ptr = int(self.bank_ptr)
+        if ptr + batch_size >= self.size[0]:
+            self.bank[ptr:] = batch[: self.size[0] - ptr].detach()
+            self.bank_ptr.zero_()
+        else:
+            self.bank[ptr : ptr + batch_size] = batch.detach()
+            self.bank_ptr[0] = ptr + batch_size
