@@ -18,7 +18,7 @@ class RandomFrequencyMaskTransform:
 
     """
 
-    def __init__(self, k: Tuple[float, float] = (0.01, 0.2)) -> None:
+    def __init__(self, k: Tuple[float, float] = (0.01, 0.1)) -> None:
         self.k = k
 
     def __call__(self, fft_image: Tensor) -> Tensor:
