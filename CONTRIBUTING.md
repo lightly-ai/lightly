@@ -68,15 +68,15 @@ Follow these steps to start contributing:
 2. Clone your fork to your local disk, and add the base repository as a remote:
 
    ```bash
-   $ git clone git@github.com:lightly-ai/lightly.git
-   $ cd lightly
-   $ git remote add upstream https://github.com/lightly-ai/lightly.git
+   git clone git@github.com:lightly-ai/lightly.git
+   cd lightly
+   git remote add upstream https://github.com/lightly-ai/lightly.git
    ```
 
 3. Create a new branch to hold your development changes:
 
    ```bash
-   $ git checkout -b a_descriptive_name_for_my_changes
+   git checkout -b a_descriptive_name_for_my_changes
    ```
 
    **do not** work on the `master` branch.
@@ -84,21 +84,21 @@ Follow these steps to start contributing:
 4. Set up a development environment by running the following command in a virtual environment:
 
    ```bash
-   $ pip install -e ".[dev]"
+   pip install -e ".[dev]"
    ```
 
    If you are using [uv](https://github.com/astral-sh/uv) instead of pip, you can use
    the following command:
 
    ```bash
-   $ make install-dev
+   make install-dev
    ```
 
 5. **(Optional)** Install pre-commit hooks:
 
    ```bash
-   $ pip install pre-commit
-   $ pre-commit install
+   pip install pre-commit
+   pre-commit install
    ```
 
    We use pre-commit hooks to identify simple issues before submission to code review. In particular, our hooks currently check for:
@@ -109,11 +109,11 @@ Follow these steps to start contributing:
 
    You can verify that the hooks were installed correctly with
    ```
-   $ pre-commit run --all-files
+   pre-commit run --all-files
    ```
    The output should look like this:
    ```
-   $ pre-commit run --all-files
+   pre-commit run --all-files
    Detect Private Key................................Passed
    Check for added large files.......................Passed
    black.............................................Passed
@@ -127,8 +127,8 @@ Follow these steps to start contributing:
    test suite passes:
 
    ```bash
-   $ make format
-   $ make all-checks
+   make format
+   make all-checks
    ```
 
    If you get an error from isort or black, please run `make format` again before
@@ -138,15 +138,15 @@ Follow these steps to start contributing:
    they can still be built. This check also runs in CI. 
 
    ```bash
-   $ cd docs
-   $ make html
+   cd docs
+   make html
    ```
    Once you're happy with your changes, add changed files using `git add` and
    make a commit with `git commit` to record your changes locally:
 
    ```bash
-   $ git add modified_file.py
-   $ git commit
+   git add modified_file.py
+   git commit
    ```
 
    Please write [good commit messages](https://chris.beams.io/posts/git-commit/).
@@ -155,14 +155,14 @@ Follow these steps to start contributing:
    repository regularly. This way you can quickly account for changes:
 
    ```bash
-   $ git fetch upstream
-   $ git rebase upstream/develop
+   git fetch upstream
+   git rebase upstream/develop
    ```
 
    Push the changes to your account using:
 
    ```bash
-   $ git push -u origin a_descriptive_name_for_my_changes
+   git push -u origin a_descriptive_name_for_my_changes
    ```
 
 7. Once you are satisfied, go to the webpage of your fork on GitHub.
