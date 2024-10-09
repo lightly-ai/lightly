@@ -109,7 +109,7 @@ class RandomVerticalFlipWithLocation(T.RandomVerticalFlip):  # type: ignore[misc
         return img, location
 
 
-class RandomResizedCropAndFlip(nn.Module):
+class RandomResizedCropAndFlip(nn.Module):  # type: ignore[misc] # Class cannot subclass "RandomResizedCropAndFlip" (has type "Any")
     """Randomly flip and crop an image.
 
     A PyTorch module that applies random cropping, horizontal and vertical flipping to an image,
