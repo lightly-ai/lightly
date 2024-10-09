@@ -22,11 +22,12 @@ import json
 from typing import Optional
 try:
     # Pydantic >=v1.10.17
-    from pydantic.v1 import BaseModel, constr
+    from pydantic.v1 import BaseModel, Field, StrictStr, constr
 except ImportError:
     # Pydantic v1
-    from pydantic import BaseModel, constr
+    from pydantic import BaseModel, Field, StrictStr, constr
 from lightly.openapi_generated.swagger_client.models.sector import Sector
+from lightly.openapi_generated.swagger_client.models.usage import Usage
 
 class QuestionnaireData(BaseModel):
     """
@@ -34,7 +35,9 @@ class QuestionnaireData(BaseModel):
     """
     company: Optional[constr(strict=True, min_length=3)] = None
     sector: Optional[Sector] = None
-    __properties = ["company", "sector"]
+    usage: Optional[Usage] = None
+    usage_custom_reason: Optional[StrictStr] = Field(None, alias="usageCustomReason")
+    __properties = ["company", "sector", "usage", "usageCustomReason"]
 
     class Config:
         """Pydantic configuration"""
@@ -62,6 +65,11 @@ class QuestionnaireData(BaseModel):
                           exclude={
                           },
                           exclude_none=True)
+        # set to None if usage_custom_reason (nullable) is None
+        # and __fields_set__ contains the field
+        if self.usage_custom_reason is None and "usage_custom_reason" in self.__fields_set__:
+            _dict['usageCustomReason' if by_alias else 'usage_custom_reason'] = None
+
         return _dict
 
     @classmethod
@@ -80,7 +88,9 @@ class QuestionnaireData(BaseModel):
 
         _obj = QuestionnaireData.parse_obj({
             "company": obj.get("company"),
-            "sector": obj.get("sector")
+            "sector": obj.get("sector"),
+            "usage": obj.get("usage"),
+            "usage_custom_reason": obj.get("usageCustomReason")
         })
         return _obj
 

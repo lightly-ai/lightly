@@ -22,10 +22,10 @@ import json
 from typing import Any, Dict, Optional
 try:
     # Pydantic >=v1.10.17
-    from pydantic.v1 import BaseModel, Field, StrictStr
+    from pydantic.v1 import BaseModel, Field, StrictInt, StrictStr
 except ImportError:
     # Pydantic v1
-    from pydantic import BaseModel, Field, StrictStr
+    from pydantic import BaseModel, Field, StrictInt, StrictStr
 from lightly.openapi_generated.swagger_client.models.crop_data import CropData
 from lightly.openapi_generated.swagger_client.models.sample_meta_data import SampleMetaData
 from lightly.openapi_generated.swagger_client.models.video_frame_data import VideoFrameData
@@ -37,11 +37,12 @@ class SampleCreateRequest(BaseModel):
     file_name: StrictStr = Field(..., alias="fileName")
     thumb_name: Optional[StrictStr] = Field(None, alias="thumbName")
     exif: Optional[Dict[str, Any]] = None
+    index: Optional[StrictInt] = None
     meta_data: Optional[SampleMetaData] = Field(None, alias="metaData")
     custom_meta_data: Optional[Dict[str, Any]] = Field(None, alias="customMetaData")
     video_frame_data: Optional[VideoFrameData] = Field(None, alias="videoFrameData")
     crop_data: Optional[CropData] = Field(None, alias="cropData")
-    __properties = ["fileName", "thumbName", "exif", "metaData", "customMetaData", "videoFrameData", "cropData"]
+    __properties = ["fileName", "thumbName", "exif", "index", "metaData", "customMetaData", "videoFrameData", "cropData"]
 
     class Config:
         """Pydantic configuration"""
@@ -113,6 +114,7 @@ class SampleCreateRequest(BaseModel):
             "file_name": obj.get("fileName"),
             "thumb_name": obj.get("thumbName"),
             "exif": obj.get("exif"),
+            "index": obj.get("index"),
             "meta_data": SampleMetaData.from_dict(obj.get("metaData")) if obj.get("metaData") is not None else None,
             "custom_meta_data": obj.get("customMetaData"),
             "video_frame_data": VideoFrameData.from_dict(obj.get("videoFrameData")) if obj.get("videoFrameData") is not None else None,
