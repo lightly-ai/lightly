@@ -4,7 +4,7 @@
 # All Rights Reserved
 
 import os
-from typing import Any, Callable, Dict, List, Optional, Set
+from typing import Any, Callable, Dict, Optional, Tuple
 
 from torchvision import datasets
 
@@ -34,7 +34,7 @@ IMG_EXTENSIONS = (
 VIDEO_EXTENSIONS = (".mp4", ".mov", ".avi", ".mpg", ".hevc", ".m4v", ".webm", ".mpeg")
 
 
-def _dir_contains_videos(root: str, extensions: tuple) -> bool:
+def _dir_contains_videos(root: str, extensions: Tuple[str, ...]) -> bool:
     """Checks whether the directory contains video files.
 
     Args:
@@ -48,7 +48,7 @@ def _dir_contains_videos(root: str, extensions: tuple) -> bool:
         return any(f.name.lower().endswith(extensions) for f in scan_dir)
 
 
-def _contains_videos(root: str, extensions: tuple) -> bool:
+def _contains_videos(root: str, extensions: Tuple[str, ...]) -> bool:
     """Checks whether the directory or any subdirectory contains video files.
 
     Args:
@@ -91,7 +91,7 @@ def _contains_subdirs(root: str) -> bool:
 
 def _load_dataset_from_folder(
     root: str,
-    transform: Callable,
+    transform: Callable[[Any], Any],
     is_valid_file: Optional[Callable[[str], bool]] = None,
     tqdm_args: Optional[Dict[str, Any]] = None,
     num_workers_video_frame_counting: int = 0,
@@ -113,7 +113,7 @@ def _load_dataset_from_folder(
 
     Raises:
         ValueError: If the specified dataset directory doesn't exist or if videos are present
-                    but VideoDataset is not available.
+                but VideoDataset is not available.
     """
     if not os.path.exists(root):
         raise ValueError(f"The input directory {root} does not exist!")
