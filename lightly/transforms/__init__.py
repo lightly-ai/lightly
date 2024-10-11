@@ -18,6 +18,7 @@ from lightly.transforms.densecl_transform import DenseCLTransform
 from lightly.transforms.dino_transform import DINOTransform, DINOViewTransform
 from lightly.transforms.fast_siam_transform import FastSiamTransform
 from lightly.transforms.gaussian_blur import GaussianBlur
+from lightly.transforms.gaussian_mixture_masks_transform import GaussianMixtureMasks
 from lightly.transforms.irfft2d_transform import IRFFT2DTransform
 from lightly.transforms.jigsaw import Jigsaw
 from lightly.transforms.mae_transform import MAETransform
