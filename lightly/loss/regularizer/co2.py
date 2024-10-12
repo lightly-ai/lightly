@@ -53,8 +53,20 @@ class CO2Regularizer(MemoryBankModule):
         t_consistency: float = 0.05,
         memory_bank_size: Union[int, Sequence[int]] = 0,
     ):
+        """
+        Initializes the CO2Regularizer with the specified parameters.
+
+        Args:
+            alpha: 
+                Weight of the regularization term.
+            t_consistency:
+                Temperature used during softmax calculations.
+            memory_bank_size:
+                Size of the memory bank.
+
+        """
         super(CO2Regularizer, self).__init__(size=memory_bank_size)
-        # try-catch the KLDivLoss construction for backwards compatability
+        # Try-catch the KLDivLoss construction for backwards compatability
         self.log_target = True
         try:
             self.kl_div = torch.nn.KLDivLoss(reduction="batchmean", log_target=True)
@@ -66,7 +78,8 @@ class CO2Regularizer(MemoryBankModule):
         self.alpha = alpha
 
     def forward(self, out0: torch.Tensor, out1: torch.Tensor):
-        """Computes the CO2 regularization term for two model outputs.
+        """
+        Computes the CO2 regularization term for two model outputs.
 
         Args:
             out0:
@@ -79,26 +92,26 @@ class CO2Regularizer(MemoryBankModule):
 
         """
 
-        # normalize the output to length 1
+        # Normalize the output to length 1
         out0 = torch.nn.functional.normalize(out0, dim=1)
         out1 = torch.nn.functional.normalize(out1, dim=1)
 
-        # ask memory bank for negative samples and extend it with out1 if
+        # Ask memory bank for negative samples and extend it with out1 if
         # out1 requires a gradient, otherwise keep the same vectors in the
         # memory bank (this allows for keeping the memory bank constant e.g.
         # for evaluating the loss on the test set)
-        # if the memory_bank size is 0, negatives will be None
+        # If the memory_bank size is 0, negatives will be None
         out1, negatives = super(CO2Regularizer, self).forward(out1, update=True)
 
-        # get log probabilities
+        # Get log probabilities
         p = self._get_pseudo_labels(out0, out1, negatives)
         q = self._get_pseudo_labels(out1, out0, negatives)
 
-        # calculate symmetrized kullback leibler divergence
+        # Calculate symmetrized Kullback-Leibler divergence
         if self.log_target:
             div = self.kl_div(p, q) + self.kl_div(q, p)
         else:
-            # can't use log_target because of early torch version
+            # Can't use log_target because of early torch version
             div = self.kl_div(p, torch.exp(q)) + self.kl_div(q, torch.exp(p))
 
         return self.alpha * 0.5 * div
