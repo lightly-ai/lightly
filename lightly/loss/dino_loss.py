@@ -31,7 +31,7 @@ class DINOLoss(Module):
         teacher_temp:
             Final value of the teacher temperature after linear warmup. Values
             above 0.07 result in unstable behavior in most cases. Can be
-            slightly increased to improve performance during finetuning.
+            slightly increased to improve performance during fine-tuning.
         warmup_teacher_temp_epochs:
             Number of epochs for the teacher temperature warmup.
         student_temp:
@@ -66,6 +66,13 @@ class DINOLoss(Module):
         center_momentum: float = 0.9,
         center_mode: str = "mean",
     ):
+        """
+        Initializes the DINOLoss Module.
+
+        Raises:
+            ValueError: If an unknown center mode is provided.
+
+        """
         super().__init__()
         if center_mode not in CENTER_MODE_TO_FUNCTION:
             raise ValueError(
@@ -97,7 +104,8 @@ class DINOLoss(Module):
         student_out: List[Tensor],
         epoch: int,
     ) -> Tensor:
-        """Cross-entropy between softmax outputs of the teacher and student
+        """
+        Cross-entropy between softmax outputs of the teacher and student
         networks.
 
         Args:
@@ -119,7 +127,7 @@ class DINOLoss(Module):
             The average cross-entropy loss.
 
         """
-        # get teacher temperature
+        # Get teacher temperature
         if epoch < self.warmup_teacher_temp_epochs:
             teacher_temp = self.teacher_temp_schedule[epoch]
         else:
@@ -131,23 +139,26 @@ class DINOLoss(Module):
         student_out = torch.stack(student_out)
         s_out = F.log_softmax(student_out / self.student_temp, dim=-1)
 
-        # calculate feature similarities where:
+        # Calculate feature similarities, ignoring the diagonal
         # b = batch_size, t = n_views_teacher, s = n_views_student, d = output_dim
-        # the diagonal is ignored as it contains features from the same views
         loss = -torch.einsum("tbd,sbd->ts", t_out, s_out)
         loss.fill_diagonal_(0)
 
-        # number of loss terms, ignoring the diagonal
+        # Number of loss terms, ignoring the diagonal
         n_terms = loss.numel() - loss.diagonal().numel()
         batch_size = teacher_out.shape[1]
+        
         loss = loss.sum() / (n_terms * batch_size)
 
+        # Update the center used for the teacher output
         self.update_center(teacher_out)
+        
         return loss
 
     @torch.no_grad()
     def update_center(self, teacher_out: Tensor) -> None:
-        """Moving average update of the center used for the teacher output.
+        """
+        Moving average update of the center used for the teacher output.
 
         Args:
             teacher_out:
@@ -155,7 +166,11 @@ class DINOLoss(Module):
                 features from the teacher model.
 
         """
+        
+        # Calculate the batch center using the specified center function
         batch_center = self._center_fn(x=teacher_out, dim=(0, 1))
+        
+        # Update the center with a moving average
         self.center = center.center_momentum(
             center=self.center, batch_center=batch_center, momentum=self.center_momentum
         )

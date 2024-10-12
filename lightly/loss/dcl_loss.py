@@ -12,7 +12,8 @@ from lightly.utils import dist
 def negative_mises_fisher_weights(
     out0: Tensor, out1: Tensor, sigma: float = 0.5
 ) -> torch.Tensor:
-    """Negative Mises-Fisher weighting function as presented in Decoupled
+    """
+    Negative Mises-Fisher weighting function as presented in Decoupled
     Contrastive Learning [0].
 
     The implementation was inspired by [1].
@@ -35,11 +36,14 @@ def negative_mises_fisher_weights(
 
     """
     similarity = torch.einsum("nm,nm->n", out0.detach(), out1.detach()) / sigma
+    
+    # Return negative Mises-Fisher weights
     return 2 - out0.shape[0] * nn.functional.softmax(similarity, dim=0)
 
 
 class DCLLoss(nn.Module):
-    """Implementation of the Decoupled Contrastive Learning Loss from
+    """
+    Implementation of the Decoupled Contrastive Learning Loss from
     Decoupled Contrastive Learning [0].
 
     This code implements Equation 6 in [0], including the sum over all images `i`
@@ -59,7 +63,7 @@ class DCLLoss(nn.Module):
             passed to the forward call as input and return a weight tensor. The
             returned weight tensor must have the same length as the input tensors.
         gather_distributed:
-            If True then negatives from all gpus are gathered before the
+            If True, negatives from all GPUs are gathered before the
             loss calculation.
 
     Examples:
@@ -89,11 +93,33 @@ class DCLLoss(nn.Module):
         weight_fn: Optional[Callable[[Tensor, Tensor], Tensor]] = None,
         gather_distributed: bool = False,
     ):
+        """
+        Initialzes the DCLoss module.
+
+        Args:
+            temperature: 
+                Similarities are scaled by inverse temperature.
+            weight_fn: 
+                 Weighting function `w` from the paper. Scales the loss between the
+                positive views (views from the same image). No weighting is performed
+                if weight_fn is None. The function must take the two input tensors
+                passed to the forward call as input and return a weight tensor. The
+                returned weight tensor must have the same length as the input tensors.
+            gather_distributed:
+                If True, negatives from all GPUs are gathered before the
+                loss calculation.
+
+        Raises:
+            ValuesError:
+                If gather_distributed is True but torch.distributed is not available.        
+        
+        """
         super().__init__()
         self.temperature = temperature
         self.weight_fn = weight_fn
         self.gather_distributed = gather_distributed
 
+        # Check if distributed gathering is enabled but torch.distributed is not available
         if gather_distributed and not torch_dist.is_available():
             raise ValueError(
                 "gather_distributed is True but torch.distributed is not available. "
@@ -106,7 +132,8 @@ class DCLLoss(nn.Module):
         out0: Tensor,
         out1: Tensor,
     ) -> Tensor:
-        """Forward pass of the DCL loss.
+        """
+        Forward pass of the DCL loss.
 
         Args:
             out0:
@@ -119,25 +146,28 @@ class DCLLoss(nn.Module):
         Returns:
             Mean loss over the mini-batch.
         """
-        # normalize the output to length 1
+        # Normalize the output to length 1
         out0 = nn.functional.normalize(out0, dim=1)
         out1 = nn.functional.normalize(out1, dim=1)
 
         if self.gather_distributed and dist.world_size() > 1:
-            # gather representations from other processes if necessary
+            # Gather representations from other processes if necessary
             out0_all = torch.cat(dist.gather(out0), 0)
             out1_all = torch.cat(dist.gather(out1), 0)
         else:
             out0_all = out0
             out1_all = out1
 
-        # calculate symmetric loss
+        # Calculate symmetric loss
         loss0 = self._loss(out0, out1, out0_all, out1_all)
         loss1 = self._loss(out1, out0, out1_all, out0_all)
+        
+        # Return the mean loss over the mini-batch
         return 0.5 * (loss0 + loss1)
 
     def _loss(self, out0, out1, out0_all, out1_all):
-        """Calculates DCL loss for out0 with respect to its positives in out1
+        """
+        Calculates DCL loss for out0 with respect to its positives in out1
         and the negatives in out1, out0_all, and out1_all.
 
         This code implements Equation 6 in [0], including the sum over all images `i`
@@ -154,17 +184,17 @@ class DCLLoss(nn.Module):
                 Output projections of the first set of transformed images from
                 all distributed processes/gpus. Should be equal to out0 in an
                 undistributed setting.
-                Shape (batch_size * world_size, embedding_size)
+                Shape: (batch_size * world_size, embedding_size)
             out1_all:
                 Output projections of the second set of transformed images from
-                all distributed processes/gpus. Should be equal to out1 in an
+                all distributed processes/GPUs. Should be equal to out1 in an
                 undistributed setting.
-                Shape (batch_size * world_size, embedding_size)
+                Shape: (batch_size * world_size, embedding_size)
 
         Returns:
             Mean loss over the mini-batch.
         """
-        # create diagonal mask that only selects similarities between
+        # Create diagonal mask that only selects similarities between
         # representations of the same images
         batch_size = out0.shape[0]
         if self.gather_distributed and dist.world_size() > 1:
@@ -172,8 +202,7 @@ class DCLLoss(nn.Module):
         else:
             diag_mask = torch.eye(batch_size, device=out0.device, dtype=torch.bool)
 
-        # calculate similarities
-        # here n = batch_size and m = batch_size * world_size.
+        # Calculate similarities (n = batch_size, m = batch_size * world_size)
         sim_00 = torch.einsum("nc,mc->nm", out0, out0_all) / self.temperature
         sim_01 = torch.einsum("nc,mc->nm", out0, out1_all) / self.temperature
 
@@ -181,10 +210,11 @@ class DCLLoss(nn.Module):
         if self.weight_fn:
             positive_loss = positive_loss * self.weight_fn(out0, out1)
 
-        # remove simliarities between same views of the same image
+        # Remove simliarities between same views of the same image
         sim_00 = sim_00[~diag_mask].view(batch_size, -1)
-        # remove similarities between different views of the same images
-        # this is the key difference compared to NTXentLoss
+        
+        # Remove similarities between different views of the same images
+        # This is the key difference compared to NTXentLoss
         sim_01 = sim_01[~diag_mask].view(batch_size, -1)
 
         negative_loss_00 = torch.logsumexp(sim_00, dim=1)
@@ -210,7 +240,7 @@ class DCLWLoss(DCLLoss):
             Similar to temperature but applies the inverse scaling in the
             weighting function.
         gather_distributed:
-            If True then negatives from all gpus are gathered before the
+            If True, negatives from all GPUs are gathered before the
             loss calculation.
 
     Examples:
@@ -236,6 +266,19 @@ class DCLWLoss(DCLLoss):
         sigma: float = 0.5,
         gather_distributed: bool = False,
     ):
+        """
+            Initializes the DCLWLoss module.
+
+            Args:
+                temperature: 
+                    Similarities are scaled by inverse temperature.
+                sigma:
+                    Applies inverse scaling in the weighting function.
+                gather_distributed:
+                    If True, negatives from all GPUs are gathered before the
+                    loss calculation.
+
+        """
         super().__init__(
             temperature=temperature,
             weight_fn=partial(negative_mises_fisher_weights, sigma=sigma),
