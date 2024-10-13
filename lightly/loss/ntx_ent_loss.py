@@ -14,14 +14,16 @@ from lightly.utils import dist
 
 
 class NTXentLoss(MemoryBankModule):
-    """Implementation of the Contrastive Cross Entropy Loss.
+    """
+    Implementation of the Contrastive Cross Entropy Loss.
 
     This implementation follows the SimCLR[0] paper. If you enable the memory
     bank by setting the `memory_bank_size` value > 0 the loss behaves like
     the one described in the MoCo[1] paper.
 
-    - [0] SimCLR, 2020, https://arxiv.org/abs/2002.05709
-    - [1] MoCo, 2020, https://arxiv.org/abs/1911.05722
+    References:
+        - [0] SimCLR, 2020, https://arxiv.org/abs/2002.05709
+        - [1] MoCo, 2020, https://arxiv.org/abs/1911.05722
 
     Attributes:
         temperature:
@@ -36,7 +38,7 @@ class NTXentLoss(MemoryBankModule):
             batch stored in the memory bank. Leaving out the feature dimension might
             lead to errors in distributed training.
         gather_distributed:
-            If True then negatives from all gpus are gathered before the
+            If True then negatives from all GPUs are gathered before the
             loss calculation. If a memory bank is used and gather_distributed is True,
             then tensors from all gpus are gathered before the memory bank is updated.
 
@@ -67,6 +69,21 @@ class NTXentLoss(MemoryBankModule):
         memory_bank_size: Union[int, Sequence[int]] = 0,
         gather_distributed: bool = False,
     ):
+        """
+        Initializes the NTXentLoss module with the specified parameters.
+
+            Args:
+                temperature:
+                     Scale logits by the inverse of the temperature.
+                memory_bank_size:
+                     Size of the memory bank.
+                gather_distributed:
+                     If True, negatives from all GPUs are gathered before the loss calculation.
+
+            Raises:
+                ValueError: If temperature is less than 1e-8 to prevent divide by zero.
+                ValueError: If gather_distributed is True but torch.distributed is not available.
+        """
         super().__init__(size=memory_bank_size, gather_distributed=gather_distributed)
         self.temperature = temperature
         self.gather_distributed = gather_distributed
@@ -85,7 +102,8 @@ class NTXentLoss(MemoryBankModule):
             )
 
     def forward(self, out0: torch.Tensor, out1: torch.Tensor):
-        """Forward pass through Contrastive Cross-Entropy Loss.
+        """
+        Forward pass through Contrastive Cross-Entropy Loss.
 
         If used with a memory bank, the samples from the memory bank are used
         as negative examples. Otherwise, within-batch samples are used as
@@ -107,7 +125,7 @@ class NTXentLoss(MemoryBankModule):
         device = out0.device
         batch_size, _ = out0.shape
 
-        # normalize the output to length 1
+        # Normalize the output to length 1
         out0 = nn.functional.normalize(out0, dim=1)
         out1 = nn.functional.normalize(out1, dim=1)
 
@@ -121,12 +139,11 @@ class NTXentLoss(MemoryBankModule):
             out1, update=out0.requires_grad
         )
 
-        # We use the cosine similarity, which is a dot product (einsum) here,
-        # as all vectors are already normalized to unit length.
+        # Use cosine similarity (dot product) as all vectors are normalized to unit length
         # Notation in einsum: n = batch_size, c = embedding_size and k = memory_bank_size.
 
         if negatives is not None:
-            # use negatives from memory bank
+            # Use negatives from memory bank
             negatives = negatives.to(device)
 
             # sim_pos is of shape (batch_size, 1) and sim_pos[i] denotes the similarity
@@ -137,50 +154,50 @@ class NTXentLoss(MemoryBankModule):
             # of the i-th sample to the j-th negative sample
             sim_neg = torch.einsum("nc,ck->nk", out0, negatives)
 
-            # set the labels to the first "class", i.e. sim_pos,
-            # so that it is maximized in relation to sim_neg
+            # Set the labels to maximize sim_pos in relation to sim_neg
             logits = torch.cat([sim_pos, sim_neg], dim=1) / self.temperature
             labels = torch.zeros(logits.shape[0], device=device, dtype=torch.long)
 
         else:
-            # user other samples from batch as negatives
+            # Use other samples from batch as negatives
             # and create diagonal mask that only selects similarities between
             # views of the same image
             if self.gather_distributed and dist.world_size() > 1:
-                # gather hidden representations from other processes
+                # Gather hidden representations from other processes
                 out0_large = torch.cat(dist.gather(out0), 0)
                 out1_large = torch.cat(dist.gather(out1), 0)
                 diag_mask = dist.eye_rank(batch_size, device=out0.device)
             else:
-                # single process
+                # Single process
                 out0_large = out0
                 out1_large = out1
                 diag_mask = torch.eye(batch_size, device=out0.device, dtype=torch.bool)
 
-            # calculate similiarities
-            # here n = batch_size and m = batch_size * world_size
-            # the resulting vectors have shape (n, m)
+            # Calculate similiarities
+            # Here n = batch_size and m = batch_size * world_size
+            # The resulting vectors have shape (n, m)
             logits_00 = torch.einsum("nc,mc->nm", out0, out0_large) / self.temperature
             logits_01 = torch.einsum("nc,mc->nm", out0, out1_large) / self.temperature
             logits_10 = torch.einsum("nc,mc->nm", out1, out0_large) / self.temperature
             logits_11 = torch.einsum("nc,mc->nm", out1, out1_large) / self.temperature
 
-            # remove simliarities between same views of the same image
+            # Remove simliarities between same views of the same image
             logits_00 = logits_00[~diag_mask].view(batch_size, -1)
             logits_11 = logits_11[~diag_mask].view(batch_size, -1)
 
-            # concatenate logits
-            # the logits tensor in the end has shape (2*n, 2*m-1)
+            # Concatenate logits
+            # The logits tensor in the end has shape (2*n, 2*m-1)
             logits_0100 = torch.cat([logits_01, logits_00], dim=1)
             logits_1011 = torch.cat([logits_10, logits_11], dim=1)
             logits = torch.cat([logits_0100, logits_1011], dim=0)
 
-            # create labels
+            # Create labels
             labels = torch.arange(batch_size, device=device, dtype=torch.long)
             if self.gather_distributed:
                 labels = labels + dist.rank() * batch_size
             labels = labels.repeat(2)
 
+        # Calculate the cross-entropy loss
         loss = self.cross_entropy(logits, labels)
 
         return loss
