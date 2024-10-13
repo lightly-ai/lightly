@@ -4,15 +4,15 @@ from torch.linalg import svd
 
 
 class MMCRLoss(nn.Module):
-    """Implementation of the loss function from MMCR [0] using Manifold Capacity.
+    """
+    Implementation of the loss function from MMCR [0] using Manifold Capacity.
     All hyperparameters are set to the default values from the paper for ImageNet.
 
-    - [0]: Efficient Coding of Natural Images using Maximum Manifold Capacity
+    References:
+        - [0]: Efficient Coding of Natural Images using Maximum Manifold Capacity
             Representations, 2023, https://arxiv.org/pdf/2303.03307.pdf
 
      Examples:
-
-
         >>> # initialize loss function
         >>> loss_fn = MMCRLoss()
         >>> transform = MMCRTransform(k=2)
@@ -27,6 +27,18 @@ class MMCRLoss(nn.Module):
     """
 
     def __init__(self, lmda: float = 5e-3):
+        """
+        Initializes the MMCRLoss module with the specified lambda parameter. 
+        
+        Args:
+            lmda:
+                The regularization parameter.
+
+        Raises:
+            ValueError:
+                If lmda is less than 0.        
+        
+        """
         super().__init__()
         if lmda < 0:
             raise ValueError("lmda must be greater than or equal to 0")
@@ -35,6 +47,8 @@ class MMCRLoss(nn.Module):
 
     def forward(self, online: torch.Tensor, momentum: torch.Tensor) -> torch.Tensor:
         """
+        Computes the MMCR loss for the online and momentum network outputs.
+        
         Args:
             online:
                 Output of the online network for the current batch. Expected to be
@@ -45,6 +59,9 @@ class MMCRLoss(nn.Module):
                 of shape (batch_size, k, embedding_size), where k represents the
                 number of randomly augmented views for each sample.
 
+        Returns:
+            The computed loss value.        
+        
         """
         assert (
             online.shape == momentum.shape
