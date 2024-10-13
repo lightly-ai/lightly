@@ -1,7 +1,7 @@
 ![LightlySSL self-supervised learning Logo](docs/logos/lightly_SSL_logo_crop.png)
 
 
-<div align="center">
+<div align="center" style="margin-bottom:2px;">
   <img alt="GitHub License" src="https://img.shields.io/github/license/lightly-ai/lightly" />
   <img alt="Unit Tests" src="https://github.com/lightly-ai/lightly/workflows/Unit%20Tests/badge.svg" />
   <a href="https://pypi.org/project/lightly/">
