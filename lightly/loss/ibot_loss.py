@@ -7,10 +7,12 @@ from lightly.models.modules.center import Center
 
 
 class IBOTPatchLoss(Module):
-    """Implementation of the iBOT patch loss [0] as used in DINOv2 [1].
+    """
+    Implementation of the iBOT patch loss [0] as used in DINOv2 [1].
 
     Implementation is based on [2].
 
+    References:
     - [0]: iBOT, 2021, https://arxiv.org/abs/2111.07832
     - [1]: DINOv2, 2023, https://arxiv.org/abs/2304.07193
     - [2]: https://github.com/facebookresearch/dinov2/blob/main/dinov2/loss/ibot_patch_loss.py
@@ -36,6 +38,22 @@ class IBOTPatchLoss(Module):
         center_mode: str = "mean",
         center_momentum: float = 0.9,
     ) -> None:
+        """
+        Initializes the iBOTPatchLoss module with the specified parameters.
+
+        Args:
+            output_dim:
+                Dimension of the model output.
+            teacher_temp:
+                Temperature for the teacher output.
+            student_temp:
+                Temperature for the student output.
+            center_mode:
+                Mode for center calculation. Only 'mean' is supported.
+            center_momentum:
+                Momentum term for the center update.    
+        
+        """
         super().__init__()
         self.teacher_temp = teacher_temp
         self.student_temperature = student_temp
@@ -51,7 +69,8 @@ class IBOTPatchLoss(Module):
         student_out: Tensor,
         mask: Tensor,
     ) -> Tensor:
-        """Forward pass through the iBOT patch loss.
+        """
+        Forward pass through the iBOT patch loss.
 
         Args:
             teacher_out:
@@ -66,13 +85,13 @@ class IBOTPatchLoss(Module):
                 True in the mask.
 
         Returns:
-            Loss value.
+            The loss value.
         """
         # B = batch size, N = sequence length = number of masked tokens, D = embed dim
         # H = height (in tokens), W = width (in tokens)
         # Note that N <= H * W depending on how many tokens are masked.
 
-        # Calculate cross entropy loss.
+        # Calculate cross-entropy loss.
         teacher_softmax = F.softmax(
             (teacher_out - self.center.value) / self.teacher_temp, dim=-1
         )
