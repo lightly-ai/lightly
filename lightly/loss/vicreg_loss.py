@@ -142,7 +142,7 @@ def invariance_loss(x: Tensor, y: Tensor) -> Tensor:
             Tensor with shape (batch_size, ..., dim).
         y:
             Tensor with shape (batch_size, ..., dim).
-    
+
     Returns:
         The computed VICReg invariance loss.
     """
@@ -159,7 +159,7 @@ def variance_loss(x: Tensor, eps: float = 0.0001) -> Tensor:
             Epsilon for numerical stability.
 
     Returns:
-        The computed VICReg variance loss.                
+        The computed VICReg variance loss.
     """
     std = torch.sqrt(x.var(dim=0) + eps)
     loss = torch.mean(F.relu(1.0 - std))
@@ -178,16 +178,16 @@ def covariance_loss(x: Tensor) -> Tensor:
             Tensor with shape (batch_size, ..., dim).
 
     Returns:
-          The computed VICReg covariance loss.      
+          The computed VICReg covariance loss.
     """
     x = x - x.mean(dim=0)
     batch_size = x.size(0)
     dim = x.size(-1)
     # nondiag_mask has shape (dim, dim) with 1s on all non-diagonal entries.
     nondiag_mask = ~torch.eye(dim, device=x.device, dtype=torch.bool)
-   
+
     # cov has shape (..., dim, dim)
     cov = torch.einsum("b...c,b...d->...cd", x, x) / (batch_size - 1)
-    
+
     loss = cov[..., nondiag_mask].pow(2).sum(-1) / dim
     return loss.mean()

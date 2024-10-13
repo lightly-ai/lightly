@@ -89,18 +89,18 @@ class SwaVLoss(nn.Module):
         Initializes the SwaVLoss module with the specified parameters.
 
         Args:
-            temperature: 
+            temperature:
                 Temperature parameter used for cross-entropy calculations.
             sinkhorn_iterations:
                 Number of iterations of the sinkhorn algorithm.
-            sinkhorn_epsilon: 
+            sinkhorn_epsilon:
                 Temperature parameter used in the sinkhorn algorithm.
-            sinkhorn_gather_distributed: 
+            sinkhorn_gather_distributed:
                 If True, features from all GPUs are gathered to calculate the
                     soft codes in the sinkhorn algorithm.
 
         Raises:
-            ValueError: 
+            ValueError:
                 If sinkhorn_gather_distributed is True but torch.distributed is not available.
 
         """

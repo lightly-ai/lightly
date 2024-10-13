@@ -147,12 +147,12 @@ class DINOLoss(Module):
         # Number of loss terms, ignoring the diagonal
         n_terms = loss.numel() - loss.diagonal().numel()
         batch_size = teacher_out.shape[1]
-        
+
         loss = loss.sum() / (n_terms * batch_size)
 
         # Update the center used for the teacher output
         self.update_center(teacher_out)
-        
+
         return loss
 
     @torch.no_grad()
@@ -166,10 +166,10 @@ class DINOLoss(Module):
                 features from the teacher model.
 
         """
-        
+
         # Calculate the batch center using the specified center function
         batch_center = self._center_fn(x=teacher_out, dim=(0, 1))
-        
+
         # Update the center with a moving average
         self.center = center.center_momentum(
             center=self.center, batch_center=batch_center, momentum=self.center_momentum

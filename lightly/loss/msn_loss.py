@@ -165,25 +165,25 @@ class MSNLoss(nn.Module):
         Initializes the MSNLoss module with the specified parameters.
 
         Args:
-            temperature: 
+            temperature:
                 Similarities between anchors and targets are scaled by the inverse of the temperature. Must be in (0, inf).
-            sinkhorn_iterations: 
+            sinkhorn_iterations:
                 Number of sinkhorn normalization iterations on the targets.
-            regularization_weight: 
+            regularization_weight:
                 Weight factor lambda by which the regularization loss is scaled. Set to 0 to disable regularization.
-            me_max_weight: 
-                Deprecated, use `regularization_weight` instead. Takes precedence over 
+            me_max_weight:
+                Deprecated, use `regularization_weight` instead. Takes precedence over
                 `regularization_weight` if not None. Weight factor lambda by which the mean
                     entropy maximization regularization loss is scaled. Set to 0 to disable mean
                     entropy maximization regularization.
-            gather_distributed: 
+            gather_distributed:
                 If True, then target probabilities are gathered from all GPUs.
 
         Raises:
             ValueError: If temperature is not in (0, inf).
             ValueError: If sinkhorn_iterations is less than 0.
             ValueError: If gather_distributed is True but torch.distributed is not available.
-            
+
         """
         super().__init__()
         if temperature <= 0:
@@ -238,7 +238,7 @@ class MSNLoss(nn.Module):
 
         """
         num_views = anchors.shape[0] // targets.shape[0]
-        
+
         # Normalize the inputs
         anchors = F.normalize(anchors, dim=1)
         targets = F.normalize(targets, dim=1)
@@ -277,12 +277,12 @@ class MSNLoss(nn.Module):
     def regularization_loss(self, mean_anchor_probs: Tensor) -> Tensor:
         """
         Calculates mean entropy regularization loss.
-        
+
         Args:
             mean_anchor_probs: The mean anchor probabilities.
 
         Returns:
-            The calculated regularization loss.    
+            The calculated regularization loss.
         """
         loss = -torch.sum(torch.log(mean_anchor_probs ** (-mean_anchor_probs)))
         loss += math.log(float(len(mean_anchor_probs)))

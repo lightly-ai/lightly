@@ -97,7 +97,7 @@ class VICRegLLoss(torch.nn.Module):
                 Number of local features to match using nearest neighbors.
 
         Raises:
-            ValueError: If gather_distributed is True but torch.distributed is not available.        
+            ValueError: If gather_distributed is True but torch.distributed is not available.
         """
         super(VICRegLLoss, self).__init__()
         self.alpha = alpha
@@ -158,7 +158,7 @@ class VICRegLLoss(torch.nn.Module):
         Raises:
             ValueError: If the lengths of global_view_features and global_view_grids are not the same.
             ValueError: If the lengths of local_view_features and local_view_grids are not the same.
-            ValueError: If only one of local_view_features or local_view_grids is set.    
+            ValueError: If only one of local_view_features or local_view_grids is set.
         """
         if len(global_view_features) != len(global_view_grids):
             raise ValueError(
@@ -200,13 +200,13 @@ class VICRegLLoss(torch.nn.Module):
         local_view_features: Optional[Sequence[Tuple[Tensor, Tensor]]] = None,
     ) -> Tensor:
         """Returns global features loss.
-        
+
         Args:
-        global_view_features: 
+        global_view_features:
             Sequence of (global_features, local_features)
                 tuples from the global crop views.
         local_view_features:
-            Sequence of (global_features,local_features) 
+            Sequence of (global_features,local_features)
                 tuples from the local crop views.
 
         Returns:
@@ -232,20 +232,20 @@ class VICRegLLoss(torch.nn.Module):
         local_view_features: Optional[Sequence[Tuple[Tensor, Tensor]]] = None,
     ) -> Tensor:
         """Returns invariance loss from global features.
-            Args:
-                global_view_features: 
-                    Sequence of (global_features, local_features)
-                    tuples from the global crop views.
-                local_view_features: Sequence of (global_features,local_features)
-                    tuples from the local crop views.
+                Args:
+                    global_view_features:
+                        Sequence of (global_features, local_features)
+                        tuples from the global crop views.
+                    local_view_features: Sequence of (global_features,local_features)
+                        tuples from the local crop views.
 
-    Returns:
-        The computed invariance loss from global features.
+        Returns:
+            The computed invariance loss from global features.
 
         """
         loss = 0
         loss_count = 0
-        
+
         # Compute invariance loss between global views
         for global_features_a, _ in global_view_features:
             for global_features_b, _ in global_view_features:
@@ -258,7 +258,7 @@ class VICRegLLoss(torch.nn.Module):
                 for global_features_b, _ in local_view_features:
                     loss += invariance_loss(global_features_a, global_features_b)
                     loss_count += 1
-        
+
         return loss / loss_count
 
     def _global_variance_and_covariance_loss(
@@ -268,7 +268,7 @@ class VICRegLLoss(torch.nn.Module):
     ) -> Tuple[Tensor, Tensor]:
         """
         Returns variance and covariance loss from global features.
-        
+
         Args:
             global_view_features: Sequence of (global_features, local_features)
                     tuples from the global crop views.
@@ -276,8 +276,8 @@ class VICRegLLoss(torch.nn.Module):
                     tuples from the local crop views.
 
         Returns:
-            The computed variance and covariance loss from global features.              
-        
+            The computed variance and covariance loss from global features.
+
         """
         view_features = list(global_view_features)
         if local_view_features is not None:
@@ -319,15 +319,15 @@ class VICRegLLoss(torch.nn.Module):
         regardless of global or local views:
         https://github.com/facebookresearch/VICRegL/blob/803ae4c8cd1649a820f03afb4793763e95317620/main_vicregl.py#L329-L334
         Our implementation follows the original code and ignores view type.
-        
+
         Args:
-            global_view_features: 
+            global_view_features:
                 Sequence of (global_features, local_features) tuples from the global crop views.
-            global_view_grids: 
+            global_view_grids:
                 Sequence of grid tensors from the global crop views.
-            local_view_features: 
+            local_view_features:
                 Sequence of (global_features,local_features) tuples from the local crop views.
-            local_view_grids: 
+            local_view_grids:
                 Sequence of grid tensors from the local crop views.
 
         Returns:
@@ -335,7 +335,7 @@ class VICRegLLoss(torch.nn.Module):
         """
         loss = 0
         loss_count = 0
-        
+
         # Compute the loss for global views
         for (_, z_a_local_features), grid_a in zip(
             global_view_features, global_view_grids
@@ -387,7 +387,7 @@ class VICRegLLoss(torch.nn.Module):
                 Local feature tensor with shape (batch_size, height, width, dim).
             z_b:
                 Local feature tensor with shape (batch_size, height, width, dim).
-        
+
         Returns:
             The computed loss for local features.
         """
@@ -402,11 +402,11 @@ class VICRegLLoss(torch.nn.Module):
         z_b_filtered, z_b_nn = self._nearest_neighbors_on_l2(
             input_features=z_b, candidate_features=z_a, num_matches=self.num_matches[1]
         )
-        
+
         # Compute VICReg losses
         loss_a = self.vicreg_loss.forward(z_a=z_a_filtered, z_b=z_a_nn)
         loss_b = self.vicreg_loss.forward(z_a=z_b_filtered, z_b=z_b_nn)
-        
+
         return 0.5 * (loss_a + loss_b)
 
     def _local_location_loss(
@@ -432,16 +432,16 @@ class VICRegLLoss(torch.nn.Module):
                 Note that height and width can be different from grid_a.
 
         Returns:
-            The computed loss for local features based on nearest neighbour matching.        
+            The computed loss for local features based on nearest neighbour matching.
         """
         # (batch_size, height, width, dim) -> (batch_size, height * width, dim)
         z_a = z_a.flatten(start_dim=1, end_dim=2)
         z_b = z_b.flatten(start_dim=1, end_dim=2)
-        
+
         # (batch_size, height, width, 2) -> (batch_size, height * width, 2)
         grid_a = grid_a.flatten(start_dim=1, end_dim=2)
         grid_b = grid_b.flatten(start_dim=1, end_dim=2)
-        
+
         # Find nearest neighbours based on grid location
         z_a_filtered, z_a_nn = self._nearest_neighbors_on_grid(
             input_features=z_a,

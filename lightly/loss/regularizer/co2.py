@@ -57,7 +57,7 @@ class CO2Regularizer(MemoryBankModule):
         Initializes the CO2Regularizer with the specified parameters.
 
         Args:
-            alpha: 
+            alpha:
                 Weight of the regularization term.
             t_consistency:
                 Temperature used during softmax calculations.
@@ -143,7 +143,7 @@ class CO2Regularizer(MemoryBankModule):
             # l_pos has shape bsz x 1 and l_neg has shape bsz x bsz
             l_pos = torch.einsum("nc,nc->n", [out0, out1]).unsqueeze(-1)
             l_neg = torch.einsum("nc,ck->nk", [out0, out1.t()])
-            
+
             # Remove elements on the diagonal
             # l_neg has shape bsz x (bsz - 1)
             l_neg = l_neg.masked_select(

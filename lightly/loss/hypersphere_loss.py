@@ -68,7 +68,7 @@ class HypersphereLoss(torch.nn.Module):
     def forward(self, z_a: torch.Tensor, z_b: torch.Tensor) -> torch.Tensor:
         """
         Computes the Hypersphere loss, which combines alignment and uniformity loss terms.
-        
+
         Args:
             z_a:
                 Tensor of shape (batch_size, embedding_dim) for the first set of embeddings.

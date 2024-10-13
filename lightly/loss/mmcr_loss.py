@@ -28,16 +28,16 @@ class MMCRLoss(nn.Module):
 
     def __init__(self, lmda: float = 5e-3):
         """
-        Initializes the MMCRLoss module with the specified lambda parameter. 
-        
+        Initializes the MMCRLoss module with the specified lambda parameter.
+
         Args:
             lmda:
                 The regularization parameter.
 
         Raises:
             ValueError:
-                If lmda is less than 0.        
-        
+                If lmda is less than 0.
+
         """
         super().__init__()
         if lmda < 0:
@@ -48,7 +48,7 @@ class MMCRLoss(nn.Module):
     def forward(self, online: torch.Tensor, momentum: torch.Tensor) -> torch.Tensor:
         """
         Computes the MMCR loss for the online and momentum network outputs.
-        
+
         Args:
             online:
                 Output of the online network for the current batch. Expected to be
@@ -60,8 +60,8 @@ class MMCRLoss(nn.Module):
                 number of randomly augmented views for each sample.
 
         Returns:
-            The computed loss value.        
-        
+            The computed loss value.
+
         """
         assert (
             online.shape == momentum.shape

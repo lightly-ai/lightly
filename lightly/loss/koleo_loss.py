@@ -23,7 +23,7 @@ class KoLeoLoss(Module):
         eps:
             Small value to avoid division by zero.
     """
-    
+
     def __init__(
         self,
         p: float = 2,
@@ -37,9 +37,9 @@ class KoLeoLoss(Module):
                 The norm degree for pairwise distance calculation.
             eps:
                 Small value to avoid division by zero.
-        
+
         """
-        
+
         super().__init__()
         self.p = p
         self.eps = eps
@@ -52,23 +52,23 @@ class KoLeoLoss(Module):
         Args:
             x:
                 Tensor with shape (batch_size, embedding_size).
-        
+
         Returns:
             Loss value.
-        
+
         """
         # Normalize the input tensor
         x = functional.normalize(x, p=2, dim=-1, eps=self.eps)
-        
+
         # Calculate cosine similarity.
         cos_sim = torch.mm(x, x.t())
         cos_sim.fill_diagonal_(-2)
-        
+
         # Get nearest neighbors.
         nn_idx = cos_sim.argmax(dim=1)
         nn_dist: Tensor = self.pairwise_distance(x, x[nn_idx])
-        
+
         # Compute the loss
         loss = -(nn_dist + self.eps).log().mean()
-        
+
         return loss

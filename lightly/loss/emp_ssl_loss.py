@@ -25,10 +25,10 @@ def tcr_loss(z: Tensor, eps: float) -> Tensor:
     diag = torch.eye(dim, device=z.device).unsqueeze(0)
     # Matrix multiplication over the batch dimension
     einsum = torch.einsum("vbd,vbe->vde", z, z)
-    
+
     # Calculate the log determinant
     logdet = torch.logdet(diag + dim / (batch_size * eps) * einsum)
-    
+
     return 0.5 * logdet.mean()
 
 
@@ -44,10 +44,10 @@ def invariance_loss(z: Tensor) -> Tensor:
         Similarity loss.
     """
     # z has shape (num_views, batch_size, dim)
-    
+
     # Calculate the mean of the patch embeddings across the batch dimension
     z_mean = z.mean(0, keepdim=True)
-    
+
     return -F.cosine_similarity(z, z_mean, dim=-1).mean()
 
 
@@ -90,11 +90,11 @@ class EMPSSLLoss(Module):
         Initializes the EMPSSLoss module.
 
         Args:
-            tcr_eps: 
+            tcr_eps:
                 Total coding rate (TCR) epsilon.
             inv_coff:
                 Coefficient for the invariance loss
-           
+
         """
         super().__init__()
         self.tcr_eps = tcr_eps
@@ -108,11 +108,11 @@ class EMPSSLLoss(Module):
             z_views:
                 List of patch embeddings tensors from different views.
 
-        Returns: 
-            The computed EMP-SSL loss.                
+        Returns:
+            The computed EMP-SSL loss.
         """
-        
+
         # z has shape (num_views, batch_size, dim)
         z = torch.stack(z_views)
-        
+
         return tcr_loss(z, eps=self.tcr_eps) + self.inv_coef * invariance_loss(z)

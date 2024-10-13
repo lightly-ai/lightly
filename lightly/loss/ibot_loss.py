@@ -51,8 +51,8 @@ class IBOTPatchLoss(Module):
             center_mode:
                 Mode for center calculation. Only 'mean' is supported.
             center_momentum:
-                Momentum term for the center update.    
-        
+                Momentum term for the center update.
+
         """
         super().__init__()
         self.teacher_temp = teacher_temp

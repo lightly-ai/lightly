@@ -17,11 +17,11 @@ else:
 
 def norm_mse_loss(x0: torch.Tensor, x1: torch.Tensor) -> torch.Tensor:
     """Normalized MSE Loss as implemented in https://github.com/htdt/self-supervised.
-    
+
     Args:
         x0: First input tensor.
         x1: Second input tensor.
-    
+
     Returns:
         The computed normalized MSE loss.
     """
@@ -48,13 +48,13 @@ class Whitening2d(nn.Module):
         """Initializes the Whitening2d module with the specified parameters.
 
         Args:
-            num_features: 
+            num_features:
                 Number of features in the input.
-            momentum: 
+            momentum:
                 Momentum for the running mean and variance.
-            track_running_stats: 
+            track_running_stats:
                 If True, tracks the running mean and variance.
-            eps: 
+            eps:
                 Epsilon for numerical stability.
 
         Raises:
@@ -103,7 +103,7 @@ class Whitening2d(nn.Module):
 
         # Reshape for covariance computation
         T = xn.permute(1, 0, 2, 3).contiguous().view(self.num_features, -1)
-        
+
         # Compute covariance matrix
         f_cov = torch.mm(T, T.permute(1, 0)) / (T.shape[-1] - 1)
 

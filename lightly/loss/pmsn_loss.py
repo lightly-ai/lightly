@@ -59,18 +59,18 @@ class PMSNLoss(MSNLoss):
         Initializes the PMSNLoss module with the specified parameters.
 
         Args:
-            temperature: 
+            temperature:
                 Similarities between anchors and targets are scaled by the inverse of the temperature.
                 Must be in (0, inf).
-            sinkhorn_iterations: 
+            sinkhorn_iterations:
                 Number of sinkhorn normalization iterations on the targets.
-            regularization_weight: 
-                Weight factor lambda by which the regularization loss is scaled. 
+            regularization_weight:
+                Weight factor lambda by which the regularization loss is scaled.
                 Set to 0 to disable regularization.
-            power_law_exponent: 
-                Exponent for power law distribution. Entry k of the distribution is proportional 
+            power_law_exponent:
+                Exponent for power law distribution. Entry k of the distribution is proportional
                     to (1 / k) ^ power_law_exponent, with k ranging from 1 to dim + 1.
-            gather_distributed: 
+            gather_distributed:
                 If True, then target probabilities are gathered from all GPUs.
 
         """
@@ -168,15 +168,15 @@ class PMSNCustomLoss(MSNLoss):
                     shape (dim,) as input and returns a target probability distribution
                     tensor with the same shape. The returned distribution should sum
                     up to one.
-            temperature: 
+            temperature:
                     Similarities between anchors and targets are scaled by the inverse of
                     the temperature. Must be in (0, inf).
             sinkhorn_iterations:
-                    Number of sinkhorn normalization iterations on the targets.                                      
+                    Number of sinkhorn normalization iterations on the targets.
             regularization_weight:
                     Weight factor lambda by which the regularization loss is scaled.
                     Set to 0 to disable regularization.
-            gather_distributed: 
+            gather_distributed:
                     If True, then target probabilities are gathered from all GPUs.
 
         """
@@ -192,12 +192,12 @@ class PMSNCustomLoss(MSNLoss):
         """
         Calculates regularization loss with a custom target distribution.
 
-        Args: 
-            mean_anchor_probs: 
+        Args:
+            mean_anchor_probs:
                 The mean anchor probabilities.
 
         Returns:
-            The calculated regularization loss.                
+            The calculated regularization loss.
         """
         target_dist = self.target_distribution(mean_anchor_probs).to(
             mean_anchor_probs.device
@@ -211,9 +211,9 @@ class PMSNCustomLoss(MSNLoss):
 def _power_law_distribution(size: int, exponent: float, device: torch.device) -> Tensor:
     """
     Returns a power law distribution summing up to 1.
-    
+
     Args:
-        size: 
+        size:
             The size of the distribution.
         exponent:
             The exponent for the power law distribution.
@@ -221,7 +221,7 @@ def _power_law_distribution(size: int, exponent: float, device: torch.device) ->
             The device to create tensor on.
 
     Returns:
-        A power law distribution tensor summing up to 1.          
+        A power law distribution tensor summing up to 1.
     """
     k = torch.arange(1, size + 1, device=device)
     power_dist = k ** (-exponent)

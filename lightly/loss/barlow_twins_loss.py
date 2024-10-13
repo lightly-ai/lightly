@@ -41,7 +41,7 @@ class BarlowTwinsLoss(torch.nn.Module):
 
         Raises:
             ValueError: If gather_distributed is True but torch.distributed is not available.
-        
+
         """
         super(BarlowTwinsLoss, self).__init__()
         self.lambda_param = lambda_param
@@ -55,7 +55,7 @@ class BarlowTwinsLoss(torch.nn.Module):
             )
 
     def forward(self, z_a: torch.Tensor, z_b: torch.Tensor) -> torch.Tensor:
-        """ 
+        """
         Computes the Barlow Twins loss for the given projections.
 
         Args:
@@ -63,10 +63,10 @@ class BarlowTwinsLoss(torch.nn.Module):
             z_b: Output projections of the second set of transformed images.
 
         Returns:
-            Computed Barlow Twins Loss.    
-        
+            Computed Barlow Twins Loss.
+
         """
-        
+
         # Normalize repr. along the batch dimension
         z_a_norm, z_b_norm = _normalize(z_a, z_b)
 
@@ -95,18 +95,18 @@ def _normalize(
 ) -> Tuple[torch.Tensor, torch.Tensor]:
     """
     Helper function to normalize tensors along the batch dimension.
-    
+
     Args:
         z_a: First tensor to normalize.
         z_b: Second tensor to normalize.
 
     Returns:
-           A tuple containing the normalized tensors.  
-    
+           A tuple containing the normalized tensors.
+
     """
     # Stack tensors along a new dimension
     combined = torch.stack([z_a, z_b], dim=0)  # Shape: 2 x N x D
-    
+
     # Normalize the stacked tensors along the batch dimension
     normalized = F.batch_norm(
         combined.flatten(0, 1),
@@ -116,7 +116,7 @@ def _normalize(
         bias=None,
         training=True,
     ).view_as(combined)
-    
+
     return normalized[0], normalized[1]
 
 
@@ -126,15 +126,15 @@ def _off_diagonal(x):
 
     Args:
         Input square matrix tensor.
-    
+
     Returns:
         Flattened view of the off-diagonal elements.
-    
+
     """
-    
-    # Ensure the input is a square matrix 
+
+    # Ensure the input is a square matrix
     n, m = x.shape
     assert n == m
-    
+
     # Flatten the matrix and extract off-diagonal elements
     return x.flatten()[:-1].view(n - 1, n + 1)[:, 1:].flatten()

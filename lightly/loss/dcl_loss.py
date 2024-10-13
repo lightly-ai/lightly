@@ -36,7 +36,7 @@ def negative_mises_fisher_weights(
 
     """
     similarity = torch.einsum("nm,nm->n", out0.detach(), out1.detach()) / sigma
-    
+
     # Return negative Mises-Fisher weights
     return 2 - out0.shape[0] * nn.functional.softmax(similarity, dim=0)
 
@@ -97,9 +97,9 @@ class DCLLoss(nn.Module):
         Initialzes the DCLoss module.
 
         Args:
-            temperature: 
+            temperature:
                 Similarities are scaled by inverse temperature.
-            weight_fn: 
+            weight_fn:
                  Weighting function `w` from the paper. Scales the loss between the
                 positive views (views from the same image). No weighting is performed
                 if weight_fn is None. The function must take the two input tensors
@@ -111,8 +111,8 @@ class DCLLoss(nn.Module):
 
         Raises:
             ValuesError:
-                If gather_distributed is True but torch.distributed is not available.        
-        
+                If gather_distributed is True but torch.distributed is not available.
+
         """
         super().__init__()
         self.temperature = temperature
@@ -161,7 +161,7 @@ class DCLLoss(nn.Module):
         # Calculate symmetric loss
         loss0 = self._loss(out0, out1, out0_all, out1_all)
         loss1 = self._loss(out1, out0, out1_all, out0_all)
-        
+
         # Return the mean loss over the mini-batch
         return 0.5 * (loss0 + loss1)
 
@@ -212,7 +212,7 @@ class DCLLoss(nn.Module):
 
         # Remove simliarities between same views of the same image
         sim_00 = sim_00[~diag_mask].view(batch_size, -1)
-        
+
         # Remove similarities between different views of the same images
         # This is the key difference compared to NTXentLoss
         sim_01 = sim_01[~diag_mask].view(batch_size, -1)
@@ -267,16 +267,16 @@ class DCLWLoss(DCLLoss):
         gather_distributed: bool = False,
     ):
         """
-            Initializes the DCLWLoss module.
+        Initializes the DCLWLoss module.
 
-            Args:
-                temperature: 
-                    Similarities are scaled by inverse temperature.
-                sigma:
-                    Applies inverse scaling in the weighting function.
-                gather_distributed:
-                    If True, negatives from all GPUs are gathered before the
-                    loss calculation.
+        Args:
+            temperature:
+                Similarities are scaled by inverse temperature.
+            sigma:
+                Applies inverse scaling in the weighting function.
+            gather_distributed:
+                If True, negatives from all GPUs are gathered before the
+                loss calculation.
 
         """
         super().__init__(

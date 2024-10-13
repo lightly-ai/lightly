@@ -48,12 +48,12 @@ class NegativeCosineSimilarity(torch.nn.Module):
         Computes the negative cosine similarity between two tensors.
 
         Args:
-            x0: 
+            x0:
                 First input tensor.
             x1:
                 Second input tensor.
 
         Returns:
-            The mean negative cosine similarity.          
-        """    
+            The mean negative cosine similarity.
+        """
         return -cosine_similarity(x0, x1, self.dim, self.eps).mean()
