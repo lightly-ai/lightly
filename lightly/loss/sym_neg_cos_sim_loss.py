@@ -11,7 +11,8 @@ import torch
 class SymNegCosineSimilarityLoss(torch.nn.Module):
     """Implementation of the Symmetrized Loss used in the SimSiam[0] paper.
 
-    [0] SimSiam, 2020, https://arxiv.org/abs/2011.10566
+    References:
+        -[0] SimSiam, 2020, https://arxiv.org/abs/2011.10566
 
     Examples:
 
@@ -31,6 +32,13 @@ class SymNegCosineSimilarityLoss(torch.nn.Module):
     """
 
     def __init__(self) -> None:
+        """
+        Initializes the SymNegCosineSimilarityLoss module.
+
+        Note:
+            SymNegCosineSimilarityLoss will be deprecated in favor of NegativeCosineSimilarity in the future.
+    
+    """
         super().__init__()
         warnings.warn(
             Warning(
@@ -47,19 +55,19 @@ class SymNegCosineSimilarityLoss(torch.nn.Module):
             out0:
                 Output projections of the first set of transformed images.
                 Expects the tuple to be of the form (z0, p0), where z0 is
-                the output of the backbone and projection mlp, and p0 is the
+                the output of the backbone and projection MLP, and p0 is the
                 output of the prediction head.
             out1:
                 Output projections of the second set of transformed images.
                 Expects the tuple to be of the form (z1, p1), where z1 is
-                the output of the backbone and projection mlp, and p1 is the
+                the output of the backbone and projection MLP, and p1 is the
                 output of the prediction head.
 
         Returns:
-            Contrastive Cross Entropy Loss value.
+            Negative Cosine Similarity loss value.
 
         Raises:
-            ValueError if shape of output is not multiple of batch_size.
+            ValueError: If shape of output is not multiple of batch_size.
         """
         z0, p0 = out0
         z1, p1 = out1
@@ -72,5 +80,16 @@ class SymNegCosineSimilarityLoss(torch.nn.Module):
         return loss
 
     def _neg_cosine_simililarity(self, x, y):
+        """
+        Calculates the negative cosine similarity between two tensors.
+
+        Args:
+            x: First input tensor.
+            y: Second input tensor.
+
+        Returns:
+            Negative cosine similarity value.
+
+        """
         v = -torch.nn.functional.cosine_similarity(x, y.detach(), dim=-1).mean()
         return v

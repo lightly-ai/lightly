@@ -11,6 +11,7 @@ class VICRegLoss(torch.nn.Module):
 
     This implementation is based on the code published by the authors [1].
 
+    References:
     - [0] VICReg, 2022, https://arxiv.org/abs/2105.04906
     - [1] https://github.com/facebookresearch/vicreg/
 
@@ -22,7 +23,7 @@ class VICRegLoss(torch.nn.Module):
         nu_param:
             Scaling coefficient for the covariance term of the loss.
         gather_distributed:
-            If True then the cross-correlation matrices from all gpus are gathered and
+            If True, the cross-correlation matrices from all GPUs are gathered and
             summed before the loss calculation.
         eps:
             Epsilon for numerical stability.
@@ -51,6 +52,26 @@ class VICRegLoss(torch.nn.Module):
         gather_distributed: bool = False,
         eps=0.0001,
     ):
+        """
+        Initializes the VICRegLoss module with the specified parameters.
+
+        Args:
+            lambda_param:
+                Scaling coefficient for the invariance term of the loss.
+            mu_param:
+                Scaling coefficient for the variance term of the loss.
+            nu_param:
+                Scaling coefficient for the covariance term of the loss.
+            gather_distributed:
+                If True, the cross-correlation matrices from all GPUs are gathered and
+            summed before the loss calculation.
+            eps:
+                Epsilon for numerical stability.
+
+        Raises:
+            ValueError: If gather_distributed is True but torch.distributed is not available.
+
+        """
         super(VICRegLoss, self).__init__()
         if gather_distributed and not dist.is_available():
             raise ValueError(
@@ -73,6 +94,13 @@ class VICRegLoss(torch.nn.Module):
                 Tensor with shape (batch_size, ..., dim).
             z_b:
                 Tensor with shape (batch_size, ..., dim).
+
+        Returns:
+            The computed VICReg loss.
+
+        Raises:
+            AssertionError: If z_a or z_b have a batch size <= 1.
+            AssertionError: If z_a and z_b do not have the same shape.
         """
         assert (
             z_a.shape[0] > 1 and z_b.shape[0] > 1
@@ -81,21 +109,23 @@ class VICRegLoss(torch.nn.Module):
             z_a.shape == z_b.shape
         ), f"z_a and z_b must have same shape but found {z_a.shape} and {z_b.shape}."
 
-        # invariance term of the loss
+        # Invariance term of the loss
         inv_loss = invariance_loss(x=z_a, y=z_b)
 
-        # gather all batches
+        # Gather all batches
         if self.gather_distributed and dist.is_initialized():
             world_size = dist.get_world_size()
             if world_size > 1:
                 z_a = torch.cat(gather(z_a), dim=0)
                 z_b = torch.cat(gather(z_b), dim=0)
 
+        # Variance and covariance terms of the loss
         var_loss = 0.5 * (
             variance_loss(x=z_a, eps=self.eps) + variance_loss(x=z_b, eps=self.eps)
         )
         cov_loss = covariance_loss(x=z_a) + covariance_loss(x=z_b)
 
+        # Total VICReg loss
         loss = (
             self.lambda_param * inv_loss
             + self.mu_param * var_loss
@@ -112,6 +142,9 @@ def invariance_loss(x: Tensor, y: Tensor) -> Tensor:
             Tensor with shape (batch_size, ..., dim).
         y:
             Tensor with shape (batch_size, ..., dim).
+    
+    Returns:
+        The computed VICReg invariance loss.
     """
     return F.mse_loss(x, y)
 
@@ -124,6 +157,9 @@ def variance_loss(x: Tensor, eps: float = 0.0001) -> Tensor:
             Tensor with shape (batch_size, ..., dim).
         eps:
             Epsilon for numerical stability.
+
+    Returns:
+        The computed VICReg variance loss.                
     """
     std = torch.sqrt(x.var(dim=0) + eps)
     loss = torch.mean(F.relu(1.0 - std))
@@ -140,13 +176,18 @@ def covariance_loss(x: Tensor) -> Tensor:
     Args:
         x:
             Tensor with shape (batch_size, ..., dim).
+
+    Returns:
+          The computed VICReg covariance loss.      
     """
     x = x - x.mean(dim=0)
     batch_size = x.size(0)
     dim = x.size(-1)
     # nondiag_mask has shape (dim, dim) with 1s on all non-diagonal entries.
     nondiag_mask = ~torch.eye(dim, device=x.device, dtype=torch.bool)
+   
     # cov has shape (..., dim, dim)
     cov = torch.einsum("b...c,b...d->...cd", x, x) / (batch_size - 1)
+    
     loss = cov[..., nondiag_mask].pow(2).sum(-1) / dim
     return loss.mean()
