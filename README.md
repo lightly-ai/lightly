@@ -2,13 +2,22 @@
 
 
 <div align="center">
-![GitHub](https://img.shields.io/github/license/lightly-ai/lightly)
-![Unit Tests](https://github.com/lightly-ai/lightly/workflows/Unit%20Tests/badge.svg)
-[![PyPI](https://img.shields.io/pypi/v/lightly)](https://pypi.org/project/lightly/)
-[![Downloads](https://static.pepy.tech/badge/lightly)](https://pepy.tech/project/lightly)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Discord](https://img.shields.io/discord/752876370337726585?logo=discord&logoColor=white&label=discord&color=7289da)](https://discord.gg/xvNJW94)
+  <img alt="GitHub License" src="https://img.shields.io/github/license/lightly-ai/lightly" />
+  <img alt="Unit Tests" src="https://github.com/lightly-ai/lightly/workflows/Unit%20Tests/badge.svg" />
+  <a href="https://pypi.org/project/lightly/">
+    <img alt="PyPI" src="https://img.shields.io/pypi/v/lightly" />
+  </a>
+  <a href="https://pepy.tech/project/lightly">
+    <img alt="Downloads" src="https://static.pepy.tech/badge/lightly" />
+  </a>
+  <a href="https://github.com/psf/black">
+    <img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg" />
+  </a>
+  <a href="https://discord.gg/xvNJW94">
+    <img alt="Discord" src="https://img.shields.io/discord/752876370337726585?logo=discord&logoColor=white&label=discord&color=7289da" />
+  </a>
 </div>
+
 
 Lightly**SSL** is a computer vision framework for self-supervised learning.
 
