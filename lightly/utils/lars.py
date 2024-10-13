@@ -1,3 +1,6 @@
+# Copyright (c) 2020. Lightly AG and its affiliates.
+# All Rights Reserved
+
 from typing import Any, Callable, Dict, Optional, overload
 
 import torch
@@ -8,7 +11,7 @@ class LARS(Optimizer):
     """Extends SGD in PyTorch with LARS scaling from the paper "Large batch training of
     Convolutional Networks" [0].
 
-    Implementation from PyTorch Lightning Bolts [1].
+    Implementation adapted from PyTorch Lightning Bolts [1].
 
     - [0]: https://arxiv.org/pdf/1708.03888.pdf
     - [1]: https://github.com/Lightning-Universe/lightning-bolts/blob/2dfe45a4cf050f120d10981c45cfa2c785a1d5e6/pl_bolts/optimizers/lars.py#L1
@@ -16,27 +19,26 @@ class LARS(Optimizer):
     Args:
         params: 
             Iterable of parameters to optimize or dicts defining parameter groups.
-        lr:
-            Learning rate
-        momentum:
+        lr: 
+            Learning rate.
+        momentum: 
             Momentum factor.
-        weight_decay:
+        weight_decay: 
             Weight decay (L2 penalty).
-        dampening:
+        dampening: 
             Dampening for momentum.
-        nesterov:
+        nesterov: 
             Enables Nesterov momentum.
-        trust_coefficient:
+        trust_coefficient: 
             Trust coefficient for computing learning rate.
-        eps:
-            Eps for division denominator.
+        eps: 
+            Small value to avoid division by zero in denominator.
 
     Example:
         >>> model = torch.nn.Linear(10, 1)
         >>> input = torch.Tensor(10)
         >>> target = torch.Tensor([1.])
         >>> loss_fn = lambda input, target: (input - target) ** 2
-        >>> #
         >>> optimizer = LARS(model.parameters(), lr=0.1, momentum=0.9)
         >>> optimizer.zero_grad()
         >>> loss_fn(model(input), target).backward()
@@ -45,37 +47,36 @@ class LARS(Optimizer):
     .. note::
         The application of momentum in the SGD part is modified according to
         the PyTorch standards. LARS scaling fits into the equation in the
-        following fashion.
+        following way.
 
         .. math::
             \begin{aligned}
                 g_{t+1} & = \text{lars_lr} * (\beta * p_{t} + g_{t+1}), \\
-                v_{t+1} & = \\mu * v_{t} + g_{t+1}, \\
+                v_{t+1} & = \mu * v_{t} + g_{t+1}, \\
                 p_{t+1} & = p_{t} - \text{lr} * v_{t+1},
-            \\end{aligned}
+            \end{aligned}
 
-        where :math:`p`, :math:`g`, :math:`v`, :math:`\\mu` and :math:`\beta` denote the
+        where :math:`p`, :math:`g`, :math:`v`, :math:`\mu`, and :math:`\beta` denote the
         parameters, gradient, velocity, momentum, and weight decay respectively.
         The :math:`lars_lr` is defined by Eq. 6 in the paper.
-        The Nesterov version is analogously modified.
+        The Nesterov version is modified similarly.
 
     .. warning::
         Parameters with weight decay set to 0 will automatically be excluded from
-        layer-wise LR scaling. This is to ensure consistency with papers like SimCLR
-        and BYOL.
+        layer-wise LR scaling to ensure consistency with SimCLR and BYOL.
     """
 
     def __init__(
         self,
         params: Any,
         lr: float,
-        momentum: float = 0,
-        dampening: float = 0,
-        weight_decay: float = 0,
+        momentum: float = 0.0,
+        dampening: float = 0.0,
+        weight_decay: float = 0.0,
         nesterov: bool = False,
         trust_coefficient: float = 0.001,
         eps: float = 1e-8,
-    ):
+    ) -> None:
         if lr < 0.0:
             raise ValueError(f"Invalid learning rate: {lr}")
         if momentum < 0.0:
@@ -93,17 +94,15 @@ class LARS(Optimizer):
             eps=eps,
         )
         if nesterov and (momentum <= 0 or dampening != 0):
-            raise ValueError("Nesterov momentum requires a momentum and zero dampening")
+            raise ValueError("Nesterov momentum requires a positive momentum and zero dampening")
 
         super().__init__(params, defaults)
 
     def __setstate__(self, state: Dict[str, Any]) -> None:
         super().__setstate__(state)
-
         for group in self.param_groups:
             group.setdefault("nesterov", False)
 
-    # Type ignore for overloads is required for Python 3.7
     @overload  # type: ignore[override]
     def step(self, closure: None = None) -> None:
         ...
@@ -140,7 +139,7 @@ class LARS(Optimizer):
                 p_norm = torch.norm(p.data)
                 g_norm = torch.norm(p.grad.data)
 
-                # lars scaling + weight decay part
+                # LARS scaling + weight decay part
                 if weight_decay != 0:
                     if p_norm != 0 and g_norm != 0:
                         lars_lr = p_norm / (
@@ -151,7 +150,7 @@ class LARS(Optimizer):
                         d_p = d_p.add(p, alpha=weight_decay)
                         d_p *= lars_lr
 
-                # sgd part
+                # Momentum (SGD) part
                 if momentum != 0:
                     param_state = self.state[p]
                     if "momentum_buffer" not in param_state:

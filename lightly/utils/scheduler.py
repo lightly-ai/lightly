@@ -1,3 +1,8 @@
+''' Utils scheduler '''
+
+# Copyright (c) 2020. Lightly AG and its affiliates.
+# All Rights Reserved
+
 import warnings
 from typing import Optional
 
@@ -15,21 +20,15 @@ def cosine_schedule(
     """Use cosine decay to gradually modify start_value to reach target end_value.
 
     Args:
-        step:
-            Current step number.
-        max_steps:
-            Total number of steps.
-        start_value:
-            Starting value.
-        end_value:
-            Target value.
-        period:
-            The number of steps over which the cosine function completes a full cycle.
+        step: Current step number.
+        max_steps: Total number of steps.
+        start_value: Starting value.
+        end_value: Target value.
+        period: The number of steps over which the cosine function completes a full cycle.
             Defaults to max_steps.
 
     Returns:
         Cosine decay value.
-
     """
     if step < 0:
         raise ValueError(f"Current step number {step} can't be negative")
@@ -53,8 +52,8 @@ def cosine_schedule(
         # Avoid division by zero
         decay = end_value
     elif step == max_steps:
-        # Special case for Pytorch Lightning which updates LR scheduler also for epoch
-        # after last training epoch.
+        # Handle special case for Pytorch Lightning which updates LR scheduler for epoch
+        # after the last training epoch.
         decay = end_value
     else:
         decay = (
@@ -77,27 +76,20 @@ def cosine_warmup_schedule(
     period: Optional[int] = None,
 ) -> float:
     """Use cosine decay to gradually modify start_value to reach target end_value.
-
+    
     Uses linear warmup for the first warmup_steps steps.
 
     Args:
-        step:
-            Current step number.
-        max_steps:
-            Total number of steps.
-        start_value:
-            Starting value.
-        end_value:
-            Target value.
-        warmup_steps:
-            Number of steps for warmup.
-        warmup_start_value:
-            Starting value for warmup.
-        warmup_end_value:
-            Target value for warmup. Defaults to start_value.
-        period:
-            The number of steps over which the cosine function completes a full cycle.
+        step: Current step number.
+        max_steps: Total number of steps.
+        start_value: Starting value.
+        end_value: Target value.
+        warmup_steps: Number of steps for warmup.
+        warmup_start_value: Starting value for warmup.
+        warmup_end_value: Target value for warmup. Defaults to start_value.
+        period: The number of steps over which the cosine function completes a full cycle.
             Defaults to max_steps - warmup_steps.
+
     Returns:
         Cosine decay value.
     """
@@ -115,9 +107,7 @@ def cosine_warmup_schedule(
         warmup_end_value = start_value
 
     if step < warmup_steps:
-        # Use step + 1 to reach warmup_end_value at end of warmup. This means that the
-        # initial warmup_start_value is skipped which is oftentimes desired when setting
-        # it to 0 as this would result in no parameter updates.
+        # Use step + 1 to reach warmup_end_value at end of warmup.
         return (
             warmup_start_value
             + (warmup_end_value - warmup_start_value) * (step + 1) / warmup_steps
@@ -137,28 +127,20 @@ class CosineWarmupScheduler(torch.optim.lr_scheduler.LambdaLR):
     """Cosine warmup scheduler for learning rate.
 
     Args:
-        optimizer:
-            Optimizer object to schedule the learning rate.
-        warmup_epochs:
-            Number of warmup epochs or steps.
-        max_epochs:
-            Total number of training epochs or steps.
-        last_epoch:
-            The index of last epoch or step.
-        start_value:
-            Starting learning rate.
-        end_value:
-            Target learning rate.
-        verbose:
-            If True, prints a message to stdout for each update.
-        warmup_start_value:
-            Starting learning rate for warmup.
-        warmup_end_value:
-            Target learning rate for warmup. Defaults to start_value.
+        optimizer: Optimizer object to schedule the learning rate.
+        warmup_epochs: Number of warmup epochs or steps.
+        max_epochs: Total number of training epochs or steps.
+        last_epoch: The index of the last epoch or step.
+        start_value: Starting learning rate.
+        end_value: Target learning rate.
+        verbose: If True, prints a message to stdout for each update.
+        warmup_start_value: Starting learning rate for warmup.
+        warmup_end_value: Target learning rate for warmup. Defaults to start_value.
 
-    Note: The `epoch` arguments do not necessarily have to be epochs. Any step or index
-    can be used. The naming follows the Pytorch convention to use `epoch` for the steps
-    in the scheduler.
+    Note:
+        The `epoch` arguments do not necessarily have to be epochs. Any step or index
+        can be used. The naming follows the PyTorch convention to use `epoch` for steps
+        in the scheduler.
     """
 
     def __init__(
@@ -193,12 +175,10 @@ class CosineWarmupScheduler(torch.optim.lr_scheduler.LambdaLR):
         Scale learning rate according to the current epoch number.
 
         Args:
-            epoch:
-                Current epoch number.
+            epoch: Current epoch number.
 
         Returns:
             Scaled learning rate.
-
         """
         return cosine_warmup_schedule(
             step=epoch,

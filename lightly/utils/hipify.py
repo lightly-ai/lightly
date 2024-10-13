@@ -1,9 +1,15 @@
+''' Helper functions for the hipify script. '''
+
+# Copyright (c) 2020. Lightly AG and its affiliates.
+# All Rights Reserved
+
 import copy
 import warnings
 from typing import Optional, Type, Union
 
 
 class bcolors:
+    """ANSI escape sequences for colored terminal text."""
     HEADER = "\033[95m"
     OKBLUE = "\033[94m"
     OKGREEN = "\033[92m"
@@ -21,11 +27,12 @@ def _custom_formatwarning(
     lineno: int,
     line: Optional[str] = None,
 ) -> str:
-    # ignore everything except the message
-    return f"{bcolors.WARNING}{message}{bcolors.WARNING}\n"
+    """Custom warning format, displaying only the warning message."""
+    return f"{bcolors.WARNING}{message}{bcolors.ENDC}\n"
 
 
 def print_as_warning(message: str, warning_class: Type[Warning] = UserWarning) -> None:
+    """Prints a message as a warning with custom formatting."""
     old_format = copy.copy(warnings.formatwarning)
     warnings.formatwarning = _custom_formatwarning
     warnings.warn(message, warning_class)
