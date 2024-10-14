@@ -59,7 +59,7 @@ class GaussianMixtureMask:
         return gaussian
 
     def apply_gaussian_mixture_mask(
-        self, freq_image: Tensor, num_gaussians: int, std: Tuple[int, int]
+        self, freq_image: Tensor, num_gaussians: int, std: Tuple[float, float]
     ) -> Tensor:
         """Applies the Gaussian mixture mask to a frequency-domain image.
 
