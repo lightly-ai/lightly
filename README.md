@@ -7,12 +7,12 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Discord](https://img.shields.io/discord/752876370337726585?logo=discord&logoColor=white&label=discord&color=7289da)](https://discord.gg/xvNJW94)
 
-<h2 align="center" style="border-bottom: none">
-
-[**Français**](i18n/README.fr.md)
-
-</h2>
-
+<h4 align="center">
+  <p>
+    <b>English</b> |
+    <a href="https://github.com/lightly-ai/lightly/blob/master/i18n/README.fr.md">Français</a>
+  </p>
+</h4>
 Lightly**SSL** is a computer vision framework for self-supervised learning.
 
 - [Documentation](https://docs.lightly.ai/self-supervised-learning/)
