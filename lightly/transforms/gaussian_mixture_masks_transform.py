@@ -5,7 +5,6 @@ import torch.fft
 from torch import Tensor
 
 from lightly.transforms.irfft2d_transform import IRFFT2DTransform
-from lightly.transforms.rfft2d_transform import RFFT2DTransform
 
 
 class GaussianMixtureMask:
@@ -29,9 +28,6 @@ class GaussianMixtureMask:
             num_gaussians: Number of Gaussian kernels to generate in the mixture mask.
             std_range: Tuple containing the minimum and maximum standard deviation for the Gaussians.
         """
-
-        self.rfft2d_transform = RFFT2DTransform()
-
         self.num_gaussians = num_gaussians
         self.std_range = std_range
 
