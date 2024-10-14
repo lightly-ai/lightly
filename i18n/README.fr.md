@@ -6,7 +6,12 @@
 [![Téléchargements](https://static.pepy.tech/badge/lightly)](https://pepy.tech/project/lightly)
 [![Style de code : noir](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Discord](https://img.shields.io/discord/752876370337726585?logo=discord&logoColor=white&label=discord&color=7289da)](https://discord.gg/xvNJW94)
-
+<h4 align="center">
+  <p>
+    <a href="https://github.com/lightly-ai/lightly/blob/master/README.md">English</a> |
+    <b>Français</b>
+  </p>
+</h4>
 Lightly**SSL** est un framework de vision par ordinateur pour l'apprentissage auto-supervisé.
 
 - [Documentation](https://docs.lightly.ai/self-supervised-learning/)
