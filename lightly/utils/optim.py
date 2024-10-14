@@ -76,8 +76,9 @@ def update_param_groups(
 
     # Update the optimizer's param_groups with the provided updates.
     for update in updates:
-        found_group = False
         name = update["name"]
+        found_group = False
+        
         for param_group in optimizer.param_groups:
             if param_group.get("name") == name:
                 found_group = True

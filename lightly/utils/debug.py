@@ -1,9 +1,7 @@
 from typing import List, Union
-
 import torch
 import torchvision
 from PIL import Image
-
 from lightly.data.collate import BaseCollateFunction, MultiViewCollateFunction
 
 try:
@@ -11,11 +9,9 @@ try:
 except ModuleNotFoundError:
     plt = ModuleNotFoundError(
         "Matplotlib is not installed on your system. Please install it to use the "
-        "plotting functionalities. You can install it with "
-        "'pip install lightly[matplotlib]'."
+        "plotting functionalities. You can install it with 'pip install lightly[matplotlib]'."
     )
 except ImportError as ex:
-    # Matplotlib import can fail if an incompatible dateutil version is installed.
     plt = ex
 
 
@@ -24,9 +20,9 @@ def std_of_l2_normalized(z: torch.Tensor) -> torch.Tensor:
     """Calculates the mean of the standard deviation of z along each dimension.
 
     This measure was used by [0] to determine the level of collapse of the
-    learned representations. If the returned number is 0., the outputs z have
-    collapsed to a constant vector. "If the output z has a zero-mean isotropic
-    Gaussian distribution" [0], the returned number should be close to 1/sqrt(d)
+    learned representations. If the returned value is 0., the outputs z have
+    collapsed to a constant vector. If the output z has a zero-mean isotropic
+    Gaussian distribution [0], the returned value should be close to 1/sqrt(d),
     where d is the dimensionality of the output.
 
     [0]: https://arxiv.org/abs/2011.10566
@@ -38,23 +34,28 @@ def std_of_l2_normalized(z: torch.Tensor) -> torch.Tensor:
     Returns:
         The mean of the standard deviation of the l2 normalized tensor z along
         each dimension.
-
     """
-
     if len(z.shape) != 2:
-        raise ValueError(
-            f"Input tensor must have two dimensions but has {len(z.shape)}!"
-        )
+        raise ValueError(f"Input tensor must have two dimensions but has {len(z.shape)}!")
 
     z_norm = torch.nn.functional.normalize(z, dim=1)
     return torch.std(z_norm, dim=0).mean()
 
 
 def apply_transform_without_normalize(
-    image: Image.Image,
-    transform,
-):
-    """Applies the transform to the image but skips ToTensor and Normalize."""
+    image: Image.Image, transform,
+) -> Image.Image:
+    """Applies the transform to the image but skips ToTensor and Normalize.
+
+    Args:
+        image: 
+            The input PIL image.
+        transform: 
+            The transformation to apply, excluding ToTensor and Normalize.
+
+    Returns:
+        The transformed image.
+    """
     skippable_transforms = (
         torchvision.transforms.ToTensor,
         torchvision.transforms.Normalize,
@@ -70,10 +71,10 @@ def apply_transform_without_normalize(
 def generate_grid_of_augmented_images(
     input_images: List[Image.Image],
     collate_function: Union[BaseCollateFunction, MultiViewCollateFunction],
-):
+) -> List[List[Image.Image]]:
     """Returns a grid of augmented images. Images in a column belong together.
 
-    This function ignores the transforms ToTensor and Normalize for visualization purposes.
+    This function ignores the ToTensor and Normalize transforms for visualization purposes.
 
     Args:
         input_images:
@@ -105,8 +106,7 @@ def generate_grid_of_augmented_images(
             )
     else:
         raise ValueError(
-            "Collate function must be one of "
-            "(BaseCollateFunction, MultiViewCollateFunction) "
+            "Collate function must be one of (BaseCollateFunction, MultiViewCollateFunction) "
             f"but is {type(collate_function)}."
         )
     return grid
@@ -116,9 +116,9 @@ def plot_augmented_images(
     input_images: List[Image.Image],
     collate_function: Union[BaseCollateFunction, MultiViewCollateFunction],
 ):
-    """Returns a figure showing original images in the left column and augmented images to their right.
+    """Plots original images and augmented images in a figure.
 
-    This function ignores the transforms ToTensor and Normalize for visualization purposes.
+    This function ignores the ToTensor and Normalize transforms for visualization purposes.
 
     Args:
         input_images:
@@ -134,7 +134,6 @@ def plot_augmented_images(
         MultiViewCollateFunctions all the generated views are shown.
 
     """
-
     _check_matplotlib_available()
 
     if len(input_images) == 0:
@@ -166,5 +165,6 @@ def plot_augmented_images(
 
 
 def _check_matplotlib_available() -> None:
+    """Checks if matplotlib is available. Raises an error if not."""
     if isinstance(plt, Exception):
         raise plt

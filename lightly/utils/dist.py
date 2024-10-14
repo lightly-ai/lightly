@@ -8,19 +8,19 @@ from torch.autograd.function import FunctionCtx
 class GatherLayer(torch.autograd.Function):
     """Gather tensors from all processes, supporting backward propagation.
 
-    This code was taken and adapted from here:
+    Adapted from the Solo-Learn project:
     https://github.com/vturrisi/solo-learn/blob/b69b4bd27472593919956d9ac58902a301537a4d/solo/utils/misc.py#L187
-
+    
     """
 
     @staticmethod
-    def forward(ctx, input: torch.Tensor) -> Tuple[torch.Tensor, ...]:  # type: ignore
+    def forward(ctx: FunctionCtx, input: torch.Tensor) -> Tuple[torch.Tensor, ...]:  # type: ignore
         output = [torch.empty_like(input) for _ in range(dist.get_world_size())]
         dist.all_gather(output, input)
         return tuple(output)
 
     @staticmethod
-    def backward(ctx, *grads) -> torch.Tensor:  # type: ignore
+    def backward(ctx: FunctionCtx, *grads: torch.Tensor) -> torch.Tensor:  # type: ignore
         all_gradients = torch.stack(grads)
         dist.all_reduce(all_gradients)
         grad_out = all_gradients[dist.get_rank()]
@@ -38,7 +38,7 @@ def world_size() -> int:
 
 
 def gather(input: torch.Tensor) -> Tuple[torch.Tensor]:
-    """Gathers this tensor from all processes. Supports backprop."""
+    """Gathers a tensor from all processes and supports backpropagation."""
     return GatherLayer.apply(input)  # type: ignore[no-any-return]
 
 
@@ -62,6 +62,9 @@ def eye_rank(n: int, device: Optional[torch.device] = None) -> torch.Tensor:
         device:
             Device on which the matrix should be created.
 
+    Returns:
+        A tensor with the appropriate diagonal filled for this rank.
+    
     """
     rows = torch.arange(n, device=device, dtype=torch.long)
     cols = rows + rank() * n
@@ -74,7 +77,7 @@ R = TypeVar("R")
 
 
 def rank_zero_only(fn: Callable[..., R]) -> Callable[..., Optional[R]]:
-    """Decorator that only runs the function on the process with rank 0.
+    """Decorator to ensure the function only runs on the process with rank 0.
 
     Example:
         >>> @rank_zero_only
