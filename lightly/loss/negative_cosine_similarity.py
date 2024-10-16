@@ -27,7 +27,7 @@ class NegativeCosineSimilarity(torch.nn.Module):
 
     def __init__(self, dim: int = 1, eps: float = 1e-8) -> None:
         """Initializes the NegativeCosineSimilarity module the specified parameters.
-        
+
         Same parameters as in torch.nn.CosineSimilarity
 
         Args:

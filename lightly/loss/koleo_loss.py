@@ -46,7 +46,7 @@ class KoLeoLoss(Module):
 
         Args:
             x: Tensor with shape (batch_size, embedding_size).
-            
+
         Returns:
             Loss value.
         """

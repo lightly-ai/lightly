@@ -68,17 +68,17 @@ class NTXentLoss(MemoryBankModule):
     ):
         """Initializes the NTXentLoss module with the specified parameters.
 
-            Args:
-                temperature:
-                     Scale logits by the inverse of the temperature.
-                memory_bank_size:
-                     Size of the memory bank.
-                gather_distributed:
-                     If True, negatives from all GPUs are gathered before the loss calculation.
+        Args:
+            temperature:
+                 Scale logits by the inverse of the temperature.
+            memory_bank_size:
+                 Size of the memory bank.
+            gather_distributed:
+                 If True, negatives from all GPUs are gathered before the loss calculation.
 
-            Raises:
-                ValueError: If temperature is less than 1e-8 to prevent divide by zero.
-                ValueError: If gather_distributed is True but torch.distributed is not available.
+        Raises:
+            ValueError: If temperature is less than 1e-8 to prevent divide by zero.
+            ValueError: If gather_distributed is True but torch.distributed is not available.
         """
         super().__init__(size=memory_bank_size, gather_distributed=gather_distributed)
         self.temperature = temperature

@@ -97,7 +97,7 @@ class SwaVLoss(nn.Module):
                 soft codes in the sinkhorn algorithm.
 
         Raises:
-            ValueError: If sinkhorn_gather_distributed is True but torch.distributed 
+            ValueError: If sinkhorn_gather_distributed is True but torch.distributed
                 is not available.
         """
         super(SwaVLoss, self).__init__()

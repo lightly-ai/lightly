@@ -7,7 +7,7 @@ import torch.nn.functional as F
 
 class BarlowTwinsLoss(torch.nn.Module):
     """Implementation of the Barlow Twins Loss from Barlow Twins[0] paper.
-    
+
     This code specifically implements the Figure Algorithm 1 from [0].
     [0] Zbontar,J. et.al, 2021, Barlow Twins... https://arxiv.org/abs/2103.03230
 
@@ -28,7 +28,7 @@ class BarlowTwinsLoss(torch.nn.Module):
 
     def __init__(self, lambda_param: float = 5e-3, gather_distributed: bool = False):
         """Lambda param configuration with default value like in [0]
-            
+
         Initializes the BarlowTwinsLoss with the specified parameters.
 
         Args:

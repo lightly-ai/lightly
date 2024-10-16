@@ -7,7 +7,7 @@ class MMCRLoss(nn.Module):
     """Implementation of the loss function from MMCR [0] using Manifold Capacity.
     All hyperparameters are set to the default values from the paper for ImageNet.
 
-    - [0]: Efficient Coding of Natural Images using Maximum Manifold Capacity 
+    - [0]: Efficient Coding of Natural Images using Maximum Manifold Capacity
     Representations, 2023, https://arxiv.org/pdf/2303.03307.pdf
 
     Examples:

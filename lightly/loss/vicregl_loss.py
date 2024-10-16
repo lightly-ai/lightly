@@ -210,12 +210,12 @@ class VICRegLLoss(torch.nn.Module):
         local_view_features: Optional[Sequence[Tuple[Tensor, Tensor]]] = None,
     ) -> Tensor:
         """Returns invariance loss from global features.
-                
+
         Args:
             global_view_features:
                         Sequence of (global_features, local_features)
                         tuples from the global crop views.
-            local_view_features: 
+            local_view_features:
                         Sequence of (global_features,local_features)
                         tuples from the local crop views.
 

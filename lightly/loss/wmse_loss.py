@@ -170,7 +170,7 @@ class WMSELoss(torch.nn.Module):
         num_samples: int = 2,
     ):
         """Initializes the WMSELoss module with the specified parameters.
-        
+
         Parameters as described in [0].
 
         Args:

@@ -6,7 +6,7 @@ from lightly.utils.dist import gather
 
 class TiCoLoss(torch.nn.Module):
     """Implementation of the Tico Loss from Tico[0] paper.
-    
+
     This implementation takes inspiration from the code published
     by sayannag using Lightly. [1]
 
@@ -49,12 +49,12 @@ class TiCoLoss(torch.nn.Module):
         """Initializes the TiCoLoss module with the specified parameters.
 
         Args:
-            beta: 
+            beta:
                 Coefficient for the EMA update of the covariance.
-            rho: 
+            rho:
                 Weight for the covariance term of the loss.
-            gather_distributed: 
-                If True, the cross-correlation matrices from all GPUs are gathered 
+            gather_distributed:
+                If True, the cross-correlation matrices from all GPUs are gathered
                     and summed before the loss calculation. Default is False.
 
         Raises:
@@ -80,7 +80,7 @@ class TiCoLoss(torch.nn.Module):
         update_covariance_matrix: bool = True,
     ) -> torch.Tensor:
         """Computes the TiCo loss.
-        
+
         It maximizes the agreement among embeddings of different distorted versions of the same image
         while avoiding collapse using Covariance matrix.
 
