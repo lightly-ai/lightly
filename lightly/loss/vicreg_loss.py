@@ -11,7 +11,6 @@ class VICRegLoss(torch.nn.Module):
 
     This implementation is based on the code published by the authors [1].
 
-    References:
     - [0] VICReg, 2022, https://arxiv.org/abs/2105.04906
     - [1] https://github.com/facebookresearch/vicreg/
 
@@ -29,7 +28,6 @@ class VICRegLoss(torch.nn.Module):
             Epsilon for numerical stability.
 
     Examples:
-
         >>> # initialize loss function
         >>> loss_fn = VICRegLoss()
         >>>
@@ -52,25 +50,10 @@ class VICRegLoss(torch.nn.Module):
         gather_distributed: bool = False,
         eps=0.0001,
     ):
-        """
-        Initializes the VICRegLoss module with the specified parameters.
-
-        Args:
-            lambda_param:
-                Scaling coefficient for the invariance term of the loss.
-            mu_param:
-                Scaling coefficient for the variance term of the loss.
-            nu_param:
-                Scaling coefficient for the covariance term of the loss.
-            gather_distributed:
-                If True, the cross-correlation matrices from all GPUs are gathered and
-            summed before the loss calculation.
-            eps:
-                Epsilon for numerical stability.
+        """Initializes the VICRegLoss module with the specified parameters.
 
         Raises:
             ValueError: If gather_distributed is True but torch.distributed is not available.
-
         """
         super(VICRegLoss, self).__init__()
         if gather_distributed and not dist.is_available():
@@ -174,8 +157,7 @@ def covariance_loss(x: Tensor) -> Tensor:
     https://github.com/facebookresearch/VICRegL/blob/803ae4c8cd1649a820f03afb4793763e95317620/main_vicregl.py#L299
 
     Args:
-        x:
-            Tensor with shape (batch_size, ..., dim).
+        x: Tensor with shape (batch_size, ..., dim).
 
     Returns:
           The computed VICReg covariance loss.

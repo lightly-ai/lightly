@@ -6,12 +6,12 @@ from lightly.utils.dist import gather
 
 class TiCoLoss(torch.nn.Module):
     """Implementation of the Tico Loss from Tico[0] paper.
+    
     This implementation takes inspiration from the code published
     by sayannag using Lightly. [1]
 
-    References:
-    -[0] Jiachen Zhu et. al, 2022, Tico... https://arxiv.org/abs/2206.10698
-    -[1] https://github.com/sayannag/TiCo-pytorch
+    - [0] Jiachen Zhu et. al, 2022, Tico... https://arxiv.org/abs/2206.10698
+    - [1] https://github.com/sayannag/TiCo-pytorch
 
     Attributes:
         Args:
@@ -26,7 +26,6 @@ class TiCoLoss(torch.nn.Module):
                 gathered and summed before the loss calculation.
 
     Examples:
-
         >>> # initialize loss function
         >>> loss_fn = TiCoLoss()
         >>>
@@ -47,8 +46,7 @@ class TiCoLoss(torch.nn.Module):
         rho: float = 8.0,
         gather_distributed: bool = False,
     ):
-         """
-        Initializes the TiCoLoss module with the specified parameters.
+        """Initializes the TiCoLoss module with the specified parameters.
 
         Args:
             beta: 
@@ -61,7 +59,6 @@ class TiCoLoss(torch.nn.Module):
 
         Raises:
             ValueError: If gather_distributed is True but torch.distributed is not available.
-
         """
         super(TiCoLoss, self).__init__()
         if gather_distributed and not dist.is_available():
@@ -82,8 +79,10 @@ class TiCoLoss(torch.nn.Module):
         z_b: torch.Tensor,
         update_covariance_matrix: bool = True,
     ) -> torch.Tensor:
-        """Computes the TiCo loss. It maximizes the agreement among embeddings of different distorted versions of the same image
-            while avoiding collapse using Covariance matrix.
+        """Computes the TiCo loss.
+        
+        It maximizes the agreement among embeddings of different distorted versions of the same image
+        while avoiding collapse using Covariance matrix.
 
         Args:
             z_a:

@@ -10,8 +10,7 @@ from lightly.models.modules.center import CENTER_MODE_TO_FUNCTION
 
 
 class DINOLoss(Module):
-    """
-    Implementation of the loss described in 'Emerging Properties in
+    """Implementation of the loss described in 'Emerging Properties in
     Self-Supervised Vision Transformers'. [0]
 
     This implementation follows the code published by the authors. [1]
@@ -40,7 +39,6 @@ class DINOLoss(Module):
             Momentum term for the center calculation.
 
     Examples:
-
         >>> # initialize loss function
         >>> loss_fn = DINOLoss(128)
         >>>
@@ -53,7 +51,6 @@ class DINOLoss(Module):
         >>>
         >>> # calculate loss
         >>> loss = loss_fn([teacher_out], [student_out], epoch=0)
-
     """
 
     def __init__(
@@ -66,12 +63,10 @@ class DINOLoss(Module):
         center_momentum: float = 0.9,
         center_mode: str = "mean",
     ):
-        """
-        Initializes the DINOLoss Module.
+        """Initializes the DINOLoss Module.
 
         Raises:
             ValueError: If an unknown center mode is provided.
-
         """
         super().__init__()
         if center_mode not in CENTER_MODE_TO_FUNCTION:
@@ -104,9 +99,7 @@ class DINOLoss(Module):
         student_out: List[Tensor],
         epoch: int,
     ) -> Tensor:
-        """
-        Cross-entropy between softmax outputs of the teacher and student
-        networks.
+        """Cross-entropy between softmax outputs of the teacher and student networks.
 
         Args:
             teacher_out:
@@ -125,7 +118,6 @@ class DINOLoss(Module):
 
         Returns:
             The average cross-entropy loss.
-
         """
         # Get teacher temperature
         if epoch < self.warmup_teacher_temp_epochs:
@@ -157,14 +149,12 @@ class DINOLoss(Module):
 
     @torch.no_grad()
     def update_center(self, teacher_out: Tensor) -> None:
-        """
-        Moving average update of the center used for the teacher output.
+        """Moving average update of the center used for the teacher output.
 
         Args:
             teacher_out:
                 Tensor with shape (num_views, batch_size, output_dim) containing
                 features from the teacher model.
-
         """
 
         # Calculate the batch center using the specified center function

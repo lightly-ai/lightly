@@ -12,9 +12,7 @@ from lightly.utils import dist
 def negative_mises_fisher_weights(
     out0: Tensor, out1: Tensor, sigma: float = 0.5
 ) -> torch.Tensor:
-    """
-    Negative Mises-Fisher weighting function as presented in Decoupled
-    Contrastive Learning [0].
+    """Negative Mises-Fisher weighting function as presented in Decoupled Contrastive Learning [0].
 
     The implementation was inspired by [1].
 
@@ -33,7 +31,6 @@ def negative_mises_fisher_weights(
     Returns:
         A tensor with shape (batch_size,) where each entry is the weight for one
         of the input images.
-
     """
     similarity = torch.einsum("nm,nm->n", out0.detach(), out1.detach()) / sigma
 
@@ -42,9 +39,7 @@ def negative_mises_fisher_weights(
 
 
 class DCLLoss(nn.Module):
-    """
-    Implementation of the Decoupled Contrastive Learning Loss from
-    Decoupled Contrastive Learning [0].
+    """Implementation of the Decoupled Contrastive Learning Loss from Decoupled Contrastive Learning [0].
 
     This code implements Equation 6 in [0], including the sum over all images `i`
     and views `k`. The loss is reduced to a mean loss over the mini-batch.
@@ -67,7 +62,6 @@ class DCLLoss(nn.Module):
             loss calculation.
 
     Examples:
-
         >>> loss_fn = DCLLoss(temperature=0.07)
         >>>
         >>> # generate two random transforms of images
@@ -84,7 +78,6 @@ class DCLLoss(nn.Module):
         >>> # you can also add a custom weighting function
         >>> weight_fn = lambda out0, out1: torch.sum((out0 - out1) ** 2, dim=1)
         >>> loss_fn = DCLLoss(weight_fn=weight_fn)
-
     """
 
     def __init__(
@@ -93,8 +86,7 @@ class DCLLoss(nn.Module):
         weight_fn: Optional[Callable[[Tensor, Tensor], Tensor]] = None,
         gather_distributed: bool = False,
     ):
-        """
-        Initialzes the DCLoss module.
+        """Initialzes the DCLoss module.
 
         Args:
             temperature:
@@ -110,9 +102,7 @@ class DCLLoss(nn.Module):
                 loss calculation.
 
         Raises:
-            ValuesError:
-                If gather_distributed is True but torch.distributed is not available.
-
+            ValuesError: If gather_distributed is True but torch.distributed is not available.
         """
         super().__init__()
         self.temperature = temperature
@@ -132,8 +122,7 @@ class DCLLoss(nn.Module):
         out0: Tensor,
         out1: Tensor,
     ) -> Tensor:
-        """
-        Forward pass of the DCL loss.
+        """Forward pass of the DCL loss.
 
         Args:
             out0:
@@ -166,8 +155,7 @@ class DCLLoss(nn.Module):
         return 0.5 * (loss0 + loss1)
 
     def _loss(self, out0, out1, out0_all, out1_all):
-        """
-        Calculates DCL loss for out0 with respect to its positives in out1
+        """Calculates DCL loss for out0 with respect to its positives in out1
         and the negatives in out1, out0_all, and out1_all.
 
         This code implements Equation 6 in [0], including the sum over all images `i`
@@ -244,7 +232,6 @@ class DCLWLoss(DCLLoss):
             loss calculation.
 
     Examples:
-
         >>> loss_fn = DCLWLoss(temperature=0.07)
         >>>
         >>> # generate two random transforms of images
@@ -257,7 +244,6 @@ class DCLWLoss(DCLLoss):
         >>>
         >>> # calculate loss
         >>> loss = loss_fn(out0, out1)
-
     """
 
     def __init__(
@@ -266,8 +252,7 @@ class DCLWLoss(DCLLoss):
         sigma: float = 0.5,
         gather_distributed: bool = False,
     ):
-        """
-        Initializes the DCLWLoss module.
+        """Initializes the DCLWLoss module.
 
         Args:
             temperature:
@@ -277,7 +262,6 @@ class DCLWLoss(DCLLoss):
             gather_distributed:
                 If True, negatives from all GPUs are gathered before the
                 loss calculation.
-
         """
         super().__init__(
             temperature=temperature,

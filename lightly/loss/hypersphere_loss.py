@@ -8,8 +8,7 @@ import torch.nn.functional as F
 
 
 class HypersphereLoss(torch.nn.Module):
-    """
-    Implementation of the loss described in 'Understanding Contrastive Representation Learning through
+    """Implementation of the loss described in 'Understanding Contrastive Representation Learning through
     Alignment and Uniformity on the Hypersphere.' [0]
 
     [0] Tongzhou Wang. et.al, 2020, ... https://arxiv.org/abs/2005.10242
@@ -43,12 +42,12 @@ class HypersphereLoss(torch.nn.Module):
         >>>
         >>> # calculate loss
         >>> loss = loss_fn(out0, out1)
-
     """
 
     def __init__(self, t=1.0, lam=1.0, alpha=2.0):
-        """Parameters as described in [0]
-            Initializes the HypersphereLoss module with the specified parameters.
+        """Initializes the HypersphereLoss module with the specified parameters.
+
+        Parameters as described in [0]
 
         Args:
             t:
@@ -57,8 +56,7 @@ class HypersphereLoss(torch.nn.Module):
                 Weight balancing the alignment and uniformity loss terms
             alpha:
                 Power applied to the alignment term of the loss. At its default value of 2,
-                    distances between positive samples are penalized in an L2 sense.
-
+                distances between positive samples are penalized in an L2 sense.
         """
         super(HypersphereLoss, self).__init__()
         self.t = t
@@ -66,8 +64,7 @@ class HypersphereLoss(torch.nn.Module):
         self.alpha = alpha
 
     def forward(self, z_a: torch.Tensor, z_b: torch.Tensor) -> torch.Tensor:
-        """
-        Computes the Hypersphere loss, which combines alignment and uniformity loss terms.
+        """Computes the Hypersphere loss, which combines alignment and uniformity loss terms.
 
         Args:
             z_a:
@@ -77,7 +74,6 @@ class HypersphereLoss(torch.nn.Module):
 
         Returns:
             The computed loss.
-
         """
         # Normalize the input embeddings
         x = F.normalize(z_a)

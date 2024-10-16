@@ -14,8 +14,7 @@ def prototype_probabilities(
     prototypes: Tensor,
     temperature: float,
 ) -> Tensor:
-    """
-    Returns probability for each query to belong to each prototype.
+    """Returns probability for each query to belong to each prototype.
 
     Args:
         queries:
@@ -28,14 +27,12 @@ def prototype_probabilities(
     Returns:
         Probability tensor with shape (batch_size, num_prototypes) which sums to 1 along
         the num_prototypes dimension.
-
     """
     return F.softmax(torch.matmul(queries, prototypes.T) / temperature, dim=1)
 
 
 def sharpen(probabilities: Tensor, temperature: float) -> Tensor:
-    """
-    Sharpens the probabilities with the given temperature.
+    """Sharpens the probabilities with the given temperature.
 
     Args:
         probabilities:
@@ -45,7 +42,6 @@ def sharpen(probabilities: Tensor, temperature: float) -> Tensor:
             output probabilities are less uniform).
     Returns:
         Probabilities tensor with shape (batch_size, dim).
-
     """
     probabilities = probabilities ** (1.0 / temperature)
     probabilities /= torch.sum(probabilities, dim=1, keepdim=True)
@@ -58,14 +54,12 @@ def sinkhorn(
     iterations: int = 3,
     gather_distributed: bool = False,
 ) -> Tensor:
-    """
-    Runs sinkhorn normalization on the probabilities as described in [0].
+    """Runs sinkhorn normalization on the probabilities as described in [0].
 
     Code inspired by [1].
 
-    References:
-        - [0]: Masked Siamese Networks, 2022, https://arxiv.org/abs/2204.07141
-        - [1]: https://github.com/facebookresearch/msn
+    - [0]: Masked Siamese Networks, 2022, https://arxiv.org/abs/2204.07141
+    - [1]: https://github.com/facebookresearch/msn
 
     Args:
         probabilities:
@@ -76,7 +70,6 @@ def sinkhorn(
             If True, features from all GPUs are gathered during normalization.
     Returns:
         A normalized probabilities tensor.
-
     """
     if iterations <= 0:
         return probabilities
@@ -109,14 +102,12 @@ def sinkhorn(
 
 
 class MSNLoss(nn.Module):
-    """
-    Implementation of the loss function from MSN [0].
+    """Implementation of the loss function from MSN [0].
 
     Code inspired by [1].
 
-    References:
-        - [0]: Masked Siamese Networks, 2022, https://arxiv.org/abs/2204.07141
-        - [1]: https://github.com/facebookresearch/msn
+    - [0]: Masked Siamese Networks, 2022, https://arxiv.org/abs/2204.07141
+    - [1]: https://github.com/facebookresearch/msn
 
     Attributes:
         temperature:
@@ -135,8 +126,7 @@ class MSNLoss(nn.Module):
         gather_distributed:
             If True, then target probabilities are gathered from all GPUs.
 
-     Examples:
-
+    Examples:
         >>> # initialize loss function
         >>> loss_fn = MSNLoss()
         >>>
@@ -150,7 +140,6 @@ class MSNLoss(nn.Module):
         >>>
         >>> # calculate loss
         >>> loss = loss_fn(anchors_out, targets_out, prototypes=model.prototypes)
-
     """
 
     def __init__(
@@ -161,8 +150,7 @@ class MSNLoss(nn.Module):
         me_max_weight: Optional[float] = None,
         gather_distributed: bool = False,
     ):
-        """
-        Initializes the MSNLoss module with the specified parameters.
+        """Initializes the MSNLoss module with the specified parameters.
 
         Args:
             temperature:
@@ -174,8 +162,8 @@ class MSNLoss(nn.Module):
             me_max_weight:
                 Deprecated, use `regularization_weight` instead. Takes precedence over
                 `regularization_weight` if not None. Weight factor lambda by which the mean
-                    entropy maximization regularization loss is scaled. Set to 0 to disable mean
-                    entropy maximization regularization.
+                entropy maximization regularization loss is scaled. Set to 0 to disable mean
+                entropy maximization regularization.
             gather_distributed:
                 If True, then target probabilities are gathered from all GPUs.
 
@@ -183,7 +171,6 @@ class MSNLoss(nn.Module):
             ValueError: If temperature is not in (0, inf).
             ValueError: If sinkhorn_iterations is less than 0.
             ValueError: If gather_distributed is True but torch.distributed is not available.
-
         """
         super().__init__()
         if temperature <= 0:
@@ -220,8 +207,7 @@ class MSNLoss(nn.Module):
         prototypes: Tensor,
         target_sharpen_temperature: float = 0.25,
     ) -> Tensor:
-        """
-        Computes the MSN loss for a set of anchors, targets, and prototypes.
+        """Computes the MSN loss for a set of anchors, targets, and prototypes.
 
         Args:
             anchors:
@@ -235,7 +221,6 @@ class MSNLoss(nn.Module):
 
         Returns:
             Mean loss over all anchors.
-
         """
         num_views = anchors.shape[0] // targets.shape[0]
 
@@ -275,8 +260,7 @@ class MSNLoss(nn.Module):
         return loss
 
     def regularization_loss(self, mean_anchor_probs: Tensor) -> Tensor:
-        """
-        Calculates mean entropy regularization loss.
+        """Calculates mean entropy regularization loss.
 
         Args:
             mean_anchor_probs: The mean anchor probabilities.

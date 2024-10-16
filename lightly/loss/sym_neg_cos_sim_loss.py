@@ -11,11 +11,9 @@ import torch
 class SymNegCosineSimilarityLoss(torch.nn.Module):
     """Implementation of the Symmetrized Loss used in the SimSiam[0] paper.
 
-    References:
-        -[0] SimSiam, 2020, https://arxiv.org/abs/2011.10566
+    - [0] SimSiam, 2020, https://arxiv.org/abs/2011.10566
 
     Examples:
-
         >>> # initialize loss function
         >>> loss_fn = SymNegCosineSimilarityLoss()
         >>>
@@ -28,16 +26,13 @@ class SymNegCosineSimilarityLoss(torch.nn.Module):
         >>>
         >>> # calculate loss
         >>> loss = loss_fn(out0, out1)
-
     """
 
     def __init__(self) -> None:
-        """
-        Initializes the SymNegCosineSimilarityLoss module.
+        """Initializes the SymNegCosineSimilarityLoss module.
 
         Note:
             SymNegCosineSimilarityLoss will be deprecated in favor of NegativeCosineSimilarity in the future.
-
         """
         super().__init__()
         warnings.warn(
@@ -65,9 +60,6 @@ class SymNegCosineSimilarityLoss(torch.nn.Module):
 
         Returns:
             Negative Cosine Similarity loss value.
-
-        Raises:
-            ValueError: If shape of output is not multiple of batch_size.
         """
         z0, p0 = out0
         z1, p1 = out1
@@ -80,8 +72,7 @@ class SymNegCosineSimilarityLoss(torch.nn.Module):
         return loss
 
     def _neg_cosine_simililarity(self, x, y):
-        """
-        Calculates the negative cosine similarity between two tensors.
+        """Calculates the negative cosine similarity between two tensors.
 
         Args:
             x: First input tensor.
@@ -89,7 +80,6 @@ class SymNegCosineSimilarityLoss(torch.nn.Module):
 
         Returns:
             Negative cosine similarity value.
-
         """
         v = -torch.nn.functional.cosine_similarity(x, y.detach(), dim=-1).mean()
         return v

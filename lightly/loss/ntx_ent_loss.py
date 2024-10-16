@@ -14,16 +14,14 @@ from lightly.utils import dist
 
 
 class NTXentLoss(MemoryBankModule):
-    """
-    Implementation of the Contrastive Cross Entropy Loss.
+    """Implementation of the Contrastive Cross Entropy Loss.
 
     This implementation follows the SimCLR[0] paper. If you enable the memory
     bank by setting the `memory_bank_size` value > 0 the loss behaves like
     the one described in the MoCo[1] paper.
 
-    References:
-        - [0] SimCLR, 2020, https://arxiv.org/abs/2002.05709
-        - [1] MoCo, 2020, https://arxiv.org/abs/1911.05722
+    - [0] SimCLR, 2020, https://arxiv.org/abs/2002.05709
+    - [1] MoCo, 2020, https://arxiv.org/abs/1911.05722
 
     Attributes:
         temperature:
@@ -46,7 +44,6 @@ class NTXentLoss(MemoryBankModule):
         ValueError: If abs(temperature) < 1e-8 to prevent divide by zero.
 
     Examples:
-
         >>> # initialize loss function without memory bank
         >>> loss_fn = NTXentLoss(memory_bank_size=0)
         >>>
@@ -69,8 +66,7 @@ class NTXentLoss(MemoryBankModule):
         memory_bank_size: Union[int, Sequence[int]] = 0,
         gather_distributed: bool = False,
     ):
-        """
-        Initializes the NTXentLoss module with the specified parameters.
+        """Initializes the NTXentLoss module with the specified parameters.
 
             Args:
                 temperature:
@@ -102,8 +98,7 @@ class NTXentLoss(MemoryBankModule):
             )
 
     def forward(self, out0: torch.Tensor, out1: torch.Tensor):
-        """
-        Forward pass through Contrastive Cross-Entropy Loss.
+        """Forward pass through Contrastive Cross-Entropy Loss.
 
         If used with a memory bank, the samples from the memory bank are used
         as negative examples. Otherwise, within-batch samples are used as
@@ -119,7 +114,6 @@ class NTXentLoss(MemoryBankModule):
 
         Returns:
             Contrastive Cross Entropy Loss value.
-
         """
 
         device = out0.device

@@ -19,9 +19,8 @@ class VICRegLLoss(torch.nn.Module):
 
     This implementation follows the code published by the authors [1].
 
-    References:
-        - [0]: VICRegL, 2022, https://arxiv.org/abs/2210.01571
-        - [1]: https://github.com/facebookresearch/VICRegL
+    - [0]: VICRegL, 2022, https://arxiv.org/abs/2210.01571
+    - [1]: https://github.com/facebookresearch/VICRegL
 
     Attributes:
         lambda_param:
@@ -42,7 +41,6 @@ class VICRegLLoss(torch.nn.Module):
             Number of local features to match using nearest neighbors.
 
     Examples:
-
         >>> # initialize loss function
         >>> criterion = VICRegLLoss()
         >>> transform = VICRegLTransform(n_global_views=2, n_local_views=4)
@@ -62,7 +60,6 @@ class VICRegLLoss(torch.nn.Module):
         ...     local_view_features=features[2:],
         ...     local_view_grids=grids[2:],
         ... )
-
     """
 
     def __init__(
@@ -75,26 +72,7 @@ class VICRegLLoss(torch.nn.Module):
         eps: float = 0.0001,
         num_matches: Tuple[int, int] = (20, 4),
     ):
-        """
-        Initializes the VICRegL loss module with the specified parameters.
-
-        Args:
-            lambda_param:
-                Coefficient for the invariance term of the loss.
-            mu_param:
-                Coefficient for the variance term of the loss.
-            nu_param:
-                Coefficient for the covariance term of the loss.
-            alpha:
-                Coefficient to weight global with local loss. The final loss is computed as
-                (self.alpha * global_loss + (1-self.alpha) * local_loss).
-            gather_distributed:
-                If True, the cross-correlation matrices from all GPUs are gathered and
-                summed before the loss calculation.
-            eps:
-                Epsilon for numerical stability.
-            num_matches:
-                Number of local features to match using nearest neighbors.
+        """Initializes the VICRegL loss module with the specified parameters.
 
         Raises:
             ValueError: If gather_distributed is True but torch.distributed is not available.
@@ -203,10 +181,10 @@ class VICRegLLoss(torch.nn.Module):
 
         Args:
         global_view_features:
-            Sequence of (global_features, local_features)
+                Sequence of (global_features, local_features)
                 tuples from the global crop views.
         local_view_features:
-            Sequence of (global_features,local_features)
+                Sequence of (global_features,local_features)
                 tuples from the local crop views.
 
         Returns:
@@ -232,16 +210,17 @@ class VICRegLLoss(torch.nn.Module):
         local_view_features: Optional[Sequence[Tuple[Tensor, Tensor]]] = None,
     ) -> Tensor:
         """Returns invariance loss from global features.
-                Args:
-                    global_view_features:
+                
+        Args:
+            global_view_features:
                         Sequence of (global_features, local_features)
                         tuples from the global crop views.
-                    local_view_features: Sequence of (global_features,local_features)
+            local_view_features: 
+                        Sequence of (global_features,local_features)
                         tuples from the local crop views.
 
         Returns:
             The computed invariance loss from global features.
-
         """
         loss = 0
         loss_count = 0
@@ -266,8 +245,7 @@ class VICRegLLoss(torch.nn.Module):
         global_view_features: Sequence[Tuple[Tensor, Tensor]],
         local_view_features: Optional[Sequence[Tuple[Tensor, Tensor]]] = None,
     ) -> Tuple[Tensor, Tensor]:
-        """
-        Returns variance and covariance loss from global features.
+        """Returns variance and covariance loss from global features.
 
         Args:
             global_view_features: Sequence of (global_features, local_features)
@@ -277,7 +255,6 @@ class VICRegLLoss(torch.nn.Module):
 
         Returns:
             The computed variance and covariance loss from global features.
-
         """
         view_features = list(global_view_features)
         if local_view_features is not None:

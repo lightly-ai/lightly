@@ -13,7 +13,7 @@ from lightly.models.modules.memory_bank import MemoryBankModule
 class CO2Regularizer(MemoryBankModule):
     """Implementation of the CO2 regularizer [0] for self-supervised learning.
 
-    [0] CO2, 2021, https://arxiv.org/abs/2010.02217
+    - [0] CO2, 2021, https://arxiv.org/abs/2010.02217
 
     Attributes:
         alpha:
@@ -44,7 +44,6 @@ class CO2Regularizer(MemoryBankModule):
         >>>
         >>> # calculate loss and apply regularizer
         >>> loss = loss_fn(out0, out1) + co2(out0, out1)
-
     """
 
     def __init__(
@@ -53,8 +52,7 @@ class CO2Regularizer(MemoryBankModule):
         t_consistency: float = 0.05,
         memory_bank_size: Union[int, Sequence[int]] = 0,
     ):
-        """
-        Initializes the CO2Regularizer with the specified parameters.
+        """Initializes the CO2Regularizer with the specified parameters.
 
         Args:
             alpha:
@@ -63,7 +61,6 @@ class CO2Regularizer(MemoryBankModule):
                 Temperature used during softmax calculations.
             memory_bank_size:
                 Size of the memory bank.
-
         """
         super(CO2Regularizer, self).__init__(size=memory_bank_size)
         # Try-catch the KLDivLoss construction for backwards compatability
@@ -78,8 +75,7 @@ class CO2Regularizer(MemoryBankModule):
         self.alpha = alpha
 
     def forward(self, out0: torch.Tensor, out1: torch.Tensor):
-        """
-        Computes the CO2 regularization term for two model outputs.
+        """Computes the CO2 regularization term for two model outputs.
 
         Args:
             out0:
@@ -89,7 +85,6 @@ class CO2Regularizer(MemoryBankModule):
 
         Returns:
             The regularization term multiplied by the weight factor alpha.
-
         """
 
         # Normalize the output to length 1
@@ -116,8 +111,7 @@ class CO2Regularizer(MemoryBankModule):
     def _get_pseudo_labels(
         self, out0: torch.Tensor, out1: torch.Tensor, negatives: torch.Tensor = None
     ):
-        """
-        Computes the soft pseudo labels across negative samples.
+        """Computes the soft pseudo labels across negative samples.
 
         Args:
             out0:
@@ -135,7 +129,6 @@ class CO2Regularizer(MemoryBankModule):
             Log probability that a positive samples will classify each negative
             sample as the positive sample.
             Shape: bsz x (bsz - 1) or bsz x memory_bank_size
-
         """
         batch_size, _ = out0.shape
         if negatives is None:

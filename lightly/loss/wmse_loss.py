@@ -31,11 +31,9 @@ def norm_mse_loss(x0: torch.Tensor, x1: torch.Tensor) -> torch.Tensor:
 
 
 class Whitening2d(nn.Module):
-    """
-    Implementation of the whitening layer as described in [0].
+    """Implementation of the whitening layer as described in [0].
 
-    References:
-        -[0] W-MSE, 2021, https://arxiv.org/pdf/2007.06346.pdf
+    - [0] W-MSE, 2021, https://arxiv.org/pdf/2007.06346.pdf
     """
 
     def __init__(
@@ -84,12 +82,10 @@ class Whitening2d(nn.Module):
             self.register_buffer("running_variance", torch.eye(self.num_features))
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """
-        Forward pass of the Whitening2d layer.
+        """Forward pass of the Whitening2d layer.
 
         Args:
-            x:
-             Input tensor.
+            x: Input tensor.
 
         Returns:
             Decorrelated output tensor.
@@ -141,12 +137,10 @@ class Whitening2d(nn.Module):
 
 
 class WMSELoss(torch.nn.Module):
-    """
-    Implementation of the loss described in 'Whitening for
+    """Implementation of the loss described in 'Whitening for
     Self-Supervised Representation Learning' [0].
 
-    References:
-        -[0] W-MSE, 2021, https://arxiv.org/pdf/2007.06346.pdf
+    - [0] W-MSE, 2021, https://arxiv.org/pdf/2007.06346.pdf
 
     Examples:
         >>> # initialize loss function
@@ -175,8 +169,8 @@ class WMSELoss(torch.nn.Module):
         loss_fn: Callable[[torch.Tensor, torch.Tensor], torch.Tensor] = norm_mse_loss,
         num_samples: int = 2,
     ):
-        """
-        Initializes the WMSELoss module with the specified parameters.
+        """Initializes the WMSELoss module with the specified parameters.
+        
         Parameters as described in [0].
 
         Args:
@@ -220,18 +214,15 @@ class WMSELoss(torch.nn.Module):
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         """Calculates the W-MSE loss.
 
-         Args:
-            input:
-                Tensor with shape (batch_size * num_samples, embedding_dim).
+        Args:
+            input: Tensor with shape (batch_size * num_samples, embedding_dim).
 
         Returns:
             Aggregate W-MSE loss over all sub-batches.
 
         Raises:
-            RuntimeError:
-                If the batch size is not divisible by num_samples.
-            ValueError:
-                If the batch size is smaller than w_size.
+            RuntimeError: If the batch size is not divisible by num_samples.
+            ValueError: If the batch size is smaller than w_size.
         """
         if input.shape[0] % self.num_samples != 0:
             raise RuntimeError("input batch size must be divisible by num_samples")

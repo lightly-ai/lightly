@@ -17,8 +17,8 @@ def sinkhorn(
 
     As outlined in [0] and implemented in [1].
 
-    [0]: SwaV, 2020, https://arxiv.org/abs/2006.09882
-    [1]: https://github.com/facebookresearch/swav/
+    - [0]: SwaV, 2020, https://arxiv.org/abs/2006.09882
+    - [1]: https://github.com/facebookresearch/swav/
 
     Args:
         out:
@@ -33,7 +33,6 @@ def sinkhorn(
 
     Returns:
         Soft codes Q assigning each feature to a prototype.
-
     """
     world_size = 1
     if gather_distributed and dist.is_initialized():
@@ -75,7 +74,6 @@ class SwaVLoss(nn.Module):
         sinkhorn_gather_distributed:
             If True, features from all GPUs are gathered to calculate the
             soft codes in the sinkhorn algorithm.
-
     """
 
     def __init__(
@@ -85,8 +83,7 @@ class SwaVLoss(nn.Module):
         sinkhorn_epsilon: float = 0.05,
         sinkhorn_gather_distributed: bool = False,
     ):
-        """
-        Initializes the SwaVLoss module with the specified parameters.
+        """Initializes the SwaVLoss module with the specified parameters.
 
         Args:
             temperature:
@@ -97,12 +94,11 @@ class SwaVLoss(nn.Module):
                 Temperature parameter used in the sinkhorn algorithm.
             sinkhorn_gather_distributed:
                 If True, features from all GPUs are gathered to calculate the
-                    soft codes in the sinkhorn algorithm.
+                soft codes in the sinkhorn algorithm.
 
         Raises:
-            ValueError:
-                If sinkhorn_gather_distributed is True but torch.distributed is not available.
-
+            ValueError: If sinkhorn_gather_distributed is True but torch.distributed 
+                is not available.
         """
         super(SwaVLoss, self).__init__()
         if sinkhorn_gather_distributed and not dist.is_available():
@@ -128,7 +124,6 @@ class SwaVLoss(nn.Module):
 
         Returns:
             Cross entropy between predictions z and codes q.
-
         """
         return -torch.mean(
             torch.sum(q * F.log_softmax(z / self.temperature, dim=1), dim=1)
@@ -141,6 +136,8 @@ class SwaVLoss(nn.Module):
         queue_outputs: List[torch.Tensor] = None,
     ):
         """Computes the SwaV loss for a set of high and low resolution outputs.
+
+        - [0]: SwaV, 2020, https://arxiv.org/abs/2006.09882
 
         Args:
             high_resolution_outputs:
@@ -155,10 +152,6 @@ class SwaVLoss(nn.Module):
 
         Returns:
             Swapping assignments between views loss (SwaV) as described in [0].
-
-        References:
-            -[0]: SwaV, 2020, https://arxiv.org/abs/2006.09882
-
         """
         n_crops = len(high_resolution_outputs) + len(low_resolution_outputs)
 

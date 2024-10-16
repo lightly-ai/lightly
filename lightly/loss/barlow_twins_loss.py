@@ -7,12 +7,11 @@ import torch.nn.functional as F
 
 class BarlowTwinsLoss(torch.nn.Module):
     """Implementation of the Barlow Twins Loss from Barlow Twins[0] paper.
+    
     This code specifically implements the Figure Algorithm 1 from [0].
-
     [0] Zbontar,J. et.al, 2021, Barlow Twins... https://arxiv.org/abs/2103.03230
 
-        Examples:
-
+    Examples:
         >>> # initialize loss function
         >>> loss_fn = BarlowTwinsLoss()
         >>>
@@ -25,12 +24,12 @@ class BarlowTwinsLoss(torch.nn.Module):
         >>>
         >>> # calculate loss
         >>> loss = loss_fn(out0, out1)
-
     """
 
     def __init__(self, lambda_param: float = 5e-3, gather_distributed: bool = False):
         """Lambda param configuration with default value like in [0]
-            Initializes the BarlowTwinsLoss with the specified parameters.
+            
+        Initializes the BarlowTwinsLoss with the specified parameters.
 
         Args:
             lambda_param:
@@ -41,7 +40,6 @@ class BarlowTwinsLoss(torch.nn.Module):
 
         Raises:
             ValueError: If gather_distributed is True but torch.distributed is not available.
-
         """
         super(BarlowTwinsLoss, self).__init__()
         self.lambda_param = lambda_param
@@ -55,8 +53,7 @@ class BarlowTwinsLoss(torch.nn.Module):
             )
 
     def forward(self, z_a: torch.Tensor, z_b: torch.Tensor) -> torch.Tensor:
-        """
-        Computes the Barlow Twins loss for the given projections.
+        """Computes the Barlow Twins loss for the given projections.
 
         Args:
             z_a: Output projections of the first set of transformed images.
@@ -64,7 +61,6 @@ class BarlowTwinsLoss(torch.nn.Module):
 
         Returns:
             Computed Barlow Twins Loss.
-
         """
 
         # Normalize repr. along the batch dimension
@@ -93,17 +89,7 @@ class BarlowTwinsLoss(torch.nn.Module):
 def _normalize(
     z_a: torch.Tensor, z_b: torch.Tensor
 ) -> Tuple[torch.Tensor, torch.Tensor]:
-    """
-    Helper function to normalize tensors along the batch dimension.
-
-    Args:
-        z_a: First tensor to normalize.
-        z_b: Second tensor to normalize.
-
-    Returns:
-           A tuple containing the normalized tensors.
-
-    """
+    """Helper function to normalize tensors along the batch dimension."""
     # Stack tensors along a new dimension
     combined = torch.stack([z_a, z_b], dim=0)  # Shape: 2 x N x D
 
@@ -121,16 +107,7 @@ def _normalize(
 
 
 def _off_diagonal(x):
-    """
-    Returns a flattened view of the off-diagonal elements of a square matrix.
-
-    Args:
-        Input square matrix tensor.
-
-    Returns:
-        Flattened view of the off-diagonal elements.
-
-    """
+    """Returns a flattened view of the off-diagonal elements of a square matrix."""
 
     # Ensure the input is a square matrix
     n, m = x.shape

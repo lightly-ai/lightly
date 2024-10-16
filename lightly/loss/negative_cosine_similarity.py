@@ -8,14 +8,11 @@ from torch.nn.functional import cosine_similarity
 
 
 class NegativeCosineSimilarity(torch.nn.Module):
-    """
-    Implementation of the Negative Cosine Simililarity used in the SimSiam[0] paper.
+    """Implementation of the Negative Cosine Simililarity used in the SimSiam[0] paper.
 
-    References:
-        -[0] SimSiam, 2020, https://arxiv.org/abs/2011.10566
+    - [0] SimSiam, 2020, https://arxiv.org/abs/2011.10566
 
     Examples:
-
         >>> # initialize loss function
         >>> loss_fn = NegativeCosineSimilarity()
         >>>
@@ -29,8 +26,8 @@ class NegativeCosineSimilarity(torch.nn.Module):
     """
 
     def __init__(self, dim: int = 1, eps: float = 1e-8) -> None:
-        """
-        Initializes the NegativeCosineSimilarity module the specified parameters.
+        """Initializes the NegativeCosineSimilarity module the specified parameters.
+        
         Same parameters as in torch.nn.CosineSimilarity
 
         Args:
@@ -44,8 +41,7 @@ class NegativeCosineSimilarity(torch.nn.Module):
         self.eps = eps
 
     def forward(self, x0: torch.Tensor, x1: torch.Tensor) -> torch.Tensor:
-        """
-        Computes the negative cosine similarity between two tensors.
+        """Computes the negative cosine similarity between two tensors.
 
         Args:
             x0:

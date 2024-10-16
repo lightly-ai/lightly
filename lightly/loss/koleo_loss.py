@@ -4,8 +4,7 @@ from torch.nn import Module, PairwiseDistance, functional
 
 
 class KoLeoLoss(Module):
-    """
-    KoLeo loss based on [0].
+    """KoLeo loss based on [0].
 
     KoLeo loss is a regularizer that encourages a uniform span of the features in a
     batch by penalizing the distance between the features and their nearest
@@ -13,9 +12,8 @@ class KoLeoLoss(Module):
 
     Implementation is based on [1].
 
-    References:
-        - [0]: Spreading vectors for similarity search, 2019, https://arxiv.org/abs/1806.03198
-        - [1]: https://github.com/facebookresearch/dinov2/blob/main/dinov2/loss/koleo_loss.py
+    - [0]: Spreading vectors for similarity search, 2019, https://arxiv.org/abs/1806.03198
+    - [1]: https://github.com/facebookresearch/dinov2/blob/main/dinov2/loss/koleo_loss.py
 
     Attributes:
         p:
@@ -29,15 +27,13 @@ class KoLeoLoss(Module):
         p: float = 2,
         eps: float = 1e-8,
     ):
-        """
-        Initializes the KoLeoLoss module with the specified parameters.
+        """Initializes the KoLeoLoss module with the specified parameters.
 
         Args:
             p:
                 The norm degree for pairwise distance calculation.
             eps:
                 Small value to avoid division by zero.
-
         """
 
         super().__init__()
@@ -46,16 +42,13 @@ class KoLeoLoss(Module):
         self.pairwise_distance = PairwiseDistance(p=p, eps=eps)
 
     def forward(self, x: Tensor) -> Tensor:
-        """
-        Forward pass through KoLeo Loss.
+        """Forward pass through KoLeo Loss.
 
         Args:
-            x:
-                Tensor with shape (batch_size, embedding_size).
-
+            x: Tensor with shape (batch_size, embedding_size).
+            
         Returns:
             Loss value.
-
         """
         # Normalize the input tensor
         x = functional.normalize(x, p=2, dim=-1, eps=self.eps)

@@ -9,8 +9,7 @@ from torch.nn import Module
 
 
 def tcr_loss(z: Tensor, eps: float) -> Tensor:
-    """
-    Computes the Total Coding Rate (TCR) loss.
+    """Computes the Total Coding Rate (TCR) loss.
 
     Args:
         z:
@@ -33,8 +32,7 @@ def tcr_loss(z: Tensor, eps: float) -> Tensor:
 
 
 def invariance_loss(z: Tensor) -> Tensor:
-    """
-    Calculates the invariance loss, representing the similiarity between the patch embeddings and the average of
+    """Calculates the invariance loss, representing the similiarity between the patch embeddings and the average of
     the patch embeddings.
 
     Args:
@@ -86,23 +84,20 @@ class EMPSSLLoss(Module):
         tcr_eps: float = 0.2,
         inv_coef: float = 200.0,
     ) -> None:
-        """
-        Initializes the EMPSSLoss module.
+        """Initializes the EMPSSLoss module.
 
         Args:
             tcr_eps:
                 Total coding rate (TCR) epsilon.
             inv_coff:
-                Coefficient for the invariance loss
-
+                Coefficient for the invariance loss.
         """
         super().__init__()
         self.tcr_eps = tcr_eps
         self.inv_coef = inv_coef
 
     def forward(self, z_views: List[Tensor]) -> Tensor:
-        """
-        Computes the EMP-SSL loss, which is a combination of Total Coding Rate loss and invariance loss.
+        """Computes the EMP-SSL loss, which is a combination of Total Coding Rate loss and invariance loss.
 
         Args:
             z_views:
