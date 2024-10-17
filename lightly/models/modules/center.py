@@ -54,7 +54,9 @@ class Center(Module):
 
     @property
     def value(self) -> Tensor:
-        """The current value of the center. Use this property to do any operations based on the center."""
+        """The current value of the center. Use this property to do any operations 
+        based on the center.
+        """
         return self.center
 
     @torch.no_grad()
@@ -62,7 +64,9 @@ class Center(Module):
         """Update the center with a new batch of features.
 
         Args:
-            x: Feature tensor used to update the center. Must have the same number of dimensions as self.size.
+            x:
+                Feature tensor used to update the center. Must have the same number of
+                dimensions as self.size.
         """
         batch_center = self._center_fn(x=x, dim=self.dim)
         self.center = center_momentum(
