@@ -8,7 +8,6 @@ from fractions import Fraction
 from typing import List
 from unittest import mock
 
-import cv2
 import numpy as np
 import PIL
 import torch
@@ -51,7 +50,7 @@ class TestVideoDataset(unittest.TestCase):
         self.input_dir = tempfile.mkdtemp()
         self.ensure_dir(self.input_dir)
         self.frames_over_videos = [
-            (np.random.randn(frames, w, h, c) * 255).astype(np.uint8)
+            (torch.randn(frames, w, h, c) * 255).to(torch.uint8)
             for frames in frames_per_video
         ]
         self.extensions = ".avi"
@@ -59,10 +58,7 @@ class TestVideoDataset(unittest.TestCase):
         for frames in self.frames_over_videos:
             path = os.path.join(self.input_dir, f"output-{len(frames):03}.avi")
             print(path)
-            out = cv2.VideoWriter(path, 0, 1, (w, h))
-            for frame in frames:
-                out.write(frame)
-            out.release()
+            out = torchvision.io.write_video(path, self.frames_over_videos, frames)
 
     def create_dataset(self, n_videos=5, n_frames_per_video=10, w=32, h=32, c=3):
         self.n_videos = n_videos
@@ -70,18 +66,13 @@ class TestVideoDataset(unittest.TestCase):
 
         self.input_dir = tempfile.mkdtemp()
         self.ensure_dir(self.input_dir)
-        self.frames = (np.random.randn(n_frames_per_video, w, h, c) * 255).astype(
-            np.uint8
-        )
+        self.frames = (torch.randn(n_frames_per_video, w, h, c) * 255).to(torch.uint8)
         self.extensions = ".avi"
 
         for i in range(n_videos):
             path = os.path.join(self.input_dir, f"output-{i}.avi")
             print(path)
-            out = cv2.VideoWriter(path, 0, 1, (w, h))
-            for frame in self.frames:
-                out.write(frame)
-            out.release()
+            out = torchvision.io.write_video(path, self.frames, n_frames_per_video)
 
     @unittest.skipUnless(
         PYAV_AVAILABLE and VIDEO_READER_AVAILABLE,
