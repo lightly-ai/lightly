@@ -62,9 +62,7 @@ class Center(Module):
         """Update the center with a new batch of features.
 
         Args:
-            x:
-                Feature tensor used to update the center. Must have the same number of
-                dimensions as self.size.
+            x: Feature tensor used to update the center. Must have the same number of dimensions as self.size.
         """
         batch_center = self._center_fn(x=x, dim=self.dim)
         self.center = center_momentum(
