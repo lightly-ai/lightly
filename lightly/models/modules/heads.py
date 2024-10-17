@@ -333,12 +333,12 @@ class SimSiamProjectionHead(ProjectionHead):
 
 
 class SMoGPrototypes(nn.Module):
-      """SMoG prototypes module for synchronous momentum grouping.
+        """SMoG prototypes module for synchronous momentum grouping.
 
-    Args:
-        group_features: Tensor containing the group features.
-        beta: Beta parameter for momentum updating.
-    """
+        Args:
+            group_features: Tensor containing the group features.
+            beta: Beta parameter for momentum updating.
+        """
 
     def __init__(
         self,
@@ -539,7 +539,6 @@ class SwaVPrototypes(nn.Module):
         >>>
         >>> # logits has shape bsz x 512
         >>> logits = prototypes(features)
-
     """
 
     def __init__(
@@ -573,7 +572,7 @@ class SwaVPrototypes(nn.Module):
         Returns:
             The logits after passing through the prototype heads. Returns a single tensor 
             if there's one prototype head, otherwise returns a list of tensors.
-    """
+        """
         self._freeze_prototypes_if_required(step)
         out = []
         for layer in self.heads:
