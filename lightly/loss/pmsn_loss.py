@@ -28,8 +28,7 @@ class PMSNLoss(MSNLoss):
         gather_distributed:
             If True, then target probabilities are gathered from all GPUs.
 
-     Examples:
-
+    Examples:
         >>> # initialize loss function
         >>> loss_fn = PMSNLoss()
         >>>
@@ -53,6 +52,7 @@ class PMSNLoss(MSNLoss):
         power_law_exponent: float = 0.25,
         gather_distributed: bool = False,
     ):
+        """Initializes the PMSNLoss module with the specified parameters."""
         super().__init__(
             temperature=temperature,
             sinkhorn_iterations=sinkhorn_iterations,
@@ -62,7 +62,14 @@ class PMSNLoss(MSNLoss):
         self.power_law_exponent = power_law_exponent
 
     def regularization_loss(self, mean_anchor_probs: Tensor) -> Tensor:
-        """Calculates regularization loss with a power law target distribution."""
+        """Calculates the regularization loss with a power law target distribution.
+
+        Args:
+            mean_anchor_probs: The mean anchor probabilities.
+
+        Returns:
+            The calculated regularization loss.
+        """
         power_dist = _power_law_distribution(
             size=mean_anchor_probs.shape[0],
             exponent=self.power_law_exponent,
@@ -98,8 +105,7 @@ class PMSNCustomLoss(MSNLoss):
         gather_distributed:
             If True, then target probabilities are gathered from all GPUs.
 
-     Examples:
-
+    Examples:
         >>> # define custom target distribution
         >>> def my_uniform_distribution(mean_anchor_probabilities: Tensor) -> Tensor:
         >>>     dim = mean_anchor_probabilities.shape[0]
@@ -128,6 +134,7 @@ class PMSNCustomLoss(MSNLoss):
         regularization_weight: float = 1,
         gather_distributed: bool = False,
     ):
+        """Initializes the PMSNCustomLoss module with the specified parameters."""
         super().__init__(
             temperature=temperature,
             sinkhorn_iterations=sinkhorn_iterations,
@@ -137,7 +144,15 @@ class PMSNCustomLoss(MSNLoss):
         self.target_distribution = target_distribution
 
     def regularization_loss(self, mean_anchor_probs: Tensor) -> Tensor:
-        """Calculates regularization loss with a custom target distribution."""
+        """Calculates regularization loss with a custom target distribution.
+
+        Args:
+            mean_anchor_probs:
+                The mean anchor probabilities.
+
+        Returns:
+            The calculated regularization loss.
+        """
         target_dist = self.target_distribution(mean_anchor_probs).to(
             mean_anchor_probs.device
         )
@@ -148,7 +163,19 @@ class PMSNCustomLoss(MSNLoss):
 
 
 def _power_law_distribution(size: int, exponent: float, device: torch.device) -> Tensor:
-    """Returns a power law distribution summing up to 1."""
+    """Returns a power law distribution summing up to 1.
+
+    Args:
+        size:
+            The size of the distribution.
+        exponent:
+            The exponent for the power law distribution.
+        device:
+            The device to create tensor on.
+
+    Returns:
+        A power law distribution tensor summing up to 1.
+    """
     k = torch.arange(1, size + 1, device=device)
     power_dist = k ** (-exponent)
     power_dist = power_dist / power_dist.sum()
