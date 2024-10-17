@@ -54,7 +54,7 @@ class Center(Module):
 
     @property
     def value(self) -> Tensor:
-        """The current value of the center. Use this property to do any operations 
+        """The current value of the center. Use this property to do any operations
         based on the center.
         """
         return self.center
