@@ -80,7 +80,7 @@ class Center(Module):
 @torch.no_grad()
 def center_mean(x: Tensor, dim: Tuple[int, ...]) -> Tensor:
     """Returns the center of the input tensor by calculating the mean.
-    
+
     Args:
         x: Input tensor.
         dim: Dimensions along which the mean is calculated.

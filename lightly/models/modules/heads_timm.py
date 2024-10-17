@@ -60,7 +60,7 @@ class AIMPredictionHead(Module):
     """Prediction head for AIM [0].
 
     - [0]: AIM, 2024, https://arxiv.org/abs/2401.08541
-    
+
     Args:
         input_dim: Dimensionality of the input features.
         output_dim: Dimensionality of the output features.
