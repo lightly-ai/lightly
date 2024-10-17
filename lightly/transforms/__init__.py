@@ -9,6 +9,7 @@ transforms.
 # All Rights Reserved
 
 from lightly.transforms.aim_transform import AIMTransform
+from lightly.transforms.amplitude_rescale_transform import AmplitudeRescaleTranform
 from lightly.transforms.byol_transform import (
     BYOLTransform,
     BYOLView1Transform,
