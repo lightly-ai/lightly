@@ -54,8 +54,9 @@ class Center(Module):
 
     @property
     def value(self) -> Tensor:
-        """The current value of the center. Use this property to do any operations
-        based on the center.
+        """The current value of the center. 
+        
+        Use this property to do any operations based on the center.
         """
         return self.center
 
@@ -84,8 +85,10 @@ def center_mean(x: Tensor, dim: Tuple[int, ...]) -> Tensor:
     """Returns the center of the input tensor by calculating the mean.
 
     Args:
-        x: Input tensor.
-        dim: Dimensions along which the mean is calculated.
+        x: 
+            Input tensor.
+        dim: 
+            Dimensions along which the mean is calculated.
 
     Returns:
         The center of the input tensor.

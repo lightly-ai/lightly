@@ -11,13 +11,20 @@ class AIMPredictionHeadBlock(Module):
     - [0]: AIM, 2024, https://arxiv.org/abs/2401.08541
 
     Args:
-        input_dim: Dimensionality of the input features.
-        output_dim: Dimensionality of the output features.
-        mlp_ratio: Ratio used to determine the hidden layer size in the MLP.
-        proj_drop: Dropout rate for the projection layer.
-        act_layer: Activation layer to use.
-        norm_layer: Normalization layer to use.
-        mlp_layer: MLP layer to use.
+        input_dim: 
+            Dimensionality of the input features.
+        output_dim: 
+            Dimensionality of the output features.
+        mlp_ratio: 
+            Ratio used to determine the hidden layer size in the MLP.
+        proj_drop: 
+            Dropout rate for the projection layer.
+        act_layer: 
+            Activation layer to use.
+        norm_layer: 
+            Normalization layer to use.
+        mlp_layer: 
+            MLP layer to use.
     """
 
     def __init__(
@@ -47,7 +54,8 @@ class AIMPredictionHeadBlock(Module):
         """Forward pass of the AIMPredictionHeadBlock.
 
         Args:
-            x: Input tensor.
+            x: 
+                Input tensor.
 
         Returns:
             Output tensor after applying the MLP and normalization.
@@ -62,16 +70,26 @@ class AIMPredictionHead(Module):
     - [0]: AIM, 2024, https://arxiv.org/abs/2401.08541
 
     Args:
-        input_dim: Dimensionality of the input features.
-        output_dim: Dimensionality of the output features.
-        hidden_dim: Dimensionality of the hidden layer.
-        num_blocks: Number of blocks in the prediction head.
-        mlp_ratio: Ratio used to determine the hidden layer size in the MLP.
-        proj_drop: Dropout rate for the projection layer.
-        act_layer: Activation layer to use.
-        norm_layer: Normalization layer to use.
-        mlp_layer: MLP layer to use.
-        block_fn: Block function to use for the prediction head.
+        input_dim: 
+            Dimensionality of the input features.
+        output_dim: 
+            Dimensionality of the output features.
+        hidden_dim: 
+            Dimensionality of the hidden layer.
+        num_blocks: 
+            Number of blocks in the prediction head.
+        mlp_ratio: 
+            Ratio used to determine the hidden layer size in the MLP.
+        proj_drop: 
+            Dropout rate for the projection layer.
+        act_layer: 
+            Activation layer to use.
+        norm_layer: 
+            Normalization layer to use.
+        mlp_layer: 
+            MLP layer to use.
+        block_fn: 
+            Block function to use for the prediction head.
     """
 
     def __init__(
@@ -115,7 +133,8 @@ class AIMPredictionHead(Module):
         """Forward pass of the AIMPredictionHead.
 
         Args:
-            x: Input tensor.
+            x: 
+                Input tensor.
 
         Returns:
             Output tensor after processing through the prediction head blocks.

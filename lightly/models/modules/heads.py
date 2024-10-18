@@ -58,7 +58,8 @@ class ProjectionHead(nn.Module):
         """Computes one forward pass through the projection head.
 
         Args:
-            x: Input of shape bsz x num_ftrs.
+            x: 
+                Input of shape bsz x num_ftrs.
         """
         projection: Tensor = self.layers(x)
         return projection
@@ -80,9 +81,12 @@ class BarlowTwinsProjectionHead(ProjectionHead):
         """Initializes the BarlowTwinsProjectionHead with the specified dimensions.
 
         Args:
-            input_dim: Dimensionality of the input features.
-            hidden_dim: Dimensionality of the hidden layers.
-            output_dim: Dimensionality of the output features.
+            input_dim: 
+                Dimensionality of the input features.
+            hidden_dim: 
+                Dimensionality of the hidden layers.
+            output_dim: 
+                Dimensionality of the output features.
         """
         super(BarlowTwinsProjectionHead, self).__init__(
             [
@@ -161,11 +165,16 @@ class MoCoProjectionHead(ProjectionHead):
         """Initialize a new MoCoProjectionHead instance.
 
         Args:
-            input_dim: Number of input dimensions.
-            hidden_dim: Number of hidden dimensions (2048 for v2, 4096 for v3).
-            output_dim: Number of output dimensions (128 for v2, 256 for v3).
-            num_layers: Number of hidden layers (2 for v2, 3 for v3).
-            batch_norm: Whether or not to use batch norms. (False for v2, True for v3).
+            input_dim: 
+                Number of input dimensions.
+            hidden_dim: 
+                Number of hidden dimensions (2048 for v2, 4096 for v3).
+            output_dim: 
+                Number of output dimensions (128 for v2, 256 for v3).
+            num_layers: 
+                Number of hidden layers (2 for v2, 3 for v3).
+            batch_norm: 
+                Whether or not to use batch norms. (False for v2, True for v3).
         """
         layers: List[Tuple[int, int, Optional[nn.Module], Optional[nn.Module]]] = []
         layers.append(
@@ -214,9 +223,12 @@ class NNCLRProjectionHead(ProjectionHead):
         """Initializes the NNCLRProjectionHead with the specified dimensions.
 
         Args:
-            input_dim: Dimensionality of the input features.
-            hidden_dim: Dimensionality of the hidden layers.
-            output_dim: Dimensionality of the output features.
+            input_dim: 
+                Dimensionality of the input features.
+            hidden_dim: 
+                Dimensionality of the hidden layers.
+            output_dim: 
+                Dimensionality of the output features.
         """
         super(NNCLRProjectionHead, self).__init__(
             [
@@ -270,11 +282,16 @@ class SimCLRProjectionHead(ProjectionHead):
         """Initialize a new SimCLRProjectionHead instance.
 
         Args:
-            input_dim: Number of input dimensions.
-            hidden_dim: Number of hidden dimensions.
-            output_dim: Number of output dimensions.
-            num_layers: Number of hidden layers (2 for v1, 3+ for v2).
-            batch_norm: Whether or not to use batch norms.
+            input_dim: 
+                Number of input dimensions.
+            hidden_dim: 
+                Number of hidden dimensions.
+            output_dim: 
+                Number of output dimensions.
+            num_layers: 
+                Number of hidden layers (2 for v1, 3+ for v2).
+            batch_norm: 
+                Whether or not to use batch norms.
         """
         layers: List[Tuple[int, int, Optional[nn.Module], Optional[nn.Module]]] = []
         layers.append(
@@ -336,8 +353,10 @@ class SMoGPrototypes(nn.Module):
         """SMoG prototypes module for synchronous momentum grouping.
 
         Args:
-            group_features: Tensor containing the group features.
-            beta: Beta parameter for momentum updating.
+            group_features: 
+                Tensor containing the group features.
+            beta: 
+                Beta parameter for momentum updating.
         """
 
     def __init__(
@@ -375,7 +394,8 @@ class SMoGPrototypes(nn.Module):
         """Performs the synchronous momentum update of the group vectors.
 
         Args:
-            x: Tensor of shape bsz x dim.
+            x: 
+                Tensor of shape bsz x dim.
 
         Returns:
             The updated group features.
@@ -399,7 +419,8 @@ class SMoGPrototypes(nn.Module):
         """Assigns each representation in x to a group based on cosine similarity.
 
         Args:
-            Tensor of shape (bsz, dim).
+            x:
+                Tensor of shape (bsz, dim).
 
         Returns:
             Tensor of shape (bsz,) indicating group assignments.
@@ -423,9 +444,12 @@ class SMoGProjectionHead(ProjectionHead):
         """Initializes the SMoGProjectionHead with the specified dimensions.
 
         Args:
-            input_dim: Dimensionality of the input features.
-            hidden_dim: Dimensionality of the hidden layers.
-            output_dim: Dimensionality of the output features.
+            input_dim: 
+                Dimensionality of the input features.
+            hidden_dim: 
+                Dimensionality of the hidden layers.
+            output_dim: 
+                Dimensionality of the output features.
         """
         super(SMoGProjectionHead, self).__init__(
             [
@@ -456,9 +480,12 @@ class SMoGPredictionHead(ProjectionHead):
         """Initializes the SMoGPredictionHead with the specified dimensions.
 
         Args:
-            input_dim: Dimensionality of the input features.
-            hidden_dim: Dimensionality of the hidden layers.
-            output_dim: Dimensionality of the output features.
+            input_dim: 
+                Dimensionality of the input features.
+            hidden_dim: 
+                Dimensionality of the hidden layers.
+            output_dim: 
+                Dimensionality of the output features.
         """
 
         super(SMoGPredictionHead, self).__init__(
@@ -484,9 +511,12 @@ class SimSiamPredictionHead(ProjectionHead):
         """Initializes the SimSiamPredictionHead with the specified dimensions.
 
         Args:
-            input_dim: Dimensionality of the input features.
-            hidden_dim: Dimensionality of the hidden layers.
-            output_dim: Dimensionality of the output features.
+            input_dim: 
+                Dimensionality of the input features.
+            hidden_dim: 
+                Dimensionality of the hidden layers.
+            output_dim: 
+                Dimensionality of the output features.
         """
         super(SimSiamPredictionHead, self).__init__(
             [
@@ -566,8 +596,10 @@ class SwaVPrototypes(nn.Module):
         """Forward pass of the SwaVPrototypes module.
 
         Args:
-            x: Input tensor.
-            step: Current training step.
+            x: 
+                Input tensor.
+            step: 
+                Current training step.
 
         Returns:
             The logits after passing through the prototype heads. Returns a single tensor 
@@ -710,12 +742,18 @@ class MMCRProjectionHead(ProjectionHead):
         """Initialize a new MMCRProjectionHead instance.
 
         Args:
-            input_dim: Number of input dimensions.
-            hidden_dim: Number of hidden dimensions.
-            output_dim: Number of output dimensions.
-            num_layers: Number of hidden layers.
-            batch_norm: Whether or not to use batch norms.
-            use_bias: Whether or not to use bias in the linear layers.
+            input_dim: 
+                Number of input dimensions.
+            hidden_dim: 
+                Number of hidden dimensions.
+            output_dim: 
+                Number of output dimensions.
+            num_layers: 
+                Number of hidden layers.
+            batch_norm: 
+                Whether or not to use batch norms.
+            use_bias: 
+                Whether or not to use bias in the linear layers.
         """
         layers: List[
             Tuple[int, int, Optional[nn.Module], Optional[nn.Module], bool]
@@ -827,10 +865,14 @@ class VICRegProjectionHead(ProjectionHead):
         """Initializes the VICRegProjectionHead with the specified dimensions.
 
         Args:
-            input_dim: Dimensionality of the input features.
-            hidden_dim: Dimensionality of the hidden layers.
-            output_dim: Dimensionality of the output features.
-            num_layers: Number of layers in the projection head.
+            input_dim: 
+                Dimensionality of the input features.
+            hidden_dim: 
+                Dimensionality of the hidden layers.
+            output_dim: 
+                Dimensionality of the output features.
+            num_layers: 
+                Number of layers in the projection head.
         """
         hidden_layers = [
             (hidden_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU())
