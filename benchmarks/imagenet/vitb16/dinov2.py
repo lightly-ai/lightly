@@ -209,7 +209,7 @@ class DINOv2(LightningModule):
             elif "residual" in name:
                 group["lr"] = lr
             elif "blocks" in name:
-                layer_idx = int(re.match(r"blocks\.(\d+)\.", name).group(1))
+                layer_idx = int(re.search(r"blocks\.(\d+)\.", name).group(1))
                 group["lr"] = lr * lr_layer(layer_idx + 1)
             elif "head" in name:
                 pass  # Ignore head parameters
