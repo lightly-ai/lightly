@@ -32,9 +32,9 @@ def cosine_schedule(
 
     """
     if step < 0:
-        raise ValueError(f"Current step number {step} can't be negative")
+        raise ValueError(f"Current step number {step} can't be negative.")
     if max_steps < 1:
-        raise ValueError(f"Total step number {max_steps} must be >= 1")
+        raise ValueError(f"Total step number {max_steps} must be >= 1.")
     if period is None and step > max_steps:
         warnings.warn(
             f"Current step number {step} exceeds max_steps {max_steps}.",
@@ -102,9 +102,9 @@ def cosine_warmup_schedule(
         Cosine decay value.
     """
     if warmup_steps < 0:
-        raise ValueError(f"Warmup steps {warmup_steps} can't be negative")
+        raise ValueError(f"Warmup steps {warmup_steps} can't be negative.")
     if warmup_steps > max_steps:
-        raise ValueError(f"Warmup steps {warmup_steps} must be <= max_steps")
+        raise ValueError(f"Warmup steps {warmup_steps} must be <= max_steps.")
     if step > max_steps:
         warnings.warn(
             f"Current step number {step} exceeds max_steps {max_steps}.",
@@ -157,7 +157,7 @@ class CosineWarmupScheduler(torch.optim.lr_scheduler.LambdaLR):
             Target learning rate for warmup. Defaults to start_value.
 
     Note: The `epoch` arguments do not necessarily have to be epochs. Any step or index
-    can be used. The naming follows the Pytorch convention to use `epoch` for the steps
+    can be used. The naming follows the PyTorch convention to use `epoch` for the steps
     in the scheduler.
     """
 
@@ -181,6 +181,7 @@ class CosineWarmupScheduler(torch.optim.lr_scheduler.LambdaLR):
         self.period = period
         self.warmup_start_value = warmup_start_value
         self.warmup_end_value = warmup_end_value
+
         super().__init__(
             optimizer=optimizer,
             lr_lambda=self.scale_lr,
@@ -189,8 +190,7 @@ class CosineWarmupScheduler(torch.optim.lr_scheduler.LambdaLR):
         )
 
     def scale_lr(self, epoch: int) -> float:
-        """
-        Scale learning rate according to the current epoch number.
+        """Scale learning rate according to the current epoch number.
 
         Args:
             epoch:
