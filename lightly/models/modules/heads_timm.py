@@ -11,19 +11,19 @@ class AIMPredictionHeadBlock(Module):
     - [0]: AIM, 2024, https://arxiv.org/abs/2401.08541
 
     Args:
-        input_dim: 
+        input_dim:
             Dimensionality of the input features.
-        output_dim: 
+        output_dim:
             Dimensionality of the output features.
-        mlp_ratio: 
+        mlp_ratio:
             Ratio used to determine the hidden layer size in the MLP.
-        proj_drop: 
+        proj_drop:
             Dropout rate for the projection layer.
-        act_layer: 
+        act_layer:
             Activation layer to use.
-        norm_layer: 
+        norm_layer:
             Normalization layer to use.
-        mlp_layer: 
+        mlp_layer:
             MLP layer to use.
     """
 
@@ -54,7 +54,7 @@ class AIMPredictionHeadBlock(Module):
         """Forward pass of the AIMPredictionHeadBlock.
 
         Args:
-            x: 
+            x:
                 Input tensor.
 
         Returns:
@@ -70,25 +70,25 @@ class AIMPredictionHead(Module):
     - [0]: AIM, 2024, https://arxiv.org/abs/2401.08541
 
     Args:
-        input_dim: 
+        input_dim:
             Dimensionality of the input features.
-        output_dim: 
+        output_dim:
             Dimensionality of the output features.
-        hidden_dim: 
+        hidden_dim:
             Dimensionality of the hidden layer.
-        num_blocks: 
+        num_blocks:
             Number of blocks in the prediction head.
-        mlp_ratio: 
+        mlp_ratio:
             Ratio used to determine the hidden layer size in the MLP.
-        proj_drop: 
+        proj_drop:
             Dropout rate for the projection layer.
-        act_layer: 
+        act_layer:
             Activation layer to use.
-        norm_layer: 
+        norm_layer:
             Normalization layer to use.
-        mlp_layer: 
+        mlp_layer:
             MLP layer to use.
-        block_fn: 
+        block_fn:
             Block function to use for the prediction head.
     """
 
@@ -133,7 +133,7 @@ class AIMPredictionHead(Module):
         """Forward pass of the AIMPredictionHead.
 
         Args:
-            x: 
+            x:
                 Input tensor.
 
         Returns:
