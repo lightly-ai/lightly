@@ -59,7 +59,7 @@ class DINOv2(LightningModule):
             feature_dim=384, num_classes=num_classes
         )
 
-    def forward(self, x: Tensor) -> Tuple[Tensor, Tensor]:
+    def forward(self, x: Tensor) -> Tensor:
         return self.backbone(x)
 
     def forward_teacher(self, x: Tensor) -> Tuple[Tensor, Tensor]:
@@ -161,7 +161,7 @@ class DINOv2(LightningModule):
         self, batch: Tuple[Tensor, Tensor, List[str]], batch_idx: int
     ) -> Tensor:
         images, targets = batch[0], batch[1]
-        cls_token, _ = self.forward(images)
+        cls_token = self.forward(images)
         cls_loss, cls_log = self.online_classifier.validation_step(
             (cls_token.detach(), targets), batch_idx
         )
