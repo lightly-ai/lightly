@@ -6,16 +6,20 @@ def torchvision_vit_available() -> bool:
     """Checks if Vision Transformer (ViT) models are available in torchvision.
 
     This function checks if the `vision_transformer` module is available in torchvision,
-    which requires torchvision version >= 0.12. It also handles exceptions related to 
+    which requires torchvision version >= 0.12. It also handles exceptions related to
     CUDA version mismatches and installation issues.
 
     Returns:
-        bool: True if the Vision Transformer (ViT) models are available in torchvision, 
+        True if the Vision Transformer (ViT) models are available in torchvision,
         otherwise False.
     """
     try:
-        import torchvision.models.vision_transformer  # Requires torchvision >= 0.12
-    except (RuntimeError, OSError, ImportError):
+        import torchvision.models.vision_transformer  # Requires torchvision >=0.12.
+    except (
+        RuntimeError,  # Different CUDA versions for torch and torchvision.
+        OSError,  # Different CUDA versions for torch and torchvision (old).
+        ImportError,  # No installation or old version of torchvision.
+    ):
         return False
     return True
 
@@ -28,9 +32,9 @@ def timm_vit_available() -> bool:
     are available, which requires timm version >= 0.3.3 and >= 0.9.9, respectively.
 
     Returns:
-        bool: True if the Vision Transformer (ViT) models are available in timm, 
+        True if the Vision Transformer (ViT) models are available in timm,
         otherwise False.
-    
+
     """
     try:
         import timm.models.vision_transformer  # Requires timm >= 0.3.3

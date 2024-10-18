@@ -10,7 +10,7 @@ class GatherLayer(torch.autograd.Function):
 
     Adapted from the Solo-Learn project:
     https://github.com/vturrisi/solo-learn/blob/b69b4bd27472593919956d9ac58902a301537a4d/solo/utils/misc.py#L187
-    
+
     """
 
     @staticmethod
@@ -64,7 +64,7 @@ def eye_rank(n: int, device: Optional[torch.device] = None) -> torch.Tensor:
 
     Returns:
         A tensor with the appropriate diagonal filled for this rank.
-    
+
     """
     rows = torch.arange(n, device=device, dtype=torch.long)
     cols = rows + rank() * n

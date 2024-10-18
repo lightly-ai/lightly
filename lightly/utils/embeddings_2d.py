@@ -5,7 +5,8 @@
 
 from __future__ import annotations
 
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
+
 import numpy as np
 
 if TYPE_CHECKING:
@@ -20,11 +21,11 @@ class PCA(object):
             Number of principal components to keep.
         eps:
             Epsilon for numerical stability.
-        mean: 
+        mean:
             Mean of the data.
-        w: 
+        w:
             Eigenvectors of the covariance matrix.
-    
+
     """
 
     def __init__(self, n_components: int = 2, eps: float = 1e-10):
@@ -42,7 +43,7 @@ class PCA(object):
 
         Returns:
             PCA: The fitted PCA object to transform data points.
-        
+
         """
         X = X.astype(np.float32)
         self.mean = X.mean(axis=0)
@@ -66,15 +67,16 @@ class PCA(object):
             Numpy array of n x p datapoints where p <= d.
 
         Raises:
-            ValueError: If PCA is not fitted before calling this method.
-        
+            ValueError:
+                If PCA is not fitted before calling this method.
+
         """
         if self.mean is None or self.w is None:
             raise ValueError("PCA not fitted yet. Call fit() before transform().")
 
         X = X.astype(np.float32)
         X = X - self.mean + self.eps
-        transformed: NDArray[np.float32] = X.dot(self.w)[:, :self.n_components]
+        transformed: NDArray[np.float32] = X.dot(self.w)[:, : self.n_components]
         return np.asarray(transformed)
 
 

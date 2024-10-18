@@ -1,7 +1,9 @@
 from typing import List, Union
+
 import torch
 import torchvision
 from PIL import Image
+
 from lightly.data.collate import BaseCollateFunction, MultiViewCollateFunction
 
 try:
@@ -36,21 +38,24 @@ def std_of_l2_normalized(z: torch.Tensor) -> torch.Tensor:
         each dimension.
     """
     if len(z.shape) != 2:
-        raise ValueError(f"Input tensor must have two dimensions but has {len(z.shape)}!")
+        raise ValueError(
+            f"Input tensor must have two dimensions but has {len(z.shape)}!"
+        )
 
     z_norm = torch.nn.functional.normalize(z, dim=1)
     return torch.std(z_norm, dim=0).mean()
 
 
 def apply_transform_without_normalize(
-    image: Image.Image, transform,
+    image: Image.Image,
+    transform,
 ) -> Image.Image:
     """Applies the transform to the image but skips ToTensor and Normalize.
 
     Args:
-        image: 
+        image:
             The input PIL image.
-        transform: 
+        transform:
             The transformation to apply, excluding ToTensor and Normalize.
 
     Returns:
@@ -106,7 +111,8 @@ def generate_grid_of_augmented_images(
             )
     else:
         raise ValueError(
-            "Collate function must be one of (BaseCollateFunction, MultiViewCollateFunction) "
+            "Collate function must be one of "
+            "(BaseCollateFunction, MultiViewCollateFunction) "
             f"but is {type(collate_function)}."
         )
     return grid

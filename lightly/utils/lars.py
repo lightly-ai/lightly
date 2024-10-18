@@ -101,13 +101,12 @@ class LARS(Optimizer):
         for group in self.param_groups:
             group.setdefault("nesterov", False)
 
+    # Type ignore for overloads is required for Python 3.7.
     @overload  # type: ignore[override]
-    def step(self, closure: None = None) -> None:
-        ...
+    def step(self, closure: None = None) -> None: ...
 
     @overload  # type: ignore[override]
-    def step(self, closure: Callable[[], float]) -> float:
-        ...
+    def step(self, closure: Callable[[], float]) -> float: ...
 
     @torch.no_grad()
     def step(self, closure: Optional[Callable[[], float]] = None) -> Optional[float]:
@@ -122,6 +121,7 @@ class LARS(Optimizer):
             with torch.enable_grad():
                 loss = closure()
 
+        # Exclude scaling for params with 0 weight decay.
         for group in self.param_groups:
             weight_decay = group["weight_decay"]
             momentum = group["momentum"]
@@ -138,7 +138,9 @@ class LARS(Optimizer):
 
                 if weight_decay != 0:
                     if p_norm != 0 and g_norm != 0:
-                        lars_lr = p_norm / (g_norm + p_norm * weight_decay + group["eps"])
+                        lars_lr = p_norm / (
+                            g_norm + p_norm * weight_decay + group["eps"]
+                        )
                         lars_lr *= group["trust_coefficient"]
 
                         d_p = d_p.add(p.data, alpha=weight_decay)

@@ -39,17 +39,17 @@ class BoundingBox:
         """Initializes a BoundingBox object.
 
         Args:
-            x0: 
-                x0 coordinate.
-            y0: 
-                y0 coordinate.
-            x1: 
-                x1 coordinate.
-            y1: 
-                y1 coordinate.
-            clip_values: 
+            x0:
+                x0 coordinate relative to image width.
+            y0:
+                y0 coordinate relative to image height.
+            x1:
+                x1 coordinate relative to image width.
+            y1:
+                y1 coordinate relative to image height.
+            clip_values:
                 If True, clips the coordinates to [0, 1].
-        
+
         """
         if clip_values:
 
@@ -68,10 +68,14 @@ class BoundingBox:
             )
 
         if x0 >= x1:
-            raise ValueError(f"x0 must be smaller than x1 for bounding box [{x0}, {y0}, {x1}, {y1}]")
+            raise ValueError(
+                f"x0 must be smaller than x1 for bounding box [{x0}, {y0}, {x1}, {y1}]"
+            )
 
         if y0 >= y1:
-            raise ValueError(f"y0 must be smaller than y1 for bounding box [{x0}, {y0}, {x1}, {y1}]")
+            raise ValueError(
+                f"y0 must be smaller than y1 for bounding box [{x0}, {y0}, {x1}, {y1}]"
+            )
 
         self.x0 = x0
         self.y0 = y0
@@ -83,13 +87,13 @@ class BoundingBox:
         """Creates a BoundingBox from x, y, width, and height.
 
         Args:
-            x: 
-                x coordinate of the top-left corner.
-            y: 
-                y coordinate of the top-left corner.
-            w: 
+            x:
+                x coordinate of the top-left corner relative to image width.
+            y:
+                y coordinate of the top-left corner relative to image height.
+            w:
                 Width of the bounding box.
-            h: 
+            h:
                 Height of the bounding box.
 
         Returns:
@@ -97,7 +101,7 @@ class BoundingBox:
 
         Examples:
             >>> bbox = BoundingBox.from_x_y_w_h(0.1, 0.2, 0.2, 0.2)
-        
+
         """
         return cls(x, y, x + w, y + h)
 
@@ -108,13 +112,13 @@ class BoundingBox:
         """Creates a BoundingBox from YOLO label format.
 
         Args:
-            x_center: 
-                x coordinate of the center.
-            y_center: 
-                y coordinate of the center.
-            w: 
+            x_center:
+                x coordinate of the center relative to image width.
+            y_center:
+                y coordinate of the center relative to image height.
+            w:
                 Width of the bounding box.
-            h: 
+            h:
                 Height of the bounding box.
 
         Returns:
@@ -122,7 +126,7 @@ class BoundingBox:
 
         Examples:
             >>> bbox = BoundingBox.from_yolo_label(0.5, 0.4, 0.2, 0.3)
-        
+
         """
         return cls(
             x_center - w / 2,

@@ -5,6 +5,7 @@ from typing import Optional, Type, Union
 
 class bcolors:
     """ANSI escape sequences for colored terminal output."""
+
     HEADER = "\033[95m"
     OKBLUE = "\033[94m"
     OKGREEN = "\033[92m"
@@ -22,11 +23,11 @@ def print_as_warning(message: str, warning_class: Type[Warning] = UserWarning) -
     restores the original formatting after the warning is printed.
 
     Args:
-        message: 
+        message:
             The warning message to print.
-        warning_class: 
+        warning_class:
             The type of warning to raise. Defaults to `UserWarning`.
-    
+
     """
     old_format = copy.copy(warnings.formatwarning)
     warnings.formatwarning = _custom_formatwarning
@@ -46,19 +47,19 @@ def _custom_formatwarning(
     Only the warning message is printed, with additional styling applied.
 
     Args:
-        message: 
+        message:
             The warning message or warning object.
-        category: 
+        category:
             The warning class.
-        filename: 
+        filename:
             The file where the warning originated.
-        lineno: 
+        lineno:
             The line number where the warning occurred.
-        line: 
+        line:
             The line of code that triggered the warning (if available).
 
     Returns:
         str: The formatted warning message.
-    
+
     """
     return f"{bcolors.WARNING}{message}{bcolors.WARNING}\n"
