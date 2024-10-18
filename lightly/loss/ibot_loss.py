@@ -36,6 +36,20 @@ class IBOTPatchLoss(Module):
         center_mode: str = "mean",
         center_momentum: float = 0.9,
     ) -> None:
+        """Initializes the iBOTPatchLoss module with the specified parameters.
+
+        Args:
+            output_dim:
+                Dimension of the model output.
+            teacher_temp:
+                Temperature for the teacher output.
+            student_temp:
+                Temperature for the student output.
+            center_mode:
+                Mode for center calculation. Only 'mean' is supported.
+            center_momentum:
+                Momentum term for the center update.
+        """
         super().__init__()
         self.teacher_temp = teacher_temp
         self.student_temperature = student_temp
@@ -66,13 +80,13 @@ class IBOTPatchLoss(Module):
                 True in the mask.
 
         Returns:
-            Loss value.
+            The loss value.
         """
         # B = batch size, N = sequence length = number of masked tokens, D = embed dim
         # H = height (in tokens), W = width (in tokens)
         # Note that N <= H * W depending on how many tokens are masked.
 
-        # Calculate cross entropy loss.
+        # Calculate cross-entropy loss.
         teacher_softmax = F.softmax(
             (teacher_out - self.center.value) / self.teacher_temp, dim=-1
         )
