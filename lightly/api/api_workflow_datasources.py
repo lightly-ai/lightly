@@ -175,9 +175,9 @@ class _DatasourcesMixin:
         relevant_filenames_kwargs = {}
         if run_id is not None and relevant_filenames_artifact_id is not None:
             relevant_filenames_kwargs["relevant_filenames_run_id"] = run_id
-            relevant_filenames_kwargs["relevant_filenames_artifact_id"] = (
-                relevant_filenames_artifact_id
-            )
+            relevant_filenames_kwargs[
+                "relevant_filenames_artifact_id"
+            ] = relevant_filenames_artifact_id
 
         yield from self._download_raw_files_iter(
             download_function=self._datasources_api.get_list_of_raw_samples_predictions_from_datasource_by_dataset_id,
@@ -287,9 +287,9 @@ class _DatasourcesMixin:
         relevant_filenames_kwargs = {}
         if run_id is not None and relevant_filenames_artifact_id is not None:
             relevant_filenames_kwargs["relevant_filenames_run_id"] = run_id
-            relevant_filenames_kwargs["relevant_filenames_artifact_id"] = (
-                relevant_filenames_artifact_id
-            )
+            relevant_filenames_kwargs[
+                "relevant_filenames_artifact_id"
+            ] = relevant_filenames_artifact_id
 
         yield from self._download_raw_files_iter(
             download_function=self._datasources_api.get_list_of_raw_samples_metadata_from_datasource_by_dataset_id,
@@ -364,10 +364,8 @@ class _DatasourcesMixin:
 
         :meta private:  # Skip docstring generation
         """
-        response: DatasourceProcessedUntilTimestampResponse = (
-            self._datasources_api.get_datasource_processed_until_timestamp_by_dataset_id(
-                dataset_id=self.dataset_id
-            )
+        response: DatasourceProcessedUntilTimestampResponse = self._datasources_api.get_datasource_processed_until_timestamp_by_dataset_id(
+            dataset_id=self.dataset_id
         )
         timestamp = int(response.processed_until_timestamp)
         return timestamp

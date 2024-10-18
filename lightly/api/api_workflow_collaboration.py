@@ -60,10 +60,10 @@ class _CollaborationMixin:
             >>> ["user@something.com"]
         """
 
-        access_configs: List[SharedAccessConfigData] = (
-            self._collaboration_api.get_shared_access_configs_by_dataset_id(
-                dataset_id=dataset_id
-            )
+        access_configs: List[
+            SharedAccessConfigData
+        ] = self._collaboration_api.get_shared_access_configs_by_dataset_id(
+            dataset_id=dataset_id
         )
         user_emails = []
 

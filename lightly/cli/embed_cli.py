@@ -85,9 +85,9 @@ def _embed_cli(
         path = os.path.join(os.getcwd(), "embeddings.csv")
         save_embeddings(path, embeddings, labels, filenames)
         print(f"Embeddings are stored at {bcolors.OKBLUE}{path}{bcolors.ENDC}")
-        os.environ[cfg["environment_variable_names"]["lightly_last_embedding_path"]] = (
-            path
-        )
+        os.environ[
+            cfg["environment_variable_names"]["lightly_last_embedding_path"]
+        ] = path
         return path
 
     return embeddings, labels, filenames

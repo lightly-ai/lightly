@@ -279,9 +279,9 @@ class ApiWorkflowClient(
                 else:
                     # enable SSE with specific customer KMS key
                     headers["x-amz-server-side-encryption"] = "aws:kms"
-                    headers["x-amz-server-side-encryption-aws-kms-key-id"] = (
-                        lightly_s3_sse_kms_key
-                    )
+                    headers[
+                        "x-amz-server-side-encryption-aws-kms-key-id"
+                    ] = lightly_s3_sse_kms_key
 
         # start requests session and make put request
         sess = session or requests

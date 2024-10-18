@@ -103,10 +103,12 @@ class LARS(Optimizer):
 
     # Type ignore for overloads is required for Python 3.7.
     @overload  # type: ignore[override]
-    def step(self, closure: None = None) -> None: ...
+    def step(self, closure: None = None) -> None:
+        ...
 
     @overload  # type: ignore[override]
-    def step(self, closure: Callable[[], float]) -> float: ...
+    def step(self, closure: Callable[[], float]) -> float:
+        ...
 
     @torch.no_grad()
     def step(self, closure: Optional[Callable[[], float]] = None) -> Optional[float]:
@@ -136,6 +138,7 @@ class LARS(Optimizer):
                 p_norm = torch.norm(p.data)
                 g_norm = torch.norm(p.grad.data)
 
+                # Apply Lars scaling and weight decay.
                 if weight_decay != 0:
                     if p_norm != 0 and g_norm != 0:
                         lars_lr = p_norm / (
@@ -146,6 +149,7 @@ class LARS(Optimizer):
                         d_p = d_p.add(p, alpha=weight_decay)
                         d_p *= lars_lr
 
+                # Apply momentum.
                 if momentum != 0:
                     param_state = self.state[p]
                     if "momentum_buffer" not in param_state:

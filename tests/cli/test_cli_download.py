@@ -25,9 +25,9 @@ _DATASET_ID = "b2a40959eacd1c9a142ba57b"
 class TestCLIDownload(MockedApiWorkflowSetup):
     @classmethod
     def setUpClass(cls) -> None:
-        sys.modules["lightly.cli.download_cli"].ApiWorkflowClient = (
-            MockedApiWorkflowClient
-        )
+        sys.modules[
+            "lightly.cli.download_cli"
+        ].ApiWorkflowClient = MockedApiWorkflowClient
 
     def setUp(self):
         with initialize(config_path="../../lightly/cli/config", job_name="test_app"):
