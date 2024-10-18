@@ -26,7 +26,7 @@ def print_as_warning(message: str, warning_class: Type[Warning] = UserWarning) -
         message:
             The warning message to print.
         warning_class:
-            The type of warning to raise. Defaults to `UserWarning`.
+            The type of warning to raise.
 
     """
     old_format = copy.copy(warnings.formatwarning)

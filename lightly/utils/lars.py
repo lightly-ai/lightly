@@ -132,9 +132,9 @@ class LARS(Optimizer):
                 if p.grad is None:
                     continue
 
-                d_p = p.grad.data
+                d_p = p.grad
                 p_norm = torch.norm(p.data)
-                g_norm = torch.norm(d_p)
+                g_norm = torch.norm(p.grad.data)
 
                 if weight_decay != 0:
                     if p_norm != 0 and g_norm != 0:
@@ -143,7 +143,7 @@ class LARS(Optimizer):
                         )
                         lars_lr *= group["trust_coefficient"]
 
-                        d_p = d_p.add(p.data, alpha=weight_decay)
+                        d_p = d_p.add(p, alpha=weight_decay)
                         d_p *= lars_lr
 
                 if momentum != 0:
@@ -159,6 +159,6 @@ class LARS(Optimizer):
                     else:
                         d_p = buf
 
-                p.data.add_(d_p, alpha=-group["lr"])
+                p.add_(d_p, alpha=-group["lr"])
 
         return loss

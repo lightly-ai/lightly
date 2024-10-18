@@ -148,9 +148,9 @@ class _ComputeWorkerMixin:
                 ...
             }]
         """
-        entries: list[
-            DockerWorkerRegistryEntryData
-        ] = self._compute_worker_api.get_docker_worker_registry_entries()
+        entries: list[DockerWorkerRegistryEntryData] = (
+            self._compute_worker_api.get_docker_worker_registry_entries()
+        )
         return entries
 
     def delete_compute_worker(self, worker_id: str) -> None:

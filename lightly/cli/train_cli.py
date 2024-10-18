@@ -146,9 +146,9 @@ def _train_cli(cfg, is_cli_call=True):
     print(
         f"Best model is stored at: {bcolors.OKBLUE}{encoder.checkpoint}{bcolors.ENDC}"
     )
-    os.environ[
-        cfg["environment_variable_names"]["lightly_last_checkpoint_path"]
-    ] = encoder.checkpoint
+    os.environ[cfg["environment_variable_names"]["lightly_last_checkpoint_path"]] = (
+        encoder.checkpoint
+    )
     return encoder.checkpoint
 
 

@@ -1301,9 +1301,7 @@ class VICRegLCollateFunction(nn.Module):
             ]
         )
 
-    def forward(
-        self, batch: List[Tuple[Image.Image, int, str]]
-    ) -> Tuple[
+    def forward(self, batch: List[Tuple[Image.Image, int, str]]) -> Tuple[
         Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor],
         torch.Tensor,
         torch.Tensor,

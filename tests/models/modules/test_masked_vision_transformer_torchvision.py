@@ -91,8 +91,7 @@ class TestMaskedVisionTransformerTorchvision(MaskedVisionTransformerTest):
         idx_mask_ratio: Optional[float],
         bool_mask_ratio: Optional[float],
         expected_sequence_length: int,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     @pytest.mark.skip(reason="Torchvision ViT does not support reg tokens")
     def test_prepend_prefix_tokens(
@@ -101,8 +100,7 @@ class TestMaskedVisionTransformerTorchvision(MaskedVisionTransformerTest):
         class_token: bool,
         reg_tokens: int,
         expected_sequence_length: int,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     @pytest.mark.parametrize("device", ["cpu", "cuda"])
     @pytest.mark.parametrize(

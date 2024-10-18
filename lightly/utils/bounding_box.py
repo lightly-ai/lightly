@@ -92,9 +92,9 @@ class BoundingBox:
             y:
                 y coordinate of the top-left corner relative to image height.
             w:
-                Width of the bounding box.
+                Width of the bounding box relative to image width.
             h:
-                Height of the bounding box.
+                Height of the bounding box relative to image height.
 
         Returns:
             BoundingBox: A BoundingBox instance.
@@ -117,9 +117,9 @@ class BoundingBox:
             y_center:
                 y coordinate of the center relative to image height.
             w:
-                Width of the bounding box.
+                Width of the bounding box relative to image width.
             h:
-                Height of the bounding box.
+                Height of the bounding box relative to image height.
 
         Returns:
             BoundingBox: A BoundingBox instance.
