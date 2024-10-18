@@ -98,9 +98,10 @@ class DINOv2(LightningModule):
         num_patches = int((sequence_length - 1) ** 0.5)
         mask = global_views.new_zeros((B, sequence_length), dtype=torch.bool)
         # Mask patches except class token.
-        mask[:, 1:] = random_block_mask(
+        block_mask = random_block_mask(
             size=(B, num_patches, num_patches), device=mask.device
-        ).flatten(start_dim=1)
+        )
+        mask[:, 1:] = block_mask.flatten(start_dim=1)
 
         # Teacher forward
         with torch.no_grad():
@@ -130,7 +131,7 @@ class DINOv2(LightningModule):
         ibot_loss = self.ibot_criterion(
             teacher_out=teacher_masked_out,
             student_out=student_global_masked_out,
-            mask=mask,
+            mask=block_mask,
         )
         koleo_loss = 0.1 * sum(
             self.koleo_criterion(t) for t in student_global_cls_token.chunk(2)
