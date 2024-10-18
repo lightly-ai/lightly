@@ -11,7 +11,8 @@ try:
 except ModuleNotFoundError:
     plt = ModuleNotFoundError(
         "Matplotlib is not installed on your system. Please install it to use the "
-        "plotting functionalities. You can install it with 'pip install lightly[matplotlib]'."
+        "plotting functionalities. You can install it with "
+        "'pip install lightly[matplotlib]'."
     )
 except ImportError as ex:
     plt = ex
