@@ -350,14 +350,14 @@ class SimSiamProjectionHead(ProjectionHead):
 
 
 class SMoGPrototypes(nn.Module):
-        """SMoG prototypes module for synchronous momentum grouping.
+    """SMoG prototypes module for synchronous momentum grouping.
 
-        Args:
-            group_features: 
-                Tensor containing the group features.
-            beta: 
-                Beta parameter for momentum updating.
-        """
+    Args:
+        group_features: 
+            Tensor containing the group features.
+        beta: 
+            Beta parameter for momentum updating.
+    """
 
     def __init__(
         self,
