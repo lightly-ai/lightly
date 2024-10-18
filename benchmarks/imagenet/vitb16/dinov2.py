@@ -211,8 +211,10 @@ class DINOv2(LightningModule):
             elif "blocks" in name:
                 layer_idx = int(re.search(r"blocks\.(\d+)\.", name).group(1))
                 group["lr"] = lr * lr_layer(layer_idx + 1)
+            elif "vit.norm" in name:
+                pass  # Do not update vit.norm parameters
             elif "head" in name:
-                pass  # Ignore head parameters
+                pass  # Do not update classification and dino/ibot head parameters
             else:
                 assert False, f"Unknown parameter: {name}"
 
