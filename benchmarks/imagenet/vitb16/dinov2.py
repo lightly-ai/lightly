@@ -141,9 +141,9 @@ class DINOv2(LightningModule):
         self.log_dict(
             {
                 "train_loss": loss,
-                "dino_loss": dino_loss,
-                "ibot_loss": ibot_loss,
-                "koleo_loss": koleo_loss,
+                "train_dino_loss": dino_loss,
+                "train_ibot_loss": ibot_loss,
+                "train_koleo_loss": koleo_loss,
                 "ema_momentum": momentum,
             },
             prog_bar=True,
