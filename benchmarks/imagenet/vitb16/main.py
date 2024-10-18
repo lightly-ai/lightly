@@ -4,6 +4,8 @@ from pathlib import Path
 from typing import Sequence, Union
 
 import aim
+import dino
+import dinov2
 import finetune_eval
 import knn_eval
 import linear_eval
@@ -41,6 +43,8 @@ parser.add_argument("--strategy", default="ddp_find_unused_parameters_true")
 
 
 METHODS = {
+    "dino": {"model": dino.DINO, "transform": dino.transform},
+    "dinov2": {"model": dinov2.DINOv2, "transform": dinov2.transform},
     "mae": {"model": mae.MAE, "transform": mae.transform},
     "aim": {"model": aim.AIM, "transform": aim.transform},
 }

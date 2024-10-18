@@ -202,7 +202,7 @@ def finetune_eval(
     classifier = FinetuneEvalClassifier(
         model=model,
         batch_size_per_device=batch_size_per_device,
-        feature_dim=768,
+        feature_dim=384,
         num_classes=num_classes,
         freeze_model=False,
     )
