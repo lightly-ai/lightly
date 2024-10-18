@@ -27,7 +27,6 @@ def prototype_probabilities(
     Returns:
         Probability tensor with shape (batch_size, num_prototypes) which sums to 1 along
         the num_prototypes dimension.
-
     """
     return F.softmax(torch.matmul(queries, prototypes.T) / temperature, dim=1)
 
@@ -43,7 +42,6 @@ def sharpen(probabilities: Tensor, temperature: float) -> Tensor:
             output probabilities are less uniform).
     Returns:
         Probabilities tensor with shape (batch_size, dim).
-
     """
     probabilities = probabilities ** (1.0 / temperature)
     probabilities /= torch.sum(probabilities, dim=1, keepdim=True)
@@ -69,10 +67,9 @@ def sinkhorn(
         iterations:
             Number of iterations of the sinkhorn algorithms. Set to 0 to disable.
         gather_distributed:
-            If True then features from all gpus are gathered during normalization.
+            If True, features from all GPUs are gathered during normalization.
     Returns:
         A normalized probabilities tensor.
-
     """
     if iterations <= 0:
         return probabilities
@@ -89,14 +86,14 @@ def sinkhorn(
     probabilities = probabilities / sum_probabilities
 
     for _ in range(iterations):
-        # normalize rows
+        # Normalize rows
         row_sum = torch.sum(probabilities, dim=1, keepdim=True)
         if world_size > 1:
             dist.all_reduce(row_sum)
         probabilities /= row_sum
         probabilities /= num_prototypes
 
-        # normalize columns
+        # Normalize columns
         probabilities /= torch.sum(probabilities, dim=0, keepdim=True)
         probabilities /= num_targets
 
@@ -129,8 +126,7 @@ class MSNLoss(nn.Module):
         gather_distributed:
             If True, then target probabilities are gathered from all GPUs.
 
-     Examples:
-
+    Examples:
         >>> # initialize loss function
         >>> loss_fn = MSNLoss()
         >>>
@@ -144,7 +140,6 @@ class MSNLoss(nn.Module):
         >>>
         >>> # calculate loss
         >>> loss = loss_fn(anchors_out, targets_out, prototypes=model.prototypes)
-
     """
 
     def __init__(
@@ -155,6 +150,28 @@ class MSNLoss(nn.Module):
         me_max_weight: Optional[float] = None,
         gather_distributed: bool = False,
     ):
+        """Initializes the MSNLoss module with the specified parameters.
+
+        Args:
+            temperature:
+                Similarities between anchors and targets are scaled by the inverse of the temperature. Must be in (0, inf).
+            sinkhorn_iterations:
+                Number of sinkhorn normalization iterations on the targets.
+            regularization_weight:
+                Weight factor lambda by which the regularization loss is scaled. Set to 0 to disable regularization.
+            me_max_weight:
+                Deprecated, use `regularization_weight` instead. Takes precedence over
+                `regularization_weight` if not None. Weight factor lambda by which the mean
+                entropy maximization regularization loss is scaled. Set to 0 to disable mean
+                entropy maximization regularization.
+            gather_distributed:
+                If True, then target probabilities are gathered from all GPUs.
+
+        Raises:
+            ValueError: If temperature is not in (0, inf).
+            ValueError: If sinkhorn_iterations is less than 0.
+            ValueError: If gather_distributed is True but torch.distributed is not available.
+        """
         super().__init__()
         if temperature <= 0:
             raise ValueError(f"temperature must be in (0, inf) but is {temperature}.")
@@ -172,7 +189,7 @@ class MSNLoss(nn.Module):
         self.temperature = temperature
         self.sinkhorn_iterations = sinkhorn_iterations
         self.regularization_weight = regularization_weight
-        # set regularization_weight to me_max_weight for backwards compatibility
+        # Set regularization_weight to me_max_weight for backwards compatibility
         if me_max_weight is not None:
             warnings.warn(
                 DeprecationWarning(
@@ -190,7 +207,7 @@ class MSNLoss(nn.Module):
         prototypes: Tensor,
         target_sharpen_temperature: float = 0.25,
     ) -> Tensor:
-        """Computes the MSN loss for a set of anchors, targets and prototypes.
+        """Computes the MSN loss for a set of anchors, targets, and prototypes.
 
         Args:
             anchors:
@@ -204,19 +221,20 @@ class MSNLoss(nn.Module):
 
         Returns:
             Mean loss over all anchors.
-
         """
         num_views = anchors.shape[0] // targets.shape[0]
+
+        # Normalize the inputs
         anchors = F.normalize(anchors, dim=1)
         targets = F.normalize(targets, dim=1)
         prototypes = F.normalize(prototypes, dim=1)
 
-        # anchor predictions
+        # Anchor predictions
         anchor_probs = prototype_probabilities(
             anchors, prototypes, temperature=self.temperature
         )
 
-        # target predictions
+        # Target predictions
         with torch.no_grad():
             target_probs = prototype_probabilities(
                 targets, prototypes, temperature=self.temperature
@@ -230,10 +248,10 @@ class MSNLoss(nn.Module):
                 )
             target_probs = target_probs.repeat((num_views, 1))
 
-        # cross entropy loss
+        # Cross entropy loss
         loss = torch.mean(torch.sum(torch.log(anchor_probs ** (-target_probs)), dim=1))
 
-        # regularization loss
+        # Regularization loss
         if self.regularization_weight > 0:
             mean_anchor_probs = torch.mean(anchor_probs, dim=0)
             reg_loss = self.regularization_loss(mean_anchor_probs=mean_anchor_probs)
@@ -242,7 +260,14 @@ class MSNLoss(nn.Module):
         return loss
 
     def regularization_loss(self, mean_anchor_probs: Tensor) -> Tensor:
-        """Calculates mean entropy regularization loss."""
+        """Calculates mean entropy regularization loss.
+
+        Args:
+            mean_anchor_probs: The mean anchor probabilities.
+
+        Returns:
+            The calculated regularization loss.
+        """
         loss = -torch.sum(torch.log(mean_anchor_probs ** (-mean_anchor_probs)))
         loss += math.log(float(len(mean_anchor_probs)))
         return loss
