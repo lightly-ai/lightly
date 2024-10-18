@@ -65,7 +65,7 @@ class DINOv2(LightningModule):
     def forward_teacher(self, x: Tensor) -> Tuple[Tensor, Tensor]:
         features = self.backbone.encode(x)
         cls_tokens = features[:, 0]
-        return cls_tokens, features[:, 1:]
+        return cls_tokens, features
 
     def forward_student(
         self, x: Tensor, mask: Optional[Tensor]
@@ -93,7 +93,7 @@ class DINOv2(LightningModule):
         local_views = torch.cat(views[2:])
 
         # Masking
-        B = views[0].shape[0]
+        B = len(global_views)
         sequence_length = self.backbone.sequence_length
         num_patches = int((sequence_length - 1) ** 0.5)
         mask = global_views.new_zeros((B, sequence_length), dtype=torch.bool)
