@@ -67,7 +67,7 @@ class MAEDecoderTIMM(Module):
         mask_token: Optional[Parameter] = None,
     ):
         """Initializes the MAEDecoderTIMM with the specified parameters."""
-        
+
         super().__init__()
 
         self.decoder_embed = nn.Linear(embed_dim, decoder_embed_dim, bias=True)
@@ -115,7 +115,7 @@ class MAEDecoderTIMM(Module):
         Returns:
             Tensor with shape (batch_size, seq_length, out_dim).
         """
-        
+
         out = self.embed(input)
         out = self.decode(out)
         return self.predict(out)
@@ -175,7 +175,7 @@ class MAEDecoderTIMM(Module):
 
     def _initialize_weights(self) -> None:
         """Initializes weights for the decoder components."""
-        
+
         torch.nn.init.normal_(self.mask_token, std=0.02)
         utils.initialize_2d_sine_cosine_positional_embedding(
             pos_embedding=self.decoder_pos_embed, has_class_token=True

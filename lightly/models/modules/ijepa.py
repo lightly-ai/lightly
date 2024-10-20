@@ -56,7 +56,7 @@ class IJEPAPredictor(vision_transformer.Encoder):
         **kwargs,
     ):
         """Initializes the IJEPAPredictor with the specified dimensions."""
-        
+
         super().__init__(
             seq_length=seq_length,
             num_layers=num_layers,
@@ -91,7 +91,7 @@ class IJEPAPredictor(vision_transformer.Encoder):
         Returns:
             IJEPAPredictor: An I-JEPA predictor backbone initialized from the ViT encoder.
         """
-        
+
         # Create a new instance with dummy values as they will be overwritten
         # by the copied vit_encoder attributes
         encoder = cls(
@@ -105,22 +105,22 @@ class IJEPAPredictor(vision_transformer.Encoder):
             dropout=0,
             attention_dropout=0,
         )
-        
+
         # Copy attributes from the ViT encoder
         encoder.layers = vit_encoder.layers
         encoder.ln = vit_encoder.ln
-        
+
         return encoder
 
     def forward(self, x, masks_x, masks):
         """Forward pass of the IJEPAPredictor.
 
         Args:
-            x: 
+            x:
                 Input tensor.
-            masks_x: 
+            masks_x:
                 Mask indices for the input tensor.
-            masks: 
+            masks:
                 Mask indices for the predicted tokens.
 
         Returns:
@@ -215,7 +215,7 @@ class IJEPAEncoder(vision_transformer.Encoder):
     @classmethod
     def from_vit_encoder(cls, vit_encoder: vision_transformer.Encoder):
         """Creates a IJEPA encoder from a torchvision ViT encoder."""
-        
+
         # Create a new instance with dummy values as they will be overwritten
         # by the copied vit_encoder attributes
         encoder = cls(
@@ -249,7 +249,7 @@ class IJEPAEncoder(vision_transformer.Encoder):
         Returns:
             Batch of encoded output tokens.
         """
-        
+
         input = input + self.interpolate_pos_encoding(input)
         if idx_keep is not None:
             input = utils.apply_masks(input, idx_keep)
@@ -266,10 +266,10 @@ class IJEPAEncoder(vision_transformer.Encoder):
                Input tensor with shape (batch_size, num_sequences).
 
         Returns:
-            Interpolated positional embedding.       
+            Interpolated positional embedding.
 
         """
-        
+
         # code copied from:
         # https://github.com/facebookresearch/msn/blob/4388dc1eadbe3042b85d3296d41b9b207656e043/src/deit.py#L291
         npatch = input.shape[1] - 1
@@ -297,7 +297,7 @@ class IJEPABackbone(vision_transformer.VisionTransformer):
     in the future.
 
     Converts images into patches and encodes them. Code inspired by [1].
-    
+
     Note that this implementation uses a learned positional embedding while [0]
     uses a fixed positional embedding.
 
@@ -376,7 +376,7 @@ class IJEPABackbone(vision_transformer.VisionTransformer):
     @classmethod
     def from_vit(cls, vit: vision_transformer.VisionTransformer):
         """Creates a IJEPABackbone from a torchvision ViT model."""
-        
+
         # Create a new instance with dummy values as they will be overwritten
         # by the copied vit_encoder attributes
         backbone = cls(
@@ -392,14 +392,14 @@ class IJEPABackbone(vision_transformer.VisionTransformer):
             representation_size=vit.representation_size,
             norm_layer=vit.norm_layer,
         )
-        
+
         # Copy attributes from the ViT model
         backbone.conv_proj = vit.conv_proj
         backbone.class_token = vit.class_token
         backbone.seq_length = vit.seq_length
         backbone.heads = vit.heads
         backbone.encoder = IJEPAEncoder.from_vit_encoder(vit.encoder)
-        
+
         return backbone
 
     def forward(
@@ -420,7 +420,7 @@ class IJEPABackbone(vision_transformer.VisionTransformer):
             Tensor with shape (batch_size, hidden_dim) containing the
             encoded class token for every image.
         """
-        
+
         if idx_keep is not None:
             if not isinstance(idx_keep, list):
                 idx_keep = [idx_keep]
@@ -458,9 +458,9 @@ class IJEPABackbone(vision_transformer.VisionTransformer):
         Args:
             images:
                 Tensor with shape (batch_size, channels, image_size, image_size).
-            prepend_class_token: 
+            prepend_class_token:
                 Whether to prepend the class token to the patch tokens.
-    
+
         Returns:
             Tensor with shape (batch_size, sequence_length - 1, hidden_dim)
             containing the patch tokens.

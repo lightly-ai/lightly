@@ -52,7 +52,7 @@ class MAEEncoder(vision_transformer.Encoder):
         norm_layer: Callable[..., torch.nn.Module] = partial(nn.LayerNorm, eps=1e-6),
     ):
         """Initializes the MAEEncoder with the specified dimensions."""
-        
+
         super().__init__(
             seq_length=seq_length,
             num_layers=num_layers,
@@ -81,7 +81,7 @@ class MAEEncoder(vision_transformer.Encoder):
         Returns:
             A MAEEncoder with the same architecture as vit_encoder.
         """
-        
+
         # Create a new instance with dummy values as they will be overwritten
         # by the copied vit_encoder attributes
         encoder = cls(
@@ -93,13 +93,13 @@ class MAEEncoder(vision_transformer.Encoder):
             dropout=0,
             attention_dropout=0,
         )
-        
+
         # Copy attributes from the ViT encoder
         encoder.pos_embedding = vit_encoder.pos_embedding
         encoder.dropout = vit_encoder.dropout
         encoder.layers = vit_encoder.layers
         encoder.ln = vit_encoder.ln
-        
+
         if initialize_weights:
             encoder._initialize_weights()
         return encoder
@@ -134,9 +134,9 @@ class MAEEncoder(vision_transformer.Encoder):
         Args:
             input:
                Input tensor with shape (batch_size, num_sequences).
-        
-        Returns: 
-            Interpolated positional embedding.       
+
+        Returns:
+            Interpolated positional embedding.
 
         """
         # code copied from:
@@ -145,12 +145,12 @@ class MAEEncoder(vision_transformer.Encoder):
         N = self.pos_embedding.shape[1] - 1
         if npatch == N:
             return self.pos_embedding
-        
+
         # Separate the class embedding from the positional embeddings
         class_emb = self.pos_embedding[:, 0]
         pos_embedding = self.pos_embedding[:, 1:]
         dim = input.shape[-1]
-        
+
         pos_embedding = nn.functional.interpolate(
             pos_embedding.reshape(1, int(math.sqrt(N)), int(math.sqrt(N)), dim).permute(
                 0, 3, 1, 2
@@ -226,7 +226,7 @@ class MAEBackbone(vision_transformer.VisionTransformer):
         conv_stem_configs: Optional[List[ConvStemConfig]] = None,
     ):
         """Initializes the MAEBackbone with the specified dimensions."""
-        
+
         super().__init__(
             image_size=image_size,
             patch_size=patch_size,
@@ -284,7 +284,7 @@ class MAEBackbone(vision_transformer.VisionTransformer):
             representation_size=vit.representation_size,
             norm_layer=vit.norm_layer,
         )
-        
+
         # Copy attributes from the ViT model
         backbone.conv_proj = vit.conv_proj
         backbone.class_token = vit.class_token
@@ -364,7 +364,7 @@ class MAEBackbone(vision_transformer.VisionTransformer):
 
     def _initialize_weights(self) -> None:
         """Initializes weights for the backbone components."""
-        
+
         # Initialize the patch embedding layer like a linear layer instead of conv
         # layer.
         w = self.conv_proj.weight.data
@@ -424,7 +424,7 @@ class MAEDecoder(vision_transformer.Encoder):
         norm_layer: Callable[..., nn.Module] = partial(nn.LayerNorm, eps=1e-6),
     ):
         """Initializes the MAEDecoder with the specified dimensions."""
-        
+
         super().__init__(
             seq_length=seq_length,
             num_layers=num_layers,
@@ -526,7 +526,7 @@ def _initialize_2d_sine_cosine_positional_embedding(pos_embedding: Parameter) ->
 
 def _initialize_linear_layers(module: Module) -> None:
     """Initializes linear layers in the given module."""
-    
+
     def init(mod: Module) -> None:
         if isinstance(mod, Linear):
             nn.init.xavier_uniform_(mod.weight)

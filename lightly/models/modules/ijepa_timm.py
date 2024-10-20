@@ -59,7 +59,7 @@ class IJEPAPredictorTIMM(nn.Module):
         norm_layer: Callable[..., torch.nn.Module] = partial(nn.LayerNorm, eps=1e-6),
     ):
         """Initializes the IJEPAPredictorTIMM with the specified dimensions."""
-        
+
         super().__init__()
 
         self.predictor_embed = nn.Linear(mlp_dim, predictor_embed_dim, bias=True)
@@ -102,17 +102,17 @@ class IJEPAPredictorTIMM(nn.Module):
         """Forward pass of the IJEPAPredictorTIMM.
 
         Args:
-            x: 
+            x:
                 Input tensor.
-            masks_x: 
+            masks_x:
                 Mask indices for the input tensor.
-            masks: 
+            masks:
                 Mask indices for the predicted tokens.
 
         Returns:
             The predicted output tensor.
         """
-        
+
         assert (masks is not None) and (
             masks_x is not None
         ), "Cannot run predictor without mask indices"
@@ -163,19 +163,19 @@ class IJEPAPredictorTIMM(nn.Module):
         self, x: torch.Tensor, masks: Union[torch.Tensor, List[torch.Tensor]]
     ) -> torch.Tensor:
         """Apply masks to the input tensor.
-        
+
         From https://github.com/facebookresearch/ijepa/blob/main/src/masks/utils.py
-        
+
         Args:
-            x: 
+            x:
                 tensor of shape [B (batch-size), N (num-patches), D (feature-dim)].
-            masks: 
+            masks:
                 tensor or list of tensors containing indices of patches in [N] to keep.
-        
+
         Returns:
             Tensor of shape [B, N', D] where N' is the number of patches to keep.
         """
-        
+
         if not isinstance(masks, list):
             masks = [masks]
 

@@ -73,7 +73,7 @@ class MaskedCausalAttention(Attention):  # type: ignore[misc]
         Args:
             x:
                 Input tensor of shape (batch_size, sequence_length, channels).
-            mask: 
+            mask:
                 Mask tensor of shape (batch_size, sequence_length) indicating which tokens
                 should be masked.
 
@@ -123,29 +123,29 @@ class MaskedCausalBlock(Block):  # type: ignore[misc]
         """Initializes the MaskedCausalBlock with the specified parameters.
 
         Args:
-            dim: 
+            dim:
                 Dimension of the input tokens.
-            num_heads: 
+            num_heads:
                 Number of attention heads.
-            mlp_ratio: 
+            mlp_ratio:
                 Ratio of MLP hidden dim to embedding dim.
-            qkv_bias: 
+            qkv_bias:
                 If True, add bias to the query, key, and value tensors.
-            qk_norm: 
+            qk_norm:
                 If True, apply layer normalization to queries and keys.
-            proj_drop: 
+            proj_drop:
                 Percentage of elements set to zero after the projection layer.
-            attn_drop: 
+            attn_drop:
                 Percentage of elements set to zero after the attention head.
-            init_values: 
+            init_values:
                 Initial values for the layer.
-            drop_path: 
+            drop_path:
                 Drop path rate for the block.
-            act_layer: 
+            act_layer:
                 Activation layer to use.
-            norm_layer: 
+            norm_layer:
                 Normalization layer to use.
-            mlp_layer: 
+            mlp_layer:
                 MLP layer to use.
         """
         super().__init__(
@@ -186,7 +186,7 @@ class MaskedCausalBlock(Block):  # type: ignore[misc]
                 attention.
 
         Returns:
-            Output tensor after applying the attention block.           
+            Output tensor after applying the attention block.
         """
         x = x + self.drop_path1(self.ls1(self.attn(self.norm1(x), mask=mask)))
         x = x + self.drop_path2(self.ls2(self.mlp(self.norm2(x))))
@@ -237,9 +237,9 @@ class MaskedCausalVisionTransformer(VisionTransformer):  # type: ignore[misc]
         """Initializes the MaskedCausalVisionTransformer with the specified parameters.
 
         Args:
-            img_size: 
+            img_size:
                 Input image size.
-            patch_size: 
+            patch_size:
                 Width and height of the image patches.
             in_chans:
                 Number of image input channels.
@@ -249,55 +249,55 @@ class MaskedCausalVisionTransformer(VisionTransformer):  # type: ignore[misc]
                 Global pooling type.
             embed_dim:
                 Embedding dimension.
-            depth: 
+            depth:
                 Depth of the transformer.
-            num_heads: 
+            num_heads:
                 Number of attention heads.
-            mlp_ratio: 
+            mlp_ratio:
                 Ratio of MLP hidden dim to embedding dim.
-            qkv_bias: 
+            qkv_bias:
                 If True, add bias to the query, key, and value tensors.
-            qk_norm: 
+            qk_norm:
                 If True, apply layer normalization to queries and keys.
-            init_values: 
+            init_values:
                 Initial values for the layer.
-            class_token: 
+            class_token:
                 If True, add class token to the embeddings.
-            no_embed_class: 
+            no_embed_class:
                 If True, do not embed class token.
-            reg_tokens: 
+            reg_tokens:
                 Number of regularization tokens.
-            pre_norm : 
+            pre_norm :
                 If True, apply layer normalization before the transformer.
-            fc_norm: 
+            fc_norm:
                 If True, apply layer normalization to the final fully connected layer.
             dynamic_img_size:
                 If True, dynamically adjust the image size.
-            dynamic_img_pad: 
+            dynamic_img_pad:
                 If True, dynamically pad the image.
-            drop_rate: 
+            drop_rate:
                 Percentage of elements set to zero after the dropout layer.
-            pos_drop_rate: 
+            pos_drop_rate:
                 Percentage of elements set to zero after the positional dropout layer.
-            patch_drop_rate: 
+            patch_drop_rate:
                 Percentage of elements set to zero after the patch dropout layer.
-            proj_drop_rate: 
+            proj_drop_rate:
                 Percentage of elements set to zero after the projection dropout layer.
-            attn_drop_rate: 
+            attn_drop_rate:
                 Percentage of elements set to zero after the attention head dropout.
-            drop_path_rate: 
+            drop_path_rate:
                 Drop path rate for the block.
-            weight_init: 
+            weight_init:
                 Weight initialization method.
-            embed_layer: 
+            embed_layer:
                 Callable that creates the embedding layer.
-            norm_layer: 
+            norm_layer:
                 Normalization layer to use.
-            act_layer: 
+            act_layer:
                 Activation layer to use.
-            block_fn: 
+            block_fn:
                 Block function to use.
-            mlp_layer: 
+            mlp_layer:
                 MLP layer to use.
         """
         super().__init__(
@@ -348,7 +348,7 @@ class MaskedCausalVisionTransformer(VisionTransformer):  # type: ignore[misc]
                 attention.
 
         Returns:
-            Output tensor after applying the transformer blocks.    
+            Output tensor after applying the transformer blocks.
         """
         x = self.patch_embed(x)
         x = self._pos_embed(x)
