@@ -1,7 +1,11 @@
 import numpy as np
 import torch
 
-from lightly.transforms import AmplitudeRescaleTranform, RFFT2DTransform
+from lightly.transforms import (
+    AmplitudeRescaleTranform,
+    IRFFT2DTransform,
+    RFFT2DTransform,
+)
 
 
 # Testing function image -> FFT -> AmplitudeRescale.
@@ -18,4 +22,5 @@ def test() -> None:
     ampRescaleTf_2 = AmplitudeRescaleTranform(range=(1.0, 2.0))
     rescaled_rfft_2 = ampRescaleTf_2(rfft)
 
-    assert rescaled_rfft_1.shape == rfft.shape and rescaled_rfft_2.shape == rfft.shape
+    assert rescaled_rfft_1.shape == rfft.shape
+    assert rescaled_rfft_2.shape == rfft.shape

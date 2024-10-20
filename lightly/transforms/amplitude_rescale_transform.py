@@ -3,40 +3,32 @@ from typing import Tuple
 import numpy as np
 import torch
 from torch import Tensor
+from torch.distributions import Uniform
 
 
 class AmplitudeRescaleTranform:
-    """
-    This transform will rescale the amplitude of the Fourier Spectrum (`input`) of the image and return it.
-    The scaling value *p* will range within `[m, n)`
-    ```
-    img = torch.randn(3, 64, 64)
+    """Implementation of amplitude rescaling transformation.
 
-    rfft = lightly.transforms.RFFT2DTransform()
-    rfft_img = rfft(img)
+    This transform will rescale the amplitude of the Fourier Spectrum (`freq_image`) of the image and return it.
 
-    art = AmplitudeRescaleTransform()
-    rescaled_img = art(rfft_img)
-    ```
-
-    # Intial Arguments
-        **range**: *Tuple of float_like*
-        The low `m` and high `n` values such that **p belongs to [m, n)**.
-    # Parameters:
-        **input**: _torch.Tensor_
-        The 2D Discrete Fourier Tranform of an Image.
-    # Returns:
-        **output**:_torch.Tensor_
-        The Fourier spectrum of the 2D Image with rescaled Amplitude.
+    Attributes:
+        dist:
+            Uniform distribution in `[m, n)` from which the scaling value will be selected.
     """
 
     def __init__(self, range: Tuple[float, float] = (0.8, 1.75)) -> None:
-        self.m = range[0]
-        self.n = range[1]
+        self.dist = Uniform(range[0], range[1])
 
-    def __call__(self, input: Tensor) -> Tensor:
-        p = np.random.uniform(self.m, self.n)
+    def __call__(self, freq_image: Tensor) -> Tensor:
+        amplitude = torch.sqrt(freq_image.real**2 + freq_image.imag**2)
 
-        output = input * p
+        phase = torch.atan2(freq_image.imag, freq_image.real)
+        # p with shape (H, W)
+        p = self.dist.sample(freq_image.shape[1:]).to(freq_image.device)
+        # Unsqueeze to add channel dimension.
+        amplitude *= p.unsqueeze(0)
+        real = amplitude * torch.cos(phase)
+        imag = amplitude * torch.sin(phase)
+        output = torch.complex(real, imag)
 
         return output
