@@ -20,6 +20,14 @@ from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils.benchmarking import MetricCallback
 
+from ...metrics import (
+    EvalMetrics,
+    FinetuneEvalMetric,
+    KNNEvalMetric,
+    LinearEvalMetric,
+    eval_metrics_to_markdown,
+)
+
 parser = ArgumentParser("ImageNet ViT-B/16 Benchmarks")
 parser.add_argument("--train-dir", type=Path, default="/datasets/imagenet/train")
 parser.add_argument("--val-dir", type=Path, default="/datasets/imagenet/val")
@@ -100,10 +108,11 @@ def main(
                 strategy=strategy,
             )
 
+        eval_metrics: EvalMetrics = []
         if skip_knn_eval:
             print("Skipping KNN eval.")
         else:
-            knn_eval.knn_eval(
+            for k, v in knn_eval.knn_eval(
                 model=model,
                 num_classes=num_classes,
                 train_dir=train_dir,
@@ -113,12 +122,13 @@ def main(
                 num_workers=num_workers,
                 accelerator=accelerator,
                 devices=devices,
-            )
+            ).items():
+                eval_metrics.append(KNNEvalMetric(k, v))
 
         if skip_linear_eval:
             print("Skipping linear eval.")
         else:
-            linear_eval.linear_eval(
+            for k, v in linear_eval.linear_eval(
                 model=model,
                 num_classes=num_classes,
                 train_dir=train_dir,
@@ -129,12 +139,13 @@ def main(
                 accelerator=accelerator,
                 devices=devices,
                 precision=precision,
-            )
+            ).items():
+                eval_metrics.append(LinearEvalMetric(k, v))
 
         if skip_finetune_eval:
             print("Skipping fine-tune eval.")
         else:
-            finetune_eval.finetune_eval(
+            for k, v in finetune_eval.finetune_eval(
                 model=model,
                 num_classes=num_classes,
                 train_dir=train_dir,
@@ -145,7 +156,12 @@ def main(
                 accelerator=accelerator,
                 devices=devices,
                 precision=precision,
-            )
+            ).items():
+                eval_metrics.append(FinetuneEvalMetric(k, v))
+
+        if eval_metrics:
+            print(f"Results for {method}:")
+            print(eval_metrics_to_markdown(eval_metrics))
 
 
 def pretrain(
