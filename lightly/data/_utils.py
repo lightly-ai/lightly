@@ -1,10 +1,15 @@
-""" Check for Corrupt Images """
+"""Provides functionality to identify corrupt images in a directory.
+
+This module helps users identify corrupt or unreadable image files within a specified
+directory. It uses parallel processing to efficiently scan through large collections
+of images.
+"""
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
 import os
-from typing import *
+from typing import List, Tuple
 
 import tqdm.contrib.concurrent as concurrent
 from PIL import Image, UnidentifiedImageError
@@ -13,18 +18,35 @@ from lightly.data import LightlyDataset
 
 
 def check_images(data_dir: str) -> Tuple[List[str], List[str]]:
-    """Iterate through a directory of images and find corrupt images
+    """Identifies corrupt and healthy images in the specified directory.
+
+    The function attempts to open each image file in the directory to verify
+    its integrity. It processes images in parallel for better performance.
 
     Args:
-        data_dir: Path to the directory containing the images
+        data_dir: Directory path containing the image files to check.
 
     Returns:
-        (healthy_images, corrupt_images)
+        A tuple containing two lists:
+            - List of filenames of healthy images that can be opened successfully
+            - List of filenames of corrupt images that cannot be opened
+
+    Example:
+        >>> healthy, corrupt = check_images("path/to/images")
+        >>> print(f"Found {len(corrupt)} corrupt images")
     """
     dataset = LightlyDataset(input_dir=data_dir)
     filenames = dataset.get_filenames()
 
-    def _is_corrupt(filename):
+    def _is_corrupt(filename: str) -> bool:
+        """Checks if a single image file is corrupt.
+
+        Args:
+            filename: Name of the image file to check.
+
+        Returns:
+            True if the image is corrupt, False otherwise.
+        """
         try:
             image = Image.open(os.path.join(data_dir, filename))
             image.load()
