@@ -117,14 +117,14 @@ class IJEPAPredictor(vision_transformer.Encoder):
 
         Args:
             x:
-                Input tensor.
+                Input tensor of shape (batch_size, sequence_length, feature_dim).
             masks_x:
-                Mask indices for the input tensor.
+                Mask indices for the input tensor of shape (batch_size, num_patches).
             masks:
-                Mask indices for the predicted tokens.
+                Mask indices for the predicted tokens of shape (batch_size, num_patches).
 
         Returns:
-            The predicted output tensor.
+            The predicted output tensor of shape (batch_size, num_patches, output_dim).
         """
         assert (masks is not None) and (
             masks_x is not None
