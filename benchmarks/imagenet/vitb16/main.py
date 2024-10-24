@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
 from datetime import datetime
 from pathlib import Path
-from typing import Sequence, Union
+from typing import Dict, Sequence, Union
 
 import aim
 import finetune_eval
@@ -100,10 +100,11 @@ def main(
                 strategy=strategy,
             )
 
+        eval_metrics: Dict[str, Dict[str, float]] = Dict()
         if skip_knn_eval:
             print("Skipping KNN eval.")
         else:
-            knn_eval.knn_eval(
+            eval_metrics["knn"] = knn_eval.knn_eval(
                 model=model,
                 num_classes=num_classes,
                 train_dir=train_dir,
@@ -118,7 +119,7 @@ def main(
         if skip_linear_eval:
             print("Skipping linear eval.")
         else:
-            linear_eval.linear_eval(
+            eval_metrics["linear"] = linear_eval.linear_eval(
                 model=model,
                 num_classes=num_classes,
                 train_dir=train_dir,
@@ -134,7 +135,7 @@ def main(
         if skip_finetune_eval:
             print("Skipping fine-tune eval.")
         else:
-            finetune_eval.finetune_eval(
+            eval_metrics["finetune"] = finetune_eval.finetune_eval(
                 model=model,
                 num_classes=num_classes,
                 train_dir=train_dir,
@@ -146,6 +147,10 @@ def main(
                 devices=devices,
                 precision=precision,
             )
+
+        if eval_metrics:
+            print(f"Results for {method}:")
+            print(eval_metrics_to_markdown(eval_metrics))
 
 
 def pretrain(
@@ -216,6 +221,38 @@ def pretrain(
     )
     for metric in ["val_online_cls_top1", "val_online_cls_top5"]:
         print(f"max {metric}: {max(metric_callback.val_metrics[metric])}")
+
+
+def eval_metrics_to_markdown(metrics: Dict[str, Dict[str, float]]) -> str:
+    EVAL_NAME_COLUMN_NAME = "Eval Name"
+    METRIC_COLUMN_NAME = "Metric Name"
+    VALUE_COLUMN_NAME = "Value"
+
+    eval_name_max_len = max(
+        len(eval_name) for eval_name in list(metrics.keys()) + [EVAL_NAME_COLUMN_NAME]
+    )
+    metric_name_max_len = max(
+        len(metric_name)
+        for metric_dict in metrics.values()
+        for metric_name in list(metric_dict.keys()) + [METRIC_COLUMN_NAME]
+    )
+    value_max_len = max(
+        len(metric_value)
+        for metric_dict in metrics.values()
+        for metric_value in list(f"{value:.2f}" for value in metric_dict.values())
+        + [VALUE_COLUMN_NAME]
+    )
+
+    header = f"| {EVAL_NAME_COLUMN_NAME.ljust(eval_name_max_len)} | {METRIC_COLUMN_NAME.ljust(metric_name_max_len)} | {VALUE_COLUMN_NAME.ljust(value_max_len)} |"
+    separator = f"|:{'-' * (eval_name_max_len)}:|:{'-' * (metric_name_max_len)}:|:{'-' * (value_max_len)}:|"
+
+    lines = [header, separator] + [
+        f"| {eval_name.ljust(eval_name_max_len)} | {metric_name.ljust(metric_name_max_len)} | {f'{metric_value:.2f}'.ljust(value_max_len)} |"
+        for eval_name, metric_dict in metrics.items()
+        for metric_name, metric_value in metric_dict.items()
+    ]
+
+    return "\n".join(lines)
 
 
 if __name__ == "__main__":
