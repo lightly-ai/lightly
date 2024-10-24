@@ -136,7 +136,7 @@ def finetune_eval(
     devices: int,
     precision: str,
     num_classes: int,
-) -> None:
+) -> Dict[str, float]:
     """Runs fine-tune evaluation on the given model.
 
     Parameters follow MAE settings.
@@ -211,5 +211,8 @@ def finetune_eval(
         train_dataloaders=train_dataloader,
         val_dataloaders=val_dataloader,
     )
+    metrics_dict: Dict[str, float] = dict()
     for metric in ["val_top1", "val_top5"]:
         print(f"max finetune {metric}: {max(metric_callback.val_metrics[metric])}")
+        metrics_dict[metric] = max(metric_callback.val_metrics[metric])
+    return metrics_dict
