@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
 from datetime import datetime
 from pathlib import Path
-from typing import Sequence, Union, Dict
+from typing import Dict, Sequence, Union
 
 import barlowtwins
 import byol
