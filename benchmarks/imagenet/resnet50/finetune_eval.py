@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Dict
 
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import DeviceStatsMonitor, LearningRateMonitor
@@ -47,7 +48,7 @@ def finetune_eval(
     devices: int,
     precision: str,
     num_classes: int,
-) -> None:
+) -> Dict[str, float]:
     """Runs fine-tune evaluation on the given model.
 
     Parameters follow SimCLR [0] settings.
@@ -131,7 +132,8 @@ def finetune_eval(
         train_dataloaders=train_dataloader,
         val_dataloaders=val_dataloader,
     )
+    metrics_dict: Dict[str, float] = dict()
     for metric in ["val_top1", "val_top5"]:
-        print_rank_zero(
-            f"max finetune {metric}: {max(metric_callback.val_metrics[metric])}"
-        )
+        print(f"max finetune {metric}: {max(metric_callback.val_metrics[metric])}")
+        metrics_dict[metric] = max(metric_callback.val_metrics[metric])
+    return metrics_dict
