@@ -34,8 +34,7 @@ This self-supervised learning framework offers the following features:
 
 ### Supported Models
 
-You can [find sample code for all the supported models here.](https://docs.lightly.ai/self-supervised-learning/examples/models.html) We provide PyTorch, PyTorch Lightning,
-and PyTorch Lightning distributed examples for all models to kickstart your project.
+Here, you can [find sample code for all the supported models.](https://docs.lightly.ai/self-supervised-learning/examples/models.html). To kickstart your project, we provide PyTorch, PyTorch Lightning, and PyTorch Lightning distributed examples for all models.
 
 **Models**:
 
