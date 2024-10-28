@@ -243,7 +243,9 @@ def pretrain(
         ckpt_path=ckpt_path,
     )
     for metric in ["val_online_cls_top1", "val_online_cls_top5"]:
-        print_rank_zero(f"max {metric}: {max(metric_callback.val_metrics[metric])}")
+        print_rank_zero(
+            f"max {metric}: {max(metric_callback.val_metrics.get(metric, [-1]))}"
+        )
 
 
 if __name__ == "__main__":

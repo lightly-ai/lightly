@@ -7,7 +7,7 @@ import torch
 from pytorch_lightning import LightningModule
 from timm.models.vision_transformer import vit_small_patch16_224
 from torch import Tensor
-from torch.optim import AdamW
+from torch.optim import AdamW, Optimizer
 
 from lightly.loss import DINOLoss, IBOTPatchLoss, KoLeoLoss
 from lightly.models.modules import DINOProjectionHead, MaskedVisionTransformerTIMM
@@ -19,7 +19,11 @@ from lightly.models.utils import (
 from lightly.transforms import DINOTransform
 from lightly.utils.benchmarking import OnlineLinearClassifier
 from lightly.utils.optim import update_param_groups
-from lightly.utils.scheduler import CosineWarmupScheduler, cosine_schedule
+from lightly.utils.scheduler import (
+    CosineWarmupScheduler,
+    cosine_schedule,
+    linear_warmup_schedule,
+)
 
 
 class DINOv2(LightningModule):
@@ -27,6 +31,7 @@ class DINOv2(LightningModule):
         super().__init__()
         self.save_hyperparameters()
         self.batch_size_per_device = batch_size_per_device
+        ibot_separate_head = False
 
         # Teacher
         vit = vit_small_patch16_224(
@@ -36,22 +41,27 @@ class DINOv2(LightningModule):
             vit=vit, antialias=False, pos_embed_initialization="skip"
         )
         self.dino_head = DINOProjectionHead(input_dim=384, norm_last_layer=False)
-        self.ibot_head = DINOProjectionHead(input_dim=384, norm_last_layer=False)
+        self.ibot_head = self.dino_head
+        if ibot_separate_head:
+            self.ibot_head = DINOProjectionHead(input_dim=384, norm_last_layer=False)
 
         # Student
         self.student_backbone = copy.deepcopy(self.backbone)
         update_drop_path_rate(
-            self.student_backbone.vit, drop_path_rate=0.1, mode="uniform"
+            self.student_backbone.vit, drop_path_rate=0.3, mode="uniform"
         )
         self.student_dino_head = DINOProjectionHead(
             input_dim=384, freeze_last_layer=1, norm_last_layer=False
         )
-        self.student_ibot_head = DINOProjectionHead(
-            input_dim=384, freeze_last_layer=1, norm_last_layer=False
-        )
+        self.student_ibot_head = self.student_dino_head
+        if ibot_separate_head:
+            self.student_ibot_head = DINOProjectionHead(
+                input_dim=384, freeze_last_layer=1, norm_last_layer=False
+            )
+
 
         # Losses
-        self.dino_criterion = DINOLoss(teacher_temp=0.07)
+        self.dino_criterion = DINOLoss()
         self.ibot_criterion = IBOTPatchLoss(output_dim=65536)
         self.koleo_criterion = KoLeoLoss()
 
@@ -82,7 +92,7 @@ class DINOv2(LightningModule):
         momentum = cosine_schedule(
             step=self.trainer.global_step,
             max_steps=self.trainer.estimated_stepping_batches,
-            start_value=0.996,
+            start_value=0.992,
             end_value=1.0,
         )
         update_momentum(self.student_backbone, self.backbone, m=momentum)
@@ -123,15 +133,25 @@ class DINOv2(LightningModule):
         student_cls_out = torch.cat([student_global_cls_out, student_local_cls_out])
 
         # Loss
+        teacher_temp = linear_warmup_schedule(
+            step=self.trainer.global_step,
+            warmup_steps=int(
+                30 / self.trainer.max_epochs * self.trainer.estimated_stepping_batches
+            ),
+            start_value=0.04,
+            end_value=0.07,
+        )
         dino_loss = self.dino_criterion(
             teacher_out=teacher_cls_out.chunk(2),
             student_out=student_cls_out.chunk(len(views)),
             epoch=self.current_epoch,
+            teacher_temp=teacher_temp,
         )
         ibot_loss = self.ibot_criterion(
             teacher_out=teacher_masked_out,
             student_out=student_global_masked_out,
             mask=block_mask,
+            teacher_temp=teacher_temp,
         )
         koleo_loss = 0.1 * sum(
             self.koleo_criterion(t) for t in student_global_cls_token.chunk(2)
@@ -251,6 +271,7 @@ class DINOv2(LightningModule):
 
     def on_before_optimizer_step(self, optimizer: AdamW, *args) -> None:
         self.student_dino_head.cancel_last_layer_gradients(self.current_epoch)
+        self.student_ibot_head.cancel_last_layer_gradients(self.current_epoch)
 
         # Apply weight decay schedule
         weight_decay = cosine_schedule(
@@ -265,10 +286,21 @@ class DINOv2(LightningModule):
                 updates.append({"name": group["name"], "weight_decay": weight_decay})
         update_param_groups(optimizer, updates=updates)
 
+    def configure_gradient_clipping(
+        self,
+        optimizer: Optimizer,
+        gradient_clip_val: int | float | None = None,
+        gradient_clip_algorithm: str | None = None,
+    ) -> None:
+        self.clip_gradients(
+            optimizer=optimizer,
+            gradient_clip_val=3.0,
+            gradient_clip_algorithm="norm",
+        )
 
-# From https://dl.fbaipublicfiles.com/dino/dino_deitsmall16_pretrain/args.txt
+
 transform = DINOTransform(
-    global_crop_scale=(0.25, 1),
-    local_crop_scale=(0.05, 0.25),
-    n_local_views=10,
+    global_crop_scale=(0.32, 1),
+    local_crop_scale=(0.05, 0.32),
+    n_local_views=8,
 )

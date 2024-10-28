@@ -60,6 +60,7 @@ class MetricCallback(Callback):
         self, metrics_dict: Dict[str, List[float]], trainer: Trainer
     ) -> None:
         for name, value in trainer.callback_metrics.items():
+            print("append_metrics", name, value)
             if isinstance(value, Tensor) and value.numel() != 1:
                 # Skip non-scalar tensors.
                 continue

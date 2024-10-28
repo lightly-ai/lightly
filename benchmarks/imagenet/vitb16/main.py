@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
 from datetime import datetime
 from pathlib import Path
-from typing import Sequence, Union
+from typing import Optional, Sequence, Union
 
 import aim
 import dino
@@ -32,6 +32,7 @@ parser.add_argument("--num-workers", type=int, default=8)
 parser.add_argument("--accelerator", type=str, default="gpu")
 parser.add_argument("--devices", type=int, default=1)
 parser.add_argument("--precision", type=str, default="16-mixed")
+parser.add_argument("--ckpt-path", type=Path, default=None)
 parser.add_argument("--compile-model", action="store_true")
 parser.add_argument("--methods", type=str, nargs="+")
 parser.add_argument("--num-classes", type=int, default=1000)
@@ -60,6 +61,7 @@ def main(
     accelerator: str,
     devices: int,
     precision: str,
+    ckpt_path: Optional[Path],
     compile_model: bool,
     methods: Union[Sequence[str], None],
     num_classes: int,
@@ -102,6 +104,7 @@ def main(
                 devices=devices,
                 precision=precision,
                 strategy=strategy,
+                ckpt_path=ckpt_path,
             )
 
         if skip_knn_eval:
@@ -165,6 +168,7 @@ def pretrain(
     devices: int,
     precision: str,
     strategy: str,
+    ckpt_path: Optional[Path],
 ) -> None:
     print(f"Running pretraining for {method}...")
 
@@ -217,9 +221,10 @@ def pretrain(
         model=model,
         train_dataloaders=train_dataloader,
         val_dataloaders=val_dataloader,
+        ckpt_path=ckpt_path,
     )
     for metric in ["val_online_cls_top1", "val_online_cls_top5"]:
-        print(f"max {metric}: {max(metric_callback.val_metrics[metric])}")
+        print(f"max {metric}: {max(metric_callback.val_metrics.get(metric, [-1]))}")
 
 
 if __name__ == "__main__":

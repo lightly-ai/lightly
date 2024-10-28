@@ -71,10 +71,13 @@ def knn_eval(
         ],
         strategy="ddp_find_unused_parameters_true",
     )
-    trainer.fit(
+    trainer.validate(
         model=classifier,
-        train_dataloaders=train_dataloader,
-        val_dataloaders=val_dataloader,
+        dataloaders=[train_dataloader, val_dataloader],
+        # train_dataloaders=train_dataloader,
+        # val_dataloaders=val_dataloader,
     )
     for metric in ["val_top1", "val_top5"]:
-        print(f"knn {metric}: {max(metric_callback.val_metrics[metric])}")
+        for name, value in metric_callback.val_metrics.items():
+            if name.startswith(metric):
+                print(f"knn {name}: {max(value)}")
