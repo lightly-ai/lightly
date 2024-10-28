@@ -1,3 +1,4 @@
+<a name="top"></a>
 ![LightlySSL self-supervised learning Logo](docs/logos/lightly_SSL_logo_crop.png)
 
 ![GitHub](https://img.shields.io/github/license/lightly-ai/lightly)
@@ -411,3 +412,5 @@ You can find out more about the company and it's services by following the links
 - [Homepage](https://www.lightly.ai)
 - [Web-App](https://app.lightly.ai)
 - [Lightly Solution Documentation (Lightly Worker & API)](https://docs.lightly.ai/)
+
+[Back to top🚀](#top)
