@@ -39,7 +39,6 @@ class IJEPAPredictor(vision_transformer.Encoder):
             Percentage of elements set to zero after the MLP in the transformer.
         attention_dropout:
             Percentage of elements set to zero after the attention head.
-
     """
 
     def __init__(
@@ -56,6 +55,8 @@ class IJEPAPredictor(vision_transformer.Encoder):
         norm_layer: Callable[..., torch.nn.Module] = partial(nn.LayerNorm, eps=1e-6),
         **kwargs,
     ):
+        """Initializes the IJEPAPredictor with the specified dimensions."""
+
         super().__init__(
             seq_length=seq_length,
             num_layers=num_layers,
@@ -81,7 +82,16 @@ class IJEPAPredictor(vision_transformer.Encoder):
 
     @classmethod
     def from_vit_encoder(cls, vit_encoder, num_patches):
-        """Creates a I-JEPA predictor backbone (mhas and layernorm) from a torchvision ViT encoder."""
+        """Creates an I-JEPA predictor backbone (multi-head attention and layernorm) from a torchvision ViT encoder.
+
+        Args:
+            vit_encoder: The Vision Transformer encoder from torchvision.
+            num_patches: The number of patches (tokens).
+
+        Returns:
+            IJEPAPredictor: An I-JEPA predictor backbone initialized from the ViT encoder.
+        """
+
         # Create a new instance with dummy values as they will be overwritten
         # by the copied vit_encoder attributes
         encoder = cls(
@@ -95,11 +105,27 @@ class IJEPAPredictor(vision_transformer.Encoder):
             dropout=0,
             attention_dropout=0,
         )
+
+        # Copy attributes from the ViT encoder
         encoder.layers = vit_encoder.layers
         encoder.ln = vit_encoder.ln
+
         return encoder
 
     def forward(self, x, masks_x, masks):
+        """Forward pass of the IJEPAPredictor.
+
+        Args:
+            x:
+                Input tensor.
+            masks_x:
+                Mask indices for the input tensor.
+            masks:
+                Mask indices for the predicted tokens.
+
+        Returns:
+            The predicted output tensor.
+        """
         assert (masks is not None) and (
             masks_x is not None
         ), "Cannot run predictor without mask indices"
@@ -160,7 +186,6 @@ class IJEPAEncoder(vision_transformer.Encoder):
             Percentage of elements set to zero after the MLP in the transformer.
         attention_dropout:
             Percentage of elements set to zero after the attention head.
-
     """
 
     def __init__(
@@ -174,6 +199,8 @@ class IJEPAEncoder(vision_transformer.Encoder):
         attention_dropout: float,
         norm_layer: Callable[..., torch.nn.Module] = partial(nn.LayerNorm, eps=1e-6),
     ):
+        """Initializes the IJEPAEncoder with the specified dimensions."""
+
         super().__init__(
             seq_length=seq_length,
             num_layers=num_layers,
@@ -188,6 +215,7 @@ class IJEPAEncoder(vision_transformer.Encoder):
     @classmethod
     def from_vit_encoder(cls, vit_encoder: vision_transformer.Encoder):
         """Creates a IJEPA encoder from a torchvision ViT encoder."""
+
         # Create a new instance with dummy values as they will be overwritten
         # by the copied vit_encoder attributes
         encoder = cls(
@@ -221,6 +249,7 @@ class IJEPAEncoder(vision_transformer.Encoder):
         Returns:
             Batch of encoded output tokens.
         """
+
         input = input + self.interpolate_pos_encoding(input)
         if idx_keep is not None:
             input = utils.apply_masks(input, idx_keep)
@@ -236,7 +265,11 @@ class IJEPAEncoder(vision_transformer.Encoder):
             input:
                Input tensor with shape (batch_size, num_sequences).
 
+        Returns:
+            Interpolated positional embedding.
+
         """
+
         # code copied from:
         # https://github.com/facebookresearch/msn/blob/4388dc1eadbe3042b85d3296d41b9b207656e043/src/deit.py#L291
         npatch = input.shape[1] - 1
@@ -264,6 +297,7 @@ class IJEPABackbone(vision_transformer.VisionTransformer):
     in the future.
 
     Converts images into patches and encodes them. Code inspired by [1].
+
     Note that this implementation uses a learned positional embedding while [0]
     uses a fixed positional embedding.
 
@@ -342,6 +376,7 @@ class IJEPABackbone(vision_transformer.VisionTransformer):
     @classmethod
     def from_vit(cls, vit: vision_transformer.VisionTransformer):
         """Creates a IJEPABackbone from a torchvision ViT model."""
+
         # Create a new instance with dummy values as they will be overwritten
         # by the copied vit_encoder attributes
         backbone = cls(
@@ -357,18 +392,20 @@ class IJEPABackbone(vision_transformer.VisionTransformer):
             representation_size=vit.representation_size,
             norm_layer=vit.norm_layer,
         )
+
+        # Copy attributes from the ViT model
         backbone.conv_proj = vit.conv_proj
         backbone.class_token = vit.class_token
         backbone.seq_length = vit.seq_length
         backbone.heads = vit.heads
         backbone.encoder = IJEPAEncoder.from_vit_encoder(vit.encoder)
+
         return backbone
 
     def forward(
         self, images: torch.Tensor, idx_keep: Optional[torch.Tensor] = None
     ) -> torch.Tensor:
-        """
-        Returns encoded class tokens from a batch of images.
+        """Returns encoded class tokens from a batch of images.
 
         Args:
             images:
@@ -382,8 +419,8 @@ class IJEPABackbone(vision_transformer.VisionTransformer):
         Returns:
             Tensor with shape (batch_size, hidden_dim) containing the
             encoded class token for every image.
-
         """
+
         if idx_keep is not None:
             if not isinstance(idx_keep, list):
                 idx_keep = [idx_keep]
@@ -421,6 +458,8 @@ class IJEPABackbone(vision_transformer.VisionTransformer):
         Args:
             images:
                 Tensor with shape (batch_size, channels, image_size, image_size).
+            prepend_class_token:
+                Whether to prepend the class token to the patch tokens.
 
         Returns:
             Tensor with shape (batch_size, sequence_length - 1, hidden_dim)
