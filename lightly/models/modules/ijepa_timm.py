@@ -42,7 +42,6 @@ class IJEPAPredictorTIMM(nn.Module):
             Percentage of elements set to zero after the attention head.
         norm_layer:
             Normalization layer.
-
     """
 
     def __init__(
@@ -59,6 +58,8 @@ class IJEPAPredictorTIMM(nn.Module):
         attn_drop_rate: float = 0.0,
         norm_layer: Callable[..., torch.nn.Module] = partial(nn.LayerNorm, eps=1e-6),
     ):
+        """Initializes the IJEPAPredictorTIMM with the specified dimensions."""
+
         super().__init__()
 
         self.predictor_embed = nn.Linear(mlp_dim, predictor_embed_dim, bias=True)
@@ -98,6 +99,20 @@ class IJEPAPredictorTIMM(nn.Module):
         masks_x: Union[List[torch.Tensor], torch.Tensor],
         masks: Union[List[torch.Tensor], torch.Tensor],
     ) -> torch.Tensor:
+        """Forward pass of the IJEPAPredictorTIMM.
+
+        Args:
+            x:
+                Input tensor.
+            masks_x:
+                Mask indices for the input tensor.
+            masks:
+                Mask indices for the predicted tokens.
+
+        Returns:
+            The predicted output tensor.
+        """
+
         assert (masks is not None) and (
             masks_x is not None
         ), "Cannot run predictor without mask indices"
@@ -147,16 +162,20 @@ class IJEPAPredictorTIMM(nn.Module):
     def apply_masks(
         self, x: torch.Tensor, masks: Union[torch.Tensor, List[torch.Tensor]]
     ) -> torch.Tensor:
-        """
+        """Apply masks to the input tensor.
+
         From https://github.com/facebookresearch/ijepa/blob/main/src/masks/utils.py
-        Apply masks to the input tensor.
 
         Args:
-            x: tensor of shape [B (batch-size), N (num-patches), D (feature-dim)]
-            masks: tensor or list of tensors containing indices of patches in [N] to keep
+            x:
+                tensor of shape [B (batch-size), N (num-patches), D (feature-dim)].
+            masks:
+                tensor or list of tensors containing indices of patches in [N] to keep.
+
         Returns:
-            tensor of shape [B, N', D] where N' is the number of patches to keep
+            Tensor of shape [B, N', D] where N' is the number of patches to keep.
         """
+
         if not isinstance(masks, list):
             masks = [masks]
 
