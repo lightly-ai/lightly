@@ -103,14 +103,14 @@ class IJEPAPredictorTIMM(nn.Module):
 
         Args:
             x:
-                Input tensor of shape (batch_size, sequence_length, feature_dim).
+                Input tensor.
             masks_x:
-                Mask indices for the input tensor of shape (batch_size, num_patches).
+                Mask indices for the input tensor.
             masks:
-                Mask indices for the predicted tokens of shape (batch_size, num_patches).
+                Mask indices for the predicted tokens.
 
         Returns:
-            The predicted output tensor of shape (batch_size, num_patches, output_dim).
+            The predicted output tensor.
         """
 
         assert (masks is not None) and (
