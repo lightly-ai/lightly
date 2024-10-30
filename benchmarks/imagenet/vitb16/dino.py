@@ -24,7 +24,7 @@ class DINO(LightningModule):
 
         vit = vit_small_patch16_224(dynamic_img_size=True)
         self.backbone = MaskedVisionTransformerTIMM(vit=vit)
-        self.projection_head = DINOProjectionHead(input_dim=384)
+        self.projection_head = DINOProjectionHead(input_dim=384, norm_last_layer=False)
 
         vit_student = vit_small_patch16_224(dynamic_img_size=True, drop_path_rate=0.1)
         self.student_backbone = MaskedVisionTransformerTIMM(vit=vit_student)
@@ -151,8 +151,17 @@ class DINO(LightningModule):
 
 
 # From https://dl.fbaipublicfiles.com/dino/dino_deitsmall16_pretrain/args.txt
+# For 800 epochs training.
+# transform = DINOTransform(
+#     global_crop_scale=(0.25, 1),
+#     local_crop_scale=(0.05, 0.25),
+#     n_local_views=10,
+# )
+
+# Default settings from https://github.com/facebookresearch/dino/blob/main/main_dino.py
+# For vanilla training: https://github.com/facebookresearch/dino?tab=readme-ov-file#vanilla-dino-training-sauropod
 transform = DINOTransform(
-    global_crop_scale=(0.25, 1),
-    local_crop_scale=(0.05, 0.25),
-    n_local_views=10,
+    global_crop_scale=(0.4, 1),
+    local_crop_scale=(0.05, 0.4),
+    n_local_views=8,
 )
