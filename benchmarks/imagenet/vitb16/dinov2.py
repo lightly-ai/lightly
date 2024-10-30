@@ -251,6 +251,7 @@ class DINOv2(LightningModule):
             {
                 "name": "online_classifier",
                 "params": self.online_classifier.parameters(),
+                "lr": lr,
                 "weight_decay": 0.0,
             }
         )
