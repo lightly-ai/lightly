@@ -26,6 +26,7 @@ from lightly.transforms.mae_transform import MAETransform
 from lightly.transforms.mmcr_transform import MMCRTransform
 from lightly.transforms.moco_transform import MoCoV1Transform, MoCoV2Transform
 from lightly.transforms.msn_transform import MSNTransform, MSNViewTransform
+from lightly.transforms.phase_shift_transform import PhaseShiftTransform
 from lightly.transforms.pirl_transform import PIRLTransform
 from lightly.transforms.random_frequency_mask_transform import (
     RandomFrequencyMaskTransform,
