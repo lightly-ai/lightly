@@ -19,25 +19,20 @@ import re  # noqa: F401
 import json
 
 
-from typing import Optional
+from typing import List, Optional, Union
 try:
     # Pydantic >=v1.10.17
-    from pydantic.v1 import BaseModel, Field, StrictStr, constr
+    from pydantic.v1 import BaseModel, Field, confloat, conint, conlist
 except ImportError:
     # Pydantic v1
-    from pydantic import BaseModel, Field, StrictStr, constr
-from lightly.openapi_generated.swagger_client.models.sector import Sector
-from lightly.openapi_generated.swagger_client.models.usage import Usage
+    from pydantic import BaseModel, Field, confloat, conint, conlist
 
-class QuestionnaireData(BaseModel):
+class AutoTaskCropAllOf(BaseModel):
     """
-    QuestionnaireData
+    AutoTaskCropAllOf
     """
-    company: Optional[constr(strict=True, min_length=3)] = None
-    sector: Optional[Sector] = None
-    usage: Optional[Usage] = None
-    usage_custom_reason: Optional[StrictStr] = Field(None, alias="usageCustomReason")
-    __properties = ["company", "sector", "usage", "usageCustomReason"]
+    bboxs: Optional[conlist(conlist(Union[confloat(le=1, ge=0, strict=True), conint(le=1, ge=0, strict=True)], max_items=4, min_items=4), min_items=1)] = Field(None, description="The bounding boxes to focus on.")
+    __properties = ["bboxs"]
 
     class Config:
         """Pydantic configuration"""
@@ -55,8 +50,8 @@ class QuestionnaireData(BaseModel):
         return json.dumps(self.to_dict(by_alias=by_alias))
 
     @classmethod
-    def from_json(cls, json_str: str) -> QuestionnaireData:
-        """Create an instance of QuestionnaireData from a JSON string"""
+    def from_json(cls, json_str: str) -> AutoTaskCropAllOf:
+        """Create an instance of AutoTaskCropAllOf from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self, by_alias: bool = False):
@@ -65,32 +60,24 @@ class QuestionnaireData(BaseModel):
                           exclude={
                           },
                           exclude_none=True)
-        # set to None if usage_custom_reason (nullable) is None
-        # and __fields_set__ contains the field
-        if self.usage_custom_reason is None and "usage_custom_reason" in self.__fields_set__:
-            _dict['usageCustomReason' if by_alias else 'usage_custom_reason'] = None
-
         return _dict
 
     @classmethod
-    def from_dict(cls, obj: dict) -> QuestionnaireData:
-        """Create an instance of QuestionnaireData from a dict"""
+    def from_dict(cls, obj: dict) -> AutoTaskCropAllOf:
+        """Create an instance of AutoTaskCropAllOf from a dict"""
         if obj is None:
             return None
 
         if not isinstance(obj, dict):
-            return QuestionnaireData.parse_obj(obj)
+            return AutoTaskCropAllOf.parse_obj(obj)
 
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in QuestionnaireData) in the input: " + str(obj))
+                raise ValueError("Error due to additional fields (not defined in AutoTaskCropAllOf) in the input: " + str(obj))
 
-        _obj = QuestionnaireData.parse_obj({
-            "company": obj.get("company"),
-            "sector": obj.get("sector"),
-            "usage": obj.get("usage"),
-            "usage_custom_reason": obj.get("usageCustomReason")
+        _obj = AutoTaskCropAllOf.parse_obj({
+            "bboxs": obj.get("bboxs")
         })
         return _obj
 
