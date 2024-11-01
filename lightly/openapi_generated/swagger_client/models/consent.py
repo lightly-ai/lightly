@@ -22,22 +22,19 @@ import json
 from typing import Optional
 try:
     # Pydantic >=v1.10.17
-    from pydantic.v1 import BaseModel, Field, StrictStr, constr
+    from pydantic.v1 import BaseModel, Field, StrictBool, conint
 except ImportError:
     # Pydantic v1
-    from pydantic import BaseModel, Field, StrictStr, constr
-from lightly.openapi_generated.swagger_client.models.sector import Sector
-from lightly.openapi_generated.swagger_client.models.usage import Usage
+    from pydantic import BaseModel, Field, StrictBool, conint
 
-class QuestionnaireData(BaseModel):
+class Consent(BaseModel):
     """
-    QuestionnaireData
+    Consent
     """
-    company: Optional[constr(strict=True, min_length=3)] = None
-    sector: Optional[Sector] = None
-    usage: Optional[Usage] = None
-    usage_custom_reason: Optional[StrictStr] = Field(None, alias="usageCustomReason")
-    __properties = ["company", "sector", "usage", "usageCustomReason"]
+    accepted_newsletter: Optional[StrictBool] = Field(None, alias="acceptedNewsletter")
+    accepted_terms_date: Optional[conint(strict=True, ge=0)] = Field(None, alias="acceptedTermsDate", description="unix timestamp in milliseconds")
+    additional_properties: Dict[str, Any] = {}
+    __properties = ["acceptedNewsletter", "acceptedTermsDate"]
 
     class Config:
         """Pydantic configuration"""
@@ -55,42 +52,41 @@ class QuestionnaireData(BaseModel):
         return json.dumps(self.to_dict(by_alias=by_alias))
 
     @classmethod
-    def from_json(cls, json_str: str) -> QuestionnaireData:
-        """Create an instance of QuestionnaireData from a JSON string"""
+    def from_json(cls, json_str: str) -> Consent:
+        """Create an instance of Consent from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self, by_alias: bool = False):
         """Returns the dictionary representation of the model"""
         _dict = self.dict(by_alias=by_alias,
                           exclude={
+                            "additional_properties"
                           },
                           exclude_none=True)
-        # set to None if usage_custom_reason (nullable) is None
-        # and __fields_set__ contains the field
-        if self.usage_custom_reason is None and "usage_custom_reason" in self.__fields_set__:
-            _dict['usageCustomReason' if by_alias else 'usage_custom_reason'] = None
+        # puts key-value pairs in additional_properties in the top level
+        if self.additional_properties is not None:
+            for _key, _value in self.additional_properties.items():
+                _dict[_key] = _value
 
         return _dict
 
     @classmethod
-    def from_dict(cls, obj: dict) -> QuestionnaireData:
-        """Create an instance of QuestionnaireData from a dict"""
+    def from_dict(cls, obj: dict) -> Consent:
+        """Create an instance of Consent from a dict"""
         if obj is None:
             return None
 
         if not isinstance(obj, dict):
-            return QuestionnaireData.parse_obj(obj)
+            return Consent.parse_obj(obj)
 
-        # raise errors for additional fields in the input
+        _obj = Consent.parse_obj({
+            "accepted_newsletter": obj.get("acceptedNewsletter"),
+            "accepted_terms_date": obj.get("acceptedTermsDate")
+        })
+        # store additional fields in additional_properties
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in QuestionnaireData) in the input: " + str(obj))
+                _obj.additional_properties[_key] = obj.get(_key)
 
-        _obj = QuestionnaireData.parse_obj({
-            "company": obj.get("company"),
-            "sector": obj.get("sector"),
-            "usage": obj.get("usage"),
-            "usage_custom_reason": obj.get("usageCustomReason")
-        })
         return _obj
 

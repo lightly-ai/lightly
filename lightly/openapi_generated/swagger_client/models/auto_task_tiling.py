@@ -19,25 +19,23 @@ import re  # noqa: F401
 import json
 
 
-from typing import Optional
+from typing import Optional, Union
 try:
     # Pydantic >=v1.10.17
-    from pydantic.v1 import BaseModel, Field, StrictStr, constr
+    from pydantic.v1 import BaseModel, Field, confloat, conint
 except ImportError:
     # Pydantic v1
-    from pydantic import BaseModel, Field, StrictStr, constr
-from lightly.openapi_generated.swagger_client.models.sector import Sector
-from lightly.openapi_generated.swagger_client.models.usage import Usage
+    from pydantic import BaseModel, Field, confloat, conint
+from lightly.openapi_generated.swagger_client.models.auto_task_base import AutoTaskBase
 
-class QuestionnaireData(BaseModel):
+class AutoTaskTiling(AutoTaskBase):
     """
-    QuestionnaireData
+    Create multiple predictions which equally split the image into tiles 
     """
-    company: Optional[constr(strict=True, min_length=3)] = None
-    sector: Optional[Sector] = None
-    usage: Optional[Usage] = None
-    usage_custom_reason: Optional[StrictStr] = Field(None, alias="usageCustomReason")
-    __properties = ["company", "sector", "usage", "usageCustomReason"]
+    num_rows: conint(strict=True, ge=1) = Field(..., alias="numRows", description="The number of rows the image should be split into")
+    num_cols: conint(strict=True, ge=1) = Field(..., alias="numCols", description="The number of column the image should be split into")
+    overlap: Optional[Union[confloat(ge=0.0, strict=True), conint(ge=0, strict=True)]] = Field(0.0, description="The relative overlap between tiles. The overlap is a fraction of the tile size. For example, if the overlap is 0.1 and the tile size is 100, the overlap is 10 pixels. ")
+    __properties = ["type", "name", "numRows", "numCols", "overlap"]
 
     class Config:
         """Pydantic configuration"""
@@ -55,8 +53,8 @@ class QuestionnaireData(BaseModel):
         return json.dumps(self.to_dict(by_alias=by_alias))
 
     @classmethod
-    def from_json(cls, json_str: str) -> QuestionnaireData:
-        """Create an instance of QuestionnaireData from a JSON string"""
+    def from_json(cls, json_str: str) -> AutoTaskTiling:
+        """Create an instance of AutoTaskTiling from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self, by_alias: bool = False):
@@ -65,32 +63,28 @@ class QuestionnaireData(BaseModel):
                           exclude={
                           },
                           exclude_none=True)
-        # set to None if usage_custom_reason (nullable) is None
-        # and __fields_set__ contains the field
-        if self.usage_custom_reason is None and "usage_custom_reason" in self.__fields_set__:
-            _dict['usageCustomReason' if by_alias else 'usage_custom_reason'] = None
-
         return _dict
 
     @classmethod
-    def from_dict(cls, obj: dict) -> QuestionnaireData:
-        """Create an instance of QuestionnaireData from a dict"""
+    def from_dict(cls, obj: dict) -> AutoTaskTiling:
+        """Create an instance of AutoTaskTiling from a dict"""
         if obj is None:
             return None
 
         if not isinstance(obj, dict):
-            return QuestionnaireData.parse_obj(obj)
+            return AutoTaskTiling.parse_obj(obj)
 
         # raise errors for additional fields in the input
         for _key in obj.keys():
             if _key not in cls.__properties:
-                raise ValueError("Error due to additional fields (not defined in QuestionnaireData) in the input: " + str(obj))
+                raise ValueError("Error due to additional fields (not defined in AutoTaskTiling) in the input: " + str(obj))
 
-        _obj = QuestionnaireData.parse_obj({
-            "company": obj.get("company"),
-            "sector": obj.get("sector"),
-            "usage": obj.get("usage"),
-            "usage_custom_reason": obj.get("usageCustomReason")
+        _obj = AutoTaskTiling.parse_obj({
+            "type": obj.get("type"),
+            "name": obj.get("name"),
+            "num_rows": obj.get("numRows"),
+            "num_cols": obj.get("numCols"),
+            "overlap": obj.get("overlap") if obj.get("overlap") is not None else 0.0
         })
         return _obj
 
