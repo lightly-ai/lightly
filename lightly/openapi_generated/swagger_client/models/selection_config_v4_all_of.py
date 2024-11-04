@@ -26,6 +26,7 @@ try:
 except ImportError:
     # Pydantic v1
     from pydantic import BaseModel, Field, conlist, constr
+from lightly.openapi_generated.swagger_client.models.auto_task import AutoTask
 from lightly.openapi_generated.swagger_client.models.selection_config_v4_entry import SelectionConfigV4Entry
 
 class SelectionConfigV4AllOf(BaseModel):
@@ -34,7 +35,8 @@ class SelectionConfigV4AllOf(BaseModel):
     """
     strategies: conlist(SelectionConfigV4Entry, min_items=1) = Field(...)
     lightly_path_regex: Optional[constr(strict=True, min_length=1)] = Field(None, alias="lightlyPathRegex", description="The Lightly Path Regex to extract information from filenames for metadata balancing and more. Docs are coming soon.")
-    __properties = ["strategies", "lightlyPathRegex"]
+    auto_tasks: Optional[conlist(AutoTask)] = Field(None, alias="autoTasks", description="Array of tasks we automatically apply to images create fake prediction for. These can then be used with the selection strategies.")
+    __properties = ["strategies", "lightlyPathRegex", "autoTasks"]
 
     class Config:
         """Pydantic configuration"""
@@ -69,6 +71,13 @@ class SelectionConfigV4AllOf(BaseModel):
                 if _item:
                     _items.append(_item.to_dict(by_alias=by_alias))
             _dict['strategies' if by_alias else 'strategies'] = _items
+        # override the default output from pydantic by calling `to_dict()` of each item in auto_tasks (list)
+        _items = []
+        if self.auto_tasks:
+            for _item in self.auto_tasks:
+                if _item:
+                    _items.append(_item.to_dict(by_alias=by_alias))
+            _dict['autoTasks' if by_alias else 'auto_tasks'] = _items
         return _dict
 
     @classmethod
@@ -87,7 +96,8 @@ class SelectionConfigV4AllOf(BaseModel):
 
         _obj = SelectionConfigV4AllOf.parse_obj({
             "strategies": [SelectionConfigV4Entry.from_dict(_item) for _item in obj.get("strategies")] if obj.get("strategies") is not None else None,
-            "lightly_path_regex": obj.get("lightlyPathRegex")
+            "lightly_path_regex": obj.get("lightlyPathRegex"),
+            "auto_tasks": [AutoTask.from_dict(_item) for _item in obj.get("autoTasks")] if obj.get("autoTasks") is not None else None
         })
         return _obj
 
