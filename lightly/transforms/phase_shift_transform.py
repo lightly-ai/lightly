@@ -17,26 +17,28 @@ class PhaseShiftTransform:
             Uniform distribution in `[p, q)` from which the magnitude of phase shift will be selected.
     """
 
-    def __init__(self, range: Tuple[float, float] = (0.4, 0.7)) -> None:
+    def __init__(self, range: Tuple[float, float] = (0.4, 0.7), include_negatives: bool = False, sign_probability: float = 0.5) -> None:
         self.dist = Uniform(range[0], range[1])
-        self.sign_dist = Bernoulli(0.5)
+        self.include_negatives = include_negatives
+        if include_negatives:
+            self.sign_dist = Bernoulli(sign_probability)
 
     def __call__(self, freq_image: Tensor) -> Tensor:
         # Calculate amplitude and phase
         amplitude = torch.sqrt(freq_image.real**2 + freq_image.imag**2)
         phase = torch.atan2(freq_image.imag, freq_image.real)
 
-        # Sample a random phase shift θ for each channel and set shape
-        theta = self.dist.sample(freq_image.shape[1:]).to(freq_image.device)
+        # Sample a random phase shift θ
+        theta = self.dist.sample().to(freq_image.device)
 
-        # Determine sign for each shift: +θ or -θ
-        signs = self.sign_dist.sample(freq_image.shape[1:]).to(freq_image.device)
-        theta = torch.where(
-            signs == 1, theta, -theta
-        )  # Apply random sign directly to theta
-
+        if self.include_negatives:
+            # Determine sign for shift: +θ or -θ
+            sign = self.sign_dist.sample().to(freq_image.device)
+            # Apply random sign directly to theta
+            theta = torch.where(sign == 1, theta, -theta)
+        
         # Adjust the phase
-        phase_shifted = phase + theta
+        phase_shifted = torch.add(phase, theta)
 
         # Recreate the complex spectrum with adjusted phase
         real = amplitude * torch.cos(phase_shifted)
