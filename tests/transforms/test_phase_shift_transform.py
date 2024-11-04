@@ -17,12 +17,11 @@ def test() -> None:
     phaseShiftTf_2 = PhaseShiftTransform(range=(1.0, 2.0))
     rescaled_rfft_2 = phaseShiftTf_2(rfft)
 
-    phaseShiftTf_3 = PhaseShiftTransform(range=(1.0, 2.0),include_negatives=True, sign_probability=0.8)
+    phaseShiftTf_3 = PhaseShiftTransform(
+        range=(1.0, 2.0), include_negatives=True, sign_probability=0.8
+    )
     rescaled_rfft_3 = phaseShiftTf_3(rfft)
 
     assert rescaled_rfft_1.shape == rfft.shape
     assert rescaled_rfft_2.shape == rfft.shape
     assert rescaled_rfft_3.shape == rfft.shape
-    print(True)
-
-test()

@@ -7,17 +7,28 @@ from torch.distributions.bernoulli import Bernoulli
 
 
 class PhaseShiftTransform:
-    """Implementation of phase shifting transformation
+    """
+    Implementation of phase shifting transformation.
 
-    Adds a random phase shift `theta` (positive or negative),
-    to all components of the Fourier spectrum (`freq_image`) of the image and return it.
+    Applies a random phase shift `theta` (positive or negative) to the Fourier spectrum (`freq_image`) of the image and returns the transformed spectrum.
 
     Attributes:
-        dist:
-            Uniform distribution in `[p, q)` from which the magnitude of phase shift will be selected.
+        dist (torch.distributions.Uniform):
+            A uniform distribution in the range `[p, q)` from which the magnitude of the phase shift `theta` is selected.
+
+        include_negatives (bool):
+            A flag indicating whether negative values of `theta` should be included. If `True`, both positive and negative shifts are applied.
+
+        sign_dist (torch.distributions.Bernoulli):
+            A Bernoulli distribution used to decide the sign of `theta`, based on a given probability `sign_probability`, if negative values are included.
     """
 
-    def __init__(self, range: Tuple[float, float] = (0.4, 0.7), include_negatives: bool = False, sign_probability: float = 0.5) -> None:
+    def __init__(
+        self,
+        range: Tuple[float, float] = (0.4, 0.7),
+        include_negatives: bool = False,
+        sign_probability: float = 0.5,
+    ) -> None:
         self.dist = Uniform(range[0], range[1])
         self.include_negatives = include_negatives
         if include_negatives:
@@ -36,7 +47,7 @@ class PhaseShiftTransform:
             sign = self.sign_dist.sample().to(freq_image.device)
             # Apply random sign directly to theta
             theta = torch.where(sign == 1, theta, -theta)
-        
+
         # Adjust the phase
         phase_shifted = torch.add(phase, theta)
 
