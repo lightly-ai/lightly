@@ -49,7 +49,8 @@ class PhaseShiftTransform:
             theta = torch.where(sign == 1, theta, -theta)
 
         # Adjust the phase
-        phase_shifted = torch.add(phase, theta)
+        phase_shifted = phase + theta
+
 
         # Recreate the complex spectrum with adjusted phase
         real = amplitude * torch.cos(phase_shifted)
