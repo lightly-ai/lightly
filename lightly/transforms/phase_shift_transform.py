@@ -7,8 +7,8 @@ from torch.distributions.bernoulli import Bernoulli
 
 
 class PhaseShiftTransform:
-    """
-    Implementation of phase shifting transformation.
+    """Implementation of phase shifting transformation.
+
 
     Applies a random phase shift `theta` (positive or negative) to the Fourier spectrum (`freq_image`) of the image and returns the transformed spectrum.
 
