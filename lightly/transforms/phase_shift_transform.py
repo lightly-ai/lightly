@@ -13,14 +13,15 @@ class PhaseShiftTransform:
     Applies a random phase shift `theta` (positive or negative) to the Fourier spectrum (`freq_image`) of the image and returns the transformed spectrum.
 
     Attributes:
-        dist (torch.distributions.Uniform):
-            A uniform distribution in the range `[p, q)` from which the magnitude of the phase shift `theta` is selected.
-
-        include_negatives (bool):
-            A flag indicating whether negative values of `theta` should be included. If `True`, both positive and negative shifts are applied.
-
-        sign_dist (torch.distributions.Bernoulli):
-            A Bernoulli distribution used to decide the sign of `theta`, based on a given probability `sign_probability`, if negative values are included.
+        dist:
+            A uniform distribution in the range `[p, q)` from which the magnitude of the
+            phase shift `theta` is selected.
+        include_negatives:
+            A flag indicating whether negative values of `theta` should be included.
+            If `True`, both positive and negative shifts are applied.
+        sign_dist:
+            A Bernoulli distribution used to decide the sign of `theta`, based on a
+            given probability `sign_probability`, if negative values are included.
     """
 
     def __init__(
