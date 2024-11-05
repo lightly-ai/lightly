@@ -19,7 +19,7 @@ See [simclr.py](simclr.py).
 Instead, we try to provide building blocks and examples to make it as easy as possible to
 build on top of existing SSL methods.
 
-You can find benchmark resuls in our [docs](https://docs.lightly.ai/self-supervised-learning/getting_started/benchmarks.html).
+You can find benchmark results in our [docs](https://docs.lightly.ai/self-supervised-learning/getting_started/benchmarks.html).
 
 ## Run Benchmark
 
