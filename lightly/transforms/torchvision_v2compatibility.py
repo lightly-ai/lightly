@@ -24,6 +24,20 @@ except ImportError:
 
 
 def ToTensor() -> Union[torchvision_transforms.Compose, ToTensorV1]:
+    """Convert a PIL Image to a tensor with value normalization, similar to [0].
+
+    This implementation is required since `torchvision.transforms.v2.ToTensor` is
+    deprecated and will be removed in the future (see [1]).
+
+    Input to this transform:
+        PIL Image (H x W x C) of uint8 type in range [0,255]
+
+    Output of this transform:
+        torch.Tensor (C x H x W) of type torch.float32 in range [0.0, 1.0]
+
+    - [0] https://pytorch.org/vision/main/generated/torchvision.transforms.ToTensor.html
+    - [1] https://pytorch.org/vision/0.20/generated/torchvision.transforms.v2.ToTensor.html?highlight=totensor#torchvision.transforms.v2.ToTensor
+    """
     T = torchvision_transforms
     if _TRANSFORMS_V2 and hasattr(T, "ToImage") and hasattr(T, "ToDtype"):
         # v2.transforms.ToTensor is deprecated and will be removed in the future.
