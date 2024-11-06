@@ -48,7 +48,7 @@ class DINOv2(LightningModule):
         # Student
         self.student_backbone = copy.deepcopy(self.backbone)
         update_drop_path_rate(
-            self.student_backbone.vit, drop_path_rate=0.3, mode="uniform"
+            self.student_backbone.vit, drop_path_rate=0.1, mode="uniform"
         )
         self.student_dino_head = DINOProjectionHead(
             input_dim=384, freeze_last_layer=1, norm_last_layer=False
@@ -58,7 +58,6 @@ class DINOv2(LightningModule):
             self.student_ibot_head = DINOProjectionHead(
                 input_dim=384, freeze_last_layer=1, norm_last_layer=False
             )
-
 
         # Losses
         self.dino_criterion = DINOLoss()
@@ -165,6 +164,7 @@ class DINOv2(LightningModule):
                 "train_ibot_loss": ibot_loss,
                 "train_koleo_loss": koleo_loss,
                 "ema_momentum": momentum,
+                "teacher_temp": teacher_temp,
             },
             prog_bar=True,
             sync_dist=True,
