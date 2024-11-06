@@ -1,8 +1,9 @@
 from typing import List, Sequence, Union
 
-import torchvision.transforms as T
 from PIL.Image import Image
 from torch import Tensor
+
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 
 
 class ImageGridTransform:
