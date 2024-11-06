@@ -46,7 +46,7 @@ from lightly.transforms.tico_transform import (
     TiCoView1Transform,
     TiCoView2Transform,
 )
-from lightly.transforms.torchvision_v2compatibility import (
+from lightly.transforms.torchvision_v2_compatibility import (
     ToTensor,
     torchvision_transforms,
 )
