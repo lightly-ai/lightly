@@ -71,6 +71,7 @@ def main(
     float32_matmul_precision: str,
     strategy: str,
 ) -> None:
+    print(f"Args: {locals()}")
     torch.set_float32_matmul_precision(float32_matmul_precision)
 
     method_names = methods or METHODS.keys()
@@ -79,6 +80,7 @@ def main(
         method_dir = (
             log_dir / method / datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         ).resolve()
+        print(f"Logging to {method_dir}")
         model = METHODS[method]["model"](
             batch_size_per_device=batch_size_per_device, num_classes=num_classes
         )

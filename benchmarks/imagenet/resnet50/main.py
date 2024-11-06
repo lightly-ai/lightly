@@ -85,6 +85,7 @@ def main(
     skip_finetune_eval: bool,
     ckpt_path: Union[Path, None],
 ) -> None:
+    print(f"Args: {locals()}")
     torch.set_float32_matmul_precision("high")
 
     method_names = methods or METHODS.keys()
@@ -93,6 +94,7 @@ def main(
         method_dir = (
             log_dir / method / datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         ).resolve()
+        print(f"Logging to {method_dir}")
         model = METHODS[method]["model"](
             batch_size_per_device=batch_size_per_device, num_classes=num_classes
         )
