@@ -10,7 +10,6 @@ from typing import Union
 import torch
 from PIL.Image import Image
 from torch import Tensor
-from torchvision.transforms import ToTensor as ToTensorV1
 
 try:
     from torchvision.transforms import v2 as torchvision_transforms
