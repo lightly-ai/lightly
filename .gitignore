@@ -22,7 +22,7 @@ docs/source/getting_started/resources
 
 #ignore venv
 venv
-
+.venv
 #ignore pycharm IDE
 .idea
 
