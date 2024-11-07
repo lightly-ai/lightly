@@ -52,7 +52,6 @@ class PhaseShiftTransform:
         # Adjust the phase
         phase_shifted = phase + theta
 
-
         # Recreate the complex spectrum with adjusted phase
         real = amplitude * torch.cos(phase_shifted)
         imag = amplitude * torch.sin(phase_shifted)
