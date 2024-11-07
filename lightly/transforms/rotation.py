@@ -66,9 +66,9 @@ class RandomRotateDegrees:
     """
 
     def __init__(self, prob: float, degrees: Union[float, Tuple[float, float]]):
-        self.transform: Callable[[Union[Image, Tensor]], Union[Image, Tensor]] = (
-            T.RandomApply([T.RandomRotation(degrees=degrees)], p=prob)
-        )
+        self.transform: Callable[
+            [Union[Image, Tensor]], Union[Image, Tensor]
+        ] = T.RandomApply([T.RandomRotation(degrees=degrees)], p=prob)
 
     def __call__(self, image: Union[Image, Tensor]) -> Union[Image, Tensor]:
         """Rotates the images with a given probability.
