@@ -47,6 +47,10 @@ from lightly.transforms.tico_transform import (
     TiCoView1Transform,
     TiCoView2Transform,
 )
+from lightly.transforms.torchvision_v2_compatibility import (
+    ToTensor,
+    torchvision_transforms,
+)
 from lightly.transforms.vicreg_transform import VICRegTransform, VICRegViewTransform
 from lightly.transforms.vicregl_transform import VICRegLTransform, VICRegLViewTransform
 from lightly.transforms.wmse_transform import WMSETransform
