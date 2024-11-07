@@ -8,7 +8,8 @@ import torch
 from PIL import Image as Image
 from PIL.Image import Image as PILImage
 from torch import Tensor
-from torchvision import transforms as T
+
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray

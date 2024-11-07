@@ -2,10 +2,11 @@ from dataclasses import dataclass
 from typing import Tuple
 
 import torch
-import torchvision.transforms as T
 import torchvision.transforms.functional as F
 from PIL import Image
 from torch import nn
+
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 
 
 @dataclass
