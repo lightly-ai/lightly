@@ -2,7 +2,8 @@ from typing import List, Sequence, Union
 
 from PIL.Image import Image
 from torch import Tensor
-from torchvision import transforms as T
+
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 
 
 class MultiViewTransform:
