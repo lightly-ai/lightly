@@ -673,12 +673,20 @@ class DINOProjectionHead(ProjectionHead):
         norm_last_layer: bool = True,
     ):
         """Initializes the DINOProjectionHead with the specified dimensions."""
-        bn = nn.BatchNorm1d(hidden_dim) if batch_norm else None
-
         super().__init__(
             [
-                (input_dim, hidden_dim, bn, nn.GELU()),
-                (hidden_dim, hidden_dim, bn, nn.GELU()),
+                (
+                    input_dim,
+                    hidden_dim,
+                    nn.BatchNorm1d(hidden_dim) if batch_norm else None,
+                    nn.GELU(),
+                ),
+                (
+                    hidden_dim,
+                    hidden_dim,
+                    nn.BatchNorm1d(hidden_dim) if batch_norm else None,
+                    nn.GELU(),
+                ),
                 (hidden_dim, bottleneck_dim, None, None),
             ]
         )
