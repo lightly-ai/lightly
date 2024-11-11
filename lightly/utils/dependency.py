@@ -42,3 +42,19 @@ def timm_vit_available() -> bool:
     except ImportError:
         return False
     return True
+
+
+@functools.lru_cache(maxsize=1)
+def torchvision_transforms_v2_available() -> bool:
+    """Checks if torchvision supports the transforms.v2 API.
+
+    Returns:
+        True if transforms.v2 are available, False otherwise
+    """
+    try:
+        from torchvision.transforms import v2 as torchvision_transforms
+    except ImportError:
+        from torchvision import transforms as torchvision_transforms
+
+        return False
+    return True
