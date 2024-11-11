@@ -52,9 +52,8 @@ def torchvision_transforms_v2_available() -> bool:
         True if transforms.v2 are available, False otherwise
     """
     try:
-        from torchvision.transforms import v2 as torchvision_transforms
+        from torchvision.transforms import v2
     except ImportError:
-        from torchvision import transforms as torchvision_transforms
 
         return False
     return True
