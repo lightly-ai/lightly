@@ -16,8 +16,9 @@ class AddGridTransform(Transform):  # type: ignore[misc]
 
     Input to this transform:
         Any datastructure containing one or several `torchvision.tv_tensor.BoundingBoxes`
-        and/or `torchvision.tv_tensor.Mask`. Masks should be of size (*, H, W) and
-        BoundingBoxes can be of arbitrary shape. For all supported data structures check [1]_.
+        and/or `torchvision.tv_tensor.Mask`, such as tuples or arbitrarily nested dictionaries. 
+        For all supported data structures check [1]_. Masks should be of size (*, H, W) and
+        BoundingBoxes can be of arbitrary shape.
 
     Output of this transform:
         Leaves any images in the data structure untouched, but overwrites any bounding
