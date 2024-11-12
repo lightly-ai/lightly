@@ -1,21 +1,27 @@
 import pytest
 import torch
-from PIL import Image as PILImage
+from PIL import Image as PILImageModule
+from PIL.Image import Image as PILImage
 from torch.testing import assert_close
-from torchvision.transforms.v2 import Compose, ToDtype, ToImage
-from torchvision.tv_tensors import BoundingBoxes, Image, Mask
+
+from lightly.utils.dependency import torchvision_transforms_v2_available
+
+if not torchvision_transforms_v2_available():
+    pytest.skip("torchvision.transforms.v2 not available", allow_module_level=True)
+from torchvision.tv_tensors import BoundingBoxes, Mask
 
 from lightly.transforms import AddGridTransform
 
 
 @pytest.fixture
-def img_orig():
-    img = PILImage.new("RGB", (7, 5))
+def img_orig() -> PILImage:
+    img = PILImageModule.new("RGB", (7, 5))
     return img
 
 
+# ignore typing due to Any type used in torchvison.transforms.v2.Transform
 @pytest.fixture
-def bbox_expected():
+def bbox_expected() -> BoundingBoxes:  # type: ignore[misc]
     bbox = torch.tensor(
         [
             [0.00, 0.00, 1.66, 3.50],
@@ -29,8 +35,9 @@ def bbox_expected():
     return BoundingBoxes(bbox, canvas_size=(7, 5), format="XYXY")
 
 
+# ignore typing due to Any type used in torchvison.transforms.v2.Transform
 @pytest.fixture
-def mask_expected():
+def mask_expected() -> Mask:  # type: ignore[misc]
     mask = torch.tensor(
         [
             [0.0, 0.0, 1.0, 1.0, 2.0],
@@ -46,26 +53,28 @@ def mask_expected():
 
 
 @pytest.fixture
-def cols():
+def cols() -> int:
     return 3
 
 
 @pytest.fixture
-def rows():
+def rows() -> int:
     return 2
 
 
 @pytest.fixture
-def img_h():
+def img_h() -> int:
     return 7
 
 
 @pytest.fixture
-def img_w():
+def img_w() -> int:
     return 5
 
 
-def test_AddGridTransform_bbox(bbox_expected, cols, rows, img_h, img_w) -> None:
+def test_AddGridTransform_bbox(
+    bbox_expected: BoundingBoxes, cols: int, rows: int, img_h: int, img_w: int
+) -> None:
     tr = AddGridTransform(rows, cols)
     bbox_empty = BoundingBoxes(
         torch.zeros(1, 4), format="XYXY", canvas_size=(img_h, img_w)
@@ -74,14 +83,14 @@ def test_AddGridTransform_bbox(bbox_expected, cols, rows, img_h, img_w) -> None:
     assert_close(bbox_expected, bbox_tr, atol=0.01, rtol=0.01)
 
 
-def test_AddGridTransform_mask(mask_expected, cols, rows) -> None:
+def test_AddGridTransform_mask(mask_expected: Mask, cols: int, rows: int) -> None:
     tr = AddGridTransform(rows, cols)
     mask_empty = Mask(torch.randint(0, 1, mask_expected.shape[-2:]).to(torch.int64))
     mask_tr = tr(mask_empty)
     assert (mask_tr == mask_expected).all()
 
 
-def test_AddGridTransform_as_dict(img_orig, cols, rows):
+def test_AddGridTransform_as_dict(img_orig: PILImage, cols: int, rows: int) -> None:
     sample = {
         "img": img_orig,
         "bbox": BoundingBoxes(
@@ -97,7 +106,7 @@ def test_AddGridTransform_as_dict(img_orig, cols, rows):
     ).all()
 
 
-def test_AddGridTransform_as_args(img_orig, cols, rows):
+def test_AddGridTransform_as_args(img_orig: PILImage, cols: int, rows: int) -> None:
     bbox_empty = BoundingBoxes(
         torch.zeros(1, 4), format="XYXY", canvas_size=img_orig.size
     )

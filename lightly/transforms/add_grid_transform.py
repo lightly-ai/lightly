@@ -15,7 +15,8 @@ from torchvision.tv_tensors import BoundingBoxes, BoundingBoxFormat, Mask
 from lightly.utils import dependency as _dependency
 
 
-class AddGridTransform(Transform):
+# ignore typing due to Any type used in torchvison.transforms.v2.Transform
+class AddGridTransform(Transform):  # type: ignore[misc]
     """Implements the naive segmentation into a regular grid from DetCon. [0]
 
     Input to this transform:
