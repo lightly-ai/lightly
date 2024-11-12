@@ -3,6 +3,10 @@ lightly.transforms
 
 .. automodule:: lightly.transforms
 
+.. automodule:: lightly.transforms.add_grid_transform
+   :members:
+   :special-members: __call__
+
 .. automodule:: lightly.transforms.densecl_transform
    :members:
    :special-members: __call__
