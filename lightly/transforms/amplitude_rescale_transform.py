@@ -6,7 +6,7 @@ from torch import Tensor
 from torch.distributions import Uniform
 
 
-class AmplitudeRescaleTranform:
+class AmplitudeRescaleTransform:
     """Implementation of amplitude rescaling transformation.
 
     This transform will rescale the amplitude of the Fourier Spectrum (`freq_image`) of the image and return it.
