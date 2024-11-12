@@ -19,14 +19,14 @@ class AddGridTransform(Transform):
     """Implements the naive segmentation into a regular grid from DetCon. [0]
 
     Input to this transform:
-        Any datastructure containing one or several `torchvision.tv_tensor.Image` or a
-        single image-shaped tensor (C x H x W), together with a
-        `torchvision.tv_tensor.BoundingBoxes` and/or `torchvision.tv_tensor.Mask`. See [1]
-        for additional details.
+        Any datastructure containing one or several `torchvision.tv_tensor.BoundingBoxes`
+        and/or `torchvision.tv_tensor.Mask`. Masks should be of size (*, H, W) and
+        BoundingBoxes can be of arbitrary shape.
 
     Output of this transform:
         Leaves any images in the data structure untouched, but overwrites any bounding
-        boxes and masks by a regular grid. The format of the bounding boxes will be kept.
+        boxes and masks by a regular grid. Bounding boxes will take shape (num_rows*num_cols, 4)
+        and masks will be of shape (1, H, W) with integer values in the range [0, num_rows*num_cols-1].
 
     Useage example:
 
@@ -71,7 +71,7 @@ class AddGridTransform(Transform):
             return _create_mask_grid(
                 self.num_rows,
                 self.num_cols,
-                canvas_size=inpt.size(),
+                canvas_size=inpt.shape[-2:],
                 dtype=inpt.dtype,
                 device=inpt.device,
                 requires_grad=inpt.requires_grad,
