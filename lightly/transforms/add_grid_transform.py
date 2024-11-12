@@ -57,8 +57,8 @@ class AddGridTransform(Transform):  # type: ignore[misc]
     def _transform(self, inpt: Any, params: Dict[str, Any]) -> Any:
         if isinstance(inpt, BoundingBoxes):
             return _create_bounding_boxes_grid(
-                self.num_rows,
-                self.num_cols,
+                num_rows=self.num_rows,
+                num_cols=self.num_cols,
                 canvas_size=inpt.canvas_size,
                 dtype=inpt.dtype,
                 device=inpt.device,
@@ -67,8 +67,8 @@ class AddGridTransform(Transform):  # type: ignore[misc]
             )
         elif isinstance(inpt, Mask):
             return _create_mask_grid(
-                self.num_rows,
-                self.num_cols,
+                num_rows=self.num_rows,
+                num_cols=self.num_cols,
                 canvas_size=inpt.shape[-2:],
                 dtype=inpt.dtype,
                 device=inpt.device,
