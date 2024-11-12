@@ -12,12 +12,13 @@ from PIL.Image import Image
 from torch import Tensor
 from torchvision.transforms import ToTensor as ToTensorV1
 
-try:
+from lightly.utils import dependency as _dependency
+
+if _dependency.torchvision_transforms_v2_available():
     from torchvision.transforms import v2 as torchvision_transforms
 
     _TRANSFORMS_V2 = True
-
-except ImportError:
+else:
     from torchvision import transforms as torchvision_transforms
 
     _TRANSFORMS_V2 = False
