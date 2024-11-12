@@ -13,8 +13,9 @@ from torchvision.tv_tensors import BoundingBoxes, Mask
 from lightly.transforms import AddGridTransform
 
 
+# ignore typing due to Any type used in torchvison.transforms.v2.Transform
 @pytest.fixture
-def img_orig() -> PILImage:
+def img_orig() -> PILImage: # type: ignore[misc]
     img = PILImageModule.new("RGB", (7, 5))
     return img
 
