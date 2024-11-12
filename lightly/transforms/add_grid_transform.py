@@ -16,7 +16,7 @@ class AddGridTransform(Transform):  # type: ignore[misc]
 
     Input to this transform:
         Any datastructure containing one or several `torchvision.tv_tensor.BoundingBoxes`
-        and/or `torchvision.tv_tensor.Mask`, such as tuples or arbitrarily nested dictionaries. 
+        and/or `torchvision.tv_tensor.Mask`, such as tuples or arbitrarily nested dictionaries.
         For all supported data structures check [1]_. Masks should be of size (*, H, W) and
         BoundingBoxes can be of arbitrary shape.
 
@@ -66,6 +66,10 @@ class AddGridTransform(Transform):  # type: ignore[misc]
                 format=inpt.format,
             )
         elif isinstance(inpt, Mask):
+            if inpt.dim() < 2:
+                raise ValueError(
+                    f"Expected mask to have at least 2 dimensions, got {inpt.dim()} instead."
+                )
             return _create_mask_grid(
                 num_rows=self.num_rows,
                 num_cols=self.num_cols,
