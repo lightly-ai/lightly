@@ -54,6 +54,5 @@ def torchvision_transforms_v2_available() -> bool:
     try:
         from torchvision.transforms import v2
     except ImportError:
-
         return False
     return True
