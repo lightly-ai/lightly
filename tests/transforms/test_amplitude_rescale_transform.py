@@ -1,9 +1,6 @@
 import torch
 
-from lightly.transforms import (
-    AmplitudeRescaleTransform,
-    RFFT2DTransform,
-)
+from lightly.transforms import AmplitudeRescaleTransform, RFFT2DTransform
 
 
 # Testing function image -> FFT -> AmplitudeRescale.
