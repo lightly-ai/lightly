@@ -9,6 +9,8 @@ from typing import Any, Callable, Dict, Iterator, List, Optional, Type, TypeVar,
 from lightly.api import utils
 from lightly.openapi_generated.swagger_client.api_client import ApiClient
 from lightly.openapi_generated.swagger_client.models import (
+    AutoTask,
+    AutoTaskTiling,
     CreateDockerWorkerRegistryEntryRequest,
     DockerRunData,
     DockerRunScheduledCreateRequest,
@@ -27,8 +29,6 @@ from lightly.openapi_generated.swagger_client.models import (
     SelectionConfigV4EntryInput,
     SelectionConfigV4EntryStrategy,
     TagData,
-    AutoTask,
-    AutoTaskTiling,
 )
 from lightly.openapi_generated.swagger_client.rest import ApiException
 
@@ -637,21 +637,23 @@ def selection_config_from_dict(cfg: Dict[str, Any]) -> SelectionConfigV4:
     new_cfg["auto_tasks"] = auto_tasks
     return SelectionConfigV4(**new_cfg)
 
+
 def selection_config_entry_from_dict(entry: Dict[str, Any]) -> AutoTask:
     new_entry = copy.deepcopy(entry)
     new_entry["input"] = SelectionConfigV4EntryInput(**new_entry["input"])
     new_entry["strategy"] = SelectionConfigV4EntryStrategy(**new_entry["strategy"])
     return SelectionConfigV4Entry(**new_entry)
 
+
 def auto_task_from_dict(entry: Dict[str, Any]) -> AutoTask:
-    auto_task_type_to_class =  {
+    auto_task_type_to_class = {
         "TILING": AutoTaskTiling,
     }
     if entry["type"] not in auto_task_type_to_class:
         raise ValueError(
             f"AutoTask type '{entry['type']}' not supported. "
             f"Supported types are: {list(auto_task_type_to_class.keys())}"
-    )
+        )
     auto_task_class = auto_task_type_to_class[entry["type"]]
     auto_task_instance = auto_task_class(**entry)
     return AutoTask(actual_instance=auto_task_instance)
