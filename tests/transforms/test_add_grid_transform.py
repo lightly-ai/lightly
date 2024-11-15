@@ -30,7 +30,7 @@ def rows() -> int:
     return 2
 
 
-def test_AddGridTransform_bbox(rows: int, cols: int) -> None:
+def test_AddGridTransform_bbox(cols: int, rows: int) -> None:
     img_h = 7
     img_w = 5
 
