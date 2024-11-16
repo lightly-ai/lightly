@@ -59,3 +59,7 @@ from lightly.transforms.torchvision_v2_compatibility import (
 from lightly.transforms.vicreg_transform import VICRegTransform, VICRegViewTransform
 from lightly.transforms.vicregl_transform import VICRegLTransform, VICRegLViewTransform
 from lightly.transforms.wmse_transform import WMSETransform
+from lightly.utils.dependency import torchvision_transforms_v2_available
+
+if torchvision_transforms_v2_available():
+    from lightly.transforms.add_grid_transform import AddGridTransform
