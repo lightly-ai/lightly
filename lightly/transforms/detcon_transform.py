@@ -2,8 +2,8 @@
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from lightly.transforms.add_grid_transform import AddGridTransform
-from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.multi_view_transform_v2 import MultiViewTransformV2
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 
 
@@ -52,7 +52,7 @@ class DetConSTransform(MultiViewTransformV2):
             Strength of the color jitter. `cj_bright`, `cj_contrast`, `cj_sat`, and
             `cj_hue` are multiplied by this value. For datasets with small images,
             such as CIFAR, it is recommended to set `cj_strength` to 0.5.
-        cj_bright: 
+        cj_bright:
             How much to jitter brightness.
         cj_contrast:
             How much to jitter constrast.
@@ -75,7 +75,7 @@ class DetConSTransform(MultiViewTransformV2):
         rr_prob:
             Probability that random rotation is applied.
         rr_degrees:
-            Range of degrees to select from. If degrees is a number instead of sequence 
+            Range of degrees to select from. If degrees is a number instead of sequence
             like (min, max), the range of degrees will be (-degrees, +degrees). The rotation
             is applied counter-clockwise.
         normalize:
