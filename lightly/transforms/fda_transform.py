@@ -46,9 +46,9 @@ class FDAView1Transform:
         rand_freq_mask_range: Tuple[float, float] = (0.01, 0.1),
         rand_freq_mask_prob: float = 0.5,
         # Gaussian mixture mask
-        num_gaussians: int = 20,
-        std_range: Tuple[float, float] = (10, 15),
-        gm_prob: float = 0.2,
+        gmm_num_gaussians: int = 20,
+        gmm_std_range: Tuple[float, float] = (10, 15),
+        gmm_prob: float = 0.2,
         # Other
         hf_prob: float = 0.5,
         solarization_prob: float = 0.0,
