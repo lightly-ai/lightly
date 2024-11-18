@@ -38,7 +38,7 @@ class FDAView1Transform:
         kernel_size: Optional[float] = 23,
         # Amplitude rescale
         ampl_rescale_range: Tuple[float, float] = (0.8, 1.75),
-        amp_rescale_prob: float = 0.2,
+        ampl_rescale_prob: float = 0.2,
         # Phase shift
         phase_shift_range: Tuple[float, float] = (0.4, 0.7),
         phase_shift_prob: float = 0.2,
