@@ -1,4 +1,4 @@
-from typing import Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 from PIL.Image import Image
 from torch import Tensor
@@ -15,6 +15,7 @@ from lightly.transforms.random_frequency_mask_transform import (
 from lightly.transforms.rfft2d_transform import RFFT2DTransform
 from lightly.transforms.solarize import RandomSolarization
 from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
+from lightly.transforms.utils import IMAGENET_NORMALIZE
 
 
 class FDAView1Transform:
@@ -50,8 +51,12 @@ class FDAView1Transform:
         gmm_std_range: Tuple[float, float] = (10, 15),
         gmm_prob: float = 0.2,
         # Other
-        hf_prob: float = 0.5,
         solarization_prob: float = 0.0,
+        vf_prob: float = 0.0,
+        hf_prob: float = 0.5,
+        rr_prob: float = 0.0,
+        rr_degrees: Optional[Union[float, Tuple[float, float]]] = None,
+        normalize: Union[None, Dict[str, List[float]]] = IMAGENET_NORMALIZE,
     ):
         color_jitter = T.ColorJitter(
             brightness=cj_strength * cj_bright,
@@ -66,7 +71,7 @@ class FDAView1Transform:
             RFFT2DTransform(),
             T.RandomApply(
                 [AmplitudeRescaleTransform(range=ampl_rescale_range)],
-                p=amp_rescale_prob,
+                p=ampl_rescale_prob,
             ),
             T.RandomApply(
                 [PhaseShiftTransform(range=phase_shift_range)], p=phase_shift_prob
@@ -76,19 +81,24 @@ class FDAView1Transform:
                 p=rand_freq_mask_prob,
             ),
             T.RandomApply(
-                [GaussianMixtureMask(num_gaussians=num_gaussians, std_range=std_range)],
-                p=gm_prob,
+                [
+                    GaussianMixtureMask(
+                        num_gaussians=gmm_num_gaussians, std_range=gmm_std_range
+                    )
+                ],
+                p=gmm_prob,
             ),
             IRFFT2DTransform(shape=(input_size, input_size)),
             T.ToPILImage(),
+            T.RandomHorizontalFlip(p=hf_prob),
             T.RandomApply([color_jitter], p=cj_prob),
             T.RandomGrayscale(p=random_gray_scale),
             GaussianBlur(kernel_size=kernel_size, sigmas=sigmas, prob=gaussian_blur),
             RandomSolarization(prob=solarization_prob),
-            T.RandomHorizontalFlip(p=hf_prob),
             T.ToTensor(),
         ]
-
+        if normalize:
+            transform += [T.Normalize(mean=normalize["mean"], std=normalize["std"])]
         self.transform = T.Compose(transform)
 
     def __call__(self, image: Union[Tensor, Image]) -> Tensor:
@@ -128,20 +138,24 @@ class FDAView2Transform:
         kernel_size: Optional[float] = 23,
         # Amplitude rescale
         ampl_rescale_range: Tuple[float, float] = (0.8, 1.75),
-        amp_rescale_prob: float = 0.0,
+        ampl_rescale_prob: float = 0.2,
         # Phase shift
         phase_shift_range: Tuple[float, float] = (0.4, 0.7),
-        phase_shift_prob: float = 0.0,
+        phase_shift_prob: float = 0.2,
         # Random frequency mask
         rand_freq_mask_range: Tuple[float, float] = (0.01, 0.1),
-        rand_freq_mask_prob: float = 0.0,
+        rand_freq_mask_prob: float = 0.5,
         # Gaussian mixture mask
-        num_gaussians: int = 20,
-        std_range: Tuple[float, float] = (10, 15),
-        gm_prob: float = 0.0,
+        gmm_num_gaussians: int = 20,
+        gmm_std_range: Tuple[float, float] = (10, 15),
+        gmm_prob: float = 0.0,
         # Other
-        hf_prob: float = 0.5,
         solarization_prob: float = 0.0,
+        vf_prob: float = 0.0,
+        hf_prob: float = 0.5,
+        rr_prob: float = 0.0,
+        rr_degrees: Optional[Union[float, Tuple[float, float]]] = None,
+        normalize: Union[None, Dict[str, List[float]]] = IMAGENET_NORMALIZE,
     ):
         color_jitter = T.ColorJitter(
             brightness=cj_strength * cj_bright,
@@ -156,7 +170,7 @@ class FDAView2Transform:
             RFFT2DTransform(),
             T.RandomApply(
                 [AmplitudeRescaleTransform(range=ampl_rescale_range)],
-                p=amp_rescale_prob,
+                p=ampl_rescale_prob,
             ),
             T.RandomApply(
                 [PhaseShiftTransform(range=phase_shift_range)], p=phase_shift_prob
@@ -166,19 +180,24 @@ class FDAView2Transform:
                 p=rand_freq_mask_prob,
             ),
             T.RandomApply(
-                [GaussianMixtureMask(num_gaussians=num_gaussians, std_range=std_range)],
-                p=gm_prob,
+                [
+                    GaussianMixtureMask(
+                        num_gaussians=gmm_num_gaussians, std_range=gmm_std_range
+                    )
+                ],
+                p=gmm_prob,
             ),
             IRFFT2DTransform(shape=(input_size, input_size)),
             T.ToPILImage(),
+            T.RandomHorizontalFlip(p=hf_prob),
             T.RandomApply([color_jitter], p=cj_prob),
             T.RandomGrayscale(p=random_gray_scale),
             GaussianBlur(kernel_size=kernel_size, sigmas=sigmas, prob=gaussian_blur),
             RandomSolarization(prob=solarization_prob),
-            T.RandomHorizontalFlip(p=hf_prob),
             T.ToTensor(),
         ]
-
+        if normalize:
+            transform += [T.Normalize(mean=normalize["mean"], std=normalize["std"])]
         self.transform = T.Compose(transform)
 
     def __call__(self, image: Union[Tensor, Image]) -> Tensor:
