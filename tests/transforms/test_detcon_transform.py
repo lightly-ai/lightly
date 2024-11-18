@@ -1,7 +1,7 @@
 import pytest
 import torch
 
-from lightly.transforms import DetConSimCLRViewTransform, DetConSTransform
+from lightly.transforms.detcon_transform import DetConSimCLRViewTransform, DetConSTransform
 from lightly.utils.dependency import torchvision_transforms_v2_available
 
 if not torchvision_transforms_v2_available():
