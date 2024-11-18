@@ -1,12 +1,16 @@
 import pytest
 import torch
 
-from lightly.transforms.detcon_transform import DetConSimCLRViewTransform, DetConSTransform
 from lightly.utils.dependency import torchvision_transforms_v2_available
 
 if not torchvision_transforms_v2_available():
     pytest.skip("torchvision.transforms.v2 not available", allow_module_level=True)
 from torchvision.tv_tensors import Image, Mask
+
+from lightly.transforms.detcon_transform import (
+    DetConSimCLRViewTransform,
+    DetConSTransform,
+)
 
 
 # ignore typing due to Any type used in torchvison.transforms.v2.Transform
