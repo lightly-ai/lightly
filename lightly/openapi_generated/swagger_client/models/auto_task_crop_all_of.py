@@ -19,7 +19,7 @@ import re  # noqa: F401
 import json
 
 
-from typing import List, Optional, Union
+from typing import List, Union
 try:
     # Pydantic >=v1.10.17
     from pydantic.v1 import BaseModel, Field, confloat, conint, conlist
@@ -31,7 +31,7 @@ class AutoTaskCropAllOf(BaseModel):
     """
     AutoTaskCropAllOf
     """
-    bboxs: Optional[conlist(conlist(Union[confloat(le=1, ge=0, strict=True), conint(le=1, ge=0, strict=True)], max_items=4, min_items=4), min_items=1)] = Field(None, description="The bounding boxes to focus on.")
+    bboxs: conlist(conlist(Union[confloat(le=1, ge=0, strict=True), conint(le=1, ge=0, strict=True)], max_items=4, min_items=4), min_items=1) = Field(..., description="The bounding boxes to focus on.")
     __properties = ["bboxs"]
 
     class Config:
