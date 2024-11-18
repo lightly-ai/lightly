@@ -11,11 +11,11 @@ import torch
 import torchvision.transforms.v2 as T
 from torchvision.tv_tensors import Mask
 
-from lightly.transforms.multi_view_transform import MultiViewTransform
+from lightly.transforms.multi_view_transform_v2 import MultiViewTransformV2
 
 
 def test_multi_view_on_pil_image() -> None:
-    multi_view_transform = MultiViewTransform(
+    multi_view_transform = MultiViewTransformV2(
         [
             T.RandomHorizontalFlip(p=0.1),
             T.RandomVerticalFlip(p=0.5),
