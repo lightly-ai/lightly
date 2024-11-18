@@ -11,6 +11,10 @@ lightly.transforms
    :members:
    :special-members: __call__
 
+.. automodule:: lightly.transforms.detcon_transform
+   :members:
+   :special-members: __call__
+
 .. automodule:: lightly.transforms.dino_transform
    :members:
    :special-members: __call__
@@ -52,6 +56,10 @@ lightly.transforms
    :special-members: __call__
 
 .. automodule:: lightly.transforms.multi_view_transform
+   :members:
+   :special-members: __call__
+
+.. automodule:: lightly.transforms.multi_view_transform_v2
    :members:
    :special-members: __call__
 
