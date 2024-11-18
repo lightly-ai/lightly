@@ -58,3 +58,8 @@ from lightly.utils.dependency import torchvision_transforms_v2_available
 
 if torchvision_transforms_v2_available():
     from lightly.transforms.add_grid_transform import AddGridTransform
+    from lightly.transforms.detcon_transform import (
+        DetConSimCLRViewTransform,
+        DetConSTransform,
+    )
+    from lightly.transforms.multi_view_transform_v2 import MultiViewTransformV2
