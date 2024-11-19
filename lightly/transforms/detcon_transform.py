@@ -165,7 +165,7 @@ class DetConSTransform(MultiViewTransformV2):
         super().__init__(transforms=[T.Compose(tr1), T.Compose(tr2)])
 
 
-class DetConSimCLRViewTransform:
+class DetConSViewTransform:
     def __init__(
         self,
         input_size: Union[Tuple[int, int], int] = 224,
