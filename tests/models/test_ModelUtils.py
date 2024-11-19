@@ -36,15 +36,15 @@ torch_version = version.parse(torch.__version__)
 )
 class TestMaskReduce:
     @pytest.fixture()
-    def mask1(self):
+    def mask1(self) -> Tensor:
         return torch.tensor([[0, 0], [1, 2]], dtype=torch.int64)
 
     @pytest.fixture()
-    def mask2(self):
+    def mask2(self) -> Tensor:
         return torch.tensor([[1, 0], [0, 1]], dtype=torch.int64)
 
     @pytest.fixture()
-    def feature_map1(self):
+    def feature_map1(self) -> Tensor:
         feature_map = torch.tensor(
             [[[0, 1], [2, 3]], [[4, 5], [6, 7]], [[8, 9], [10, 11]]],
             dtype=torch.float32,
@@ -52,7 +52,7 @@ class TestMaskReduce:
         return feature_map
 
     @pytest.fixture()
-    def feature_map2(self):
+    def feature_map2(self) -> Tensor:
         feature_map = torch.tensor(
             [[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]],
             dtype=torch.float32,
@@ -60,14 +60,14 @@ class TestMaskReduce:
         return feature_map
 
     @pytest.fixture()
-    def expected_result1(self):
+    def expected_result1(self) -> Tensor:
         res = torch.tensor(
             [[0.5, 2.0, 3.0], [4.5, 6.0, 7.0], [8.5, 10.0, 11.0]], dtype=torch.float32
         )
         return res
 
     @pytest.fixture()
-    def expected_result2(self):
+    def expected_result2(self) -> Tensor:
         res = torch.tensor(
             [[2.5, 2.5, 0.0], [6.5, 6.5, 0.0], [10.5, 10.5, 0.0]], dtype=torch.float32
         )
