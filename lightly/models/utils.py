@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 
 def masked_pooling(
     source: Tensor, mask: Tensor, reduce: str = "mean", num_cls: Optional[int] = None
-):
+) -> Tensor:
     """Reduce image feature maps (B x C x H x W) or (C x H x W) according to an integer
     index given by `mask` (B x H x W) or (H x W).
 
@@ -56,7 +56,7 @@ def masked_pooling(
 
 def _mask_reduce(
     source: Tensor, mask: Tensor, reduce: str = "mean", num_cls: Optional[int] = None
-):
+) -> Tensor:
     c, h, w = source.shape
     if num_cls is None:
         cls = mask.unique(sorted=True)
@@ -75,7 +75,9 @@ def _mask_reduce(
     return output
 
 
-def _mask_reduce_batched(source: Tensor, mask: Tensor, num_cls: Optional[int] = None):
+def _mask_reduce_batched(
+    source: Tensor, mask: Tensor, num_cls: Optional[int] = None
+) -> Tensor:
     b, c, h, w = source.shape
     if num_cls is None:
         cls = mask.unique(sorted=True)
