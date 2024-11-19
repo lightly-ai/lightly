@@ -106,8 +106,8 @@ class DetConSTransform(MultiViewTransformV2):
     ) -> None:
         self.grid_size = grid_size
 
-        tr1: List[Union[AddGridTransform, DetConSimCLRViewTransform]] = []
-        tr2: List[Union[AddGridTransform, DetConSimCLRViewTransform]] = []
+        tr1: List[Union[AddGridTransform, DetConSViewTransform]] = []
+        tr2: List[Union[AddGridTransform, DetConSViewTransform]] = []
 
         if self.grid_size is not None:
             grid_tr1 = AddGridTransform(
@@ -120,7 +120,7 @@ class DetConSTransform(MultiViewTransformV2):
             tr2 += [grid_tr2]
 
         tr1 += [
-            DetConSimCLRViewTransform(
+            DetConSViewTransform(
                 gaussian_blur=gaussian_blur_t1,
                 input_size=input_size,
                 cj_prob=cj_prob,
@@ -141,7 +141,7 @@ class DetConSTransform(MultiViewTransformV2):
             )
         ]
         tr2 += [
-            DetConSimCLRViewTransform(
+            DetConSViewTransform(
                 gaussian_blur=gaussian_blur_t2,
                 input_size=input_size,
                 cj_prob=cj_prob,

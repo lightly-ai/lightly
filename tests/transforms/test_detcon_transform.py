@@ -7,10 +7,7 @@ if not torchvision_transforms_v2_available():
     pytest.skip("torchvision.transforms.v2 not available", allow_module_level=True)
 from torchvision.tv_tensors import Image, Mask
 
-from lightly.transforms.detcon_transform import (
-    DetConSimCLRViewTransform,
-    DetConSTransform,
-)
+from lightly.transforms.detcon_transform import DetConSTransform, DetConSViewTransform
 
 
 # ignore typing due to Any type used in torchvison.transforms.v2.Transform
@@ -27,7 +24,7 @@ def mask() -> Mask:  # type: ignore[misc]
 
 class TestDetConSimCLRViewTransform:
     def test_given_masks(self, img: Image, mask: Mask) -> None:
-        tr = DetConSimCLRViewTransform(input_size=(224, 224))
+        tr = DetConSViewTransform(input_size=(224, 224))
 
         img_tr, mask_tr = tr(img, mask)
         assert img_tr.shape == (3, 224, 224)
