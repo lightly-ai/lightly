@@ -89,6 +89,7 @@ Lightly AI
    lightly.data
    lightly.loss
    lightly.models
+   lightly.models.utils
    lightly.transforms
    lightly.utils
 
