@@ -12,15 +12,98 @@ from torch.nn import Identity, Parameter
 
 from lightly.models import utils
 from lightly.models.utils import (
+    _mask_reduce,
+    _mask_reduce_batched,
     _no_grad_trunc_normal,
     activate_requires_grad,
     batch_shuffle,
     batch_unshuffle,
     deactivate_requires_grad,
+    masked_pooling,
     nearest_neighbors,
     normalize_weight,
     update_momentum,
 )
+
+
+class TestMaskReduce:
+    @pytest.fixture()
+    def mask1(self):
+        return torch.tensor([[0, 0], [1, 2]], dtype=torch.int64)
+
+    @pytest.fixture()
+    def mask2(self):
+        return torch.tensor([[1, 0], [0, 1]], dtype=torch.int64)
+
+    @pytest.fixture()
+    def feature_map1(self):
+        feature_map = torch.tensor(
+            [[[0, 1], [2, 3]], [[4, 5], [6, 7]], [[8, 9], [10, 11]]],
+            dtype=torch.float32,
+        )  # (C H W) = (3, 2, 2)
+        return feature_map
+
+    @pytest.fixture()
+    def feature_map2(self):
+        feature_map = torch.tensor(
+            [[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]],
+            dtype=torch.float32,
+        )  # (C H W) = (3, 2, 2)
+        return feature_map
+
+    @pytest.fixture()
+    def expected_result1(self):
+        res = torch.tensor(
+            [[0.5, 2.0, 3.0], [4.5, 6.0, 7.0], [8.5, 10.0, 11.0]], dtype=torch.float32
+        )
+        return res
+
+    @pytest.fixture()
+    def expected_result2(self):
+        res = torch.tensor(
+            [[2.5, 2.5, 0.0], [6.5, 6.5, 0.0], [10.5, 10.5, 0.0]], dtype=torch.float32
+        )
+        return res
+
+    @pytest.mark.parametrize(
+        "feature_map, mask, expected_result",
+        [
+            ("feature_map1", "mask1", "expected_result1"),
+            ("feature_map2", "mask2", "expected_result2"),
+        ],
+    )
+    def test__mask_reduce(self, feature_map, mask, expected_result, request) -> None:
+        feature_map = request.getfixturevalue(feature_map)
+        mask = request.getfixturevalue(mask)
+        expected_result = request.getfixturevalue(expected_result)
+
+        out = _mask_reduce(feature_map, mask, num_cls=3)
+        assert (out == expected_result).all()
+
+    def test__mask_reduce_batched(
+        self,
+        feature_map1,
+        feature_map2,
+        mask1,
+        mask2,
+        expected_result1,
+        expected_result2,
+    ) -> None:
+        feature_map = torch.stack([feature_map1, feature_map2], dim=0)
+        mask = torch.stack([mask1, mask2], dim=0)
+        expected_result = torch.stack([expected_result1, expected_result2], dim=0)
+
+        out = _mask_reduce_batched(feature_map, mask, num_cls=3)
+        assert (out == expected_result).all()
+
+    def test_masked_pooling(self, feature_map2, mask2, expected_result2) -> None:
+        out_batched = masked_pooling(
+            feature_map2.unsqueeze(0), mask2.unsqueeze(0), num_cls=2
+        )
+        assert out_batched.shape == (1, 3, 2)
+
+        out = masked_pooling(feature_map2, mask2, num_cls=2)
+        assert out.shape == (3, 2)
 
 
 def has_grad(model: nn.Module):
