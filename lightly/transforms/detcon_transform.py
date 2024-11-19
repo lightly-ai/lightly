@@ -110,11 +110,14 @@ class DetConSTransform(MultiViewTransformV2):
         tr2: List[Union[AddGridTransform, DetConSimCLRViewTransform]] = []
 
         if self.grid_size is not None:
-            grid_tr = AddGridTransform(
+            grid_tr1 = AddGridTransform(
                 num_rows=self.grid_size[0], num_cols=self.grid_size[1]
             )
-            tr1 += [grid_tr]
-            tr2 += [grid_tr]
+            tr1 += [grid_tr1]
+            grid_tr2 = AddGridTransform(
+                num_rows=self.grid_size[0], num_cols=self.grid_size[1]
+            )
+            tr2 += [grid_tr2]
 
         tr1 += [
             DetConSimCLRViewTransform(
