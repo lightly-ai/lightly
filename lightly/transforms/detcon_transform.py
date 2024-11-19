@@ -8,14 +8,14 @@ from lightly.transforms.utils import IMAGENET_NORMALIZE
 
 
 class DetConSTransform(MultiViewTransformV2):
-    """Implements the transformations for DetConS, based on SimCLR. [detcon]_ [simclr]_
+    """Implements the transformations for DetConS [0], based on SimCLR.[1]
 
     This transform creates two views of the input data, where the second view is different
     in that it does not apply Gaussian blurring.
 
     Input to this transform:
         Arbitrary data structure containing images and masks, that is compatible with
-        torchvision transforms v2. [v2]_
+        torchvision transforms v2.[2]
 
     Output of this transform:
         A list of two views, where each view is a transformed version of the input.
@@ -33,9 +33,9 @@ class DetConSTransform(MultiViewTransformV2):
     with a pre-segmented image.
 
     References:
-        .. [detcon] DetCon, 2021, https://arxiv.org/abs/2103.10957
-        .. [simclr] SimCLR, 2020, https://arxiv.org/abs/2002.05709
-        .. [v2] torchvision Getting started with transforms v2, https://pytorch.org/vision/main/auto_examples/transforms/plot_transforms_getting_started.html
+        - [0] DetCon, 2021, https://arxiv.org/abs/2103.10957
+        - [1] SimCLR, 2020, https://arxiv.org/abs/2002.05709
+        - [2] torchvision Getting started with transforms v2, https://pytorch.org/vision/main/auto_examples/transforms/plot_transforms_getting_started.html
 
     Attributes:
         grid_size: Size of the grid segmentation as a tuple (num_rows, num_cols), or None
