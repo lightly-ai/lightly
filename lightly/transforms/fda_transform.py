@@ -13,6 +13,7 @@ from lightly.transforms.random_frequency_mask_transform import (
     RandomFrequencyMaskTransform,
 )
 from lightly.transforms.rfft2d_transform import RFFT2DTransform
+from lightly.transforms.rotation import random_rotation_transform
 from lightly.transforms.solarize import RandomSolarization
 from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.utils import IMAGENET_NORMALIZE
@@ -90,6 +91,7 @@ class FDAView1Transform:
             ),
             IRFFT2DTransform(shape=(input_size, input_size)),
             T.ToPILImage(),
+            random_rotation_transform(rr_prob=rr_prob, rr_degrees=rr_degrees),
             T.RandomHorizontalFlip(p=hf_prob),
             T.RandomVerticalFlip(p=vf_prob),
             T.RandomApply([color_jitter], p=cj_prob),
@@ -190,6 +192,7 @@ class FDAView2Transform:
             ),
             IRFFT2DTransform(shape=(input_size, input_size)),
             T.ToPILImage(),
+            random_rotation_transform(rr_prob=rr_prob, rr_degrees=rr_degrees),
             T.RandomHorizontalFlip(p=hf_prob),
             T.RandomVerticalFlip(p=vf_prob),
             T.RandomApply([color_jitter], p=cj_prob),
