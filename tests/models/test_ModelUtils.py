@@ -2,6 +2,7 @@ import copy
 import random
 import unittest
 from typing import List, Optional, Tuple
+from packaging import version
 
 import pytest
 import torch
@@ -25,7 +26,10 @@ from lightly.models.utils import (
     update_momentum,
 )
 
+scatter_min_torch_version = version.parse("1.12.0")
+torch_version = version.parse(torch.__version__)
 
+@pytest.mark.skipif(torch_version < scatter_min_torch_version, reason="scatter operations require torch >= 1.12.0")
 class TestMaskReduce:
     @pytest.fixture()
     def mask1(self):
