@@ -27,6 +27,73 @@ if TYPE_CHECKING:
     from timm.models.vision_transformer import VisionTransformer
 
 
+def masked_pooling(
+    source: Tensor, mask: Tensor, reduce: str = "mean", num_cls: Optional[int] = None
+):
+    """Reduce image feature maps (B x C x H x W) or (C x H x W) according to an integer
+    index given by `mask` (B x H x W) or (H x W).
+
+    Args:
+        source: Float tensor of shape (B x C x H x W) or (C x H x W) to be reduced.
+        mask: Integer tensor of shape (B x H x W) or (H x W) containing the integer indices.
+        reduce: The reduction operation to be applied, one of 'prod', 'mean', 'amax' or
+            'amin'. Defaults to 'mean'.
+        num_cls: The number classes in the possible masks. If None, the number of classes
+            is inferred from the unique elements in `mask`. This is useful when not all
+            classes are present in the mask.
+
+    Returns:
+        A tensor of shape (B x C x N) or (C x N) where N is the number of unique elements
+        in `mask` or `num_cls` if specified.s
+    """
+    if source.dim() == 3:
+        return _mask_reduce(source, mask, reduce, num_cls)
+    elif source.dim() == 4:
+        return _mask_reduce_batched(source, mask, num_cls)
+    else:
+        raise ValueError("source must have 3 or 4 dimensions")
+
+
+def _mask_reduce(
+    source: Tensor, mask: Tensor, reduce: str = "mean", num_cls: Optional[int] = None
+):
+    c, h, w = source.shape
+    if num_cls is None:
+        cls = mask.unique(sorted=True)
+    else:
+        cls = torch.arange(num_cls, device=mask.device)
+    num_cls = cls.size(0)
+    # create output tensor
+    output = torch.zeros((c, num_cls), device=source.device)  # (C N)
+    mask = mask.expand(c, -1, -1).view(c, -1)  # (C HW)
+    source = source.view(c, -1)  # (C HW)
+    output.scatter_reduce_(
+        dim=1, index=mask, src=source, reduce=reduce, include_self=False
+    )  # (C N)
+    # scatter_reduce_ produces NaNs if the count is zero
+    output = torch.nan_to_num(output, nan=0.0)
+    return output
+
+
+def _mask_reduce_batched(source: Tensor, mask: Tensor, num_cls: Optional[int] = None):
+    b, c, h, w = source.shape
+    if num_cls is None:
+        cls = mask.unique(sorted=True)
+    else:
+        cls = torch.arange(num_cls, device=mask.device)
+    num_cls = cls.size(0)
+    # create output tensor
+    output = torch.zeros((b, c, num_cls), device=source.device)  # (B C N)
+    mask = mask.unsqueeze(1).expand(-1, c, -1, -1).view(b, c, -1)  # (B C HW)
+    source = source.view(b, c, -1)  # (B C HW)
+    output.scatter_reduce_(
+        dim=2, index=mask, src=source, reduce="mean", include_self=False
+    )  # (B C N)
+    # scatter_reduce_ produces NaNs if the count is zero
+    output = torch.nan_to_num(output, nan=0.0)
+    return output
+
+
 @torch.no_grad()
 def batch_shuffle(
     batch: torch.Tensor, distributed: bool = False
