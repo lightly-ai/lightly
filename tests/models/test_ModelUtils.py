@@ -6,7 +6,7 @@ from typing import List, Optional, Tuple
 import pytest
 import torch
 import torch.nn as nn
-from packaging import version
+from importlib.metadata import version
 from pytest_mock import MockerFixture
 from torch import Tensor
 from torch.nn import Identity, Parameter
@@ -26,8 +26,8 @@ from lightly.models.utils import (
     update_momentum,
 )
 
-scatter_min_torch_version = version.parse("1.12.0")
-torch_version = version.parse(torch.__version__)
+scatter_min_torch_version = "1.12.0"
+torch_version = version("torch")
 
 
 @pytest.mark.skipif(
@@ -110,8 +110,12 @@ class TestMaskReduce:
         )
         assert out_batched.shape == (1, 3, 2)
 
-        out = masked_pooling(feature_map2, mask2, num_cls=2)
-        assert out.shape == (3, 2)
+        out_manual = masked_pooling(feature_map2, mask2, num_cls=2)
+        out_auto = masked_pooling(feature_map2, mask2, num_cls=None)
+
+        assert (out_manual == out_auto).all()
+        assert (out_manual == expected_result2[:, :2]).all()
+        assert out_manual.shape == (3, 2)
 
 
 def has_grad(model: nn.Module):
