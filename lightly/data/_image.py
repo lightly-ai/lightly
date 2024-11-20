@@ -16,7 +16,8 @@ from lightly.data._image_loaders import default_loader
 
 
 class ImageLoader(Protocol):
-    def __call__(self, path: str) -> torch.Tensor: ...
+    def __call__(self, path: str) -> torch.Tensor:
+        ...
 
 
 class DatasetFolder(datasets.VisionDataset):  # type: ignore
