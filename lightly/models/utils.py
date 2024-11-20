@@ -30,12 +30,12 @@ if TYPE_CHECKING:
 def masked_pooling(
     source: Tensor, mask: Tensor, reduce: str = "mean", num_cls: Optional[int] = None
 ) -> Tensor:
-    """Reduce image feature maps (B x C x H x W) or (C x H x W) according to an integer
-    index given by `mask` (B x H x W) or (H x W).
+    """Reduce image feature maps (B, C, H, W) or (C, H, W) according to an integer
+    index given by `mask` (B, H, W) or (H, W).
 
     Args:
-        source: Float tensor of shape (B x C x H x W) or (C x H x W) to be reduced.
-        mask: Integer tensor of shape (B x H x W) or (H x W) containing the integer indices.
+        source: Float tensor of shape (B, C, H, W) or (C, H, W) to be reduced.
+        mask: Integer tensor of shape (B, H, W) or (H, W) containing the integer indices.
         reduce: The reduction operation to be applied, one of 'prod', 'mean', 'amax' or
             'amin'. Defaults to 'mean'.
         num_cls: The number of classes in the possible masks. If None, the number of classes
@@ -43,7 +43,7 @@ def masked_pooling(
             classes are present in the mask.
 
     Returns:
-        A tensor of shape (B x C x N) or (C x N) where N is the number of unique elements
+        A tensor of shape (B, C, N) or (C, N) where N is the number of unique elements
         in `mask` or `num_cls` if specified.
     """
     if source.dim() == 3:
