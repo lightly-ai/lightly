@@ -44,7 +44,7 @@ def masked_pooling(
 
     Returns:
         A tensor of shape (B x C x N) or (C x N) where N is the number of unique elements
-        in `mask` or `num_cls` if specified.s
+        in `mask` or `num_cls` if specified.
     """
     if source.dim() == 3:
         return _mask_reduce(source, mask, reduce, num_cls)
