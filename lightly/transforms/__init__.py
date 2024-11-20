@@ -18,6 +18,11 @@ from lightly.transforms.byol_transform import (
 from lightly.transforms.densecl_transform import DenseCLTransform
 from lightly.transforms.dino_transform import DINOTransform, DINOViewTransform
 from lightly.transforms.fast_siam_transform import FastSiamTransform
+from lightly.transforms.fda_transform import (
+    FDATransform,
+    FDAView1Transform,
+    FDAView2Transform,
+)
 from lightly.transforms.gaussian_blur import GaussianBlur
 from lightly.transforms.gaussian_mixture_masks_transform import GaussianMixtureMask
 from lightly.transforms.irfft2d_transform import IRFFT2DTransform
@@ -58,3 +63,8 @@ from lightly.utils.dependency import torchvision_transforms_v2_available
 
 if torchvision_transforms_v2_available():
     from lightly.transforms.add_grid_transform import AddGridTransform
+    from lightly.transforms.detcon_transform import (
+        DetConSTransform,
+        DetConSViewTransform,
+    )
+    from lightly.transforms.multi_view_transform_v2 import MultiViewTransformV2
