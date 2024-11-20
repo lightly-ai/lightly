@@ -213,7 +213,6 @@ exclude = '''(?x)(
     lightly/data/_helpers.py |
     lightly/data/_image_loaders.py |
     lightly/data/_video.py |
-    lightly/data/_utils.py |
     lightly/data/multi_view_collate.py |
     lightly/core.py |
     lightly/api/api_workflow_compute_worker.py |
