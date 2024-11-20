@@ -30,7 +30,7 @@ is_scatter_reduce_available = hasattr(Tensor, "scatter_reduce_")
 
 
 @pytest.mark.skipif(
-    torch_version < scatter_min_torch_version,
+    not is_scatter_reduce_available,
     reason="scatter operations require torch >= 1.12.0",
 )
 class TestMaskReduce:
