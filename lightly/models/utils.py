@@ -73,7 +73,7 @@ def _mask_reduce_batched(
         cls = torch.arange(num_cls, device=mask.device)
     num_cls = cls.size(0)
     # create output tensor
-    output = torch.zeros((b, c, num_cls), device=source.device)  # (B C N)
+    output = source.new_zeros((b, c, num_cls))  # (B C N)
     mask = mask.unsqueeze(1).expand(-1, c, -1, -1).view(b, c, -1)  # (B C HW)
     source = source.view(b, c, -1)  # (B C HW)
     output.scatter_reduce_(
