@@ -57,21 +57,9 @@ def masked_pooling(
 def _mask_reduce(
     source: Tensor, mask: Tensor, reduce: str = "mean", num_cls: Optional[int] = None
 ) -> Tensor:
-    c, h, w = source.shape
-    if num_cls is None:
-        cls = mask.unique(sorted=True)
-    else:
-        cls = torch.arange(num_cls, device=mask.device)
-    num_cls = cls.size(0)
-    # create output tensor
-    output = torch.zeros((c, num_cls), device=source.device)  # (C N)
-    mask = mask.expand(c, -1, -1).view(c, -1)  # (C HW)
-    source = source.view(c, -1)  # (C HW)
-    output.scatter_reduce_(
-        dim=1, index=mask, src=source, reduce=reduce, include_self=False
-    )  # (C N)
-    # scatter_reduce_ produces NaNs if the count is zero
-    output = torch.nan_to_num(output, nan=0.0)
+    output = _mask_reduce_batched(
+        source.unsqueeze(0), mask.unsqueeze(0), num_cls=num_cls
+    )
     return output
 
 
