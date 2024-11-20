@@ -38,7 +38,7 @@ def masked_pooling(
         mask: Integer tensor of shape (B x H x W) or (H x W) containing the integer indices.
         reduce: The reduction operation to be applied, one of 'prod', 'mean', 'amax' or
             'amin'. Defaults to 'mean'.
-        num_cls: The number classes in the possible masks. If None, the number of classes
+        num_cls: The number of classes in the possible masks. If None, the number of classes
             is inferred from the unique elements in `mask`. This is useful when not all
             classes are present in the mask.
 
