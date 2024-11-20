@@ -79,7 +79,7 @@ class TestMaskReduce:
             ("feature_map2", "mask2", "expected_result2"),
         ],
     )
-    def test__mask_reduce(self, feature_map, mask, expected_result, request) -> None:
+    def test__mask_reduce(self, feature_map: Tensor, mask: Tensor, expected_result: Tensor, request) -> None:
         feature_map = request.getfixturevalue(feature_map)
         mask = request.getfixturevalue(mask)
         expected_result = request.getfixturevalue(expected_result)
@@ -89,12 +89,12 @@ class TestMaskReduce:
 
     def test__mask_reduce_batched(
         self,
-        feature_map1,
-        feature_map2,
-        mask1,
-        mask2,
-        expected_result1,
-        expected_result2,
+        feature_map1: Tensor,
+        feature_map2: Tensor,
+        mask1: Tensor,
+        mask2: Tensor,
+        expected_result1: Tensor,
+        expected_result2: Tensor,
     ) -> None:
         feature_map = torch.stack([feature_map1, feature_map2], dim=0)
         mask = torch.stack([mask1, mask2], dim=0)
@@ -103,7 +103,7 @@ class TestMaskReduce:
         out = _mask_reduce_batched(feature_map, mask, num_cls=3)
         assert (out == expected_result).all()
 
-    def test_masked_pooling(self, feature_map2, mask2, expected_result2) -> None:
+    def test_masked_pooling(self, feature_map2: Tensor, mask2: Tensor, expected_result2: Tensor) -> None:
         out_batched = masked_pooling(
             feature_map2.unsqueeze(0), mask2.unsqueeze(0), num_cls=2
         )
