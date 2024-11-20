@@ -8,8 +8,6 @@ from typing import Any, Callable, List, Optional, Set, Tuple, Union
 
 import torch
 import torchvision.datasets as datasets
-from torchvision import transforms
-from torchvision.transforms import Transform
 from typing_extensions import Protocol
 
 from lightly.data._image_loaders import default_loader
@@ -50,7 +48,7 @@ class DatasetFolder(datasets.VisionDataset):  # type: ignore
         root: str,
         loader: ImageLoader = default_loader,
         extensions: Optional[Tuple[str, ...]] = None,
-        transform: Optional[Transform] = None,
+        transform: Optional[Callable[[Any], Any]] = None,
         target_transform: Optional[Callable[[Any], Any]] = None,
         is_valid_file: Optional[Callable[[str], bool]] = None,
     ):
