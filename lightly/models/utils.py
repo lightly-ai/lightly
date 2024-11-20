@@ -60,7 +60,7 @@ def _mask_reduce(
     output = _mask_reduce_batched(
         source.unsqueeze(0), mask.unsqueeze(0), num_cls=num_cls
     )
-    return output
+    return output.squeeze(0)
 
 
 def _mask_reduce_batched(
