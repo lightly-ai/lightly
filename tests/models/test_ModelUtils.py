@@ -26,8 +26,7 @@ from lightly.models.utils import (
     update_momentum,
 )
 
-scatter_min_torch_version = "1.12.0"
-torch_version = version("torch")
+is_scatter_reduce_available = hasattr(Tensor, "scatter_reduce_")
 
 
 @pytest.mark.skipif(
