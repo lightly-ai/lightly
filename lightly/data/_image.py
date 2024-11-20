@@ -13,11 +13,6 @@ from typing_extensions import Protocol
 from lightly.data._image_loaders import default_loader
 
 
-class ImageLoader(Protocol):
-    def __call__(self, path: str) -> torch.Tensor:
-        ...
-
-
 class DatasetFolder(datasets.VisionDataset):  # type: ignore
     """Implements a dataset folder.
 
@@ -46,7 +41,7 @@ class DatasetFolder(datasets.VisionDataset):  # type: ignore
     def __init__(
         self,
         root: str,
-        loader: ImageLoader = default_loader,
+        loader: Callable[[str], Any] = default_loader,
         extensions: Optional[Tuple[str, ...]] = None,
         transform: Optional[Callable[[Any], Any]] = None,
         target_transform: Optional[Callable[[Any], Any]] = None,
@@ -73,9 +68,9 @@ class DatasetFolder(datasets.VisionDataset):  # type: ignore
 
         samples = _make_dataset(self.root, extensions, is_valid_file)
         if len(samples) == 0:
-            msg = f"Found 0 files in folder: {self.root}\n"
+            msg = "Found 0 files in folder: {}\n".format(self.root)
             if extensions is not None:
-                msg += f"Supported extensions are: {','.join(extensions)}"
+                msg += "Supported extensions are: {}".format(",".join(extensions))
             raise RuntimeError(msg)
 
         self.loader = loader

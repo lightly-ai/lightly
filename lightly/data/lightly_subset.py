@@ -74,7 +74,8 @@ class LightlySubset(LightlyDataset):  # type: ignore
         Returns:
             The filename of the sample at the specified subset index.
         """
-        return self.filenames_subset[index_subset]
+        fname = self.filenames_subset[index_subset]
+        return fname
 
     @property
     def input_dir(self) -> str:
