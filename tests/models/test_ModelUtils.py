@@ -1,7 +1,6 @@
 import copy
 import random
 import unittest
-from importlib.metadata import version
 from typing import List, Optional, Tuple
 
 import pytest
