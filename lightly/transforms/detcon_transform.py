@@ -1,4 +1,3 @@
-# from lightly.transforms import BYOLTransform
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from lightly.transforms.add_grid_transform import AddGridTransform
