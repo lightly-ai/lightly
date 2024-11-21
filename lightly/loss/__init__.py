@@ -19,3 +19,4 @@ from lightly.loss.tico_loss import TiCoLoss
 from lightly.loss.vicreg_loss import VICRegLoss
 from lightly.loss.vicregl_loss import VICRegLLoss
 from lightly.loss.wmse_loss import Whitening2d, WMSELoss
+from lightly.loss.detcon_loss import DetConLoss
