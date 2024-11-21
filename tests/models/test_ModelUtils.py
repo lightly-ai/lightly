@@ -19,9 +19,9 @@ from lightly.models.utils import (
     batch_shuffle,
     batch_unshuffle,
     deactivate_requires_grad,
-    masked_pooling,
     nearest_neighbors,
     normalize_weight,
+    pool_masked,
     update_momentum,
 )
 
@@ -90,7 +90,7 @@ class TestMaskReduce:
     def test_masked_pooling_manual(
         self, feature_map2: Tensor, mask2: Tensor, expected_result2: Tensor
     ) -> None:
-        out_manual = masked_pooling(
+        out_manual = pool_masked(
             feature_map2.unsqueeze(0), mask2.unsqueeze(0), num_cls=2
         )
         assert out_manual.shape == (1, 3, 2)
@@ -99,7 +99,7 @@ class TestMaskReduce:
     def test_masked_pooling_auto(
         self, feature_map2: Tensor, mask2: Tensor, expected_result2: Tensor
     ) -> None:
-        out_auto = masked_pooling(
+        out_auto = pool_masked(
             feature_map2.unsqueeze(0), mask2.unsqueeze(0), num_cls=None
         )
         assert out_auto.shape == (1, 3, 2)

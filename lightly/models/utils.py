@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from timm.models.vision_transformer import VisionTransformer
 
 
-def masked_pooling(
+def pool_masked(
     source: Tensor, mask: Tensor, reduce: str = "mean", num_cls: Optional[int] = None
 ) -> Tensor:
     """Reduce image feature maps (B, C, H, W) or (C, H, W) according to an integer
