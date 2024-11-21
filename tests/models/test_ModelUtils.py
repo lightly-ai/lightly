@@ -1,12 +1,12 @@
 import copy
 import random
 import unittest
+from importlib.metadata import version
 from typing import List, Optional, Tuple
 
 import pytest
 import torch
 import torch.nn as nn
-from importlib.metadata import version
 from pytest_mock import MockerFixture
 from torch import Tensor
 from torch.nn import Identity, Parameter
@@ -72,21 +72,6 @@ class TestMaskReduce:
         )
         return res
 
-    @pytest.mark.parametrize(
-        "feature_map, mask, expected_result",
-        [
-            ("feature_map1", "mask1", "expected_result1"),
-            ("feature_map2", "mask2", "expected_result2"),
-        ],
-    )
-    def test__mask_reduce(self, feature_map: Tensor, mask: Tensor, expected_result: Tensor, request) -> None:
-        feature_map = request.getfixturevalue(feature_map)
-        mask = request.getfixturevalue(mask)
-        expected_result = request.getfixturevalue(expected_result)
-
-        out = _mask_reduce(feature_map, mask, num_cls=3)
-        assert (out == expected_result).all()
-
     def test__mask_reduce_batched(
         self,
         feature_map1: Tensor,
@@ -103,18 +88,56 @@ class TestMaskReduce:
         out = _mask_reduce_batched(feature_map, mask, num_cls=3)
         assert (out == expected_result).all()
 
-    def test_masked_pooling(self, feature_map2: Tensor, mask2: Tensor, expected_result2: Tensor) -> None:
-        out_batched = masked_pooling(
+    def test_masked_pooling_manual(
+        self, feature_map2: Tensor, mask2: Tensor, expected_result2: Tensor
+    ) -> None:
+        out_manual = masked_pooling(
             feature_map2.unsqueeze(0), mask2.unsqueeze(0), num_cls=2
         )
-        assert out_batched.shape == (1, 3, 2)
-
-        out_manual = masked_pooling(feature_map2, mask2, num_cls=2)
-        out_auto = masked_pooling(feature_map2, mask2, num_cls=None)
-
-        assert (out_manual == out_auto).all()
+        assert out_manual.shape == (1, 3, 2)
         assert (out_manual == expected_result2[:, :2]).all()
-        assert out_manual.shape == (3, 2)
+
+    def test_masked_pooling_auto(
+        self, feature_map2: Tensor, mask2: Tensor, expected_result2: Tensor
+    ) -> None:
+        out_auto = masked_pooling(
+            feature_map2.unsqueeze(0), mask2.unsqueeze(0), num_cls=None
+        )
+        assert out_auto.shape == (1, 3, 2)
+        assert (out_auto == expected_result2[:, :2]).all()
+
+    @pytest.mark.parametrize(
+        "feature_map, mask, expected_result",
+        [
+            (
+                torch.tensor(
+                    [[[0, 1], [2, 3]], [[4, 5], [6, 7]], [[8, 9], [10, 11]]],
+                    dtype=torch.float32,
+                ),
+                torch.tensor([[0, 0], [1, 2]], dtype=torch.int64),
+                torch.tensor(
+                    [[0.5, 2.0, 3.0], [4.5, 6.0, 7.0], [8.5, 10.0, 11.0]],
+                    dtype=torch.float32,
+                ),
+            ),
+            (
+                torch.tensor(
+                    [[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]],
+                    dtype=torch.float32,
+                ),
+                torch.tensor([[1, 0], [0, 1]], dtype=torch.int64),
+                torch.tensor(
+                    [[2.5, 2.5, 0.0], [6.5, 6.5, 0.0], [10.5, 10.5, 0.0]],
+                    dtype=torch.float32,
+                ),
+            ),
+        ],
+    )
+    def test__mask_reduce(
+        self, feature_map: Tensor, mask: Tensor, expected_result: Tensor
+    ) -> None:
+        out = _mask_reduce(feature_map, mask, num_cls=3)
+        assert (out == expected_result).all()
 
 
 def has_grad(model: nn.Module):
