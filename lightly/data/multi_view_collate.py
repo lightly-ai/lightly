@@ -67,23 +67,20 @@ class MultiViewCollate:
             If the input batch is empty, a warning is issued, and an empty tuple
             `([], [], [])` is returned.
         """
+        labels: List[int] = []
+        fnames: List[str] = []
+
         if len(batch) == 0:
             warn("MultiViewCollate received empty batch.")
-            return [], [], []
+            return [], torch.tensor(labels, dtype=torch.long), fnames
 
         views: List[List[Tensor]] = [[] for _ in range(len(batch[0][0]))]
-        labels = []
-        fnames = []
         for img, label, fname in batch:
             for i, view in enumerate(img):
                 views[i].append(view.unsqueeze(0))
             labels.append(label)
             fnames.append(fname)
-        for i, view in enumerate(views):
-            views[i] = torch.cat(view)
 
-        labels = torch.tensor(
-            labels, dtype=torch.long
-        )  # Conversion to tensor to ensure backwards compatibility
+        unsqueezed_views = [torch.cat(unsqueezed_view) for unsqueezed_view in views]
 
-        return views, labels, fnames
+        return unsqueezed_views, torch.tensor(labels, dtype=torch.long), fnames
