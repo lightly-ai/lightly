@@ -206,13 +206,10 @@ exclude = '''(?x)(
     lightly/loss/dcl_loss.py |
     lightly/loss/regularizer/co2.py |
     lightly/loss/barlow_twins_loss.py |
-    lightly/data/lightly_subset.py |
     lightly/data/dataset.py |
     lightly/data/collate.py |
-    lightly/data/_image.py |
     lightly/data/_image_loaders.py |
     lightly/data/_video.py |
-    lightly/data/multi_view_collate.py |
     lightly/core.py |
     lightly/api/api_workflow_compute_worker.py |
     lightly/api/api_workflow_predictions.py |
