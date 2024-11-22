@@ -2,6 +2,7 @@
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
+from __future__ import annotations
 
 import os
 from typing import Any, Callable, Dict, Optional, Tuple
@@ -34,7 +35,7 @@ IMG_EXTENSIONS = (
 VIDEO_EXTENSIONS = (".mp4", ".mov", ".avi", ".mpg", ".hevc", ".m4v", ".webm", ".mpeg")
 
 
-def _dir_contains_videos(root: str, extensions: Tuple[str, ...]) -> bool:
+def _dir_contains_videos(root: str, extensions: tuple[str, ...]) -> bool:
     """Checks whether the directory contains video files.
 
     Args:
@@ -48,7 +49,7 @@ def _dir_contains_videos(root: str, extensions: Tuple[str, ...]) -> bool:
         return any(f.name.lower().endswith(extensions) for f in scan_dir)
 
 
-def _contains_videos(root: str, extensions: Tuple[str, ...]) -> bool:
+def _contains_videos(root: str, extensions: tuple[str, ...]) -> bool:
     """Checks whether the directory or any subdirectory contains video files.
 
     Args:
@@ -92,8 +93,8 @@ def _contains_subdirs(root: str) -> bool:
 def _load_dataset_from_folder(
     root: str,
     transform: Callable[[Any], Any],
-    is_valid_file: Optional[Callable[[str], bool]] = None,
-    tqdm_args: Optional[Dict[str, Any]] = None,
+    is_valid_file: Callable[[str], bool] | None,
+    tqdm_args: dict[str, Any] | None,
     num_workers_video_frame_counting: int = 0,
 ) -> datasets.VisionDataset:
     """Initializes a dataset from a folder.

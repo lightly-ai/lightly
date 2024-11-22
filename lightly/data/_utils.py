@@ -7,9 +7,9 @@ of images.
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
+from __future__ import annotations
 
 import os
-from typing import List, Tuple
 
 import tqdm.contrib.concurrent as concurrent
 from PIL import Image, UnidentifiedImageError
@@ -17,7 +17,7 @@ from PIL import Image, UnidentifiedImageError
 from lightly.data import LightlyDataset
 
 
-def check_images(data_dir: str) -> Tuple[List[str], List[str]]:
+def check_images(data_dir: str) -> tuple[list[str], list[str]]:
     """Identifies corrupt and healthy images in the specified directory.
 
     The function attempts to open each image file in the directory to verify
