@@ -292,14 +292,9 @@ exclude = '''(?x)(
     tests/utils/benchmarking/test_linear_classifier.py |
     tests/utils/benchmarking/test_metric_callback.py |
     tests/utils/test_dist.py |
-    tests/models/test_ModelsSimSiam.py |
     tests/models/modules/test_masked_autoencoder.py |
-    tests/models/test_ModelsSimCLR.py |
     tests/models/test_ModelUtils.py |
-    tests/models/test_ModelsNNCLR.py |
-    tests/models/test_ModelsMoCo.py |
     tests/models/test_ProjectionHeads.py |
-    tests/models/test_ModelsBYOL.py |
     tests/conftest.py |
     tests/api_workflow/test_api_workflow_selection.py |
     tests/api_workflow/test_api_workflow_datasets.py |
@@ -325,7 +320,14 @@ exclude = '''(?x)(
     lightly/models/barlowtwins.py |
     lightly/models/nnclr.py |
     lightly/models/simsiam.py |
-    lightly/models/byol.py )'''
+    lightly/models/byol.py )
+    # Let's not type deprecated models tests:
+    tests/models/test_ModelsSimSiam.py |
+    tests/models/test_ModelsSimCLR.py |
+    tests/models/test_ModelsNNCLR.py |
+    tests/models/test_ModelsMoCo.py |
+    tests/models/test_ModelsBYOL.py |
+    '''
 
 # Ignore imports from untyped modules.
 [[tool.mypy.overrides]]
