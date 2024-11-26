@@ -320,14 +320,13 @@ exclude = '''(?x)(
     lightly/models/barlowtwins.py |
     lightly/models/nnclr.py |
     lightly/models/simsiam.py |
-    lightly/models/byol.py )
+    lightly/models/byol.py |
     # Let's not type deprecated models tests:
     tests/models/test_ModelsSimSiam.py |
     tests/models/test_ModelsSimCLR.py |
     tests/models/test_ModelsNNCLR.py |
     tests/models/test_ModelsMoCo.py |
-    tests/models/test_ModelsBYOL.py |
-    '''
+    tests/models/test_ModelsBYOL.py )'''
 
 # Ignore imports from untyped modules.
 [[tool.mypy.overrides]]
