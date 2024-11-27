@@ -37,7 +37,7 @@ For PMSN, you can use the exact same code as for :ref:`msn` but change
 .. tabs::
     .. tab:: PyTorch
 
-        .. image:: https://colab.research.google.com/assets/colab-badge.svg
+        .. image:: https://img.shields.io/badge/Open%20in%20Colab-blue?logo=googlecolab&label=%20&labelColor=5c5c5c
             :target: https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/pmsn.ipynb
 
         This example can be run from the command line with::
@@ -48,7 +48,7 @@ For PMSN, you can use the exact same code as for :ref:`msn` but change
 
     .. tab:: Lightning
 
-        .. image:: https://colab.research.google.com/assets/colab-badge.svg
+        .. image:: https://img.shields.io/badge/Open%20in%20Colab-blue?logo=googlecolab&label=%20&labelColor=5c5c5c
             :target: https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/pmsn.ipynb
 
         This example can be run from the command line with::
@@ -59,7 +59,7 @@ For PMSN, you can use the exact same code as for :ref:`msn` but change
 
     .. tab:: Lightning Distributed
 
-        .. image:: https://colab.research.google.com/assets/colab-badge.svg
+        .. image:: https://img.shields.io/badge/Open%20in%20Colab-blue?logo=googlecolab&label=%20&labelColor=5c5c5c
             :target: https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning_distributed/pmsn.ipynb
 
         This example runs on multiple gpus using Distributed Data Parallel (DDP)
