@@ -14,13 +14,15 @@ if dependency.torchvision_vit_available():
     dependency.torchvision_vit_available(), "Torchvision ViT not available"
 )
 class TestMAEEncoder(unittest.TestCase):
-    def _vit(self):
+    def _vit(self) -> torchvision.models.vision_transformer.VisionTransformer:
         return torchvision.models.vision_transformer.vit_b_32(progress=False)
 
-    def test_from_vit(self):
+    def test_from_vit(self) -> None:
         MAEEncoder.from_vit_encoder(self._vit().encoder)
 
-    def _test_forward(self, device, batch_size=8, seed=0):
+    def _test_forward(
+        self, device: torch.device, batch_size: int = 8, seed: int = 0
+    ) -> None:
         torch.manual_seed(seed)
         vit = self._vit()
         encoder = MAEEncoder.from_vit_encoder(vit.encoder).to(device)
@@ -42,11 +44,11 @@ class TestMAEEncoder(unittest.TestCase):
                 # output must have reasonable numbers
                 self.assertTrue(torch.all(torch.not_equal(out, torch.inf)))
 
-    def test_forward(self):
-        self._test_forward(torch.device("cpu"))
+    def test_forward(self) -> None:
+        self._test_forward(device=torch.device("cpu"))
 
     @unittest.skipUnless(torch.cuda.is_available(), "Cuda not available.")
-    def test_forward_cuda(self):
+    def test_forward_cuda(self) -> None:
         self._test_forward(torch.device("cuda"))
 
 
@@ -54,13 +56,15 @@ class TestMAEEncoder(unittest.TestCase):
     dependency.torchvision_vit_available(), "Torchvision ViT not available"
 )
 class TestMAEBackbone(unittest.TestCase):
-    def _vit(self):
+    def _vit(self) -> torchvision.models.vision_transformer.VisionTransformer:
         return torchvision.models.vision_transformer.vit_b_32(progress=False)
 
-    def test_from_vit(self):
+    def test_from_vit(self) -> None:
         MAEBackbone.from_vit(self._vit())
 
-    def _test_forward(self, device, batch_size=8, seed=0):
+    def _test_forward(
+        self, device: torch.device, batch_size: int = 8, seed: int = 0
+    ) -> None:
         torch.manual_seed(seed)
         vit = self._vit()
         backbone = MAEBackbone.from_vit(vit).to(device)
@@ -80,11 +84,11 @@ class TestMAEBackbone(unittest.TestCase):
                 # output must have reasonable numbers
                 self.assertTrue(torch.all(torch.not_equal(class_tokens, torch.inf)))
 
-    def test_forward(self):
+    def test_forward(self) -> None:
         self._test_forward(torch.device("cpu"))
 
     @unittest.skipUnless(torch.cuda.is_available(), "Cuda not available.")
-    def test_forward_cuda(self):
+    def test_forward_cuda(self) -> None:
         self._test_forward(torch.device("cuda"))
 
     def test_images_to_tokens(self) -> None:
@@ -102,7 +106,7 @@ class TestMAEBackbone(unittest.TestCase):
     dependency.torchvision_vit_available(), "Torchvision ViT not available"
 )
 class TestMAEDecoder(unittest.TestCase):
-    def test_init(self):
+    def test_init(self) -> None:
         MAEDecoder(
             seq_length=50,
             num_layers=2,
@@ -113,7 +117,9 @@ class TestMAEDecoder(unittest.TestCase):
             out_dim=3 * 32**2,
         )
 
-    def _test_forward(self, device, batch_size=8, seed=0):
+    def _test_forward(
+        self, device: torch.device, batch_size: int = 8, seed: int = 0
+    ) -> None:
         torch.manual_seed(seed)
         seq_length = 50
         embed_input_dim = 128
@@ -137,9 +143,9 @@ class TestMAEDecoder(unittest.TestCase):
         # output must have reasonable numbers
         self.assertTrue(torch.all(torch.not_equal(predictions, torch.inf)))
 
-    def test_forward(self):
+    def test_forward(self) -> None:
         self._test_forward(torch.device("cpu"))
 
     @unittest.skipUnless(torch.cuda.is_available(), "Cuda not available.")
-    def test_forward_cuda(self):
+    def test_forward_cuda(self) -> None:
         self._test_forward(torch.device("cuda"))

@@ -292,9 +292,6 @@ exclude = '''(?x)(
     tests/utils/benchmarking/test_linear_classifier.py |
     tests/utils/benchmarking/test_metric_callback.py |
     tests/utils/test_dist.py |
-    tests/models/modules/test_masked_autoencoder.py |
-    tests/models/test_ModelUtils.py |
-    tests/models/test_ProjectionHeads.py |
     tests/conftest.py |
     tests/api_workflow/test_api_workflow_selection.py |
     tests/api_workflow/test_api_workflow_datasets.py |

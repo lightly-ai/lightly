@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import copy
 import random
 import unittest
-from typing import List, Optional, Tuple
+from typing import Optional
 
 import pytest
 import torch
@@ -33,15 +35,18 @@ is_scatter_reduce_available = hasattr(Tensor, "scatter_reduce_")
     reason="scatter operations require torch >= 1.12.0",
 )
 class TestMaskReduce:
-    @pytest.fixture()
+    # Type ignore because untyped decorator makes function untyped.
+    @pytest.fixture()  # type: ignore[misc]
     def mask1(self) -> Tensor:
         return torch.tensor([[0, 0], [1, 2]], dtype=torch.int64)
 
-    @pytest.fixture()
+    # Type ignore because untyped decorator makes function untyped.
+    @pytest.fixture()  # type: ignore[misc]
     def mask2(self) -> Tensor:
         return torch.tensor([[1, 0], [0, 1]], dtype=torch.int64)
 
-    @pytest.fixture()
+    # Type ignore because untyped decorator makes function untyped.
+    @pytest.fixture()  # type: ignore[misc]
     def feature_map1(self) -> Tensor:
         feature_map = torch.tensor(
             [[[0, 1], [2, 3]], [[4, 5], [6, 7]], [[8, 9], [10, 11]]],
@@ -49,7 +54,8 @@ class TestMaskReduce:
         )  # (C H W) = (3, 2, 2)
         return feature_map
 
-    @pytest.fixture()
+    # Type ignore because untyped decorator makes function untyped.
+    @pytest.fixture()  # type: ignore[misc]
     def feature_map2(self) -> Tensor:
         feature_map = torch.tensor(
             [[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]],
@@ -57,14 +63,16 @@ class TestMaskReduce:
         )  # (C H W) = (3, 2, 2)
         return feature_map
 
-    @pytest.fixture()
+    # Type ignore because untyped decorator makes function untyped.
+    @pytest.fixture()  # type: ignore[misc]
     def expected_result1(self) -> Tensor:
         res = torch.tensor(
             [[0.5, 2.0, 3.0], [4.5, 6.0, 7.0], [8.5, 10.0, 11.0]], dtype=torch.float32
         )
         return res
 
-    @pytest.fixture()
+    # Type ignore because untyped decorator makes function untyped.
+    @pytest.fixture()  # type: ignore[misc]
     def expected_result2(self) -> Tensor:
         res = torch.tensor(
             [[2.5, 2.5, 0.0], [6.5, 6.5, 0.0], [10.5, 10.5, 0.0]], dtype=torch.float32
@@ -105,6 +113,7 @@ class TestMaskReduce:
         assert out_auto.shape == (1, 3, 2)
         assert (out_auto == expected_result2[:, :2]).all()
 
+    # Type ignore because untyped decorator makes function untyped.
     @pytest.mark.parametrize(
         "feature_map, mask, expected_result",
         [
@@ -131,7 +140,7 @@ class TestMaskReduce:
                 ),
             ),
         ],
-    )
+    )  # type: ignore[misc]
     def test__mask_reduce(
         self, feature_map: Tensor, mask: Tensor, expected_result: Tensor
     ) -> None:
@@ -139,7 +148,7 @@ class TestMaskReduce:
         assert (out == expected_result).all()
 
 
-def has_grad(model: nn.Module):
+def has_grad(model: nn.Module) -> bool:
     """Helper method to check if a model has `requires_grad` set to True"""
     has_grad_ = False
     for param in model.parameters():
@@ -150,7 +159,7 @@ def has_grad(model: nn.Module):
 
 
 class TestModelUtils(unittest.TestCase):
-    def _assert_tensor_equal(self, x, y):
+    def _assert_tensor_equal(self, x: Tensor, y: Tensor) -> None:
         # If the assertion fails then only an "assertion is not True" error is
         # shown without showing the contents of x and y. To help debugging, x
         # and y are printed. Note that the output is only shown if the assertion
@@ -159,7 +168,7 @@ class TestModelUtils(unittest.TestCase):
         print(y)
         self.assertTrue(torch.equal(x, y))
 
-    def test_batch_shuffle(self, seed=0):
+    def test_batch_shuffle(self, seed: int = 0) -> None:
         torch.manual_seed(seed)
         x1 = torch.rand((4, 3, 64, 64))
         x1_shuffled, shuffle = batch_shuffle(x1)
@@ -167,7 +176,7 @@ class TestModelUtils(unittest.TestCase):
         self.assertTrue(torch.equal(x1, out1))
         self.assertFalse(torch.equal(x1, x1_shuffled))
 
-    def test_activate_requires_grad(self):
+    def test_activate_requires_grad(self) -> None:
         model = nn.Sequential(
             nn.Linear(32, 32),
             nn.ReLU(),
@@ -178,7 +187,7 @@ class TestModelUtils(unittest.TestCase):
         activate_requires_grad(model)
         self.assertTrue(has_grad(model))
 
-    def test_momentum_works(self):
+    def test_momentum_works(self) -> None:
         model = nn.Sequential(
             nn.Linear(32, 32),
             nn.ReLU(),
@@ -186,7 +195,7 @@ class TestModelUtils(unittest.TestCase):
         model_momentum = copy.deepcopy(model)
         update_momentum(model, model_momentum, 0.99)
 
-    def test_normalize_weight_linear(self):
+    def test_normalize_weight_linear(self) -> None:
         input_dim = 32
         output_dim = 64
         linear = nn.Linear(input_dim, output_dim, bias=False)
@@ -195,7 +204,7 @@ class TestModelUtils(unittest.TestCase):
         normalize_weight(linear.weight, dim=1)
         self.assertEqual(linear.weight.norm(dim=1).sum(), output_dim)
 
-    def test_no_grad_trunc_normal(self, device="cpu", seed=0):
+    def test_no_grad_trunc_normal(self, device: str = "cpu", seed: int = 0) -> None:
         torch.manual_seed(seed)
         tensor = torch.rand((8, 16)).to(device)
         a = -2
@@ -205,16 +214,16 @@ class TestModelUtils(unittest.TestCase):
         self.assertTrue(tensor.max() <= b)
 
     @unittest.skipUnless(torch.cuda.is_available(), "No cuda available")
-    def test_no_grad_trunc_normal_cuda(self, seed=0):
+    def test_no_grad_trunc_normal_cuda(self) -> None:
         self.test_no_grad_trunc_normal(device="cuda")
 
-    def test_repeat_token(self):
+    def test_repeat_token(self) -> None:
         token = torch.Tensor([[[1, 2, 3, 4]]])
         out = utils.repeat_token(token, size=(2, 3))
         self.assertEqual(tuple(out.shape), (2, 3, 4))
         self.assertListEqual(out[-1][-1].tolist(), [1, 2, 3, 4])
 
-    def test_expand_index_like(self, seed=0):
+    def test_expand_index_like(self, seed: int = 0) -> None:
         torch.manual_seed(seed)
         index = torch.Tensor(
             [
@@ -227,7 +236,7 @@ class TestModelUtils(unittest.TestCase):
 
         self.assertEqual(tuple(expanded_index.shape), (2, 3, 5))
 
-    def test_get_at_index(self, seed=0):
+    def test_get_at_index(self, seed: int = 0) -> None:
         torch.manual_seed(seed)
         index = torch.Tensor(
             [
@@ -245,7 +254,7 @@ class TestModelUtils(unittest.TestCase):
             for j in range(index.shape[1]):
                 self._assert_tensor_equal(tokens[i, index[i, j]], selected[i, j])
 
-    def test_set_at_index(self, seed=0):
+    def test_set_at_index(self, seed: int = 0) -> None:
         torch.manual_seed(seed)
         index = torch.Tensor(
             [
@@ -262,7 +271,7 @@ class TestModelUtils(unittest.TestCase):
             for j in range(index.shape[1]):
                 self._assert_tensor_equal(new_tokens[i, index[i, j]], values[i, j])
 
-    def test_mask_at_index(self, seed=0):
+    def test_mask_at_index(self, seed: int = 0) -> None:
         torch.manual_seed(seed)
         index = torch.Tensor(
             [
@@ -277,7 +286,7 @@ class TestModelUtils(unittest.TestCase):
             for j in range(index.shape[1]):
                 self._assert_tensor_equal(new_tokens[i, index[i, j]], mask_token[0, 0])
 
-    def test_prepend_class_token(self, seed=0):
+    def test_prepend_class_token(self, seed: int = 0) -> None:
         torch.manual_seed(seed)
         tokens = torch.rand(2, 3, 5)
         class_token = torch.rand(1, 1, 5)
@@ -288,7 +297,7 @@ class TestModelUtils(unittest.TestCase):
         for i in range(new_tokens.shape[0]):
             self._assert_tensor_equal(new_tokens[i][0], class_token[0, 0])
 
-    def test_patchify(self, seed=0):
+    def test_patchify(self, seed: int = 0) -> None:
         torch.manual_seed(seed)
         batch_size, channels, height, width = (2, 3, 8, 8)
         patch_size = 4
@@ -319,7 +328,7 @@ class TestModelUtils(unittest.TestCase):
                     img_patch = img_patches[i * width_patches + j]
                     self._assert_tensor_equal(img_patch, expected_patch)
 
-    def test_unpatchify(self, seed=0):
+    def test_unpatchify(self, seed: int = 0) -> None:
         torch.manual_seed(seed)
         batch_size, channels, height, width = (2, 3, 8, 8)
         patch_size = 4
@@ -330,8 +339,12 @@ class TestModelUtils(unittest.TestCase):
         self._assert_tensor_equal(images, unpatched_images)
 
     def _test_random_token_mask(
-        self, seed=0, mask_ratio=0.6, mask_class_token=False, device="cpu"
-    ):
+        self,
+        seed: int = 0,
+        mask_ratio: float = 0.6,
+        mask_class_token: bool = False,
+        device: str = "cpu",
+    ) -> None:
         torch.manual_seed(seed)
         batch_size, seq_length = 2, 5
         idx_keep, idx_mask = utils.random_token_mask(
@@ -354,7 +367,7 @@ class TestModelUtils(unittest.TestCase):
             # class token should be first in index
             self.assertTrue(torch.all(idx_keep[:, 0] == 0))
 
-    def _test_random_token_mask_parameters(self, device):
+    def _test_random_token_mask_parameters(self, device: str) -> None:
         for mask_ratio in [0, 0.6, 1.0]:
             for mask_class_token in [False, True]:
                 self._test_random_token_mask(
@@ -363,10 +376,10 @@ class TestModelUtils(unittest.TestCase):
                     device=device,
                 )
 
-    def test_random_token_mask(self):
+    def test_random_token_mask(self) -> None:
         self._test_random_token_mask_parameters(device="cpu")
 
-    def test_nearest_neighbors(self):
+    def test_nearest_neighbors(self) -> None:
         # Test input with shape (batch_size, map_size_0, num_input_maps)
         input_maps = torch.tensor(
             [
@@ -416,10 +429,11 @@ class TestModelUtils(unittest.TestCase):
         )
 
     @unittest.skipUnless(torch.cuda.is_available(), "No cuda available")
-    def test_random_token_mask_cuda(self):
+    def test_random_token_mask_cuda(self) -> None:
         self._test_random_token_mask_parameters(device="cuda")
 
 
+# Type ignore because untyped decorator makes function untyped.
 @pytest.mark.parametrize(
     "mask, expected",
     [
@@ -454,7 +468,7 @@ class TestModelUtils(unittest.TestCase):
             ],
         ),
     ],
-)
+)  # type: ignore[misc]
 def test_mask_bool(mask: Tensor, expected: Tensor) -> None:
     tokens = torch.zeros(2, 3, 2) + 2
     mask_token = torch.zeros(1, 1, 2) + 3
@@ -464,6 +478,7 @@ def test_mask_bool(mask: Tensor, expected: Tensor) -> None:
     assert torch.allclose(result, torch.tensor(expected, dtype=torch.float))
 
 
+# Type ignore because untyped decorator makes function untyped.
 @pytest.mark.parametrize(
     "mask_ratio, expected_num_images_masked",
     [
@@ -472,7 +487,7 @@ def test_mask_bool(mask: Tensor, expected: Tensor) -> None:
         (0.6, 3),
         (1.0, 5),
     ],
-)
+)  # type: ignore[misc]
 def test_random_block_mask__mask_ratio(
     mask_ratio: float, expected_num_images_masked: int
 ) -> None:
@@ -484,10 +499,11 @@ def test_random_block_mask__mask_ratio(
     assert num_images_masked == expected_num_images_masked
 
 
+# Type ignore because untyped decorator makes function untyped.
 @pytest.mark.parametrize(
     "min_image_mask_ratio, max_image_mask_ratio",
     [(0.0, 0.0), (0.4, 0.6), (1.0, 1.0)],
-)
+)  # type: ignore[misc]
 def test_random_block_mask__min_max_image_mask_ratio(
     min_image_mask_ratio: float, max_image_mask_ratio: float
 ) -> None:
@@ -511,7 +527,8 @@ def test_random_block_mask__min_max_image_mask_ratio(
     )
 
 
-@pytest.mark.parametrize("device", ["cpu", "cuda"])
+# Type ignore because untyped decorator makes function untyped.
+@pytest.mark.parametrize("device", ["cpu", "cuda"])  # type: ignore[misc]
 def test_random_block_mask__device(device: str) -> None:
     if device == "cuda" and not torch.cuda.is_available():
         pytest.skip("CUDA not available")
@@ -520,6 +537,7 @@ def test_random_block_mask__device(device: str) -> None:
     assert mask.device.type == device
 
 
+# Type ignore because untyped decorator makes function untyped.
 @pytest.mark.parametrize(
     "size,num_masks,min_num_masks_per_block,max_num_masks_per_block",
     [
@@ -531,12 +549,12 @@ def test_random_block_mask__device(device: str) -> None:
         ((8, 12), 10, 0, 10),
         ((8, 12), 8 * 12, 1, None),
     ],
-)
+)  # type: ignore[misc]
 def test_random_block_mask_image__num_mask_per_block(
-    size: Tuple[int, int],
+    size: tuple[int, int],
     num_masks: int,
     min_num_masks_per_block: int,
-    max_num_masks_per_block: Optional[int],
+    max_num_masks_per_block: int | None,
 ) -> None:
     torch.manual_seed(0)
     random.seed(0)
@@ -565,6 +583,7 @@ def test_random_block_mask_image__num_mask_per_block__fail() -> None:
         )
 
 
+# Type ignore because untyped decorator makes function untyped.
 @pytest.mark.parametrize(
     "min_block_aspect_ratio,max_block_aspect_ratio",
     [
@@ -573,9 +592,9 @@ def test_random_block_mask_image__num_mask_per_block__fail() -> None:
         (0.1, 3.0),
         (0.3, 0.3),
     ],
-)
+)  # type: ignore[misc]
 def test_random_block_mask_image__aspect_ratio(
-    min_block_aspect_ratio: float, max_block_aspect_ratio: Optional[float]
+    min_block_aspect_ratio: float, max_block_aspect_ratio: float | None
 ) -> None:
     mask = utils.random_block_mask_image(
         size=(14, 14),
@@ -613,7 +632,8 @@ def test_random_block_mask_image__aspect_ratio_fail() -> None:
         )
 
 
-@pytest.mark.parametrize("device", ["cpu", "cuda"])
+# Type ignore because untyped decorator makes function untyped.
+@pytest.mark.parametrize("device", ["cpu", "cuda"])  # type: ignore[misc]
 def test_random_block_mask_image__device(device: str) -> None:
     if device == "cuda" and not torch.cuda.is_available():
         pytest.skip("CUDA not available")
@@ -626,6 +646,7 @@ def test_random_block_mask_image__device(device: str) -> None:
     assert mask.device.type == device
 
 
+# Type ignore because untyped decorator makes function untyped.
 @pytest.mark.parametrize(
     "x, y, expected",
     [
@@ -652,11 +673,11 @@ def test_random_block_mask_image__device(device: str) -> None:
             ],
         ),
     ],
-)
+)  # type: ignore[misc]
 def test_most_similar_index(
-    x: List[List[List[float]]],
-    y: List[List[List[float]]],
-    expected: List[List[int]],
+    x: list[list[list[float]]],
+    y: list[list[list[float]]],
+    expected: list[list[int]],
 ) -> None:
     tx = torch.tensor(x, dtype=torch.float)
     ty = torch.tensor(y, dtype=torch.float)
@@ -666,6 +687,7 @@ def test_most_similar_index(
     assert torch.equal(result, texpected)
 
 
+# Type ignore because untyped decorator makes function untyped.
 @pytest.mark.parametrize(
     "x, y, y_values, expected",
     [
@@ -712,12 +734,12 @@ def test_most_similar_index(
             ],
         ),
     ],
-)
+)  # type: ignore[misc]
 def test_select_most_similar(
-    x: List[List[List[float]]],
-    y: List[List[List[float]]],
-    y_values: List[List[List[float]]],
-    expected: List[List[List[float]]],
+    x: list[list[list[float]]],
+    y: list[list[list[float]]],
+    y_values: list[list[list[float]]],
+    expected: list[list[list[float]]],
 ) -> None:
     tx = torch.tensor(x, dtype=torch.float)
     ty = torch.tensor(y, dtype=torch.float)
@@ -728,6 +750,7 @@ def test_select_most_similar(
     assert torch.equal(result, texpected)
 
 
+# Type ignore because untyped decorator makes function untyped.
 @pytest.mark.parametrize(
     "seq_length, mask_ratio, mask_class_token, expected_num_masked",
     [
@@ -736,7 +759,7 @@ def test_select_most_similar(
         (257, 0.75, False, 192),  # From issue #1583
         (257, 0.75, True, 193),  # From issue #1583
     ],
-)
+)  # type: ignore[misc]
 def test_random_token_mask__mask_class_token(
     seq_length: int, mask_ratio: float, mask_class_token: bool, expected_num_masked: int
 ) -> None:
@@ -853,6 +876,7 @@ def test_get_named_leaf_modules() -> None:
     assert utils.get_named_leaf_modules(sequential2) == {"0.0": linear1, "0.1": linear2}
 
 
+# Type ignore because untyped decorator makes function untyped.
 @pytest.mark.parametrize(
     "strategy, expected_fn",
     [
@@ -860,7 +884,7 @@ def test_get_named_leaf_modules() -> None:
         ("sincos", "initialize_2d_sine_cosine_positional_embedding"),
         ("skip", None),
     ],
-)
+)  # type: ignore[misc]
 def test_initialize_positional_embedding(
     strategy: str, expected_fn: Optional[str], mocker: MockerFixture
 ) -> None:
