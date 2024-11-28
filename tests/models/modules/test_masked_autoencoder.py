@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import unittest
 
 import torch
@@ -7,6 +9,8 @@ from lightly.models import utils
 from lightly.utils import dependency
 
 if dependency.torchvision_vit_available():
+    from torchvision.models.vision_transformer import VisionTransformer
+
     from lightly.models.modules import MAEBackbone, MAEDecoder, MAEEncoder
 
 
@@ -14,7 +18,7 @@ if dependency.torchvision_vit_available():
     dependency.torchvision_vit_available(), "Torchvision ViT not available"
 )
 class TestMAEEncoder(unittest.TestCase):
-    def _vit(self) -> torchvision.models.vision_transformer.VisionTransformer:
+    def _vit(self) -> VisionTransformer:
         return torchvision.models.vision_transformer.vit_b_32(progress=False)
 
     def test_from_vit(self) -> None:
