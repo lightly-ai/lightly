@@ -6,6 +6,7 @@ from typing import Callable
 import torch
 import torch.nn as nn
 from timm.models.vision_transformer import Block
+from torch import Tensor
 
 from lightly.models import utils
 
@@ -58,7 +59,7 @@ class IJEPAPredictorTIMM(nn.Module):
         drop_path_rate: float = 0.0,
         proj_drop_rate: float = 0.0,
         attn_drop_rate: float = 0.0,
-        norm_layer: Callable[..., torch.nn.Module] = partial(nn.LayerNorm, eps=1e-6),
+        norm_layer: Callable[..., nn.Module] = partial(nn.LayerNorm, eps=1e-6),
     ):
         """Initializes the IJEPAPredictorTIMM with the specified dimensions."""
 
@@ -97,10 +98,10 @@ class IJEPAPredictorTIMM(nn.Module):
 
     def forward(
         self,
-        x: torch.Tensor,
-        masks_x: list[torch.Tensor] | torch.Tensor,
-        masks: list[torch.Tensor] | torch.Tensor,
-    ) -> torch.Tensor:
+        x: Tensor,
+        masks_x: list[Tensor] | Tensor,
+        masks: list[Tensor] | Tensor,
+    ) -> Tensor:
         """Forward pass of the IJEPAPredictorTIMM.
 
         Args:

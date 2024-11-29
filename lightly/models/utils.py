@@ -1263,7 +1263,7 @@ def update_drop_path_rate(
             block.drop_path2 = Identity()
 
 
-def repeat_interleave_batch(x: torch.Tensor, B: int, repeat: int) -> torch.Tensor:
+def repeat_interleave_batch(x: Tensor, B: int, repeat: int) -> Tensor:
     """Repeat and interleave the input tensor."""
     N = len(x) // B
     x = torch.cat(
@@ -1277,8 +1277,8 @@ def repeat_interleave_batch(x: torch.Tensor, B: int, repeat: int) -> torch.Tenso
 
 
 def apply_masks(
-    x: torch.Tensor, masks: torch.Tensor | list[torch.Tensor]
-) -> torch.Tensor:
+    x: Tensor, masks: Tensor | list[Tensor]
+) -> Tensor:
     """Apply masks to the input tensor.
 
     From https://github.com/facebookresearch/ijepa/blob/main/src/masks/utils.py
