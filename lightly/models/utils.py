@@ -1276,9 +1276,7 @@ def repeat_interleave_batch(x: Tensor, B: int, repeat: int) -> Tensor:
     return x
 
 
-def apply_masks(
-    x: Tensor, masks: Tensor | list[Tensor]
-) -> Tensor:
+def apply_masks(x: Tensor, masks: Tensor | list[Tensor]) -> Tensor:
     """Apply masks to the input tensor.
 
     From https://github.com/facebookresearch/ijepa/blob/main/src/masks/utils.py
