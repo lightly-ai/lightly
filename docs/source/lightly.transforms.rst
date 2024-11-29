@@ -3,7 +3,15 @@ lightly.transforms
 
 .. automodule:: lightly.transforms
 
+.. automodule:: lightly.transforms.add_grid_transform
+   :members:
+   :special-members: __call__
+
 .. automodule:: lightly.transforms.densecl_transform
+   :members:
+   :special-members: __call__
+
+.. automodule:: lightly.transforms.detcon_transform
    :members:
    :special-members: __call__
 
@@ -48,6 +56,10 @@ lightly.transforms
    :special-members: __call__
 
 .. automodule:: lightly.transforms.multi_view_transform
+   :members:
+   :special-members: __call__
+
+.. automodule:: lightly.transforms.multi_view_transform_v2
    :members:
    :special-members: __call__
 

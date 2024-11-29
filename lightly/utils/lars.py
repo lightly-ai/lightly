@@ -36,7 +36,6 @@ class LARS(Optimizer):
         >>> input = torch.Tensor(10)
         >>> target = torch.Tensor([1.])
         >>> loss_fn = lambda input, target: (input - target) ** 2
-        >>> #
         >>> optimizer = LARS(model.parameters(), lr=0.1, momentum=0.9)
         >>> optimizer.zero_grad()
         >>> loss_fn(model(input), target).backward()
@@ -99,11 +98,10 @@ class LARS(Optimizer):
 
     def __setstate__(self, state: Dict[str, Any]) -> None:
         super().__setstate__(state)
-
         for group in self.param_groups:
             group.setdefault("nesterov", False)
 
-    # Type ignore for overloads is required for Python 3.7
+    # Type ignore for overloads is required for Python 3.7.
     @overload  # type: ignore[override]
     def step(self, closure: None = None) -> None:
         ...
@@ -125,7 +123,7 @@ class LARS(Optimizer):
             with torch.enable_grad():
                 loss = closure()
 
-        # exclude scaling for params with 0 weight decay
+        # Exclude scaling for params with 0 weight decay.
         for group in self.param_groups:
             weight_decay = group["weight_decay"]
             momentum = group["momentum"]
@@ -140,7 +138,7 @@ class LARS(Optimizer):
                 p_norm = torch.norm(p.data)
                 g_norm = torch.norm(p.grad.data)
 
-                # lars scaling + weight decay part
+                # Apply Lars scaling and weight decay.
                 if weight_decay != 0:
                     if p_norm != 0 and g_norm != 0:
                         lars_lr = p_norm / (
@@ -151,7 +149,7 @@ class LARS(Optimizer):
                         d_p = d_p.add(p, alpha=weight_decay)
                         d_p *= lars_lr
 
-                # sgd part
+                # Apply momentum.
                 if momentum != 0:
                     param_state = self.state[p]
                     if "momentum_buffer" not in param_state:
@@ -159,6 +157,7 @@ class LARS(Optimizer):
                     else:
                         buf = param_state["momentum_buffer"]
                         buf.mul_(momentum).add_(d_p, alpha=1 - dampening)
+
                     if nesterov:
                         d_p = d_p.add(buf, alpha=momentum)
                     else:

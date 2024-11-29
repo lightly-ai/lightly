@@ -29,6 +29,7 @@ except ImportError:
 from lightly.openapi_generated.swagger_client.models.docker_worker_config_v3_docker_corruptness_check import DockerWorkerConfigV3DockerCorruptnessCheck
 from lightly.openapi_generated.swagger_client.models.docker_worker_config_v3_docker_datasource import DockerWorkerConfigV3DockerDatasource
 from lightly.openapi_generated.swagger_client.models.docker_worker_config_v3_docker_training import DockerWorkerConfigV3DockerTraining
+from lightly.openapi_generated.swagger_client.models.docker_worker_config_v4_docker_crops import DockerWorkerConfigV4DockerCrops
 
 class DockerWorkerConfigV4Docker(BaseModel):
     """
@@ -38,6 +39,7 @@ class DockerWorkerConfigV4Docker(BaseModel):
     checkpoint_run_id: Optional[constr(strict=True)] = Field(None, alias="checkpointRunId", description="MongoDB ObjectId")
     corruptness_check: Optional[DockerWorkerConfigV3DockerCorruptnessCheck] = Field(None, alias="corruptnessCheck")
     datasource: Optional[DockerWorkerConfigV3DockerDatasource] = None
+    crops: Optional[DockerWorkerConfigV4DockerCrops] = None
     embeddings: Optional[StrictStr] = None
     enable_training: Optional[StrictBool] = Field(None, alias="enableTraining")
     training: Optional[DockerWorkerConfigV3DockerTraining] = None
@@ -53,7 +55,7 @@ class DockerWorkerConfigV4Docker(BaseModel):
     use_datapool: Optional[StrictBool] = Field(None, alias="useDatapool")
     shutdown_when_job_finished: Optional[StrictBool] = Field(None, alias="shutdownWhenJobFinished")
     cache_size: Optional[conint(strict=True, ge=-1)] = Field(None, alias="cacheSize", description="Maximum number of bytes stored in the disk cache. Setting it to <=0 disables the cache.")
-    __properties = ["checkpoint", "checkpointRunId", "corruptnessCheck", "datasource", "embeddings", "enableTraining", "training", "normalizeEmbeddings", "numProcesses", "numThreads", "outputImageFormat", "pretagging", "pretaggingUpload", "relevantFilenamesFile", "selectedSequenceLength", "uploadReport", "useDatapool", "shutdownWhenJobFinished", "cacheSize"]
+    __properties = ["checkpoint", "checkpointRunId", "corruptnessCheck", "datasource", "crops", "embeddings", "enableTraining", "training", "normalizeEmbeddings", "numProcesses", "numThreads", "outputImageFormat", "pretagging", "pretaggingUpload", "relevantFilenamesFile", "selectedSequenceLength", "uploadReport", "useDatapool", "shutdownWhenJobFinished", "cacheSize"]
 
     @validator('checkpoint_run_id')
     def checkpoint_run_id_validate_regular_expression(cls, value):
@@ -97,6 +99,9 @@ class DockerWorkerConfigV4Docker(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of datasource
         if self.datasource:
             _dict['datasource' if by_alias else 'datasource'] = self.datasource.to_dict(by_alias=by_alias)
+        # override the default output from pydantic by calling `to_dict()` of crops
+        if self.crops:
+            _dict['crops' if by_alias else 'crops'] = self.crops.to_dict(by_alias=by_alias)
         # override the default output from pydantic by calling `to_dict()` of training
         if self.training:
             _dict['training' if by_alias else 'training'] = self.training.to_dict(by_alias=by_alias)
@@ -121,6 +126,7 @@ class DockerWorkerConfigV4Docker(BaseModel):
             "checkpoint_run_id": obj.get("checkpointRunId"),
             "corruptness_check": DockerWorkerConfigV3DockerCorruptnessCheck.from_dict(obj.get("corruptnessCheck")) if obj.get("corruptnessCheck") is not None else None,
             "datasource": DockerWorkerConfigV3DockerDatasource.from_dict(obj.get("datasource")) if obj.get("datasource") is not None else None,
+            "crops": DockerWorkerConfigV4DockerCrops.from_dict(obj.get("crops")) if obj.get("crops") is not None else None,
             "embeddings": obj.get("embeddings"),
             "enable_training": obj.get("enableTraining"),
             "training": DockerWorkerConfigV3DockerTraining.from_dict(obj.get("training")) if obj.get("training") is not None else None,

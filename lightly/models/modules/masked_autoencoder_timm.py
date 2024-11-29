@@ -66,6 +66,8 @@ class MAEDecoderTIMM(Module):
         initialize_weights: bool = True,
         mask_token: Optional[Parameter] = None,
     ):
+        """Initializes the MAEDecoderTIMM with the specified parameters."""
+
         super().__init__()
 
         self.decoder_embed = nn.Linear(embed_dim, decoder_embed_dim, bias=True)
@@ -75,7 +77,7 @@ class MAEDecoderTIMM(Module):
             else mask_token
         )
 
-        # positional encoding of the decoder
+        # Positional encoding of the decoder
         self.decoder_pos_embed = nn.Parameter(
             torch.zeros(1, num_patches + 1, decoder_embed_dim), requires_grad=False
         )  # fixed sin-cos embedding
@@ -112,8 +114,8 @@ class MAEDecoderTIMM(Module):
 
         Returns:
             Tensor with shape (batch_size, seq_length, out_dim).
-
         """
+
         out = self.embed(input)
         out = self.decode(out)
         return self.predict(out)
@@ -156,7 +158,7 @@ class MAEDecoderTIMM(Module):
         return output
 
     def predict(self, input: Tensor) -> Tensor:
-        """Predics pixel values from decoded tokens.
+        """Predicts pixel values from decoded tokens.
 
         Args:
             input:
@@ -172,6 +174,8 @@ class MAEDecoderTIMM(Module):
         return out
 
     def _initialize_weights(self) -> None:
+        """Initializes weights for the decoder components."""
+
         torch.nn.init.normal_(self.mask_token, std=0.02)
         utils.initialize_2d_sine_cosine_positional_embedding(
             pos_embedding=self.decoder_pos_embed, has_class_token=True

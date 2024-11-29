@@ -25,7 +25,7 @@ from lightly.models.modules.heads import (
 
 
 class TestProjectionHeads(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.n_features = [
             (8, 16, 32),
             (8, 32, 16),
@@ -54,7 +54,7 @@ class TestProjectionHeads(unittest.TestCase):
             VicRegLLocalProjectionHead,
         ]
 
-    def test_single_projection_head(self, device: str = "cpu", seed=0):
+    def test_single_projection_head(self, device: str = "cpu", seed: int = 0) -> None:
         for head_cls in self.heads:
             for in_features, hidden_features, out_features in self.n_features:
                 torch.manual_seed(seed)
@@ -85,10 +85,10 @@ class TestProjectionHeads(unittest.TestCase):
                         self.assertEqual(y.shape[1], out_features)
 
     @unittest.skipUnless(torch.cuda.is_available(), "skip")
-    def test_single_projection_head_cuda(self, seed=0):
+    def test_single_projection_head_cuda(self, seed: int = 0) -> None:
         self.test_single_projection_head(device="cuda", seed=seed)
 
-    def test_swav_prototypes(self, device: str = "cpu", seed=0):
+    def test_swav_prototypes(self, device: str = "cpu", seed: int = 0) -> None:
         for in_features, _, n_prototypes in self.n_features:
             torch.manual_seed(seed)
             prototypes = SwaVPrototypes(in_features, n_prototypes)
@@ -106,7 +106,7 @@ class TestProjectionHeads(unittest.TestCase):
                     self.assertEqual(y.shape[0], batch_size)
                     self.assertEqual(y.shape[1], n_prototypes)
 
-    def test_swav_frozen_prototypes(self, device: str = "cpu", seed=0):
+    def test_swav_frozen_prototypes(self, seed: int = 0) -> None:
         criterion = torch.nn.L1Loss()
         linear_layer = torch.nn.Linear(8, 8, bias=False)
         prototypes = SwaVPrototypes(
@@ -130,7 +130,7 @@ class TestProjectionHeads(unittest.TestCase):
             if step > 2:
                 self.assertNotEqual(loss, loss0)
 
-    def test_swav_multi_prototypes(self, device: str = "cpu", seed=0):
+    def test_swav_multi_prototypes(self, device: str = "cpu", seed: int = 0) -> None:
         for in_features, _, n_prototypes in self.swavProtoypes:
             torch.manual_seed(seed)
             prototypes = SwaVPrototypes(in_features, n_prototypes)
@@ -150,10 +150,10 @@ class TestProjectionHeads(unittest.TestCase):
                         self.assertEqual(y[layerNum].shape[1], prototypeSize)
 
     @unittest.skipUnless(torch.cuda.is_available(), "skip")
-    def test_swav_prototypes_cuda(self, seed=0):
-        self.test_swav_prototypes(device="cuda", seed=seed)
+    def test_swav_prototypes_cuda(self, device: str = "cuda", seed: int = 0) -> None:
+        self.test_swav_prototypes(device=device, seed=seed)
 
-    def test_dino_projection_head(self, device="cpu", seed=0):
+    def test_dino_projection_head(self, device: str = "cpu", seed: int = 0) -> None:
         input_dim, hidden_dim, output_dim = self.n_features[0]
         for bottleneck_dim in [8, 16, 32]:
             for batch_norm in [False, True]:
@@ -179,10 +179,12 @@ class TestProjectionHeads(unittest.TestCase):
                         self.assertEqual(y.shape[1], output_dim)
 
     @unittest.skipUnless(torch.cuda.is_available(), "skip")
-    def test_dino_projection_head_cuda(self, seed=0):
-        self.test_dino_projection_head(device="cuda", seed=seed)
+    def test_dino_projection_head_cuda(
+        self, device: str = "cuda", seed: int = 0
+    ) -> None:
+        self.test_dino_projection_head(device=device, seed=seed)
 
-    def test_dino_projection_head_freeze_last_layer(self, seed=0):
+    def test_dino_projection_head_freeze_last_layer(self, seed: int = 0) -> None:
         """Test if freeze last layer cancels backprop."""
         torch.manual_seed(seed)
         for norm_last_layer in [False, True]:
@@ -226,7 +228,9 @@ class TestProjectionHeads(unittest.TestCase):
                                 else:
                                     self.assertTrue(are_same)
 
-    def test_simclr_projection_head_multiple_layers(self, device: str = "cpu", seed=0):
+    def test_simclr_projection_head_multiple_layers(
+        self, device: str = "cpu", seed: int = 0
+    ) -> None:
         for in_features, hidden_features, out_features in self.n_features:
             for num_layers in range(2, 5):
                 for batch_norm in [True, False]:
@@ -253,7 +257,9 @@ class TestProjectionHeads(unittest.TestCase):
                             self.assertEqual(y.shape[0], batch_size)
                             self.assertEqual(y.shape[1], out_features)
 
-    def test_moco_projection_head_multiple_layers(self, device: str = "cpu", seed=0):
+    def test_moco_projection_head_multiple_layers(
+        self, device: str = "cpu", seed: int = 0
+    ) -> None:
         for in_features, hidden_features, out_features in self.n_features:
             for num_layers in range(2, 5):
                 for batch_norm in [True, False]:

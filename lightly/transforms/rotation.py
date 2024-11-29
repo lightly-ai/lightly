@@ -4,10 +4,11 @@
 from typing import Callable, Tuple, Union
 
 import numpy as np
-import torchvision.transforms as T
 from PIL.Image import Image
 from torch import Tensor
 from torchvision.transforms import functional as TF
+
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 
 
 class RandomRotate:

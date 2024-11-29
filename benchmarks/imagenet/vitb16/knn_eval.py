@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Dict
 
 import torch
 from pytorch_lightning import LightningModule, Trainer
@@ -22,7 +23,7 @@ def knn_eval(
     accelerator: str,
     devices: int,
     num_classes: int,
-) -> None:
+) -> Dict[str, float]:
     print("Running KNN evaluation...")
 
     # Setup training data.
@@ -76,5 +77,8 @@ def knn_eval(
         train_dataloaders=train_dataloader,
         val_dataloaders=val_dataloader,
     )
+    metrics_dict: dict[str, float] = dict()
     for metric in ["val_top1", "val_top5"]:
         print(f"knn {metric}: {max(metric_callback.val_metrics[metric])}")
+        metrics_dict[metric] = max(metric_callback.val_metrics[metric])
+    return metrics_dict

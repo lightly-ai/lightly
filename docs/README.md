@@ -6,7 +6,7 @@ Make sure you installed dev dependencies:
 pip install -r ../requirements/dev.txt
 ```
 
-You may have to set up a clean environment (e.g. with Conda) and use setuptools from the parent directory:
+You may need to set up a clean environment (e.g., using Conda) and utilize setuptools from the parent directory:
 ```
 conda create -n lightly python=3.7
 conda activate lightly
@@ -18,7 +18,7 @@ This isn't handled in requirements because the version you'll need depends on yo
 [Follow instructions](https://detectron2.readthedocs.io/en/latest/tutorials/install.html)
 
 ## Build the Docs
-`sphinx` provides a Makefile, so to build the `html` documentation, simply type:
+The `sphinx` documentation generator provides a Makefile. To build the `html` documentation, simply execute:
 ```
 make html
 ```
@@ -28,7 +28,7 @@ To build docs without running python files (tutorials) use
 make html-noplot
 ```
 
-Shortcut to build the docs (with env variables for active-learning tutorial) use:
+To create a shortcut for building the documentation with environment variables for the active-learning tutorial, use:
 ```
 LIGHTLY_SERVER_LOCATION='https://api.lightly.ai' LIGHTLY_TOKEN='YOUR_TOKEN' AL_TUTORIAL_DATASET_ID='YOUR_DATASET_ID' make html && python -m http.server 1234 -d build/html
 ```
@@ -52,8 +52,8 @@ Only Lightly core team members will have access to deploy new docs.
 We build our code based on the [Google Python Styleguide]().
 
 Important notes:
-- Always use three double-quotes (`"""`).
-- A function must have a docstring, unless it meets all of the following criteria: not externally visible, very short, obvious.
+- Always use triple double quotes (`"""`).
+- A function must include a docstring unless it meets all the following criteria: it is not externally visible, is very short, and is obvious.
 - Always use type hints when possible.
 - Don't overlook the `Raises`.
 - Use punctuation.
@@ -81,7 +81,7 @@ examples.
 
 ### Functions
 
-Example:
+Example of a function:
 ```python
 def fetch_smalltable_rows(table_handle: smalltable.Table,
                           keys: Sequence[Union[bytes, str]],

@@ -1,3 +1,4 @@
+<a name="top"></a>
 ![LightlySSL self-supervised learning Logo](docs/logos/lightly_SSL_logo_crop.png)
 
 ![GitHub](https://img.shields.io/github/license/lightly-ai/lightly)
@@ -76,7 +77,7 @@ Community and partner projects:
 
 ## Quick Start
 
-Lightly requires **Python 3.7+**. We recommend installing Lightly in a **Linux** or **OSX** environment. Python 3.12 is not yet supported, as PyTorch itself lacks Python 3.12 compatibility.
+Lightly requires **Python 3.7+**. We recommend installing Lightly in a **Linux** or **OSX** environment. Python 3.13 is not yet supported, as PyTorch itself lacks Python 3.13 compatibility.
 
 ### Dependencies
 
@@ -411,3 +412,5 @@ You can find out more about the company and it's services by following the links
 - [Homepage](https://www.lightly.ai)
 - [Web-App](https://app.lightly.ai)
 - [Lightly Solution Documentation (Lightly Worker & API)](https://docs.lightly.ai/)
+
+[Back to top🚀](#top)

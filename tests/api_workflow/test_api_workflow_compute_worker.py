@@ -1,5 +1,6 @@
 import json
 import random
+import re
 from typing import Any, List
 from unittest import mock
 from unittest.mock import MagicMock
@@ -27,6 +28,8 @@ from lightly.api.api_workflow_compute_worker import (
 from lightly.openapi_generated.swagger_client.api import DockerApi
 from lightly.openapi_generated.swagger_client.api_client import ApiClient
 from lightly.openapi_generated.swagger_client.models import (
+    AutoTask,
+    AutoTaskTiling,
     DockerRunData,
     DockerRunScheduledData,
     DockerRunScheduledPriority,
@@ -288,6 +291,15 @@ def test_selection_config_from_dict() -> None:
                 },
             },
         ],
+        "auto_tasks": [
+            {
+                "type": "TILING",
+                "name": "tiling-task",
+                "num_rows": 10,
+                "num_cols": 10,
+                "overlap": 0.1,
+            },
+        ],
     }
     selection_cfg = api_workflow_compute_worker.selection_config_from_dict(cfg)
     assert selection_cfg.n_samples == 10
@@ -303,6 +315,15 @@ def test_selection_config_from_dict() -> None:
     assert selection_cfg.strategies[1].strategy.type == "THRESHOLD"
     assert selection_cfg.strategies[1].strategy.threshold == 20
     assert selection_cfg.strategies[1].strategy.operation == "BIGGER"
+    assert selection_cfg.auto_tasks is not None
+    assert len(selection_cfg.auto_tasks) == 1
+    assert isinstance(selection_cfg.auto_tasks[0], AutoTask)
+    assert isinstance(selection_cfg.auto_tasks[0].actual_instance, AutoTaskTiling)
+    assert selection_cfg.auto_tasks[0].actual_instance.type == "TILING"
+    assert selection_cfg.auto_tasks[0].actual_instance.name == "tiling-task"
+    assert selection_cfg.auto_tasks[0].actual_instance.num_rows == 10
+    assert selection_cfg.auto_tasks[0].actual_instance.num_cols == 10
+    assert selection_cfg.auto_tasks[0].actual_instance.overlap == 0.1
     # verify that original dict was not mutated
     assert isinstance(cfg["strategies"][0]["input"], dict)
 
@@ -325,7 +346,7 @@ def test_selection_config_from_dict__extra_key() -> None:
         api_workflow_compute_worker.selection_config_from_dict(cfg)
 
 
-def test_selection_config_from_dict__extra_stratey_key() -> None:
+def test_selection_config_from_dict__extra_strategy_key() -> None:
     cfg = {
         "strategies": [
             {
@@ -338,6 +359,56 @@ def test_selection_config_from_dict__extra_stratey_key() -> None:
     with pytest.raises(
         ValidationError,
         match=r"invalid-key\n  extra fields not permitted",
+    ):
+        api_workflow_compute_worker.selection_config_from_dict(cfg)
+
+
+def test_selection_config_from_dict__auto_tasks__invalid_type() -> None:
+    cfg = {
+        "strategies": [
+            {
+                "input": {"type": "EMBEDDINGS"},
+                "strategy": {"type": "DIVERSITY"},
+            },
+        ],
+        "auto_tasks": [
+            {
+                "type": "INVALID",
+            },
+        ],
+    }
+    with pytest.raises(
+        ValueError,
+        match=re.escape(
+            "AutoTask type 'INVALID' not supported. Supported types are: ['TILING']"
+        ),
+    ):
+        api_workflow_compute_worker.selection_config_from_dict(cfg)
+
+
+def test_selection_config_from_dict__auto_tasks__invalid_args() -> None:
+    cfg = {
+        "strategies": [
+            {
+                "input": {"type": "EMBEDDINGS"},
+                "strategy": {"type": "DIVERSITY"},
+            },
+        ],
+        "auto_tasks": [
+            {
+                "type": "TILING",
+                "name": "tiling-task",
+                "n_rows": 10,
+                "num_cols": 10,
+                "overlap": 0.1,
+            },
+        ],
+    }
+    with pytest.raises(
+        ValueError,
+        match=re.escape(
+            "2 validation errors for AutoTaskTiling\nnumRows\n  field required (type=value_error.missing)\nn_rows\n  extra fields not permitted (type=value_error.extra)"
+        ),
     ):
         api_workflow_compute_worker.selection_config_from_dict(cfg)
 

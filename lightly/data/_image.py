@@ -4,15 +4,16 @@
 # All Rights Reserved
 
 import os
-from typing import List, Set, Tuple
+from typing import Any, Callable, List, Optional, Set, Tuple, Union
 
+import torch
 import torchvision.datasets as datasets
-from torchvision import transforms
+from typing_extensions import Protocol
 
 from lightly.data._image_loaders import default_loader
 
 
-class DatasetFolder(datasets.VisionDataset):
+class DatasetFolder(datasets.VisionDataset):  # type: ignore
     """Implements a dataset folder.
 
     DatasetFolder based on torchvisions implementation.
@@ -40,15 +41,30 @@ class DatasetFolder(datasets.VisionDataset):
     def __init__(
         self,
         root: str,
-        loader=default_loader,
-        extensions=None,
-        transform=None,
-        target_transform=None,
-        is_valid_file=None,
+        loader: Callable[[str], Any] = default_loader,
+        extensions: Optional[Tuple[str, ...]] = None,
+        transform: Optional[Callable[[Any], Any]] = None,
+        target_transform: Optional[Callable[[Any], Any]] = None,
+        is_valid_file: Optional[Callable[[str], bool]] = None,
     ):
-        super(DatasetFolder, self).__init__(
-            root, transform=transform, target_transform=target_transform
-        )
+        """Initialize a DatasetFolder dataset.
+
+        Args:
+            root:
+                Path to the root directory containing image files.
+            loader:
+                A function to load an image from a file path. Defaults to default_loader.
+            extensions:
+                A tuple of allowed file extensions. If None, is_valid_file must be provided.
+            transform:
+                Optional transform to be applied to the input image.
+            target_transform:
+                Optional transform to be applied to the target.
+            is_valid_file:
+                Optional function to validate file paths. If None and extensions is None,
+                raises a ValueError.
+        """
+        super().__init__(root, transform=transform, target_transform=target_transform)
 
         samples = _make_dataset(self.root, extensions, is_valid_file)
         if len(samples) == 0:
@@ -63,18 +79,16 @@ class DatasetFolder(datasets.VisionDataset):
         self.samples = samples
         self.targets = [s[1] for s in samples]
 
-    def __getitem__(self, index: int):
-        """Returns item at index.
+    def __getitem__(self, index: int) -> Tuple[torch.Tensor, int]:
+        """Retrieve a sample from the dataset.
 
         Args:
             index:
                 Index of the sample to retrieve.
 
         Returns:
-            A tuple (sample, target) where target is 0.
-
+            A tuple containing the image sample and its target (always 0 in this implementation).
         """
-
         path, target = self.samples[index]
         sample = self.loader(path)
         if self.transform is not None:
@@ -84,47 +98,55 @@ class DatasetFolder(datasets.VisionDataset):
 
         return sample, target
 
-    def __len__(self):
-        """Returns the number of samples in the dataset."""
+    def __len__(self) -> int:
+        """Get the total number of samples in the dataset.
+
+        Returns:
+            Total count of samples in the dataset.
+        """
         return len(self.samples)
 
 
 def _make_dataset(
-    directory, extensions=None, is_valid_file=None
+    directory: str,
+    extensions: Optional[Tuple[str, ...]] = None,
+    is_valid_file: Optional[Callable[[str], bool]] = None,
 ) -> List[Tuple[str, int]]:
-    """Returns a list of all image files with targets in the directory.
+    """Create a list of valid image files in the given directory.
 
     Args:
         directory:
-            Root directory path (should not contain subdirectories!).
+            Root directory path containing image files (should not contain subdirectories).
         extensions:
-            Tuple of valid extensions.
+            Tuple of valid file extensions. If None, is_valid_file must be used.
         is_valid_file:
-            Used to find valid files.
+            Optional function to validate file paths beyond extension checking.
 
     Returns:
-        List of instance tuples: (path_i, target_i = 0).
+        A list of tuples, where each tuple contains:
+        - Full path to an image file
+        - Target label (always 0 in this implementation)
 
+    Raises:
+        ValueError: If both extensions and is_valid_file are None.
     """
-
     if extensions is None:
         if is_valid_file is None:
-            ValueError("Both extensions and is_valid_file cannot be None")
-        else:
-            _is_valid_file = is_valid_file
+            raise ValueError("Both extensions and is_valid_file cannot be None")
+        _is_valid_file = is_valid_file
     else:
 
-        def is_valid_file_extension(filepath):
+        def is_valid_file_extension(filepath: str) -> bool:
             return filepath.lower().endswith(extensions)
 
         if is_valid_file is None:
             _is_valid_file = is_valid_file_extension
         else:
 
-            def _is_valid_file(filepath):
+            def _is_valid_file(filepath: str) -> bool:
                 return is_valid_file_extension(filepath) and is_valid_file(filepath)
 
-    instances = []
+    instances: List[Tuple[str, int]] = []
     for f in os.scandir(directory):
         if not _is_valid_file(f.path):
             continue

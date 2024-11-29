@@ -2,10 +2,11 @@ from dataclasses import dataclass
 from typing import Tuple
 
 import torch
-import torchvision.transforms as T
 import torchvision.transforms.functional as F
 from PIL import Image
 from torch import nn
+
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 
 
 @dataclass
@@ -109,7 +110,7 @@ class RandomVerticalFlipWithLocation(T.RandomVerticalFlip):  # type: ignore[misc
         return img, location
 
 
-class RandomResizedCropAndFlip(nn.Module):
+class RandomResizedCropAndFlip(nn.Module):  # type: ignore[misc] # Class cannot subclass "RandomResizedCropAndFlip" (has type "Any")
     """Randomly flip and crop an image.
 
     A PyTorch module that applies random cropping, horizontal and vertical flipping to an image,
