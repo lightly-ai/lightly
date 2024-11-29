@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from functools import partial
-from typing import Callable, List, Union
+from typing import Callable
 
 import torch
 import torch.nn as nn
@@ -96,8 +98,8 @@ class IJEPAPredictorTIMM(nn.Module):
     def forward(
         self,
         x: torch.Tensor,
-        masks_x: Union[List[torch.Tensor], torch.Tensor],
-        masks: Union[List[torch.Tensor], torch.Tensor],
+        masks_x: list[torch.Tensor] | torch.Tensor,
+        masks: list[torch.Tensor] | torch.Tensor,
     ) -> torch.Tensor:
         """Forward pass of the IJEPAPredictorTIMM.
 
@@ -144,43 +146,3 @@ class IJEPAPredictorTIMM(nn.Module):
         x = self.predictor_proj(x)
 
         return x
-
-    def repeat_interleave_batch(
-        self, x: torch.Tensor, B: int, repeat: int
-    ) -> torch.Tensor:
-        """Repeat and interleave the input tensor."""
-        N = len(x) // B
-        x = torch.cat(
-            [
-                torch.cat([x[i * B : (i + 1) * B] for _ in range(repeat)], dim=0)
-                for i in range(N)
-            ],
-            dim=0,
-        )
-        return x
-
-    def apply_masks(
-        self, x: torch.Tensor, masks: Union[torch.Tensor, List[torch.Tensor]]
-    ) -> torch.Tensor:
-        """Apply masks to the input tensor.
-
-        From https://github.com/facebookresearch/ijepa/blob/main/src/masks/utils.py
-
-        Args:
-            x:
-                tensor of shape [B (batch-size), N (num-patches), D (feature-dim)].
-            masks:
-                tensor or list of tensors containing indices of patches in [N] to keep.
-
-        Returns:
-            Tensor of shape [B, N', D] where N' is the number of patches to keep.
-        """
-
-        if not isinstance(masks, list):
-            masks = [masks]
-
-        all_x = []
-        for m in masks:
-            mask_keep = m.unsqueeze(-1).repeat(1, 1, x.size(-1))
-            all_x += [torch.gather(x, dim=1, index=mask_keep)]
-        return torch.cat(all_x, dim=0)
