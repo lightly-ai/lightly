@@ -51,15 +51,18 @@ class TestVideoDataset(unittest.TestCase):
         self.input_dir = tempfile.mkdtemp()
         self.ensure_dir(self.input_dir)
         self.frames_over_videos = [
-            (torch.randn(frames, h, w, c) * 255).to(torch.uint8)
+            torch.randint(low=0, high=256, size=(frames, h, w, c), dtype=torch.uint8)
             for frames in frames_per_video
         ]
+
         self.extensions = ".avi"
 
         for frames in self.frames_over_videos:
             path = os.path.join(self.input_dir, f"output-{len(frames):03}.avi")
             print(path)
-            out = torchvision.io.write_video(filename=path, video_array=frames, fps=1)
+            torchvision.io.write_video(
+                filename=path, video_array=frames, fps=1, video_codec="rawvideo"
+            )
 
     def create_dataset(
         self,
@@ -74,14 +77,16 @@ class TestVideoDataset(unittest.TestCase):
 
         self.input_dir = tempfile.mkdtemp()
         self.ensure_dir(self.input_dir)
-        self.frames = (torch.randn(n_frames_per_video, w, h, c) * 255).to(torch.uint8)
+        self.frames = torch.randint(
+            low=0, high=256, size=(n_frames_per_video, h, w, c), dtype=torch.uint8
+        )
         self.extensions = ".avi"
 
         for i in range(n_videos):
             path = os.path.join(self.input_dir, f"output-{i}.avi")
             print(path)
-            out = torchvision.io.write_video(
-                filename=path, video_array=self.frames, fps=1
+            torchvision.io.write_video(
+                filename=path, video_array=self.frames, fps=1, video_codec="rawvideo"
             )
 
     @unittest.skipUnless(
