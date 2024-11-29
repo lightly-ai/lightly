@@ -51,7 +51,7 @@ class TestVideoDataset(unittest.TestCase):
         self.input_dir = tempfile.mkdtemp()
         self.ensure_dir(self.input_dir)
         self.frames_over_videos = [
-            (torch.randn(frames, w, h, c) * 255).to(torch.uint8)
+            (torch.randn(frames, h, w, c) * 255).to(torch.uint8)
             for frames in frames_per_video
         ]
         self.extensions = ".avi"
