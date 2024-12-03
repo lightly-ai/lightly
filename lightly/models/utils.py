@@ -1264,7 +1264,21 @@ def update_drop_path_rate(
 
 
 def repeat_interleave_batch(x: Tensor, B: int, repeat: int) -> Tensor:
-    """Repeat and interleave the input tensor."""
+    """Repeat and interleave the input tensor.
+
+    Args:
+        x:
+            Tensor with shape (B * N, ...) where B is the batch size and N the number of
+            batches.
+        B:
+            Batch size.
+        repeat:
+            Number of times to repeat each batch.
+
+    Returns:
+        Tensor with shape (B * repeat * N, ...) where each batch is repeated `repeat`
+        times.
+    """
     N = len(x) // B
     x = torch.cat(
         [
@@ -1283,12 +1297,14 @@ def apply_masks(x: Tensor, masks: Tensor | list[Tensor]) -> Tensor:
 
     Args:
         x:
-            tensor of shape [B (batch-size), N (num-patches), D (feature-dim)].
+            Tensor of shape (B, N, D) where N is the number of patches.
         masks:
-            tensor or list of tensors containing indices of patches in [N] to keep.
+            Tensor or list of tensors containing indices of patches in
+            [0, N-1] to keep. Each tensor musth have shape (B, K) where K is the number
+            of patches to keep. All masks must have the same K.
 
     Returns:
-        Tensor of shape [B, N', D] where N' is the number of patches to keep.
+        Tensor of shape (B * num_masks, K, D) where K is the number of patches to keep.
     """
 
     if not isinstance(masks, list):
