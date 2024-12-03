@@ -268,7 +268,6 @@ exclude = '''(?x)(
     tests/core/test_Core.py |
     tests/data/test_multi_view_collate.py |
     tests/data/test_data_collate.py |
-    tests/data/test_VideoDataset.py |
     tests/data/test_LightlySubset.py |
     tests/data/test_LightlyDataset.py |
     tests/embedding/test_callbacks.py |
