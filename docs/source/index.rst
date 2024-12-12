@@ -18,7 +18,7 @@ Documentation
           advanced `active learning algorithms <https://docs.lightly.ai/docs/customize-a-selection>`_ and
           `selection strategies <https://docs.lightly.ai/docs/selection-examples-and-use-cases>`_ to select the best samples
           within millions of unlabeled images or video frames stored in your cloud storage or locally,
-          please follow our `Lightly\ **One** Worker documentation <https://docs.lightly.ai/>`_.
+          please follow our Lightly\ **One** Worker `documentation <https://docs.lightly.ai/>`_.
 
 Lightly\ **SSL** is a computer vision framework for self-supervised learning.
 
