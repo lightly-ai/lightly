@@ -11,7 +11,13 @@ from lightly.models.modules.sparse.spark import (
     SparseConv2d,
     SparseMaxPooling,
     SparseSyncBatchNorm2d,
+    SparseConvNeXtBlock,
+    SparseConvNeXtLayerNorm
 )
+
+from torchvision.models.convnext import CNBlock, LayerNorm2d
+
+from torchvision.models import ResNet, ConvNeXt
 
 
 class SparseMask:
@@ -23,17 +29,17 @@ class SparseMask:
         self.mask: Union[Tensor, None] = None
 
 
-class SparseResnet(nn.Module):
+class SparseEncoder(nn.Module):
     def __init__(
         self,
         backbone: nn.Module,
         input_size: int,
         downsample_ratio: Optional[int] = None,
     ):
-        """Sparse ResNet Encoder as used by SparK [0]
+        """Sparse encoder as used by SparK [0]
 
         Default params are the ones explained in the original code base. The backbone is assumed
-        to follow the same API as the ResNet models from torchvision.
+        to follow the same API as the ResNet or ConvNext models from torchvision.
         [0] Designing BERT for Convolutional Networks: Sparse and Hierarchical Masked Modeling https://arxiv.org/abs/2301.03580
 
         Attributes:
@@ -43,17 +49,18 @@ class SparseResnet(nn.Module):
                 implemented.
             input_size:
                 Size of the input image.
+            downsample_ratio:
 
         """
         super().__init__()
         self.input_size = input_size
         if downsample_ratio is None:
-            self.downsample_ratio = self._get_downsample_ratio(backbone)
+            self.downsample_ratio = self.get_downsample_ratio(backbone)
         else:
             self.downsample_ratio = downsample_ratio
-        self.downsample_ratio, self.enc_feat_map_chs = (
-            self._get_downsample_ratio(backbone),
-            self._get_feature_map_channels(backbone),
+
+        self.enc_feat_map_chs = (
+            self.get_feature_map_channels(backbone),
         )
         self.sparse_mask = SparseMask()
         self.sparse_backbone = self.dense_model_to_sparse(
@@ -84,28 +91,45 @@ class SparseResnet(nn.Module):
         ), "Mask shape must be (1, 1, H // downsample_ratio, W // downsample_ratio)"
         self.sparse_mask.mask = mask
 
-        x = self.sparse_backbone.conv1(x)
-        x = self.sparse_backbone.bn1(x)
-        x = self.sparse_backbone.act1(x)
-        x = self.sparse_backbone.maxpool(x)
+        ls = []
 
-        if hierarchical:
-            ls = []
-            x = self.sparse_backbone.layer1(x)
-            ls.append(x)
-            x = self.sparse_backbone.layer2(x)
-            ls.append(x)
-            x = self.sparse_backbone.layer3(x)
-            ls.append(x)
-            x = self.sparse_backbone.layer4(x)
-            ls.append(x)
-            return ls
+        if isinstance(self.sparse_backbone, ConvNeXt):
+            if hierarchical:
+                for i in range(0,8,2):
+                    x = self.sparse_backbone.features[i](x)
+                    x = self.sparse_backbone.features[i+1](x)
+                    ls.append(x)
+            else:
+                x = self.sparse_backbone.avgpool(x)
+                x = self.sparse_backbone.classifier(x)
+                return x
+
+        elif isinstance(self.sparse_backbone, ResNet):
+            x = self.sparse_backbone.conv1(x)
+            x = self.sparse_backbone.bn1(x)
+            x = self.sparse_backbone.act1(x)
+            x = self.sparse_backbone.maxpool(x)
+
+            if hierarchical:
+                ls = []
+                x = self.sparse_backbone.layer1(x)
+                ls.append(x)
+                x = self.sparse_backbone.layer2(x)
+                ls.append(x)
+                x = self.sparse_backbone.layer3(x)
+                ls.append(x)
+                x = self.sparse_backbone.layer4(x)
+                ls.append(x)
+                return ls
+            else:
+                x = self.sparse_backbone.global_pool(x)
+                x = self.sparse_backbone.fc(x)
+                return x
+            
         else:
-            x = self.sparse_backbone.global_pool(x)
-            x = self.sparse_backbone.fc(x)
-            return x
+            raise NotImplementedError("Backbone not supported")
 
-    def _get_downsample_ratio(self, backbone: nn.Module):
+    def get_downsample_ratio(self, backbone: nn.Module) -> int:
         """
         Try to get the downsample ratio of the backbone model.
 
@@ -120,20 +144,6 @@ class SparseResnet(nn.Module):
 
             return self.input_size // out.shape[-1]
 
-    def _get_feature_map_channels(self, backbone: nn.Module):
-        """
-        Try to get the number of channels in the feature maps of the backbone model.
-
-        Returns:
-            The number of channels in the feature maps of the backbone model.
-        """
-        try:
-            return backbone.get_feature_map_channels()
-        except AttributeError:
-            x = torch.randn(1, 3, self.input_size, self.input_size)
-            out = nn.Sequential(*list(backbone.children())[:-2])(x)
-
-            return out.shape[1]
 
     def dense_model_to_sparse(
         self, m: nn.Module, sparse_mask: SparseMask, sync_batch_norm: bool = False
@@ -212,6 +222,12 @@ class SparseResnet(nn.Module):
                 oup.num_batches_tracked.copy_(m.num_batches_tracked)
                 if hasattr(m, "qconfig"):
                     oup.qconfig = m.qconfig
+            elif isinstance(m, CNBlock):
+                m: CNBlock
+                oup = SparseConvNeXtBlock(
+                    m.weight.shape[0],
+                    m.layer_scale.
+                )
             elif isinstance(m, (nn.Conv1d,)):
                 raise NotImplementedError
 
