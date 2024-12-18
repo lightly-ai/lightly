@@ -65,8 +65,8 @@ class TestNTXentLoss:
         out1_np = np.random.random((n_samples, 1))
         out0_np = np.concatenate([out0_np, 2 * out0_np], axis=1)
         out1_np = np.concatenate([out1_np, 2 * out1_np], axis=1)
-        out0: Tensor = torch.FloatTensor(out0)
-        out1: Tensor = torch.FloatTensor(out1)
+        out0: Tensor = torch.FloatTensor(out0_np)
+        out1: Tensor = torch.FloatTensor(out1_np)
         out0.requires_grad = True
         loss_function = NTXentLoss(
             temperature=temperature,
@@ -123,25 +123,25 @@ class TestNTXentLoss:
             batch_2 = torch.randn((bsz, 32))
             l = loss(batch_1, batch_2)
 
-    # @unittest.skipUnless(torch.cuda.is_available(), "No cuda")
-    # def test_forward_pass_memory_bank_cuda(self):
-    #     loss = NTXentLoss(memory_bank_size=64)
-    #     for bsz in range(1, 20):
-    #         batch_1 = torch.randn((bsz, 32)).cuda()
-    #         batch_2 = torch.randn((bsz, 32)).cuda()
-    #         l = loss(batch_1, batch_2)
+    @pytest.mark.skipif(not torch.cuda.is_available(), reason="No cuda")
+    def test_forward_pass_memory_bank_cuda(self) -> None:
+        loss = NTXentLoss(memory_bank_size=64)
+        for bsz in range(1, 20):
+            batch_1 = torch.randn((bsz, 32)).cuda()
+            batch_2 = torch.randn((bsz, 32)).cuda()
+            l = loss(batch_1, batch_2)
 
-    # @unittest.skipUnless(torch.cuda.is_available(), "No cuda")
-    # def test_forward_pass_cuda(self):
-    #     loss = NTXentLoss(memory_bank_size=0)
-    #     for bsz in range(1, 20):
-    #         batch_1 = torch.randn((bsz, 32)).cuda()
-    #         batch_2 = torch.randn((bsz, 32)).cuda()
+    @pytest.mark.skipif(not torch.cuda.is_available(), reason="No cuda")
+    def test_forward_pass_cuda(self) -> None:
+        loss = NTXentLoss(memory_bank_size=0)
+        for bsz in range(1, 20):
+            batch_1 = torch.randn((bsz, 32)).cuda()
+            batch_2 = torch.randn((bsz, 32)).cuda()
 
-    #         # symmetry
-    #         l1 = loss(batch_1, batch_2)
-    #         l2 = loss(batch_2, batch_1)
-    #         self.assertAlmostEqual((l1 - l2).pow(2).item(), 0.0)
+            # symmetry
+            l1 = loss(batch_1, batch_2)
+            l2 = loss(batch_2, batch_1)
+            assert (l1 - l2).pow(2).item() == pytest.approx(0.0)
 
 
 def _calc_ntxent_loss_manual(
