@@ -6,7 +6,7 @@ on:
 
 jobs:
   notify-discord:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
     - name: Send Notification to Discord
       env:
