@@ -11,7 +11,7 @@ on:
 jobs:
   detect-code-changes:
     name: Detect Code Changes
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     outputs:
       run-tests: ${{ steps.filter.outputs.run-tests }}
     steps:
@@ -30,7 +30,7 @@ jobs:
     name: Test
     needs: detect-code-changes
     if: needs.detect-code-changes.outputs.run-tests == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout Code

@@ -10,7 +10,7 @@ on:
 jobs:
   test:
     name: Check
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         python: ["3.7", "3.12"]

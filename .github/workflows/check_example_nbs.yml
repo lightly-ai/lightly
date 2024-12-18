@@ -14,7 +14,7 @@ on:
 jobs:
   convert-to-nbs:
     name: "Check Example Notebooks"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
