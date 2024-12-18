@@ -6,6 +6,7 @@
 from typing import Sequence, Union
 
 import torch
+from torch import Tensor
 from torch import distributed as torch_dist
 from torch import nn
 
@@ -13,7 +14,7 @@ from lightly.models.modules.memory_bank import MemoryBankModule
 from lightly.utils import dist
 
 
-class NTXentLoss(MemoryBankModule):
+class NTXentLoss(nn.Module):
     """Implementation of the Contrastive Cross Entropy Loss.
 
     This implementation follows the SimCLR[0] paper. If you enable the memory
@@ -80,7 +81,10 @@ class NTXentLoss(MemoryBankModule):
             ValueError: If temperature is less than 1e-8 to prevent divide by zero.
             ValueError: If gather_distributed is True but torch.distributed is not available.
         """
-        super().__init__(size=memory_bank_size, gather_distributed=gather_distributed)
+        super().__init__()
+        self.memory_bank = MemoryBankModule(
+            size=memory_bank_size, gather_distributed=gather_distributed
+        )
         self.temperature = temperature
         self.gather_distributed = gather_distributed
         self.cross_entropy = nn.CrossEntropyLoss(reduction="mean")
@@ -97,7 +101,7 @@ class NTXentLoss(MemoryBankModule):
                 "distributed support."
             )
 
-    def forward(self, out0: torch.Tensor, out1: torch.Tensor):
+    def forward(self, out0: Tensor, out1: Tensor) -> Tensor:
         """Forward pass through Contrastive Cross-Entropy Loss.
 
         If used with a memory bank, the samples from the memory bank are used
@@ -129,9 +133,7 @@ class NTXentLoss(MemoryBankModule):
         # for evaluating the loss on the test set)
         # out1: shape: (batch_size, embedding_size)
         # negatives: shape: (embedding_size, memory_bank_size)
-        out1, negatives = super(NTXentLoss, self).forward(
-            out1, update=out0.requires_grad
-        )
+        out1, negatives = self.memory_bank.forward(out1, update=out0.requires_grad)
 
         # Use cosine similarity (dot product) as all vectors are normalized to unit length
         # Notation in einsum: n = batch_size, c = embedding_size and k = memory_bank_size.
@@ -192,6 +194,6 @@ class NTXentLoss(MemoryBankModule):
             labels = labels.repeat(2)
 
         # Calculate the cross-entropy loss
-        loss = self.cross_entropy(logits, labels)
+        loss: Tensor = self.cross_entropy(logits, labels)
 
         return loss
