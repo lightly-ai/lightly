@@ -192,8 +192,6 @@ exclude = '''(?x)(
     lightly/cli/train_cli.py |
     lightly/cli/_cli_simclr.py |
     lightly/cli/_helpers.py |
-    lightly/loss/ntx_ent_loss.py |
-    lightly/loss/vicreg_loss.py |
     lightly/loss/tico_loss.py |
     lightly/loss/pmsn_loss.py |
     lightly/loss/swav_loss.py |
@@ -206,14 +204,10 @@ exclude = '''(?x)(
     lightly/loss/dcl_loss.py |
     lightly/loss/regularizer/co2.py |
     lightly/loss/barlow_twins_loss.py |
-    lightly/data/lightly_subset.py |
     lightly/data/dataset.py |
     lightly/data/collate.py |
-    lightly/data/_image.py |
-    lightly/data/_helpers.py |
     lightly/data/_image_loaders.py |
     lightly/data/_video.py |
-    lightly/data/multi_view_collate.py |
     lightly/core.py |
     lightly/api/api_workflow_compute_worker.py |
     lightly/api/api_workflow_predictions.py |
@@ -262,17 +256,14 @@ exclude = '''(?x)(
     tests/loss/test_DCLLoss.py |
     tests/loss/test_barlow_twins_loss.py |
     tests/loss/test_SymNegCosineSimilarityLoss.py |
-    tests/loss/test_NTXentLoss.py |
     tests/loss/test_MemoryBank.py |
     tests/loss/test_TicoLoss.py |
-    tests/loss/test_VICRegLoss.py |
     tests/loss/test_PMSNLoss.py |
     tests/loss/test_HyperSphere.py |
     tests/loss/test_SwaVLoss.py |
     tests/core/test_Core.py |
     tests/data/test_multi_view_collate.py |
     tests/data/test_data_collate.py |
-    tests/data/test_VideoDataset.py |
     tests/data/test_LightlySubset.py |
     tests/data/test_LightlyDataset.py |
     tests/embedding/test_callbacks.py |
@@ -296,14 +287,6 @@ exclude = '''(?x)(
     tests/utils/benchmarking/test_linear_classifier.py |
     tests/utils/benchmarking/test_metric_callback.py |
     tests/utils/test_dist.py |
-    tests/models/test_ModelsSimSiam.py |
-    tests/models/modules/test_masked_autoencoder.py |
-    tests/models/test_ModelsSimCLR.py |
-    tests/models/test_ModelUtils.py |
-    tests/models/test_ModelsNNCLR.py |
-    tests/models/test_ModelsMoCo.py |
-    tests/models/test_ProjectionHeads.py |
-    tests/models/test_ModelsBYOL.py |
     tests/conftest.py |
     tests/api_workflow/test_api_workflow_selection.py |
     tests/api_workflow/test_api_workflow_datasets.py |
@@ -329,7 +312,13 @@ exclude = '''(?x)(
     lightly/models/barlowtwins.py |
     lightly/models/nnclr.py |
     lightly/models/simsiam.py |
-    lightly/models/byol.py )'''
+    lightly/models/byol.py |
+    # Let's not type deprecated models tests:
+    tests/models/test_ModelsSimSiam.py |
+    tests/models/test_ModelsSimCLR.py |
+    tests/models/test_ModelsNNCLR.py |
+    tests/models/test_ModelsMoCo.py |
+    tests/models/test_ModelsBYOL.py )'''
 
 # Ignore imports from untyped modules.
 [[tool.mypy.overrides]]

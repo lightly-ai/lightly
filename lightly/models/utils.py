@@ -1261,3 +1261,57 @@ def update_drop_path_rate(
         else:
             block.drop_path1 = Identity()
             block.drop_path2 = Identity()
+
+
+def repeat_interleave_batch(x: Tensor, B: int, repeat: int) -> Tensor:
+    """Repeat and interleave the input tensor.
+
+    Args:
+        x:
+            Tensor with shape (B * N, ...) where B is the batch size and N the number of
+            batches.
+        B:
+            Batch size.
+        repeat:
+            Number of times to repeat each batch.
+
+    Returns:
+        Tensor with shape (B * repeat * N, ...) where each batch is repeated `repeat`
+        times.
+    """
+    N = len(x) // B
+    x = torch.cat(
+        [
+            torch.cat([x[i * B : (i + 1) * B] for _ in range(repeat)], dim=0)
+            for i in range(N)
+        ],
+        dim=0,
+    )
+    return x
+
+
+def apply_masks(x: Tensor, masks: Tensor | list[Tensor]) -> Tensor:
+    """Apply masks to the input tensor.
+
+    From https://github.com/facebookresearch/ijepa/blob/main/src/masks/utils.py
+
+    Args:
+        x:
+            Tensor of shape (B, N, D) where N is the number of patches.
+        masks:
+            Tensor or list of tensors containing indices of patches in
+            [0, N-1] to keep. Each tensor musth have shape (B, K) where K is the number
+            of patches to keep. All masks must have the same K.
+
+    Returns:
+        Tensor of shape (B * num_masks, K, D) where K is the number of patches to keep.
+    """
+
+    if not isinstance(masks, list):
+        masks = [masks]
+
+    all_x = []
+    for m in masks:
+        mask_keep = m.unsqueeze(-1).repeat(1, 1, x.size(-1))
+        all_x += [torch.gather(x, dim=1, index=mask_keep)]
+    return torch.cat(all_x, dim=0)
