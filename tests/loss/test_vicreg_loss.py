@@ -36,7 +36,7 @@ class TestVICRegLoss:
             # symmetry
             l1 = loss(x0, x1)
             l2 = loss(x1, x0)
-            assert (l1 - l2).pow(2).item() == pytest.approx(0.0)
+            assert l1.item() == pytest.approx(l2.item())
 
     @pytest.mark.skipif(not torch.cuda.is_available(), reason="No cuda")
     def test_forward_pass_cuda(self) -> None:
@@ -48,7 +48,7 @@ class TestVICRegLoss:
             # symmetry
             l1 = loss(x0, x1)
             l2 = loss(x1, x0)
-            assert (l1 - l2).pow(2).item() == pytest.approx(0.0)
+            assert l1.item() == pytest.approx(l2.item())
 
     def test_forward_pass__error_batch_size_1(self) -> None:
         loss = VICRegLoss()
