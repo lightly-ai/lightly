@@ -1,5 +1,6 @@
 import torch
 import torch.distributed as dist
+from torch import Tensor
 
 from lightly.utils.dist import gather
 
@@ -70,7 +71,7 @@ class TiCoLoss(torch.nn.Module):
 
         self.beta = beta
         self.rho = rho
-        self.C = None
+        self.C: None | Tensor = None
         self.gather_distributed = gather_distributed
 
     def forward(
@@ -131,7 +132,7 @@ class TiCoLoss(torch.nn.Module):
         transformative_invariance_loss = 1.0 - (z_a * z_b).sum(dim=1).mean()
         covariance_contrast_loss = self.rho * (torch.mm(z_a, C) * z_a).sum(dim=1).mean()
 
-        loss = transformative_invariance_loss + covariance_contrast_loss
+        loss: Tensor = transformative_invariance_loss + covariance_contrast_loss
 
         # Update covariance matrix
         if update_covariance_matrix:
