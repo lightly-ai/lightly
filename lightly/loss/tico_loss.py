@@ -1,3 +1,5 @@
+from typing import Union
+
 import torch
 import torch.distributed as dist
 from torch import Tensor
@@ -71,7 +73,7 @@ class TiCoLoss(torch.nn.Module):
 
         self.beta = beta
         self.rho = rho
-        self.C: None | Tensor = None
+        self.C: Union[Tensor, None] = None
         self.gather_distributed = gather_distributed
 
     def forward(

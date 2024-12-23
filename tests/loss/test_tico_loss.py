@@ -1,5 +1,3 @@
-import unittest
-
 import pytest
 import torch
 from pytest_mock import MockerFixture
