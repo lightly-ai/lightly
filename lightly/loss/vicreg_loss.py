@@ -48,7 +48,7 @@ class VICRegLoss(torch.nn.Module):
         mu_param: float = 25.0,
         nu_param: float = 1.0,
         gather_distributed: bool = False,
-        eps=0.0001,
+        eps: float = 0.0001,
     ):
         """Initializes the VICRegLoss module with the specified parameters.
 
