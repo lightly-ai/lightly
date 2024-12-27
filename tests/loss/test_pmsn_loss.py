@@ -31,7 +31,7 @@ class TestPMSNLoss:
         prototypes = torch.rand((4, 10), requires_grad=True)
         criterion(anchors, targets, prototypes)
 
-    @pytest.mark.skipif(torch.cuda.is_available(), "No cuda")
+    @pytest.mark.skipif(torch.cuda.is_available(), reason="No cuda")
     def test_forward_cuda(self) -> None:
         torch.manual_seed(0)
         criterion = PMSNLoss()
@@ -65,7 +65,7 @@ class TestPMSNCustomLoss:
         prototypes = torch.rand((4, 10), requires_grad=True)
         criterion(anchors, targets, prototypes)
 
-    @pytest.mark.skipif(torch.cuda.is_available(), "No cuda")
+    @pytest.mark.skipif(torch.cuda.is_available(), reason="No cuda")
     def test_forward_cuda(self) -> None:
         torch.manual_seed(0)
         criterion = PMSNCustomLoss(target_distribution=_uniform_distribution)
