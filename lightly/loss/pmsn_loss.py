@@ -177,6 +177,6 @@ def _power_law_distribution(size: int, exponent: float, device: torch.device) ->
         A power law distribution tensor summing up to 1.
     """
     k = torch.arange(1, size + 1, device=device)
-    power_dist = k ** (-exponent)
+    power_dist = torch.tensor(k ** (-exponent))
     power_dist = power_dist / power_dist.sum()
     return power_dist
