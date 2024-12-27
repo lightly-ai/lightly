@@ -192,7 +192,6 @@ exclude = '''(?x)(
     lightly/cli/train_cli.py |
     lightly/cli/_cli_simclr.py |
     lightly/cli/_helpers.py |
-    lightly/loss/swav_loss.py |
     lightly/loss/negative_cosine_similarity.py |
     lightly/loss/hypersphere_loss.py |
     lightly/loss/dino_loss.py |
@@ -254,7 +253,6 @@ exclude = '''(?x)(
     tests/loss/test_SymNegCosineSimilarityLoss.py |
     tests/loss/test_MemoryBank.py |
     tests/loss/test_HyperSphere.py |
-    tests/loss/test_SwaVLoss.py |
     tests/core/test_Core.py |
     tests/data/test_multi_view_collate.py |
     tests/data/test_data_collate.py |
