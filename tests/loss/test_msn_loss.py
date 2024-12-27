@@ -49,7 +49,7 @@ class TestMSNLoss:
         prototypes = F.normalize(torch.rand((4, 10)), dim=1)
         prob = msn_loss.prototype_probabilities(queries, prototypes, temperature=0.5)
         assert prob.shape == (8, 4)
-        assert prob.max() == 1.0
+        assert prob.max() < 1.0
         assert prob.min() > 0.0
 
         # verify sharpening
