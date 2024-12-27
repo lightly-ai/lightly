@@ -49,7 +49,7 @@ class TestMSNLoss:
         prototypes = F.normalize(torch.rand((4, 10)), dim=1)
         prob = msn_loss.prototype_probabilities(queries, prototypes, temperature=0.5)
         assert prob.shape == (8, 4)
-        assert prob.max() == 1.0
+        assert prob.max() < 1.0
         assert prob.min() > 0.0
 
         # verify sharpening
@@ -90,7 +90,7 @@ class TestMSNLoss:
         prototypes = torch.rand((4, 10), requires_grad=True)
         criterion(anchors, targets, prototypes)
 
-    @pytest.mark.skipif(not torch.cuda.is_available(), "No cuda")
+    @pytest.mark.skipif(not torch.cuda.is_available(), reason="No cuda")
     def test_forward_cuda(self) -> None:
         torch.manual_seed(0)
         criterion = MSNLoss()
@@ -119,7 +119,7 @@ class TestMSNLoss:
         # backward pass should update weights
         assert torch.any(weights_before != weights_after)
 
-    @pytest.mark.skipif(not torch.cuda.is_available(), "No cuda")
+    @pytest.mark.skipif(not torch.cuda.is_available(), reason="No cuda")
     def test_backward_cuda(self) -> None:
         torch.manual_seed(0)
         head = MSNProjectionHead(5, 16, 6)
