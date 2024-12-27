@@ -1,5 +1,3 @@
-import unittest
-
 import pytest
 import torch
 from pytest_mock import MockerFixture
@@ -24,10 +22,7 @@ class TestNTXentLoss:
             SwaVLoss(sinkhorn_gather_distributed=True)
         mock_is_available.assert_called_once()
 
-
-class TestSwaVLossUnitTest(unittest.TestCase):
-    # Old tests in unittest style, please add new tests to TestSwavLoss using pytest.
-    def test_forward_pass(self):
+    def test_forward_pass(self) -> None:
         n = 32
         n_high_res = 2
         high_res = [torch.eye(32, 32) for i in range(n_high_res)]
@@ -36,34 +31,25 @@ class TestSwaVLossUnitTest(unittest.TestCase):
             for sinkhorn_iterations in range(3):
                 criterion = SwaVLoss(sinkhorn_iterations=sinkhorn_iterations)
                 low_res = [torch.eye(n, n) for i in range(n_low_res)]
+                loss = criterion(high_res, low_res)
+                # loss should be almost zero for unit matrix
+                assert loss.cpu().numpy() < 0.5
 
-                with self.subTest(
-                    msg=f"n_low_res={n_low_res}, sinkhorn_iterations={sinkhorn_iterations}"
-                ):
-                    loss = criterion(high_res, low_res)
-                    # loss should be almost zero for unit matrix
-                    self.assertGreater(0.5, loss.cpu().numpy())
-
-    def test_forward_pass_queue(self):
+    def test_forward_pass_queue(self) -> None:
         n = 32
         n_high_res = 2
         high_res = [torch.eye(32, 32) for i in range(n_high_res)]
-        queue_length = 128
         queue = [torch.eye(128, 32) for i in range(n_high_res)]
 
         for n_low_res in range(6):
             for sinkhorn_iterations in range(3):
                 criterion = SwaVLoss(sinkhorn_iterations=sinkhorn_iterations)
                 low_res = [torch.eye(n, n) for i in range(n_low_res)]
+                loss = criterion(high_res, low_res, queue)
+                # loss should be almost zero for unit matrix
+                assert loss.cpu().numpy() < 0.5
 
-                with self.subTest(
-                    msg=f"n_low_res={n_low_res}, sinkhorn_iterations={sinkhorn_iterations}"
-                ):
-                    loss = criterion(high_res, low_res, queue)
-                    # loss should be almost zero for unit matrix
-                    self.assertGreater(0.5, loss.cpu().numpy())
-
-    def test_forward_pass_bsz_1(self):
+    def test_forward_pass_bsz_1(self) -> None:
         n = 32
         n_high_res = 2
         high_res = [torch.eye(1, n) for i in range(n_high_res)]
@@ -72,13 +58,9 @@ class TestSwaVLossUnitTest(unittest.TestCase):
             for sinkhorn_iterations in range(3):
                 criterion = SwaVLoss(sinkhorn_iterations=sinkhorn_iterations)
                 low_res = [torch.eye(1, n) for i in range(n_low_res)]
+                criterion(high_res, low_res)
 
-                with self.subTest(
-                    msg=f"n_low_res={n_low_res}, sinkhorn_iterations={sinkhorn_iterations}"
-                ):
-                    loss = criterion(high_res, low_res)
-
-    def test_forward_pass_1d(self):
+    def test_forward_pass_1d(self) -> None:
         n = 32
         n_high_res = 2
         high_res = [torch.eye(n, 1) for i in range(n_high_res)]
@@ -87,16 +69,12 @@ class TestSwaVLossUnitTest(unittest.TestCase):
             for sinkhorn_iterations in range(3):
                 criterion = SwaVLoss(sinkhorn_iterations=sinkhorn_iterations)
                 low_res = [torch.eye(n, 1) for i in range(n_low_res)]
+                loss = criterion(high_res, low_res)
+                # loss should be almost zero for unit matrix
+                assert loss.cpu().numpy() < 0.5
 
-                with self.subTest(
-                    msg=f"n_low_res={n_low_res}, sinkhorn_iterations={sinkhorn_iterations}"
-                ):
-                    loss = criterion(high_res, low_res)
-                    # loss should be almost zero for unit matrix
-                    self.assertGreater(0.5, loss.cpu().numpy())
-
-    @unittest.skipUnless(torch.cuda.is_available(), "skip")
-    def test_forward_pass_cuda(self):
+    @pytest.mark.skipif(not torch.cuda.is_available(), reason="No cuda")
+    def test_forward_pass_cuda(self) -> None:
         n = 32
         n_high_res = 2
         high_res = [torch.eye(n, n).cuda() for i in range(n_high_res)]
@@ -105,10 +83,6 @@ class TestSwaVLossUnitTest(unittest.TestCase):
             for sinkhorn_iterations in range(3):
                 criterion = SwaVLoss(sinkhorn_iterations=sinkhorn_iterations)
                 low_res = [torch.eye(n, n).cuda() for i in range(n_low_res)]
-
-                with self.subTest(
-                    msg=f"n_low_res={n_low_res}, sinkhorn_iterations={sinkhorn_iterations}"
-                ):
-                    loss = criterion(high_res, low_res)
-                    # loss should be almost zero for unit matrix
-                    self.assertGreater(0.5, loss.cpu().numpy())
+                loss = criterion(high_res, low_res)
+                # loss should be almost zero for unit matrix
+                assert loss.cpu().numpy() < 0.5
