@@ -192,7 +192,6 @@ exclude = '''(?x)(
     lightly/cli/train_cli.py |
     lightly/cli/_cli_simclr.py |
     lightly/cli/_helpers.py |
-    lightly/loss/negative_cosine_similarity.py |
     lightly/loss/hypersphere_loss.py |
     lightly/loss/dino_loss.py |
     lightly/loss/sym_neg_cos_sim_loss.py |
@@ -244,7 +243,6 @@ exclude = '''(?x)(
     tests/UNMOCKED_end2end_tests/delete_datasets_test_unmocked_cli.py |
     tests/UNMOCKED_end2end_tests/create_custom_metadata_from_input_dir.py |
     tests/UNMOCKED_end2end_tests/scripts_for_reproducing_problems/test_api_latency.py |
-    tests/loss/test_NegativeCosineSimilarity.py |
     tests/loss/test_DINOLoss.py |
     tests/loss/test_VICRegLLoss.py |
     tests/loss/test_CO2Regularizer.py |
