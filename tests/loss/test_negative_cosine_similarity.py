@@ -1,12 +1,11 @@
-import unittest
-
+import pytest
 import torch
 
 from lightly.loss import NegativeCosineSimilarity
 
 
-class TestNegativeCosineSimilarity(unittest.TestCase):
-    def test_forward_pass(self):
+class TestNegativeCosineSimilarity:
+    def test_forward_pass(self) -> None:
         loss = NegativeCosineSimilarity()
         for bsz in range(1, 20):
             x0 = torch.randn((bsz, 32))
@@ -15,10 +14,10 @@ class TestNegativeCosineSimilarity(unittest.TestCase):
             # symmetry
             l1 = loss(x0, x1)
             l2 = loss(x1, x0)
-            self.assertAlmostEqual((l1 - l2).pow(2).item(), 0.0)
+            assert l1 == pytest.approx(l2, abs=1e-5)
 
-    @unittest.skipUnless(torch.cuda.is_available(), "Cuda not available")
-    def test_forward_pass_cuda(self):
+    @pytest.mark.skipif(not torch.cuda.is_available(), reason="No cuda")
+    def test_forward_pass_cuda(self) -> None:
         loss = NegativeCosineSimilarity()
         for bsz in range(1, 20):
             x0 = torch.randn((bsz, 32)).cuda()
@@ -27,4 +26,4 @@ class TestNegativeCosineSimilarity(unittest.TestCase):
             # symmetry
             l1 = loss(x0, x1)
             l2 = loss(x1, x0)
-            self.assertAlmostEqual((l1 - l2).pow(2).item(), 0.0)
+            assert l1 == pytest.approx(l2, abs=1e-5)
