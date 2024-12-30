@@ -6,11 +6,13 @@
 from typing import Sequence, Union
 
 import torch
+from torch import Tensor
+from torch.nn import Module
 
 from lightly.models.modules.memory_bank import MemoryBankModule
 
 
-class CO2Regularizer(MemoryBankModule):
+class CO2Regularizer(Module):
     """Implementation of the CO2 regularizer [0] for self-supervised learning.
 
     - [0] CO2, 2021, https://arxiv.org/abs/2010.02217
@@ -62,7 +64,8 @@ class CO2Regularizer(MemoryBankModule):
             memory_bank_size:
                 Size of the memory bank.
         """
-        super(CO2Regularizer, self).__init__(size=memory_bank_size)
+        super().__init__()
+        self.memory_bank = MemoryBankModule(size=memory_bank_size)
         # Try-catch the KLDivLoss construction for backwards compatability
         self.log_target = True
         try:
@@ -74,7 +77,7 @@ class CO2Regularizer(MemoryBankModule):
         self.t_consistency = t_consistency
         self.alpha = alpha
 
-    def forward(self, out0: torch.Tensor, out1: torch.Tensor):
+    def forward(self, out0: Tensor, out1: Tensor) -> Tensor:
         """Computes the CO2 regularization term for two model outputs.
 
         Args:
@@ -93,7 +96,7 @@ class CO2Regularizer(MemoryBankModule):
 
         # Update the memory bank with out1 and get negatives(if memory bank size > 0)
         # If the memory_bank size is 0, negatives will be None
-        out1, negatives = super(CO2Regularizer, self).forward(out1, update=True)
+        out1, negatives = self.memory_bank.forward(out1, update=True)
 
         # Get log probabilities
         p = self._get_pseudo_labels(out0, out1, negatives)
@@ -106,11 +109,11 @@ class CO2Regularizer(MemoryBankModule):
             # Can't use log_target because of early torch version
             div = self.kl_div(p, torch.exp(q)) + self.kl_div(q, torch.exp(p))
 
-        return self.alpha * 0.5 * div
+        return torch.tensor(self.alpha * 0.5 * div)
 
     def _get_pseudo_labels(
-        self, out0: torch.Tensor, out1: torch.Tensor, negatives: torch.Tensor = None
-    ):
+        self, out0: Tensor, out1: Tensor, negatives: Union[Tensor, None] = None
+    ) -> Tensor:
         """Computes the soft pseudo labels across negative samples.
 
         Args:
@@ -140,7 +143,7 @@ class CO2Regularizer(MemoryBankModule):
             # Remove elements on the diagonal
             # l_neg has shape bsz x (bsz - 1)
             l_neg = l_neg.masked_select(
-                ~torch.eye(batch_size, dtype=bool, device=l_neg.device)
+                ~torch.eye(batch_size, dtype=torch.bool, device=l_neg.device)
             ).view(batch_size, batch_size - 1)
         else:
             # Use memory bank as negative samples
