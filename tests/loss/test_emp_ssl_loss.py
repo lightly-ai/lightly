@@ -1,11 +1,10 @@
-import unittest
-
+import pytest
 import torch
 
 from lightly.loss.emp_ssl_loss import EMPSSLLoss
 
 
-class testEMPSSSLLoss(unittest.TestCase):
+class testEMPSSSLLoss:
     def test_forward(self) -> None:
         bs = 512
         dim = 128
@@ -16,7 +15,7 @@ class testEMPSSSLLoss(unittest.TestCase):
 
         loss_fn(x)
 
-    @unittest.skipUnless(torch.cuda.is_available(), "cuda not available")
+    @pytest.mark.skipif(not torch.cuda.is_available(), reason="No cuda")
     def test_forward_cuda(self) -> None:
         bs = 512
         dim = 128
