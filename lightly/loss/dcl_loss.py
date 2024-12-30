@@ -11,7 +11,7 @@ from lightly.utils import dist
 
 def negative_mises_fisher_weights(
     out0: Tensor, out1: Tensor, sigma: float = 0.5
-) -> torch.Tensor:
+) -> Tensor:
     """Negative Mises-Fisher weighting function as presented in Decoupled Contrastive Learning [0].
 
     The implementation was inspired by [1].
@@ -35,7 +35,7 @@ def negative_mises_fisher_weights(
     similarity = torch.einsum("nm,nm->n", out0.detach(), out1.detach()) / sigma
 
     # Return negative Mises-Fisher weights
-    return 2 - out0.shape[0] * nn.functional.softmax(similarity, dim=0)
+    return torch.tensor(2 - out0.shape[0] * nn.functional.softmax(similarity, dim=0))
 
 
 class DCLLoss(nn.Module):
@@ -148,13 +148,15 @@ class DCLLoss(nn.Module):
             out1_all = out1
 
         # Calculate symmetric loss
-        loss0 = self._loss(out0, out1, out0_all, out1_all)
-        loss1 = self._loss(out1, out0, out1_all, out0_all)
+        loss0: Tensor = self._loss(out0, out1, out0_all, out1_all)
+        loss1: Tensor = self._loss(out1, out0, out1_all, out0_all)
 
         # Return the mean loss over the mini-batch
         return 0.5 * (loss0 + loss1)
 
-    def _loss(self, out0, out1, out0_all, out1_all):
+    def _loss(
+        self, out0: Tensor, out1: Tensor, out0_all: Tensor, out1_all: Tensor
+    ) -> Tensor:
         """Calculates DCL loss for out0 with respect to its positives in out1
         and the negatives in out1, out0_all, and out1_all.
 
