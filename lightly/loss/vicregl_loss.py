@@ -3,6 +3,7 @@ from typing import Optional, Sequence, Tuple
 import torch
 import torch.distributed as dist
 from torch import Tensor
+from torch.nn import Module
 
 from lightly.loss.vicreg_loss import (
     VICRegLoss,
@@ -10,11 +11,11 @@ from lightly.loss.vicreg_loss import (
     invariance_loss,
     variance_loss,
 )
-from lightly.models.utils import nearest_neighbors
+from lightly.models import utils
 from lightly.utils.dist import gather
 
 
-class VICRegLLoss(torch.nn.Module):
+class VICRegLLoss(Module):
     """Implementation of the VICRegL loss from VICRegL paper [0].
 
     This implementation follows the code published by the authors [1].
@@ -222,8 +223,8 @@ class VICRegLLoss(torch.nn.Module):
         Returns:
             The computed invariance loss from global features.
         """
-        loss = 0
-        loss_count = 0
+        loss = torch.tensor(0.0)
+        loss_count = torch.tensor(0)
 
         # Compute invariance loss between global views
         for global_features_a, _ in global_view_features:
@@ -260,9 +261,9 @@ class VICRegLLoss(torch.nn.Module):
         if local_view_features is not None:
             view_features = view_features + list(local_view_features)
 
-        var_loss = 0
-        cov_loss = 0
-        loss_count = 0
+        var_loss = torch.tensor(0.0)
+        cov_loss = torch.tensor(0.0)
+        loss_count = torch.tensor(0)
         for global_features, _ in view_features:
             if self.gather_distributed and dist.is_initialized():
                 world_size = dist.get_world_size()
@@ -310,8 +311,8 @@ class VICRegLLoss(torch.nn.Module):
         Returns:
             The computed loss from local features based on nearest neighbor matching.
         """
-        loss = 0
-        loss_count = 0
+        loss = torch.tensor(0.0)
+        loss_count = torch.tensor(0)
 
         # Compute the loss for global views
         for (_, z_a_local_features), grid_a in zip(
@@ -457,7 +458,8 @@ class VICRegLLoss(torch.nn.Module):
             (batch_size, num_matches, dim).
         """
         distances = torch.cdist(input_features, candidate_features)
-        return nearest_neighbors(
+        # TODO(Philipp, 12/24): Remove type ignore when utils are typechecked.
+        return utils.nearest_neighbors(  # type: ignore[no-any-return]
             input_features, candidate_features, distances, num_matches
         )
 
@@ -489,7 +491,8 @@ class VICRegLLoss(torch.nn.Module):
             (nn_input, nn_candidate) tuple containing two tensors with shape
             (batch_size, num_matches, dim).
         """
-        distances = torch.cdist(input_grid, candidate_grid)
-        return nearest_neighbors(
+        distances: Tensor = torch.cdist(input_grid, candidate_grid)
+        # TODO(Philipp, 12/24): Remove type ignore when utils are typechecked.
+        return utils.nearest_neighbors(  # type: ignore[no-any-return]
             input_features, candidate_features, distances, num_matches
         )

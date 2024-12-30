@@ -1,7 +1,8 @@
-import unittest
+import typing
 from typing import List
 
 import numpy as np
+import pytest
 import torch
 import torch.nn.functional as F
 from torch import Tensor
@@ -9,7 +10,7 @@ from torch import Tensor
 from lightly.loss import VICRegLLoss
 
 
-class TestVICRegLLoss(unittest.TestCase):
+class TestVICRegLLoss:
     def test_forward(self) -> None:
         torch.manual_seed(0)
         criterion = VICRegLLoss()
@@ -29,7 +30,7 @@ class TestVICRegLLoss(unittest.TestCase):
         )
         assert loss > 0
 
-    @unittest.skipUnless(torch.cuda.is_available(), "Cuda not available")
+    @pytest.mark.skipif(not torch.cuda.is_available(), reason="No cuda")
     def test_forward__cuda(self) -> None:
         torch.manual_seed(0)
         criterion = VICRegLLoss()
@@ -63,7 +64,7 @@ class TestVICRegLLoss(unittest.TestCase):
             "global_view_features and global_view_grids must have same length but "
             "found 2 and 1."
         )
-        with self.assertRaisesRegex(ValueError, error_msg):
+        with pytest.raises(ValueError, match=error_msg):
             criterion.forward(
                 global_view_features=global_view_features,
                 global_view_grids=global_view_grids,
@@ -79,7 +80,7 @@ class TestVICRegLLoss(unittest.TestCase):
             "local_view_features and local_view_grids must have same length but found "
             "2 and 1."
         )
-        with self.assertRaisesRegex(ValueError, error_msg):
+        with pytest.raises(ValueError, match=error_msg):
             criterion.forward(
                 global_view_features=[],
                 global_view_grids=[],
@@ -99,7 +100,7 @@ class TestVICRegLLoss(unittest.TestCase):
             "local_view_features and local_view_grids must either both be set or None "
             "but found <class 'list'> and <class 'NoneType'>."
         )
-        with self.assertRaisesRegex(ValueError, error_msg):
+        with pytest.raises(ValueError, match=error_msg):
             criterion.forward(
                 global_view_features=[],
                 global_view_grids=[],
@@ -111,7 +112,7 @@ class TestVICRegLLoss(unittest.TestCase):
             "local_view_features and local_view_grids must either both be set or None "
             "but found <class 'NoneType'> and <class 'list'>."
         )
-        with self.assertRaisesRegex(ValueError, error_msg):
+        with pytest.raises(ValueError, match=error_msg):
             criterion.forward(
                 global_view_features=[],
                 global_view_grids=[],
@@ -119,7 +120,7 @@ class TestVICRegLLoss(unittest.TestCase):
                 local_view_grids=local_view_grids,
             )
 
-    def test_global_loss__compare(self):
+    def test_global_loss__compare(self) -> None:
         # Compare against original implementation.
         torch.manual_seed(0)
         criterion = VICRegLLoss()
@@ -143,6 +144,7 @@ class TestVICRegLLoss(unittest.TestCase):
     # details.
 
 
+@typing.no_type_check
 def _reference_global_loss(
     embedding: List[Tensor],
     inv_coeff: float = 25.0,
