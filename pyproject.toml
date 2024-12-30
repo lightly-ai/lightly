@@ -198,7 +198,6 @@ exclude = '''(?x)(
     lightly/loss/vicregl_loss.py |
     lightly/loss/dcl_loss.py |
     lightly/loss/regularizer/co2.py |
-    lightly/loss/barlow_twins_loss.py |
     lightly/data/dataset.py |
     lightly/data/collate.py |
     lightly/data/_image_loaders.py |
@@ -247,7 +246,6 @@ exclude = '''(?x)(
     tests/loss/test_VICRegLLoss.py |
     tests/loss/test_CO2Regularizer.py |
     tests/loss/test_DCLLoss.py |
-    tests/loss/test_barlow_twins_loss.py |
     tests/loss/test_SymNegCosineSimilarityLoss.py |
     tests/loss/test_MemoryBank.py |
     tests/loss/test_HyperSphere.py |
