@@ -192,9 +192,6 @@ exclude = '''(?x)(
     lightly/cli/train_cli.py |
     lightly/cli/_cli_simclr.py |
     lightly/cli/_helpers.py |
-    lightly/loss/dcl_loss.py |
-    lightly/loss/regularizer/co2.py |
-    lightly/loss/barlow_twins_loss.py |
     lightly/data/dataset.py |
     lightly/data/collate.py |
     lightly/data/_image_loaders.py |
@@ -239,9 +236,6 @@ exclude = '''(?x)(
     tests/UNMOCKED_end2end_tests/delete_datasets_test_unmocked_cli.py |
     tests/UNMOCKED_end2end_tests/create_custom_metadata_from_input_dir.py |
     tests/UNMOCKED_end2end_tests/scripts_for_reproducing_problems/test_api_latency.py |
-    tests/loss/test_CO2Regularizer.py |
-    tests/loss/test_DCLLoss.py |
-    tests/loss/test_barlow_twins_loss.py |
     tests/core/test_Core.py |
     tests/data/test_multi_view_collate.py |
     tests/data/test_data_collate.py |

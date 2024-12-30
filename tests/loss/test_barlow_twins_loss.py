@@ -2,12 +2,14 @@ import pytest
 import torch
 import torch.nn as nn
 from pytest_mock import MockerFixture
+from torch import Tensor
 from torch import distributed as dist
+from torch.nn import Module
 
 from lightly.loss.barlow_twins_loss import BarlowTwinsLoss
 
 
-class BarlowTwinsLossReference(torch.nn.Module):
+class BarlowTwinsLossReference(Module):
     def __init__(
         self,
         projector_dim: int = 8196,
@@ -20,7 +22,7 @@ class BarlowTwinsLossReference(torch.nn.Module):
         self.lambda_param = lambda_param
         self.gather_distributed = gather_distributed
 
-    def forward(self, z_a: torch.Tensor, z_b: torch.Tensor) -> torch.Tensor:
+    def forward(self, z_a: Tensor, z_b: Tensor) -> Tensor:
         # code from https://github.com/facebookresearch/barlowtwins/blob/main/main.py
 
         N = z_a.size(0)
@@ -35,11 +37,11 @@ class BarlowTwinsLossReference(torch.nn.Module):
 
         on_diag = torch.diagonal(c).add_(-1).pow_(2).sum()
         off_diag = off_diagonal(c).pow_(2).sum()
-        loss = on_diag + self.lambda_param * off_diag
+        loss: Tensor = on_diag + self.lambda_param * off_diag
         return loss
 
 
-def off_diagonal(x):
+def off_diagonal(x: Tensor) -> Tensor:
     # return a flattened view of the off-diagonal elements of a square matrix
     n, m = x.shape
     assert n == m
