@@ -301,7 +301,6 @@ module = [
     "lightly.api.*",
     "lightly.cli.*",
     "lightly.data.*",
-    "lightly.loss.*",
     "lightly.models.*",
     "lightly.utils.benchmarking.*",
     "tests.api_workflow.*",
