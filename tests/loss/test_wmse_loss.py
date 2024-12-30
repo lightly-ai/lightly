@@ -1,5 +1,3 @@
-import unittest
-
 import pytest
 import torch
 
@@ -11,7 +9,7 @@ except ImportError:
     pytest.skip("torch.linalg.solve_triangular not available", allow_module_level=True)
 
 
-class testWMSELoss(unittest.TestCase):
+class TestWMSELoss:
     def test_forward(self) -> None:
         bs = 512
         dim = 128
@@ -22,7 +20,7 @@ class testWMSELoss(unittest.TestCase):
 
         loss_fn(x)
 
-    @unittest.skipUnless(torch.cuda.is_available(), "cuda not available")
+    @pytest.mark.skipif(not torch.cuda.is_available(), reason="No cuda")
     def test_forward_cuda(self) -> None:
         bs = 512
         dim = 128
@@ -43,21 +41,20 @@ class testWMSELoss(unittest.TestCase):
         x = torch.randn(bs * num_samples, dim)
 
         loss = loss_fn(x)
-
-        self.assertGreater(loss, 0)
+        assert loss > 0
 
     def test_embedding_dim_error(self) -> None:
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             WMSELoss(embedding_dim=2, w_size=2)
 
     def test_num_samples_error(self) -> None:
-        with self.assertRaises(RuntimeError):
+        with pytest.raises(RuntimeError):
             loss_fn = WMSELoss(num_samples=3)
             x = torch.randn(5, 128)
             loss_fn(x)
 
     def test_w_size_error(self) -> None:
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             loss_fn = WMSELoss(w_size=5)
             x = torch.randn(4, 128)
             loss_fn(x)
