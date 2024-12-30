@@ -195,7 +195,6 @@ exclude = '''(?x)(
     lightly/loss/hypersphere_loss.py |
     lightly/loss/dino_loss.py |
     lightly/loss/sym_neg_cos_sim_loss.py |
-    lightly/loss/vicregl_loss.py |
     lightly/loss/dcl_loss.py |
     lightly/loss/regularizer/co2.py |
     lightly/loss/barlow_twins_loss.py |
@@ -244,7 +243,6 @@ exclude = '''(?x)(
     tests/UNMOCKED_end2end_tests/create_custom_metadata_from_input_dir.py |
     tests/UNMOCKED_end2end_tests/scripts_for_reproducing_problems/test_api_latency.py |
     tests/loss/test_DINOLoss.py |
-    tests/loss/test_VICRegLLoss.py |
     tests/loss/test_CO2Regularizer.py |
     tests/loss/test_DCLLoss.py |
     tests/loss/test_barlow_twins_loss.py |
