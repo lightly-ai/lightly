@@ -101,7 +101,9 @@ class TestDINOLoss:
     def test_different_input_sizes(
         self, batch_size: int, n_local: int, output_dim: int
     ) -> None:
-        _run_test(batch_size=batch_size, n_local=n_local, output_dim=output_dim)
+        _assert_dino_loss_equal_to_original(
+            batch_size=batch_size, n_local=n_local, output_dim=output_dim
+        )
 
     @pytest.mark.parametrize("warmup_teacher_temp", [0.01, 0.04, 0.07])
     @pytest.mark.parametrize("teacher_temp", [0.01, 0.04, 0.07])
@@ -114,7 +116,7 @@ class TestDINOLoss:
         warmup_teacher_temp_epochs: int,
         epoch: int,
     ) -> None:
-        _run_test(
+        _assert_dino_loss_equal_to_original(
             warmup_teacher_temp=warmup_teacher_temp,
             teacher_temp=teacher_temp,
             warmup_teacher_temp_epochs=warmup_teacher_temp_epochs,
@@ -128,7 +130,7 @@ class TestDINOLoss:
         student_temp: float,
         center_momentum: float,
     ) -> None:
-        _run_test(
+        _assert_dino_loss_equal_to_original(
             student_temp=student_temp,
             center_momentum=center_momentum,
         )
@@ -167,7 +169,7 @@ def _generate_output(
     return out
 
 
-def _run_test(
+def _assert_dino_loss_equal_to_original(
     batch_size: int = 3,
     n_global: int = 2,  # number of global views
     n_local: int = 6,  # number of local views
