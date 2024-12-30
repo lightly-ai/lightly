@@ -242,7 +242,6 @@ exclude = '''(?x)(
     tests/loss/test_CO2Regularizer.py |
     tests/loss/test_DCLLoss.py |
     tests/loss/test_barlow_twins_loss.py |
-    tests/loss/test_MemoryBank.py |
     tests/core/test_Core.py |
     tests/data/test_multi_view_collate.py |
     tests/data/test_data_collate.py |
