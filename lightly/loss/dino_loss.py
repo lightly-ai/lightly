@@ -3,7 +3,7 @@ from typing import List
 import torch
 import torch.nn.functional as F
 from torch import Tensor
-from torch.nn import Module
+from torch.nn import Module, Parameter
 
 from lightly.models.modules import center
 from lightly.models.modules.center import CENTER_MODE_TO_FUNCTION
@@ -83,6 +83,7 @@ class DINOLoss(Module):
 
         # TODO(Guarin, 08/24): Refactor this to use the Center module directly once
         # we do a breaking change.
+        self.center: Parameter
         self.register_buffer("center", torch.zeros(1, 1, output_dim))
 
         # we apply a warm up for the teacher temperature because
@@ -123,13 +124,15 @@ class DINOLoss(Module):
         if epoch < self.warmup_teacher_temp_epochs:
             teacher_temp = self.teacher_temp_schedule[epoch]
         else:
-            teacher_temp = self.teacher_temp
+            teacher_temp = torch.tensor(self.teacher_temp)
 
-        teacher_out = torch.stack(teacher_out)
-        t_out = F.softmax((teacher_out - self.center) / teacher_temp, dim=-1)
+        teacher_out_stacked = torch.stack(teacher_out)
+        t_out: Tensor = F.softmax(
+            (teacher_out_stacked - self.center) / teacher_temp, dim=-1
+        )
 
-        student_out = torch.stack(student_out)
-        s_out = F.log_softmax(student_out / self.student_temp, dim=-1)
+        student_out_stacked = torch.stack(student_out)
+        s_out = F.log_softmax(student_out_stacked / self.student_temp, dim=-1)
 
         # Calculate feature similarities, ignoring the diagonal
         # b = batch_size, t = n_views_teacher, s = n_views_student, d = output_dim
@@ -138,12 +141,12 @@ class DINOLoss(Module):
 
         # Number of loss terms, ignoring the diagonal
         n_terms = loss.numel() - loss.diagonal().numel()
-        batch_size = teacher_out.shape[1]
+        batch_size = teacher_out_stacked.shape[1]
 
         loss = loss.sum() / (n_terms * batch_size)
 
         # Update the center used for the teacher output
-        self.update_center(teacher_out)
+        self.update_center(teacher_out_stacked)
 
         return loss
 
@@ -161,6 +164,6 @@ class DINOLoss(Module):
         batch_center = self._center_fn(x=teacher_out, dim=(0, 1))
 
         # Update the center with a moving average
-        self.center = center.center_momentum(
+        self.center.data = center.center_momentum(
             center=self.center, batch_center=batch_center, momentum=self.center_momentum
         )
