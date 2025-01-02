@@ -5,9 +5,11 @@ FIXME: hypersphere is perhaps bad naming as I am not sure it is the essence;
 
 import torch
 import torch.nn.functional as F
+from torch import Tensor
+from torch.nn import Module
 
 
-class HypersphereLoss(torch.nn.Module):
+class HypersphereLoss(Module):
     """Implementation of the loss described in 'Understanding Contrastive Representation Learning through
     Alignment and Uniformity on the Hypersphere.' [0]
 
@@ -44,7 +46,7 @@ class HypersphereLoss(torch.nn.Module):
         >>> loss = loss_fn(out0, out1)
     """
 
-    def __init__(self, t=1.0, lam=1.0, alpha=2.0):
+    def __init__(self, t: float = 1.0, lam: float = 1.0, alpha: float = 2.0):
         """Initializes the HypersphereLoss module with the specified parameters.
 
         Parameters as described in [0]
@@ -63,7 +65,7 @@ class HypersphereLoss(torch.nn.Module):
         self.lam = lam
         self.alpha = alpha
 
-    def forward(self, z_a: torch.Tensor, z_b: torch.Tensor) -> torch.Tensor:
+    def forward(self, z_a: Tensor, z_b: Tensor) -> Tensor:
         """Computes the Hypersphere loss, which combines alignment and uniformity loss terms.
 
         Args:
@@ -80,13 +82,14 @@ class HypersphereLoss(torch.nn.Module):
         y = F.normalize(z_b)
 
         # Calculate alignment loss
-        def lalign(x, y):
-            return (x - y).norm(dim=1).pow(self.alpha).mean()
+        def lalign(x: Tensor, y: Tensor) -> Tensor:
+            lalign_: Tensor = (x - y).norm(dim=1).pow(self.alpha).mean()
+            return lalign_
 
         # Calculate uniformity loss
-        def lunif(x):
+        def lunif(x: Tensor) -> Tensor:
             sq_pdist = torch.pdist(x, p=2).pow(2)
             return sq_pdist.mul(-self.t).exp().mean().log()
 
         # Combine alignment and uniformity loss terms
-        return lalign(x, y) + self.lam * (lunif(x) + lunif(y)) / 2
+        return lalign(x, y) + self.lam * (lunif(x) + lunif(y)) / 2.0

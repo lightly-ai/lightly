@@ -192,18 +192,6 @@ exclude = '''(?x)(
     lightly/cli/train_cli.py |
     lightly/cli/_cli_simclr.py |
     lightly/cli/_helpers.py |
-    lightly/loss/tico_loss.py |
-    lightly/loss/pmsn_loss.py |
-    lightly/loss/swav_loss.py |
-    lightly/loss/negative_cosine_similarity.py |
-    lightly/loss/hypersphere_loss.py |
-    lightly/loss/msn_loss.py |
-    lightly/loss/dino_loss.py |
-    lightly/loss/sym_neg_cos_sim_loss.py |
-    lightly/loss/vicregl_loss.py |
-    lightly/loss/dcl_loss.py |
-    lightly/loss/regularizer/co2.py |
-    lightly/loss/barlow_twins_loss.py |
     lightly/data/dataset.py |
     lightly/data/collate.py |
     lightly/data/_image_loaders.py |
@@ -248,19 +236,6 @@ exclude = '''(?x)(
     tests/UNMOCKED_end2end_tests/delete_datasets_test_unmocked_cli.py |
     tests/UNMOCKED_end2end_tests/create_custom_metadata_from_input_dir.py |
     tests/UNMOCKED_end2end_tests/scripts_for_reproducing_problems/test_api_latency.py |
-    tests/loss/test_NegativeCosineSimilarity.py |
-    tests/loss/test_MSNLoss.py |
-    tests/loss/test_DINOLoss.py |
-    tests/loss/test_VICRegLLoss.py |
-    tests/loss/test_CO2Regularizer.py |
-    tests/loss/test_DCLLoss.py |
-    tests/loss/test_barlow_twins_loss.py |
-    tests/loss/test_SymNegCosineSimilarityLoss.py |
-    tests/loss/test_MemoryBank.py |
-    tests/loss/test_TicoLoss.py |
-    tests/loss/test_PMSNLoss.py |
-    tests/loss/test_HyperSphere.py |
-    tests/loss/test_SwaVLoss.py |
     tests/core/test_Core.py |
     tests/data/test_multi_view_collate.py |
     tests/data/test_data_collate.py |
@@ -326,7 +301,6 @@ module = [
     "lightly.api.*",
     "lightly.cli.*",
     "lightly.data.*",
-    "lightly.loss.*",
     "lightly.models.*",
     "lightly.utils.benchmarking.*",
     "tests.api_workflow.*",
