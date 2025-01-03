@@ -23,7 +23,7 @@ class DetConSLoss:
     :math:`\\frac{1}{\\sqrt{\\tau}}`, the formula for the contrastive loss is
 
     .. math::
-        \\mathcal{L} = \sum_{m}\sum_{m'} \mathbb{1}_{m, m'} \\left[ - \\log\
+        \\mathcal{L} = \\sum_{m}\\sum_{m'} \\mathbb{1}_{m, m'} \\left[ - \\log\
             \\frac{\\exp(v_m \\cdot v_{m'}')}{\\exp(v_m \\cdot v_{m'}') +\
             \\sum_{n}\\exp (v_m \\cdot v_{m'}')} \\right]
 
