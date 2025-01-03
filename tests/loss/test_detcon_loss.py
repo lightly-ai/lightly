@@ -1,7 +1,4 @@
-from math import e
 from typing import Any, List, Tuple
-from urllib import request
-from webbrowser import get
 
 import pytest
 import torch
