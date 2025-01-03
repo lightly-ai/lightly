@@ -100,7 +100,7 @@ class DetConBLoss(Module):
     :math:`\\frac{1}{\\sqrt{\\tau}}`, the formula for the contrastive loss is
 
     .. math::
-        \\mathcal{L} = \sum_{m}\sum_{m'} \mathbb{1}_{m, m'} \\left[ - \\log \\frac{\\exp(v_m \\cdot v_{m'}')}{\\exp(v_m \\cdot v_{m'}') + \\sum_{n}\\exp (v_m \\cdot v_{m'}')} \\right]
+        \\mathcal{L} = \\sum_{m}\\sum_{m'} \\mathbb{1}_{m, m'} \\left[ - \\log \\frac{\\exp(v_m \\cdot v_{m'}')}{\\exp(v_m \\cdot v_{m'}') + \\sum_{n}\\exp (v_m \\cdot v_{m'}')} \\right]
 
     where :math:`\\mathbb{1}_{m, m'}` is 1 if the masks are the same and 0 otherwise.
     Since :math:`v_m` and :math:`v_{m'}'` stem from different branches, the loss is
@@ -125,8 +125,6 @@ class DetConBLoss(Module):
         self.eps = 1e-8
         self.temperature = temperature
         self.gather_distributed = gather_distributed
-        self.eps = 1e-11
-
         if abs(self.temperature) < self.eps:
             raise ValueError(
                 "Illegal temperature: abs({}) < 1e-8".format(self.temperature)
@@ -176,6 +174,12 @@ class DetConBLoss(Module):
         b, m, d = pred_view0.size()
         infinity_proxy = 1e9
 
+        # normalize
+        pred_view0 = F.normalize(pred_view0, p=2, dim=2)
+        pred_view1 = F.normalize(pred_view1, p=2, dim=2)
+        target_view0 = F.normalize(target_view0, p=2, dim=2)
+        target_view1 = F.normalize(target_view1, p=2, dim=2)
+
         # gather distributed
         if not self.gather_distributed or dist.get_world_size() < 2:
             target_view0_large = target_view0
@@ -196,12 +200,6 @@ class DetConBLoss(Module):
             enlarged_b = b * dist.get_world_size()
             labels_local = F.one_hot(labels_idx, num_classes=enlarged_b)
             labels_ext = F.one_hot(labels_idx, num_classes=2 * enlarged_b)
-
-        # normalize
-        pred_view0 = F.normalize(pred_view0, p=2, dim=2)
-        pred_view1 = F.normalize(pred_view1, p=2, dim=2)
-        target_view0_large = F.normalize(target_view0_large, p=2, dim=2)
-        target_view1_large = F.normalize(target_view1_large, p=2, dim=2)
 
         labels_local = labels_local[:, None, :, None]
         labels_ext = labels_ext[:, None, :, None]
@@ -267,8 +265,8 @@ class DetConBLoss(Module):
         logits_abaa = logits_abaa.view(b, m, -1)
         logits_babb = logits_babb.view(b, m, -1)
 
-        loss_a = torch_manual_cross_entropy(labels_0, logits_abaa, weights_0)
-        loss_b = torch_manual_cross_entropy(labels_1, logits_babb, weights_1)
+        loss_a = _torch_manual_cross_entropy(labels_0, logits_abaa, weights_0)
+        loss_b = _torch_manual_cross_entropy(labels_1, logits_babb, weights_1)
         loss = loss_a + loss_b
         return loss
 
@@ -277,7 +275,7 @@ def _same_mask(mask0: Tensor, mask1: Tensor) -> Tensor:
     return (mask0[:, :, None] == mask1[:, None, :]).float()[:, :, None, :]
 
 
-def torch_manual_cross_entropy(
+def _torch_manual_cross_entropy(
     labels: Tensor, logits: Tensor, weight: Tensor
 ) -> Tensor:
     ce = -weight * torch.sum(labels * F.log_softmax(logits, dim=-1), dim=-1)
