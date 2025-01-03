@@ -188,13 +188,6 @@ class DetConBLoss(Module):
             target_view0_large = target_view0
             target_view1_large = target_view1
             labels_local = torch.eye(b, device=pred_view0.device)
-            labels_ext = torch.cat(
-                [
-                    torch.eye(b, device=pred_view0.device),
-                    torch.zeros_like(labels_local),
-                ],
-                dim=1,
-            )
         else:
             target_view0_large = torch.cat(dist.gather(target_view0), dim=0)
             target_view1_large = torch.cat(dist.gather(target_view1), dim=0)
@@ -202,13 +195,11 @@ class DetConBLoss(Module):
             labels_idx = torch.arange(b, device=pred_view0.device) + replica_id * b
             enlarged_b = b * dist.get_world_size()
             labels_local = F.one_hot(labels_idx, num_classes=enlarged_b)
-            labels_ext = F.one_hot(labels_idx, num_classes=2 * enlarged_b)
 
         ### Expand Labels ###
         # labels_local at this point only points towards the diagonal of the batch, i.e.
         # indicates to compare between the same samples across views.
         labels_local = labels_local[:, None, :, None]
-        labels_ext = labels_ext[:, None, :, None]
         assert labels_local.size() == (b, 1, b, 1)
 
         ### Calculate Similarity Matrices ###
@@ -278,11 +269,11 @@ class DetConBLoss(Module):
         labels_1 = labels_1 / torch.maximum(num_positives_1, torch.tensor(1))
 
         ### Count How Many Overlapping Regions We Have Across Views ###
-        obj_area_0 = torch.sum(_same_mask(mask_view0, mask_view0), dim=(2, 3))
-        obj_area_1 = torch.sum(_same_mask(mask_view1, mask_view1), dim=(2, 3))
+        obj_area_0 = torch.sum(same_mask_aa, dim=(2, 3))
+        obj_area_1 = torch.sum(same_mask_bb, dim=(2, 3))
         # make sure we don't divide by zero
-        obj_area_0 = torch.maximum(obj_area_0, self.eps)
-        obj_area_1 = torch.maximum(obj_area_1, self.eps)
+        obj_area_0 = torch.maximum(obj_area_0, torch.tensor(self.eps))
+        obj_area_1 = torch.maximum(obj_area_1, torch.tensor(self.eps))
         assert obj_area_0.size() == (b, m)
         assert obj_area_1.size() == (b, m)
 
