@@ -228,10 +228,9 @@ class DetConBLoss(Module):
         ### Remove Similarities Between Corresponding Views But Different Regions ###
         # labels_local initially compared all features across views, but we only want to
         # compare the same regions across views.
-        labels_aa = (
-            labels_local * same_mask_aa
-        )  # (b, 1, b * world_size, 1) * (b, m, 1, m)
-        labels_bb = labels_local * same_mask_bb  # yielding (b, m, b * world_size, m)
+        # (b, 1, b * world_size, 1) * (b, m, 1, m) -> (b, m, b * world_size, m)
+        labels_aa = labels_local * same_mask_aa
+        labels_bb = labels_local * same_mask_bb
         labels_ab = labels_local * same_mask_ab
         labels_ba = labels_local * same_mask_ba
 
@@ -242,8 +241,10 @@ class DetConBLoss(Module):
         labels_bb = 0.0 * labels_bb
 
         ### Arrange Labels ###
+        # (b, m, b * world_size * 2, m)
         labels_abaa = torch.cat([labels_ab, labels_aa], dim=2)
         labels_babb = torch.cat([labels_ba, labels_bb], dim=2)
+        # (b, m, b * world_size * 2 * m)
         labels_0 = labels_abaa.view(b, m, -1)
         labels_1 = labels_babb.view(b, m, -1)
 
