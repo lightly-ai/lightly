@@ -5,7 +5,7 @@ from torch import distributed as dist
 from torch.nn import Module
 
 
-class DetConSLoss:
+class DetConSLoss(Module):
     """Implementation of the DetConS loss. [2]_
 
     The inputs are two-fold:
@@ -43,6 +43,7 @@ class DetConSLoss:
     def __init__(
         self, temperature: float = 0.1, gather_distributed: bool = True
     ) -> None:
+        super().__init__()
         self.detconbloss = DetConBLoss(
             temperature=temperature, gather_distributed=gather_distributed
         )
@@ -128,7 +129,7 @@ class DetConBLoss(Module):
         self.gather_distributed = gather_distributed
         if abs(self.temperature) < self.eps:
             raise ValueError(
-                "Illegal temperature: abs({}) < 1e-8".format(self.temperature)
+                f"Illegal temperature: abs({self.temperature}) < 1e-8"
             )
         if self.gather_distributed and not dist.is_available():
             raise ValueError(
