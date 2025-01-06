@@ -1,18 +1,19 @@
-from typing import List
+from typing import List, Union
 
 import torch
 import torch.distributed as dist
 import torch.nn as nn
 import torch.nn.functional as F
+from torch import Tensor
 
 
 @torch.no_grad()
 def sinkhorn(
-    out: torch.Tensor,
+    out: Tensor,
     iterations: int = 3,
     epsilon: float = 0.05,
     gather_distributed: bool = False,
-) -> torch.Tensor:
+) -> Tensor:
     """Distributed sinkhorn algorithm.
 
     As outlined in [0] and implemented in [1].
@@ -113,7 +114,7 @@ class SwaVLoss(nn.Module):
         self.sinkhorn_epsilon = sinkhorn_epsilon
         self.sinkhorn_gather_distributed = sinkhorn_gather_distributed
 
-    def subloss(self, z: torch.Tensor, q: torch.Tensor):
+    def subloss(self, z: Tensor, q: Tensor) -> Tensor:
         """Calculates the cross entropy for the SwaV prediction problem.
 
         Args:
@@ -131,10 +132,10 @@ class SwaVLoss(nn.Module):
 
     def forward(
         self,
-        high_resolution_outputs: List[torch.Tensor],
-        low_resolution_outputs: List[torch.Tensor],
-        queue_outputs: List[torch.Tensor] = None,
-    ):
+        high_resolution_outputs: List[Tensor],
+        low_resolution_outputs: List[Tensor],
+        queue_outputs: Union[List[Tensor], None] = None,
+    ) -> Tensor:
         """Computes the SwaV loss for a set of high and low resolution outputs.
 
         - [0]: SwaV, 2020, https://arxiv.org/abs/2006.09882
@@ -156,7 +157,7 @@ class SwaVLoss(nn.Module):
         n_crops = len(high_resolution_outputs) + len(low_resolution_outputs)
 
         # Multi-crop iterations
-        loss = 0.0
+        loss = torch.tensor(0.0)
         for i in range(len(high_resolution_outputs)):
             # Compute codes of i-th high resolution crop
             with torch.no_grad():
@@ -179,7 +180,7 @@ class SwaVLoss(nn.Module):
                     q = q[: len(high_resolution_outputs[i])]
 
             # Compute subloss for each pair of crops
-            subloss = 0.0
+            subloss = torch.tensor(0.0)
             for v in range(len(high_resolution_outputs)):
                 if v != i:
                     subloss += self.subloss(high_resolution_outputs[v], q)

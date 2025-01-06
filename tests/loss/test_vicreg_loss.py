@@ -26,10 +26,8 @@ class TestVICRegLoss:
             VICRegLoss(gather_distributed=True)
         mock_is_available.assert_called_once()
 
-
-class TestVICRegLossUnitTest(unittest.TestCase):
     # Old tests in unittest style, please add new tests to TestVICRegLoss using pytest.
-    def test_forward_pass(self):
+    def test_forward_pass(self) -> None:
         loss = VICRegLoss()
         for bsz in range(2, 4):
             x0 = torch.randn((bsz, 32))
@@ -38,10 +36,10 @@ class TestVICRegLossUnitTest(unittest.TestCase):
             # symmetry
             l1 = loss(x0, x1)
             l2 = loss(x1, x0)
-            self.assertAlmostEqual((l1 - l2).pow(2).item(), 0.0)
+            assert l1.item() == pytest.approx(l2.item())
 
-    @unittest.skipUnless(torch.cuda.is_available(), "Cuda not available")
-    def test_forward_pass_cuda(self):
+    @pytest.mark.skipif(not torch.cuda.is_available(), reason="No cuda")
+    def test_forward_pass_cuda(self) -> None:
         loss = VICRegLoss()
         for bsz in range(2, 4):
             x0 = torch.randn((bsz, 32)).cuda()
@@ -50,20 +48,20 @@ class TestVICRegLossUnitTest(unittest.TestCase):
             # symmetry
             l1 = loss(x0, x1)
             l2 = loss(x1, x0)
-            self.assertAlmostEqual((l1 - l2).pow(2).item(), 0.0)
+            assert l1.item() == pytest.approx(l2.item())
 
-    def test_forward_pass__error_batch_size_1(self):
+    def test_forward_pass__error_batch_size_1(self) -> None:
         loss = VICRegLoss()
         x0 = torch.randn((1, 32))
         x1 = torch.randn((1, 32))
-        with self.assertRaises(AssertionError):
+        with pytest.raises(AssertionError):
             loss(x0, x1)
 
-    def test_forward_pass__error_different_shapes(self):
+    def test_forward_pass__error_different_shapes(self) -> None:
         loss = VICRegLoss()
         x0 = torch.randn((2, 32))
         x1 = torch.randn((2, 16))
-        with self.assertRaises(AssertionError):
+        with pytest.raises(AssertionError):
             loss(x0, x1)
 
     def test_forward__compare(self) -> None:
@@ -81,7 +79,7 @@ class TestVICRegLossUnitTest(unittest.TestCase):
         loss = VICRegLoss(nu_param=0.5)
         x0 = torch.randn((2, 10, 32))
         x1 = torch.randn((2, 10, 32))
-        torch.testing.assert_close(loss(x0, x1), _reference_vicregl_vicreg_loss(x0, x1))
+        assert loss(x0, x1) == pytest.approx(_reference_vicregl_vicreg_loss(x0, x1))
 
 
 def _reference_vicreg_loss(
@@ -90,10 +88,10 @@ def _reference_vicreg_loss(
     sim_coeff: float = 25.0,
     std_coeff: float = 25.0,
     cov_coeff: float = 1.0,
-):
+) -> Tensor:
     # Original VICReg loss from:
     # https://github.com/facebookresearch/vicreg/blob/4e12602fd495af83efd1631fbe82523e6db092e0/main_vicreg.py#L194
-    def off_diagonal(x):
+    def off_diagonal(x: Tensor) -> Tensor:
         n, m = x.shape
         assert n == m
         return x.flatten()[:-1].view(n - 1, n + 1)[:, 1:].flatten()

@@ -3,6 +3,7 @@ from typing import Tuple
 import torch
 import torch.distributed as dist
 import torch.nn.functional as F
+from torch import Tensor
 
 
 class BarlowTwinsLoss(torch.nn.Module):
@@ -81,7 +82,7 @@ class BarlowTwinsLoss(torch.nn.Module):
 
         invariance_loss = torch.diagonal(c).add_(-1).pow_(2).sum()
         redundancy_reduction_loss = _off_diagonal(c).pow_(2).sum()
-        loss = invariance_loss + self.lambda_param * redundancy_reduction_loss
+        loss: Tensor = invariance_loss + self.lambda_param * redundancy_reduction_loss
 
         return loss
 
@@ -106,7 +107,7 @@ def _normalize(
     return normalized[0], normalized[1]
 
 
-def _off_diagonal(x):
+def _off_diagonal(x: Tensor) -> Tensor:
     """Returns a flattened view of the off-diagonal elements of a square matrix."""
 
     # Ensure the input is a square matrix
