@@ -4,6 +4,7 @@
 # All Rights Reserved
 from lightly.loss.barlow_twins_loss import BarlowTwinsLoss
 from lightly.loss.dcl_loss import DCLLoss, DCLWLoss
+from lightly.loss.detcon_loss import DetConBLoss, DetConSLoss
 from lightly.loss.dino_loss import DINOLoss
 from lightly.loss.emp_ssl_loss import EMPSSLLoss
 from lightly.loss.ibot_loss import IBOTPatchLoss
