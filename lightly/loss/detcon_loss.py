@@ -1,4 +1,5 @@
 from math import log
+
 import torch
 import torch.nn.functional as F
 from torch import Tensor
@@ -177,12 +178,6 @@ class DetConBLoss(Module):
         b, m, d = pred_view0.size()
         infinity_proxy = 1e9
 
-        # normalize
-        pred_view0 = F.normalize(pred_view0, p=2, dim=2)
-        pred_view1 = F.normalize(pred_view1, p=2, dim=2)
-        target_view0 = F.normalize(target_view0, p=2, dim=2)
-        target_view1 = F.normalize(target_view1, p=2, dim=2)
-
         # gather distributed
         if not self.gather_distributed or dist.get_world_size() < 2:
             target_view0_large = target_view0
@@ -196,11 +191,17 @@ class DetConBLoss(Module):
             enlarged_b = b * dist.get_world_size()
             labels_local = F.one_hot(labels_idx, num_classes=enlarged_b)
 
+        # normalize
+        pred_view0 = F.normalize(pred_view0, p=2, dim=2)
+        pred_view1 = F.normalize(pred_view1, p=2, dim=2)
+        target_view0_large = F.normalize(target_view0_large, p=2, dim=2)
+        target_view1_large = F.normalize(target_view1_large, p=2, dim=2)
+
         ### Expand Labels ###
         # labels_local at this point only points towards the diagonal of the batch, i.e.
         # indicates to compare between the same samples across views.
         labels_local = labels_local[:, None, :, None]
-        assert labels_local.size() == (b, 1, b, 1)
+        # assert labels_local.size() == (b, 1, b, 1)
 
         ### Calculate Similarity Matrices ###
         # tensors of shape (b, m, b, m), indicating similarities between regions across
@@ -221,32 +222,20 @@ class DetConBLoss(Module):
             torch.einsum("abk,uvk->abuv", pred_view1, target_view0_large)
             / self.temperature
         )
-        assert logits_aa.size() == (b, m, b, m)
-        assert logits_bb.size() == (b, m, b, m)
-        assert logits_ab.size() == (b, m, b, m)
-        assert logits_ba.size() == (b, m, b, m)
 
         ### Find Corresponding Regions Across Views ###
         same_mask_aa = _same_mask(mask_view0, mask_view0)
         same_mask_bb = _same_mask(mask_view1, mask_view1)
         same_mask_ab = _same_mask(mask_view0, mask_view1)
         same_mask_ba = _same_mask(mask_view1, mask_view0)
-        assert same_mask_aa.size() == (b, m, 1, m)
-        assert same_mask_bb.size() == (b, m, 1, m)
-        assert same_mask_ab.size() == (b, m, 1, m)
-        assert same_mask_ba.size() == (b, m, 1, m)
 
         ### Remove Similarities Between Corresponding Views But Different Regions ###
         # labels_local initially compared all features across views, but we only want to
         # compare the same regions across views.
-        labels_aa = labels_local * same_mask_aa # (b, 1, b, 1) * (b, m, 1, m)
+        labels_aa = labels_local * same_mask_aa  # (b, 1, b, 1) * (b, m, 1, m)
         labels_bb = labels_local * same_mask_bb
         labels_ab = labels_local * same_mask_ab
         labels_ba = labels_local * same_mask_ba
-        assert labels_aa.size() == (b, m, b, m)
-        assert labels_bb.size() == (b, m, b, m)
-        assert labels_ab.size() == (b, m, b, m)
-        assert labels_ba.size() == (b, m, b, m)
 
         ### Remove Logits And Lables Between The Same View ###
         logits_aa = logits_aa - infinity_proxy * labels_aa
@@ -274,8 +263,6 @@ class DetConBLoss(Module):
         # make sure we don't divide by zero
         obj_area_0 = torch.maximum(obj_area_0, torch.tensor(self.eps))
         obj_area_1 = torch.maximum(obj_area_1, torch.tensor(self.eps))
-        assert obj_area_0.size() == (b, m)
-        assert obj_area_1.size() == (b, m)
 
         ### Calculate Weights For The Loss ###
         # last dim of num_positives is anyway 1, from the torch.sum above
@@ -289,6 +276,8 @@ class DetConBLoss(Module):
         logits_babb = torch.cat([logits_ba, logits_bb], dim=2)
         logits_abaa = logits_abaa.view(b, m, -1)
         logits_babb = logits_babb.view(b, m, -1)
+
+        # return labels_0, logits_abaa, weights_0, labels_1, logits_babb, weights_1
 
         ### Derive Cross Entropy Loss ###
         # targets/labels are are a weighted float tensor of same shape as logits,
@@ -315,7 +304,7 @@ def _same_mask(mask0: Tensor, mask1: Tensor) -> Tensor:
             dimensions is for the regions/masks of the first view and the last :math:`M`
             dimensions is for the regions/masks of the second view. For every sample
             :math:`k` in the batch (separately), the tensor is effectively a 2D index
-            matrix where the entry :math:`(k, i, :, j)` is 1 if the masks :math:`m_i` 
+            matrix where the entry :math:`(k, i, :, j)` is 1 if the masks :math:`m_i`
             and :math:`m_j'` are the same and 0 otherwise.
     """
     return (mask0[:, :, None] == mask1[:, None, :]).float()[:, :, None, :]
