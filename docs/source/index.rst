@@ -14,11 +14,11 @@ Documentation
 ===================================
 
 .. note:: These pages document the Lightly self-supervised learning library.
-          If you are looking for the Lightly Worker Solution with
+          If you are looking for the Lightly\ **One** Worker Solution with
           advanced `active learning algorithms <https://docs.lightly.ai/docs/customize-a-selection>`_ and
           `selection strategies <https://docs.lightly.ai/docs/selection-examples-and-use-cases>`_ to select the best samples
           within millions of unlabeled images or video frames stored in your cloud storage or locally,
-          please follow our `Lightly Worker documentation <https://docs.lightly.ai/>`_.
+          please follow our Lightly\ **One** Worker `documentation <https://docs.lightly.ai/>`_.
 
 Lightly\ **SSL** is a computer vision framework for self-supervised learning.
 
@@ -37,8 +37,8 @@ Lightly AI
 ----------
 
 - `Homepage <https://www.lightly.ai>`_
-- `Lightly Worker Solution Documentation <https://docs.lightly.ai/>`_
-- `Lightly Platform <https://app.lightly.ai>`_
+- `Lightly\ **One** Worker Solution Documentation <https://docs.lightly.ai/>`_
+- `Lightly\ **One** Platform <https://app.lightly.ai>`_
 - `Github <https://github.com/lightly-ai/lightly>`_
 - `Discord <https://discord.gg/xvNJW94>`_ (We have weekly paper sessions!)
 
