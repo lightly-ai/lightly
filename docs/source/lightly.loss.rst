@@ -14,6 +14,12 @@ lightly.loss
 .. autoclass:: lightly.loss.dcl_loss.DCLWLoss
    :members:
 
+.. autoclass:: lightly.loss.detcon_loss.DetConBLoss
+   :members:
+
+.. autoclass:: lightly.loss.detcon_loss.DetConSLoss
+   :members:
+
 .. autoclass:: lightly.loss.dino_loss.DINOLoss
    :members:
 
