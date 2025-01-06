@@ -128,9 +128,7 @@ class DetConBLoss(Module):
         self.temperature = temperature
         self.gather_distributed = gather_distributed
         if abs(self.temperature) < self.eps:
-            raise ValueError(
-                f"Illegal temperature: abs({self.temperature}) < 1e-8"
-            )
+            raise ValueError(f"Illegal temperature: abs({self.temperature}) < 1e-8")
         if self.gather_distributed and not dist.is_available():
             raise ValueError(
                 "gather_distributed is True but torch.distributed is not available. "
