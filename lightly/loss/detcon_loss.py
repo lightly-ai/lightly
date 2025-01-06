@@ -264,9 +264,9 @@ class DetConBLoss(Module):
 
         ### Calculate Weights For The Loss ###
         # last dim of num_positives is anyway 1, from the torch.sum above
-        weights_0 = torch.gt(num_positives_0[..., 0], 1e-3).float()
+        weights_0 = torch.gt(num_positives_0.squeeze(-1), 1e-3).float()
         weights_0 = weights_0 / obj_area_0
-        weights_1 = torch.gt(num_positives_1[..., 0], 1e-3).float()
+        weights_1 = torch.gt(num_positives_1.squeeze(-1), 1e-3).float()
         weights_1 = weights_1 / obj_area_1
 
         ### Arrange Logits ###
