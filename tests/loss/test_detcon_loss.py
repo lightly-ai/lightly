@@ -1,26 +1,8 @@
-from __future__ import annotations
-
-from typing import TYPE_CHECKING, Any, Generic, List, Tuple, TypeVar
-from unittest import mock
-
 import numpy as np
 import numpy.linalg as npl
 import pytest
 import scipy.special as sps
 import torch
-
-if TYPE_CHECKING:
-    from numpy.typing import NDArray
-else:
-    try:
-        from numpy.typing import NDArray
-    except ImportError:
-        T = TypeVar("T", bound=np.generic)
-
-        class NDArray(Generic[T]):
-            pass
-
-
 from pytest_mock import MockerFixture
 from torch import Tensor
 from torch import distributed as dist
@@ -155,19 +137,19 @@ def test_DetConBLoss_distributed_against_original(
 # 4. commented unused
 # 5. change hk.one_hot to np.eye
 # 6. changer helper function (norm) to numpy.linalg.norm
-def byol_nce_detcon(
-    pred1: NDArray[np.float64],
-    pred2: NDArray[np.float64],
-    target1: NDArray[np.float64],
-    target2: NDArray[np.float64],
-    pind1: NDArray[np.int64],
-    pind2: NDArray[np.int64],
-    tind1: NDArray[np.int64],
-    tind2: NDArray[np.int64],
-    temperature: float = 0.1,
-    use_replicator_loss: bool = True,
-    local_negatives: bool = True,
-) -> float:
+def byol_nce_detcon(  # type: ignore
+    pred1,
+    pred2,
+    target1,
+    target2,
+    pind1,
+    pind2,
+    tind1,
+    tind2,
+    temperature=0.1,
+    use_replicator_loss=True,
+    local_negatives=True,
+):
     """Compute the NCE scores from pairs of predictions and targets.
 
     This implements the batched form of the loss described in
@@ -195,16 +177,12 @@ def byol_nce_detcon(
     feature_dim = pred1.shape[-1]
     infinity_proxy = 1e9  # Used for masks to proxy a very large number.
 
-    def make_same_obj(
-        ind_0: NDArray[np.int64], ind_1: NDArray[np.int64]
-    ) -> NDArray[np.float32]:
-        same_obj: NDArray[np.bool_] = np.equal(
+    def make_same_obj(ind_0, ind_1):  # type: ignore
+        same_obj = np.equal(
             ind_0.reshape([batch_size, num_rois, 1]),
             ind_1.reshape([batch_size, 1, num_rois]),
         )
-        same_obj2: NDArray[np.float32] = np.expand_dims(
-            same_obj.astype(np.float32), axis=2
-        )
+        same_obj2 = np.expand_dims(same_obj.astype(np.float32), axis=2)
         return same_obj2
 
     same_obj_aa = make_same_obj(pind1, tind1)
@@ -282,11 +260,11 @@ def byol_nce_detcon(
     return loss
 
 
-def manual_cross_entropy(
-    labels: NDArray[np.float32],
-    logits: NDArray[np.float32],
-    weight: NDArray[np.float32],
-) -> float:
+def manual_cross_entropy(  # type: ignore
+    labels,
+    logits,
+    weight,
+):
     ce = -weight * np.sum(labels * sps.log_softmax(logits, axis=-1), axis=-1)
     mean: float = np.mean(ce)
     return mean

@@ -1,10 +1,7 @@
-from math import log
-
 import torch
 import torch.nn.functional as F
 from torch import Tensor
 from torch import distributed as dist
-from torch import distributed as torch_dist
 from torch.nn import Module
 
 
@@ -133,7 +130,7 @@ class DetConBLoss(Module):
             raise ValueError(
                 "Illegal temperature: abs({}) < 1e-8".format(self.temperature)
             )
-        if self.gather_distributed and not torch_dist.is_available():
+        if self.gather_distributed and not dist.is_available():
             raise ValueError(
                 "gather_distributed is True but torch.distributed is not available. "
                 "Please set gather_distributed=False or install a torch version with "
