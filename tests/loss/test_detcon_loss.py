@@ -1,4 +1,6 @@
-from typing import Any, List, Tuple
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Generic, List, Tuple, TypeVar
 from unittest import mock
 
 import numpy as np
@@ -6,7 +8,19 @@ import numpy.linalg as npl
 import pytest
 import scipy.special as sps
 import torch
-from numpy.typing import NDArray
+
+if TYPE_CHECKING:
+    from numpy.typing import NDArray
+else:
+    try:
+        from numpy.typing import NDArray
+    except ImportError:
+        T = TypeVar("T", bound=np.generic)
+
+        class NDArray(Generic[T]):
+            pass
+
+
 from pytest_mock import MockerFixture
 from torch import Tensor
 from torch import distributed as dist
