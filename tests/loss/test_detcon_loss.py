@@ -7,124 +7,139 @@ from pytest_mock import MockerFixture
 from torch import Tensor
 from torch import distributed as dist
 
-from lightly.loss import DetConBLoss
+from lightly.loss import DetConBLoss, DetConSLoss
 
 
-@pytest.mark.parametrize(
-    "temperature,batch_size,num_classes,sampled_masks,emb_dim",
-    [
-        [0.1, 4, 16, 24, 32],
-        [0.5, 8, 32, 16, 64],
-        [1.0, 16, 64, 32, 128],
-    ],
-)
-def test_DetConBLoss_against_original(
-    temperature: float,
-    batch_size: int,
-    num_classes: int,
-    sampled_masks: int,
-    emb_dim: int,
-) -> None:
-    pred1 = torch.randn(batch_size, sampled_masks, emb_dim)
-    pred2 = torch.randn(batch_size, sampled_masks, emb_dim)
-    target1 = torch.randn(batch_size, sampled_masks, emb_dim)
-    target2 = torch.randn(batch_size, sampled_masks, emb_dim)
+class TestDetConSLoss:
+    def test_DetConSLoss(self) -> None:
+        loss_fn = DetConSLoss(gather_distributed=False)
+        pred1 = torch.randn(4, 24, 32)
+        pred2 = torch.randn(4, 24, 32)
+        mask1 = torch.randint(0, 16, (4, 24))
+        mask2 = torch.randint(0, 16, (4, 24))
+        loss = loss_fn(pred1, pred2, mask1, mask2)
+        assert loss.shape == torch.Size([])
 
-    mask1 = torch.randint(0, num_classes, (batch_size, sampled_masks))
-    mask2 = torch.randint(0, num_classes, (batch_size, sampled_masks))
 
-    orig_loss = byol_nce_detcon(
-        pred1.numpy(),
-        pred2.numpy(),
-        target1.numpy(),
-        target2.numpy(),
-        mask1.numpy(),
-        mask2.numpy(),
-        mask1.numpy(),
-        mask2.numpy(),
-        temperature=temperature,
+class TestDetConBLoss:
+    @pytest.mark.parametrize(
+        "temperature,batch_size,num_classes,sampled_masks,emb_dim",
+        [
+            [0.1, 4, 16, 24, 32],
+            [0.5, 8, 32, 16, 64],
+            [1.0, 16, 64, 32, 128],
+        ],
     )
+    def test_DetConBLoss_against_original(
+        self,
+        temperature: float,
+        batch_size: int,
+        num_classes: int,
+        sampled_masks: int,
+        emb_dim: int,
+    ) -> None:
+        pred1 = torch.randn(batch_size, sampled_masks, emb_dim)
+        pred2 = torch.randn(batch_size, sampled_masks, emb_dim)
+        target1 = torch.randn(batch_size, sampled_masks, emb_dim)
+        target2 = torch.randn(batch_size, sampled_masks, emb_dim)
 
-    loss_fn = DetConBLoss(temperature=temperature, gather_distributed=False)
-    loss = loss_fn(pred1, pred2, target1, target2, mask1, mask2)
+        mask1 = torch.randint(0, num_classes, (batch_size, sampled_masks))
+        mask2 = torch.randint(0, num_classes, (batch_size, sampled_masks))
 
-    assert torch.allclose(loss, torch.tensor(orig_loss, dtype=torch.float32), atol=1e-4)
-
-
-@pytest.mark.parametrize(
-    "temperature,batch_size,num_classes,sampled_masks,emb_dim,world_size",
-    [
-        [0.1, 4, 16, 24, 32, 1],
-        [0.5, 8, 32, 16, 64, 2],
-        [1.0, 16, 64, 32, 128, 4],
-    ],
-)
-def test_DetConBLoss_distributed_against_original(
-    mocker: MockerFixture,
-    temperature: float,
-    batch_size: int,
-    num_classes: int,
-    sampled_masks: int,
-    emb_dim: int,
-    world_size: int,
-) -> None:
-    tensors = [
-        {
-            "pred1": torch.randn(batch_size, sampled_masks, emb_dim),
-            "pred2": torch.randn(batch_size, sampled_masks, emb_dim),
-            "target1": torch.randn(batch_size, sampled_masks, emb_dim),
-            "target2": torch.randn(batch_size, sampled_masks, emb_dim),
-            "mask1": torch.randint(0, num_classes, (batch_size, sampled_masks)),
-            "mask2": torch.randint(0, num_classes, (batch_size, sampled_masks)),
-        }
-        for _ in range(world_size)
-    ]
-
-    # calculate non-distributed by packing all batches
-    loss_nondist = byol_nce_detcon(
-        torch.cat([t["pred1"] for t in tensors], dim=0).numpy(),
-        torch.cat([t["pred2"] for t in tensors], dim=0).numpy(),
-        torch.cat([t["target1"] for t in tensors], dim=0).numpy(),
-        torch.cat([t["target2"] for t in tensors], dim=0).numpy(),
-        torch.cat([t["mask1"] for t in tensors], dim=0).numpy(),
-        torch.cat([t["mask2"] for t in tensors], dim=0).numpy(),
-        torch.cat([t["mask1"] for t in tensors], dim=0).numpy(),
-        torch.cat([t["mask2"] for t in tensors], dim=0).numpy(),
-        temperature=temperature,
-    )
-
-    mock_is_available = mocker.patch.object(dist, "is_available", return_value=True)
-    mock_get_world_size = mocker.patch.object(
-        dist, "get_world_size", return_value=world_size
-    )
-
-    loss_fn = DetConBLoss(temperature=temperature, gather_distributed=True)
-
-    total_loss: Tensor = torch.tensor(0.0)
-    for rank in range(world_size):
-        mock_get_rank = mocker.patch.object(dist, "get_rank", return_value=rank)
-        mock_gather = mocker.patch.object(
-            dist,
-            "gather",
-            side_effect=[
-                [t["target1"] for t in tensors],
-                [t["target2"] for t in tensors],
-            ],
+        orig_loss = byol_nce_detcon(
+            pred1.numpy(),
+            pred2.numpy(),
+            target1.numpy(),
+            target2.numpy(),
+            mask1.numpy(),
+            mask2.numpy(),
+            mask1.numpy(),
+            mask2.numpy(),
+            temperature=temperature,
         )
-        loss_val = loss_fn(
-            tensors[rank]["pred1"],
-            tensors[rank]["pred2"],
-            tensors[rank]["target1"],
-            tensors[rank]["target2"],
-            tensors[rank]["mask1"],
-            tensors[rank]["mask2"],
-        )
-        total_loss += loss_val
-    total_loss /= world_size
 
-    assert torch.allclose(
-        total_loss, torch.tensor(loss_nondist, dtype=torch.float32), atol=1e-4
+        loss_fn = DetConBLoss(temperature=temperature, gather_distributed=False)
+        loss = loss_fn(pred1, pred2, target1, target2, mask1, mask2)
+
+        assert torch.allclose(
+            loss, torch.tensor(orig_loss, dtype=torch.float32), atol=1e-4
+        )
+
+    @pytest.mark.parametrize(
+        "temperature,batch_size,num_classes,sampled_masks,emb_dim,world_size",
+        [
+            [0.1, 4, 16, 24, 32, 1],
+            [0.5, 8, 32, 16, 64, 2],
+            [1.0, 16, 64, 32, 128, 4],
+        ],
     )
+    def test_DetConBLoss_distributed_against_original(
+        self,
+        mocker: MockerFixture,
+        temperature: float,
+        batch_size: int,
+        num_classes: int,
+        sampled_masks: int,
+        emb_dim: int,
+        world_size: int,
+    ) -> None:
+        tensors = [
+            {
+                "pred1": torch.randn(batch_size, sampled_masks, emb_dim),
+                "pred2": torch.randn(batch_size, sampled_masks, emb_dim),
+                "target1": torch.randn(batch_size, sampled_masks, emb_dim),
+                "target2": torch.randn(batch_size, sampled_masks, emb_dim),
+                "mask1": torch.randint(0, num_classes, (batch_size, sampled_masks)),
+                "mask2": torch.randint(0, num_classes, (batch_size, sampled_masks)),
+            }
+            for _ in range(world_size)
+        ]
+
+        # calculate non-distributed by packing all batches
+        loss_nondist = byol_nce_detcon(
+            torch.cat([t["pred1"] for t in tensors], dim=0).numpy(),
+            torch.cat([t["pred2"] for t in tensors], dim=0).numpy(),
+            torch.cat([t["target1"] for t in tensors], dim=0).numpy(),
+            torch.cat([t["target2"] for t in tensors], dim=0).numpy(),
+            torch.cat([t["mask1"] for t in tensors], dim=0).numpy(),
+            torch.cat([t["mask2"] for t in tensors], dim=0).numpy(),
+            torch.cat([t["mask1"] for t in tensors], dim=0).numpy(),
+            torch.cat([t["mask2"] for t in tensors], dim=0).numpy(),
+            temperature=temperature,
+        )
+
+        mock_is_available = mocker.patch.object(dist, "is_available", return_value=True)
+        mock_get_world_size = mocker.patch.object(
+            dist, "get_world_size", return_value=world_size
+        )
+
+        loss_fn = DetConBLoss(temperature=temperature, gather_distributed=True)
+
+        total_loss: Tensor = torch.tensor(0.0)
+        for rank in range(world_size):
+            mock_get_rank = mocker.patch.object(dist, "get_rank", return_value=rank)
+            mock_gather = mocker.patch.object(
+                dist,
+                "gather",
+                side_effect=[
+                    [t["target1"] for t in tensors],
+                    [t["target2"] for t in tensors],
+                ],
+            )
+            loss_val = loss_fn(
+                tensors[rank]["pred1"],
+                tensors[rank]["pred2"],
+                tensors[rank]["target1"],
+                tensors[rank]["target2"],
+                tensors[rank]["mask1"],
+                tensors[rank]["mask2"],
+            )
+            total_loss += loss_val
+        total_loss /= world_size
+
+        assert torch.allclose(
+            total_loss, torch.tensor(loss_nondist, dtype=torch.float32), atol=1e-4
+        )
 
 
 ### Original JAX/haiku Implementation with Minimal Changes ###
