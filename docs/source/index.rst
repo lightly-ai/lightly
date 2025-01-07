@@ -36,9 +36,19 @@ a single command, please contact sales@lightly.ai.
 Lightly AI
 ----------
 
+.. |lightly_worker_with_bold_one| raw:: html
+
+   <a href="https://docs.lightly.ai" target="_blank">Lightly<strong>One</strong> Worker Solution Documentation</a>
+
+
+.. |lightly_app_with_bold_one| raw:: html
+
+   <a href="https://app.lightly.ai" target="_blank">Lightly<strong>One</strong> Platform</a>
+
+
 - `Homepage <https://www.lightly.ai>`_
-- `Lightly\ **One** Worker Solution Documentation <https://docs.lightly.ai/>`_
-- `Lightly\ **One** Platform <https://app.lightly.ai>`_
+- |lightly_worker_with_bold_one|
+- |lightly_app_with_bold_one|
 - `Github <https://github.com/lightly-ai/lightly>`_
 - `Discord <https://discord.gg/xvNJW94>`_ (We have weekly paper sessions!)
 
