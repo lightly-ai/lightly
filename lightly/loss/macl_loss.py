@@ -37,7 +37,10 @@ class MACLLoss(nn.Module):
         cov = out @ out.T
         
         # Get positive and negative pairs
-        mask = self.mask_correlated_samples(batch_size).to(out.device)
+        mask = cov.new_ones(cov.shape, dtype=bool)
+        mask.diagonal()[:] = False
+        mask.diagonal(batch_size)[:] = False
+        mask.diagonal(-batch_size)[:] = False
         neg = cov.masked_select(mask).view(n_samples, -1)
         
         # Get positive pairs from upper and lower diagonals
