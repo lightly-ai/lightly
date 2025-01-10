@@ -104,15 +104,6 @@ class TestMaskReduce:
         assert out_manual.shape == (1, 3, 2)
         assert (out_manual == expected_result2[:, :2]).all()
 
-    def test_masked_pooling_auto(
-        self, feature_map2: Tensor, mask2: Tensor, expected_result2: Tensor
-    ) -> None:
-        out_auto = pool_masked(
-            feature_map2.unsqueeze(0), mask2.unsqueeze(0), num_cls=None
-        )
-        assert out_auto.shape == (1, 3, 2)
-        assert (out_auto == expected_result2[:, :2]).all()
-
     # Type ignore because untyped decorator makes function untyped.
     @pytest.mark.parametrize(
         "feature_map, mask, expected_result",
