@@ -52,7 +52,7 @@ def torchvision_transforms_v2_available() -> bool:
         True if transforms.v2 are available, False otherwise
     """
     try:
-        from torchvision.transforms import v2
+        from torchvision.tv_tensors import Mask
     except ImportError:
         return False
     return True
