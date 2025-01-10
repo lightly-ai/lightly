@@ -214,7 +214,7 @@ class _TagsMixin:
         num_selected_samples = len(bitmask.to_indices())
         if num_selected_samples != len(fnames_new_tag):
             raise RuntimeError(
-                "An error occured when creating the new subset! "
+                "An error occurred when creating the new subset! "
                 f"Out of the {len(fnames_new_tag)} filenames you provided "
                 f"to create a new tag, only {num_selected_samples} have been "
                 "found on the server. "
