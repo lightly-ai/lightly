@@ -41,8 +41,7 @@ def pool_masked(
         num_cls: The number of classes in the possible masks.
 
     Returns:
-        A tensor of shape :math:`(B, C, N)` or :math:`(C, N)` where :math:`N`
-        corresponds to `num_cls`.
+        A tensor of shape :math:`(B, C, num_cls)` or :math:`(C, num_cls)`.
     """
     if source.dim() == 3:
         return _mask_reduce(source, mask, reduce, num_cls)
