@@ -5,9 +5,10 @@ import scipy.special as sps
 import torch
 from pytest_mock import MockerFixture
 from torch import Tensor
-from torch import distributed as dist
+from torch import distributed as torch_dist
 
 from lightly.loss import DetConBLoss, DetConSLoss
+from lightly.utils import dist as lightly_dist
 
 
 class TestDetConSLoss:
@@ -108,18 +109,20 @@ class TestDetConBLoss:
             temperature=temperature,
         )
 
-        mock_is_available = mocker.patch.object(dist, "is_available", return_value=True)
+        mock_is_available = mocker.patch.object(
+            torch_dist, "is_available", return_value=True
+        )
         mock_get_world_size = mocker.patch.object(
-            dist, "get_world_size", return_value=world_size
+            lightly_dist, "world_size", return_value=world_size
         )
 
         loss_fn = DetConBLoss(temperature=temperature, gather_distributed=True)
 
         total_loss: Tensor = torch.tensor(0.0)
         for rank in range(world_size):
-            mock_get_rank = mocker.patch.object(dist, "get_rank", return_value=rank)
+            mock_get_rank = mocker.patch.object(lightly_dist, "rank", return_value=rank)
             mock_gather = mocker.patch.object(
-                dist,
+                lightly_dist,
                 "gather",
                 side_effect=[
                     [t["target1"] for t in tensors],
@@ -137,6 +140,7 @@ class TestDetConBLoss:
             total_loss += loss_val
         total_loss /= world_size
 
+        print(world_size, total_loss, loss_nondist)
         assert torch.allclose(
             total_loss, torch.tensor(loss_nondist, dtype=torch.float32), atol=1e-4
         )
