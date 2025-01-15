@@ -1,8 +1,10 @@
 import torch
 import torch.nn.functional as F
 from torch import Tensor
-from torch import distributed as dist
+from torch import distributed as torch_dist
 from torch.nn import Module
+
+import lightly.utils.dist as lightly_dist
 
 
 class DetConSLoss(Module):
@@ -129,7 +131,7 @@ class DetConBLoss(Module):
         self.gather_distributed = gather_distributed
         if abs(self.temperature) < self.eps:
             raise ValueError(f"Illegal temperature: abs({self.temperature}) < 1e-8")
-        if self.gather_distributed and not dist.is_available():
+        if self.gather_distributed and not torch_dist.is_available():
             raise ValueError(
                 "gather_distributed is True but torch.distributed is not available. "
                 "Please set gather_distributed=False or install a torch version with "
@@ -175,18 +177,18 @@ class DetConBLoss(Module):
         infinity_proxy = 1e9
 
         # gather distributed
-        if not self.gather_distributed or dist.get_world_size() < 2:
+        if self.gather_distributed and lightly_dist.world_size() > 1:
+            target_view0_large = torch.cat(lightly_dist.gather(target_view0), dim=0)
+            target_view1_large = torch.cat(lightly_dist.gather(target_view1), dim=0)
+            replica_id = lightly_dist.rank()
+            labels_idx = torch.arange(b, device=pred_view0.device) + replica_id * b
+            enlarged_b = b * lightly_dist.world_size()
+            labels_local = F.one_hot(labels_idx, num_classes=enlarged_b)
+        else:
             target_view0_large = target_view0
             target_view1_large = target_view1
             labels_local = torch.eye(b, device=pred_view0.device)
             enlarged_b = b
-        else:
-            target_view0_large = torch.cat(dist.gather(target_view0), dim=0)
-            target_view1_large = torch.cat(dist.gather(target_view1), dim=0)
-            replica_id = dist.get_rank()
-            labels_idx = torch.arange(b, device=pred_view0.device) + replica_id * b
-            enlarged_b = b * dist.get_world_size()
-            labels_local = F.one_hot(labels_idx, num_classes=enlarged_b)
 
         # normalize
         pred_view0 = F.normalize(pred_view0, p=2, dim=2)
