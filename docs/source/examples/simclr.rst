@@ -3,7 +3,21 @@
 SimCLR
 ======
 
-Example implementation of the SimCLR architecture.
+SimCLR is a framework for self-supervised learning of visual representations using contrastive learning. It aims to maximize agreement between different augmented views of the same image.
+
+Key Components
+--------------
+
+- **Data Augmentations**: SimCLR uses random cropping, resizing, color jittering, and Gaussian blur to create diverse views of the same image.
+- **Backbone**: Convolutional neural networks, such as ResNet, are employed to encode augmented images into feature representations.
+- **Projection Head**: A multilayer perceptron (MLP) maps features into a space where contrastive loss is applied, enhancing representation quality.
+- **Contrastive Loss**: The normalized temperature-scaled cross-entropy loss (NT-Xent) encourages similar pairs to align and dissimilar pairs to diverge.
+
+Good to Know
+----------------
+
+- **Backbone Networks**: SimCLR is specifically optimized for convolutional neural networks, with a focus on ResNet architectures. We do not recommend using it with transformer-based models.
+- **Learning Paradigm**: SimCLR is based on contrastive learning which makes it sensitive to the augmentations you pick and the method benefits from larger batch sizes.
 
 Reference:
     `A Simple Framework for Contrastive Learning of Visual Representations, 2020 <https://arxiv.org/abs/2002.05709>`_
