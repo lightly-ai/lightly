@@ -3,7 +3,7 @@
 SimCLR
 ======
 
-SimCLR is a framework for self-supervised learning of visual representations using contrastive learning. It aims to maximize agreement between different augmented views of the same image.
+SimCLR is a self-supervised framework for visual representation learning using contrastive methods. It learns by creating two augmented views of the same image—using random cropping, color jitter, and Gaussian blur—then maximizing agreement between these augmented views while separating them from other images. Key findings include the importance of strong compositions of data augmentations, a nonlinear projection head that boosts representation quality, and the advantages of large batch sizes. Combined, these elements allow SimCLR to approach or match supervised performance on ImageNet and achieve strong transfer and semi-supervised learning results.
 
 Key Components
 --------------
