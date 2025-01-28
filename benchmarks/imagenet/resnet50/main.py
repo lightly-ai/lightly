@@ -121,7 +121,7 @@ def main(
                 precision=precision,
                 ckpt_path=ckpt_path,
             )
-        eval_metrics: Dict[str, Dict[str, float]] = Dict()
+        eval_metrics: Dict[str, Dict[str, float]] = dict()
         if skip_knn_eval:
             print_rank_zero("Skipping KNN eval.")
         else:
