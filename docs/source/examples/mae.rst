@@ -21,7 +21,7 @@ Key Components
 --------------
 
 - **Data Augmentations**:  Unlike contrastive and most self-distillation methods, MAE minimizes reliance on handcrafted data augmentations. The only augmentation used is random resized cropping.
-- **Masking**: MAE applies masking by selecting a fraction (typically 25%) of image tokens to feed into the transformer encoder. 
+- **Masking**: MAE applies masking to 75% of the input patches, meaning only 25% of the image tokens are fed into the transformer encoder. 
 - **Backbone**: MAE employs a standard ViT to encode the masked images.
 - **Decoder**: The decoder processes visible tokens alongside shared, learnable mask tokens. It reconstructs the original input image by predicting the pixel values of the masked patches.
 - **Reconstruction Loss**: A Mean Squared Error (MSE) loss is applied between the original and reconstructed pixel values of the masked patches.
@@ -30,9 +30,10 @@ Good to Know
 ----------------
 
 - **Backbone Networks**: The masking process used by MAE is inherently incompatible with convolutional-based architectures.
-- **Computational efficiency**: The masking mechanism allows the encoder to process only a subset of the image tokens, significantly reducing computational overhead.
+- **Computational Efficiency**: The masking mechanism allows the encoder to process only a subset of the image tokens, significantly reducing computational overhead.
 - **Scalability**: MAE demonstrates excellent scalability with respect to both model and data size as demonstrated `here. <https://arxiv.org/abs/2303.13496>`_
-- **Versatility**: The minimal reliance on handcrafted data augmentations makes MAE adaptable to diverse data domains. For example, its applications in medical imaging is discussed in `this study. <https://arxiv.org/abs/2203.05573>`_
+- **Versatility**: The minimal reliance on handcrafted data augmentations makes MAE adaptable to diverse data domains. For example, its application in medical imaging is discussed in `this study. <https://arxiv.org/abs/2203.05573>`_
+- **Shallow Evaluations**: Despite their strong performance in the fine-tuning regime, models trained with MAE tend to underperform in shallow evaluations, such as k-NN or linear evaluation with a frozen backbone.
 
 Reference:
     `Masked Autoencoders Are Scalable Vision Learners, 2021 <https://arxiv.org/abs/2111.06377>`_
