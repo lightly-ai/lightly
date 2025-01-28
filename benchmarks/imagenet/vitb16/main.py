@@ -100,7 +100,7 @@ def main(
                 strategy=strategy,
             )
 
-        eval_metrics: Dict[str, Dict[str, float]] = Dict()
+        eval_metrics: Dict[str, Dict[str, float]] = dict()
         if skip_knn_eval:
             print("Skipping KNN eval.")
         else:
