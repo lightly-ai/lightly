@@ -41,7 +41,7 @@ class _ExportDatasetMixin:
         label_studio_tasks: List[LabelStudioTask] = list(
             utils.paginate_endpoint(
                 self._tags_api.export_tag_to_label_studio_tasks,
-                page_size=20000,
+                page_size=2500,
                 dataset_id=self.dataset_id,
                 tag_id=tag_id,
             )
@@ -116,7 +116,7 @@ class _ExportDatasetMixin:
         label_box_data_rows: List[LabelBoxDataRow] = list(
             utils.paginate_endpoint(
                 self._tags_api.export_tag_to_label_box_data_rows,
-                page_size=20000,
+                page_size=2500,
                 dataset_id=self.dataset_id,
                 tag_id=tag_id,
             )
@@ -189,7 +189,7 @@ class _ExportDatasetMixin:
         label_box_data_rows: List[LabelBoxV4DataRow] = list(
             utils.paginate_endpoint(
                 self._tags_api.export_tag_to_label_box_v4_data_rows,
-                page_size=20000,
+                page_size=2500,
                 dataset_id=self.dataset_id,
                 tag_id=tag_id,
             )
