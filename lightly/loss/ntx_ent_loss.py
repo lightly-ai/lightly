@@ -53,11 +53,10 @@ class NTXentLoss(nn.Module):
         >>> t1 = transforms(images)
         >>>
         >>> # feed through SimCLR or MoCo model
-        >>> batch = torch.cat((t0, t1), dim=0)
-        >>> output = model(batch)
+        >>> out0, out1 = model(t0), model(t1)
         >>>
         >>> # calculate loss
-        >>> loss = loss_fn(output)
+        >>> loss = loss_fn(out0, out1)
 
     """
 
