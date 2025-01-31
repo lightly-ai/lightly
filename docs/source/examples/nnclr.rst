@@ -10,6 +10,7 @@ NNCLR is a self-supervised framework for visual representation learning that bui
 3. Architectural Adjustments: NNCLR employs different sizes for projection and prediction head layers compared to SimCLR.
 
 These improvements result in significantly better performance across multiple self-supervised learning benchmarks. Compared to SimCLR and other self-supervised methods, NNCLR achieves:
+
 - Higher ImageNet linear evaluation accuracy.
 - Improved semi-supervised learning results.
 - Superior performance on transfer learning tasks, outperforming BYOL, SimCLR, and even supervised ImageNet pretraining in 8 out of 12 benchmarked cases.
