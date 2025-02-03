@@ -300,7 +300,7 @@ class _DownloadDatasetMixin:
         label_studio_tasks = list(
             utils.paginate_endpoint(
                 self._tags_api.export_tag_to_label_studio_tasks,
-                page_size=20000,
+                page_size=2500,
                 dataset_id=self.dataset_id,
                 tag_id=tag_id,
             )
