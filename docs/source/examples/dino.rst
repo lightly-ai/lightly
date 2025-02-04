@@ -3,10 +3,45 @@
 DINO
 ====
 
-Example implementation of the DINO architecture.
+DINO (Distillation with No Labels) [0]_ is a self-supervised learning framework for
+visual representation learning using knowledge distillation. It trains a student network
+to match the output of a momentum-averaged teacher network without requiring labeled
+data. DINO uses a self-distillation objective with a cross-entropy loss between the
+student and teacher outputs, avoiding the need for contrastive pairs. Key elements
+include centering and sharpening mechanisms to stabilize training, multi-crop
+augmentation for efficient learning, and the ability to learn semantically meaningful
+features without supervision. DINO achieves strong performance on image clustering,
+segmentation, and zero-shot transfer tasks, demonstrating the emergence of
+object-centric representations.
+
+
+Key Components
+--------------
+
+- **Data Augmentations**: DINO [0]_ uses random cropping, resizing, color jittering, and
+  Gaussian blur to create diverse views of the same image. In particular, DINO
+  generates two global views and multiple local views that are smaller crops of the
+  original image.
+- **Backbone**: Vision transformers, such as ViT, and convolutional neural networks,
+  such as ResNet, are employed to encode augmented images into feature representations.
+- **Projection Head**: A multilayer perceptron (MLP) maps features into a space where
+  the self-distillation loss is applied, enhancing representation quality.
+- **Distillation Loss**: The self-distillation loss encourages the student network to
+  learn the teacher network's representations on the augmented views of the same image.
+
+Good to Know
+------------
+
+- **Backbone Networks**: DINO [0]_ works well with transformer and convolutional neural
+    network architectures.
+- **Feature Quality**: DINO [0]_ learns particularly strong features without fine-tuning
+    on downstream tasks. This is especially useful for clustering or
+    k-Nearest Neighbors (kNN) classification.
+
 
 Reference:
-    `Emerging Properties in Self-Supervised Vision Transformers, 2021 <https://arxiv.org/abs/2104.14294>`_
+
+    .. [0] `Emerging Properties in Self-Supervised Vision Transformers, 2021 <https://arxiv.org/abs/2104.14294>`_
 
 
 .. tabs::
