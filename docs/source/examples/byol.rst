@@ -7,7 +7,7 @@ BYOL (Bootstrap Your Own Latent) [0]_ is a self-supervised learning framework fo
 representation learning without negative samples. Unlike contrastive learning methods, 
 such as MoCo [1]_ and SimCLR [2]_ that compare positive and negative pairs, BYOL uses 
 two neural networks – "online" and "target" – where the online network is 
-trained to predict the target’s representations of the same image under different 
+trained to predict the target’s representation of the same image under different 
 augmentations, yielding in iterative bootstrapping of the latent samples. 
 The target's weights are updated as the exponential moving average 
 (EMA) of the online network, and the authors show that this is enough to prevent 
