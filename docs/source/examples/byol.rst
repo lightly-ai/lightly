@@ -13,7 +13,7 @@ The target's weights are updated as the exponential moving average
 (EMA) of the online network, and the authors show that this is sufficient to prevent 
 collapse to trivial solutions. The authors also show that due to the absence
 of negative samples, BYOL is less sensitive to the batch size during training and manages
-to achieve state-of-the-art on several semi-supervised and transfer learning benchmarks.
+to achieve state-of-the-art performance on several semi-supervised and transfer learning benchmarks.
 
 Key Components
 --------------
