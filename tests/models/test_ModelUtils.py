@@ -138,6 +138,14 @@ class TestMaskReduce:
         out = _mask_reduce(feature_map, mask, num_cls=3)
         assert (out == expected_result).all()
 
+    def test_singular_mask(self) -> None:
+        b, c, h, w = 4, 16, 4, 4
+        proj = torch.randn((b, c, h, w))
+        mask = torch.zeros((b, h, w), dtype=torch.int64)
+        pooled_global = torch.mean(proj, dim=(2, 3)).unsqueeze(-1)  # (b, c, 1=num_cls)
+        pooled_mask = pool_masked(proj, mask, num_cls=1)  # (b, c, 1=num_cls)
+        assert torch.allclose(pooled_global, pooled_mask)
+
 
 def has_grad(model: nn.Module) -> bool:
     """Helper method to check if a model has `requires_grad` set to True"""
