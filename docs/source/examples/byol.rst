@@ -26,13 +26,14 @@ Key Components
 Good to Know
 -------------
 
-- **Backbone Networks**: SimCLR is specifically optimized for convolutional neural networks, with a focus on ResNet architectures. We do not recommend using it with transformer-based models.
+- **Backbone Networks**: SimCLR is specifically optimized for convolutional neural networks, with a focus on ResNet architectures. We do not recommend using it with transformer-based models and instead suggest using :doc:`DINO <dino>` [3]_.
 
 
 Reference:
     .. [0] `Bootstrap your own latent: A new approach to self-supervised Learning, 2020 <https://arxiv.org/abs/2006.07733>`_
     .. [1] `Momentum Contrast for Unsupervised Visual Representation Learning, 2019 <https://arxiv.org/abs/1911.05722>`_
     .. [2] `A Simple Framework for Contrastive Learning of Visual Representations, 2020 <https://arxiv.org/abs/2002.05709>`_
+    .. [3] `Emerging Properties in Self-Supervised Vision Transformers, 2021 <https://arxiv.org/abs/2104.14294>`_
 
 
 .. tabs::
