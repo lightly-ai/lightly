@@ -17,21 +17,15 @@ to achieve state-of-the-art on several semi-supervised and transfer learning ben
 Key Components
 --------------
 
-- **Data Augmentations**: BYOL [0]_ uses the same augmentations as SimCLR [2]_, namely
-    random resized crop, random horizontal flip, color distortions, Gaussian blur and
-    solarization. The color distortiion consits of a random sequence of brightness,
-    constrast, saturation, hue adjustments and an optional grayscale conversion. However
-    the hyperparameters for the augmentations are different from SimCLR [2]_.
-- **Backbone**: BYOL [0]_ uses ResNet-type convolutional backbones as the online and
-    target networks. They do not evaluate the performance of other architectures.
-- **Projection & Prediction Head**: A projection head is used to map the output of the
-    backbone to a lower-dimensional space. The target network once again relies on an
-    EMA of the online network's projection head for the projection head. A notable
-    architectureal choice is the use of an additional prediction head, a secondary MLP
-    appended to only the online network's projection head.
-- **Loss Function**: BYOL [0]_ uses a negative cosine similarity loss between the
-    normalized representations of the online's prediction output and the targe's
-    projection output.
+- **Data Augmentations**: BYOL [0]_ uses the same augmentations as SimCLR [2]_, namely random resized crop, random horizontal flip, color distortions, Gaussian blur and solarization. The color distortiion consits of a random sequence of brightness, constrast, saturation, hue adjustments and an optional grayscale conversion. However the hyperparameters for the augmentations are different from SimCLR [2]_.
+- **Backbone**: BYOL [0]_ uses ResNet-type convolutional backbones as the online and target networks. They do not evaluate the performance of other architectures.
+- **Projection & Prediction Head**: A projection head is used to map the output of the backbone to a lower-dimensional space. The target network once again relies on an EMA of the online network's projection head for the projection head. A notable architectureal choice is the use of an additional prediction head, a secondary MLP appended to only the online network's projection head.
+- **Loss Function**: BYOL [0]_ uses a negative cosine similarity loss between the normalized representations of the online's prediction output and the targe's projection output.
+
+Good to Know
+-------------
+
+- **Backbone Networks**: SimCLR is specifically optimized for convolutional neural networks, with a focus on ResNet architectures. We do not recommend using it with transformer-based models.
 
 
 Reference:
