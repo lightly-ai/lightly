@@ -6,6 +6,7 @@ lightning_logs/
 **/__MACOSX
 datasets/
 dist/
+docs/source/sg_execution_times.rst
 docs/source/tutorials/package/*
 docs/source/tutorials/platform/*
 docs/source/tutorials_source/platform/data
