@@ -9,7 +9,7 @@ architecture. It learns image representations by predicting pixel values for ima
 patches based on previous patches in the image. This is similar to the next word prediction
 task in natural language processing. AIM demonstrates that it is possible to train
 large-scale vision models using an autoregressive objective. The model is split into
-and encoder and a decoder part. The encoder generates features for image patches and
+an encoder and a decoder part. The encoder generates features for image patches and
 the decoder predicts pixel values based on the features.
 
 Reference:
