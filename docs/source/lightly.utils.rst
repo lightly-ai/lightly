@@ -34,7 +34,7 @@ lightly.utils
    :members:
 
 .version_compare
----------------
+-----------------
 .. automodule:: lightly.utils.version_compare
    :members:
 
