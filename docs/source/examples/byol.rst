@@ -10,7 +10,7 @@ two neural networks – "online" and "target" – where the online network is
 trained to predict the target’s representation of the same image under different 
 augmentations, yielding in iterative bootstrapping of the latent samples. 
 The target's weights are updated as the exponential moving average 
-(EMA) of the online network, and the authors show that this is enough to prevent 
+(EMA) of the online network, and the authors show that this is sufficient to prevent 
 collapse to trivial solutions. The authors also show that due to the absence
 of negative samples, BYOL is less sensitive to the batch size during training and manages
 to achieve state-of-the-art on several semi-supervised and transfer learning benchmarks.
