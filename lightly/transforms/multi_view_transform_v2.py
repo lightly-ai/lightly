@@ -9,7 +9,6 @@ class MultiViewTransformV2:
     Args:
         transforms:
             A sequence of v2 transforms. Every transform creates a new view.
-
     """
 
     def __init__(self, transforms: Sequence[T.Compose]):
@@ -27,7 +26,7 @@ class MultiViewTransformV2:
                 containing images, bounding boxes and masks.
 
         Returns:
-            A list of views, where each view is a transformed version of *args.
+            A list of views, where each view is a transformed version of `*args`.
 
         """
         return [transform(*args) for transform in self.transforms]
