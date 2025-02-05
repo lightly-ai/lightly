@@ -15,7 +15,9 @@ class MACLLoss(nn.Module):
         A_0: Initial threshold for the alignment magnitude.
 
     Raises:
-        ValueError: If the alpha value is not in the range [0, 1].
+        ValueError: 
+            If the initial temperature is less than 1e-8.
+            If the alpha value is not in the range [0, 1].
 
     Examples:
         >>> # initialize the loss function
@@ -38,6 +40,12 @@ class MACLLoss(nn.Module):
         self.t_0 = t_0
         self.alpha = alpha
         self.A_0 = A_0
+        self.eps = 1e-8
+
+        if self.t_0 < self.eps:
+            raise ValueError(
+                "Illegal initial temperature: abs({}) < 1e-8".format(self.t_0)
+            )
         
         if alpha < 0 or alpha > 1:
             raise ValueError("Alpha must be in the range [0, 1].")
@@ -58,7 +66,7 @@ class MACLLoss(nn.Module):
         Args:
             z0: 
                 First view embeddings
-                shape (batch_size, embedding_size)
+                Shape (batch_size, embedding_size)
             z1: 
                 Second view embeddings
                 Shape (batch_size, embedding_size)
@@ -74,7 +82,7 @@ class MACLLoss(nn.Module):
         out = torch.cat([z0, z1], dim=0)
         batch_size = z0.shape[0]
         n_samples = len(out)
-        
+
         # Compute similarity matrix
         cov = out @ out.T
         
@@ -93,11 +101,19 @@ class MACLLoss(nn.Module):
         # Calculate model-aware temperature
         A = torch.mean(pos.detach())
         t = self.t_0 * (1 + self.alpha * (A - self.A_0))
-        
-        # Calculate logits and loss
-        logits = torch.cat([pos, neg], dim=1)
-        P = torch.softmax(logits/t, dim=1)[:, 0]
-        V = 1 / (1 - P)
-        loss = -V.detach() * torch.log(P)
+
+        # 6) Compute stable log_softmax
+        logits = torch.cat([pos, neg], dim=1) / t
+        log_prob = F.log_softmax(logits, dim=1)
+
+        # 7) Extract log probability of the positive pair
+        log_pos_prob = log_prob[:, 0]
+
+        # 8) Compute P and V
+        P = log_pos_prob.exp()
+        V = 1.0 / (1.0 - P + self.eps)  # add eps to avoid division-by-zero
+
+        # 9) Compute final loss
+        loss = -V.detach() * log_pos_prob
         
         return loss.mean()
