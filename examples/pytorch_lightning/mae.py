@@ -118,6 +118,5 @@ trainer = pl.Trainer(
     max_epochs=10,
     devices=1,
     accelerator=accelerator,
-    strategy="ddp_find_unused_parameters_true",
 )
 trainer.fit(model=model, train_dataloaders=dataloader)
