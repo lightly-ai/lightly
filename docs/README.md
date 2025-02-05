@@ -28,6 +28,12 @@ To build docs without running python files (tutorials) use
 make html-noplot
 ```
 
+Since above command uses caching to speed up the build, some warnings may not appear after
+the initial build. It is therefore advisable to do a clean build from time to time
+```
+make clean-html-noplot
+```
+
 To create a shortcut for building the documentation with environment variables for the active-learning tutorial, use:
 ```
 LIGHTLY_SERVER_LOCATION='https://api.lightly.ai' LIGHTLY_TOKEN='YOUR_TOKEN' AL_TUTORIAL_DATASET_ID='YOUR_DATASET_ID' make html && python -m http.server 1234 -d build/html

@@ -12,8 +12,7 @@ class ImageGridTransform:
     Used for VICRegL.
 
     Attributes:
-        transforms:
-            A sequence of (image_grid_transform, view_transform) tuples.
+        transforms: A sequence of (image_grid_transform, view_transform) tuples.
             The image_grid_transform creates a new view and grid from the image.
             The view_transform further augments the view. Every transform tuple
             is applied once to the image, creating len(transforms) views and
@@ -35,12 +34,15 @@ class ImageGridTransform:
         Returns:
             List of views and grids tensors or PIL images. In the VICRegL implementation
             it has size:
-            [
-                [3, global_crop_size, global_crop_size],
-                [3, local_crop_size, local_crop_size],
-                [global_grid_size, global_grid_size, 2],
-                [local_grid_size, local_grid_size, 2]
-            ]
+
+            .. code-block:: python
+
+                [
+                    [3, global_crop_size, global_crop_size],
+                    [3, local_crop_size, local_crop_size],
+                    [global_grid_size, global_grid_size, 2],
+                    [local_grid_size, local_grid_size, 2]
+                ]
 
         """
         views, grids = [], []

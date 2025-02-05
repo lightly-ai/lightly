@@ -17,24 +17,26 @@ class AddGridTransform(Transform):  # type: ignore[misc]
     Input to this transform:
         Any datastructure containing one or several `torchvision.tv_tensor.BoundingBoxes`
         and/or `torchvision.tv_tensor.Mask`, such as tuples or arbitrarily nested dictionaries.
-        For all supported data structures check [1]_. Masks should be of size (*, H, W) and
+        For all supported data structures check [1]_. Masks should be of size `(*, H, W)` and
         BoundingBoxes can be of arbitrary shape.
 
     Output of this transform:
         Leaves any images in the data structure untouched, but overwrites any bounding
-        boxes and masks by a regular grid. Bounding boxes will take shape (num_rows*num_cols, 4)
-        and masks will be of shape (1, H, W) with integer values in the range [0, num_rows*num_cols-1].
+        boxes and masks by a regular grid. Bounding boxes will take shape `(num_rows*num_cols, 4)`
+        and masks will be of shape `(1, H, W)` with integer values in the range `[0, num_rows*num_cols-1]`.
 
-    Example::
+    Example:
 
-        img = torch.randn((3, 16, 16))
-        bboxes = BoundingBoxes(torch.randn((1, 4)), format="XYXY", canvas_size=img.shape[-2:])
-        mask = Mask(torch.randn((16, 16)).to(torch.int64))
-        tr = AddGridTransform(num_rows=4, num_cols=4)
-        # the image will be untouched the bounding boxes will be a regular grid
-        img, bboxes, mask = tr(img, bboxes, mask)
-        # bboxes of shape (num_rows*num_cols, 4)
-        # mask with value range [0, num_rows*num_cols-1]
+        .. code-block:: python
+
+            img = torch.randn((3, 16, 16))
+            bboxes = BoundingBoxes(torch.randn((1, 4)), format="XYXY", canvas_size=img.shape[-2:])
+            mask = Mask(torch.randn((16, 16)).to(torch.int64))
+            tr = AddGridTransform(num_rows=4, num_cols=4)
+            # the image will be untouched the bounding boxes will be a regular grid
+            img, bboxes, mask = tr(img, bboxes, mask)
+            # bboxes of shape (num_rows*num_cols, 4)
+            # mask with value range [0, num_rows*num_cols-1]
 
     References:
         .. [0] DetCon, 2021, https://arxiv.org/abs/2103.10957
