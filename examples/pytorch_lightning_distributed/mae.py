@@ -118,7 +118,7 @@ trainer = pl.Trainer(
     max_epochs=10,
     devices="auto",
     accelerator="gpu",
-    strategy="ddp",
+    strategy="ddp_find_unused_parameters_true",
     use_distributed_sampler=True,  # or replace_sampler_ddp=True for PyTorch Lightning <2.0
 )
 trainer.fit(model=model, train_dataloaders=dataloader)
