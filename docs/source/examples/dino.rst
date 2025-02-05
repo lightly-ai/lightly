@@ -22,12 +22,13 @@ Key Components
   Gaussian blur to create diverse views of the same image. In particular, DINO
   generates two global views and multiple local views that are smaller crops of the
   original image.
-- **Backbone**: Vision transformers, such as ViT, and convolutional neural networks,
-  such as ResNet, are employed to encode augmented images into feature representations.
-- **Projection Head**: A multilayer perceptron (MLP) maps features into a space where
-  the self-distillation loss is applied, enhancing representation quality.
-- **Distillation Loss**: The self-distillation loss encourages the student network to
-  learn the teacher network's representations on the augmented views of the same image.
+- **Backbone**: Vision transformers, such as ViTs, and convolutional neural networks,
+  such as ResNets, are employed to encode augmented images into feature representations.
+- **Projection Head**: A multilayer perceptron (MLP) maps features to a distribution
+  over a set of learnable clusters.
+- **Distillation Loss**: The self-distillation loss encourages similarity between the
+  student and teacher output distributions when processing independent views of the same
+  image.
 
 Good to Know
 ------------
