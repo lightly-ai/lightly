@@ -70,12 +70,11 @@ def knn_eval(
             DeviceStatsMonitor(),
             metric_callback,
         ],
-        strategy="ddp_find_unused_parameters_true",
+        strategy="auto",
     )
-    trainer.fit(
+    trainer.validate(
         model=classifier,
-        train_dataloaders=train_dataloader,
-        val_dataloaders=val_dataloader,
+        dataloaders=[train_dataloader, val_dataloader],
     )
     metrics_dict: dict[str, float] = dict()
     for metric in ["val_top1", "val_top5"]:

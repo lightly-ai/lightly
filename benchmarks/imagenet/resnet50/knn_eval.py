@@ -82,14 +82,16 @@ def knn_eval(
             DeviceStatsMonitor(),
             metric_callback,
         ],
-        strategy="ddp_find_unused_parameters_true",
+        strategy="auto",
         num_sanity_val_steps=0,
     )
-    trainer.fit(
+    trainer.validate(
         model=classifier,
-        train_dataloaders=train_dataloader,
-        val_dataloaders=val_dataloader,
+        dataloaders=[train_dataloader, val_dataloader],
     )
+    
+    print(metric_callback.val_metrics)
+    
     metrics_dict: dict[str, float] = dict()
     for metric in ["val_top1", "val_top5"]:
         print(f"knn {metric}: {max(metric_callback.val_metrics[metric])}")
