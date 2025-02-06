@@ -18,6 +18,7 @@ class MACLLoss(nn.Module):
         ValueError: 
             If the initial temperature is less than 1e-8.
             If the alpha value is not in the range [0, 1].
+            If the A_0 value is not in the range [0, 1].
 
     Examples:
         >>> # initialize the loss function
@@ -47,8 +48,11 @@ class MACLLoss(nn.Module):
                 "Illegal initial temperature: abs({}) < 1e-8".format(self.t_0)
             )
         
-        if alpha < 0 or alpha > 1:
+        if self.alpha < 0 or self.alpha > 1:
             raise ValueError("Alpha must be in the range [0, 1].")
+        
+        if self.A_0 < 0 or self.A_0 > 1:
+            raise ValueError("A_0 must be in the range [0, 1].")
 
     def mask_correlated_samples(self, batch_size):
         N = 2 * batch_size
@@ -101,7 +105,7 @@ class MACLLoss(nn.Module):
         # Calculate model-aware temperature
         A = torch.mean(pos.detach())
         t = self.t_0 * (1 + self.alpha * (A - self.A_0))
-
+        
         # 6) Compute stable log_softmax
         logits = torch.cat([pos, neg], dim=1) / t
         log_prob = F.log_softmax(logits, dim=1)
