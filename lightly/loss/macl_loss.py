@@ -12,7 +12,7 @@ class MACLLoss(nn.Module):
     - [0] Model-Aware Contrastive Learning: Towards Escaping the Dilemmas, ICML 2023, https://arxiv.org/abs/2207.07874
 
     Attributes:
-        t_0: Base temperature. Range: (0, inf)
+        temperature: Base temperature. Range: (0, inf)
         alpha: Scaling factor for controlling how much the temperature changes. Range: [0, 1]
         A_0: Initial threshold for the alignment magnitude. Range: [0, 1]
 
@@ -38,16 +38,16 @@ class MACLLoss(nn.Module):
         >>> loss = loss_fn(z0, z1)
     """
 
-    def __init__(self, t_0: float = 0.1, alpha: float = 0.5, A_0: float = 0.0):
+    def __init__(self, temperature: float = 0.1, alpha: float = 0.5, A_0: float = 0.0):
         super().__init__()
-        self.t_0 = t_0
+        self.temperature = temperature
         self.alpha = alpha
         self.A_0 = A_0
         self.eps = 1e-8
 
-        if self.t_0 < self.eps:
+        if self.temperature < self.eps:
             raise ValueError(
-                "Illegal initial temperature: abs({}) < 1e-8".format(self.t_0)
+                f"Illegal initial temperature: abs({self.temperature}) < 1e-8"
             )
 
         if self.alpha < 0 or self.alpha > 1:
@@ -60,15 +60,15 @@ class MACLLoss(nn.Module):
         """Compute the Model-Aware Contrastive Loss (MACL) for a batch of embeddings.
 
         Args:
-            z0 (Tensor):
+            z0:
                 First view embeddings
                 Shape (batch_size, embedding_size)
-            z1 (Tensor):
+            z1:
                 Second view embeddings
                 Shape (batch_size, embedding_size)
 
         Returns:
-            loss (Tensor):
+            loss:
                 The computed loss value
         """
         # Normalize embeddings
@@ -97,7 +97,7 @@ class MACLLoss(nn.Module):
 
         # Calculate model-aware temperature
         A = torch.mean(pos.detach())
-        t = self.t_0 * (1 + self.alpha * (A - self.A_0))
+        t = self.temperature * (1 + self.alpha * (A - self.A_0))
 
         # 6) Compute stable log_softmax
         logits = torch.cat([pos, neg], dim=1) / t
