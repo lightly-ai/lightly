@@ -163,22 +163,6 @@ class KNNClassifier(LightningModule):
                 log_dict, prog_bar=True, sync_dist=True, batch_size=len(targets)
             )
 
-    # def on_validation_epoch_start(self) -> None:
-    #     if self._train_features and self._train_targets:
-    #         # Features and targets have size (world_size, batch_size, dim) and
-    #         # (world_size, batch_size) after gather. For non-distributed training,
-    #         # features and targets have size (batch_size, dim) and (batch_size,).
-    #         features = self.all_gather(torch.cat(self._train_features, dim=0))
-    #         self._train_features = []
-    #         targets = self.all_gather(torch.cat(self._train_targets, dim=0))
-    #         self._train_targets = []
-    #         # Reshape to (dim, world_size * batch_size)
-    #         features = features.flatten(end_dim=-2).t().contiguous()
-    #         self._train_features_tensor = features.to(self.device)
-    #         # Reshape to (world_size * batch_size,)
-    #         targets = targets.flatten().t().contiguous()
-    #         self._train_targets_tensor = targets.to(self.device)
-
     def on_train_epoch_start(self) -> None:
         # Set model to eval mode to disable norm layer updates.
         self.model.eval()
