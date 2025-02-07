@@ -70,7 +70,7 @@ def knn_eval(
             DeviceStatsMonitor(),
             metric_callback,
         ],
-        strategy="auto",
+        strategy="ddp_find_unused_parameters_true",
     )
     trainer.validate(
         model=classifier,
