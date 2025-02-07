@@ -76,8 +76,10 @@ def knn_eval(
         model=classifier,
         dataloaders=[train_dataloader, val_dataloader],
     )
+    
     metrics_dict: dict[str, float] = dict()
     for metric in ["val_top1", "val_top5"]:
-        print(f"knn {metric}: {max(metric_callback.val_metrics[metric])}")
-        metrics_dict[metric] = max(metric_callback.val_metrics[metric])
+        for name, value in metric_callback.val_metrics.items():
+            if name.startswith(metric):
+                print(f"knn {name}: {max(value)}")
     return metrics_dict

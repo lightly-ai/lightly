@@ -19,6 +19,7 @@ from lightly.data import LightlyDataset
 from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils.benchmarking import MetricCallback
+from lightly.utils.dist import print_rank_zero
 
 parser = ArgumentParser("ImageNet ViT-B/16 Benchmarks")
 parser.add_argument("--train-dir", type=Path, default="/datasets/imagenet/train")
@@ -220,7 +221,9 @@ def pretrain(
         val_dataloaders=val_dataloader,
     )
     for metric in ["val_online_cls_top1", "val_online_cls_top5"]:
-        print(f"max {metric}: {max(metric_callback.val_metrics[metric])}")
+        print_rank_zero(
+            f"max {metric}: {max(metric_callback.val_metrics.get(metric, [-1]))}"
+        )
 
 
 def eval_metrics_to_markdown(metrics: Dict[str, Dict[str, float]]) -> str:
