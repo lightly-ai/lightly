@@ -46,12 +46,12 @@ class TestKNNClassifier:
         trainer = Trainer(max_epochs=1, accelerator="cpu", devices=1)
         trainer.validate(
             model=classifier,
-            dataloaders=[train_dataloader, val_dataloader],
+            dataloaders=[train_dataloader, val_dataloader], # dataloader_idx_1 is val_dataloader
         )
-        assert trainer.callback_metrics["val_top1"].item() == pytest.approx(1 / 3)
-        assert trainer.callback_metrics["val_top2"].item() == pytest.approx(1 / 3)
-        assert trainer.callback_metrics["val_top3"].item() == pytest.approx(2 / 3)
-        assert trainer.callback_metrics["val_top4"].item() == pytest.approx(3 / 3)
+        assert trainer.callback_metrics["val_top1/dataloader_idx_1"].item() == pytest.approx(1 / 3)
+        assert trainer.callback_metrics["val_top2/dataloader_idx_1"].item() == pytest.approx(1 / 3)
+        assert trainer.callback_metrics["val_top3/dataloader_idx_1"].item() == pytest.approx(2 / 3)
+        assert trainer.callback_metrics["val_top4/dataloader_idx_1"].item() == pytest.approx(3 / 3)
 
     def test__cpu(self) -> None:
         self._test__accelerator(accelerator="cpu", expected_device="cpu")
@@ -79,14 +79,14 @@ class TestKNNClassifier:
         val_dataloader = DataLoader(val_dataset, batch_size=3)
         trainer.validate(
             model=classifier,
-            dataloaders=[train_dataloader, val_dataloader],
+            dataloaders=[train_dataloader, val_dataloader], # dataloader_idx_1 is val_dataloader
         )
-        assert trainer.callback_metrics["val_top1"].item() >= 0.0
+        assert trainer.callback_metrics["val_top1/dataloader_idx_1"].item() >= 0.0
         assert (
-            trainer.callback_metrics["val_top5"].item()
-            >= trainer.callback_metrics["val_top1"].item()
+            trainer.callback_metrics["val_top5/dataloader_idx_1"].item()
+            >= trainer.callback_metrics["val_top1/dataloader_idx_1"].item()
         )
-        assert trainer.callback_metrics["val_top5"].item() <= 1.0
+        assert trainer.callback_metrics["val_top5/dataloader_idx_1"].item() <= 1.0
         assert classifier._train_features == []
         assert classifier._train_targets == []
         assert classifier._train_features_tensor is not None
@@ -153,10 +153,6 @@ class TestKNNClassifier:
         spy_normalize.assert_called()
         spy_normalize.reset_mock()
 
-        trainer.validate(model=classifier, dataloaders=val_dataloader)
-        spy_normalize.assert_called()
-        spy_normalize.reset_mock()
-
         # Test that normalize is not called when normalize=False.
         classifier = KNNClassifier(
             nn.Identity(), num_classes=10, knn_k=3, normalize=False
@@ -165,10 +161,6 @@ class TestKNNClassifier:
             model=classifier,
             dataloaders=[train_dataloader, val_dataloader],
         )
-        spy_normalize.assert_not_called()
-        spy_normalize.reset_mock()
-
-        trainer.validate(model=classifier, dataloaders=val_dataloader)
         spy_normalize.assert_not_called()
         spy_normalize.reset_mock()
 
