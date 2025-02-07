@@ -74,8 +74,10 @@ class KNNClassifier(LightningModule):
             >>>
             >>> # Extract features and evaluate.
             >>> trainer = Trainer(max_epochs=1)
-            >>> trainer.fit(knn_classifier, train_dataloder, val_dataloader)
-
+            >>> trainer.validate(
+                    model=knn_classifier,
+                    dataloaders=[train_dataloader, val_dataloader],
+                )
         """
         super().__init__()
         self.save_hyperparameters(

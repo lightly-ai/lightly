@@ -46,12 +46,23 @@ class TestKNNClassifier:
         trainer = Trainer(max_epochs=1, accelerator="cpu", devices=1)
         trainer.validate(
             model=classifier,
-            dataloaders=[train_dataloader, val_dataloader], # dataloader_idx_1 is val_dataloader
+            dataloaders=[
+                train_dataloader,
+                val_dataloader,
+            ],  # dataloader_idx_1 is val_dataloader
         )
-        assert trainer.callback_metrics["val_top1/dataloader_idx_1"].item() == pytest.approx(1 / 3)
-        assert trainer.callback_metrics["val_top2/dataloader_idx_1"].item() == pytest.approx(1 / 3)
-        assert trainer.callback_metrics["val_top3/dataloader_idx_1"].item() == pytest.approx(2 / 3)
-        assert trainer.callback_metrics["val_top4/dataloader_idx_1"].item() == pytest.approx(3 / 3)
+        assert trainer.callback_metrics[
+            "val_top1/dataloader_idx_1"
+        ].item() == pytest.approx(1 / 3)
+        assert trainer.callback_metrics[
+            "val_top2/dataloader_idx_1"
+        ].item() == pytest.approx(1 / 3)
+        assert trainer.callback_metrics[
+            "val_top3/dataloader_idx_1"
+        ].item() == pytest.approx(2 / 3)
+        assert trainer.callback_metrics[
+            "val_top4/dataloader_idx_1"
+        ].item() == pytest.approx(3 / 3)
 
     def test__cpu(self) -> None:
         self._test__accelerator(accelerator="cpu", expected_device="cpu")
@@ -79,7 +90,10 @@ class TestKNNClassifier:
         val_dataloader = DataLoader(val_dataset, batch_size=3)
         trainer.validate(
             model=classifier,
-            dataloaders=[train_dataloader, val_dataloader], # dataloader_idx_1 is val_dataloader
+            dataloaders=[
+                train_dataloader,
+                val_dataloader,
+            ],  # dataloader_idx_1 is val_dataloader
         )
         assert trainer.callback_metrics["val_top1/dataloader_idx_1"].item() >= 0.0
         assert (

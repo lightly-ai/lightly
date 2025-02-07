@@ -103,7 +103,7 @@ def main(
 
         eval_metrics: Dict[str, Dict[str, float]] = dict()
         if skip_knn_eval:
-            print("Skipping KNN eval.")
+            print_rank_zero("Skipping KNN eval.")
         else:
             eval_metrics["knn"] = knn_eval.knn_eval(
                 model=model,
@@ -118,7 +118,7 @@ def main(
             )
 
         if skip_linear_eval:
-            print("Skipping linear eval.")
+            print_rank_zero("Skipping linear eval.")
         else:
             eval_metrics["linear"] = linear_eval.linear_eval(
                 model=model,
@@ -134,7 +134,7 @@ def main(
             )
 
         if skip_finetune_eval:
-            print("Skipping fine-tune eval.")
+            print_rank_zero("Skipping fine-tune eval.")
         else:
             eval_metrics["finetune"] = finetune_eval.finetune_eval(
                 model=model,
