@@ -134,6 +134,13 @@ Follow these steps to start contributing:
    If you get an error from isort or black, please run `make format` again before
    running `make all-checks`.
 
+   If you're modifying examples under `examples/`, make sure to update the corresponding notebooks by
+   running the following command:
+
+   ```bash
+   make generate-example-notebooks
+   ```
+
    If you're modifying documents under `docs/source`, make sure to validate that
    they can still be built. This check also runs in CI. 
 

@@ -36,6 +36,6 @@ jobs:
           source .venv/bin/activate
           git add examples/notebooks/
           if ! git diff --cached --exit-code; then
-            echo "Notebooks have changed! Please run `make generate-example-notebooks` and commit the changes."
+            echo "Notebooks have changed! Please run 'make generate-example-notebooks' and commit the changes."
             exit 1
           fi
