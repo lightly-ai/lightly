@@ -13,6 +13,7 @@ from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils.benchmarking import KNNClassifier, MetricCallback
 from lightly.utils.dist import print_rank_zero
 
+
 def knn_eval(
     model: LightningModule,
     train_dir: Path,
