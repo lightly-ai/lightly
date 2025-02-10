@@ -99,6 +99,7 @@ class DINOLoss(Module):
         teacher_out: List[Tensor],
         student_out: List[Tensor],
         epoch: int,
+        teacher_temp: float | None = None,
     ) -> Tensor:
         """Cross-entropy between softmax outputs of the teacher and student networks.
 
@@ -121,10 +122,11 @@ class DINOLoss(Module):
             The average cross-entropy loss.
         """
         # Get teacher temperature
-        if epoch < self.warmup_teacher_temp_epochs:
-            teacher_temp = self.teacher_temp_schedule[epoch]
-        else:
-            teacher_temp = torch.tensor(self.teacher_temp)
+        if teacher_temp is None:
+            if epoch < self.warmup_teacher_temp_epochs:
+                teacher_temp = self.teacher_temp_schedule[epoch]
+            else:
+                teacher_temp = torch.tensor(self.teacher_temp)
 
         teacher_out_stacked = torch.stack(teacher_out)
         t_out: Tensor = F.softmax(
