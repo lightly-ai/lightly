@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 
 import torch
 import torch.nn.functional as F
@@ -99,7 +99,7 @@ class DINOLoss(Module):
         teacher_out: List[Tensor],
         student_out: List[Tensor],
         epoch: int,
-        teacher_temp: float | None = None,
+        teacher_temp: Union[float, None] = None,
     ) -> Tensor:
         """Cross-entropy between softmax outputs of the teacher and student networks.
 
