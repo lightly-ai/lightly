@@ -49,6 +49,8 @@ parser.add_argument("--num-classes", type=int, default=1000)
 parser.add_argument("--skip-knn-eval", action="store_true")
 parser.add_argument("--skip-linear-eval", action="store_true")
 parser.add_argument("--skip-finetune-eval", action="store_true")
+parser.add_argument("--float32-matmul-precision", type=str, default="high")
+parser.add_argument("--strategy", default="ddp_find_unused_parameters_true")
 
 METHODS = {
     "barlowtwins": {
@@ -84,8 +86,11 @@ def main(
     skip_linear_eval: bool,
     skip_finetune_eval: bool,
     ckpt_path: Union[Path, None],
+    float32_matmul_precision: str,
+    strategy: str,
 ) -> None:
-    torch.set_float32_matmul_precision("high")
+    print(f"Args: {locals()}")
+    torch.set_float32_matmul_precision(float32_matmul_precision)
 
     method_names = methods or METHODS.keys()
 
@@ -93,17 +98,18 @@ def main(
         method_dir = (
             log_dir / method / datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         ).resolve()
+        print(f"Logging to {method_dir}")
         model = METHODS[method]["model"](
             batch_size_per_device=batch_size_per_device, num_classes=num_classes
         )
 
         if compile_model and hasattr(torch, "compile"):
             # Compile model if PyTorch supports it.
-            print_rank_zero("Compiling model...")
+            print("Compiling model...")
             model = torch.compile(model)
 
         if epochs <= 0:
-            print_rank_zero("Epochs <= 0, skipping pretraining.")
+            print("Epochs <= 0, skipping pretraining.")
             if ckpt_path is not None:
                 model.load_state_dict(torch.load(ckpt_path)["state_dict"])
         else:
@@ -120,10 +126,11 @@ def main(
                 devices=devices,
                 precision=precision,
                 ckpt_path=ckpt_path,
+                strategy=strategy,
             )
         eval_metrics: Dict[str, Dict[str, float]] = dict()
         if skip_knn_eval:
-            print_rank_zero("Skipping KNN eval.")
+            print("Skipping KNN eval.")
         else:
             eval_metrics["knn"] = knn_eval.knn_eval(
                 model=model,
@@ -138,7 +145,7 @@ def main(
             )
 
         if skip_linear_eval:
-            print_rank_zero("Skipping linear eval.")
+            print("Skipping linear eval.")
         else:
             eval_metrics["linear"] = linear_eval.linear_eval(
                 model=model,
@@ -154,7 +161,7 @@ def main(
             )
 
         if skip_finetune_eval:
-            print_rank_zero("Skipping fine-tune eval.")
+            print("Skipping fine-tune eval.")
         else:
             eval_metrics["finetune"] = finetune_eval.finetune_eval(
                 model=model,
@@ -187,8 +194,9 @@ def pretrain(
     devices: int,
     precision: str,
     ckpt_path: Union[Path, None],
+    strategy: str,
 ) -> None:
-    print_rank_zero(f"Running pretraining for {method}...")
+    print(f"Running pretraining for {method}...")
 
     # Setup training data.
     train_transform = METHODS[method]["transform"]
@@ -235,7 +243,7 @@ def pretrain(
         ],
         logger=TensorBoardLogger(save_dir=str(log_dir), name="pretrain"),
         precision=precision,
-        strategy="ddp_find_unused_parameters_true",
+        strategy=strategy,
         sync_batchnorm=accelerator != "cpu",  # Sync batchnorm is not supported on CPU.
         num_sanity_val_steps=0,
     )
