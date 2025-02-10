@@ -24,6 +24,7 @@ def linear_eval(
     accelerator: str,
     devices: int,
     precision: str,
+    strategy: str,
     num_classes: int,
 ) -> Dict[str, float]:
     """Runs a linear evaluation on the given model.
@@ -60,7 +61,7 @@ def linear_eval(
         shuffle=True,
         num_workers=num_workers,
         drop_last=True,
-        persistent_workers=False,
+        persistent_workers=True,
     )
 
     # Setup validation data.
@@ -78,7 +79,7 @@ def linear_eval(
         batch_size=batch_size_per_device,
         shuffle=False,
         num_workers=num_workers,
-        persistent_workers=False,
+        persistent_workers=True,
     )
 
     # Train linear classifier.
@@ -94,13 +95,12 @@ def linear_eval(
         ],
         logger=TensorBoardLogger(save_dir=str(log_dir), name="linear_eval"),
         precision=precision,
-        strategy="ddp_find_unused_parameters_true",
-        num_sanity_val_steps=0,
+        strategy=strategy,
     )
     classifier = LinearClassifier(
         model=model,
         batch_size_per_device=batch_size_per_device,
-        feature_dim=2048,
+        feature_dim=model.online_classifier.feature_dim,
         num_classes=num_classes,
         freeze_model=True,
     )
@@ -111,6 +111,6 @@ def linear_eval(
     )
     metrics_dict: Dict[str, float] = dict()
     for metric in ["val_top1", "val_top5"]:
-        print(f"max linear {metric}: {max(metric_callback.val_metrics[metric])}")
+        print_rank_zero(f"max linear {metric}: {max(metric_callback.val_metrics[metric])}")
         metrics_dict[metric] = max(metric_callback.val_metrics[metric])
     return metrics_dict
