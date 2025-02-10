@@ -131,10 +131,8 @@ class KNNClassifier(LightningModule):
 
     @torch.no_grad()
     def training_step(self, batch, batch_idx) -> None:
-        images, targets = batch[0], batch[1]
-        features = self(images)
-        self.append_train_features(features=features, targets=targets)
-
+        pass
+    
     def validation_step(self, batch, batch_idx: int, dataloader_idx: int) -> None:
         images, targets = batch[0], batch[1]
         features = self(images)
