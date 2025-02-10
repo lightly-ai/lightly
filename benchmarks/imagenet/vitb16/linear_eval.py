@@ -13,7 +13,7 @@ from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils.benchmarking import LinearClassifier, MetricCallback
 from lightly.utils.lars import LARS
 from lightly.utils.scheduler import CosineWarmupScheduler
-
+from lightly.utils.dist import print_rank_zero
 
 class LinearEvalClassifier(LinearClassifier):
     def __init__(
@@ -34,6 +34,7 @@ class LinearEvalClassifier(LinearClassifier):
             freeze_model=freeze_model,
         )
         # MAE adds an extra batch norm layer before the classification head.
+        # TODO: other settings?
         self.classification_head = Sequential(
             BatchNorm1d(feature_dim, affine=False, eps=1e-6),
             Linear(feature_dim, num_classes),
@@ -73,13 +74,16 @@ def linear_eval(
     accelerator: str,
     devices: int,
     precision: str,
+    strategy: str,
     num_classes: int,
 ) -> Dict[str, float]:
     """Runs a linear evaluation on the given model.
 
     Parameters follow MAE settings.
+
+    The most important settings are:
     """
-    print("Running linear evaluation...")
+    print_rank_zero("Running linear evaluation...")
 
     # Setup training data.
     train_transform = T.Compose(
@@ -131,12 +135,12 @@ def linear_eval(
         ],
         logger=TensorBoardLogger(save_dir=str(log_dir), name="linear_eval"),
         precision=precision,
-        strategy="ddp_find_unused_parameters_true",
+        strategy=strategy,
     )
     classifier = LinearEvalClassifier(
         model=model,
         batch_size_per_device=batch_size_per_device,
-        feature_dim=768,
+        feature_dim=model.online_classifier.feature_dim,
         num_classes=num_classes,
         freeze_model=True,
     )
@@ -147,6 +151,7 @@ def linear_eval(
     )
     metrics_dict: Dict[str, float] = dict()
     for metric in ["val_top1", "val_top5"]:
-        print(f"max linear {metric}: {max(metric_callback.val_metrics[metric])}")
+        print_rank_zero(f"max linear {metric}: {max(metric_callback.val_metrics[metric])}")
         metrics_dict[metric] = max(metric_callback.val_metrics[metric])
+    
     return metrics_dict

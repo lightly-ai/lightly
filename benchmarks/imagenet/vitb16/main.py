@@ -140,6 +140,7 @@ def main(
                 num_workers=num_workers,
                 accelerator=accelerator,
                 devices=devices,
+                strategy=strategy,
                 precision=precision,
             )
 
