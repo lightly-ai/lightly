@@ -52,7 +52,8 @@ class IBOTPatchLoss(Module):
         """
         super().__init__()
         self.teacher_temp = teacher_temp
-        self.student_temperature = student_temp
+        # Alias for backward compatibility.
+        self.student_temp = self.student_temperature = student_temp
         self.center = Center(
             size=(1, output_dim),
             mode=center_mode,
@@ -64,6 +65,7 @@ class IBOTPatchLoss(Module):
         teacher_out: Tensor,
         student_out: Tensor,
         mask: Tensor,
+        teacher_temp: float | None = None,
     ) -> Tensor:
         """Forward pass through the iBOT patch loss.
 
@@ -85,16 +87,24 @@ class IBOTPatchLoss(Module):
         # B = batch size, N = sequence length = number of masked tokens, D = embed dim
         # H = height (in tokens), W = width (in tokens)
         # Note that N <= H * W depending on how many tokens are masked.
+        if teacher_temp is None:
+            teacher_temp = self.teacher_temp
 
         # Calculate cross-entropy loss.
         teacher_softmax = F.softmax(
-            (teacher_out - self.center.value) / self.teacher_temp, dim=-1
+            (teacher_out - self.center.value) / teacher_temp, dim=-1
         )
         student_log_softmax = F.log_softmax(
-            student_out / self.student_temperature, dim=-1
+            student_out / self.student_temp, dim=-1
         )
         # (B * N, D) -> (B * N)
         loss = -torch.sum(teacher_softmax * student_log_softmax, dim=-1)
+
+        # Get weights.
+        # (B, H, W) -> (B, 1, 1)
+        num_masked_per_image = mask.sum(dim=(1, 2), keepdim=True).clamp(min=1.0)
+        # (B, 1, 1) -> (B, H, W) -> (B * N)
+        weight = (1.0 / num_masked_per_image).expand_as(mask)[mask]
 
         # Get weights.
         # (B, H, W) -> (B, 1, 1)
