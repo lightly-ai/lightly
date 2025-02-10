@@ -1,3 +1,5 @@
+from typing import Union
+
 import torch
 from torch import Tensor
 from torch.nn import Module
@@ -65,7 +67,7 @@ class IBOTPatchLoss(Module):
         teacher_out: Tensor,
         student_out: Tensor,
         mask: Tensor,
-        teacher_temp: float | None = None,
+        teacher_temp: Union[float, None] = None,
     ) -> Tensor:
         """Forward pass through the iBOT patch loss.
 
