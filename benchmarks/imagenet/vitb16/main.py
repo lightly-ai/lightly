@@ -70,7 +70,7 @@ def main(
     float32_matmul_precision: str,
     strategy: str,
 ) -> None:
-    print(f"Args: {locals()}")
+    print_rank_zero(f"Args: {locals()}")
     torch.set_float32_matmul_precision(float32_matmul_precision)
 
     method_names = methods or METHODS.keys()
@@ -79,7 +79,7 @@ def main(
         method_dir = (
             log_dir / method / datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         ).resolve()
-        print(f"Logging to {method_dir}")
+        print_rank_zero(f"Logging to {method_dir}")
         model = METHODS[method]["model"](
             batch_size_per_device=batch_size_per_device, num_classes=num_classes
         )
@@ -112,7 +112,7 @@ def main(
 
         eval_metrics: Dict[str, Dict[str, float]] = dict()
         if skip_knn_eval:
-            print("Skipping KNN eval.")
+            print_rank_zero("Skipping KNN eval.")
         else:
             eval_metrics["knn"] = knn_eval.knn_eval(
                 model=model,
@@ -128,7 +128,7 @@ def main(
             )
 
         if skip_linear_eval:
-            print("Skipping linear eval.")
+            print_rank_zero("Skipping linear eval.")
         else:
             eval_metrics["linear"] = linear_eval.linear_eval(
                 model=model,
@@ -144,7 +144,7 @@ def main(
             )
 
         if skip_finetune_eval:
-            print("Skipping fine-tune eval.")
+            print_rank_zero("Skipping fine-tune eval.")
         else:
             eval_metrics["finetune"] = finetune_eval.finetune_eval(
                 model=model,

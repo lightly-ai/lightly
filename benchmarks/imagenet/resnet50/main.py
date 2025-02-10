@@ -89,7 +89,7 @@ def main(
     float32_matmul_precision: str,
     strategy: str,
 ) -> None:
-    print(f"Args: {locals()}")
+    print_rank_zero(f"Args: {locals()}")
     torch.set_float32_matmul_precision(float32_matmul_precision)
 
     method_names = methods or METHODS.keys()
@@ -98,18 +98,18 @@ def main(
         method_dir = (
             log_dir / method / datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         ).resolve()
-        print(f"Logging to {method_dir}")
+        print_rank_zero(f"Logging to {method_dir}")
         model = METHODS[method]["model"](
             batch_size_per_device=batch_size_per_device, num_classes=num_classes
         )
 
         if compile_model and hasattr(torch, "compile"):
             # Compile model if PyTorch supports it.
-            print("Compiling model...")
+            print_rank_zero("Compiling model...")
             model = torch.compile(model)
 
         if epochs <= 0:
-            print("Epochs <= 0, skipping pretraining.")
+            print_rank_zero("Epochs <= 0, skipping pretraining.")
             if ckpt_path is not None:
                 model.load_state_dict(torch.load(ckpt_path)["state_dict"])
         else:
@@ -130,7 +130,7 @@ def main(
             )
         eval_metrics: Dict[str, Dict[str, float]] = dict()
         if skip_knn_eval:
-            print("Skipping KNN eval.")
+            print_rank_zero("Skipping KNN eval.")
         else:
             eval_metrics["knn"] = knn_eval.knn_eval(
                 model=model,
@@ -146,7 +146,7 @@ def main(
             )
 
         if skip_linear_eval:
-            print("Skipping linear eval.")
+            print_rank_zero("Skipping linear eval.")
         else:
             eval_metrics["linear"] = linear_eval.linear_eval(
                 model=model,
@@ -162,7 +162,7 @@ def main(
             )
 
         if skip_finetune_eval:
-            print("Skipping fine-tune eval.")
+            print_rank_zero("Skipping fine-tune eval.")
         else:
             eval_metrics["finetune"] = finetune_eval.finetune_eval(
                 model=model,
@@ -197,7 +197,7 @@ def pretrain(
     ckpt_path: Union[Path, None],
     strategy: str,
 ) -> None:
-    print(f"Running pretraining for {method}...")
+    print_rank_zero(f"Running pretraining for {method}...")
 
     # Setup training data.
     train_transform = METHODS[method]["transform"]
