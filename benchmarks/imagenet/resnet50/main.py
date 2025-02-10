@@ -170,8 +170,8 @@ def main(
             )
 
         if eval_metrics:
-            print(f"Results for {method}:")
-            print(eval_metrics_to_markdown(eval_metrics))
+            print_rank_zero(f"Results for {method}:")
+            print_rank_zero(eval_metrics_to_markdown(eval_metrics))
 
 
 def pretrain(

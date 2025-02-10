@@ -80,11 +80,11 @@ def main(
 
         if compile_model and hasattr(torch, "compile"):
             # Compile model if PyTorch supports it.
-            print("Compiling model...")
+            print_rank_zero("Compiling model...")
             model = torch.compile(model)
 
         if epochs <= 0:
-            print("Epochs <= 0, skipping pretraining.")
+            print_rank_zero("Epochs <= 0, skipping pretraining.")
         else:
             pretrain(
                 model=model,
@@ -150,8 +150,8 @@ def main(
             )
 
         if eval_metrics:
-            print(f"Results for {method}:")
-            print(eval_metrics_to_markdown(eval_metrics))
+            print_rank_zero(f"Results for {method}:")
+            print_rank_zero(eval_metrics_to_markdown(eval_metrics))
 
 
 def pretrain(
@@ -168,7 +168,7 @@ def pretrain(
     precision: str,
     strategy: str,
 ) -> None:
-    print(f"Running pretraining for {method}...")
+    print_rank_zero(f"Running pretraining for {method}...")
 
     # Setup training data.
     train_transform = METHODS[method]["transform"]
