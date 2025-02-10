@@ -19,6 +19,7 @@ from lightly.data import LightlyDataset
 from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils.benchmarking import MetricCallback
+from lightly.utils.dist import print_rank_zero
 
 parser = ArgumentParser("ImageNet ViT-B/16 Benchmarks")
 parser.add_argument("--train-dir", type=Path, default="/datasets/imagenet/train")
@@ -79,11 +80,11 @@ def main(
 
         if compile_model and hasattr(torch, "compile"):
             # Compile model if PyTorch supports it.
-            print("Compiling model...")
+            print_rank_zero("Compiling model...")
             model = torch.compile(model)
 
         if epochs <= 0:
-            print("Epochs <= 0, skipping pretraining.")
+            print_rank_zero("Epochs <= 0, skipping pretraining.")
         else:
             pretrain(
                 model=model,
@@ -102,7 +103,7 @@ def main(
 
         eval_metrics: Dict[str, Dict[str, float]] = dict()
         if skip_knn_eval:
-            print("Skipping KNN eval.")
+            print_rank_zero("Skipping KNN eval.")
         else:
             eval_metrics["knn"] = knn_eval.knn_eval(
                 model=model,
@@ -117,7 +118,7 @@ def main(
             )
 
         if skip_linear_eval:
-            print("Skipping linear eval.")
+            print_rank_zero("Skipping linear eval.")
         else:
             eval_metrics["linear"] = linear_eval.linear_eval(
                 model=model,
@@ -133,7 +134,7 @@ def main(
             )
 
         if skip_finetune_eval:
-            print("Skipping fine-tune eval.")
+            print_rank_zero("Skipping fine-tune eval.")
         else:
             eval_metrics["finetune"] = finetune_eval.finetune_eval(
                 model=model,
@@ -149,8 +150,8 @@ def main(
             )
 
         if eval_metrics:
-            print(f"Results for {method}:")
-            print(eval_metrics_to_markdown(eval_metrics))
+            print_rank_zero(f"Results for {method}:")
+            print_rank_zero(eval_metrics_to_markdown(eval_metrics))
 
 
 def pretrain(
@@ -167,7 +168,7 @@ def pretrain(
     precision: str,
     strategy: str,
 ) -> None:
-    print(f"Running pretraining for {method}...")
+    print_rank_zero(f"Running pretraining for {method}...")
 
     # Setup training data.
     train_transform = METHODS[method]["transform"]
@@ -220,7 +221,9 @@ def pretrain(
         val_dataloaders=val_dataloader,
     )
     for metric in ["val_online_cls_top1", "val_online_cls_top5"]:
-        print(f"max {metric}: {max(metric_callback.val_metrics[metric])}")
+        print_rank_zero(
+            f"max {metric}: {max(metric_callback.val_metrics.get(metric, [-1]))}"
+        )
 
 
 def eval_metrics_to_markdown(metrics: Dict[str, Dict[str, float]]) -> str:

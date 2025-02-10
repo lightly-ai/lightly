@@ -74,8 +74,10 @@ class KNNClassifier(LightningModule):
             >>>
             >>> # Extract features and evaluate.
             >>> trainer = Trainer(max_epochs=1)
-            >>> trainer.fit(knn_classifier, train_dataloder, val_dataloader)
-
+            >>> trainer.validate(
+                    model=knn_classifier,
+                    dataloaders=[train_dataloader, val_dataloader],
+                )
         """
         super().__init__()
         self.save_hyperparameters(
@@ -100,40 +102,18 @@ class KNNClassifier(LightningModule):
         self._train_features_tensor: Optional[Tensor] = None
         self._train_targets_tensor: Optional[Tensor] = None
 
-    @torch.no_grad()
-    def training_step(self, batch, batch_idx) -> None:
-        images, targets = batch[0], batch[1]
+    def forward(self, images: Tensor) -> Tensor:
         features = self.model.forward(images).flatten(start_dim=1)
         if self.normalize:
             features = F.normalize(features, dim=1)
         features = features.to(self.feature_dtype)
+        return features
+
+    def append_train_features(self, features: Tensor, targets: Tensor) -> None:
         self._train_features.append(features.cpu())
         self._train_targets.append(targets.cpu())
 
-    def validation_step(self, batch, batch_idx) -> None:
-        if self._train_features_tensor is None or self._train_targets_tensor is None:
-            return
-
-        images, targets = batch[0], batch[1]
-        features = self.model.forward(images).flatten(start_dim=1)
-        if self.normalize:
-            features = F.normalize(features, dim=1)
-        features = features.to(self.feature_dtype)
-        predicted_classes = knn_predict(
-            feature=features,
-            feature_bank=self._train_features_tensor,
-            feature_labels=self._train_targets_tensor,
-            num_classes=self.num_classes,
-            knn_k=self.knn_k,
-            knn_t=self.knn_t,
-        )
-        topk = mean_topk_accuracy(
-            predicted_classes=predicted_classes, targets=targets, k=self.topk
-        )
-        log_dict = {f"val_top{k}": acc for k, acc in topk.items()}
-        self.log_dict(log_dict, prog_bar=True, sync_dist=True, batch_size=len(targets))
-
-    def on_validation_epoch_start(self) -> None:
+    def concat_train_features(self) -> None:
         if self._train_features and self._train_targets:
             # Features and targets have size (world_size, batch_size, dim) and
             # (world_size, batch_size) after gather. For non-distributed training,
@@ -148,6 +128,40 @@ class KNNClassifier(LightningModule):
             # Reshape to (world_size * batch_size,)
             targets = targets.flatten().t().contiguous()
             self._train_targets_tensor = targets.to(self.device)
+
+    @torch.no_grad()
+    def training_step(self, batch, batch_idx) -> None:
+        pass
+
+    def validation_step(self, batch, batch_idx: int, dataloader_idx: int) -> None:
+        images, targets = batch[0], batch[1]
+        features = self(images)
+
+        if dataloader_idx == 0:
+            # The first dataloader is the training dataloader.
+            self.append_train_features(features=features, targets=targets)
+        else:
+            if batch_idx == 0 and dataloader_idx == 1:
+                # Concatenate train features when starting the validation dataloader.
+                self.concat_train_features()
+
+            assert self._train_features_tensor is not None
+            assert self._train_targets_tensor is not None
+            predicted_classes = knn_predict(
+                feature=features,
+                feature_bank=self._train_features_tensor,
+                feature_labels=self._train_targets_tensor,
+                num_classes=self.num_classes,
+                knn_k=self.knn_k,
+                knn_t=self.knn_t,
+            )
+            topk = mean_topk_accuracy(
+                predicted_classes=predicted_classes, targets=targets, k=self.topk
+            )
+            log_dict = {f"val_top{k}": acc for k, acc in topk.items()}
+            self.log_dict(
+                log_dict, prog_bar=True, sync_dist=True, batch_size=len(targets)
+            )
 
     def on_train_epoch_start(self) -> None:
         # Set model to eval mode to disable norm layer updates.
