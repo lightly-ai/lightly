@@ -124,6 +124,7 @@ def main(
                 num_workers=num_workers,
                 accelerator=accelerator,
                 devices=devices,
+                strategy=strategy,
             )
 
         if skip_linear_eval:

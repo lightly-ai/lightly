@@ -23,6 +23,7 @@ def knn_eval(
     num_workers: int,
     accelerator: str,
     devices: int,
+    strategy: str,
     num_classes: int,
 ) -> Dict[str, float]:
     """Runs KNN evaluation on the given model.
@@ -82,7 +83,8 @@ def knn_eval(
             DeviceStatsMonitor(),
             metric_callback,
         ],
-        strategy="ddp_find_unused_parameters_true",
+        strategy=strategy,
+        num_sanity_val_steps=0,
     )
     trainer.validate(
         model=classifier,
