@@ -15,7 +15,7 @@ from lightly.utils.lars import LARS
 from lightly.utils.scheduler import CosineWarmupScheduler
 from lightly.utils.dist import print_rank_zero
 
-class LinearEvalClassifier(LinearClassifier):
+class LinearClassifierMAE(LinearClassifier):
     def __init__(
         self,
         model: Module,
@@ -33,8 +33,8 @@ class LinearEvalClassifier(LinearClassifier):
             topk=topk,
             freeze_model=freeze_model,
         )
+        
         # MAE adds an extra batch norm layer before the classification head.
-        # TODO: other settings?
         self.classification_head = Sequential(
             BatchNorm1d(feature_dim, affine=False, eps=1e-6),
             Linear(feature_dim, num_classes),
@@ -66,6 +66,7 @@ class LinearEvalClassifier(LinearClassifier):
 
 def linear_eval(
     model: Module,
+    method: str,
     train_dir: Path,
     val_dir: Path,
     log_dir: Path,
@@ -78,10 +79,6 @@ def linear_eval(
     num_classes: int,
 ) -> Dict[str, float]:
     """Runs a linear evaluation on the given model.
-
-    Parameters follow MAE settings.
-
-    The most important settings are:
     """
     print_rank_zero("Running linear evaluation...")
 
@@ -137,13 +134,23 @@ def linear_eval(
         precision=precision,
         strategy=strategy,
     )
-    classifier = LinearEvalClassifier(
-        model=model,
-        batch_size_per_device=batch_size_per_device,
-        feature_dim=model.online_classifier.feature_dim,
-        num_classes=num_classes,
-        freeze_model=True,
-    )
+    if method == "mae":
+        classifier = LinearClassifierMAE(
+            model=model,
+            batch_size_per_device=batch_size_per_device,
+            feature_dim=model.online_classifier.feature_dim,
+            num_classes=num_classes,
+            freeze_model=True,
+        )
+    else:
+        classifier = LinearClassifier(
+            model=model,
+            batch_size_per_device=batch_size_per_device,
+            feature_dim=model.online_classifier.feature_dim,
+            num_classes=num_classes,
+            freeze_model=True,
+        )
+    
     trainer.fit(
         model=classifier,
         train_dataloaders=train_dataloader,
