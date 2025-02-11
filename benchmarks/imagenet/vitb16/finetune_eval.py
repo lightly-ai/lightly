@@ -16,12 +16,13 @@ from lightly.data import LightlyDataset
 from lightly.models import utils
 from lightly.models.utils import add_stochastic_depth_to_blocks
 from lightly.transforms.utils import IMAGENET_NORMALIZE
-from lightly.utils.benchmarking import LinearClassifier, MetricCallback
+from lightly.utils.benchmarking import FinetuneClassifier, MetricCallback
 from lightly.utils.benchmarking.topk import mean_topk_accuracy
+from lightly.utils.dist import print_rank_zero
 from lightly.utils.scheduler import CosineWarmupScheduler
 
 
-class FinetuneEvalClassifier(LinearClassifier):
+class FinetuneClassifierMAE(FinetuneClassifier):
     # Parameters follow MAE settings.
     # Adapt initialization to include mixup.
     def __init__(
@@ -127,6 +128,7 @@ class FinetuneEvalClassifier(LinearClassifier):
 
 def finetune_eval(
     model: Module,
+    method: str,
     train_dir: Path,
     val_dir: Path,
     log_dir: Path,
@@ -135,27 +137,44 @@ def finetune_eval(
     accelerator: str,
     devices: int,
     precision: str,
+    strategy: str,
     num_classes: int,
 ) -> Dict[str, float]:
     """Runs fine-tune evaluation on the given model.
 
     Parameters follow MAE settings.
     """
-    print("Running fine-tune evaluation...")
+    print_rank_zero("Running fine-tune evaluation...")
+    
     # Setup training data.
-    # NOTE: We use transforms from the timm library here as they are the default in MAE
-    # and torchvision does not provide all required parameters.
-    train_transform = create_transform(
-        input_size=224,
-        is_training=True,
-        auto_augment="rand-m9-mstd0.5-inc1",
-        interpolation="bicubic",
-        re_prob=0.25,
-        re_mode="pixel",
-        re_count=1,
-        mean=IMAGENET_NORMALIZE["mean"],
-        std=IMAGENET_NORMALIZE["std"],
-    )
+    
+    if method == "mae":
+        # NOTE: We use transforms from the timm library here as they are the default in MAE
+        # and torchvision does not provide all required parameters.
+        train_transform = create_transform(
+            input_size=224,
+            is_training=True,
+            auto_augment="rand-m9-mstd0.5-inc1",
+            interpolation="bicubic",
+            re_prob=0.25,
+            re_mode="pixel",
+            re_count=1,
+            mean=IMAGENET_NORMALIZE["mean"],
+            std=IMAGENET_NORMALIZE["std"],
+        )
+        print_rank_zero("Using MAE training transform.")
+    else:
+        train_transform = T.Compose(
+            [
+                T.RandomResizedCrop(224),
+                T.RandomHorizontalFlip(),
+                T.ToTensor(),
+                T.Normalize(mean=IMAGENET_NORMALIZE["mean"], std=IMAGENET_NORMALIZE["std"]),
+            ]
+        )
+        print_rank_zero("Using default training transform.")
+        
+    
     train_dataset = LightlyDataset(input_dir=str(train_dir), transform=train_transform)
     train_dataloader = DataLoader(
         train_dataset,
@@ -197,15 +216,27 @@ def finetune_eval(
         ],
         logger=TensorBoardLogger(save_dir=str(log_dir), name="finetune_eval"),
         precision=precision,
-        strategy="ddp_find_unused_parameters_true",
+        strategy=strategy,
     )
-    classifier = FinetuneEvalClassifier(
-        model=model,
-        batch_size_per_device=batch_size_per_device,
-        feature_dim=768,
-        num_classes=num_classes,
-        freeze_model=False,
-    )
+    if method == "mae":
+        classifier = FinetuneClassifierMAE(
+            model=model,
+            batch_size_per_device=batch_size_per_device,
+            feature_dim=model.online_classifier.feature_dim,
+            num_classes=num_classes,
+            freeze_model=False,
+        )
+        print_rank_zero("Using MAE finetune classifier.")
+    else:
+        classifier = FinetuneClassifier(
+            model=model,
+            batch_size_per_device=batch_size_per_device,
+            feature_dim=model.online_classifier.feature_dim,
+            num_classes=num_classes,
+            freeze_model=False,
+        )
+        print_rank_zero("Using default finetune classifier.")
+        
     trainer.fit(
         model=classifier,
         train_dataloaders=train_dataloader,
@@ -213,6 +244,6 @@ def finetune_eval(
     )
     metrics_dict: Dict[str, float] = dict()
     for metric in ["val_top1", "val_top5"]:
-        print(f"max finetune {metric}: {max(metric_callback.val_metrics[metric])}")
+        print_rank_zero(f"max finetune {metric}: {max(metric_callback.val_metrics[metric])}")
         metrics_dict[metric] = max(metric_callback.val_metrics[metric])
     return metrics_dict

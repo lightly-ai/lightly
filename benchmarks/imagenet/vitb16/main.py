@@ -150,6 +150,7 @@ def main(
         else:
             eval_metrics["finetune"] = finetune_eval.finetune_eval(
                 model=model,
+                method=method,
                 num_classes=num_classes,
                 train_dir=train_dir,
                 val_dir=val_dir,
@@ -158,6 +159,7 @@ def main(
                 num_workers=num_workers,
                 accelerator=accelerator,
                 devices=devices,
+                strategy=strategy,
                 precision=precision,
             )
 

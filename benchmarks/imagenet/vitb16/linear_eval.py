@@ -142,6 +142,7 @@ def linear_eval(
             num_classes=num_classes,
             freeze_model=True,
         )
+        print_rank_zero("Using MAE linear classifier.")
     else:
         classifier = LinearClassifier(
             model=model,
@@ -150,6 +151,7 @@ def linear_eval(
             num_classes=num_classes,
             freeze_model=True,
         )
+        print_rank_zero("Using default linear classifier.")
     
     trainer.fit(
         model=classifier,
