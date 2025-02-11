@@ -5,36 +5,13 @@ from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import DeviceStatsMonitor, LearningRateMonitor
 from pytorch_lightning.loggers import TensorBoardLogger
 from torch.nn import Module
-from torch.optim import SGD
 from torch.utils.data import DataLoader
 from torchvision import transforms as T
 
 from lightly.data import LightlyDataset
 from lightly.transforms.utils import IMAGENET_NORMALIZE
-from lightly.utils.benchmarking import LinearClassifier, MetricCallback
+from lightly.utils.benchmarking import MetricCallback, FinetuneClassifier
 from lightly.utils.dist import print_rank_zero
-from lightly.utils.scheduler import CosineWarmupScheduler
-
-
-class FinetuneEvalClassifier(LinearClassifier):
-    def configure_optimizers(self):
-        parameters = list(self.classification_head.parameters())
-        parameters += self.model.parameters()
-        optimizer = SGD(
-            parameters,
-            lr=0.05 * self.batch_size_per_device * self.trainer.world_size / 256,
-            momentum=0.9,
-            weight_decay=0.0,
-        )
-        scheduler = {
-            "scheduler": CosineWarmupScheduler(
-                optimizer=optimizer,
-                warmup_epochs=0,
-                max_epochs=self.trainer.estimated_stepping_batches,
-            ),
-            "interval": "step",
-        }
-        return [optimizer], [scheduler]
 
 
 def finetune_eval(
@@ -47,6 +24,7 @@ def finetune_eval(
     accelerator: str,
     devices: int,
     precision: str,
+    strategy: str,
     num_classes: int,
 ) -> Dict[str, float]:
     """Runs fine-tune evaluation on the given model.
@@ -83,7 +61,7 @@ def finetune_eval(
         shuffle=True,
         num_workers=num_workers,
         drop_last=True,
-        persistent_workers=False,
+        persistent_workers=True,
     )
 
     # Setup validation data.
@@ -101,7 +79,7 @@ def finetune_eval(
         batch_size=batch_size_per_device,
         shuffle=False,
         num_workers=num_workers,
-        persistent_workers=False,
+        persistent_workers=True,
     )
 
     # Train linear classifier.
@@ -117,13 +95,12 @@ def finetune_eval(
         ],
         logger=TensorBoardLogger(save_dir=str(log_dir), name="finetune_eval"),
         precision=precision,
-        strategy="ddp_find_unused_parameters_true",
-        num_sanity_val_steps=0,
+        strategy=strategy,
     )
-    classifier = FinetuneEvalClassifier(
+    classifier = FinetuneClassifier(
         model=model,
         batch_size_per_device=batch_size_per_device,
-        feature_dim=2048,
+        feature_dim=model.online_classifier.feature_dim,
         num_classes=num_classes,
         freeze_model=False,
     )
@@ -134,6 +111,6 @@ def finetune_eval(
     )
     metrics_dict: Dict[str, float] = dict()
     for metric in ["val_top1", "val_top5"]:
-        print(f"max finetune {metric}: {max(metric_callback.val_metrics[metric])}")
+        print_rank_zero(f"max finetune {metric}: {max(metric_callback.val_metrics[metric])}")
         metrics_dict[metric] = max(metric_callback.val_metrics[metric])
     return metrics_dict
