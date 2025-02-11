@@ -19,7 +19,7 @@ class LinearClassifier(LightningModule):
         feature_dim: int = 2048,
         num_classes: int = 1000,
         topk: Tuple[int, ...] = (1, 5),
-        freeze_model: bool = False,
+        freeze_model: bool = True,
     ) -> None:
         """Linear classifier for benchmarking.
 

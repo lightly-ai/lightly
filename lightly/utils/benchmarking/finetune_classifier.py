@@ -9,7 +9,7 @@ class FinetuneClassifier(LinearClassifier):
         model: Any,
         batch_size_per_device: int,
         lr: float = 0.05,
-        feature_dim: int = 768,
+        feature_dim: int = 2048,
         num_classes: int = 1000,
         topk: Tuple[int, ...] = (1, 5),
         freeze_model: bool = False,
