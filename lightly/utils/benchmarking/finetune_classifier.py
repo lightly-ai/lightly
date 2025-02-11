@@ -1,31 +1,25 @@
-from typing import Any, Dict, List, Tuple, Union
-
-from torch.optim import SGD, Optimizer
+from typing import Any, Tuple
 
 from lightly.utils.benchmarking.linear_classifier import LinearClassifier
-from lightly.utils.scheduler import CosineWarmupScheduler
 
 
 class FinetuneClassifier(LinearClassifier):
-    # Type ignore is needed because return type of LightningModule.configure_optimizers
-    # is complicated and typing changes between versions.
-    def configure_optimizers(  # type: ignore[override]
+    def __init__(
         self,
-    ) -> Tuple[List[Optimizer], List[Dict[str, Union[Any, str]]]]:
-        parameters = list(self.classification_head.parameters())
-        parameters += self.model.parameters()
-        optimizer = SGD(
-            parameters,
-            lr=0.05 * self.batch_size_per_device * self.trainer.world_size / 256,
-            momentum=0.9,
-            weight_decay=0.0,
+        model: Any,
+        batch_size_per_device: int,
+        lr: float = 0.05,
+        feature_dim: int = 768,
+        num_classes: int = 1000,
+        topk: Tuple[int, ...] = (1, 5),
+        freeze_model: bool = False,
+    ) -> None:
+        super(FinetuneClassifier, self).__init__(
+            model,
+            batch_size_per_device,
+            lr,
+            feature_dim,
+            num_classes,
+            topk,
+            freeze_model,
         )
-        scheduler = {
-            "scheduler": CosineWarmupScheduler(
-                optimizer=optimizer,
-                warmup_epochs=0,
-                max_epochs=int(self.trainer.estimated_stepping_batches),
-            ),
-            "interval": "step",
-        }
-        return [optimizer], [scheduler]

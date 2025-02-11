@@ -15,6 +15,7 @@ class LinearClassifier(LightningModule):
         self,
         model: Module,
         batch_size_per_device: int,
+        lr: float = 0.1,
         feature_dim: int = 2048,
         num_classes: int = 1000,
         topk: Tuple[int, ...] = (1, 5),
@@ -84,6 +85,7 @@ class LinearClassifier(LightningModule):
 
         self.model = model
         self.batch_size_per_device = batch_size_per_device
+        self.lr = lr
         self.feature_dim = feature_dim
         self.num_classes = num_classes
         self.topk = topk
@@ -139,7 +141,7 @@ class LinearClassifier(LightningModule):
             parameters += self.model.parameters()
         optimizer = SGD(
             parameters,
-            lr=0.1 * self.batch_size_per_device * self.trainer.world_size / 256,
+            lr=self.lr * self.batch_size_per_device * self.trainer.world_size / 256,
             momentum=0.9,
             weight_decay=0.0,
         )
