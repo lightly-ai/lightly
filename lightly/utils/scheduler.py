@@ -210,15 +210,3 @@ class CosineWarmupScheduler(torch.optim.lr_scheduler.LambdaLR):
             warmup_end_value=self.warmup_end_value,
             period=self.period,
         )
-
-
-def linear_warmup_schedule(
-    step: int,
-    warmup_steps: int,
-    start_value: float,
-    end_value: float,
-) -> float:
-    if step < warmup_steps:
-        return start_value + step / warmup_steps * (end_value - start_value)
-    else:
-        return end_value
