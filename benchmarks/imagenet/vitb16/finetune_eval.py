@@ -128,7 +128,7 @@ class FinetuneClassifierMAE(FinetuneClassifier):
 
 def finetune_eval(
     model: Module,
-    method: str,
+    eval_method: str,
     train_dir: Path,
     val_dir: Path,
     log_dir: Path,
@@ -140,15 +140,12 @@ def finetune_eval(
     strategy: str,
     num_classes: int,
 ) -> Dict[str, float]:
-    """Runs fine-tune evaluation on the given model.
-
-    Parameters follow MAE settings.
-    """
+    """Runs fine-tune evaluation on the given model."""
     print_rank_zero("Running fine-tune evaluation...")
 
     # Setup training data.
 
-    if method == "mae":
+    if eval_method == "mae":
         # NOTE: We use transforms from the timm library here as they are the default in MAE
         # and torchvision does not provide all required parameters.
         train_transform = create_transform(
@@ -219,7 +216,7 @@ def finetune_eval(
         precision=precision,
         strategy=strategy,
     )
-    if method == "mae":
+    if eval_method == "mae":
         classifier = FinetuneClassifierMAE(
             model=model,
             batch_size_per_device=batch_size_per_device,
