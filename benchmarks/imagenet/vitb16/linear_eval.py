@@ -67,7 +67,7 @@ class LinearClassifierMAE(LinearClassifier):
 
 def linear_eval(
     model: Module,
-    method: str,
+    eval_method: str,
     train_dir: Path,
     val_dir: Path,
     log_dir: Path,
@@ -134,7 +134,7 @@ def linear_eval(
         precision=precision,
         strategy=strategy,
     )
-    if method == "mae":
+    if eval_method == "mae":
         classifier = LinearClassifierMAE(
             model=model,
             batch_size_per_device=batch_size_per_device,

@@ -39,13 +39,15 @@ parser.add_argument("--precision", type=str, default="16-mixed")
 parser.add_argument("--ckpt-path", type=Path, default=None)
 parser.add_argument("--compile-model", action="store_true")
 parser.add_argument("--methods", type=str, nargs="+")
+parser.add_argument(
+    "--eval-settings", type=str, default="default", choices=["default", "mae"]
+)
 parser.add_argument("--num-classes", type=int, default=1000)
 parser.add_argument("--skip-knn-eval", action="store_true")
 parser.add_argument("--skip-linear-eval", action="store_true")
 parser.add_argument("--skip-finetune-eval", action="store_true")
 parser.add_argument("--float32-matmul-precision", type=str, default="high")
 parser.add_argument("--strategy", default="ddp_find_unused_parameters_true")
-
 
 METHODS = {
     "dino": {"model": dino.DINO, "transform": dino.transform},
@@ -66,6 +68,7 @@ def main(
     precision: str,
     compile_model: bool,
     methods: Union[Sequence[str], None],
+    eval_settings: str,
     num_classes: int,
     skip_knn_eval: bool,
     skip_linear_eval: bool,
@@ -87,6 +90,8 @@ def main(
         model = METHODS[method]["model"](
             batch_size_per_device=batch_size_per_device, num_classes=num_classes
         )
+
+        eval_method = "mae" if method == "mae" else eval_settings
 
         if compile_model and hasattr(torch, "compile"):
             # Compile model if PyTorch supports it.
@@ -136,7 +141,7 @@ def main(
         else:
             eval_metrics["linear"] = linear_eval.linear_eval(
                 model=model,
-                method=method,
+                eval_method=eval_method,
                 num_classes=num_classes,
                 train_dir=train_dir,
                 val_dir=val_dir,
@@ -154,7 +159,7 @@ def main(
         else:
             eval_metrics["finetune"] = finetune_eval.finetune_eval(
                 model=model,
-                method=method,
+                eval_method=eval_method,
                 num_classes=num_classes,
                 train_dir=train_dir,
                 val_dir=val_dir,
