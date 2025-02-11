@@ -111,6 +111,8 @@ def linear_eval(
     )
     metrics_dict: Dict[str, float] = dict()
     for metric in ["val_top1", "val_top5"]:
-        print_rank_zero(f"max linear {metric}: {max(metric_callback.val_metrics[metric])}")
+        print_rank_zero(
+            f"max linear {metric}: {max(metric_callback.val_metrics[metric])}"
+        )
         metrics_dict[metric] = max(metric_callback.val_metrics[metric])
     return metrics_dict

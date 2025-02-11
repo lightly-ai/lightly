@@ -96,9 +96,7 @@ class IBOTPatchLoss(Module):
         teacher_softmax = F.softmax(
             (teacher_out - self.center.value) / teacher_temp, dim=-1
         )
-        student_log_softmax = F.log_softmax(
-            student_out / self.student_temp, dim=-1
-        )
+        student_log_softmax = F.log_softmax(student_out / self.student_temp, dim=-1)
         # (B * N, D) -> (B * N)
         loss = -torch.sum(teacher_softmax * student_log_softmax, dim=-1)
 

@@ -10,7 +10,7 @@ from torchvision import transforms as T
 
 from lightly.data import LightlyDataset
 from lightly.transforms.utils import IMAGENET_NORMALIZE
-from lightly.utils.benchmarking import MetricCallback, FinetuneClassifier
+from lightly.utils.benchmarking import FinetuneClassifier, MetricCallback
 from lightly.utils.dist import print_rank_zero
 
 
@@ -111,6 +111,8 @@ def finetune_eval(
     )
     metrics_dict: Dict[str, float] = dict()
     for metric in ["val_top1", "val_top5"]:
-        print_rank_zero(f"max finetune {metric}: {max(metric_callback.val_metrics[metric])}")
+        print_rank_zero(
+            f"max finetune {metric}: {max(metric_callback.val_metrics[metric])}"
+        )
         metrics_dict[metric] = max(metric_callback.val_metrics[metric])
     return metrics_dict
