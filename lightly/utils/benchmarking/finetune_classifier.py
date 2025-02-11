@@ -2,7 +2,7 @@ from typing import Any, Dict, List, Tuple, Union
 
 from torch.optim import SGD, Optimizer
 
-from lightly.utils.benchmarking import LinearClassifier
+from lightly.utils.benchmarking.linear_classifier import LinearClassifier
 from lightly.utils.scheduler import CosineWarmupScheduler
 
 
