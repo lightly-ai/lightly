@@ -11,9 +11,10 @@ from torchvision import transforms as T
 from lightly.data import LightlyDataset
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils.benchmarking import LinearClassifier, MetricCallback
+from lightly.utils.dist import print_rank_zero
 from lightly.utils.lars import LARS
 from lightly.utils.scheduler import CosineWarmupScheduler
-from lightly.utils.dist import print_rank_zero
+
 
 class LinearClassifierMAE(LinearClassifier):
     def __init__(
@@ -33,7 +34,7 @@ class LinearClassifierMAE(LinearClassifier):
             topk=topk,
             freeze_model=freeze_model,
         )
-        
+
         # MAE adds an extra batch norm layer before the classification head.
         self.classification_head = Sequential(
             BatchNorm1d(feature_dim, affine=False, eps=1e-6),
@@ -78,8 +79,7 @@ def linear_eval(
     strategy: str,
     num_classes: int,
 ) -> Dict[str, float]:
-    """Runs a linear evaluation on the given model.
-    """
+    """Runs a linear evaluation on the given model."""
     print_rank_zero("Running linear evaluation...")
 
     # Setup training data.
@@ -152,7 +152,7 @@ def linear_eval(
             freeze_model=True,
         )
         print_rank_zero("Using default linear classifier.")
-    
+
     trainer.fit(
         model=classifier,
         train_dataloaders=train_dataloader,
@@ -160,7 +160,9 @@ def linear_eval(
     )
     metrics_dict: Dict[str, float] = dict()
     for metric in ["val_top1", "val_top5"]:
-        print_rank_zero(f"max linear {metric}: {max(metric_callback.val_metrics[metric])}")
+        print_rank_zero(
+            f"max linear {metric}: {max(metric_callback.val_metrics[metric])}"
+        )
         metrics_dict[metric] = max(metric_callback.val_metrics[metric])
-    
+
     return metrics_dict

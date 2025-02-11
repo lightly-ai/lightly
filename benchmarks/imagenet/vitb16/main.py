@@ -11,7 +11,11 @@ import linear_eval
 import mae
 import torch
 from pytorch_lightning import LightningModule, Trainer
-from pytorch_lightning.callbacks import DeviceStatsMonitor, LearningRateMonitor, EarlyStopping
+from pytorch_lightning.callbacks import (
+    DeviceStatsMonitor,
+    EarlyStopping,
+    LearningRateMonitor,
+)
 from pytorch_lightning.loggers import TensorBoardLogger
 from torch.utils.data import DataLoader
 from torchvision import transforms as T

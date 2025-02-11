@@ -3,6 +3,7 @@ from torch.optim import SGD
 from lightly.utils.benchmarking import LinearClassifier
 from lightly.utils.scheduler import CosineWarmupScheduler
 
+
 class FinetuneClassifier(LinearClassifier):
     def configure_optimizers(self):
         parameters = list(self.classification_head.parameters())

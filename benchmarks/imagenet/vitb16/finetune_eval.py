@@ -145,9 +145,9 @@ def finetune_eval(
     Parameters follow MAE settings.
     """
     print_rank_zero("Running fine-tune evaluation...")
-    
+
     # Setup training data.
-    
+
     if method == "mae":
         # NOTE: We use transforms from the timm library here as they are the default in MAE
         # and torchvision does not provide all required parameters.
@@ -169,12 +169,13 @@ def finetune_eval(
                 T.RandomResizedCrop(224),
                 T.RandomHorizontalFlip(),
                 T.ToTensor(),
-                T.Normalize(mean=IMAGENET_NORMALIZE["mean"], std=IMAGENET_NORMALIZE["std"]),
+                T.Normalize(
+                    mean=IMAGENET_NORMALIZE["mean"], std=IMAGENET_NORMALIZE["std"]
+                ),
             ]
         )
         print_rank_zero("Using default training transform.")
-        
-    
+
     train_dataset = LightlyDataset(input_dir=str(train_dir), transform=train_transform)
     train_dataloader = DataLoader(
         train_dataset,
@@ -236,7 +237,7 @@ def finetune_eval(
             freeze_model=False,
         )
         print_rank_zero("Using default finetune classifier.")
-        
+
     trainer.fit(
         model=classifier,
         train_dataloaders=train_dataloader,
@@ -244,6 +245,8 @@ def finetune_eval(
     )
     metrics_dict: Dict[str, float] = dict()
     for metric in ["val_top1", "val_top5"]:
-        print_rank_zero(f"max finetune {metric}: {max(metric_callback.val_metrics[metric])}")
+        print_rank_zero(
+            f"max finetune {metric}: {max(metric_callback.val_metrics[metric])}"
+        )
         metrics_dict[metric] = max(metric_callback.val_metrics[metric])
     return metrics_dict
