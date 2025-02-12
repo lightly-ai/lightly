@@ -96,14 +96,13 @@ def finetune_eval(
         logger=TensorBoardLogger(save_dir=str(log_dir), name="finetune_eval"),
         precision=precision,
         strategy=strategy,
-        num_sanity_val_steps=0, # NOTE: prevent problems from warmup schedule or validation metrics
+        num_sanity_val_steps=0,  # NOTE: prevent problems from warmup schedule or validation metrics
     )
     classifier = FinetuneClassifier(
         model=model,
         batch_size_per_device=batch_size_per_device,
         feature_dim=model.online_classifier.feature_dim,
         num_classes=num_classes,
-        freeze_model=False,
     )
     trainer.fit(
         model=classifier,

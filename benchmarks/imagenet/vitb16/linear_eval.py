@@ -1,10 +1,11 @@
 from pathlib import Path
-from typing import Dict, Tuple
+from typing import Any, Dict, List, Tuple, Union
 
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import DeviceStatsMonitor, LearningRateMonitor
 from pytorch_lightning.loggers import TensorBoardLogger
 from torch.nn import BatchNorm1d, Linear, Module, Sequential
+from torch.optim import Optimizer
 from torch.utils.data import DataLoader
 from torchvision import transforms as T
 
@@ -21,18 +22,18 @@ class LinearClassifierMAE(LinearClassifier):
         self,
         model: Module,
         batch_size_per_device: int,
+        lr: float = 0.1,
         feature_dim: int = 2048,
         num_classes: int = 1000,
         topk: Tuple[int, ...] = (1, 5),
-        freeze_model: bool = True,
     ) -> None:
         super().__init__(
-            model=model,
-            batch_size_per_device=batch_size_per_device,
-            feature_dim=feature_dim,
-            num_classes=num_classes,
-            topk=topk,
-            freeze_model=freeze_model,
+            model,
+            batch_size_per_device,
+            lr,
+            feature_dim,
+            num_classes,
+            topk,
         )
 
         # MAE adds an extra batch norm layer before the classification head.
@@ -42,23 +43,28 @@ class LinearClassifierMAE(LinearClassifier):
         )
 
     # Adapt optimizer to match MAE settings.
-    def configure_optimizers(self):
-        parameters = list(self.classification_head.parameters())
+    # Type ignore is needed because return type of LightningModule.configure_optimizers
+    # is complicated and typing changes between versions.
+    def configure_optimizers(  # type: ignore[override]
+        self,
+    ) -> Tuple[List[Optimizer], List[Dict[str, Union[Any, str]]]]:
+        parameters = list(self.get_trainable_parameters())
+
         optimizer = LARS(
             parameters,
-            lr=0.1 * self.batch_size_per_device * self.trainer.world_size / 256,
+            lr=self.get_effective_lr(),
             momentum=0.9,
             weight_decay=0.0,
         )
         scheduler = {
             "scheduler": CosineWarmupScheduler(
                 optimizer=optimizer,
-                warmup_epochs=(
+                warmup_epochs=int(
                     self.trainer.estimated_stepping_batches
                     / self.trainer.max_epochs
                     * 10
                 ),
-                max_epochs=self.trainer.estimated_stepping_batches,
+                max_epochs=int(self.trainer.estimated_stepping_batches),
             ),
             "interval": "step",
         }
@@ -133,7 +139,7 @@ def linear_eval(
         logger=TensorBoardLogger(save_dir=str(log_dir), name="linear_eval"),
         precision=precision,
         strategy=strategy,
-        num_sanity_val_steps=0, # NOTE: prevent problems from warmup schedule or validation metrics
+        num_sanity_val_steps=0,  # NOTE: prevent problems from warmup schedule or validation metrics
     )
     if eval_method == "mae":
         classifier = LinearClassifierMAE(
@@ -141,7 +147,6 @@ def linear_eval(
             batch_size_per_device=batch_size_per_device,
             feature_dim=model.online_classifier.feature_dim,
             num_classes=num_classes,
-            freeze_model=True,
         )
         print_rank_zero("Using MAE linear classifier.")
     else:
@@ -150,7 +155,6 @@ def linear_eval(
             batch_size_per_device=batch_size_per_device,
             feature_dim=model.online_classifier.feature_dim,
             num_classes=num_classes,
-            freeze_model=True,
         )
         print_rank_zero("Using default linear classifier.")
 
