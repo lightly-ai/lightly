@@ -28,12 +28,12 @@ class LinearClassifierMAE(LinearClassifier):
         topk: Tuple[int, ...] = (1, 5),
     ) -> None:
         super().__init__(
-            model,
-            batch_size_per_device,
-            lr,
-            feature_dim,
-            num_classes,
-            topk,
+            model=model,
+            batch_size_per_device=batch_size_per_device,
+            lr=lr,
+            feature_dim=feature_dim,
+            num_classes=num_classes,
+            topk=topk,
         )
 
         # MAE adds an extra batch norm layer before the classification head.

@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Tuple, Union
 import torch
 from pytorch_lightning import LightningModule
 from torch import Tensor
-from torch.nn import CrossEntropyLoss, Linear, Module, Sequential
+from torch.nn import CrossEntropyLoss, Linear, Module, Sequential, Parameter
 from torch.optim import SGD, Optimizer
 
 from lightly.utils.benchmarking.topk import mean_topk_accuracy
@@ -171,12 +171,12 @@ class LinearClassifier(BaseClassifier):
         topk: Tuple[int, ...] = (1, 5),
     ) -> None:
         super().__init__(
-            model,
-            batch_size_per_device,
-            lr,
-            feature_dim,
-            num_classes,
-            topk,
+            model=model,
+            batch_size_per_device=batch_size_per_device,
+            lr=lr,
+            feature_dim=feature_dim,
+            num_classes=num_classes,
+            topk=topk,
         )
 
     def forward(self, images: Tensor) -> Tensor:
@@ -188,7 +188,7 @@ class LinearClassifier(BaseClassifier):
 
         return output
 
-    def get_trainable_parameters(self) -> List[torch.nn.Parameter]:
+    def get_trainable_parameters(self) -> List[Parameter]:
         # Only update the classification head.
         return list(self.classification_head.parameters())
 
@@ -208,12 +208,12 @@ class FinetuneClassifier(BaseClassifier):
         topk: Tuple[int, ...] = (1, 5),
     ) -> None:
         super().__init__(
-            model,
-            batch_size_per_device,
-            lr,
-            feature_dim,
-            num_classes,
-            topk,
+            model=model,
+            batch_size_per_device=batch_size_per_device,
+            lr=lr,
+            feature_dim=feature_dim,
+            num_classes=num_classes,
+            topk=topk,
         )
 
     def forward(self, images: Tensor) -> Tensor:
@@ -225,7 +225,7 @@ class FinetuneClassifier(BaseClassifier):
         return output
 
     # Type ignore is needed because return type of LightningModule.configure_optimizers
-    def get_trainable_parameters(self) -> List[torch.nn.Parameter]:
+    def get_trainable_parameters(self) -> List[Parameter]:
         # Update both the classification head and the feature extractor.
         return list(self.classification_head.parameters()) + list(
             self.model.parameters()

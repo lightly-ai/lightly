@@ -38,12 +38,12 @@ class FinetuneClassifierMAE(FinetuneClassifier):
         topk: Tuple[int, ...] = (1, 5),
     ) -> None:
         super().__init__(
-            model,
-            batch_size_per_device,
-            lr,
-            feature_dim,
-            num_classes,
-            topk,
+            model=model,
+            batch_size_per_device=batch_size_per_device,
+            lr=lr,
+            feature_dim=feature_dim,
+            num_classes=num_classes,
+            topk=topk,
         )
         # TODO(Ersi, 2/24): Add path dropout for TIMM.
 
