@@ -26,7 +26,7 @@ Key Components
 Good to Know
 -------------
 
-- **Backbone Networks**: SimCLR is specifically optimized for convolutional neural networks, with a focus on ResNet architectures. We do not recommend using it with transformer-based models and instead suggest using :doc:`DINO <dino>` [3]_.
+- **Backbone Networks**: BYOL is specifically optimized for convolutional neural networks, with a focus on ResNet architectures. We do not recommend using it with transformer-based models and instead suggest using :doc:`DINO <dino>` [3]_.
 
 
 Reference:
