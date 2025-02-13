@@ -35,8 +35,12 @@ class TestNTXentLoss:
         temperature: float,
         gather_distributed: bool,
     ) -> None:
-        out0 = torch.tensor(np.random.normal(0, 1, size=(n_samples, dimension)), dtype=torch.float32)
-        out1 = torch.tensor(np.random.normal(0, 1, size=(n_samples, dimension)), dtype=torch.float32)
+        out0 = torch.tensor(
+            np.random.normal(0, 1, size=(n_samples, dimension)), dtype=torch.float32
+        )
+        out1 = torch.tensor(
+            np.random.normal(0, 1, size=(n_samples, dimension)), dtype=torch.float32
+        )
 
         loss_function = NTXentLoss(
             temperature=temperature,
