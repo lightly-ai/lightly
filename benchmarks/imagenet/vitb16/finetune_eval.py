@@ -186,7 +186,7 @@ def finetune_eval(
                 ),
             ]
         )
-        print_rank_zero("Using default training transform.")
+        print_rank_zero("Using SimCLR training transform.")
 
     train_dataset = LightlyDataset(input_dir=str(train_dir), transform=train_transform)
     train_dataloader = DataLoader(
@@ -247,7 +247,7 @@ def finetune_eval(
             feature_dim=model.online_classifier.feature_dim,
             num_classes=num_classes,
         )
-        print_rank_zero("Using default finetune classifier.")
+        print_rank_zero("Using SimCLR finetune classifier.")
 
     trainer.fit(
         model=classifier,
