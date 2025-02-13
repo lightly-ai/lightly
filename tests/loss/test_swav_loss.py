@@ -6,7 +6,7 @@ from torch import distributed as dist
 from lightly.loss import SwaVLoss
 
 
-class TestNTXentLoss:
+class TestSwaVLoss:
     def test__sinkhorn_gather_distributed(self, mocker: MockerFixture) -> None:
         mock_is_available = mocker.patch.object(dist, "is_available", return_value=True)
         SwaVLoss(sinkhorn_gather_distributed=True)
