@@ -39,9 +39,7 @@ parser.add_argument("--precision", type=str, default="16-mixed")
 parser.add_argument("--ckpt-path", type=Path, default=None)
 parser.add_argument("--compile-model", action="store_true")
 parser.add_argument("--methods", type=str, nargs="+")
-parser.add_argument(
-    "--eval-method", type=str, default="mae", choices=["mae", "default"]
-)
+parser.add_argument("--eval-method", type=str, default="mae", choices=["mae", "simclr"])
 parser.add_argument("--num-classes", type=int, default=1000)
 parser.add_argument("--skip-knn-eval", action="store_true")
 parser.add_argument("--skip-linear-eval", action="store_true")

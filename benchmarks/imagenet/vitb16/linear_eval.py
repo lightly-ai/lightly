@@ -156,7 +156,7 @@ def linear_eval(
             feature_dim=model.online_classifier.feature_dim,
             num_classes=num_classes,
         )
-        print_rank_zero("Using default linear classifier.")
+        print_rank_zero("Using SimCLR linear classifier.")
 
     trainer.fit(
         model=classifier,

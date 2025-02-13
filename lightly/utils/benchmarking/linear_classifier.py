@@ -182,7 +182,7 @@ class LinearClassifier(BaseClassifier):
     def forward(self, images: Tensor) -> Tensor:
         # For linear evaluation, we want to freeze the feature extractor.
         with torch.no_grad():
-            features = self.model.forward(images).flatten(start_dim=1)
+            features = self.model(images).flatten(start_dim=1)
 
         output: Tensor = self.classification_head(features)
 
@@ -218,7 +218,7 @@ class FinetuneClassifier(BaseClassifier):
 
     def forward(self, images: Tensor) -> Tensor:
         # For finetuning, we want to update the feature extractor.
-        features = self.model.forward(images).flatten(start_dim=1)
+        features = self.model(images).flatten(start_dim=1)
 
         output: Tensor = self.classification_head(features)
 
