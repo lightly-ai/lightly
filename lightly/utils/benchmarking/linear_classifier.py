@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Tuple, Union
 import torch
 from pytorch_lightning import LightningModule
 from torch import Tensor
-from torch.nn import CrossEntropyLoss, Linear, Module, Sequential, Parameter
+from torch.nn import CrossEntropyLoss, Linear, Module, Parameter, Sequential
 from torch.optim import SGD, Optimizer
 
 from lightly.utils.benchmarking.topk import mean_topk_accuracy
