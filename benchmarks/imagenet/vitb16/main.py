@@ -4,13 +4,18 @@ from pathlib import Path
 from typing import Dict, Sequence, Union
 
 import aim
+import dino
 import finetune_eval
 import knn_eval
 import linear_eval
 import mae
 import torch
 from pytorch_lightning import LightningModule, Trainer
-from pytorch_lightning.callbacks import DeviceStatsMonitor, LearningRateMonitor
+from pytorch_lightning.callbacks import (
+    DeviceStatsMonitor,
+    EarlyStopping,
+    LearningRateMonitor,
+)
 from pytorch_lightning.loggers import TensorBoardLogger
 from torch.utils.data import DataLoader
 from torchvision import transforms as T
@@ -31,8 +36,10 @@ parser.add_argument("--num-workers", type=int, default=8)
 parser.add_argument("--accelerator", type=str, default="gpu")
 parser.add_argument("--devices", type=int, default=1)
 parser.add_argument("--precision", type=str, default="16-mixed")
+parser.add_argument("--ckpt-path", type=Path, default=None)
 parser.add_argument("--compile-model", action="store_true")
 parser.add_argument("--methods", type=str, nargs="+")
+parser.add_argument("--eval-method", type=str, default="mae", choices=["mae", "simclr"])
 parser.add_argument("--num-classes", type=int, default=1000)
 parser.add_argument("--skip-knn-eval", action="store_true")
 parser.add_argument("--skip-linear-eval", action="store_true")
@@ -40,8 +47,8 @@ parser.add_argument("--skip-finetune-eval", action="store_true")
 parser.add_argument("--float32-matmul-precision", type=str, default="high")
 parser.add_argument("--strategy", default="ddp_find_unused_parameters_true")
 
-
 METHODS = {
+    "dino": {"model": dino.DINO, "transform": dino.transform},
     "mae": {"model": mae.MAE, "transform": mae.transform},
     "aim": {"model": aim.AIM, "transform": aim.transform},
 }
@@ -59,13 +66,16 @@ def main(
     precision: str,
     compile_model: bool,
     methods: Union[Sequence[str], None],
+    eval_method: str,
     num_classes: int,
     skip_knn_eval: bool,
     skip_linear_eval: bool,
     skip_finetune_eval: bool,
+    ckpt_path: Union[Path, None],
     float32_matmul_precision: str,
     strategy: str,
 ) -> None:
+    print_rank_zero(f"Args: {locals()}")
     torch.set_float32_matmul_precision(float32_matmul_precision)
 
     method_names = methods or METHODS.keys()
@@ -74,6 +84,7 @@ def main(
         method_dir = (
             log_dir / method / datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         ).resolve()
+        print_rank_zero(f"Logging to {method_dir}")
         model = METHODS[method]["model"](
             batch_size_per_device=batch_size_per_device, num_classes=num_classes
         )
@@ -85,6 +96,8 @@ def main(
 
         if epochs <= 0:
             print_rank_zero("Epochs <= 0, skipping pretraining.")
+            if ckpt_path is not None:
+                model.load_state_dict(torch.load(ckpt_path)["state_dict"])
         else:
             pretrain(
                 model=model,
@@ -98,6 +111,7 @@ def main(
                 accelerator=accelerator,
                 devices=devices,
                 precision=precision,
+                ckpt_path=ckpt_path,
                 strategy=strategy,
             )
 
@@ -115,6 +129,7 @@ def main(
                 num_workers=num_workers,
                 accelerator=accelerator,
                 devices=devices,
+                strategy=strategy,
             )
 
         if skip_linear_eval:
@@ -122,6 +137,7 @@ def main(
         else:
             eval_metrics["linear"] = linear_eval.linear_eval(
                 model=model,
+                eval_method=eval_method,
                 num_classes=num_classes,
                 train_dir=train_dir,
                 val_dir=val_dir,
@@ -130,6 +146,7 @@ def main(
                 num_workers=num_workers,
                 accelerator=accelerator,
                 devices=devices,
+                strategy=strategy,
                 precision=precision,
             )
 
@@ -138,6 +155,7 @@ def main(
         else:
             eval_metrics["finetune"] = finetune_eval.finetune_eval(
                 model=model,
+                eval_method=eval_method,
                 num_classes=num_classes,
                 train_dir=train_dir,
                 val_dir=val_dir,
@@ -146,6 +164,7 @@ def main(
                 num_workers=num_workers,
                 accelerator=accelerator,
                 devices=devices,
+                strategy=strategy,
                 precision=precision,
             )
 
@@ -166,6 +185,7 @@ def pretrain(
     accelerator: str,
     devices: int,
     precision: str,
+    ckpt_path: Union[Path, None],
     strategy: str,
 ) -> None:
     print_rank_zero(f"Running pretraining for {method}...")
@@ -180,6 +200,7 @@ def pretrain(
         num_workers=num_workers,
         collate_fn=MultiViewCollate(),
         drop_last=True,
+        persistent_workers=True,
     )
 
     # Setup validation data.
@@ -197,6 +218,7 @@ def pretrain(
         batch_size=batch_size_per_device,
         shuffle=False,
         num_workers=num_workers,
+        persistent_workers=True,
     )
 
     # Train model.
@@ -207,18 +229,21 @@ def pretrain(
         devices=devices,
         callbacks=[
             LearningRateMonitor(),
+            # Stop if training loss diverges.
+            EarlyStopping(monitor="train_loss", patience=int(1e12), check_finite=True),
             DeviceStatsMonitor(),
             metric_callback,
         ],
         logger=TensorBoardLogger(save_dir=str(log_dir), name="pretrain"),
         precision=precision,
         strategy=strategy,
-        sync_batchnorm=True,
+        sync_batchnorm=accelerator != "cpu",  # Sync batchnorm is not supported on CPU
     )
     trainer.fit(
         model=model,
         train_dataloaders=train_dataloader,
         val_dataloaders=val_dataloader,
+        ckpt_path=ckpt_path,
     )
     for metric in ["val_online_cls_top1", "val_online_cls_top5"]:
         print_rank_zero(

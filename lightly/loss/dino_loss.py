@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 
 import torch
 import torch.nn.functional as F
@@ -99,6 +99,7 @@ class DINOLoss(Module):
         teacher_out: List[Tensor],
         student_out: List[Tensor],
         epoch: int,
+        teacher_temp: Union[float, None] = None,
     ) -> Tensor:
         """Cross-entropy between softmax outputs of the teacher and student networks.
 
@@ -116,19 +117,25 @@ class DINOLoss(Module):
             update_center:
                 If True, the center used for the teacher output is updated after the
                 loss calculation.
+            teacher_temp:
+                The temperature used for the teacher output. If None, the temperature
+                is determined by the warmup schedule and the final teacher temperature.
 
         Returns:
             The average cross-entropy loss.
         """
         # Get teacher temperature
-        if epoch < self.warmup_teacher_temp_epochs:
-            teacher_temp = self.teacher_temp_schedule[epoch]
+        if teacher_temp is None:
+            if epoch < self.warmup_teacher_temp_epochs:
+                teacher_temperature = torch.tensor(self.teacher_temp_schedule[epoch])
+            else:
+                teacher_temperature = torch.tensor(self.teacher_temp)
         else:
-            teacher_temp = torch.tensor(self.teacher_temp)
+            teacher_temperature = torch.tensor(teacher_temp)
 
         teacher_out_stacked = torch.stack(teacher_out)
         t_out: Tensor = F.softmax(
-            (teacher_out_stacked - self.center) / teacher_temp, dim=-1
+            (teacher_out_stacked - self.center) / teacher_temperature, dim=-1
         )
 
         student_out_stacked = torch.stack(student_out)

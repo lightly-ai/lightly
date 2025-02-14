@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Dict, Tuple
+from typing import Any, Dict, List, Tuple, Union
 
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import DeviceStatsMonitor, LearningRateMonitor
@@ -8,33 +8,42 @@ from timm.data import create_transform
 from timm.data.mixup import Mixup
 from torch import Tensor
 from torch.nn import Module
-from torch.optim import AdamW
+from torch.optim import AdamW, Optimizer
 from torch.utils.data import DataLoader
 from torchvision import transforms as T
 
 from lightly.data import LightlyDataset
-from lightly.models import utils
-from lightly.models.utils import add_stochastic_depth_to_blocks
+from lightly.models.utils import (
+    add_stochastic_depth_to_blocks,
+    get_named_leaf_modules,
+    get_weight_decay_parameters,
+)
 from lightly.transforms.utils import IMAGENET_NORMALIZE
-from lightly.utils.benchmarking import LinearClassifier, MetricCallback
+from lightly.utils.benchmarking import FinetuneClassifier, MetricCallback
 from lightly.utils.benchmarking.topk import mean_topk_accuracy
+from lightly.utils.dist import print_rank_zero
 from lightly.utils.scheduler import CosineWarmupScheduler
 
 
-class FinetuneEvalClassifier(LinearClassifier):
+class FinetuneClassifierMAE(FinetuneClassifier):
     # Parameters follow MAE settings.
     # Adapt initialization to include mixup.
     def __init__(
         self,
         model: Module,
         batch_size_per_device: int,
-        feature_dim: int,
-        num_classes: int,
+        lr: float = 5e-4,
+        feature_dim: int = 2048,
+        num_classes: int = 1000,
         topk: Tuple[int, ...] = (1, 5),
-        freeze_model: bool = False,
     ) -> None:
         super().__init__(
-            model, batch_size_per_device, feature_dim, num_classes, topk, freeze_model
+            model=model,
+            batch_size_per_device=batch_size_per_device,
+            lr=lr,
+            feature_dim=feature_dim,
+            num_classes=num_classes,
+            topk=topk,
         )
         # TODO(Ersi, 2/24): Add path dropout for TIMM.
 
@@ -49,7 +58,9 @@ class FinetuneEvalClassifier(LinearClassifier):
         )
 
     # Adapt step to include mixup.
-    def shared_step(self, batch, batch_idx) -> Tuple[Tensor, Dict[int, Tensor]]:
+    def shared_step(
+        self, batch: Tuple[Tensor, ...], batch_idx: int
+    ) -> Tuple[Tensor, Dict[int, Tensor]]:
         images, targets = batch[0], batch[1]
         if self.trainer.state.stage == "train":
             images, targets = self.mixup(images, targets)
@@ -58,19 +69,24 @@ class FinetuneEvalClassifier(LinearClassifier):
         _, predicted_labels = predictions.topk(max(self.topk))
         # Pass targets without mixup for topk accuracy calculation.
         topk = mean_topk_accuracy(predicted_labels, batch[1], k=self.topk)
+
         return loss, topk
 
     # Adapt optimizer to match MAE settings. Parameters follow the original code from
     # the authors: https://github.com/facebookresearch/mae/blob/main/FINETUNE.md#fine-tuning
     # Note that lr and layerwise_lr_decay for ViT-B/16 are 1e-3 and 0.75 in the paper
     # but 5e-4 and 0.65 in the code.
-    def configure_optimizers(self):
-        lr = 5e-4 * self.batch_size_per_device * self.trainer.world_size / 256
+    # Type ignore is needed because return type of LightningModule.configure_optimizers
+    # is complicated and typing changes between versions.
+    def configure_optimizers(  # type: ignore[override]
+        self,
+    ) -> Tuple[List[Optimizer], List[Dict[str, Union[Any, str]]]]:
+        lr = self.get_effective_lr()
         layerwise_lr_decay = 0.65
 
         # Group parameters by weight decay and learning rate.
-        param_groups = {}
-        for name, module in utils.get_named_leaf_modules(self.model).items():
+        param_groups: Dict[str, Dict[str, Any]] = {}
+        for name, module in get_named_leaf_modules(self.model).items():
             if "encoder_layer_" in name:
                 layer_index = int(name.split("encoder_layer_")[1].split(".")[0])
                 group_name = f"vit_layer_{layer_index}"
@@ -80,7 +96,7 @@ class FinetuneEvalClassifier(LinearClassifier):
             else:
                 group_name = "vit"
                 group_lr = lr
-            params, params_no_weight_decay = utils.get_weight_decay_parameters([module])
+            params, params_no_weight_decay = get_weight_decay_parameters([module])
             group = param_groups.setdefault(
                 group_name,
                 {
@@ -113,12 +129,12 @@ class FinetuneEvalClassifier(LinearClassifier):
         scheduler = {
             "scheduler": CosineWarmupScheduler(
                 optimizer=optimizer,
-                warmup_epochs=(
+                warmup_epochs=int(
                     self.trainer.estimated_stepping_batches
                     / self.trainer.max_epochs
                     * 5
                 ),
-                max_epochs=self.trainer.estimated_stepping_batches,
+                max_epochs=int(self.trainer.estimated_stepping_batches),
             ),
             "interval": "step",
         }
@@ -127,6 +143,7 @@ class FinetuneEvalClassifier(LinearClassifier):
 
 def finetune_eval(
     model: Module,
+    eval_method: str,
     train_dir: Path,
     val_dir: Path,
     log_dir: Path,
@@ -135,27 +152,42 @@ def finetune_eval(
     accelerator: str,
     devices: int,
     precision: str,
+    strategy: str,
     num_classes: int,
 ) -> Dict[str, float]:
-    """Runs fine-tune evaluation on the given model.
+    """Runs fine-tune evaluation on the given model."""
+    print_rank_zero("Running fine-tune evaluation...")
 
-    Parameters follow MAE settings.
-    """
-    print("Running fine-tune evaluation...")
     # Setup training data.
-    # NOTE: We use transforms from the timm library here as they are the default in MAE
-    # and torchvision does not provide all required parameters.
-    train_transform = create_transform(
-        input_size=224,
-        is_training=True,
-        auto_augment="rand-m9-mstd0.5-inc1",
-        interpolation="bicubic",
-        re_prob=0.25,
-        re_mode="pixel",
-        re_count=1,
-        mean=IMAGENET_NORMALIZE["mean"],
-        std=IMAGENET_NORMALIZE["std"],
-    )
+
+    if eval_method == "mae":
+        # NOTE: We use transforms from the timm library here as they are the default in MAE
+        # and torchvision does not provide all required parameters.
+        train_transform = create_transform(
+            input_size=224,
+            is_training=True,
+            auto_augment="rand-m9-mstd0.5-inc1",
+            interpolation="bicubic",
+            re_prob=0.25,
+            re_mode="pixel",
+            re_count=1,
+            mean=IMAGENET_NORMALIZE["mean"],
+            std=IMAGENET_NORMALIZE["std"],
+        )
+        print_rank_zero("Using MAE training transform.")
+    else:
+        train_transform = T.Compose(
+            [
+                T.RandomResizedCrop(224),
+                T.RandomHorizontalFlip(),
+                T.ToTensor(),
+                T.Normalize(
+                    mean=IMAGENET_NORMALIZE["mean"], std=IMAGENET_NORMALIZE["std"]
+                ),
+            ]
+        )
+        print_rank_zero("Using SimCLR training transform.")
+
     train_dataset = LightlyDataset(input_dir=str(train_dir), transform=train_transform)
     train_dataloader = DataLoader(
         train_dataset,
@@ -197,15 +229,26 @@ def finetune_eval(
         ],
         logger=TensorBoardLogger(save_dir=str(log_dir), name="finetune_eval"),
         precision=precision,
-        strategy="ddp_find_unused_parameters_true",
+        strategy=strategy,
+        num_sanity_val_steps=0,  # NOTE: prevent problems from warmup schedule or validation metrics
     )
-    classifier = FinetuneEvalClassifier(
-        model=model,
-        batch_size_per_device=batch_size_per_device,
-        feature_dim=768,
-        num_classes=num_classes,
-        freeze_model=False,
-    )
+    if eval_method == "mae":
+        classifier = FinetuneClassifierMAE(
+            model=model,
+            batch_size_per_device=batch_size_per_device,
+            feature_dim=model.online_classifier.feature_dim,
+            num_classes=num_classes,
+        )
+        print_rank_zero("Using MAE finetune classifier.")
+    else:
+        classifier = FinetuneClassifier(
+            model=model,
+            batch_size_per_device=batch_size_per_device,
+            feature_dim=model.online_classifier.feature_dim,
+            num_classes=num_classes,
+        )
+        print_rank_zero("Using SimCLR finetune classifier.")
+
     trainer.fit(
         model=classifier,
         train_dataloaders=train_dataloader,
@@ -213,6 +256,8 @@ def finetune_eval(
     )
     metrics_dict: Dict[str, float] = dict()
     for metric in ["val_top1", "val_top5"]:
-        print(f"max finetune {metric}: {max(metric_callback.val_metrics[metric])}")
+        print_rank_zero(
+            f"max finetune {metric}: {max(metric_callback.val_metrics[metric])}"
+        )
         metrics_dict[metric] = max(metric_callback.val_metrics[metric])
     return metrics_dict
