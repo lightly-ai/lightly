@@ -120,7 +120,7 @@ class DINOLoss(Module):
             teacher_temp:
                 The temperature used for the teacher output. If None, the temperature
                 is determined by the warmup schedule and the final teacher temperature.
-        
+
         Returns:
             The average cross-entropy loss.
         """
