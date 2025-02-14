@@ -18,7 +18,7 @@ Good to Know
 
 - **Backbone Networks**: SimSiam is specifically optimized for convolutional neural networks, with a focus on ResNet architectures. We do not recommend using it with transformer-based models and instead suggest using DINO [3]_.
 - **Relation to SimCLR**: SimSiam can be thought of as "SimCLR without negative pairs."
-- **Relation to SwAV**: SimSiam is conceptually analogous to “SwAV without online clustering.”
+- **Relation to SwAV**: SimSiam is conceptually analogous to "SwAV without online clustering."
 - **Relation to BYOL** [4]_: SimSiam can be considered a variation of BYOL that removes the momentum encoder subject to many implementation differences.
 
 Reference:
