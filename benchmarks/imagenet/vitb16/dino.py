@@ -78,7 +78,7 @@ class DINO(LightningModule):
             teacher_out=teacher_projections.chunk(2),
             student_out=student_projections.chunk(len(views)),
             epoch=self.current_epoch,
-            teacher_temp=0.04, # for benchmarking we use a constant temperature of 0.04
+            teacher_temp=0.04,  # for benchmarking we use a constant temperature of 0.04
         )
         self.log_dict(
             {"train_loss": loss, "ema_momentum": momentum},
