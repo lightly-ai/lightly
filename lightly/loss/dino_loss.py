@@ -117,7 +117,10 @@ class DINOLoss(Module):
             update_center:
                 If True, the center used for the teacher output is updated after the
                 loss calculation.
-
+            teacher_temp:
+                The temperature used for the teacher output. If None, the temperature
+                is determined by the warmup schedule and the final teacher temperature.
+        
         Returns:
             The average cross-entropy loss.
         """
@@ -127,6 +130,8 @@ class DINOLoss(Module):
                 teacher_temperature = torch.tensor(self.teacher_temp_schedule[epoch])
             else:
                 teacher_temperature = torch.tensor(self.teacher_temp)
+        else:
+            teacher_temperature = torch.tensor(teacher_temp)
 
         teacher_out_stacked = torch.stack(teacher_out)
         t_out: Tensor = F.softmax(
