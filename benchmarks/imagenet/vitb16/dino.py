@@ -32,7 +32,11 @@ class DINO(LightningModule):
             input_dim=384, freeze_last_layer=1, norm_last_layer=False
         )
 
-        self.criterion = DINOLoss(teacher_temp=0.07)
+        # for benchmarking we use a constant temperature of 0.04
+        self.criterion = DINOLoss(
+            warmup_teacher_temp=0.04,
+            teacher_temp=0.04,
+        )
         self.online_classifier = OnlineLinearClassifier(
             feature_dim=384, num_classes=num_classes
         )
@@ -74,6 +78,7 @@ class DINO(LightningModule):
             teacher_out=teacher_projections.chunk(2),
             student_out=student_projections.chunk(len(views)),
             epoch=self.current_epoch,
+            teacher_temp=0.04, # for benchmarking we use a constant temperature of 0.04
         )
         self.log_dict(
             {"train_loss": loss, "ema_momentum": momentum},
