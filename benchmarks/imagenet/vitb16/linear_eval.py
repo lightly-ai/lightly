@@ -139,7 +139,7 @@ def linear_eval(
         logger=TensorBoardLogger(save_dir=str(log_dir), name="linear_eval"),
         precision=precision,
         strategy=strategy,
-        num_sanity_val_steps=0,  # NOTE: prevent problems from warmup schedule or validation metrics
+        num_sanity_val_steps=0,  # NOTE: save shared memory usage
     )
     if eval_method == "mae":
         classifier = LinearClassifierMAE(

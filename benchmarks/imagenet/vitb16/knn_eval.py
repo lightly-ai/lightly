@@ -85,7 +85,7 @@ def knn_eval(
             metric_callback,
         ],
         strategy=strategy,
-        num_sanity_val_steps=0,
+        num_sanity_val_steps=0,  # NOTE: save shared memory usage
     )
     trainer.validate(
         model=classifier,
