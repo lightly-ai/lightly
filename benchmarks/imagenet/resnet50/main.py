@@ -49,6 +49,8 @@ parser.add_argument("--num-classes", type=int, default=1000)
 parser.add_argument("--skip-knn-eval", action="store_true")
 parser.add_argument("--skip-linear-eval", action="store_true")
 parser.add_argument("--skip-finetune-eval", action="store_true")
+parser.add_argument("--float32-matmul-precision", type=str, default="high")
+parser.add_argument("--strategy", default="ddp_find_unused_parameters_true")
 
 METHODS = {
     "barlowtwins": {
@@ -84,8 +86,11 @@ def main(
     skip_linear_eval: bool,
     skip_finetune_eval: bool,
     ckpt_path: Union[Path, None],
+    float32_matmul_precision: str,
+    strategy: str,
 ) -> None:
-    torch.set_float32_matmul_precision("high")
+    print_rank_zero(f"Args: {locals()}")
+    torch.set_float32_matmul_precision(float32_matmul_precision)
 
     method_names = methods or METHODS.keys()
 
@@ -93,6 +98,7 @@ def main(
         method_dir = (
             log_dir / method / datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         ).resolve()
+        print_rank_zero(f"Logging to {method_dir}")
         model = METHODS[method]["model"](
             batch_size_per_device=batch_size_per_device, num_classes=num_classes
         )
@@ -120,6 +126,7 @@ def main(
                 devices=devices,
                 precision=precision,
                 ckpt_path=ckpt_path,
+                strategy=strategy,
             )
         eval_metrics: Dict[str, Dict[str, float]] = dict()
         if skip_knn_eval:
@@ -135,6 +142,7 @@ def main(
                 num_workers=num_workers,
                 accelerator=accelerator,
                 devices=devices,
+                strategy=strategy,
             )
 
         if skip_linear_eval:
@@ -150,6 +158,7 @@ def main(
                 num_workers=num_workers,
                 accelerator=accelerator,
                 devices=devices,
+                strategy=strategy,
                 precision=precision,
             )
 
@@ -166,6 +175,7 @@ def main(
                 num_workers=num_workers,
                 accelerator=accelerator,
                 devices=devices,
+                strategy=strategy,
                 precision=precision,
             )
 
@@ -187,6 +197,7 @@ def pretrain(
     devices: int,
     precision: str,
     ckpt_path: Union[Path, None],
+    strategy: str,
 ) -> None:
     print_rank_zero(f"Running pretraining for {method}...")
 
@@ -199,7 +210,7 @@ def pretrain(
         shuffle=True,
         num_workers=num_workers,
         drop_last=True,
-        persistent_workers=False,
+        persistent_workers=True,
     )
 
     # Setup validation data.
@@ -217,7 +228,7 @@ def pretrain(
         batch_size=batch_size_per_device,
         shuffle=False,
         num_workers=num_workers,
-        persistent_workers=False,
+        persistent_workers=True,
     )
 
     # Train model.
@@ -235,9 +246,8 @@ def pretrain(
         ],
         logger=TensorBoardLogger(save_dir=str(log_dir), name="pretrain"),
         precision=precision,
-        strategy="ddp_find_unused_parameters_true",
+        strategy=strategy,
         sync_batchnorm=accelerator != "cpu",  # Sync batchnorm is not supported on CPU.
-        num_sanity_val_steps=0,
     )
 
     trainer.fit(
