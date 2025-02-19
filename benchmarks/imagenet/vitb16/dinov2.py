@@ -27,11 +27,15 @@ from lightly.utils.scheduler import (
 
 
 class DINOv2(LightningModule):
-    def __init__(self, batch_size_per_device: int, num_classes: int) -> None:
+    def __init__(
+        self,
+        batch_size_per_device: int,
+        num_classes: int,
+        ibot_separate_head: bool = False,
+    ) -> None:
         super().__init__()
         self.save_hyperparameters()
         self.batch_size_per_device = batch_size_per_device
-        ibot_separate_head = False
 
         # Teacher
         vit = vit_small_patch16_224(
@@ -41,9 +45,10 @@ class DINOv2(LightningModule):
             vit=vit, antialias=False, pos_embed_initialization="skip"
         )
         self.dino_head = DINOProjectionHead(input_dim=384, norm_last_layer=False)
-        self.ibot_head = self.dino_head
         if ibot_separate_head:
             self.ibot_head = DINOProjectionHead(input_dim=384, norm_last_layer=False)
+        else:
+            self.ibot_head = self.dino_head
 
         # Student
         self.student_backbone = copy.deepcopy(self.backbone)
@@ -53,11 +58,12 @@ class DINOv2(LightningModule):
         self.student_dino_head = DINOProjectionHead(
             input_dim=384, freeze_last_layer=1, norm_last_layer=False
         )
-        self.student_ibot_head = self.student_dino_head
         if ibot_separate_head:
             self.student_ibot_head = DINOProjectionHead(
                 input_dim=384, freeze_last_layer=1, norm_last_layer=False
             )
+        else:
+            self.student_ibot_head = self.student_dino_head
 
         # Losses
         self.dino_criterion = DINOLoss()
