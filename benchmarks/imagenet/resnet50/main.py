@@ -252,6 +252,7 @@ def pretrain(
         precision=precision,
         strategy=strategy,
         sync_batchnorm=accelerator != "cpu",  # Sync batchnorm is not supported on CPU.
+        num_sanity_val_steps=0,  # NOTE: save shared memory usage
     )
 
     trainer.fit(
