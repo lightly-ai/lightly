@@ -224,7 +224,6 @@ class FinetuneClassifier(BaseClassifier):
 
         return output
 
-    # Type ignore is needed because return type of LightningModule.configure_optimizers
     def get_trainable_parameters(self) -> List[Parameter]:
         # Update both the classification head and the feature extractor.
         return list(self.classification_head.parameters()) + list(
