@@ -1,7 +1,7 @@
 import copy
 import math
 import re
-from typing import List, Optional, Tuple
+from typing import List, Tuple
 
 import torch
 from pytorch_lightning import LightningModule
@@ -66,7 +66,9 @@ class DINOv2(LightningModule):
             self.student_ibot_head = self.student_dino_head
 
         # Losses
-        self.dino_criterion = DINOLoss()
+        self.dino_criterion = DINOLoss(
+            teacher_temp=0.07,
+        )
         self.ibot_criterion = IBOTPatchLoss(output_dim=65536)
         self.koleo_criterion = KoLeoLoss()
 
@@ -83,8 +85,8 @@ class DINOv2(LightningModule):
         return cls_tokens, features
 
     def forward_student(
-        self, x: Tensor, mask: Optional[Tensor]
-    ) -> Tuple[Tensor, Optional[Tensor]]:
+        self, x: Tensor, mask: Tensor | None
+    ) -> Tuple[Tensor, Tensor | None]:
         features = self.student_backbone.encode(x, mask=mask)
         cls_tokens = features[:, 0]
         masked_features = None if mask is None else features[mask]

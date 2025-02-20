@@ -1,5 +1,4 @@
 import warnings
-from typing import Optional
 
 import numpy as np
 import torch
@@ -10,7 +9,7 @@ def cosine_schedule(
     max_steps: int,
     start_value: float,
     end_value: float,
-    period: Optional[int] = None,
+    period: int | None = None,
 ) -> float:
     """Use cosine decay to gradually modify start_value to reach target end_value.
 
@@ -73,8 +72,8 @@ def cosine_warmup_schedule(
     end_value: float,
     warmup_steps: int,
     warmup_start_value: float,
-    warmup_end_value: Optional[float] = None,
-    period: Optional[int] = None,
+    warmup_end_value: float | None = None,
+    period: int | None = None,
 ) -> float:
     """Use cosine decay to gradually modify start_value to reach target end_value.
 
@@ -167,9 +166,10 @@ class CosineWarmupScheduler(torch.optim.lr_scheduler.LambdaLR):
         last_epoch: int = -1,
         start_value: float = 1.0,
         end_value: float = 0.001,
-        period: Optional[int] = None,
+        period: int | None = None,
+        verbose: bool = False,
         warmup_start_value: float = 0.0,
-        warmup_end_value: Optional[float] = None,
+        warmup_end_value: float | None = None,
     ) -> None:
         self.warmup_epochs = warmup_epochs
         self.max_epochs = max_epochs

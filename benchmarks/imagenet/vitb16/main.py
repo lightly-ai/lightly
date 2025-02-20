@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Sequence, Union
+from typing import Dict, Sequence
 
 import aim
 import dino
@@ -68,14 +68,14 @@ def main(
     devices: int,
     precision: str,
     compile_model: bool,
-    methods: Union[Sequence[str], None],
+    methods: Sequence[str] | None,
     eval_method: str,
     num_classes: int,
     knn_k: int,
     skip_knn_eval: bool,
     skip_linear_eval: bool,
     skip_finetune_eval: bool,
-    ckpt_path: Union[Path, None],
+    ckpt_path: Path | None,
     float32_matmul_precision: str,
     strategy: str,
     seed: int | None = None,
@@ -194,7 +194,7 @@ def pretrain(
     accelerator: str,
     devices: int,
     precision: str,
-    ckpt_path: Union[Path, None],
+    ckpt_path: Path | None,
     strategy: str,
 ) -> None:
     print_rank_zero(f"Running pretraining for {method}...")
