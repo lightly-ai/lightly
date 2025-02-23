@@ -65,7 +65,7 @@ class BarlowTwinsLoss(torch.nn.Module):
         """
 
         # Normalize repr. along the batch dimension
-        z_a_norm, z_b_norm = _normalize(z_a, z_b)
+        z_a_norm, z_b_norm = _normalize(z_a), _normalize(z_b)
 
         N = z_a.size(0)
 
@@ -87,24 +87,16 @@ class BarlowTwinsLoss(torch.nn.Module):
         return loss
 
 
-def _normalize(
-    z_a: torch.Tensor, z_b: torch.Tensor
-) -> Tuple[torch.Tensor, torch.Tensor]:
-    """Helper function to normalize tensors along the batch dimension."""
-    # Stack tensors along a new dimension
-    combined = torch.stack([z_a, z_b], dim=0)  # Shape: 2 x N x D
-
-    # Normalize the stacked tensors along the batch dimension
-    normalized = F.batch_norm(
-        combined.flatten(0, 1),
+def _normalize(z: torch.Tensor) -> torch.Tensor:
+    """Helper function to normalize tensor along the batch dimension."""
+    return F.batch_norm(
+        z,
         running_mean=None,
         running_var=None,
         weight=None,
         bias=None,
         training=True,
-    ).view_as(combined)
-
-    return normalized[0], normalized[1]
+    )
 
 
 def _off_diagonal(x: Tensor) -> Tensor:
