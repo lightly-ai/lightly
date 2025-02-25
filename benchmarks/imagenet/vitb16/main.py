@@ -41,6 +41,7 @@ parser.add_argument("--compile-model", action="store_true")
 parser.add_argument("--methods", type=str, nargs="+")
 parser.add_argument("--eval-method", type=str, default="mae", choices=["mae", "simclr"])
 parser.add_argument("--num-classes", type=int, default=1000)
+parser.add_argument("--knn-k", type=int, default=200)
 parser.add_argument("--skip-knn-eval", action="store_true")
 parser.add_argument("--skip-linear-eval", action="store_true")
 parser.add_argument("--skip-finetune-eval", action="store_true")
@@ -68,6 +69,7 @@ def main(
     methods: Union[Sequence[str], None],
     eval_method: str,
     num_classes: int,
+    knn_k: int,
     skip_knn_eval: bool,
     skip_linear_eval: bool,
     skip_finetune_eval: bool,
@@ -97,7 +99,9 @@ def main(
         if epochs <= 0:
             print_rank_zero("Epochs <= 0, skipping pretraining.")
             if ckpt_path is not None:
-                model.load_state_dict(torch.load(ckpt_path)["state_dict"])
+                model.load_state_dict(
+                    torch.load(ckpt_path, weights_only=False)["state_dict"]
+                )
         else:
             pretrain(
                 model=model,
@@ -130,6 +134,7 @@ def main(
                 accelerator=accelerator,
                 devices=devices,
                 strategy=strategy,
+                knn_k=knn_k,
             )
 
         if skip_linear_eval:

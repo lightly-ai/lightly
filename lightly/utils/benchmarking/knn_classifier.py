@@ -16,7 +16,7 @@ class KNNClassifier(LightningModule):
         model: Module,
         num_classes: int,
         knn_k: int = 200,
-        knn_t: float = 0.1,
+        knn_t: float = 0.07,
         topk: Tuple[int, ...] = (1, 5),
         feature_dtype: torch.dtype = torch.float32,
         normalize: bool = True,
