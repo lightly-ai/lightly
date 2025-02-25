@@ -25,6 +25,7 @@ def knn_eval(
     devices: int,
     strategy: str,
     num_classes: int,
+    knn_k: int = 200,
 ) -> Dict[str, float]:
     """Runs KNN evaluation on the given model.
 
@@ -32,7 +33,7 @@ def knn_eval(
 
     The most important settings are:
         - Num nearest neighbors: 200
-        - Temperature: 0.1
+        - Temperature: 0.07
 
     References:
        - [0]: InstDict, 2018, https://arxiv.org/abs/1805.01978
@@ -69,7 +70,7 @@ def knn_eval(
     classifier = KNNClassifier(
         model=model,
         num_classes=num_classes,
-        feature_dtype=torch.float16,
+        knn_k=knn_k,
     )
 
     # Run KNN evaluation.
