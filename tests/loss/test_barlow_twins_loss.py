@@ -91,4 +91,4 @@ class TestBarlowTwinsLoss:
         x = torch.randn(32, 1024)
 
         # Loss should be invariant to affine transformations.
-        assert torch.allclose(loss(x, x), loss(x, 2*x + 4))
+        assert torch.allclose(loss(x, x), loss(x, 2 * x + 4))
