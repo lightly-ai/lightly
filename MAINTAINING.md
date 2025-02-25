@@ -19,3 +19,10 @@ git checkout -b <branch-name> <username>/<branch-name>
 ```
 
 Now you can make changes and push them to the PR branch with `git push`.
+
+If there's an update from LightlySSL's master branch, you can merge it into the PR branch
+
+```
+git fetch upstream
+git merge upstream/master
+```

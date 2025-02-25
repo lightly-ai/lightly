@@ -76,7 +76,7 @@ Follow these steps to start contributing:
 3. Create a new branch to hold your development changes:
 
    ```bash
-   git checkout -b a_descriptive_name_for_my_changes
+   git checkout -b a_descriptive_name_for_my_changes upstream/master
    ```
 
    **do not** work on the `master` branch.
@@ -146,8 +146,15 @@ Follow these steps to start contributing:
 
    ```bash
    cd docs
-   make html
+   make html-noplot
    ```
+
+   and check the HTML output via local web browser by
+
+   ```bash
+   make serve-local
+   ```
+
    Once you're happy with your changes, add changed files using `git add` and
    make a commit with `git commit` to record your changes locally:
 
@@ -169,11 +176,11 @@ Follow these steps to start contributing:
    Push the changes to your account using:
 
    ```bash
-   git push -u origin a_descriptive_name_for_my_changes
+   git push -u upstream a_descriptive_name_for_my_changes
    ```
 
 7. Once you are satisfied, go to the webpage of your fork on GitHub.
-   Click on 'Pull request' to send your changes to the project maintainers for review.
+   Click on 'Pull request' to send your changes to the project maintainers for review. If there is a change in the docs, please make sure to print the changes made to the webpage as PDF and include them in the PR. You can use the `make serve-local` command as mentioned above to see the changes in the docs.
 
 8. It's ok if maintainers ask you for changes. It happens to core contributors
    too! So everyone can see the changes in the Pull request, work in your local
