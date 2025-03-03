@@ -85,3 +85,10 @@ class TestBarlowTwinsLoss:
         loss_ref_out = loss_ref(z_a, z_b)
 
         assert torch.allclose(loss_out, loss_ref_out, rtol=1e-3, atol=1e-3)
+
+    def test__loss_is_affine_invariant(self) -> None:
+        loss = BarlowTwinsLoss()
+        x = torch.randn(32, 1024)
+
+        # Loss should be invariant to affine transformations.
+        assert torch.allclose(loss(x, x), loss(x, 2 * x + 4))
