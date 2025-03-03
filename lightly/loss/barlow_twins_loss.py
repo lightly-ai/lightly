@@ -88,7 +88,7 @@ class BarlowTwinsLoss(torch.nn.Module):
 
 
 def _normalize(z: torch.Tensor) -> torch.Tensor:
-    """Helper function to normalize tensor along the batch dimension."""
+    """Helper function to create batches of mean 0 and std 1."""
     return F.batch_norm(
         z,
         running_mean=None,
