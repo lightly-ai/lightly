@@ -76,7 +76,7 @@ Follow these steps to start contributing:
 3. Create a new branch to hold your development changes:
 
    ```bash
-   git checkout -b a_descriptive_name_for_my_changes
+   git checkout -b a_descriptive_name_for_my_changes upstream/master
    ```
 
    **do not** work on the `master` branch.
@@ -140,14 +140,10 @@ Follow these steps to start contributing:
    ```bash
    make generate-example-notebooks
    ```
-
+   
    If you're modifying documents under `docs/source`, make sure to validate that
-   they can still be built. This check also runs in CI. 
+   they can still be built. This check also runs in CI and the build instructions can be found in `docs/README.md`.
 
-   ```bash
-   cd docs
-   make html
-   ```
    Once you're happy with your changes, add changed files using `git add` and
    make a commit with `git commit` to record your changes locally:
 
@@ -169,18 +165,18 @@ Follow these steps to start contributing:
    Push the changes to your account using:
 
    ```bash
-   git push -u origin a_descriptive_name_for_my_changes
+   git push -u upstream a_descriptive_name_for_my_changes
    ```
 
-7. Once you are satisfied, go to the webpage of your fork on GitHub.
-   Click on 'Pull request' to send your changes to the project maintainers for review.
+1. Once you are satisfied, go to the webpage of your fork on GitHub.
+   Click on 'Pull request' to send your changes to the project maintainers for review. If there is a change in the docs, please make sure to print the changes made to the webpage as PDF and include them in the PR.
 
-8. It's ok if maintainers ask you for changes. It happens to core contributors
+2. It's ok if maintainers ask you for changes. It happens to core contributors
    too! So everyone can see the changes in the Pull request, work in your local
    branch and push the changes to your fork. They will automatically appear in
    the pull request.
 
-9. We have a extensive Continuous Integration system that runs tests on all Pull Requests. This
+3. We have a extensive Continuous Integration system that runs tests on all Pull Requests. This
    is to make sure that the changes introduced by the commits don’t introduce errors. When
    all CI tests in a workflow pass, it implies that the changes introduced by a commit do not introduce any errors.
    We have workflows that check unit tests, dependencies, and formatting.
