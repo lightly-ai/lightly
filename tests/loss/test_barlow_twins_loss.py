@@ -12,7 +12,7 @@ from lightly.loss.barlow_twins_loss import BarlowTwinsLoss
 class BarlowTwinsLossReference(Module):
     def __init__(
         self,
-        projector_dim: int = 8196,
+        projector_dim: int = 8192,
         lambda_param: float = 5e-3,
         gather_distributed: bool = False,
     ):
@@ -66,7 +66,7 @@ class TestBarlowTwinsLoss:
 
     def test__loss_matches_reference_loss(self) -> None:
         batch_size = 32
-        projector_dim = 8196
+        projector_dim = 8192
         lambda_param = 5e-3
         gather_distributed = False
         loss = BarlowTwinsLoss(
@@ -84,7 +84,7 @@ class TestBarlowTwinsLoss:
         loss_out = loss(z_a, z_b)
         loss_ref_out = loss_ref(z_a, z_b)
 
-        assert torch.allclose(loss_out, loss_ref_out, rtol=1e-3, atol=1e-3)
+        assert torch.allclose(loss_out, loss_ref_out)
 
     def test__loss_is_affine_invariant(self) -> None:
         loss = BarlowTwinsLoss()
