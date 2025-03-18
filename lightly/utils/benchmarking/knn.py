@@ -27,7 +27,7 @@ def knn_predict(
             Tensor of shape (D, N) representing a database of features used for kNN,
             where N is the number of stored feature vectors.
         feature_labels:
-            Tensor with shape (N,) containing labels for the corresponding
+            Tensor of shape (N,) containing labels for the corresponding
             feature vectors in the feature_bank.
         num_classes:
             Number of classes (e.g., `10` for CIFAR-10).
