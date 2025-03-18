@@ -38,8 +38,8 @@ def knn_predict(
 
     Returns:
         Tensor of shape (B, num_classes) with the predicted class indices sorted
-        by probability in descending order for each sample. The first index 
-        corresponds to the most probable class. To get the top-1 prediction, 
+        by probability in descending order for each sample. The first index
+        corresponds to the most probable class. To get the top-1 prediction,
         you can access `pred_labels[:, 0]`.
 
     Examples:
