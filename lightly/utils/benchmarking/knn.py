@@ -21,7 +21,7 @@ def knn_predict(
 
     Args:
         feature:
-            Tensor with shape (B, D) for which you want predictions, where B is the
+            Tensor of shape (B, D) for which you want predictions, where B is the
             batch size and D is the feature dimension.
         feature_bank:
             Tensor of shape (D, N) representing a database of features used for kNN,
