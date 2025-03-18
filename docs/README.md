@@ -30,10 +30,6 @@ For building the full docs with python files (including tutorials), run (usually
 make html
 ```
 
-To create a shortcut for building the documentation with environment variables for the active-learning tutorial, use:
-```
-LIGHTLY_SERVER_LOCATION='https://api.lightly.ai' LIGHTLY_TOKEN='YOUR_TOKEN' AL_TUTORIAL_DATASET_ID='YOUR_DATASET_ID' make html && python -m http.server 1234 -d build/html
-```
 
 ## Deploy the Docs
 
