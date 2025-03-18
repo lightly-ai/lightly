@@ -16,9 +16,7 @@ def knn_predict(
     """Run kNN predictions on features based on a feature bank.
 
     This method is commonly used to monitor the performance of self-supervised
-    learning methods.
-
-    The default parameters are the ones
+    learning methods. The default parameters are the ones
     used in https://arxiv.org/pdf/1805.01978v1.pdf.
 
     Args:
