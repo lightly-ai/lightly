@@ -13,9 +13,9 @@ def knn_predict(
     knn_k: int = 200,
     knn_t: float = 0.1,
 ) -> Tensor:
-    """Run kNN predictions on features based on a feature bank
+    """Run kNN predictions on features based on a feature bank.
 
-    This method is commonly used to monitor performance of self-supervised
+    This method is commonly used to monitor the performance of self-supervised
     learning methods.
 
     The default parameters are the ones
@@ -23,25 +23,31 @@ def knn_predict(
 
     Args:
         feature:
-            Tensor with shape (B, D) for which you want predictions.
+            Tensor with shape (B, D) for which you want predictions, where B is the
+            batch size and D is the feature dimension.
         feature_bank:
-            Tensor of shape (D, N) of a database of features used for kNN.
+            Tensor of shape (D, N) representing a database of features used for kNN,
+            where N is the number of stored feature vectors.
         feature_labels:
-            Labels with shape (N,) for the features in the feature_bank.
+            Tensor with shape (N,) containing labels for the corresponding
+            feature vectors in the feature_bank.
         num_classes:
-            Number of classes (e.g. `10` for CIFAR-10).
+            Number of classes (e.g., `10` for CIFAR-10).
         knn_k:
-            Number of k neighbors used for kNN.
+            Number of k nearest neighbors used for kNN.
         knn_t:
-            Temperature parameter to reweights similarities for kNN.
+            Temperature parameter to reweight similarities for kNN.
 
     Returns:
-        A tensor containing the kNN predictions
+        Tensor of shape (B, num_classes) with the predicted class indices sorted
+        by probability in descending order for each sample. The first index 
+        corresponds to the most probable class. To get the top-1 prediction, 
+        you can access `pred_labels[:, 0]`.
 
     Examples:
         >>> images, targets, _ = batch
         >>> feature = backbone(images).squeeze()
-        >>> # we recommend to normalize the features
+        >>> # we recommend normalizing the features
         >>> feature = F.normalize(feature, dim=1)
         >>> pred_labels = knn_predict(
         >>>     feature,
@@ -49,6 +55,8 @@ def knn_predict(
         >>>     targets_bank,
         >>>     num_classes=10,
         >>> )
+        >>> # top-1 prediction
+        >>> top1_pred = pred_labels[:, 0]
     """
     # compute cos similarity between each feature vector and feature bank ---> (B, N)
     sim_matrix = torch.mm(feature, feature_bank)
