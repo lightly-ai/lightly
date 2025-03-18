@@ -184,6 +184,121 @@ Follow these steps to start contributing:
 ### Style guide
 
 `lightly` follows the [Google styleguide](https://google.github.io/styleguide/pyguide.html) and the [PyTorch styleguide](https://github.com/IgorSusmelj/pytorch-styleguide) by Igor Susmelj.
-Check our [documentation writing guide](https://github.com/lightly-ai/lightly/docs/README.md) for more information.
+
+Important notes:
+- Always use triple double quotes (`"""`).
+- A function must include a docstring unless it meets all the following criteria: it is not externally visible, is very short, and is obvious.
+- Make your functions checkable through static typecheckers (`mypy`). This means that it must have proper [type hints](https://docs.python.org/3/library/typing.html) everywhere. We use Python 3.10-style type-hints for Union-types, i.e. `str | Path` instead of `Union[str, Path]`. For backwards-compatibility, this requires that every module using such type-hints imports `from __future__ import annotations` at the very top of the module.
+- Don't overlook the `Raises`.
+- Use punctuation.
+- **Please look carefully at the examples provided below (from the styleguide)**.
+
+#### Packages and Modules
+Packages (i.e. the `__init__.py` files) and modules should start with a docstring describing the contents and usage of the package / module. 
+
+Example:
+```python
+"""A one line summary of the module or program, terminated by a period.
+
+Leave one blank line.  The rest of this docstring should contain an
+overall description of the module or program.  Optionally, it may also
+contain a brief description of exported classes and functions and/or usage
+examples.
+
+  Typical usage example:
+
+  foo = ClassFoo()
+  bar = foo.FunctionBar()
+"""
+```
+
+#### Functions
+
+Example of a function:
+```python
+from __future__ import annotations
+
+from smalltable import Table
+from typing import Sequence, Union, Mapping, Tuple
+
+
+def fetch_smalltable_rows(
+  table_handle: Table,
+  keys: Sequence[bytes | str],
+  require_all_keys: bool = False,
+) -> Mapping[bytes, Tuple[str]]:
+    """Fetches rows from a Smalltable.
+
+    Retrieves rows pertaining to the given keys from the Table instance
+    represented by table_handle.  String keys will be UTF-8 encoded.
+
+    Args:
+      table_handle:
+        An open smalltable.Table instance.
+      keys:
+        A sequence of strings representing the key of each table row to
+        fetch.  String keys will be UTF-8 encoded.
+      require_all_keys:
+        Optional; If require_all_keys is True only rows with values set
+        for all keys will be returned.
+
+    Returns:
+      A dict mapping keys to the corresponding table row data
+      fetched. Each row is represented as a tuple of strings. For
+      example:
+
+      {b'Serak': ('Rigel VII', 'Preparer'),
+       b'Zim': ('Irk', 'Invader'),
+       b'Lrrr': ('Omicron Persei 8', 'Emperor')}
+
+      Returned keys are always bytes.  If a key from the keys argument is
+      missing from the dictionary, then that row was not found in the
+      table (and require_all_keys must have been False).
+
+    Raises:
+      IOError: An error occurred accessing the smalltable.
+    """
+```
+
+#### Classes
+
+Attributes of a class should be documented at the class level if they are meant to be public.
+
+Example:
+```python
+class SampleClass:
+    """Summary of class here.
+
+    Longer class information....
+    Longer class information....
+
+    Attributes:
+        likes_spam:
+            A boolean indicating if we like SPAM or not.
+        eggs:
+            An integer count of the eggs we have laid.
+    """
+
+    def __init__(self, likes_spam=False):
+        """Inits SampleClass with blah.
+        
+        Args:
+            likes_spam:
+                Boolean value indicating if we like SPAM or not.
+        """
+        self.likes_spam = likes_spam
+        self.eggs = 0
+
+    def public_method(self):
+        """Performs operation blah."""
+
+    def public_method_2(self, x: str):
+        """Performs operation blah 2. 
+        
+        Args:
+            x:
+                Some explanation for x.
+        """
+```
 
 #### This guide was inspired by Transformers [transformers guide to contributing](https://github.com/huggingface/transformers/blob/master/CONTRIBUTING.md) which was influenced by Scikit-learn [scikit-learn guide to contributing](https://github.com/scikit-learn/scikit-learn/blob/master/CONTRIBUTING.md).
