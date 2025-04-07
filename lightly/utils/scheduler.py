@@ -149,8 +149,6 @@ class CosineWarmupScheduler(torch.optim.lr_scheduler.LambdaLR):
             Starting learning rate.
         end_value:
             Target learning rate.
-        verbose:
-            If True, prints a message to stdout for each update.
         warmup_start_value:
             Starting learning rate for warmup.
         warmup_end_value:
@@ -170,7 +168,6 @@ class CosineWarmupScheduler(torch.optim.lr_scheduler.LambdaLR):
         start_value: float = 1.0,
         end_value: float = 0.001,
         period: Optional[int] = None,
-        verbose: bool = False,
         warmup_start_value: float = 0.0,
         warmup_end_value: Optional[float] = None,
     ) -> None:
@@ -186,7 +183,6 @@ class CosineWarmupScheduler(torch.optim.lr_scheduler.LambdaLR):
             optimizer=optimizer,
             lr_lambda=self.scale_lr,
             last_epoch=last_epoch,
-            verbose=verbose,
         )
 
     def scale_lr(self, epoch: int) -> float:
