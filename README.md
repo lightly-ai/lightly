@@ -30,7 +30,7 @@ You can now also leverage SSL and distillation pretraining in just a few lines o
 
 <a href="https://github.com/lightly-ai/lightly-train">
 <p align="center">
-<img src="docs/logos/lightly_train_light.svg" alt="LightlyTrain" width="300"/>
+<img src="https://github.com/lightly-ai/lightly-train/blob/main/docs/source/_static/lightly_train_light.svg" alt="LightlyTrain" width="300"/>
 </p>
 </a>
 
@@ -422,6 +422,7 @@ build efficient active learning pipelines to select the most relevant data for t
 You can find out more about the company and it's services by following the links below:
 
 - [Homepage](https://www.lightly.ai)
+- [LightlyTrain](https://docs.lightly.ai/train/stable/index.html)
 - [Web-App](https://app.lightly.ai)
 - [Lightly Solution Documentation (Lightly Worker & API)](https://docs.lightly.ai/)
 - [Lightly's AwesomeSSL](https://github.com/lightly-ai/awesome-self-supervised-learning) (collection of SSL papers)
