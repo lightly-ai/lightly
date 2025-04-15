@@ -14,7 +14,7 @@ Lightly**SSL** is a computer vision framework for self-supervised learning.
 
 - [Documentation](https://docs.lightly.ai/self-supervised-learning/)
 - [Github](https://github.com/lightly-ai/lightly)
-- [Discord](https://discord.gg/xvNJW94) (We have weekly paper sessions!)
+- [Discord](https://discord.gg/xvNJW94)
 
 For a commercial version with more features, including Docker support and pretraining
 models for embedding, classification, detection, and segmentation tasks with
@@ -24,6 +24,15 @@ We've also built a whole platform on top, with additional features for active le
 and [data curation](https://docs.lightly.ai/docs/what-is-lightly). If you're interested in the
 Lightly Worker Solution to easily process millions of samples and run [powerful algorithms](https://docs.lightly.ai/docs/customize-a-selection)
 on your data, check out [lightly.ai](https://www.lightly.ai). It's free to get started!
+
+## Big News (April 15th, 2025) 🚀
+You can now also leverage SSL and distillation pretraining in just a few lines of code! Head over to [LightlyTrain](https://github.com/lightly-ai/lightly-train) to get started. ⚡️
+
+<a href="https://github.com/lightly-ai/lightly-train">
+<p align="center">
+<img src="docs/logos/lightly_train_light.svg" alt="LightlyTrain" width="300"/>
+</p>
+</a>
 
 ## Features
 
@@ -415,5 +424,6 @@ You can find out more about the company and it's services by following the links
 - [Homepage](https://www.lightly.ai)
 - [Web-App](https://app.lightly.ai)
 - [Lightly Solution Documentation (Lightly Worker & API)](https://docs.lightly.ai/)
+- [Lightly's AwesomeSSL](https://github.com/lightly-ai/awesome-self-supervised-learning) (collection of SSL papers)
 
 [Back to top🚀](#top)
