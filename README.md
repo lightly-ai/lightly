@@ -26,13 +26,15 @@ Lightly Worker Solution to easily process millions of samples and run [powerful 
 on your data, check out [lightly.ai](https://www.lightly.ai). It's free to get started!
 
 ## Big News (April 15th, 2025) 🚀
-You can now also leverage SSL and distillation pretraining in just a few lines of code! Head over to [LightlyTrain](https://github.com/lightly-ai/lightly-train) to get started. ⚡️
+
+We are excited to announce that you can now leverage SSL and distillation pretraining in just a few lines of code! We've worked hard to make self-supervised learning even more accessible with our new project [LightlyTrain](https://github.com/lightly-ai/lightly-train). Head over there to get started and supercharge your models! ⚡️
 
 <a href="https://github.com/lightly-ai/lightly-train">
 <p align="center">
 <img src="https://github.com/lightly-ai/lightly-train/blob/main/docs/source/_static/lightly_train_light.svg" alt="LightlyTrain" width="300"/>
 </p>
 </a>
+
 
 ## Features
 
