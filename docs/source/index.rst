@@ -13,12 +13,16 @@
 Documentation
 ===================================
 
-.. note:: These pages document the Lightly self-supervised learning library.
-          If you are looking for the Lightly\ **One** Worker Solution with
-          advanced `active learning algorithms <https://docs.lightly.ai/docs/customize-a-selection>`_ and
-          `selection strategies <https://docs.lightly.ai/docs/selection-examples-and-use-cases>`_ to select the best samples
-          within millions of unlabeled images or video frames stored in your cloud storage or locally,
-          please follow our Lightly\ **One** Worker `documentation <https://docs.lightly.ai/>`_.
+.. seealso:: 
+   
+   These pages document the Lightly self-supervised learning research library. If you
+   are instead looking to leverage SSL and distillation pretrain with only a few lines of code
+   head over to `LightlyTrain <https://docs.lightly.ai/train/stable/index.html>`_ instead. And if you are looking for the Lightly\ **One** Worker Solution with
+   advanced `active learning algorithms <https://docs.lightly.ai/docs/customize-a-selection>`_ and
+   `selection strategies <https://docs.lightly.ai/docs/selection-examples-and-use-cases>`_ to select the best samples
+   within millions of unlabeled images or video frames stored in your cloud storage or locally,
+   please follow our Lightly\ **One** Worker `documentation <https://docs.lightly.ai/>`_.
+
 
 Lightly\ **SSL** is a computer vision framework for self-supervised learning.
 
@@ -46,7 +50,13 @@ Lightly AI
    <a href="https://app.lightly.ai" target="_blank">Lightly<strong>One</strong> Platform</a>
 
 
+.. |lightly_train_with_bold_train| raw:: html
+
+   <a href="https://docs.lightly.ai/train/stable/index.html" target="_blank">Lightly<strong>Train</strong> Documentation</a>
+
+
 - `Homepage <https://www.lightly.ai>`_
+- |lightly_train_with_bold_train|
 - |lightly_worker_with_bold_one|
 - |lightly_app_with_bold_one|
 - `Github <https://github.com/lightly-ai/lightly>`_
