@@ -51,7 +51,7 @@ jobs:
           source .venv/bin/activate
           LIGHTLY_SERVER_LOCATION="localhost:-1"
           lightly-crop --help
-          lightly-train --help
+          lightly-ssl-train --help
           lightly-embed --help
           lightly-magic --help
           lightly-download --help
@@ -62,5 +62,5 @@ jobs:
           LIGHTLY_SERVER_LOCATION="localhost:-1"
           git clone https://github.com/alexeygrigorev/clothing-dataset-small clothing_dataset_small
           INPUT_DIR_1="clothing_dataset_small/test/dress"
-          lightly-train input_dir=$INPUT_DIR_1 trainer.max_epochs=1 loader.num_workers=6
+          lightly-ssl-train input_dir=$INPUT_DIR_1 trainer.max_epochs=1 loader.num_workers=6
           lightly-embed input_dir=$INPUT_DIR_1
