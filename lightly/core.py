@@ -127,8 +127,8 @@ def train_model_and_embed_images(
 def train_embedding_model(config_path: str = None, **kwargs):
     """Train a self-supervised model.
 
-    Calls the same function as lightly-train. All arguments passed to
-    lightly-train can also be passed to this function (see below for an
+    Calls the same function as lightly-ssl-train. All arguments passed to
+    lightly-ssl-train can also be passed to this function (see below for an
     example).
 
     Args:
@@ -162,7 +162,7 @@ def train_embedding_model(config_path: str = None, **kwargs):
         >>> checkpoint_path = lightly.train_embedding_model(
         >>>     input_dir='path/to/data', loader=my_loader)
         >>> # the command above is equivalent to:
-        >>> # lightly-train input_dir='path/to/data' loader.batch_size=100 loader.num_workers=8
+        >>> # lightly-ssl-train input_dir='path/to/data' loader.batch_size=100 loader.num_workers=8
     """
     config_path = _get_config_path(config_path)
     config_args = _load_config_file(config_path)
