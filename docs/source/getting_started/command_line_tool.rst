@@ -79,7 +79,7 @@ An example for the label names .yaml file:
     names: [cat, dog]
 
 You can use the output of the lightly-crop command as the *input_dir* for your
-lightly-train command.
+lightly-ssl-train command.
 
 Training and Embedding in a Go – Magic
 ---------------------------------------------------
@@ -118,23 +118,23 @@ You can use the following command to train a model and save the checkpoint:
 .. code-block:: bash
 
     # train a model using default parameters
-    lightly-train input_dir=cat
+    lightly-ssl-train input_dir=cat
 
     # train a model for 5 epochs
-    lightly-train input_dir=cat trainer.max_epochs=5
+    lightly-ssl-train input_dir=cat trainer.max_epochs=5
 
     # continue training from a checkpoint for another 10 epochs
-    lightly-train input_dir=cat trainer.max_epochs=10 checkpoint=mycheckpoint.ckpt
+    lightly-ssl-train input_dir=cat trainer.max_epochs=10 checkpoint=mycheckpoint.ckpt
 
     # continue training from the last checkpoint
-    lightly-train input_dir=cat trainer.max_epochs=10 \
+    lightly-ssl-train input_dir=cat trainer.max_epochs=10 \
                   checkpoint=$LIGHTLY_LAST_CHECKPOINT_PATH
 
     # train with multiple gpus
     # the total batch size will be trainer.gpus * loader.batch_size
-    lightly-train input_dir=data_dir trainer.gpus=2
+    lightly-ssl-train input_dir=data_dir trainer.gpus=2
 
-The path to the latest checkpoint you created using the `lightly-train` command
+The path to the latest checkpoint you created using the `lightly-ssl-train` command
 will be saved under an environment variable named LIGHTLY_LAST_CHECKPOINT_PATH.
 This can be useful for continuing training or for creating embeddings from
 a checkpoint.
@@ -143,7 +143,7 @@ For a full list of supported arguments run
 
 .. code-block:: bash
     
-    lightly-train --help
+    lightly-ssl-train --help
 
 
 You can get an overview of the various CLI parameters you can set in 
@@ -222,14 +222,14 @@ you can use the following:
     # equivalent breakdown into single commands
 
     # train the embedding model
-    lightly-train input_dir=data_dir
+    lightly-ssl-train input_dir=data_dir
     # embed the images with the embedding model just trained
     lightly-embed input_dir=data_dir checkpoint=$LIGHTLY_LAST_CHECKPOINT_PATH
 
 
 
 
-    
+
 
 
 

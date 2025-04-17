@@ -131,16 +131,16 @@ hydra:
       > lightly-embed input_dir='path/to/image/folder' collate.input_size=224 checkpoint='path/to/checkpoint.ckpt'
 
       Train a self-supervised model on your image dataset from scratch
-      > lightly-train input_dir='path/to/image/folder' loader.batch_size=128 collate.input_size=224 pre_trained=False
+      > lightly-ssl-train input_dir='path/to/image/folder' loader.batch_size=128 collate.input_size=224 pre_trained=False
 
       Train a self-supervised model starting from the pre-trained checkpoint
-      > lightly-train input_dir='path/to/image/folder' loader.batch_size=128 collate.input_size=224
+      > lightly-ssl-train input_dir='path/to/image/folder' loader.batch_size=128 collate.input_size=224
 
       Train a self-supervised model starting from a custom checkpoint
-      > lightly-train input_dir='path/to/image/folder' loader.batch_size=128 collate.input_size=224 checkpoint='path/to/checkpoint.ckpt'
+      > lightly-ssl-train input_dir='path/to/image/folder' loader.batch_size=128 collate.input_size=224 checkpoint='path/to/checkpoint.ckpt'
 
       Train using half-precision
-      > lightly-train input_dir='path/to/image/folder' trainer.precision=16
+      > lightly-ssl-train input_dir='path/to/image/folder' trainer.precision=16
       
       Download a list of files in a given tag from the Lightly Platform
       > lightly-download tag_name='my-tag' dataset_id='your_dataset_id' token='your_access_token'

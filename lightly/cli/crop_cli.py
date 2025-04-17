@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """**Lightly Train:** Train a self-supervised model from the command-line.
 
-This module contains the entrypoint for the **lightly-train**
+This module contains the entrypoint for the **lightly-crop**
 command-line interface.
 """
 

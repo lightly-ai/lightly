@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-"""**Lightly Train:** Train a self-supervised model from the command-line.
+"""**Lightly SSL Train:** Train a self-supervised model from the command-line.
 
-This module contains the entrypoint for the **lightly-train**
+This module contains the entrypoint for the **lightly-ssl-train**
 command-line interface.
 """
 
@@ -167,17 +167,17 @@ def train_cli(cfg):
             Path to the input directory where images are stored.
 
     Examples:
-        >>> # train model with default settings
-        >>> lightly-train input_dir=data/
+        >>> # train model with default settings
+        >>> lightly-ssl-train input_dir=data/
         >>>
         >>> # train model with batches of size 128
-        >>> lightly-train input_dir=data/ loader.batch_size=128
+        >>> lightly-ssl-train input_dir=data/ loader.batch_size=128
         >>>
         >>> # train model for 10 epochs
-        >>> lightly-train input_dir=data/ trainer.max_epochs=10
+        >>> lightly-ssl-train input_dir=data/ trainer.max_epochs=10
         >>>
         >>> # print a full summary of the model
-        >>> lightly-train input_dir=data/ trainer.weights_summary=full
+        >>> lightly-ssl-train input_dir=data/ trainer.weights_summary=full
 
     """
     return _train_cli(cfg)
