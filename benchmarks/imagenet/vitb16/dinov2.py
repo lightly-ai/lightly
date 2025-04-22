@@ -202,8 +202,6 @@ class DINOv2(LightningModule):
             self.batch_size_per_device * self.trainer.world_size / 1024
         )
         lr = 0.004 * lr_scale
-        weight_decay = 0.04
-
         lr_layer_decay = 0.9
         num_layers = len(self.student_backbone.vit.blocks)
 
@@ -219,7 +217,7 @@ class DINOv2(LightningModule):
                 "name": name,
                 "params": [param],
                 "lr": lr,
-                "weight_decay": weight_decay,
+                "weight_decay": 0.04,
             }
 
             # Update lr
@@ -263,6 +261,7 @@ class DINOv2(LightningModule):
                 "weight_decay": 0.0,
             }
         )
+
         optimizer = AdamW(param_groups, lr=lr)
         scheduler = {
             "scheduler": CosineWarmupScheduler(
