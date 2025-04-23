@@ -202,11 +202,10 @@ class DINOv2(LightningModule):
             self.batch_size_per_device * self.trainer.world_size / 1024
         )
         lr = 0.004 * lr_scale
-        lr_layer_decay = 0.9
         num_layers = len(self.student_backbone.vit.blocks)
 
         def lr_layer(layer_idx: int) -> float:
-            return lr_layer_decay ** (num_layers + 1 - layer_idx)
+            return 0.9 ** (num_layers + 1 - layer_idx)  # layer_scale defaults to 0.9
 
         param_groups = []
         for name, param in self.named_parameters():
