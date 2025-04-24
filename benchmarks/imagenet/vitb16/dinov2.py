@@ -38,23 +38,35 @@ class DINOv2(LightningModule):
         self.batch_size_per_device = batch_size_per_device
 
         # Teacher
-        vit = vit_small_patch16_224(
-            pos_embed="learn", dynamic_img_size=True, init_values=1e-5
+        vit_teacher = vit_small_patch16_224(
+            pos_embed="learn",
+            dynamic_img_size=True,
+            init_values=1e-5,
         )
-        self.backbone = MaskedVisionTransformerTIMM(
-            vit=vit, antialias=False, pos_embed_initialization="skip"
+        self.teacher_backbone = MaskedVisionTransformerTIMM(
+            vit=vit_teacher,
+            antialias=False,
+            pos_embed_initialization="skip",  # TIMM's classification head is skipped here
         )
-        self.dino_head = DINOProjectionHead(input_dim=384, norm_last_layer=False)
+
+        self.teacher_dino_head = DINOProjectionHead(
+            input_dim=384, norm_last_layer=False
+        )
         if ibot_separate_head:
-            self.ibot_head = DINOProjectionHead(input_dim=384, norm_last_layer=False)
+            self.teacher_ibot_head = DINOProjectionHead(
+                input_dim=384, norm_last_layer=False
+            )
         else:
-            self.ibot_head = self.dino_head
+            self.teacher_ibot_head = self.teacher_dino_head
 
         # Student
-        self.student_backbone = copy.deepcopy(self.backbone)
+        self.student_backbone = copy.deepcopy(self.teacher_backbone)
         update_drop_path_rate(
-            self.student_backbone.vit, drop_path_rate=0.1, mode="uniform"
+            self.student_backbone.vit,
+            drop_path_rate=0.1,  # we recommend using smaller rates like 0.1 for vit-s-14
+            mode="uniform",
         )
+
         self.student_dino_head = DINOProjectionHead(
             input_dim=384, freeze_last_layer=1, norm_last_layer=False
         )
@@ -77,10 +89,10 @@ class DINOv2(LightningModule):
         )
 
     def forward(self, x: Tensor) -> Tensor:
-        return self.backbone(x)
+        return self.teacher_backbone(x)
 
     def forward_teacher(self, x: Tensor) -> Tuple[Tensor, Tensor]:
-        features = self.backbone.encode(x)
+        features = self.teacher_backbone.encode(x)
         cls_tokens = features[:, 0]
         return cls_tokens, features
 
@@ -102,8 +114,8 @@ class DINOv2(LightningModule):
             start_value=0.992,
             end_value=1.0,
         )
-        update_momentum(self.student_backbone, self.backbone, m=momentum)
-        update_momentum(self.student_dino_head, self.dino_head, m=momentum)
+        update_momentum(self.student_backbone, self.teacher_backbone, m=momentum)
+        update_momentum(self.student_dino_head, self.teacher_dino_head, m=momentum)
 
         views, targets = batch[0], batch[1]
         global_views = torch.cat(views[:2])
@@ -111,7 +123,7 @@ class DINOv2(LightningModule):
 
         # Masking
         B = len(global_views)
-        sequence_length = self.backbone.sequence_length
+        sequence_length = self.teacher_backbone.sequence_length
         num_patches = int((sequence_length - 1) ** 0.5)
         mask = global_views.new_zeros((B, sequence_length), dtype=torch.bool)
         # Mask patches except class token.
@@ -123,8 +135,8 @@ class DINOv2(LightningModule):
         # Teacher forward
         with torch.no_grad():
             teacher_cls_token, teacher_features = self.forward_teacher(global_views)
-            teacher_cls_out = self.dino_head(teacher_cls_token)
-            teacher_masked_out = self.ibot_head(teacher_features[mask])
+            teacher_cls_out = self.teacher_dino_head(teacher_cls_token)
+            teacher_masked_out = self.teacher_ibot_head(teacher_features[mask])
 
         # Student forward
         student_global_cls_token, student_global_masked_features = self.forward_student(
