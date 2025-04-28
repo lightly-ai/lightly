@@ -10,7 +10,7 @@ import knn_eval
 import linear_eval
 import mae
 import torch
-from pytorch_lightning import LightningModule, Trainer
+from pytorch_lightning import LightningModule, Trainer, seed_everything
 from pytorch_lightning.callbacks import (
     DeviceStatsMonitor,
     EarlyStopping,
@@ -78,6 +78,7 @@ def main(
     strategy: str,
 ) -> None:
     print_rank_zero(f"Args: {locals()}")
+    seed_everything(42, workers=True, verbose=True)
     torch.set_float32_matmul_precision(float32_matmul_precision)
 
     method_names = methods or METHODS.keys()
