@@ -10,7 +10,7 @@ import knn_eval
 import linear_eval
 import mae
 import torch
-from pytorch_lightning import LightningModule, Trainer
+from pytorch_lightning import LightningModule, Trainer, seed_everything
 from pytorch_lightning.callbacks import (
     DeviceStatsMonitor,
     EarlyStopping,
@@ -47,7 +47,7 @@ parser.add_argument("--skip-linear-eval", action="store_true")
 parser.add_argument("--skip-finetune-eval", action="store_true")
 parser.add_argument("--float32-matmul-precision", type=str, default="high")
 parser.add_argument("--strategy", default="ddp_find_unused_parameters_true")
-
+parser.add_argument("--seed", type=int, default=None)
 METHODS = {
     "dino": {"model": dino.DINO, "transform": dino.transform},
     "mae": {"model": mae.MAE, "transform": mae.transform},
@@ -76,8 +76,10 @@ def main(
     ckpt_path: Union[Path, None],
     float32_matmul_precision: str,
     strategy: str,
+    seed: int | None = None,
 ) -> None:
     print_rank_zero(f"Args: {locals()}")
+    seed_everything(seed, workers=True, verbose=True)
     torch.set_float32_matmul_precision(float32_matmul_precision)
 
     method_names = methods or METHODS.keys()
