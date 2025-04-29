@@ -76,7 +76,7 @@ def main(
     ckpt_path: Union[Path, None],
     float32_matmul_precision: str,
     strategy: str,
-    seed: int | None = None
+    seed: int | None = None,
 ) -> None:
     print_rank_zero(f"Args: {locals()}")
     seed_everything(seed, workers=True, verbose=True)
