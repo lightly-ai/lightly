@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Any, Optional, cast
 
 import numpy as np
 
@@ -31,8 +31,9 @@ class PCA(object):
     def __init__(self, n_components: int = 2, eps: float = 1e-10):
         self.n_components = n_components
         self.eps = eps
-        self.mean: Optional[NDArray[np.float32]] = None
-        self.w: Optional[NDArray[np.float32]] = None
+        # We only care about array shape for typing, not dtype
+        self.mean: Optional[NDArray[Any]] = None
+        self.w: Optional[NDArray[Any]] = None
 
     def fit(self, X: NDArray[np.float32]) -> PCA:
         """Fits PCA to data in X.
@@ -53,10 +54,12 @@ class PCA(object):
         v, w = np.linalg.eig(cov)
         idx = v.argsort()[::-1]  # Sort eigenvalues in descending order
         v, w = v[idx], w[:, idx]
-        self.w = w
+        # At runtime we cast to float32 for ML performance,
+        # but MyPy only checks shape (dtype is `Any`).
+        self.w = w.astype(np.float32)
         return self
 
-    def transform(self, X: NDArray[np.float32]) -> NDArray[np.float32]:
+    def transform(self, X: NDArray[np.float32]) -> NDArray[Any]:
         """Uses PCA to transform data in X.
 
         Args:
@@ -76,8 +79,8 @@ class PCA(object):
 
         X = X.astype(np.float32)
         X = X - self.mean + self.eps
-        transformed: NDArray[np.float32] = X.dot(self.w)[:, : self.n_components]
-        return np.asarray(transformed)
+        result = X.dot(self.w)[:, : self.n_components].astype(np.float32)
+        return cast(NDArray[Any], result)
 
 
 def fit_pca(
