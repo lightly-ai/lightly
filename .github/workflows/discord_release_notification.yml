@@ -34,7 +34,7 @@ jobs:
               {
               "title": "${RELEASE_NAME}",
               "url": "${RELEASE_URL}",  "color": 5814783,
-                "description": $DESCRIPTION
+                "description": ${DESCRIPTION}
               }
             ]
           }
