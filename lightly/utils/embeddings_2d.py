@@ -8,9 +8,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Optional, cast
 
 import numpy as np
-
-if TYPE_CHECKING:
-    from numpy.typing import NDArray
+from numpy.typing import NDArray
 
 
 class PCA(object):
