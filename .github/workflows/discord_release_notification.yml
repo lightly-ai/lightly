@@ -21,22 +21,21 @@ jobs:
       # We have also have to format the release description for it to be valid JSON.
       # This is done by piping the description to jq.
       run: |
-          DESCRIPTION=$(echo "${RELEASE_BODY}" | awk '/<!-- STOP DISCORD MESSAE -->/{exit}1' | jq -aRs .)
-          echo ${DESCRIPTION}
-          # curl -H "Content-Type: application/json" \
-          #      -X POST \
-          #      -d @- \
-          #      "${DISCORD_WEBHOOK}" << EOF
-          # {
-          #   "username": "Lightly",
-          #   "avatar_url": "https://avatars.githubusercontent.com/u/50146475",
-          #   "content": "Lightly ${RELEASE_TAG} has been released!",
-          #   "embeds": [
-          #     {
-          #     "title": "${RELEASE_NAME}",
-          #     "url": "${RELEASE_URL}",  "color": 5814783,
-          #       "description": $DESCRIPTION
-          #     }
-          #   ]
-          # }
-          # EOF
+          DESCRIPTION=$(echo "${RELEASE_BODY}" | awk '/<!-- STOP DISCORD MESSAGE -->/{exit}1' | jq -aRs .)
+          curl -H "Content-Type: application/json" \
+               -X POST \
+               -d @- \
+               "${DISCORD_WEBHOOK}" << EOF
+          {
+            "username": "Lightly",
+            "avatar_url": "https://avatars.githubusercontent.com/u/50146475",
+            "content": "Lightly ${RELEASE_TAG} has been released!",
+            "embeds": [
+              {
+              "title": "${RELEASE_NAME}",
+              "url": "${RELEASE_URL}",  "color": 5814783,
+                "description": $DESCRIPTION
+              }
+            ]
+          }
+          EOF
