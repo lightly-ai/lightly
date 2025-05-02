@@ -11,12 +11,17 @@ jobs:
     - name: Send Notification to Discord
       env:
         DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-      # We truncate the description at the models section (starting with ### Models)
-      # to keep the message short.
+        RELEASE_BODY: ${{ github.event.release.body }}
+        RELEASE_NAME: ${{ github.event.release.name }}
+        RELEASE_TAG: ${{ github.event.release.tag_name }}
+        RELEASE_URL: ${{ github.event.release.html_url }}
+        
+      # We truncate the description at <!-- STOP DISCORD MESSAGE --> comment to keep
+      # the message short.
       # We have also have to format the release description for it to be valid JSON.
       # This is done by piping the description to jq.
       run: |
-          DESCRIPTION=$(echo '${{ github.event.release.body }}' | awk '/### Models/{exit}1' | jq -aRs .)
+          DESCRIPTION=$(echo "${RELEASE_BODY}" | awk '/<!-- STOP DISCORD MESSAGE -->/{exit}1' | jq -aRs .)
           curl -H "Content-Type: application/json" \
                -X POST \
                -d @- \
@@ -24,13 +29,12 @@ jobs:
           {
             "username": "Lightly",
             "avatar_url": "https://avatars.githubusercontent.com/u/50146475",
-            "content": "Lightly ${{ github.event.release.tag_name }} has been released!",
+            "content": "Lightly ${RELEASE_TAG} has been released!",
             "embeds": [
               {
-                "title": "${{ github.event.release.name }}",
-                "url": "${{ github.event.release.html_url }}",
-                "color": 5814783,
-                "description": $DESCRIPTION
+              "title": "${RELEASE_NAME}",
+              "url": "${RELEASE_URL}",  "color": 5814783,
+                "description": ${DESCRIPTION}
               }
             ]
           }
