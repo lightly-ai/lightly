@@ -10,6 +10,11 @@ from typing import TYPE_CHECKING, Any, Optional, cast
 import numpy as np
 from numpy.typing import NDArray
 
+if TYPE_CHECKING:
+    from numpy.typing import NDArray
+else:
+    NDArray = Any
+
 
 class PCA(object):
     """Handmade PCA to bypass sklearn dependency.

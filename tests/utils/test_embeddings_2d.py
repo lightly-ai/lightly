@@ -22,7 +22,7 @@ def test_pca_fit_transform_shapes_and_dtype() -> None:
     X_transformed = pca.transform(X)
     assert X_transformed.shape == (100, 2)
     assert isinstance(X_transformed, np.ndarray)
-    assert X_transformed.dtype == np.float32
+    assert X_transformed.dtype == np.float32  # type: ignore[comparison-overlap]
 
 
 def test_transform_without_fit_raises_value_error() -> None:
