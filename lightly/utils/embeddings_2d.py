@@ -82,8 +82,8 @@ class PCA(object):
 
         X = X.astype(np.float32)
         X = X - self.mean + self.eps
-        result = X.dot(self.w)[:, : self.n_components].astype(np.float32)
-        return cast(NDArray[Any], result)
+        result: NDArray[Any] = X.dot(self.w)[:, : self.n_components].astype(np.float32)
+        return result
 
 
 def fit_pca(
