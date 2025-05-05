@@ -5,15 +5,12 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Optional, cast
+from typing import TYPE_CHECKING, Optional
 
 import numpy as np
-from numpy.typing import NDArray
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
-else:
-    NDArray = Any
 
 
 class PCA(object):
@@ -35,8 +32,8 @@ class PCA(object):
         self.n_components = n_components
         self.eps = eps
         # We only care about array shape for typing, not dtype
-        self.mean: Optional[NDArray[Any]] = None
-        self.w: Optional[NDArray[Any]] = None
+        self.mean: Optional[NDArray[np.float32]] = None
+        self.w: Optional[NDArray[np.float32]] = None
 
     def fit(self, X: NDArray[np.float32]) -> PCA:
         """Fits PCA to data in X.
@@ -50,9 +47,11 @@ class PCA(object):
 
         """
         X = X.astype(np.float32)
-        self.mean = X.mean(axis=0)
+        self.mean = X.mean(axis=0).astype(
+            np.float32
+        )  # mean() returns float64 by default under NumPy ≥2.2.2, so cast it back to float32
         assert self.mean is not None
-        X = X - self.mean + self.eps
+        X = (X - self.mean + self.eps).astype(np.float32)
         cov = np.cov(X.T) / X.shape[0]
         v, w = np.linalg.eig(cov)
         idx = v.argsort()[::-1]  # Sort eigenvalues in descending order
@@ -62,7 +61,7 @@ class PCA(object):
         self.w = w.astype(np.float32)
         return self
 
-    def transform(self, X: NDArray[np.float32]) -> NDArray[Any]:
+    def transform(self, X: NDArray[np.float32]) -> NDArray[np.float32]:
         """Uses PCA to transform data in X.
 
         Args:
@@ -81,9 +80,13 @@ class PCA(object):
             raise ValueError("PCA not fitted yet. Call fit() before transform().")
 
         X = X.astype(np.float32)
-        X = X - self.mean + self.eps
-        result: NDArray[Any] = X.dot(self.w)[:, : self.n_components].astype(np.float32)
-        return result
+        X = (X.astype(np.float32) - self.mean + self.eps).astype(
+            np.float32
+        )  # ensure all operations stay in float32
+        transformed: NDArray[np.float32] = X.dot(self.w)[:, : self.n_components]
+        return np.asarray(
+            transformed, dtype=np.float32
+        )  # make the dtype explicit for MyPy
 
 
 def fit_pca(

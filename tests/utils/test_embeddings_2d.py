@@ -46,3 +46,16 @@ def test_fit_pca_helper_behavior() -> None:
     # Both should produce shape (50, 1)
     assert out1.shape == (50, 1)
     assert out2.shape == (50, 1)
+
+
+def test_fit_pca_invalid_fraction_raises_value_error() -> None:
+    X = np.random.randn(20, 4).astype(np.float32)
+    # fraction > 1 should be rejected
+    with pytest.raises(ValueError) as excinfo:
+        _ = fit_pca(X, n_components=2, fraction=1.5)
+    assert "fraction must be in [0, 1]" in str(excinfo.value)
+
+    # negative fraction should also be rejected
+    with pytest.raises(ValueError) as excinfo2:
+        _ = fit_pca(X, n_components=2, fraction=-0.1)
+    assert "fraction must be in [0, 1]" in str(excinfo2.value)
