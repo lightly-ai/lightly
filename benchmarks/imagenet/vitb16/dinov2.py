@@ -124,12 +124,13 @@ class DINOv2(LightningModule):
         # Masking
         B = len(global_views)
         sequence_length = self.teacher_backbone.sequence_length
-        num_patches = int((sequence_length - 1) ** 0.5)
         mask = global_views.new_zeros((B, sequence_length), dtype=torch.bool)
         # Mask patches except class token.
-        block_mask = random_block_mask(
-            size=(B, num_patches, num_patches), device=mask.device
-        )
+        H, W = self.teacher_backbone.patch_embed.grid_size
+        assert (
+            H * W == sequence_length - 1
+        ), f"Unexpected grid size: {H}x{W}, sequence_length {sequence_length}"
+        block_mask = random_block_mask(size=(B, H, W), device=mask.device)
         mask[:, 1:] = block_mask.flatten(start_dim=1)
 
         # Teacher forward
