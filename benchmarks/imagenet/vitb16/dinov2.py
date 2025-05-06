@@ -3,6 +3,7 @@ import math
 import re
 from typing import List, Tuple
 
+import numpy as np
 import torch
 from pytorch_lightning import LightningModule
 from timm.models.vision_transformer import vit_small_patch16_224
@@ -19,11 +20,7 @@ from lightly.models.utils import (
 from lightly.transforms import DINOTransform
 from lightly.utils.benchmarking import OnlineLinearClassifier
 from lightly.utils.optim import update_param_groups
-from lightly.utils.scheduler import (
-    CosineWarmupScheduler,
-    cosine_schedule,
-    linear_warmup_schedule,
-)
+from lightly.utils.scheduler import CosineWarmupScheduler, cosine_schedule
 
 
 class DINOv2(LightningModule):
@@ -78,14 +75,27 @@ class DINOv2(LightningModule):
             self.student_ibot_head = self.student_dino_head
 
         # Losses
-        self.dino_criterion = DINOLoss(
-            teacher_temp=0.07,
-        )
-        self.ibot_criterion = IBOTPatchLoss(output_dim=65536)
+        self.dino_criterion = DINOLoss()
+        self.ibot_criterion = IBOTPatchLoss()
         self.koleo_criterion = KoLeoLoss()
 
         self.online_classifier = OnlineLinearClassifier(
             feature_dim=384, num_classes=num_classes
+        )
+
+    def setup(self, stage):
+        # learning rate schedule
+        warmup_teacher_temp = 0.04
+        teacher_temp = 0.07
+        warmup_teacher_temp_epochs = 30
+        self.teacher_temp_schedule = np.concatenate(
+            (
+                np.linspace(
+                    warmup_teacher_temp, teacher_temp, warmup_teacher_temp_epochs
+                ),
+                np.ones(self.trainer.max_epochs - warmup_teacher_temp_epochs)
+                * teacher_temp,
+            )
         )
 
     def forward(self, x: Tensor) -> Tensor:
@@ -126,7 +136,7 @@ class DINOv2(LightningModule):
         sequence_length = self.teacher_backbone.sequence_length
         mask = global_views.new_zeros((B, sequence_length), dtype=torch.bool)
         # Mask patches except class token.
-        H, W = self.teacher_backbone.patch_embed.grid_size
+        H, W = self.teacher_backbone.vit.patch_embed.grid_size
         assert (
             H * W == sequence_length - 1
         ), f"Unexpected grid size: {H}x{W}, sequence_length {sequence_length}"
@@ -152,19 +162,10 @@ class DINOv2(LightningModule):
         student_local_cls_out = self.student_dino_head(student_local_cls_token)
         student_cls_out = torch.cat([student_global_cls_out, student_local_cls_out])
 
-        # Loss
-        teacher_temp = linear_warmup_schedule(
-            step=self.trainer.global_step,
-            warmup_steps=int(
-                30 / self.trainer.max_epochs * self.trainer.estimated_stepping_batches
-            ),
-            start_value=0.04,
-            end_value=0.07,
-        )
+        teacher_temp = self.teacher_temp_schedule[self.current_epoch]
         dino_loss = self.dino_criterion(
             teacher_out=teacher_cls_out.chunk(2),
             student_out=student_cls_out.chunk(len(views)),
-            epoch=self.current_epoch,
             teacher_temp=teacher_temp,
         )
         ibot_loss = self.ibot_criterion(
