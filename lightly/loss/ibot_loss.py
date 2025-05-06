@@ -30,30 +30,18 @@ class IBOTPatchLoss(Module):
 
     def __init__(
         self,
-        output_dim: int,
+        output_dim: int = 65536,
         teacher_temp: float = 0.04,
         student_temp: float = 0.1,
         center_mode: str = "mean",
         center_momentum: float = 0.9,
     ) -> None:
-        """Initializes the iBOTPatchLoss module with the specified parameters.
-
-        Args:
-            output_dim:
-                Dimension of the model output.
-            teacher_temp:
-                Temperature for the teacher output.
-            student_temp:
-                Temperature for the student output.
-            center_mode:
-                Mode for center calculation. Only 'mean' is supported.
-            center_momentum:
-                Momentum term for the center update.
-        """
+        """Initializes the iBOTPatchLoss module with the specified parameters."""
         super().__init__()
+
         self.teacher_temp = teacher_temp
-        # Alias for backward compatibility.
-        self.student_temp = self.student_temperature = student_temp
+        self.student_temp = student_temp
+
         self.center = Center(
             size=(1, output_dim),
             mode=center_mode,
@@ -80,6 +68,9 @@ class IBOTPatchLoss(Module):
                 Boolean tensor with shape (batch_size, height, width) containing the
                 token mask. Exactly batch_size * sequence_length entries must be set to
                 True in the mask.
+            teacher_temp:
+                The temperature used for the teacher output. If None, the default
+                temperature defined in __init__ is used.
 
         Returns:
             The loss value.
@@ -87,14 +78,16 @@ class IBOTPatchLoss(Module):
         # B = batch size, N = sequence length = number of masked tokens, D = embed dim
         # H = height (in tokens), W = width (in tokens)
         # Note that N <= H * W depending on how many tokens are masked.
-        if teacher_temp is None:
-            teacher_temp = self.teacher_temp
+        teacher_temperature = torch.tensor(
+            teacher_temp if teacher_temp is not None else self.teacher_temp
+        )
 
         # Calculate cross-entropy loss.
         teacher_softmax = F.softmax(
-            (teacher_out - self.center.value) / teacher_temp, dim=-1
+            (teacher_out - self.center.value) / teacher_temperature, dim=-1
         )
         student_log_softmax = F.log_softmax(student_out / self.student_temp, dim=-1)
+
         # (B * N, D) -> (B * N)
         loss = -torch.sum(teacher_softmax * student_log_softmax, dim=-1)
 
@@ -109,4 +102,5 @@ class IBOTPatchLoss(Module):
         loss = (loss * weight).sum() / B
 
         self.center.update(teacher_out)
+
         return loss
