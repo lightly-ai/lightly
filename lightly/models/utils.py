@@ -821,12 +821,14 @@ def random_block_mask_image(
                 num_already_masked = mask[top : top + h, left : left + w].sum().item()
                 num_new_masked = h * w - num_already_masked
                 if 0 < num_new_masked <= max_new_masked:
-                    mask[top : top + h, left : left + w] = True
-                    delta = num_new_masked
-                    break
+                    mask[top : top + h, left : left + w] = 1
+                    delta += num_new_masked
+            if delta > 0:
+                break
         if delta == 0:
             break
-        mask_count += delta
+        else:
+            mask_count += delta
     return mask
 
 
