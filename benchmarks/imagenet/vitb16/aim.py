@@ -9,7 +9,7 @@ from torch.optim.optimizer import Optimizer
 
 from lightly.models import utils
 from lightly.models.modules import AIMPredictionHead, MaskedCausalVisionTransformer
-from lightly.models.utils import random_prefix_mask
+from lightly.models.utils import get_2d_sincos_pos_embed, random_prefix_mask
 from lightly.transforms import AIMTransform
 from lightly.utils.benchmarking import OnlineLinearClassifier
 from lightly.utils.scheduler import CosineWarmupScheduler
