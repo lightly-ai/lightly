@@ -1,9 +1,9 @@
+from __future__ import annotations
+
 import copy
 import math
 import re
-from typing import List, Tuple
 
-import numpy as np
 import torch
 from pytorch_lightning import LightningModule
 from timm.models.vision_transformer import vit_small_patch16_224
@@ -90,21 +90,21 @@ class DINOv2(LightningModule):
     def forward(self, x: Tensor) -> Tensor:
         return self.teacher_backbone(x)
 
-    def forward_teacher(self, x: Tensor) -> Tuple[Tensor, Tensor]:
+    def forward_teacher(self, x: Tensor) -> tuple[Tensor, Tensor]:
         features = self.teacher_backbone.encode(x)
         cls_tokens = features[:, 0]
         return cls_tokens, features
 
     def forward_student(
         self, x: Tensor, mask: Tensor | None
-    ) -> Tuple[Tensor, Tensor | None]:
+    ) -> tuple[Tensor, Tensor | None]:
         features = self.student_backbone.encode(x, mask=mask)
         cls_tokens = features[:, 0]
         masked_features = None if mask is None else features[mask]
         return cls_tokens, masked_features
 
     def training_step(
-        self, batch: Tuple[List[Tensor], Tensor, List[str]], batch_idx: int
+        self, batch: tuple[list[Tensor], Tensor, list[str]], batch_idx: int
     ) -> Tensor:
         # Momentum update teacher.
         momentum = cosine_schedule(
@@ -197,7 +197,7 @@ class DINOv2(LightningModule):
         return loss + cls_loss
 
     def validation_step(
-        self, batch: Tuple[Tensor, Tensor, List[str]], batch_idx: int
+        self, batch: tuple[Tensor, Tensor, list[str]], batch_idx: int
     ) -> Tensor:
         images, targets = batch[0], batch[1]
         cls_token = self.forward(images)
