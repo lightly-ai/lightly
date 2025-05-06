@@ -1,5 +1,5 @@
 import copy
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 import torch
 from pytorch_lightning import LightningModule
@@ -150,8 +150,8 @@ class DINO(LightningModule):
     def configure_gradient_clipping(
         self,
         optimizer: Optimizer,
-        gradient_clip_val: int | float | None = None,
-        gradient_clip_algorithm: str | None = None,
+        gradient_clip_val: Union[int, float, None] = None,
+        gradient_clip_algorithm: Union[str, None] = None,
     ) -> None:
         self.clip_gradients(
             optimizer=optimizer,
