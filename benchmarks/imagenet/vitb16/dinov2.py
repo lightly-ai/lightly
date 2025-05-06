@@ -20,7 +20,11 @@ from lightly.models.utils import (
 from lightly.transforms import DINOTransform
 from lightly.utils.benchmarking import OnlineLinearClassifier
 from lightly.utils.optim import update_param_groups
-from lightly.utils.scheduler import CosineWarmupScheduler, cosine_schedule
+from lightly.utils.scheduler import (
+    CosineWarmupScheduler,
+    cosine_schedule,
+    linear_warmup_schedule,
+)
 
 
 class DINOv2(LightningModule):
@@ -81,21 +85,6 @@ class DINOv2(LightningModule):
 
         self.online_classifier = OnlineLinearClassifier(
             feature_dim=384, num_classes=num_classes
-        )
-
-    def setup(self, stage):
-        # learning rate schedule
-        warmup_teacher_temp = 0.04
-        teacher_temp = 0.07
-        warmup_teacher_temp_epochs = 30
-        self.teacher_temp_schedule = np.concatenate(
-            (
-                np.linspace(
-                    warmup_teacher_temp, teacher_temp, warmup_teacher_temp_epochs
-                ),
-                np.ones(self.trainer.max_epochs - warmup_teacher_temp_epochs)
-                * teacher_temp,
-            )
         )
 
     def forward(self, x: Tensor) -> Tensor:
@@ -162,7 +151,14 @@ class DINOv2(LightningModule):
         student_local_cls_out = self.student_dino_head(student_local_cls_token)
         student_cls_out = torch.cat([student_global_cls_out, student_local_cls_out])
 
-        teacher_temp = self.teacher_temp_schedule[self.current_epoch]
+        teacher_temp = linear_warmup_schedule(
+            step=self.trainer.global_step,
+            warmup_steps=int(
+                30 / self.trainer.max_epochs * self.trainer.estimated_stepping_batches
+            ),
+            start_value=0.04,
+            end_value=0.07,
+        )
         dino_loss = self.dino_criterion(
             teacher_out=teacher_cls_out.chunk(2),
             student_out=student_cls_out.chunk(len(views)),
