@@ -1,4 +1,5 @@
 import warnings
+from typing import Optional
 
 import numpy as np
 import torch
@@ -9,7 +10,7 @@ def cosine_schedule(
     max_steps: int,
     start_value: float,
     end_value: float,
-    period: int | None = None,
+    period: Optional[int] = None,
 ) -> float:
     """Use cosine decay to gradually modify start_value to reach target end_value.
 
@@ -72,8 +73,8 @@ def cosine_warmup_schedule(
     end_value: float,
     warmup_steps: int,
     warmup_start_value: float,
-    warmup_end_value: float | None = None,
-    period: int | None = None,
+    warmup_end_value: Optional[float] = None,
+    period: Optional[int] = None,
 ) -> float:
     """Use cosine decay to gradually modify start_value to reach target end_value.
 
@@ -166,10 +167,9 @@ class CosineWarmupScheduler(torch.optim.lr_scheduler.LambdaLR):
         last_epoch: int = -1,
         start_value: float = 1.0,
         end_value: float = 0.001,
-        period: int | None = None,
-        verbose: bool = False,
+        period: Optional[int] = None,
         warmup_start_value: float = 0.0,
-        warmup_end_value: float | None = None,
+        warmup_end_value: Optional[float] = None,
     ) -> None:
         self.warmup_epochs = warmup_epochs
         self.max_epochs = max_epochs
@@ -206,15 +206,3 @@ class CosineWarmupScheduler(torch.optim.lr_scheduler.LambdaLR):
             warmup_end_value=self.warmup_end_value,
             period=self.period,
         )
-
-
-def linear_warmup_schedule(
-    step: int,
-    warmup_steps: int,
-    start_value: float,
-    end_value: float,
-) -> float:
-    if step < warmup_steps:
-        return start_value + step / warmup_steps * (end_value - start_value)
-    else:
-        return end_value
