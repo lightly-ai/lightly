@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Sequence
+from typing import Dict, Sequence, Union
 
 import barlowtwins
 import byol
@@ -17,7 +17,7 @@ import swav
 import tico
 import torch
 import vicreg
-from pytorch_lightning import LightningModule, Trainer, seed_everything
+from pytorch_lightning import LightningModule, Trainer
 from pytorch_lightning.callbacks import (
     DeviceStatsMonitor,
     EarlyStopping,
@@ -51,7 +51,6 @@ parser.add_argument("--skip-linear-eval", action="store_true")
 parser.add_argument("--skip-finetune-eval", action="store_true")
 parser.add_argument("--float32-matmul-precision", type=str, default="high")
 parser.add_argument("--strategy", default="ddp_find_unused_parameters_true")
-parser.add_argument("--seed", type=int, default=None)
 
 METHODS = {
     "barlowtwins": {
@@ -81,19 +80,16 @@ def main(
     devices: int,
     precision: str,
     compile_model: bool,
-    methods: Sequence[str],
+    methods: Union[Sequence[str], None],
     num_classes: int,
     skip_knn_eval: bool,
     skip_linear_eval: bool,
     skip_finetune_eval: bool,
-    ckpt_path: Path | None,
+    ckpt_path: Union[Path, None],
     float32_matmul_precision: str,
     strategy: str,
-    seed: int | None = None,
 ) -> None:
     print_rank_zero(f"Args: {locals()}")
-    seed_everything(seed, workers=True, verbose=True)
-
     torch.set_float32_matmul_precision(float32_matmul_precision)
 
     method_names = methods or METHODS.keys()
@@ -200,7 +196,7 @@ def pretrain(
     accelerator: str,
     devices: int,
     precision: str,
-    ckpt_path: Path | None,
+    ckpt_path: Union[Path, None],
     strategy: str,
 ) -> None:
     print_rank_zero(f"Running pretraining for {method}...")
@@ -252,7 +248,6 @@ def pretrain(
         precision=precision,
         strategy=strategy,
         sync_batchnorm=accelerator != "cpu",  # Sync batchnorm is not supported on CPU.
-        num_sanity_val_steps=0,  # NOTE: save shared memory usage
     )
 
     trainer.fit(
