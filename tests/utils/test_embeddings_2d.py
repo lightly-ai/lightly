@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+from numpy.testing import assert_allclose
 
 from lightly.utils.embeddings_2d import PCA, fit_pca
 
@@ -53,9 +54,33 @@ def test_fit_pca_invalid_fraction_raises_value_error() -> None:
     # fraction > 1 should be rejected
     with pytest.raises(ValueError) as excinfo:
         _ = fit_pca(X, n_components=2, fraction=1.5)
-    assert "fraction must be in [0, 1]" in str(excinfo.value)
+    assert "fraction must be in (0, 1]" in str(excinfo.value)
 
     # negative fraction should also be rejected
     with pytest.raises(ValueError) as excinfo2:
         _ = fit_pca(X, n_components=2, fraction=-0.1)
-    assert "fraction must be in [0, 1]" in str(excinfo2.value)
+    assert "fraction must be in (0, 1]" in str(excinfo2.value)
+
+
+@pytest.mark.parametrize(  # type: ignore[misc]
+    "frac",
+    [
+        0.5,  # 50% of data
+        1.0,  # all data
+    ],
+)
+def test_fit_pca_fraction_sample_size(frac: float, seed: int = 42) -> None:
+    X = np.arange(40, dtype=np.float32).reshape(10, 4)
+    n_sub = int(X.shape[0] * frac)
+
+    np.random.seed(seed)
+    perm = np.random.permutation(X.shape[0])
+    expected_indices = perm[:n_sub]
+    expected_mean = X[expected_indices].mean(axis=0)
+
+    np.random.seed(seed)
+    pca = fit_pca(X, n_components=2, fraction=frac)
+
+    # The fitted PCA.mean should match the sample‐subset mean
+    assert pca.mean is not None
+    assert_allclose(pca.mean, expected_mean, rtol=1e-6)

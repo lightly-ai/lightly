@@ -31,7 +31,6 @@ class PCA(object):
     def __init__(self, n_components: int = 2, eps: float = 1e-10):
         self.n_components = n_components
         self.eps = eps
-        # We only care about array shape for typing, not dtype
         self.mean: Optional[NDArray[np.float32]] = None
         self.w: Optional[NDArray[np.float32]] = None
 
@@ -47,17 +46,17 @@ class PCA(object):
 
         """
         X = X.astype(np.float32)
-        self.mean = X.mean(axis=0).astype(
-            np.float32
-        )  # mean() returns float64 by default under NumPy ≥2.2.2, so cast it back to float32
+        # 1) mean() up-casts to float64 in numpy ≥2.2 (numpy#28805), See: https://github.com/numpy/numpy/issues/28805
+        self.mean = X.mean(axis=0).astype(np.float32)
         assert self.mean is not None
+        # 2) subtraction + Python float up-casts again → recast
         X = (X - self.mean + self.eps).astype(np.float32)
+
         cov = np.cov(X.T) / X.shape[0]
         v, w = np.linalg.eig(cov)
         idx = v.argsort()[::-1]  # Sort eigenvalues in descending order
         v, w = v[idx], w[:, idx]
-        # At runtime we cast to float32 for ML performance,
-        # but MyPy only checks shape (dtype is `Any`).
+        # 3) eig returns float64 eigenvectors → recast
         self.w = w.astype(np.float32)
         return self
 
@@ -79,14 +78,11 @@ class PCA(object):
         if self.mean is None or self.w is None:
             raise ValueError("PCA not fitted yet. Call fit() before transform().")
 
-        X = X.astype(np.float32)
-        X = (X.astype(np.float32) - self.mean + self.eps).astype(
-            np.float32
-        )  # ensure all operations stay in float32
+        # subtraction & eps again → recast
+        X = (X.astype(np.float32) - self.mean + self.eps).astype(np.float32)
+
         transformed: NDArray[np.float32] = X.dot(self.w)[:, : self.n_components]
-        return np.asarray(
-            transformed, dtype=np.float32
-        )  # make the dtype explicit for MyPy
+        return transformed
 
 
 def fit_pca(
@@ -113,12 +109,12 @@ def fit_pca(
         to lower dimensions.
 
     Raises:
-        ValueError: If fraction < 0 or fraction > 1.
+        If fraction ≤ 0 or fraction > 1.
 
     """
     if fraction is not None:
-        if fraction < 0.0 or fraction > 1.0:
-            raise ValueError(f"fraction must be in [0, 1] but was {fraction}.")
+        if fraction <= 0.0 or fraction > 1.0:
+            raise ValueError(f"fraction must be in (0, 1] but was {fraction}.")
 
     N = embeddings.shape[0]
     n = N if fraction is None else min(N, int(N * fraction))
