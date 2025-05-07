@@ -114,9 +114,6 @@ class DINOLoss(Module):
                 batch.
             epoch:
                 The current training epoch.
-            update_center:
-                If True, the center used for the teacher output is updated after the
-                loss calculation.
             teacher_temp:
                 The temperature used for the teacher output. If None, the temperature
                 is determined by the warmup schedule and the final teacher temperature.
