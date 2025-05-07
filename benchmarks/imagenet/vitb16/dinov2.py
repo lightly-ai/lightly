@@ -47,7 +47,7 @@ class DINOv2(LightningModule):
         self.teacher_backbone = MaskedVisionTransformerTIMM(
             vit=vit_teacher,
             antialias=False,
-            pos_embed_initialization="skip",  # TIMM's classification head is skipped here
+            pos_embed_initialization="skip",
         )
 
         self.teacher_dino_head = DINOProjectionHead(
