@@ -61,6 +61,11 @@ def test_fit_pca_invalid_fraction_raises_value_error() -> None:
         _ = fit_pca(X, n_components=2, fraction=-0.1)
     assert "fraction must be in (0, 1]" in str(excinfo2.value)
 
+    # zero fraction should also be rejected
+    with pytest.raises(ValueError) as excinfo3:
+        _ = fit_pca(X, n_components=2, fraction=0.0)
+    assert "fraction must be in (0, 1]" in str(excinfo3.value)
+
 
 @pytest.mark.parametrize(  # type: ignore[misc]
     "frac",

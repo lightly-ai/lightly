@@ -46,18 +46,16 @@ class PCA(object):
 
         """
         X = X.astype(np.float32)
-        # 1) mean() up-casts to float64 in numpy ≥2.2 (numpy#28805), See: https://github.com/numpy/numpy/issues/28805
-        self.mean = X.mean(axis=0).astype(np.float32)
+        self.mean = X.mean(axis=0)
         assert self.mean is not None
-        # 2) subtraction + Python float up-casts again → recast
-        X = (X - self.mean + self.eps).astype(np.float32)
-
+        X = (X - self.mean + self.eps).astype(
+            np.float32
+        )  # X is up-casted to float64 in numpy ≥2.2 (numpy#28805), See: https://github.com/numpy/numpy/issues/28805
         cov = np.cov(X.T) / X.shape[0]
         v, w = np.linalg.eig(cov)
         idx = v.argsort()[::-1]  # Sort eigenvalues in descending order
         v, w = v[idx], w[:, idx]
-        # 3) eig returns float64 eigenvectors → recast
-        self.w = w.astype(np.float32)
+        self.w = w
         return self
 
     def transform(self, X: NDArray[np.float32]) -> NDArray[np.float32]:
@@ -77,12 +75,13 @@ class PCA(object):
         """
         if self.mean is None or self.w is None:
             raise ValueError("PCA not fitted yet. Call fit() before transform().")
-
-        # subtraction & eps again → recast
-        X = (X.astype(np.float32) - self.mean + self.eps).astype(np.float32)
-
+        X = (X - self.mean + self.eps).astype(
+            np.float32
+        )  # X is up-casted to float64 in numpy ≥2.2 (numpy#28805), See: https://github.com/numpy/numpy/issues/28805
         transformed: NDArray[np.float32] = X.dot(self.w)[:, : self.n_components]
-        return transformed
+        return transformed.astype(
+            np.float32
+        )  # runtime here is float64, fixes test and matches annotation
 
 
 def fit_pca(
