@@ -1,6 +1,8 @@
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
+from numpy.typing import NDArray
+from sklearn.decomposition import PCA as SKPCA
 
 from lightly.utils.embeddings_2d import PCA, fit_pca
 
@@ -89,3 +91,23 @@ def test_fit_pca_fraction_sample_size(frac: float, seed: int = 42) -> None:
     # The fitted PCA.mean should match the sample‐subset mean
     assert pca.mean is not None
     assert_allclose(pca.mean, expected_mean, rtol=1e-6)
+
+
+def make_2d_line_dataset(
+    n: int = 100, noise: float = 1e-6, seed: int = 0
+) -> NDArray[np.float32]:
+    rng = np.random.RandomState(seed)
+    x = rng.rand(n, 1) * 10
+    data = np.hstack([x, 2 * x])
+    data += rng.randn(n, 2) * noise
+    return data.astype(np.float32)
+
+
+def test_pca_aligns_with_sklearn() -> None:
+    X = make_2d_line_dataset()
+    skpca = SKPCA(n_components=1, svd_solver="full").fit(X)
+    sk_comp = skpca.components_[0]  # shape (2,)
+    pca = PCA(n_components=1).fit(X)
+    assert pca.w is not None
+    ours = pca.w[:, 0]
+    assert_allclose(np.abs(ours), np.abs(sk_comp), atol=1e-5)

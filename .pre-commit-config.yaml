@@ -32,7 +32,7 @@ repos:
     entry: make test-fast
     language: system
     pass_filenames: false
-    stages: [pre-push]
+    stages: [push]
     # Avoid running tests if non-tested files have changed.
     # The regex follows the pattern in the docs: https://pre-commit.com/#regular-expressions
     exclude: |

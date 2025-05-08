@@ -84,5 +84,5 @@ class Jigsaw(object):
         crop_tensors: Tensor = torch.stack(
             [self.transform(crop) for crop in crop_images]
         )
-        permutation = [int(x) for x in np.random.permutation(self.n_grid**2)]
+        permutation: List[int] = np.random.permutation(self.n_grid**2).tolist()
         return crop_tensors[permutation]
