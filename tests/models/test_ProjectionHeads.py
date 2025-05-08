@@ -197,7 +197,7 @@ class TestProjectionHeads(unittest.TestCase):
                     freeze_last_layer=freeze_last_layer,
                     norm_last_layer=norm_last_layer,
                 )
-                optimizer = torch.optim.SGD(head.parameters(), lr=1)
+                optimizer = torch.optim.SGD(head.parameters(), lr=5)
                 criterion = DINOLoss(output_dim=4)
                 # Store initial weights of last layer
                 initial_data = [

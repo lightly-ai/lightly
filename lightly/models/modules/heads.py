@@ -722,7 +722,7 @@ class DINOProjectionHead(ProjectionHead):
             utils._no_grad_trunc_normal(
                 module.weight,
                 mean=0,
-                std=0.04,  # 0.02 is the default value in the paper, however it will fail the test, so we use the closest value
+                std=0.02,
                 a=-2,
                 b=2,
             )
