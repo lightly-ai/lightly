@@ -3,8 +3,10 @@ from typing import TYPE_CHECKING
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
+
 if TYPE_CHECKING:
     from numpy.typing import NDArray
+
 from sklearn.decomposition import PCA as SKPCA
 
 from lightly.utils.embeddings_2d import PCA, fit_pca
