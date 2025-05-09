@@ -79,8 +79,8 @@ class PCA(object):
             np.float32
         )  # X is up-casted to float64 in numpy ≥2.2 (numpy#28805), See: https://github.com/numpy/numpy/issues/28805
         transformed: NDArray[np.float32] = X.dot(self.w)[:, : self.n_components]
-        return transformed.astype(
-            np.float32
+        return np.asarray(
+            transformed, dtype=np.float32
         )  # runtime here is float64, fixes test and matches annotation
 
 
