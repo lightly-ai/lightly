@@ -58,12 +58,12 @@ class DINOLoss(Module):
     def __init__(
         self,
         output_dim: int = 65536,
-        teacher_temp: float = 0.04,
-        student_temp: float = 0.1,
-        center_mode: str = "mean",
-        center_momentum: float = 0.9,
         warmup_teacher_temp: float = 0.04,
+        teacher_temp: float = 0.04,
         warmup_teacher_temp_epochs: int = 30,
+        student_temp: float = 0.1,
+        center_momentum: float = 0.9,
+        center_mode: str = "mean",
     ) -> None:
         """Initializes the DINOLoss Module.
 
