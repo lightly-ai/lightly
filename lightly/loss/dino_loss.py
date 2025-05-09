@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import warnings
+
 import torch
 import torch.nn.functional as F
 from torch import Tensor
@@ -28,10 +30,15 @@ class DINOLoss(Module):
             Temperature parameter for the teacher network.
         student_temp:
             Temperature parameter for the student network.
-        center_mode:
-            Mode for center calculation. Only 'mean' is supported.
+        center:
+            Center used for the teacher output. It is updated with a moving average
+            during training.
         center_momentum:
             Momentum term for the center calculation.
+        warmup_teacher_temp_epochs:
+                Number of epochs for the warmup phase of the teacher temperature (for backward compatibility).
+        teacher_temp_schedule:
+            A linear schedule for the teacher temperature during the warmup phase (for backward compatibility).
 
     Examples:
         >>> # initialize loss function
@@ -55,8 +62,19 @@ class DINOLoss(Module):
         student_temp: float = 0.1,
         center_mode: str = "mean",
         center_momentum: float = 0.9,
+        warmup_teacher_temp: float = 0.04,
+        warmup_teacher_temp_epochs: int = 30,
     ) -> None:
-        """Initializes the DINOLoss Module."""
+        """Initializes the DINOLoss Module.
+
+        Args:
+            center_mode:
+                Mode for center calculation. Only 'mean' is supported.
+            warmup_teacher_temp:
+                Initial temperature for the teacher network (for backward compatibility).
+            warmup_teacher_temp_epochs:
+                Number of epochs for the warmup phase of the teacher temperature (for backward compatibility).
+        """
         super().__init__()
 
         self.teacher_temp = teacher_temp
@@ -74,11 +92,20 @@ class DINOLoss(Module):
         self.register_buffer("center", torch.zeros(1, 1, output_dim))
         self.center_momentum = center_momentum
 
+        # comput the warmup teacher temperature internally for backward compatibility
+        self.warmup_teacher_temp_epochs = warmup_teacher_temp_epochs
+        self.teacher_temp_schedule = torch.linspace(
+            start=warmup_teacher_temp,
+            end=teacher_temp,
+            steps=warmup_teacher_temp_epochs,
+        )
+
     def forward(
         self,
         teacher_out: list[Tensor],
         student_out: list[Tensor],
         teacher_temp: float | None = None,
+        epoch: int | None = None,
     ) -> Tensor:
         """Cross-entropy between softmax outputs of the teacher and student networks.
 
@@ -94,15 +121,23 @@ class DINOLoss(Module):
             teacher_temp:
                 The temperature used for the teacher output. If None, the default
                 temperature defined in __init__ is used.
+            epoch:
+                The current epoch for backward compatibility.
 
         Returns:
             The average cross-entropy loss.
         """
 
-        # Use provided teacher_temp if available, otherwise use default
-        teacher_temperature = torch.tensor(
-            teacher_temp if teacher_temp is not None else self.teacher_temp
-        )
+        # Get teacher temperature
+        if teacher_temp is not None:
+            teacher_temperature = torch.tensor(teacher_temp)
+        elif epoch is not None:  # for backward compatibility
+            if epoch < self.warmup_teacher_temp_epochs:
+                teacher_temperature = torch.tensor(self.teacher_temp_schedule[epoch])
+            else:
+                teacher_temperature = torch.tensor(self.teacher_temp)
+        else:
+            teacher_temperature = torch.tensor(self.teacher_temp)
 
         # Calculate cross-entropy loss.
         teacher_out_stacked = torch.stack(teacher_out)
