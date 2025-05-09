@@ -98,18 +98,14 @@ def test_fit_pca_fraction_sample_size(frac: float, seed: int = 42) -> None:
     assert_allclose(pca.mean, expected_mean, rtol=1e-6)
 
 
-def make_2d_line_dataset(
-    n: int = 100, noise: float = 1e-6, seed: int = 0
-) -> NDArray[np.float32]:
+def test_pca_aligns_with_sklearn(n: int = 100, noise: float = 1e-6, seed: int = 0) -> None:
+    # make a 2D dataset with a line
     rng = np.random.RandomState(seed)
     x = rng.rand(n, 1) * 10
     data = np.hstack([x, 2 * x])
     data += rng.randn(n, 2) * noise
-    return data.astype(np.float32)
-
-
-def test_pca_aligns_with_sklearn() -> None:
-    X = make_2d_line_dataset()
+    X = data.astype(np.float32)
+    
     skpca = SKPCA(n_components=1, svd_solver="full").fit(X)
     sk_comp = skpca.components_[0]  # shape (2,)
     pca = PCA(n_components=1).fit(X)
