@@ -206,3 +206,80 @@ class TestCosineWarmupScheduler:
         for _ in range(step):
             scheduler.step()
         assert scheduler.get_last_lr()[0] == pytest.approx(expected)
+
+
+@pytest.mark.parametrize(
+    "step, warmup_steps, start_value, end_value, expected",
+    [
+        # start from 0.0 to 1.0
+        (0, 10, 0.0, 1.0, 0.0),
+        (5, 10, 0.0, 1.0, 0.5),
+        (9, 10, 0.0, 1.0, 0.9),
+        (10, 10, 0.0, 1.0, 1.0),
+        (15, 10, 0.0, 1.0, 1.0),
+        # start from 2.0 to 4.0
+        (0, 10, 2.0, 4.0, 2.0),
+        (5, 10, 2.0, 4.0, 3.0),
+        (9, 10, 2.0, 4.0, 3.8),
+        (10, 10, 2.0, 4.0, 4.0),
+        (15, 10, 2.0, 4.0, 4.0),
+        # start value = end value
+        (0, 10, 2.0, 2.0, 2.0),
+        (5, 10, 2.0, 2.0, 2.0),
+        (9, 10, 2.0, 2.0, 2.0),
+        (10, 10, 2.0, 2.0, 2.0),
+        (15, 10, 2.0, 2.0, 2.0),
+        # warmup step 0
+        (0, 0, 2.0, 4.0, 4.0),
+        (1, 0, 2.0, 4.0, 4.0),
+        # warmup step 1
+        (0, 1, 2.0, 4.0, 2.0),
+        (1, 1, 2.0, 4.0, 4.0),
+    ],
+)
+def test_linear_warmup_schedule(
+    step: int,
+    warmup_steps: int,
+    start_value: float,
+    end_value: float,
+    expected: float,
+) -> None:
+    assert scheduler.linear_warmup_schedule(
+        step=step,
+        warmup_steps=warmup_steps,
+        start_value=start_value,
+        end_value=end_value,
+    ) == pytest.approx(expected)
+
+
+@pytest.mark.parametrize(
+    "step, warmup_steps, start_value, end_value, expected_message",
+    [
+        (1, -1, 0.0, 1.0, "Warmup steps -1 can't be negative."),
+        (-1, 1, 0.0, 1.0, "Current step number -1 can't be negative."),
+        (0, 1, -1.0, 1.0, "Start value -1.0 can't be negative."),
+        (0, 1, 0.0, 0.0, "End value 0.0 can't be non-positive."),
+        (0, 1, 0.0, -1.0, "End value -1.0 can't be non-positive."),
+        (
+            0,
+            1,
+            2.0,
+            1.0,
+            "Start value 2.0 must be less than or equal to end value 1.0.",
+        ),
+    ],
+)
+def test_linear_warmup_schedule__error(
+    step: int,
+    warmup_steps: int,
+    start_value: float,
+    end_value: float,
+    expected_message: str,
+) -> None:
+    with pytest.raises(ValueError, match=expected_message):
+        scheduler.linear_warmup_schedule(
+            step=step,
+            warmup_steps=warmup_steps,
+            start_value=start_value,
+            end_value=end_value,
+        )

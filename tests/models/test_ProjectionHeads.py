@@ -197,7 +197,7 @@ class TestProjectionHeads(unittest.TestCase):
                     freeze_last_layer=freeze_last_layer,
                     norm_last_layer=norm_last_layer,
                 )
-                optimizer = torch.optim.SGD(head.parameters(), lr=1)
+                optimizer = torch.optim.SGD(head.parameters(), lr=5)
                 criterion = DINOLoss(output_dim=4)
                 # Store initial weights of last layer
                 initial_data = [
@@ -213,7 +213,7 @@ class TestProjectionHeads(unittest.TestCase):
                         views = [torch.rand((3, 4)) for _ in range(2)]
                         teacher_out = [head(view) for view in views]
                         student_out = [head(view) for view in views]
-                        loss = criterion(teacher_out, student_out, epoch=epoch)
+                        loss = criterion(teacher_out, student_out)
                         optimizer.zero_grad()
                         loss.backward()
                         head.cancel_last_layer_gradients(current_epoch=epoch)
