@@ -1,4 +1,3 @@
-import copy
 from typing import List, Tuple
 
 import torch
@@ -32,11 +31,7 @@ class DINO(LightningModule):
             input_dim=384, freeze_last_layer=1, norm_last_layer=False
         )
 
-        # for benchmarking we use a constant temperature of 0.04
-        self.criterion = DINOLoss(
-            warmup_teacher_temp=0.04,
-            teacher_temp=0.04,
-        )
+        self.criterion = DINOLoss()
         self.online_classifier = OnlineLinearClassifier(
             feature_dim=384, num_classes=num_classes
         )
@@ -77,8 +72,7 @@ class DINO(LightningModule):
         loss = self.criterion(
             teacher_out=teacher_projections.chunk(2),
             student_out=student_projections.chunk(len(views)),
-            epoch=self.current_epoch,
-            teacher_temp=0.04,  # for benchmarking we use a constant temperature of 0.04
+            teacher_temp=0.04,  # for benchmarking we use a constant temperature of 0.04 following the settings in https://github.com/facebookresearch/dino?tab=readme-ov-file#vanilla-dino-training-sauropod
         )
         self.log_dict(
             {"train_loss": loss, "ema_momentum": momentum},
