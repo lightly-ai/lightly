@@ -133,7 +133,7 @@ class DINOLoss(Module):
             teacher_temperature = torch.tensor(teacher_temp)
         elif epoch is not None:  # for backward compatibility
             if epoch < self.warmup_teacher_temp_epochs:
-                teacher_temperature = torch.tensor(self.teacher_temp_schedule[epoch])
+                teacher_temperature = self.teacher_temp_schedule[epoch]
             else:
                 teacher_temperature = torch.tensor(self.teacher_temp)
         else:
