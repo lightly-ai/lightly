@@ -35,7 +35,9 @@ def negative_mises_fisher_weights(
     similarity = torch.einsum("nm,nm->n", out0.detach(), out1.detach()) / sigma
 
     # Return negative Mises-Fisher weights
-    return torch.tensor(2 - out0.shape[0] * nn.functional.softmax(similarity, dim=0))
+    return torch.tensor(
+        (2 - out0.shape[0] * nn.functional.softmax(similarity, dim=0)).clamp(min=0.0)
+    )
 
 
 class DCLLoss(nn.Module):
@@ -207,9 +209,9 @@ class DCLLoss(nn.Module):
         # This is the key difference compared to NTXentLoss
         sim_01 = sim_01[~diag_mask].view(batch_size, -1)
 
-        negative_loss_00 = torch.logsumexp(sim_00, dim=1)
-        negative_loss_01 = torch.logsumexp(sim_01, dim=1)
-        return (positive_loss + negative_loss_00 + negative_loss_01).mean()
+        all_negs = torch.cat([sim_00, sim_01], dim=1)
+        negative_loss = torch.logsumexp(all_negs, dim=1)  # log(sum exp over *all* negs)
+        return (positive_loss + negative_loss).mean()
 
 
 class DCLWLoss(DCLLoss):
