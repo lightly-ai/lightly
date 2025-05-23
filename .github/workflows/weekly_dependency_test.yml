@@ -29,7 +29,8 @@ jobs:
       id: run_tests
       run: |
         source .venv/bin/activate
-        pytest -n auto -vv --dist loadscope
+        export LIGHTLY_SERVER_LOCATION="localhost:-1"
+        pytest -n auto -vv
     - name: Slack Notification
       if: always()
       uses: rtCamp/action-slack-notify@v2
