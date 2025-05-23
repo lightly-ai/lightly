@@ -14,12 +14,6 @@ jobs:
     name: Test fresh install
     runs-on: ubuntu-22.04
     steps:
-    - name: Create swap
-      run: |
-        sudo fallocate -l 8G /swapfile
-        sudo chmod 600 /swapfile
-        sudo mkswap /swapfile
-        sudo swapon /swapfile
     - name: Checkout code
       uses: actions/checkout@v4
     - name: Set Up Python
