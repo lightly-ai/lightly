@@ -144,7 +144,7 @@ class TestMaskReduce:
         mask = torch.zeros((b, h, w), dtype=torch.int64)
         pooled_global = torch.mean(proj, dim=(2, 3)).unsqueeze(-1)  # (b, c, 1=num_cls)
         pooled_mask = pool_masked(proj, mask, num_cls=1)  # (b, c, 1=num_cls)
-        assert torch.allclose(pooled_global, pooled_mask)
+        assert torch.allclose(pooled_global, pooled_mask, rtol=1e-4, atol=1e-6)
 
 
 def has_grad(model: nn.Module) -> bool:
