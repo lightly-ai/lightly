@@ -29,7 +29,7 @@ jobs:
       id: run_tests
       run: |
         source .venv/bin/activate
-        pytest -n auto -vv
+        python -m pytest -n auto -s -v --runslow
     - name: Slack Notification
       if: always()
       uses: rtCamp/action-slack-notify@v2
