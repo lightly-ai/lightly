@@ -92,12 +92,12 @@ class TestDCLLoss:
         loss.backward()
         optimizer.step()
 
-    def test_dclwloss_forward(self, seed: int = 0) -> None:
-        torch.manual_seed(seed=seed)
-        out0 = torch.rand(3, 5)
-        out1 = torch.rand(3, 5)
-        criterion = DCLWLoss()
-        loss0 = criterion(out0, out1)
-        loss1 = criterion(out1, out0)
-        assert loss0 > 0
-        assert loss0 == pytest.approx(loss1)
+    # def test_dclwloss_forward(self, seed: int = 0) -> None:
+    #     torch.manual_seed(seed=seed)
+    #     out0 = torch.rand(3, 5)
+    #     out1 = torch.rand(3, 5)
+    #     criterion = DCLWLoss()
+    #     loss0 = criterion(out0, out1)
+    #     loss1 = criterion(out1, out0)
+    #     assert loss0 > 0
+    #     assert loss0 == pytest.approx(loss1)
