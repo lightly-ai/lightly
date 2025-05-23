@@ -95,15 +95,15 @@ class OriginalDINOLoss(nn.Module):
 
 
 class TestDINOLoss:
-    # @pytest.mark.parametrize("batch_size", range(1, 4))
-    # @pytest.mark.parametrize("n_local", range(0, 4))
-    # @pytest.mark.parametrize("output_dim", range(1, 4))
-    # def test_different_input_sizes(
-    #     self, batch_size: int, n_local: int, output_dim: int
-    # ) -> None:
-    #     _assert_dino_loss_equal_to_original(
-    #         batch_size=batch_size, n_local=n_local, output_dim=output_dim
-    #     )
+    @pytest.mark.parametrize("batch_size", range(1, 4))
+    @pytest.mark.parametrize("n_local", range(0, 4))
+    @pytest.mark.parametrize("output_dim", range(1, 4))
+    def test_different_input_sizes(
+        self, batch_size: int, n_local: int, output_dim: int
+    ) -> None:
+        _assert_dino_loss_equal_to_original(
+            batch_size=batch_size, n_local=n_local, output_dim=output_dim
+        )
 
     @pytest.mark.parametrize("warmup_teacher_temp", [0.01, 0.04, 0.07])
     @pytest.mark.parametrize("teacher_temp", [0.01, 0.04, 0.07])
