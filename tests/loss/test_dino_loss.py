@@ -185,7 +185,9 @@ def _assert_dino_loss_equal_to_original(
     """Runs test with the given input parameters."""
     loss_fn = DINOLoss(
         output_dim=output_dim,
+        warmup_teacher_temp=warmup_teacher_temp,
         teacher_temp=teacher_temp,
+        warmup_teacher_temp_epochs=warmup_teacher_temp_epochs,
         student_temp=student_temp,
         center_momentum=center_momentum,
     )
@@ -239,11 +241,10 @@ def _assert_dino_loss_equal_to_original(
     orig_student_out = orig_student(orig_student_out)
 
     # Calculate loss
-    teacher_temp = orig_loss_fn.teacher_temp_schedule[epoch]
     loss = loss_fn(
         teacher_out=teacher_out,
         student_out=student_out,
-        teacher_temp=teacher_temp,
+        epoch=epoch,
     )
     orig_loss = orig_loss_fn(
         student_output=orig_student_out,
