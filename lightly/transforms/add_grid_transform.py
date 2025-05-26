@@ -56,7 +56,7 @@ class AddGridTransform(Transform):  # type: ignore[misc]
         self.num_rows = num_rows
         self.num_cols = num_cols
 
-    def _transform(self, inpt: Any, params: Dict[str, Any]) -> Any:
+    def transform(self, inpt: Any, params: Dict[str, Any]) -> Any:
         if isinstance(inpt, BoundingBoxes):
             return _create_bounding_boxes_grid(
                 num_rows=self.num_rows,
