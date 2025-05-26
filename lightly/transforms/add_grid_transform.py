@@ -8,7 +8,7 @@ from torchvision.transforms.v2 import CenterCrop, ConvertBoundingBoxFormat, Tran
 from torchvision.tv_tensors import BoundingBoxes, BoundingBoxFormat, Mask
 
 from lightly.utils import dependency as _dependency
-
+from lightning_utilities.core.imports import RequirementCache
 
 # ignore typing due to Any type used in torchvison.transforms.v2.Transform
 class AddGridTransform(Transform):  # type: ignore[misc]
@@ -56,7 +56,7 @@ class AddGridTransform(Transform):  # type: ignore[misc]
         self.num_rows = num_rows
         self.num_cols = num_cols
 
-    def transform(self, inpt: Any, params: Dict[str, Any]) -> Any:
+    def _apply_grid_transform(self, inpt: Any) -> Any:
         if isinstance(inpt, BoundingBoxes):
             return _create_bounding_boxes_grid(
                 num_rows=self.num_rows,
@@ -82,6 +82,13 @@ class AddGridTransform(Transform):  # type: ignore[misc]
             )
         else:
             return inpt
+
+    if RequirementCache("torchvision>=0.21.0"):
+        def transform(self, inpt: Any, params: Dict[str, Any]) -> Any:
+            return self._apply_grid_transform(inpt)
+    else:
+        def _transform(self, inpt: Any, params: Dict[str, Any]) -> Any:
+            return self._apply_grid_transform(inpt)
 
 
 def _create_bounding_boxes_grid(
