@@ -31,16 +31,19 @@ clean-out:
 	rm -fr last.ckpt
 
 
+# Python directories to format and lint
+PYTHON_DIRS = benchmarks docs examples lightly tests
+
 # format code with isort and black
 format:
-	isort .
-	black .
+	isort $(PYTHON_DIRS)
+	black $(PYTHON_DIRS)
 
 # check if code is formatted with isort and black
 format-check:
 	@echo "⚫ Checking code format..."
-	isort --check-only --diff .
-	black --check .
+	isort --check-only --diff $(PYTHON_DIRS)
+	black --check $(PYTHON_DIRS)
 
 # check style with flake8
 lint: lint-lightly lint-tests
