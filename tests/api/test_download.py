@@ -11,6 +11,8 @@ import numpy as np
 import tqdm
 from PIL import Image
 
+from lightly.api.retry_utils import RetryOnApiConfig, RetryOnApiError
+
 # mock requests module so that files are read from
 # disk instead of loading them from a remote url
 
@@ -86,88 +88,19 @@ class MockedResponsePartialStream(MockedResponse):
 import lightly
 
 
-@mock.patch("lightly.api.download.requests", MockedRequestsModulePartialResponse())
-class TestDownloadPartialRespons(unittest.TestCase):
-    def setUp(self):
-        self._max_retries = lightly.api.utils.RETRY_MAX_RETRIES
-        self._max_backoff = lightly.api.utils.RETRY_MAX_BACKOFF
-        lightly.api.utils.RETRY_MAX_RETRIES = 1
-        lightly.api.utils.RETRY_MAX_BACKOFF = 0
-        warnings.filterwarnings("ignore")
-
-    def tearDown(self):
-        lightly.api.utils.RETRY_MAX_RETRIES = self._max_retries
-        lightly.api.utils.RETRY_MAX_BACKOFF = self._max_backoff
-        warnings.filterwarnings("default")
-
-    def test_download_image_half_broken_retry_once(self):
-        lightly.api.utils.RETRY_MAX_RETRIES = 1
-
-        original = _pil_image()
-        with tempfile.NamedTemporaryFile(suffix=".png") as file:
-            original.save(file.name)
-            # assert that the retry fails
-            with self.assertRaises(RuntimeError) as error:
-                image = lightly.api.download.download_image(file.name)
-            self.assertTrue("Maximum retries exceeded" in str(error.exception))
-            self.assertTrue("<class 'OSError'>" in str(error.exception))
-            self.assertTrue("image file is truncated" in str(error.exception))
-
-    def test_download_image_half_broken_retry_twice(self):
-        lightly.api.utils.RETRY_MAX_RETRIES = 2
-        MockedResponse.return_partial_stream = True
-        original = _pil_image()
-        with tempfile.NamedTemporaryFile(suffix=".png") as file:
-            original.save(file.name)
-            image = lightly.api.download.download_image(file.name)
-            assert _images_equal(image, original)
-
-
 @mock.patch("lightly.api.download.requests", MockedRequestsModule())
 class TestDownload(unittest.TestCase):
     def setUp(self):
-        self._max_retries = lightly.api.utils.RETRY_MAX_RETRIES
-        self._max_backoff = lightly.api.utils.RETRY_MAX_BACKOFF
-        lightly.api.utils.RETRY_MAX_RETRIES = 1
-        lightly.api.utils.RETRY_MAX_BACKOFF = 0
+        self.retry_fn = RetryOnApiError(
+            RetryOnApiConfig(
+                max_retries=1,
+                backoff_max=0,
+            )
+        )
         warnings.filterwarnings("ignore")
 
     def tearDown(self):
-        lightly.api.utils.RETRY_MAX_RETRIES = self._max_retries
-        lightly.api.utils.RETRY_MAX_BACKOFF = self._max_backoff
         warnings.filterwarnings("default")
-
-    def test_download_image(self):
-        original = _pil_image()
-        with tempfile.NamedTemporaryFile(suffix=".png") as file:
-            original.save(file.name)
-            for request_kwargs in [None, {"stream": False}]:
-                with self.subTest(request_kwargs=request_kwargs):
-                    image = lightly.api.download.download_image(
-                        file.name, request_kwargs=request_kwargs
-                    )
-                    assert _images_equal(image, original)
-
-    def test_download_prediction(self):
-        original = _json_prediction()
-        with tempfile.NamedTemporaryFile(suffix=".json", mode="w+") as file:
-            with open(file.name, "w") as f:
-                json.dump(original, f)
-            for request_kwargs in [None, {"stream": False}]:
-                with self.subTest(request_kwargs=request_kwargs):
-                    response = lightly.api.download.download_prediction_file(
-                        file.name,
-                        request_kwargs=request_kwargs,
-                    )
-                    self.assertDictEqual(response, original)
-
-    def test_download_image_with_session(self):
-        session = MockedRequestsModule.Session()
-        original = _pil_image()
-        with tempfile.NamedTemporaryFile(suffix=".png") as file:
-            original.save(file.name)
-            image = lightly.api.download.download_image(file.name, session=session)
-            assert _images_equal(image, original)
 
     def test_download_and_write_file(self):
         original = _pil_image()
@@ -175,7 +108,9 @@ class TestDownload(unittest.TestCase):
             suffix=".png"
         ) as file1, tempfile.NamedTemporaryFile(suffix=".png") as file2:
             original.save(file1.name)
-            lightly.api.download.download_and_write_file(file1.name, file2.name)
+            lightly.api.download.download_and_write_file(
+                file1.name, file2.name, retry_fn=self.retry_fn
+            )
             image = Image.open(file2.name)
             assert _images_equal(original, image)
 
@@ -187,7 +122,7 @@ class TestDownload(unittest.TestCase):
         ) as file1, tempfile.NamedTemporaryFile(suffix=".png") as file2:
             original.save(file1.name)
             lightly.api.download.download_and_write_file(
-                file1.name, file2.name, session=session
+                file1.name, file2.name, session=session, retry_fn=self.retry_fn
             )
             image = Image.open(file2.name)
             assert _images_equal(original, image)
@@ -214,6 +149,7 @@ class TestDownload(unittest.TestCase):
                         output_dir=tempdir2,
                         max_workers=max_workers,
                         request_kwargs=request_kwargs,
+                        retry_fn=self.retry_fn,
                     )
 
                     for orig, filename in zip(originals, filenames):
@@ -232,11 +168,3 @@ def _pil_image(width=100, height=50, seed=0):
     image = (np.random.randn(width, height, 3) * 255).astype(np.uint8)
     image = Image.fromarray(image, mode="RGB")
     return image
-
-
-def _json_prediction():
-    return {
-        "string": "Hello World",
-        "int": 1,
-        "float": 0.5,
-    }

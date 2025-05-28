@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Union
 from requests import Response
 from tqdm import tqdm
 
-from lightly.api.utils import paginate_endpoint, retry
+from lightly.api.utils import paginate_endpoint, retry_utils
 from lightly.openapi_generated.swagger_client.models import (
     ConfigurationEntry,
     ConfigurationSetRequest,
@@ -199,7 +199,7 @@ class _UploadCustomMetadataMixin:
         def upload_sample_metadata(upload_request):
             metadata, sample_id = upload_request
             request = SampleUpdateRequest(custom_meta_data=metadata)
-            return retry(
+            return retry_utils.retry(
                 self._samples_api.update_sample_by_id,
                 sample_update_request=request,
                 dataset_id=self.dataset_id,
