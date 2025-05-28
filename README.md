@@ -409,6 +409,7 @@ make format
 
 ## Lightly in Research
 
+- [Joint-Embedding vs Reconstruction: Provable Benefits of Latent Space Prediction for Self-Supervised Learning, 2025](https://arxiv.org/abs/2505.12477)
 - [Reverse Engineering Self-Supervised Learning, 2023](https://arxiv.org/abs/2305.15614)
 - [Learning Visual Representations via Language-Guided Sampling, 2023](https://arxiv.org/pdf/2302.12248.pdf)
 - [Self-Supervised Learning Methods for Label-Efficient Dental Caries Classification, 2022](https://www.mdpi.com/2075-4418/12/5/1237)
