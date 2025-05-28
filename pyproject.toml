@@ -85,6 +85,7 @@ dev = [
   "mypy==1.4.1", # frozen version to avoid differences between CI and local dev machines
   "types-python-dateutil",
   "types-toml",
+  "types-requests",
   "nbformat",
   "jupytext"
 ]

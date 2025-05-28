@@ -1,5 +1,4 @@
 import pathlib
-from typing import Any
 from unittest.mock import MagicMock, mock_open
 
 from pytest_mock import MockerFixture
@@ -89,8 +88,7 @@ def test_download_and_write_all_files(
     # Verify download_and_write_file was called for each file
     assert mock_download_and_write_file.call_count == 2
 
-    # Verify the calls were made with correct arguments (positional arguments)
-    calls = mock_download_and_write_file.call_args_list
+    # Verify the calls were made with correct arguments using assert_has_calls
     expected_calls = [
         mocker.call(
             "http://example.com/file1.jpg",
@@ -108,11 +106,5 @@ def test_download_and_write_all_files(
         ),
     ]
 
-    # Check that each expected call matches one of the actual calls
-    for expected_call in expected_calls:
-        assert any(
-            call.args[:2] == expected_call.args[:2]  # url and output_path
-            and call.args[3] == expected_call.args[3]  # retry_fn
-            and call.args[4] == expected_call.args[4]  # request_kwargs
-            for call in calls
-        ), f"Expected call {expected_call} not found in actual calls {calls}"
+    # Use assert_has_calls which properly handles mocker.ANY comparisons
+    mock_download_and_write_file.assert_has_calls(expected_calls, any_order=True)
