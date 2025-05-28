@@ -11,7 +11,6 @@ import numpy as np
 import tqdm
 from PIL import Image
 
-
 # mock requests module so that files are read from
 # disk instead of loading them from a remote url
 
