@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import concurrent.futures
 import os
 import pathlib
@@ -5,60 +7,20 @@ import shutil
 import threading
 import warnings
 from concurrent.futures import ThreadPoolExecutor
-from typing import Callable, Dict, Iterable, List, Optional, Tuple, Type, Union
+from typing import Any, Callable, Protocol
 
-import PIL
 import requests
 import tqdm
 
 from lightly.api import utils
-from lightly.api.swagger_api_client import DEFAULT_API_TIMEOUT
-
-
-def download_image(
-    url: str,
-    session: requests.Session = None,
-    retry_fn: Callable = utils.retry,
-    request_kwargs: Optional[Dict] = None,
-) -> PIL.Image.Image:
-    """Downloads an image from a url.
-
-    Args:
-        url:
-            The url where the image is downloaded from.
-        session:
-            Session object to persist certain parameters across requests.
-        retry_fn:
-            Retry function that handles failed downloads.
-        request_kwargs:
-            Additional parameters passed to requests.get().
-
-    Returns:
-        The downloaded image.
-
-    """
-    request_kwargs = request_kwargs or {}
-    request_kwargs.setdefault("stream", True)
-    request_kwargs.setdefault("timeout", 10)
-
-    def load_image(url, req, request_kwargs):
-        with req.get(url=url, **request_kwargs) as response:
-            response.raise_for_status()
-            image = PIL.Image.open(response.raw)
-            image.load()
-        return image
-
-    req = requests if session is None else session
-    image = retry_fn(load_image, url, req, request_kwargs)
-    return image
 
 
 def download_and_write_file(
     url: str,
     output_path: str,
-    session: requests.Session = None,
-    retry_fn: Callable = utils.retry,
-    request_kwargs: Optional[Dict] = None,
+    session: requests.Session | None = None,
+    retry_fn: Callable[..., Any] = utils.retry,
+    request_kwargs: dict[str, Any] | None = None,
 ) -> None:
     """Downloads a file from a url and saves it to disk
 
@@ -80,19 +42,19 @@ def download_and_write_file(
     req = requests if session is None else session
     out_path = pathlib.Path(output_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    with retry_fn(req.get, url=url, **request_kwargs) as response:
+    with retry_fn(req.get, url=url, **request_kwargs) as response:  # type: ignore[[attr-defined]
         response.raise_for_status()
         with open(out_path, "wb") as file:
             shutil.copyfileobj(response.raw, file)
 
 
 def download_and_write_all_files(
-    file_infos: List[Tuple[str, str]],
+    file_infos: list[tuple[str, str]],
     output_dir: str,
-    max_workers: int = None,
+    max_workers: int | None = None,
     verbose: bool = False,
-    retry_fn: Callable = utils.retry,
-    request_kwargs: Optional[Dict] = None,
+    retry_fn: Callable[..., Any] = utils.retry,
+    request_kwargs: dict[str, Any] | None = None,
 ) -> None:
     """Downloads all files and writes them to disk.
 
@@ -114,12 +76,13 @@ def download_and_write_all_files(
     """
 
     def thread_download_and_write(
-        file_info: Tuple[str, str],
+        file_info: tuple[str, str],
         output_dir: str,
         lock: threading.Lock,
-        sessions: Dict[str, requests.Session],
-        **kwargs,
-    ):
+        sessions: dict[int, requests.Session],
+        retry_fn: Callable[..., Any],
+        request_kwargs: dict[str, Any] | None = None,
+    ) -> None:
         filename, url = file_info
         output_path = os.path.join(output_dir, filename)
         thread_id = threading.get_ident()
@@ -131,21 +94,17 @@ def download_and_write_all_files(
             sessions[thread_id] = session
         lock.release()
 
-        download_and_write_file(url, output_path, session, **kwargs)
-
-    # retry download if failed
-    def job(**kwargs):
-        retry_fn(thread_download_and_write, **kwargs)
+        download_and_write_file(url, output_path, session, retry_fn, request_kwargs)
 
     # dict where every thread stores its requests.Session
-    sessions = dict()
+    sessions: dict[int, requests.Session] = dict()
     # use lock because sessions dict is shared between threads
     lock = threading.Lock()
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures_to_file_info = {
             executor.submit(
-                job,
+                thread_download_and_write,
                 file_info=file_info,
                 output_dir=output_dir,
                 lock=lock,
@@ -164,46 +123,3 @@ def download_and_write_all_files(
                 future.result()
             except Exception as ex:
                 warnings.warn(f"Could not download {filename} from {url}")
-
-
-def download_prediction_file(
-    url: str,
-    session: requests.Session = None,
-    request_kwargs: Optional[Dict] = None,
-) -> Dict:
-    """Same as download_json_file. Keep this for backwards compatability.
-
-    See download_json_file.
-
-    """
-    return download_json_file(url, session=session, request_kwargs=request_kwargs)
-
-
-def download_json_file(
-    url: str,
-    session: requests.Session = None,
-    request_kwargs: Optional[Dict] = None,
-) -> Dict:
-    """Downloads a json file from the provided read-url.
-
-    Args:
-        url:
-            Url of the file to download.
-        session:
-            Session object to persist certain parameters across requests.
-        request_kwargs:
-            Additional parameters passed to requests.get().
-
-    Returns the content of the json file as dictionary. Raises HTTPError in case
-    of an error.
-
-    """
-    request_kwargs = request_kwargs or {}
-    request_kwargs.setdefault("stream", True)
-    request_kwargs.setdefault("timeout", DEFAULT_API_TIMEOUT)
-    req = requests if session is None else session
-
-    response = req.get(url, **request_kwargs)
-    response.raise_for_status()
-
-    return response.json()

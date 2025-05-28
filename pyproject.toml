@@ -199,7 +199,6 @@ exclude = '''(?x)(
     lightly/core.py |
     lightly/api/api_workflow_compute_worker.py |
     lightly/api/api_workflow_predictions.py |
-    lightly/api/download.py |
     lightly/api/api_workflow_export.py |
     lightly/api/api_workflow_download_dataset.py |
     lightly/api/bitmask.py |
@@ -250,7 +249,6 @@ exclude = '''(?x)(
     tests/api/benchmark_video_download.py |
     tests/api/test_BitMask.py |
     tests/api/test_patch.py |
-    tests/api/test_download.py |
     tests/api/test_version_checking.py |
     tests/api/test_swagger_api_client.py |
     tests/utils/test_debug.py |
