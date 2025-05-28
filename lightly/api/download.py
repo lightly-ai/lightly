@@ -7,7 +7,7 @@ import shutil
 import threading
 import warnings
 from concurrent.futures import ThreadPoolExecutor
-from typing import Any, Callable, Protocol
+from typing import Any, Callable
 
 import requests
 import tqdm
