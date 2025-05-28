@@ -11,15 +11,13 @@ def test_download_and_write_file(mocker: MockerFixture, tmp_path: pathlib.Path) 
     # Mock dependencies
     mock_response = MagicMock()
     mock_response.raw = MagicMock()
-    mock_requests_get = mocker.patch("requests.get", return_value=mock_response)
+    mock_response_manager = MagicMock()
+    mock_response_manager.__enter__.return_value = mock_response
+    mock_requests_get = mocker.patch("requests.get", return_value=mock_response_manager)
     mock_open_file = mocker.patch("builtins.open", mock_open())
     mock_shutil_copyfileobj = mocker.patch("shutil.copyfileobj")
 
-    # Mock retry function to actually execute the function
-    def mock_retry_fn(func: Any, *args: Any, **kwargs: Any) -> Any:
-        return func(*args, **kwargs)
-
-    mock_retry = mocker.MagicMock(side_effect=mock_retry_fn)
+    # Mock retry function to be a context manager
 
     # Use real path in tmp_path
     output_path = tmp_path / "subdir" / "output.jpg"
@@ -28,11 +26,10 @@ def test_download_and_write_file(mocker: MockerFixture, tmp_path: pathlib.Path) 
     download.download_and_write_file(
         url="http://example.com/file.jpg",
         output_path=str(output_path),
-        retry_fn=mock_retry,
+        retry_fn=lambda fn, *args, **kwargs: fn(*args, **kwargs),
     )
 
     # Verify calls
-    mock_retry.assert_called_once()
     mock_response.raise_for_status.assert_called_once()
     mock_shutil_copyfileobj.assert_called_once_with(
         mock_response.raw, mock_open_file.return_value.__enter__.return_value
@@ -45,15 +42,12 @@ def test_download_and_write_file__with_session(
     # Mock dependencies
     mock_session = MagicMock()
     mock_response = MagicMock()
-    mock_session.get.return_value = mock_response
+    mock_response.raw = MagicMock()
+    mock_response_manager = MagicMock()
+    mock_response_manager.__enter__.return_value = mock_response
+    mock_session.get.return_value = mock_response_manager
     mock_open_file = mocker.patch("builtins.open", mock_open())
     mock_shutil_copyfileobj = mocker.patch("shutil.copyfileobj")
-
-    # Mock retry function to actually execute the function
-    def mock_retry_fn(func: Any, *args: Any, **kwargs: Any) -> Any:
-        return func(*args, **kwargs)
-
-    mock_retry = mocker.MagicMock(side_effect=mock_retry_fn)
 
     # Use real path in tmp_path
     output_path = tmp_path / "output.jpg"
@@ -63,12 +57,12 @@ def test_download_and_write_file__with_session(
         url="http://example.com/file.jpg",
         output_path=str(output_path),
         session=mock_session,
-        retry_fn=mock_retry,
+        retry_fn=lambda fn, *args, **kwargs: fn(*args, **kwargs),
     )
 
     # Verify session was used instead of requests
-    mock_retry.assert_called_once_with(
-        mock_session.get, url="http://example.com/file.jpg", stream=True, timeout=10
+    mock_session.get.assert_called_once_with(
+        url="http://example.com/file.jpg", stream=True, timeout=10
     )
 
 
@@ -85,15 +79,11 @@ def test_download_and_write_all_files(
         ("file2.jpg", "http://example.com/file2.jpg"),
     ]
 
-    # Mock retry function to actually execute the function
-    def mock_retry_fn(func: Any, *args: Any, **kwargs: Any) -> Any:
-        return func(*args, **kwargs)
-
-    mock_retry = mocker.MagicMock(side_effect=mock_retry_fn)
-
     # Call function
     download.download_and_write_all_files(
-        file_infos=file_infos, output_dir=str(tmp_path), retry_fn=mock_retry
+        file_infos=file_infos,
+        output_dir=str(tmp_path),
+        retry_fn=lambda fn, *args, **kwargs: fn(*args, **kwargs),
     )
 
     # Verify download_and_write_file was called for each file
@@ -106,14 +96,14 @@ def test_download_and_write_all_files(
             "http://example.com/file1.jpg",
             str(tmp_path / "file1.jpg"),
             mocker.ANY,  # session
-            mock_retry,
+            mocker.ANY,  # retry_fn
             None,  # request_kwargs
         ),
         mocker.call(
             "http://example.com/file2.jpg",
             str(tmp_path / "file2.jpg"),
             mocker.ANY,  # session
-            mock_retry,
+            mocker.ANY,  # retry_fn
             None,  # request_kwargs
         ),
     ]

@@ -42,7 +42,7 @@ def download_and_write_file(
     req = requests if session is None else session
     out_path = pathlib.Path(output_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    with retry_fn(req.get, url=url, **request_kwargs) as response:  # type: ignore[[attr-defined]
+    with retry_fn(req.get, url=url, **request_kwargs) as response:  # type: ignore[attr-defined]
         response.raise_for_status()
         with open(out_path, "wb") as file:
             shutil.copyfileobj(response.raw, file)
