@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import concurrent.futures
 import os
 import pathlib
@@ -5,7 +7,7 @@ import shutil
 import threading
 import warnings
 from concurrent.futures import ThreadPoolExecutor
-from typing import Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable
 
 import requests
 import tqdm
@@ -16,9 +18,9 @@ from lightly.api import retry_utils
 def download_and_write_file(
     url: str,
     output_path: str,
-    session: requests.Session = None,
-    retry_fn: Callable = retry_utils.retry,
-    request_kwargs: Optional[Dict] = None,
+    session: requests.Session | None = None,
+    retry_fn: Callable[..., Any] = retry_utils.retry,
+    request_kwargs: dict[str, Any] | None = None,
 ) -> None:
     """Downloads a file from a url and saves it to disk
 
@@ -40,19 +42,19 @@ def download_and_write_file(
     req = requests if session is None else session
     out_path = pathlib.Path(output_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    with retry_fn(req.get, url=url, **request_kwargs) as response:
+    with retry_fn(req.get, url=url, **request_kwargs) as response:  # type: ignore[attr-defined]
         response.raise_for_status()
         with open(out_path, "wb") as file:
             shutil.copyfileobj(response.raw, file)
 
 
 def download_and_write_all_files(
-    file_infos: List[Tuple[str, str]],
+    file_infos: list[tuple[str, str]],
     output_dir: str,
-    max_workers: int = None,
+    max_workers: int | None = None,
     verbose: bool = False,
-    retry_fn: Callable = retry_utils.retry,
-    request_kwargs: Optional[Dict] = None,
+    retry_fn: Callable[..., Any] = retry_utils.retry,
+    request_kwargs: dict[str, Any] | None = None,
 ) -> None:
     """Downloads all files and writes them to disk.
 
@@ -74,12 +76,13 @@ def download_and_write_all_files(
     """
 
     def thread_download_and_write(
-        file_info: Tuple[str, str],
+        file_info: tuple[str, str],
         output_dir: str,
         lock: threading.Lock,
-        sessions: Dict[str, requests.Session],
-        **kwargs,
-    ):
+        sessions: dict[int, requests.Session],
+        retry_fn: Callable[..., Any],
+        request_kwargs: dict[str, Any] | None = None,
+    ) -> None:
         filename, url = file_info
         output_path = os.path.join(output_dir, filename)
         thread_id = threading.get_ident()
@@ -91,21 +94,23 @@ def download_and_write_all_files(
             sessions[thread_id] = session
         lock.release()
 
-        download_and_write_file(url, output_path, session, **kwargs)
-
-    # retry download if failed
-    def job(**kwargs):
-        retry_fn(thread_download_and_write, **kwargs)
+        download_and_write_file(
+            url=url,
+            output_path=output_path,
+            session=session,
+            retry_fn=retry_fn,
+            request_kwargs=request_kwargs,
+        )
 
     # dict where every thread stores its requests.Session
-    sessions = dict()
+    sessions: dict[int, requests.Session] = dict()
     # use lock because sessions dict is shared between threads
     lock = threading.Lock()
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures_to_file_info = {
             executor.submit(
-                job,
+                thread_download_and_write,
                 file_info=file_info,
                 output_dir=output_dir,
                 lock=lock,

@@ -1,170 +1,123 @@
-import json
-import os
-import sys
-import tempfile
-import unittest
-import warnings
-from io import BytesIO
-from unittest import mock
+import pathlib
+from unittest.mock import MagicMock, mock_open
 
-import numpy as np
-import tqdm
-from PIL import Image
+from pytest_mock import MockerFixture
 
-from lightly.api.retry_utils import RetryOnApiConfig, RetryOnApiError
-
-# mock requests module so that files are read from
-# disk instead of loading them from a remote url
+from lightly.api import download
 
 
-class MockedRequestsModule:
-    def get(self, url, stream=None, *args, **kwargs):
-        return MockedResponse(url)
+def test_download_and_write_file(mocker: MockerFixture, tmp_path: pathlib.Path) -> None:
+    # Mock dependencies
+    mock_response = MagicMock()
+    mock_response.raw = MagicMock()
+    mock_response_manager = MagicMock()
+    mock_response_manager.__enter__.return_value = mock_response
+    mock_requests_get = mocker.patch("requests.get", return_value=mock_response_manager)
+    mock_open_file = mocker.patch("builtins.open", mock_open())
+    mock_shutil_copyfileobj = mocker.patch("shutil.copyfileobj")
 
-    class Session:
-        def get(self, url, stream=None, *args, **kwargs):
-            return MockedResponse(url)
+    # Mock retry function
+    mock_retry_fn = MagicMock(
+        side_effect=lambda fn, *args, **kwargs: fn(*args, **kwargs)
+    )
 
+    # Use real path in tmp_path
+    output_path = tmp_path / "subdir" / "output.jpg"
 
-class MockedRequestsModulePartialResponse:
-    def get(self, url, stream=None, *args, **kwargs):
-        return MockedResponsePartialStream(url)
+    # Call function
+    download.download_and_write_file(
+        url="http://example.com/file.jpg",
+        output_path=str(output_path),
+        retry_fn=mock_retry_fn,
+    )
 
-    def raise_for_status(self):
-        return
-
-    class Session:
-        def get(self, url, stream=None, *args, **kwargs):
-            return MockedResponsePartialStream(url)
-
-
-class MockedResponse:
-    def __init__(self, raw):
-        self._raw = raw
-
-    @property
-    def raw(self):
-        # instead of returning the byte stream from the url
-        # we just give back an openend filehandle
-        return open(self._raw, "rb")
-
-    @property
-    def status_code(self):
-        return 200
-
-    def raise_for_status(self):
-        return
-
-    def json(self):
-        # instead of returning the byte stream from the url
-        # we just load the json and return the dictionary
-        with open(self._raw, "r") as f:
-            return json.load(f)
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *args):
-        pass
+    # Verify calls
+    mock_response.raise_for_status.assert_called_once()
+    mock_shutil_copyfileobj.assert_called_once_with(
+        mock_response.raw, mock_open_file.return_value.__enter__.return_value
+    )
 
 
-class MockedResponsePartialStream(MockedResponse):
-    return_partial_stream = True
+def test_download_and_write_file__with_session(
+    mocker: MockerFixture, tmp_path: pathlib.Path
+) -> None:
+    # Mock dependencies
+    mock_session = MagicMock()
+    mock_response = MagicMock()
+    mock_response.raw = MagicMock()
+    mock_response_manager = MagicMock()
+    mock_response_manager.__enter__.return_value = mock_response
+    mock_session.get.return_value = mock_response_manager
+    mock_open_file = mocker.patch("builtins.open", mock_open())
+    mock_shutil_copyfileobj = mocker.patch("shutil.copyfileobj")
 
-    @property
-    def raw(self):
-        # instead of returning the byte stream from the url
-        # we just give back an openend filehandle
-        stream = open(self._raw, "rb")
-        if self.return_partial_stream:
-            bytes = stream.read()
-            stream_first_part = BytesIO(bytes[:1024])
-            MockedResponsePartialStream.return_partial_stream = False
-            return stream_first_part
-        else:
-            return stream
+    # Mock retry function
+    mock_retry_fn = MagicMock(
+        side_effect=lambda fn, *args, **kwargs: fn(*args, **kwargs)
+    )
 
+    # Use real path in tmp_path
+    output_path = tmp_path / "output.jpg"
 
-import lightly
+    # Call function
+    download.download_and_write_file(
+        url="http://example.com/file.jpg",
+        output_path=str(output_path),
+        session=mock_session,
+        retry_fn=mock_retry_fn,
+    )
 
-
-@mock.patch("lightly.api.download.requests", MockedRequestsModule())
-class TestDownload(unittest.TestCase):
-    def setUp(self):
-        self.retry_fn = RetryOnApiError(
-            RetryOnApiConfig(
-                max_retries=1,
-                backoff_max=0,
-            )
-        )
-        warnings.filterwarnings("ignore")
-
-    def tearDown(self):
-        warnings.filterwarnings("default")
-
-    def test_download_and_write_file(self):
-        original = _pil_image()
-        with tempfile.NamedTemporaryFile(
-            suffix=".png"
-        ) as file1, tempfile.NamedTemporaryFile(suffix=".png") as file2:
-            original.save(file1.name)
-            lightly.api.download.download_and_write_file(
-                file1.name, file2.name, retry_fn=self.retry_fn
-            )
-            image = Image.open(file2.name)
-            assert _images_equal(original, image)
-
-    def test_download_and_write_file_with_session(self):
-        session = MockedRequestsModule.Session()
-        original = _pil_image()
-        with tempfile.NamedTemporaryFile(
-            suffix=".png"
-        ) as file1, tempfile.NamedTemporaryFile(suffix=".png") as file2:
-            original.save(file1.name)
-            lightly.api.download.download_and_write_file(
-                file1.name, file2.name, session=session, retry_fn=self.retry_fn
-            )
-            image = Image.open(file2.name)
-            assert _images_equal(original, image)
-
-    def test_download_and_write_all_files(self):
-        n_files = 3
-        max_workers = 2
-        originals = [_pil_image(seed=i) for i in range(n_files)]
-        filenames = [f"filename_{i}.png" for i in range(n_files)]
-        with tempfile.TemporaryDirectory() as tempdir1, tempfile.TemporaryDirectory() as tempdir2:
-            for request_kwargs in [None, {"stream": False}]:
-                with self.subTest(request_kwargs=request_kwargs):
-                    # save images at "remote" location
-                    urls = [
-                        os.path.join(tempdir1, f"url_{i}.png") for i in range(n_files)
-                    ]
-                    for image, url in zip(originals, urls):
-                        image.save(url)
-
-                    # download images from remote to local
-                    file_infos = list(zip(filenames, urls))
-                    lightly.api.download.download_and_write_all_files(
-                        file_infos,
-                        output_dir=tempdir2,
-                        max_workers=max_workers,
-                        request_kwargs=request_kwargs,
-                        retry_fn=self.retry_fn,
-                    )
-
-                    for orig, filename in zip(originals, filenames):
-                        image = Image.open(os.path.join(tempdir2, filename))
-                        assert _images_equal(orig, image)
+    # Verify session was used instead of requests
+    mock_session.get.assert_called_once_with(
+        url="http://example.com/file.jpg", stream=True, timeout=10
+    )
 
 
-def _images_equal(image1, image2):
-    # note that images saved and loaded from disk must
-    # use a lossless format, otherwise this equality will not hold
-    return np.all(np.array(image1) == np.array(image2))
+def test_download_and_write_all_files(
+    mocker: MockerFixture, tmp_path: pathlib.Path
+) -> None:
+    # Mock the download_and_write_file function
+    mock_download_and_write_file = mocker.patch(
+        "lightly.api.download.download_and_write_file"
+    )
 
+    # Mock retry function
+    mock_retry_fn = MagicMock(
+        side_effect=lambda fn, *args, **kwargs: fn(*args, **kwargs)
+    )
 
-def _pil_image(width=100, height=50, seed=0):
-    np.random.seed(seed)
-    image = (np.random.randn(width, height, 3) * 255).astype(np.uint8)
-    image = Image.fromarray(image, mode="RGB")
-    return image
+    file_infos = [
+        ("file1.jpg", "http://example.com/file1.jpg"),
+        ("file2.jpg", "http://example.com/file2.jpg"),
+    ]
+
+    # Call function
+    download.download_and_write_all_files(
+        file_infos=file_infos,
+        output_dir=str(tmp_path),
+        retry_fn=mock_retry_fn,
+    )
+
+    # Verify download_and_write_file was called for each file
+    assert mock_download_and_write_file.call_count == 2
+
+    # Verify the calls were made with correct arguments
+    expected_calls = [
+        mocker.call(
+            url="http://example.com/file1.jpg",
+            output_path=str(tmp_path / "file1.jpg"),
+            session=mocker.ANY,
+            retry_fn=mock_retry_fn,
+            request_kwargs=None,
+        ),
+        mocker.call(
+            url="http://example.com/file2.jpg",
+            output_path=str(tmp_path / "file2.jpg"),
+            session=mocker.ANY,
+            retry_fn=mock_retry_fn,
+            request_kwargs=None,
+        ),
+    ]
+
+    # Use assert_has_calls to verify the calls
+    mock_download_and_write_file.assert_has_calls(expected_calls, any_order=True)
