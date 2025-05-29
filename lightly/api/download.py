@@ -94,7 +94,13 @@ def download_and_write_all_files(
             sessions[thread_id] = session
         lock.release()
 
-        download_and_write_file(url, output_path, session, retry_fn, request_kwargs)
+        download_and_write_file(
+            url=url,
+            output_path=output_path,
+            session=session,
+            retry_fn=retry_fn,
+            request_kwargs=request_kwargs,
+        )
 
     # dict where every thread stores its requests.Session
     sessions: dict[int, requests.Session] = dict()
