@@ -6,11 +6,11 @@ import reprlib
 import time
 from dataclasses import dataclass, field
 from json.decoder import JSONDecodeError
-from typing import Callable, Optional, Protocol, TypeVar, runtime_checkable
+from typing import Callable, Optional, TypeVar
 
 import requests
 import urllib3.exceptions
-from typing_extensions import ParamSpec
+from typing_extensions import ParamSpec, Protocol, runtime_checkable
 
 from lightly.openapi_generated.swagger_client.models.api_error_code import ApiErrorCode
 
