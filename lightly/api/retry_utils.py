@@ -284,11 +284,10 @@ class RetryOnApiError(Retry):
         """
         if isinstance(error, APIExceptionLike):
             error_code = _get_error_code_from_api_exception(error)
-            match error_code:
-                case ApiErrorCode.DATASET_UNKNOWN:
-                    return DatasetNotFoundError(
-                        "Dataset has suddenly disappeared and cannot be found. Did you delete it?"
-                    )
+            if error_code == ApiErrorCode.DATASET_UNKNOWN:
+                return DatasetNotFoundError(
+                    "Dataset has suddenly disappeared and cannot be found. Did you delete it?"
+                )
 
         return error
 
