@@ -4,6 +4,7 @@ from typing import Dict, Iterator, List, Optional, Set, Tuple, Union
 
 import tqdm
 
+from lightly.api.retry_utils import retry
 from lightly.openapi_generated.swagger_client.models import (
     DatasourceConfig,
     DatasourceProcessedUntilTimestampRequest,
@@ -364,7 +365,8 @@ class _DatasourcesMixin:
 
         :meta private:  # Skip docstring generation
         """
-        response: DatasourceProcessedUntilTimestampResponse = self._datasources_api.get_datasource_processed_until_timestamp_by_dataset_id(
+        response: DatasourceProcessedUntilTimestampResponse = retry(
+            fn=self._datasources_api.get_datasource_processed_until_timestamp_by_dataset_id,
             dataset_id=self.dataset_id
         )
         timestamp = int(response.processed_until_timestamp)
@@ -394,7 +396,8 @@ class _DatasourcesMixin:
         body = DatasourceProcessedUntilTimestampRequest(
             processed_until_timestamp=timestamp
         )
-        self._datasources_api.update_datasource_processed_until_timestamp_by_dataset_id(
+        retry(
+            self._datasources_api.update_datasource_processed_until_timestamp_by_dataset_id,
             dataset_id=self.dataset_id,
             datasource_processed_until_timestamp_request=body,
         )
@@ -855,7 +858,8 @@ class _DatasourcesMixin:
                 if progress_bar is not None:
                     progress_bar.update(1)
 
-        response: DatasourceRawSamplesData = download_function(
+        response: DatasourceRawSamplesData = retry(
+            download_function,
             dataset_id=self.dataset_id,
             var_from=from_,
             to=to,
@@ -865,7 +869,8 @@ class _DatasourcesMixin:
         )
         yield from get_samples(response=response)
         while response.has_more:
-            response: DatasourceRawSamplesData = download_function(
+            response: DatasourceRawSamplesData = retry(
+                download_function,
                 dataset_id=self.dataset_id,
                 cursor=response.cursor,
                 use_redirected_read_url=use_redirected_read_url,
