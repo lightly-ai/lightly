@@ -12,14 +12,14 @@ from typing import Any, Callable
 import requests
 import tqdm
 
-from lightly.api import utils
+from lightly.api import retry_utils
 
 
 def download_and_write_file(
     url: str,
     output_path: str,
     session: requests.Session | None = None,
-    retry_fn: Callable[..., Any] = utils.retry,
+    retry_fn: Callable[..., Any] = retry_utils.retry,
     request_kwargs: dict[str, Any] | None = None,
 ) -> None:
     """Downloads a file from a url and saves it to disk
@@ -53,7 +53,7 @@ def download_and_write_all_files(
     output_dir: str,
     max_workers: int | None = None,
     verbose: bool = False,
-    retry_fn: Callable[..., Any] = utils.retry,
+    retry_fn: Callable[..., Any] = retry_utils.retry,
     request_kwargs: dict[str, Any] | None = None,
 ) -> None:
     """Downloads all files and writes them to disk.

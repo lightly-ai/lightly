@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import List
 from urllib.request import Request
 
-from lightly.api.utils import retry
+from lightly.api import retry_utils
 from lightly.openapi_generated.swagger_client.models import (
     DatasetEmbeddingData,
     DimensionalityReductionMethod,
@@ -150,7 +150,7 @@ class _UploadEmbeddingsMixin:
         with tempfile.SpooledTemporaryFile(mode="r+b") as f_bytes:
             f_bytes.write(embeddings_csv_as_bytes)
             f_bytes.seek(0)
-            retry(
+            retry_utils.retry(
                 self.upload_file_with_signed_url,
                 file=f_bytes,
                 signed_write_url=signed_write_url,

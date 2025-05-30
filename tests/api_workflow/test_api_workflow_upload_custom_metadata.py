@@ -53,7 +53,7 @@ def test_upload_custom_metadata(mocker: MockerFixture) -> None:
         ],
     )
     mocked_retry = mocker.patch.object(
-        api_workflow_upload_metadata,
+        api_workflow_upload_metadata.retry_utils,
         "retry",
         side_effect=[
             [dummy_sample],

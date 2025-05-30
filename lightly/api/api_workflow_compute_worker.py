@@ -6,7 +6,7 @@ import time
 from functools import partial
 from typing import Any, Callable, Dict, Iterator, List, Optional, Type, TypeVar, Union
 
-from lightly.api import utils
+from lightly.api import retry_utils, utils
 from lightly.openapi_generated.swagger_client.api_client import ApiClient
 from lightly.openapi_generated.swagger_client.models import (
     AutoTask,
@@ -486,7 +486,7 @@ class _ComputeWorkerMixin:
         try:
             run: DockerRunScheduledData = next(
                 run
-                for run in utils.retry(
+                for run in retry_utils.retry(
                     lambda: self._compute_worker_api.get_docker_runs_scheduled_by_dataset_id(
                         self.dataset_id
                     )
