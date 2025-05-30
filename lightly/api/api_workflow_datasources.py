@@ -397,7 +397,7 @@ class _DatasourcesMixin:
             processed_until_timestamp=timestamp
         )
         retry(
-            self._datasources_api.update_datasource_processed_until_timestamp_by_dataset_id,
+            fn=self._datasources_api.update_datasource_processed_until_timestamp_by_dataset_id,
             dataset_id=self.dataset_id,
             datasource_processed_until_timestamp_request=body,
         )
@@ -859,7 +859,7 @@ class _DatasourcesMixin:
                     progress_bar.update(1)
 
         response: DatasourceRawSamplesData = retry(
-            download_function,
+            fn=download_function,
             dataset_id=self.dataset_id,
             var_from=from_,
             to=to,
@@ -870,7 +870,7 @@ class _DatasourcesMixin:
         yield from get_samples(response=response)
         while response.has_more:
             response: DatasourceRawSamplesData = retry(
-                download_function,
+                fn=download_function,
                 dataset_id=self.dataset_id,
                 cursor=response.cursor,
                 use_redirected_read_url=use_redirected_read_url,
