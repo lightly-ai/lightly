@@ -367,7 +367,7 @@ class _DatasourcesMixin:
         """
         response: DatasourceProcessedUntilTimestampResponse = retry(
             fn=self._datasources_api.get_datasource_processed_until_timestamp_by_dataset_id,
-            dataset_id=self.dataset_id
+            dataset_id=self.dataset_id,
         )
         timestamp = int(response.processed_until_timestamp)
         return timestamp

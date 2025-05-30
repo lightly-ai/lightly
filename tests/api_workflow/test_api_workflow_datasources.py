@@ -26,12 +26,12 @@ from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_data
 )
 from lightly.openapi_generated.swagger_client.rest import ApiException
 
+
 class TestDatasourcesMixin:
-
-    
-
     @pytest.mark.parametrize("with_retry", [True, False])
-    def test_download_raw_samples(self, mocker: MockerFixture, with_retry: bool) -> None:
+    def test_download_raw_samples(
+        self, mocker: MockerFixture, with_retry: bool
+    ) -> None:
         response = DatasourceRawSamplesData(
             hasMore=False,
             cursor="",
@@ -43,7 +43,9 @@ class TestDatasourcesMixin:
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
         side_effects = [response]
         if with_retry:
-            side_effects.insert(0, ApiException(status=500, reason="Internal Server Error"))
+            side_effects.insert(
+                0, ApiException(status=500, reason="Internal Server Error")
+            )
         mocker.patch.object(
             client._datasources_api,
             "get_list_of_raw_samples_from_datasource_by_dataset_id",
@@ -51,9 +53,10 @@ class TestDatasourcesMixin:
         )
         assert client.download_raw_samples() == [("file1", "url1"), ("file2", "url2")]
 
-
     @pytest.mark.parametrize("with_retry", [True, False])
-    def test_download_raw_predictions(self, mocker: MockerFixture, with_retry: bool) -> None:
+    def test_download_raw_predictions(
+        self, mocker: MockerFixture, with_retry: bool
+    ) -> None:
         response = DatasourceRawSamplesData(
             hasMore=False,
             cursor="",
@@ -65,7 +68,9 @@ class TestDatasourcesMixin:
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
         side_effects = [response]
         if with_retry:
-            side_effects.insert(0, ApiException(status=500, reason="Internal Server Error"))
+            side_effects.insert(
+                0, ApiException(status=500, reason="Internal Server Error")
+            )
         mocker.patch.object(
             client._datasources_api,
             "get_list_of_raw_samples_predictions_from_datasource_by_dataset_id",
@@ -177,7 +182,9 @@ class TestDatasourcesMixin:
             )
 
     @pytest.mark.parametrize("with_retry", [True, False])
-    def test_download_raw_metadata(self, mocker: MockerFixture, with_retry: bool) -> None:
+    def test_download_raw_metadata(
+        self, mocker: MockerFixture, with_retry: bool
+    ) -> None:
         response = DatasourceRawSamplesData(
             hasMore=False,
             cursor="",
@@ -189,7 +196,9 @@ class TestDatasourcesMixin:
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
         side_effects = [response]
         if with_retry:
-            side_effects.insert(0, ApiException(status=500, reason="Internal Server Error"))
+            side_effects.insert(
+                0, ApiException(status=500, reason="Internal Server Error")
+            )
         mocker.patch.object(
             client._datasources_api,
             "get_list_of_raw_samples_metadata_from_datasource_by_dataset_id",
@@ -329,14 +338,16 @@ class TestDatasourcesMixin:
         client.update_processed_until_timestamp.assert_called_once_with(timestamp=5)
 
     @pytest.mark.parametrize("with_retry", [True, False])
-    def test_get_processed_until_timestamp(self, mocker: MockerFixture, with_retry: bool) -> None:
-        response = DatasourceProcessedUntilTimestampResponse(
-            processedUntilTimestamp=5
-        )
+    def test_get_processed_until_timestamp(
+        self, mocker: MockerFixture, with_retry: bool
+    ) -> None:
+        response = DatasourceProcessedUntilTimestampResponse(processedUntilTimestamp=5)
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
         side_effects = [response]
         if with_retry:
-            side_effects.insert(0, ApiException(status=500, reason="Internal Server Error"))
+            side_effects.insert(
+                0, ApiException(status=500, reason="Internal Server Error")
+            )
         mocker.patch.object(
             client._datasources_api,
             "get_datasource_processed_until_timestamp_by_dataset_id",
@@ -348,11 +359,15 @@ class TestDatasourcesMixin:
         )
 
     @pytest.mark.parametrize("with_retry", [True, False])
-    def test_update_processed_until_timestamp(self, mocker: MockerFixture, with_retry: bool) -> None:
+    def test_update_processed_until_timestamp(
+        self, mocker: MockerFixture, with_retry: bool
+    ) -> None:
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
         side_effects = [None]
         if with_retry:
-            side_effects.insert(0, ApiException(status=500, reason="Internal Server Error"))
+            side_effects.insert(
+                0, ApiException(status=500, reason="Internal Server Error")
+            )
         mocker.patch.object(
             client._datasources_api,
             "update_datasource_processed_until_timestamp_by_dataset_id",
@@ -566,7 +581,9 @@ class TestDatasourcesMixin:
         ) == [("file1", "url1"), ("file2", "url2")]
 
     @pytest.mark.parametrize("with_retry", [True, False])
-    def test__download_raw_files_iter(self, mocker: MockerFixture, with_retry: bool) -> None:
+    def test__download_raw_files_iter(
+        self, mocker: MockerFixture, with_retry: bool
+    ) -> None:
         response_1 = DatasourceRawSamplesData(
             hasMore=True,
             cursor="cursor1",
