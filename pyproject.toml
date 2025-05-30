@@ -41,7 +41,7 @@ dependencies = [
   "lightly_utils~=0.0.0",
   "numpy>=1.18.1",
   "python_dateutil>=2.5.3",
-  "requests>=2.23.0",
+  "requests>=2.27.0",
   "six>=1.10",
   "tqdm>=4.44",
   "torch",
