@@ -2,7 +2,7 @@ import pytest
 import tqdm
 from pytest_mock import MockerFixture
 
-from lightly.api import ApiWorkflowClient, api_workflow_listing
+from lightly.api import ApiWorkflowClient, api_workflow_datasource_listing
 from lightly.openapi_generated.swagger_client.models import DatasourceRawSamplesDataRow
 from lightly.openapi_generated.swagger_client.models.datasource_processed_until_timestamp_response import (
     DatasourceProcessedUntilTimestampResponse,
@@ -508,27 +508,27 @@ class TestListingMixin:
 
 def test__sample_unseen_and_valid() -> None:
     with pytest.warns(UserWarning, match="Absolute file paths like /file1"):
-        assert not api_workflow_listing._sample_unseen_and_valid(
+        assert not api_workflow_datasource_listing._sample_unseen_and_valid(
             sample=DatasourceRawSamplesDataRow(fileName="/file1", readUrl="url1"),
             relevant_filenames_file_name=None,
             listed_filenames=set(),
         )
 
     with pytest.warns(UserWarning, match="Using dot notation"):
-        assert not api_workflow_listing._sample_unseen_and_valid(
+        assert not api_workflow_datasource_listing._sample_unseen_and_valid(
             sample=DatasourceRawSamplesDataRow(fileName="./file1", readUrl="url1"),
             relevant_filenames_file_name=None,
             listed_filenames=set(),
         )
 
     with pytest.warns(UserWarning, match="Duplicate filename file1"):
-        assert not api_workflow_listing._sample_unseen_and_valid(
+        assert not api_workflow_datasource_listing._sample_unseen_and_valid(
             sample=DatasourceRawSamplesDataRow(fileName="file1", readUrl="url1"),
             relevant_filenames_file_name=None,
             listed_filenames={"file1"},
         )
 
-    assert api_workflow_listing._sample_unseen_and_valid(
+    assert api_workflow_datasource_listing._sample_unseen_and_valid(
         sample=DatasourceRawSamplesDataRow(fileName="file1", readUrl="url1"),
         relevant_filenames_file_name=None,
         listed_filenames=set(),
