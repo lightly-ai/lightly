@@ -61,7 +61,7 @@ class EmbeddingsApi(object):
 
     @validate_arguments
     def delete_embedding_by_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], embedding_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the embedding")], **kwargs) -> None:  # noqa: E501
-        """delete_embedding_by_id  # noqa: E501
+        """Delete embedding by id  # noqa: E501
 
         Deletes a embedding entry by id.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -92,7 +92,7 @@ class EmbeddingsApi(object):
 
     @validate_arguments
     def delete_embedding_by_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], embedding_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the embedding")], **kwargs) -> ApiResponse:  # noqa: E501
-        """delete_embedding_by_id  # noqa: E501
+        """Delete embedding by id  # noqa: E501
 
         Deletes a embedding entry by id.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -206,7 +206,7 @@ class EmbeddingsApi(object):
 
     @validate_arguments
     def get_embeddings_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], **kwargs) -> List[DatasetEmbeddingData]:  # noqa: E501
-        """get_embeddings_by_dataset_id  # noqa: E501
+        """Get embeddings by dataset id  # noqa: E501
 
         Get all embeddings of a dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -235,7 +235,7 @@ class EmbeddingsApi(object):
 
     @validate_arguments
     def get_embeddings_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], **kwargs) -> ApiResponse:  # noqa: E501
-        """get_embeddings_by_dataset_id  # noqa: E501
+        """Get embeddings by dataset id  # noqa: E501
 
         Get all embeddings of a dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -349,7 +349,7 @@ class EmbeddingsApi(object):
 
     @validate_arguments
     def get_embeddings_by_sample_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], sample_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the sample")], mode : Annotated[Optional[StrictStr], Field(description="if we want everything (full) or just the summaries")] = None, **kwargs) -> List[EmbeddingData]:  # noqa: E501
-        """get_embeddings_by_sample_id  # noqa: E501
+        """Get embeddings by sample id  # noqa: E501
 
         Get all embeddings of a datasets sample  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -382,7 +382,7 @@ class EmbeddingsApi(object):
 
     @validate_arguments
     def get_embeddings_by_sample_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], sample_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the sample")], mode : Annotated[Optional[StrictStr], Field(description="if we want everything (full) or just the summaries")] = None, **kwargs) -> ApiResponse:  # noqa: E501
-        """get_embeddings_by_sample_id  # noqa: E501
+        """Get embeddings by sample id  # noqa: E501
 
         Get all embeddings of a datasets sample  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -511,7 +511,7 @@ class EmbeddingsApi(object):
 
     @validate_arguments
     def get_embeddings_csv_read_url_by_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], embedding_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the embedding")], **kwargs) -> str:  # noqa: E501
-        """get_embeddings_csv_read_url_by_id  # noqa: E501
+        """Get CSV embedding read URL  # noqa: E501
 
         Get the url of a specific embeddings CSV  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -542,7 +542,7 @@ class EmbeddingsApi(object):
 
     @validate_arguments
     def get_embeddings_csv_read_url_by_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], embedding_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the embedding")], **kwargs) -> ApiResponse:  # noqa: E501
-        """get_embeddings_csv_read_url_by_id  # noqa: E501
+        """Get CSV embedding read URL  # noqa: E501
 
         Get the url of a specific embeddings CSV  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -662,7 +662,7 @@ class EmbeddingsApi(object):
 
     @validate_arguments
     def get_embeddings_csv_write_url_by_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], name : Annotated[Optional[StrictStr], Field(description="the sampling requests name to create a signed url for")] = None, **kwargs) -> WriteCSVUrlData:  # noqa: E501
-        """get_embeddings_csv_write_url_by_id  # noqa: E501
+        """Get CSV embedding write URL  # noqa: E501
 
         Get the signed url to upload an CSVembedding to for a specific dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -693,7 +693,7 @@ class EmbeddingsApi(object):
 
     @validate_arguments
     def get_embeddings_csv_write_url_by_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], name : Annotated[Optional[StrictStr], Field(description="the sampling requests name to create a signed url for")] = None, **kwargs) -> ApiResponse:  # noqa: E501
-        """get_embeddings_csv_write_url_by_id  # noqa: E501
+        """Get CSV embedding write URL  # noqa: E501
 
         Get the signed url to upload an CSVembedding to for a specific dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -816,7 +816,7 @@ class EmbeddingsApi(object):
 
     @validate_arguments
     def set_embeddings_is_processed_flag_by_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], embedding_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the embedding")], set_embeddings_is_processed_flag_by_id_body_request : SetEmbeddingsIsProcessedFlagByIdBodyRequest, **kwargs) -> None:  # noqa: E501
-        """set_embeddings_is_processed_flag_by_id  # noqa: E501
+        """Set embedding processed flag  # noqa: E501
 
         Sets the isProcessed flag of the specified embedding  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -849,7 +849,7 @@ class EmbeddingsApi(object):
 
     @validate_arguments
     def set_embeddings_is_processed_flag_by_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], embedding_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the embedding")], set_embeddings_is_processed_flag_by_id_body_request : SetEmbeddingsIsProcessedFlagByIdBodyRequest, **kwargs) -> ApiResponse:  # noqa: E501
-        """set_embeddings_is_processed_flag_by_id  # noqa: E501
+        """Set embedding processed flag  # noqa: E501
 
         Sets the isProcessed flag of the specified embedding  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -976,7 +976,7 @@ class EmbeddingsApi(object):
 
     @validate_arguments
     def trigger2d_embeddings_job(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], embedding_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the embedding")], trigger2d_embedding_job_request : Trigger2dEmbeddingJobRequest, **kwargs) -> None:  # noqa: E501
-        """trigger2d_embeddings_job  # noqa: E501
+        """Trigger 2d embeddings job  # noqa: E501
 
         Trigger job to get 2d embeddings from embeddings  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1009,7 +1009,7 @@ class EmbeddingsApi(object):
 
     @validate_arguments
     def trigger2d_embeddings_job_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], embedding_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the embedding")], trigger2d_embedding_job_request : Trigger2dEmbeddingJobRequest, **kwargs) -> ApiResponse:  # noqa: E501
-        """trigger2d_embeddings_job  # noqa: E501
+        """Trigger 2d embeddings job  # noqa: E501
 
         Trigger job to get 2d embeddings from embeddings  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an

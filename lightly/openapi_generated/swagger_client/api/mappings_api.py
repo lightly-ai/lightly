@@ -56,7 +56,7 @@ class MappingsApi(object):
 
     @validate_arguments
     def get_sample_mappings_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], field : Annotated[StrictStr, Field(..., description="the field to return as the value")], page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> List[str]:  # noqa: E501
-        """get_sample_mappings_by_dataset_id  # noqa: E501
+        """Get sample mappings by dataset id  # noqa: E501
 
         Get all samples of a dataset as a list. List index is the index of the sample2bitmask mapping and the value is the 'field' you wanted (e.g _id, fileName)  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -91,7 +91,7 @@ class MappingsApi(object):
 
     @validate_arguments
     def get_sample_mappings_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], field : Annotated[StrictStr, Field(..., description="the field to return as the value")], page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> ApiResponse:  # noqa: E501
-        """get_sample_mappings_by_dataset_id  # noqa: E501
+        """Get sample mappings by dataset id  # noqa: E501
 
         Get all samples of a dataset as a list. List index is the index of the sample2bitmask mapping and the value is the 'field' you wanted (e.g _id, fileName)  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an

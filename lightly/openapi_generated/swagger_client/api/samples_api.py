@@ -65,7 +65,7 @@ class SamplesApi(object):
 
     @validate_arguments
     def create_sample_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], sample_create_request : SampleCreateRequest, **kwargs) -> CreateEntityResponse:  # noqa: E501
-        """create_sample_by_dataset_id  # noqa: E501
+        """Create sample by dataset id  # noqa: E501
 
         Create a new sample in a dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -96,7 +96,7 @@ class SamplesApi(object):
 
     @validate_arguments
     def create_sample_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], sample_create_request : SampleCreateRequest, **kwargs) -> ApiResponse:  # noqa: E501
-        """create_sample_by_dataset_id  # noqa: E501
+        """Create sample by dataset id  # noqa: E501
 
         Create a new sample in a dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -223,7 +223,7 @@ class SamplesApi(object):
 
     @validate_arguments
     def create_sample_with_write_urls_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], sample_create_request : SampleCreateRequest, **kwargs) -> CreateSampleWithWriteUrlsResponse:  # noqa: E501
-        """create_sample_with_write_urls_by_dataset_id  # noqa: E501
+        """Create sample with write URLs  # noqa: E501
 
         Create a sample and immediately receive write URLs (full image and thumbnail) to upload images  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -254,7 +254,7 @@ class SamplesApi(object):
 
     @validate_arguments
     def create_sample_with_write_urls_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], sample_create_request : SampleCreateRequest, **kwargs) -> ApiResponse:  # noqa: E501
-        """create_sample_with_write_urls_by_dataset_id  # noqa: E501
+        """Create sample with write URLs  # noqa: E501
 
         Create a sample and immediately receive write URLs (full image and thumbnail) to upload images  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -381,7 +381,7 @@ class SamplesApi(object):
 
     @validate_arguments
     def get_sample_by_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], sample_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the sample")], **kwargs) -> SampleData:  # noqa: E501
-        """get_sample_by_id  # noqa: E501
+        """Get sample by id  # noqa: E501
 
         Get a specific sample of a dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -412,7 +412,7 @@ class SamplesApi(object):
 
     @validate_arguments
     def get_sample_by_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], sample_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the sample")], **kwargs) -> ApiResponse:  # noqa: E501
-        """get_sample_by_id  # noqa: E501
+        """Get sample by id  # noqa: E501
 
         Get a specific sample of a dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -532,7 +532,7 @@ class SamplesApi(object):
 
     @validate_arguments
     def get_sample_image_read_url_by_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], sample_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the sample")], type : Annotated[Optional[StrictStr], Field(description="if we want to get the full image or just the thumbnail")] = None, **kwargs) -> str:  # noqa: E501
-        """get_sample_image_read_url_by_id  # noqa: E501
+        """Get sample image ReadURL  # noqa: E501
 
         Get the image path of a specific sample of a dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -565,7 +565,7 @@ class SamplesApi(object):
 
     @validate_arguments
     def get_sample_image_read_url_by_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], sample_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the sample")], type : Annotated[Optional[StrictStr], Field(description="if we want to get the full image or just the thumbnail")] = None, **kwargs) -> ApiResponse:  # noqa: E501
-        """get_sample_image_read_url_by_id  # noqa: E501
+        """Get sample image ReadURL  # noqa: E501
 
         Get the image path of a specific sample of a dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -694,7 +694,7 @@ class SamplesApi(object):
 
     @validate_arguments
     def get_sample_image_resource_redirect_by_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], sample_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the sample")], type : Annotated[StrictStr, Field(..., description="if we want to get the full image or just the thumbnail")], **kwargs) -> None:  # noqa: E501
-        """get_sample_image_resource_redirect_by_id  # noqa: E501
+        """Get sample image resource redirect  # noqa: E501
 
         This endpoint enables anyone given the correct credentials to access the actual image directly. By creating a readURL for the resource and redirecting to that URL, the client can use this endpoint to always have a way to access the resource as there is no expiration   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -727,7 +727,7 @@ class SamplesApi(object):
 
     @validate_arguments
     def get_sample_image_resource_redirect_by_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], sample_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the sample")], type : Annotated[StrictStr, Field(..., description="if we want to get the full image or just the thumbnail")], **kwargs) -> ApiResponse:  # noqa: E501
-        """get_sample_image_resource_redirect_by_id  # noqa: E501
+        """Get sample image resource redirect  # noqa: E501
 
         This endpoint enables anyone given the correct credentials to access the actual image directly. By creating a readURL for the resource and redirecting to that URL, the client can use this endpoint to always have a way to access the resource as there is no expiration   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -850,7 +850,7 @@ class SamplesApi(object):
 
     @validate_arguments
     def get_sample_image_write_url_by_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], sample_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the sample")], is_thumbnail : Annotated[StrictBool, Field(..., description="Whether or not the image to upload is a thumbnail")], **kwargs) -> str:  # noqa: E501
-        """get_sample_image_write_url_by_id  # noqa: E501
+        """Get sample image write URL  # noqa: E501
 
         Get the signed url to upload an image to for a specific sample of a dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -883,7 +883,7 @@ class SamplesApi(object):
 
     @validate_arguments
     def get_sample_image_write_url_by_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], sample_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the sample")], is_thumbnail : Annotated[StrictBool, Field(..., description="Whether or not the image to upload is a thumbnail")], **kwargs) -> ApiResponse:  # noqa: E501
-        """get_sample_image_write_url_by_id  # noqa: E501
+        """Get sample image write URL  # noqa: E501
 
         Get the signed url to upload an image to for a specific sample of a dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1012,7 +1012,7 @@ class SamplesApi(object):
 
     @validate_arguments
     def get_sample_image_write_urls_by_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], sample_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the sample")], **kwargs) -> SampleWriteUrls:  # noqa: E501
-        """get_sample_image_write_urls_by_id  # noqa: E501
+        """Get sample image write URLs  # noqa: E501
 
         Get all signed write URLs to upload all images (full image and thumbnail) of a specific sample of a dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1043,7 +1043,7 @@ class SamplesApi(object):
 
     @validate_arguments
     def get_sample_image_write_urls_by_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], sample_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the sample")], **kwargs) -> ApiResponse:  # noqa: E501
-        """get_sample_image_write_urls_by_id  # noqa: E501
+        """Get sample image write URLs  # noqa: E501
 
         Get all signed write URLs to upload all images (full image and thumbnail) of a specific sample of a dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1163,7 +1163,7 @@ class SamplesApi(object):
 
     @validate_arguments
     def get_samples_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], file_name : Annotated[Optional[StrictStr], Field(description="DEPRECATED, use without and filter yourself - Filter the samples by filename")] = None, sort_by : Annotated[Optional[SampleSortBy], Field(description="sort the samples")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> List[SampleData]:  # noqa: E501
-        """get_samples_by_dataset_id  # noqa: E501
+        """Get samples by dataset id  # noqa: E501
 
         Get all samples of a dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1200,7 +1200,7 @@ class SamplesApi(object):
 
     @validate_arguments
     def get_samples_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], file_name : Annotated[Optional[StrictStr], Field(description="DEPRECATED, use without and filter yourself - Filter the samples by filename")] = None, sort_by : Annotated[Optional[SampleSortBy], Field(description="sort the samples")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> ApiResponse:  # noqa: E501
-        """get_samples_by_dataset_id  # noqa: E501
+        """Get samples by dataset id  # noqa: E501
 
         Get all samples of a dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1350,7 +1350,7 @@ class SamplesApi(object):
 
     @validate_arguments
     def get_samples_partial_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], mode : Optional[SamplePartialMode] = None, file_name : Annotated[Optional[StrictStr], Field(description="filter the samples by filename")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> List[SampleDataModes]:  # noqa: E501
-        """get_samples_partial_by_dataset_id  # noqa: E501
+        """Get partial samples by dataset id  # noqa: E501
 
         Get partial information of all samples of a dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1387,7 +1387,7 @@ class SamplesApi(object):
 
     @validate_arguments
     def get_samples_partial_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], mode : Optional[SamplePartialMode] = None, file_name : Annotated[Optional[StrictStr], Field(description="filter the samples by filename")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> ApiResponse:  # noqa: E501
-        """get_samples_partial_by_dataset_id  # noqa: E501
+        """Get partial samples by dataset id  # noqa: E501
 
         Get partial information of all samples of a dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1537,7 +1537,7 @@ class SamplesApi(object):
 
     @validate_arguments
     def update_sample_by_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], sample_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the sample")], sample_update_request : Annotated[SampleUpdateRequest, Field(..., description="The updated sample to set")], enable_dataset_update : Annotated[Optional[StrictBool], Field(description="Deprecated, is ignored! If we should also update the dataset with the new sample information (like total size)")] = None, **kwargs) -> None:  # noqa: E501
-        """update_sample_by_id  # noqa: E501
+        """Update sample by id  # noqa: E501
 
         update a specific sample of a dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1572,7 +1572,7 @@ class SamplesApi(object):
 
     @validate_arguments
     def update_sample_by_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], sample_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the sample")], sample_update_request : Annotated[SampleUpdateRequest, Field(..., description="The updated sample to set")], enable_dataset_update : Annotated[Optional[StrictBool], Field(description="Deprecated, is ignored! If we should also update the dataset with the new sample information (like total size)")] = None, **kwargs) -> ApiResponse:  # noqa: E501
-        """update_sample_by_id  # noqa: E501
+        """Update sample by id  # noqa: E501
 
         update a specific sample of a dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an

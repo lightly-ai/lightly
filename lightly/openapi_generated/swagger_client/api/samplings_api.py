@@ -56,7 +56,7 @@ class SamplingsApi(object):
 
     @validate_arguments
     def trigger_sampling_by_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], embedding_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the embedding")], sampling_create_request : SamplingCreateRequest, **kwargs) -> AsyncTaskData:  # noqa: E501
-        """trigger_sampling_by_id  # noqa: E501
+        """Trigger sampling by embedding id  # noqa: E501
 
         Trigger a sampling on a specific tag of a dataset with specific prior uploaded csv embedding  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -89,7 +89,7 @@ class SamplingsApi(object):
 
     @validate_arguments
     def trigger_sampling_by_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], embedding_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the embedding")], sampling_create_request : SamplingCreateRequest, **kwargs) -> ApiResponse:  # noqa: E501
-        """trigger_sampling_by_id  # noqa: E501
+        """Trigger sampling by embedding id  # noqa: E501
 
         Trigger a sampling on a specific tag of a dataset with specific prior uploaded csv embedding  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an

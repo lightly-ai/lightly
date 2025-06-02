@@ -72,7 +72,7 @@ class TagsApi(object):
 
     @validate_arguments
     def create_initial_tag_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], initial_tag_create_request : InitialTagCreateRequest, **kwargs) -> CreateEntityResponse:  # noqa: E501
-        """create_initial_tag_by_dataset_id  # noqa: E501
+        """Create initial tag by dataset id  # noqa: E501
 
         create the intitial tag for a dataset which then locks the dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -103,7 +103,7 @@ class TagsApi(object):
 
     @validate_arguments
     def create_initial_tag_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], initial_tag_create_request : InitialTagCreateRequest, **kwargs) -> ApiResponse:  # noqa: E501
-        """create_initial_tag_by_dataset_id  # noqa: E501
+        """Create initial tag by dataset id  # noqa: E501
 
         create the intitial tag for a dataset which then locks the dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -230,7 +230,7 @@ class TagsApi(object):
 
     @validate_arguments
     def create_tag_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_create_request : TagCreateRequest, **kwargs) -> CreateEntityResponse:  # noqa: E501
-        """create_tag_by_dataset_id  # noqa: E501
+        """Create tag by dataset id  # noqa: E501
 
         create new tag for dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -261,7 +261,7 @@ class TagsApi(object):
 
     @validate_arguments
     def create_tag_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_create_request : TagCreateRequest, **kwargs) -> ApiResponse:  # noqa: E501
-        """create_tag_by_dataset_id  # noqa: E501
+        """Create tag by dataset id  # noqa: E501
 
         create new tag for dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -388,7 +388,7 @@ class TagsApi(object):
 
     @validate_arguments
     def delete_tag_by_tag_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], **kwargs) -> None:  # noqa: E501
-        """delete_tag_by_tag_id  # noqa: E501
+        """Delete tag by id  # noqa: E501
 
         delete a specific tag if its a leaf-tag (e.g is not a dependency of another tag)  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -419,7 +419,7 @@ class TagsApi(object):
 
     @validate_arguments
     def delete_tag_by_tag_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], **kwargs) -> ApiResponse:  # noqa: E501
-        """delete_tag_by_tag_id  # noqa: E501
+        """Delete tag by id  # noqa: E501
 
         delete a specific tag if its a leaf-tag (e.g is not a dependency of another tag)  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -533,7 +533,7 @@ class TagsApi(object):
 
     @validate_arguments
     def download_zip_of_samples_by_tag_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], **kwargs) -> bytearray:  # noqa: E501
-        """(Deprecated) download_zip_of_samples_by_tag_id  # noqa: E501
+        """(Deprecated) Download zip of samples by tag id  # noqa: E501
 
         DEPRECATED - Download a zip file of the samples of a tag. Limited to 1000 images  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -564,7 +564,7 @@ class TagsApi(object):
 
     @validate_arguments
     def download_zip_of_samples_by_tag_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], **kwargs) -> ApiResponse:  # noqa: E501
-        """(Deprecated) download_zip_of_samples_by_tag_id  # noqa: E501
+        """(Deprecated) Download zip of samples by tag id  # noqa: E501
 
         DEPRECATED - Download a zip file of the samples of a tag. Limited to 1000 images  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -687,7 +687,7 @@ class TagsApi(object):
 
     @validate_arguments
     def export_tag_to_basic_filenames(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], expires_in : Annotated[Optional[StrictInt], Field(description="If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. ")] = None, access_control : Annotated[Optional[StrictStr], Field(description="which access control name to be used")] = None, file_name_format : Optional[FileNameFormat] = None, include_meta_data : Annotated[Optional[StrictBool], Field(description="if true, will also include metadata")] = None, format : Optional[FileOutputFormat] = None, preview_example : Annotated[Optional[StrictBool], Field(description="if true, will generate a preview example of how the structure will look")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> str:  # noqa: E501
-        """export_tag_to_basic_filenames  # noqa: E501
+        """Export tag to basic filenames  # noqa: E501
 
         Export the samples filenames of a specific tag   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -734,7 +734,7 @@ class TagsApi(object):
 
     @validate_arguments
     def export_tag_to_basic_filenames_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], expires_in : Annotated[Optional[StrictInt], Field(description="If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. ")] = None, access_control : Annotated[Optional[StrictStr], Field(description="which access control name to be used")] = None, file_name_format : Optional[FileNameFormat] = None, include_meta_data : Annotated[Optional[StrictBool], Field(description="if true, will also include metadata")] = None, format : Optional[FileOutputFormat] = None, preview_example : Annotated[Optional[StrictBool], Field(description="if true, will generate a preview example of how the structure will look")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> ApiResponse:  # noqa: E501
-        """export_tag_to_basic_filenames  # noqa: E501
+        """Export tag to basic filenames  # noqa: E501
 
         Export the samples filenames of a specific tag   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -926,7 +926,7 @@ class TagsApi(object):
 
     @validate_arguments
     def export_tag_to_basic_filenames_and_read_urls(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], format : Optional[FileOutputFormat] = None, preview_example : Annotated[Optional[StrictBool], Field(description="if true, will generate a preview example of how the structure will look")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> List[FilenameAndReadUrl]:  # noqa: E501
-        """export_tag_to_basic_filenames_and_read_urls  # noqa: E501
+        """Export tag to basic filenames and read URLs  # noqa: E501
 
         Export the samples filenames to map with their readURL.   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -965,7 +965,7 @@ class TagsApi(object):
 
     @validate_arguments
     def export_tag_to_basic_filenames_and_read_urls_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], format : Optional[FileOutputFormat] = None, preview_example : Annotated[Optional[StrictBool], Field(description="if true, will generate a preview example of how the structure will look")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> ApiResponse:  # noqa: E501
-        """export_tag_to_basic_filenames_and_read_urls  # noqa: E501
+        """Export tag to basic filenames and read URLs  # noqa: E501
 
         Export the samples filenames to map with their readURL.   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1121,7 +1121,7 @@ class TagsApi(object):
 
     @validate_arguments
     def export_tag_to_label_box_data_rows(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], expires_in : Annotated[Optional[StrictInt], Field(description="If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. ")] = None, access_control : Annotated[Optional[StrictStr], Field(description="which access control name to be used")] = None, file_name_format : Optional[FileNameFormat] = None, include_meta_data : Annotated[Optional[StrictBool], Field(description="if true, will also include metadata")] = None, format : Optional[FileOutputFormat] = None, preview_example : Annotated[Optional[StrictBool], Field(description="if true, will generate a preview example of how the structure will look")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> List[LabelBoxDataRow]:  # noqa: E501
-        """(Deprecated) export_tag_to_label_box_data_rows  # noqa: E501
+        """(Deprecated) Export tag to LabelBox data rows  # noqa: E501
 
         DEPRECATED - Please use V4 unless there is a specific need to use the LabelBox V3 API. Export samples of a tag as a json for importing into LabelBox as outlined here; https://docs.labelbox.com/v3/reference/image ```openapi\\+warning The image URLs are special in that the resource can be accessed by anyone in possession of said URL for the time specified by the expiresIn query param ```   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1168,7 +1168,7 @@ class TagsApi(object):
 
     @validate_arguments
     def export_tag_to_label_box_data_rows_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], expires_in : Annotated[Optional[StrictInt], Field(description="If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. ")] = None, access_control : Annotated[Optional[StrictStr], Field(description="which access control name to be used")] = None, file_name_format : Optional[FileNameFormat] = None, include_meta_data : Annotated[Optional[StrictBool], Field(description="if true, will also include metadata")] = None, format : Optional[FileOutputFormat] = None, preview_example : Annotated[Optional[StrictBool], Field(description="if true, will generate a preview example of how the structure will look")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> ApiResponse:  # noqa: E501
-        """(Deprecated) export_tag_to_label_box_data_rows  # noqa: E501
+        """(Deprecated) Export tag to LabelBox data rows  # noqa: E501
 
         DEPRECATED - Please use V4 unless there is a specific need to use the LabelBox V3 API. Export samples of a tag as a json for importing into LabelBox as outlined here; https://docs.labelbox.com/v3/reference/image ```openapi\\+warning The image URLs are special in that the resource can be accessed by anyone in possession of said URL for the time specified by the expiresIn query param ```   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1362,7 +1362,7 @@ class TagsApi(object):
 
     @validate_arguments
     def export_tag_to_label_box_v4_data_rows(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], expires_in : Annotated[Optional[StrictInt], Field(description="If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. ")] = None, access_control : Annotated[Optional[StrictStr], Field(description="which access control name to be used")] = None, file_name_format : Optional[FileNameFormat] = None, include_meta_data : Annotated[Optional[StrictBool], Field(description="if true, will also include metadata")] = None, format : Optional[FileOutputFormat] = None, preview_example : Annotated[Optional[StrictBool], Field(description="if true, will generate a preview example of how the structure will look")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> List[LabelBoxV4DataRow]:  # noqa: E501
-        """export_tag_to_label_box_v4_data_rows  # noqa: E501
+        """Export tag to LabelBox V4 data rows  # noqa: E501
 
         Export samples of a tag as a json for importing into LabelBox as outlined here; https://docs.labelbox.com/v4/reference/image ```openapi\\+warning The image URLs are special in that the resource can be accessed by anyone in possession of said URL for the time specified by the expiresIn query param ```   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1409,7 +1409,7 @@ class TagsApi(object):
 
     @validate_arguments
     def export_tag_to_label_box_v4_data_rows_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], expires_in : Annotated[Optional[StrictInt], Field(description="If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. ")] = None, access_control : Annotated[Optional[StrictStr], Field(description="which access control name to be used")] = None, file_name_format : Optional[FileNameFormat] = None, include_meta_data : Annotated[Optional[StrictBool], Field(description="if true, will also include metadata")] = None, format : Optional[FileOutputFormat] = None, preview_example : Annotated[Optional[StrictBool], Field(description="if true, will generate a preview example of how the structure will look")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> ApiResponse:  # noqa: E501
-        """export_tag_to_label_box_v4_data_rows  # noqa: E501
+        """Export tag to LabelBox V4 data rows  # noqa: E501
 
         Export samples of a tag as a json for importing into LabelBox as outlined here; https://docs.labelbox.com/v4/reference/image ```openapi\\+warning The image URLs are special in that the resource can be accessed by anyone in possession of said URL for the time specified by the expiresIn query param ```   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1601,7 +1601,7 @@ class TagsApi(object):
 
     @validate_arguments
     def export_tag_to_label_studio_tasks(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], expires_in : Annotated[Optional[StrictInt], Field(description="If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. ")] = None, access_control : Annotated[Optional[StrictStr], Field(description="which access control name to be used")] = None, file_name_format : Optional[FileNameFormat] = None, include_meta_data : Annotated[Optional[StrictBool], Field(description="if true, will also include metadata")] = None, format : Optional[FileOutputFormat] = None, preview_example : Annotated[Optional[StrictBool], Field(description="if true, will generate a preview example of how the structure will look")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> List[LabelStudioTask]:  # noqa: E501
-        """export_tag_to_label_studio_tasks  # noqa: E501
+        """Export tag to LabelStudio tasks  # noqa: E501
 
         Export samples of a tag as a json for importing into LabelStudio as outlined here; https://labelstud.io/guide/tasks.html#Basic-Label-Studio-JSON-format ```openapi\\+warning The image URLs are special in that the resource can be accessed by anyone in possession of said URL for the time specified by the expiresIn query param ```   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1648,7 +1648,7 @@ class TagsApi(object):
 
     @validate_arguments
     def export_tag_to_label_studio_tasks_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], expires_in : Annotated[Optional[StrictInt], Field(description="If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. ")] = None, access_control : Annotated[Optional[StrictStr], Field(description="which access control name to be used")] = None, file_name_format : Optional[FileNameFormat] = None, include_meta_data : Annotated[Optional[StrictBool], Field(description="if true, will also include metadata")] = None, format : Optional[FileOutputFormat] = None, preview_example : Annotated[Optional[StrictBool], Field(description="if true, will generate a preview example of how the structure will look")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> ApiResponse:  # noqa: E501
-        """export_tag_to_label_studio_tasks  # noqa: E501
+        """Export tag to LabelStudio tasks  # noqa: E501
 
         Export samples of a tag as a json for importing into LabelStudio as outlined here; https://labelstud.io/guide/tasks.html#Basic-Label-Studio-JSON-format ```openapi\\+warning The image URLs are special in that the resource can be accessed by anyone in possession of said URL for the time specified by the expiresIn query param ```   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1840,7 +1840,7 @@ class TagsApi(object):
 
     @validate_arguments
     def export_tag_to_sama_tasks(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], expires_in : Annotated[Optional[StrictInt], Field(description="If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. ")] = None, access_control : Annotated[Optional[StrictStr], Field(description="which access control name to be used")] = None, file_name_format : Optional[FileNameFormat] = None, include_meta_data : Annotated[Optional[StrictBool], Field(description="if true, will also include metadata")] = None, format : Optional[FileOutputFormat] = None, preview_example : Annotated[Optional[StrictBool], Field(description="if true, will generate a preview example of how the structure will look")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> List[SamaTask]:  # noqa: E501
-        """export_tag_to_sama_tasks  # noqa: E501
+        """Export tag to Sama tasks  # noqa: E501
 
         Export samples of a tag as a json for importing into Sama as tasks with the upload form or via the API as outlined here; - https://docs.sama.com/reference/taskcreate - https://docs.sama.com/reference/createbatch  ```openapi\\+warning The image URLs are special in that the resource can be accessed by anyone in possession of said URL for the time specified by the expiresIn query param ```   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1887,7 +1887,7 @@ class TagsApi(object):
 
     @validate_arguments
     def export_tag_to_sama_tasks_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], expires_in : Annotated[Optional[StrictInt], Field(description="If defined, the URLs provided will only be valid for amount of seconds from time of issuence. If not defined, the URls will be valid indefinitely. ")] = None, access_control : Annotated[Optional[StrictStr], Field(description="which access control name to be used")] = None, file_name_format : Optional[FileNameFormat] = None, include_meta_data : Annotated[Optional[StrictBool], Field(description="if true, will also include metadata")] = None, format : Optional[FileOutputFormat] = None, preview_example : Annotated[Optional[StrictBool], Field(description="if true, will generate a preview example of how the structure will look")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> ApiResponse:  # noqa: E501
-        """export_tag_to_sama_tasks  # noqa: E501
+        """Export tag to Sama tasks  # noqa: E501
 
         Export samples of a tag as a json for importing into Sama as tasks with the upload form or via the API as outlined here; - https://docs.sama.com/reference/taskcreate - https://docs.sama.com/reference/createbatch  ```openapi\\+warning The image URLs are special in that the resource can be accessed by anyone in possession of said URL for the time specified by the expiresIn query param ```   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -2079,7 +2079,7 @@ class TagsApi(object):
 
     @validate_arguments
     def get_filenames_by_tag_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], **kwargs) -> List[str]:  # noqa: E501
-        """(Deprecated) get_filenames_by_tag_id  # noqa: E501
+        """(Deprecated) Get filenames by tag id  # noqa: E501
 
         DEPRECATED, please use exportTagToBasicFilenames - Get list of filenames by tag.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -2110,7 +2110,7 @@ class TagsApi(object):
 
     @validate_arguments
     def get_filenames_by_tag_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], **kwargs) -> ApiResponse:  # noqa: E501
-        """(Deprecated) get_filenames_by_tag_id  # noqa: E501
+        """(Deprecated) Get filenames by tag id  # noqa: E501
 
         DEPRECATED, please use exportTagToBasicFilenames - Get list of filenames by tag.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -2232,7 +2232,7 @@ class TagsApi(object):
 
     @validate_arguments
     def get_tag_by_tag_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], **kwargs) -> TagData:  # noqa: E501
-        """get_tag_by_tag_id  # noqa: E501
+        """Get tag by id  # noqa: E501
 
         Get information about a specific tag  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -2263,7 +2263,7 @@ class TagsApi(object):
 
     @validate_arguments
     def get_tag_by_tag_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], **kwargs) -> ApiResponse:  # noqa: E501
-        """get_tag_by_tag_id  # noqa: E501
+        """Get tag by id  # noqa: E501
 
         Get information about a specific tag  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -2383,7 +2383,7 @@ class TagsApi(object):
 
     @validate_arguments
     def get_tags_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], **kwargs) -> List[TagData]:  # noqa: E501
-        """get_tags_by_dataset_id  # noqa: E501
+        """Get tags by dataset id  # noqa: E501
 
         Get all tags of a dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -2412,7 +2412,7 @@ class TagsApi(object):
 
     @validate_arguments
     def get_tags_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], **kwargs) -> ApiResponse:  # noqa: E501
-        """get_tags_by_dataset_id  # noqa: E501
+        """Get tags by dataset id  # noqa: E501
 
         Get all tags of a dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -2526,7 +2526,7 @@ class TagsApi(object):
 
     @validate_arguments
     def perform_tag_arithmetics(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_arithmetics_request : TagArithmeticsRequest, **kwargs) -> TagArithmeticsResponse:  # noqa: E501
-        """perform_tag_arithmetics  # noqa: E501
+        """Perform tag arithmetics  # noqa: E501
 
         performs tag arithmetics to compute a new bitmask out of two existing tags and optionally create a tag for it  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -2557,7 +2557,7 @@ class TagsApi(object):
 
     @validate_arguments
     def perform_tag_arithmetics_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_arithmetics_request : TagArithmeticsRequest, **kwargs) -> ApiResponse:  # noqa: E501
-        """perform_tag_arithmetics  # noqa: E501
+        """Perform tag arithmetics  # noqa: E501
 
         performs tag arithmetics to compute a new bitmask out of two existing tags and optionally create a tag for it  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -2684,7 +2684,7 @@ class TagsApi(object):
 
     @validate_arguments
     def perform_tag_arithmetics_bitmask(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_arithmetics_request : TagArithmeticsRequest, **kwargs) -> TagBitMaskResponse:  # noqa: E501
-        """(Deprecated) perform_tag_arithmetics_bitmask  # noqa: E501
+        """(Deprecated) Perform tag arithmetics bitmask  # noqa: E501
 
         DEPRECATED, use performTagArithmetics - Performs tag arithmetics to compute a new bitmask out of two existing tags. Does not create a new tag regardless if newTagName is provided  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -2715,7 +2715,7 @@ class TagsApi(object):
 
     @validate_arguments
     def perform_tag_arithmetics_bitmask_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_arithmetics_request : TagArithmeticsRequest, **kwargs) -> ApiResponse:  # noqa: E501
-        """(Deprecated) perform_tag_arithmetics_bitmask  # noqa: E501
+        """(Deprecated) Perform tag arithmetics bitmask  # noqa: E501
 
         DEPRECATED, use performTagArithmetics - Performs tag arithmetics to compute a new bitmask out of two existing tags. Does not create a new tag regardless if newTagName is provided  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -2844,7 +2844,7 @@ class TagsApi(object):
 
     @validate_arguments
     def update_tag_by_tag_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], tag_update_request : Annotated[TagUpdateRequest, Field(..., description="updated data for tag")], **kwargs) -> None:  # noqa: E501
-        """update_tag_by_tag_id  # noqa: E501
+        """Update tag by id  # noqa: E501
 
         update information about a specific tag  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -2877,7 +2877,7 @@ class TagsApi(object):
 
     @validate_arguments
     def update_tag_by_tag_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], tag_update_request : Annotated[TagUpdateRequest, Field(..., description="updated data for tag")], **kwargs) -> ApiResponse:  # noqa: E501
-        """update_tag_by_tag_id  # noqa: E501
+        """Update tag by id  # noqa: E501
 
         update information about a specific tag  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -3004,7 +3004,7 @@ class TagsApi(object):
 
     @validate_arguments
     def upsize_tags_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_upsize_request : TagUpsizeRequest, **kwargs) -> CreateEntityResponse:  # noqa: E501
-        """upsize_tags_by_dataset_id  # noqa: E501
+        """Upsize tags by dataset id  # noqa: E501
 
         Upsize all tags for the dataset to the current size of the dataset. Use this after adding more samples to a dataset with an initial-tag. | Creates a new tag holding all samples which are not yet in the initial-tag.   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -3035,7 +3035,7 @@ class TagsApi(object):
 
     @validate_arguments
     def upsize_tags_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_upsize_request : TagUpsizeRequest, **kwargs) -> ApiResponse:  # noqa: E501
-        """upsize_tags_by_dataset_id  # noqa: E501
+        """Upsize tags by dataset id  # noqa: E501
 
         Upsize all tags for the dataset to the current size of the dataset. Use this after adding more samples to a dataset with an initial-tag. | Creates a new tag holding all samples which are not yet in the initial-tag.   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an

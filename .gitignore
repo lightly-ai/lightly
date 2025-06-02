@@ -19,7 +19,8 @@ docs/source/getting_started/resources
 **.zip
 *.egg-info
 
-
+# ignore swagger-generated artifacts
+lightly/openapi_generated/swagger_client/**/*.py-e
 
 #ignore venv
 venv
