@@ -60,7 +60,7 @@ class PredictionsApi(object):
 
     @validate_arguments
     def create_or_update_prediction_by_sample_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], sample_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the sample")], prediction_singleton : conlist(PredictionSingleton), prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, **kwargs) -> CreateEntityResponse:  # noqa: E501
-        """create_or_update_prediction_by_sample_id  # noqa: E501
+        """Create or update prediction singletons by sample id  # noqa: E501
 
         Create/Update all the prediction singletons per taskName for a sampleId in the order/index of them being discovered   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -95,7 +95,7 @@ class PredictionsApi(object):
 
     @validate_arguments
     def create_or_update_prediction_by_sample_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], sample_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the sample")], prediction_singleton : conlist(PredictionSingleton), prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, **kwargs) -> ApiResponse:  # noqa: E501
-        """create_or_update_prediction_by_sample_id  # noqa: E501
+        """Create or update prediction singletons by sample id  # noqa: E501
 
         Create/Update all the prediction singletons per taskName for a sampleId in the order/index of them being discovered   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -237,7 +237,7 @@ class PredictionsApi(object):
 
     @validate_arguments
     def create_or_update_prediction_task_schema_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_task_schema : PredictionTaskSchema, prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, **kwargs) -> CreateEntityResponse:  # noqa: E501
-        """create_or_update_prediction_task_schema_by_dataset_id  # noqa: E501
+        """Create or update prediction task schema  # noqa: E501
 
         Creates/updates a prediction task schema with the task name  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -270,7 +270,7 @@ class PredictionsApi(object):
 
     @validate_arguments
     def create_or_update_prediction_task_schema_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_task_schema : PredictionTaskSchema, prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, **kwargs) -> ApiResponse:  # noqa: E501
-        """create_or_update_prediction_task_schema_by_dataset_id  # noqa: E501
+        """Create or update prediction task schema  # noqa: E501
 
         Creates/updates a prediction task schema with the task name  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -405,7 +405,7 @@ class PredictionsApi(object):
 
     @validate_arguments
     def get_prediction_task_schema_by_task_name(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], task_name : Annotated[constr(strict=True), Field(..., description="The prediction task name for which one wants to list the predictions")], prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, **kwargs) -> PredictionTaskSchema:  # noqa: E501
-        """get_prediction_task_schema_by_task_name  # noqa: E501
+        """Get prediction task schema by task name  # noqa: E501
 
         Get a prediction task schemas named taskName for a datasetId  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -438,7 +438,7 @@ class PredictionsApi(object):
 
     @validate_arguments
     def get_prediction_task_schema_by_task_name_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], task_name : Annotated[constr(strict=True), Field(..., description="The prediction task name for which one wants to list the predictions")], prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, **kwargs) -> ApiResponse:  # noqa: E501
-        """get_prediction_task_schema_by_task_name  # noqa: E501
+        """Get prediction task schema by task name  # noqa: E501
 
         Get a prediction task schemas named taskName for a datasetId  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -567,7 +567,7 @@ class PredictionsApi(object):
 
     @validate_arguments
     def get_prediction_task_schemas_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, **kwargs) -> PredictionTaskSchemas:  # noqa: E501
-        """get_prediction_task_schemas_by_dataset_id  # noqa: E501
+        """Get prediction task schemas  # noqa: E501
 
         Get list of all the prediction task schemas for a datasetId at a specific predictionUUIDTimestamp. If no predictionUUIDTimestamp is set, it defaults to the newest  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -598,7 +598,7 @@ class PredictionsApi(object):
 
     @validate_arguments
     def get_prediction_task_schemas_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, **kwargs) -> ApiResponse:  # noqa: E501
-        """get_prediction_task_schemas_by_dataset_id  # noqa: E501
+        """Get prediction task schemas  # noqa: E501
 
         Get list of all the prediction task schemas for a datasetId at a specific predictionUUIDTimestamp. If no predictionUUIDTimestamp is set, it defaults to the newest  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -721,7 +721,7 @@ class PredictionsApi(object):
 
     @validate_arguments
     def get_predictions_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, lean : Annotated[Optional[StrictBool], Field(description="if lean is set to true, all prediction singletons are returned without their \"heavy\" part. This is useful for large datasets where the full prediction singletons are not needed. e.g SEGMENTATION does not need to return the RLE ")] = None, task_name : Annotated[Optional[constr(strict=True)], Field(description="If provided, only gets all prediction singletons of all samples of a dataset that were yielded by a specific prediction task name")] = None, **kwargs) -> List[List]:  # noqa: E501
-        """get_predictions_by_dataset_id  # noqa: E501
+        """Get prediction singletons by dataset id  # noqa: E501
 
         Get all prediction singletons of all samples of a dataset ordered by the sample mapping  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -760,7 +760,7 @@ class PredictionsApi(object):
 
     @validate_arguments
     def get_predictions_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, lean : Annotated[Optional[StrictBool], Field(description="if lean is set to true, all prediction singletons are returned without their \"heavy\" part. This is useful for large datasets where the full prediction singletons are not needed. e.g SEGMENTATION does not need to return the RLE ")] = None, task_name : Annotated[Optional[constr(strict=True)], Field(description="If provided, only gets all prediction singletons of all samples of a dataset that were yielded by a specific prediction task name")] = None, **kwargs) -> ApiResponse:  # noqa: E501
-        """get_predictions_by_dataset_id  # noqa: E501
+        """Get prediction singletons by dataset id  # noqa: E501
 
         Get all prediction singletons of all samples of a dataset ordered by the sample mapping  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -919,7 +919,7 @@ class PredictionsApi(object):
 
     @validate_arguments
     def get_predictions_by_sample_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], sample_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the sample")], prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, **kwargs) -> List[PredictionSingleton]:  # noqa: E501
-        """get_predictions_by_sample_id  # noqa: E501
+        """Get prediction singletons by sample id  # noqa: E501
 
         Get all prediction singletons of all tasks for a specific sample of a dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -952,7 +952,7 @@ class PredictionsApi(object):
 
     @validate_arguments
     def get_predictions_by_sample_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], sample_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the sample")], prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, **kwargs) -> ApiResponse:  # noqa: E501
-        """get_predictions_by_sample_id  # noqa: E501
+        """Get prediction singletons by sample id  # noqa: E501
 
         Get all prediction singletons of all tasks for a specific sample of a dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an

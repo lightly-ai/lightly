@@ -59,7 +59,7 @@ class Embeddings2dApi(object):
 
     @validate_arguments
     def create_embeddings2d_by_embedding_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], embedding_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the embedding")], embedding2d_create_request : Embedding2dCreateRequest, **kwargs) -> CreateEntityResponse:  # noqa: E501
-        """create_embeddings2d_by_embedding_id  # noqa: E501
+        """Create 2d embedding  # noqa: E501
 
         Create a new 2d embedding  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -92,7 +92,7 @@ class Embeddings2dApi(object):
 
     @validate_arguments
     def create_embeddings2d_by_embedding_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], embedding_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the embedding")], embedding2d_create_request : Embedding2dCreateRequest, **kwargs) -> ApiResponse:  # noqa: E501
-        """create_embeddings2d_by_embedding_id  # noqa: E501
+        """Create 2d embedding  # noqa: E501
 
         Create a new 2d embedding  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -225,7 +225,7 @@ class Embeddings2dApi(object):
 
     @validate_arguments
     def get_embedding2d_by_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], embedding_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the embedding")], embedding2d_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the 2d embedding")], **kwargs) -> Embedding2dData:  # noqa: E501
-        """get_embedding2d_by_id  # noqa: E501
+        """Get 2d embedding by id  # noqa: E501
 
         Get the 2d embeddings by id  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -258,7 +258,7 @@ class Embeddings2dApi(object):
 
     @validate_arguments
     def get_embedding2d_by_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], embedding_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the embedding")], embedding2d_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the 2d embedding")], **kwargs) -> ApiResponse:  # noqa: E501
-        """get_embedding2d_by_id  # noqa: E501
+        """Get 2d embedding by id  # noqa: E501
 
         Get the 2d embeddings by id  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -384,7 +384,7 @@ class Embeddings2dApi(object):
 
     @validate_arguments
     def get_embeddings2d_by_embedding_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], embedding_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the embedding")], **kwargs) -> List[Embedding2dData]:  # noqa: E501
-        """get_embeddings2d_by_embedding_id  # noqa: E501
+        """Get 2d embeddings by embedding id  # noqa: E501
 
         Get all 2d embeddings of an embedding  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -415,7 +415,7 @@ class Embeddings2dApi(object):
 
     @validate_arguments
     def get_embeddings2d_by_embedding_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], embedding_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the embedding")], **kwargs) -> ApiResponse:  # noqa: E501
-        """get_embeddings2d_by_embedding_id  # noqa: E501
+        """Get 2d embeddings by embedding id  # noqa: E501
 
         Get all 2d embeddings of an embedding  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an

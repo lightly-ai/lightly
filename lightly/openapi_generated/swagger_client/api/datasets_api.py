@@ -62,7 +62,7 @@ class DatasetsApi(object):
 
     @validate_arguments
     def create_dataset(self, dataset_create_request : DatasetCreateRequest, **kwargs) -> CreateEntityResponse:  # noqa: E501
-        """create_dataset  # noqa: E501
+        """Create dataset  # noqa: E501
 
         Creates a new dataset for a user  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -91,7 +91,7 @@ class DatasetsApi(object):
 
     @validate_arguments
     def create_dataset_with_http_info(self, dataset_create_request : DatasetCreateRequest, **kwargs) -> ApiResponse:  # noqa: E501
-        """create_dataset  # noqa: E501
+        """Create dataset  # noqa: E501
 
         Creates a new dataset for a user  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -212,7 +212,7 @@ class DatasetsApi(object):
 
     @validate_arguments
     def delete_dataset_by_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], force : Optional[StrictBool] = None, **kwargs) -> None:  # noqa: E501
-        """delete_dataset_by_id  # noqa: E501
+        """Delete dataset by id  # noqa: E501
 
         Delete a specific dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -243,7 +243,7 @@ class DatasetsApi(object):
 
     @validate_arguments
     def delete_dataset_by_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], force : Optional[StrictBool] = None, **kwargs) -> ApiResponse:  # noqa: E501
-        """delete_dataset_by_id  # noqa: E501
+        """Delete dataset by id  # noqa: E501
 
         Delete a specific dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -360,7 +360,7 @@ class DatasetsApi(object):
 
     @validate_arguments
     def get_children_of_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], **kwargs) -> List[DatasetData]:  # noqa: E501
-        """get_children_of_dataset_id  # noqa: E501
+        """Get a datasets children  # noqa: E501
 
         Get all datasets which are the children of a specific dataset (e.g crop datasets)  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -389,7 +389,7 @@ class DatasetsApi(object):
 
     @validate_arguments
     def get_children_of_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], **kwargs) -> ApiResponse:  # noqa: E501
-        """get_children_of_dataset_id  # noqa: E501
+        """Get a datasets children  # noqa: E501
 
         Get all datasets which are the children of a specific dataset (e.g crop datasets)  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -503,9 +503,9 @@ class DatasetsApi(object):
 
     @validate_arguments
     def get_dataset_by_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], **kwargs) -> DatasetData:  # noqa: E501
-        """get_dataset_by_id  # noqa: E501
+        """Get dataset by id  # noqa: E501
 
-        Get a specific dataset  # noqa: E501
+        Get a specific dataset by id  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -532,9 +532,9 @@ class DatasetsApi(object):
 
     @validate_arguments
     def get_dataset_by_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], **kwargs) -> ApiResponse:  # noqa: E501
-        """get_dataset_by_id  # noqa: E501
+        """Get dataset by id  # noqa: E501
 
-        Get a specific dataset  # noqa: E501
+        Get a specific dataset by id  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -646,7 +646,7 @@ class DatasetsApi(object):
 
     @validate_arguments
     def get_datasets(self, shared : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which have been shared with the user")] = None, exclude_playground : Annotated[Optional[StrictBool], Field(description="if set, excludes playground datasets. Typically set to true when querying for team assets")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> List[DatasetData]:  # noqa: E501
-        """get_datasets  # noqa: E501
+        """Get datasets  # noqa: E501
 
         Get all datasets for a user  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -685,7 +685,7 @@ class DatasetsApi(object):
 
     @validate_arguments
     def get_datasets_with_http_info(self, shared : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which have been shared with the user")] = None, exclude_playground : Annotated[Optional[StrictBool], Field(description="if set, excludes playground datasets. Typically set to true when querying for team assets")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> ApiResponse:  # noqa: E501
-        """get_datasets  # noqa: E501
+        """Get datasets  # noqa: E501
 
         Get all datasets for a user  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -847,7 +847,7 @@ class DatasetsApi(object):
 
     @validate_arguments
     def get_datasets_enriched(self, shared : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which have been shared with the user")] = None, limit : Annotated[Optional[StrictInt], Field(description="DEPRECATED, use pageSize instead. if set, only returns the newest up until limit")] = None, exclude_playground : Annotated[Optional[StrictBool], Field(description="if set, excludes playground datasets. Typically set to true when querying for team assets")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> List[DatasetDataEnriched]:  # noqa: E501
-        """get_datasets_enriched  # noqa: E501
+        """Get enriched datasets  # noqa: E501
 
         Get all datasets for a user but enriched with additional information as nTags, nEmbeddings, samples.   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -888,7 +888,7 @@ class DatasetsApi(object):
 
     @validate_arguments
     def get_datasets_enriched_with_http_info(self, shared : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which have been shared with the user")] = None, limit : Annotated[Optional[StrictInt], Field(description="DEPRECATED, use pageSize instead. if set, only returns the newest up until limit")] = None, exclude_playground : Annotated[Optional[StrictBool], Field(description="if set, excludes playground datasets. Typically set to true when querying for team assets")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> ApiResponse:  # noqa: E501
-        """get_datasets_enriched  # noqa: E501
+        """Get enriched datasets  # noqa: E501
 
         Get all datasets for a user but enriched with additional information as nTags, nEmbeddings, samples.   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1059,7 +1059,7 @@ class DatasetsApi(object):
 
     @validate_arguments
     def get_datasets_enriched_query_by_ids(self, dataset_ids : conlist(StrictStr), **kwargs) -> List[DatasetDataEnriched]:  # noqa: E501
-        """get_datasets_enriched_query_by_ids  # noqa: E501
+        """Query enriched datasets by ids  # noqa: E501
 
         Query for datasets enriched with additional information by their Ids. Includes team and shared datasets. Used for favorite resolving  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1088,7 +1088,7 @@ class DatasetsApi(object):
 
     @validate_arguments
     def get_datasets_enriched_query_by_ids_with_http_info(self, dataset_ids : conlist(StrictStr), **kwargs) -> ApiResponse:  # noqa: E501
-        """get_datasets_enriched_query_by_ids  # noqa: E501
+        """Query enriched datasets by ids  # noqa: E501
 
         Query for datasets enriched with additional information by their Ids. Includes team and shared datasets. Used for favorite resolving  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1206,7 +1206,7 @@ class DatasetsApi(object):
 
     @validate_arguments
     def get_datasets_enriched_query_by_name(self, dataset_name : constr(strict=True, min_length=1), shared : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which have been shared with the user")] = None, exact : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which match the name exactly (not just by prefix)")] = None, exclude_playground : Annotated[Optional[StrictBool], Field(description="if set, excludes playground datasets. Typically set to true when querying for team assets")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> List[DatasetDataEnriched]:  # noqa: E501
-        """get_datasets_enriched_query_by_name  # noqa: E501
+        """Query enriched datasets by name  # noqa: E501
 
         Query for datasets  enriched with additional information by their name prefix unless exact flag is set  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1249,7 +1249,7 @@ class DatasetsApi(object):
 
     @validate_arguments
     def get_datasets_enriched_query_by_name_with_http_info(self, dataset_name : constr(strict=True, min_length=1), shared : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which have been shared with the user")] = None, exact : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which match the name exactly (not just by prefix)")] = None, exclude_playground : Annotated[Optional[StrictBool], Field(description="if set, excludes playground datasets. Typically set to true when querying for team assets")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> ApiResponse:  # noqa: E501
-        """get_datasets_enriched_query_by_name  # noqa: E501
+        """Query enriched datasets by name  # noqa: E501
 
         Query for datasets  enriched with additional information by their name prefix unless exact flag is set  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1426,7 +1426,7 @@ class DatasetsApi(object):
 
     @validate_arguments
     def get_datasets_query_by_name(self, dataset_name : constr(strict=True, min_length=1), shared : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which have been shared with the user")] = None, exact : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which match the name exactly (not just by prefix)")] = None, exclude_playground : Annotated[Optional[StrictBool], Field(description="if set, excludes playground datasets. Typically set to true when querying for team assets")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> List[DatasetData]:  # noqa: E501
-        """get_datasets_query_by_name  # noqa: E501
+        """Query datasets by name  # noqa: E501
 
         Query for datasets by their name prefix unless exact flag is set  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1469,7 +1469,7 @@ class DatasetsApi(object):
 
     @validate_arguments
     def get_datasets_query_by_name_with_http_info(self, dataset_name : constr(strict=True, min_length=1), shared : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which have been shared with the user")] = None, exact : Annotated[Optional[StrictBool], Field(description="if set, only returns the datasets which match the name exactly (not just by prefix)")] = None, exclude_playground : Annotated[Optional[StrictBool], Field(description="if set, excludes playground datasets. Typically set to true when querying for team assets")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, **kwargs) -> ApiResponse:  # noqa: E501
-        """get_datasets_query_by_name  # noqa: E501
+        """Query datasets by name  # noqa: E501
 
         Query for datasets by their name prefix unless exact flag is set  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1646,7 +1646,7 @@ class DatasetsApi(object):
 
     @validate_arguments
     def register_dataset_upload_by_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], job_status_meta : JobStatusMeta, **kwargs) -> None:  # noqa: E501
-        """register_dataset_upload_by_id  # noqa: E501
+        """Register dataset upload  # noqa: E501
 
         Registers a job to track the dataset upload  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1677,7 +1677,7 @@ class DatasetsApi(object):
 
     @validate_arguments
     def register_dataset_upload_by_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], job_status_meta : JobStatusMeta, **kwargs) -> ApiResponse:  # noqa: E501
-        """register_dataset_upload_by_id  # noqa: E501
+        """Register dataset upload  # noqa: E501
 
         Registers a job to track the dataset upload  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1798,7 +1798,7 @@ class DatasetsApi(object):
 
     @validate_arguments
     def update_dataset_by_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], dataset_update_request : Annotated[DatasetUpdateRequest, Field(..., description="updated data for dataset")], **kwargs) -> None:  # noqa: E501
-        """update_dataset_by_id  # noqa: E501
+        """Update dataset by id  # noqa: E501
 
         Update a specific dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1829,7 +1829,7 @@ class DatasetsApi(object):
 
     @validate_arguments
     def update_dataset_by_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], dataset_update_request : Annotated[DatasetUpdateRequest, Field(..., description="updated data for dataset")], **kwargs) -> ApiResponse:  # noqa: E501
-        """update_dataset_by_id  # noqa: E501
+        """Update dataset by id  # noqa: E501
 
         Update a specific dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an

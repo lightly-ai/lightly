@@ -62,7 +62,7 @@ class ScoresApi(object):
 
     @validate_arguments
     def create_or_update_active_learning_score_by_tag_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], active_learning_score_create_request : ActiveLearningScoreCreateRequest, **kwargs) -> CreateEntityResponse:  # noqa: E501
-        """(Deprecated) create_or_update_active_learning_score_by_tag_id  # noqa: E501
+        """(Deprecated) Create or update AL score by tag id  # noqa: E501
 
         Create or update active learning score object by tag id  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -95,7 +95,7 @@ class ScoresApi(object):
 
     @validate_arguments
     def create_or_update_active_learning_score_by_tag_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], active_learning_score_create_request : ActiveLearningScoreCreateRequest, **kwargs) -> ApiResponse:  # noqa: E501
-        """(Deprecated) create_or_update_active_learning_score_by_tag_id  # noqa: E501
+        """(Deprecated) Create or update AL score by tag id  # noqa: E501
 
         Create or update active learning score object by tag id  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -230,7 +230,7 @@ class ScoresApi(object):
 
     @validate_arguments
     def create_or_update_active_learning_v2_score_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], task_name : Annotated[constr(strict=True), Field(..., description="The prediction task name for which one wants to list the predictions")], active_learning_score_create_request : ActiveLearningScoreCreateRequest, prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, **kwargs) -> CreateEntityResponse:  # noqa: E501
-        """create_or_update_active_learning_v2_score_by_dataset_id  # noqa: E501
+        """Create or update AL score by dataset id  # noqa: E501
 
         Create or update active learning score object for a dataset, taskName, predictionUUIDTimestamp  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -265,7 +265,7 @@ class ScoresApi(object):
 
     @validate_arguments
     def create_or_update_active_learning_v2_score_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], task_name : Annotated[constr(strict=True), Field(..., description="The prediction task name for which one wants to list the predictions")], active_learning_score_create_request : ActiveLearningScoreCreateRequest, prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, **kwargs) -> ApiResponse:  # noqa: E501
-        """create_or_update_active_learning_v2_score_by_dataset_id  # noqa: E501
+        """Create or update AL score by dataset id  # noqa: E501
 
         Create or update active learning score object for a dataset, taskName, predictionUUIDTimestamp  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -410,7 +410,7 @@ class ScoresApi(object):
 
     @validate_arguments
     def get_active_learning_score_by_score_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], score_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the scores")], **kwargs) -> ActiveLearningScoreData:  # noqa: E501
-        """(Deprecated) get_active_learning_score_by_score_id  # noqa: E501
+        """(Deprecated) Get AL score by score id  # noqa: E501
 
         Get active learning score object by id  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -443,7 +443,7 @@ class ScoresApi(object):
 
     @validate_arguments
     def get_active_learning_score_by_score_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], score_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the scores")], **kwargs) -> ApiResponse:  # noqa: E501
-        """(Deprecated) get_active_learning_score_by_score_id  # noqa: E501
+        """(Deprecated) Get AL score by score id  # noqa: E501
 
         Get active learning score object by id  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -571,7 +571,7 @@ class ScoresApi(object):
 
     @validate_arguments
     def get_active_learning_scores_by_tag_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], **kwargs) -> List[TagActiveLearningScoresData]:  # noqa: E501
-        """(Deprecated) get_active_learning_scores_by_tag_id  # noqa: E501
+        """(Deprecated) Get AL scores by tag id  # noqa: E501
 
         Get all scoreIds for the given tag  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -602,7 +602,7 @@ class ScoresApi(object):
 
     @validate_arguments
     def get_active_learning_scores_by_tag_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], tag_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the tag")], **kwargs) -> ApiResponse:  # noqa: E501
-        """(Deprecated) get_active_learning_scores_by_tag_id  # noqa: E501
+        """(Deprecated) Get AL scores by tag id  # noqa: E501
 
         Get all scoreIds for the given tag  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -724,7 +724,7 @@ class ScoresApi(object):
 
     @validate_arguments
     def get_active_learning_v2_score_by_dataset_and_score_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], score_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the scores")], **kwargs) -> ActiveLearningScoreV2Data:  # noqa: E501
-        """get_active_learning_v2_score_by_dataset_and_score_id  # noqa: E501
+        """Get AL score by score id  # noqa: E501
 
         Get active learning scores by scoreId  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -755,7 +755,7 @@ class ScoresApi(object):
 
     @validate_arguments
     def get_active_learning_v2_score_by_dataset_and_score_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], score_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the scores")], **kwargs) -> ApiResponse:  # noqa: E501
-        """get_active_learning_v2_score_by_dataset_and_score_id  # noqa: E501
+        """Get AL score by score id  # noqa: E501
 
         Get active learning scores by scoreId  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -875,7 +875,7 @@ class ScoresApi(object):
 
     @validate_arguments
     def get_active_learning_v2_scores_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, **kwargs) -> List[ActiveLearningScoreTypesV2Data]:  # noqa: E501
-        """get_active_learning_v2_scores_by_dataset_id  # noqa: E501
+        """Get AL score types by dataset id  # noqa: E501
 
         Get all AL score types by datasetId and predictionUUIDTimestamp  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -906,7 +906,7 @@ class ScoresApi(object):
 
     @validate_arguments
     def get_active_learning_v2_scores_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], prediction_uuid_timestamp : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Deprecated, currently ignored. The timestamp of when the actual predictions were created. This is used as a peg to version predictions. E.g one could upload predictions on day 1 and then create new predictions with an improved model on day 30. One can then upload the new predictions to the same dataset. ")] = None, **kwargs) -> ApiResponse:  # noqa: E501
-        """get_active_learning_v2_scores_by_dataset_id  # noqa: E501
+        """Get AL score types by dataset id  # noqa: E501
 
         Get all AL score types by datasetId and predictionUUIDTimestamp  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an

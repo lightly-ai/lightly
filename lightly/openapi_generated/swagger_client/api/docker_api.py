@@ -85,7 +85,7 @@ class DockerApi(object):
 
     @validate_arguments
     def cancel_scheduled_docker_run_state_by_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], scheduled_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker run")], **kwargs) -> None:  # noqa: E501
-        """cancel_scheduled_docker_run_state_by_id  # noqa: E501
+        """Cancel scheduled run  # noqa: E501
 
         Cancel a scheduled run. This will fail if the state of the scheduled run is no longer OPEN (e.g when it is LOCKED)   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -116,7 +116,7 @@ class DockerApi(object):
 
     @validate_arguments
     def cancel_scheduled_docker_run_state_by_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], scheduled_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker run")], **kwargs) -> ApiResponse:  # noqa: E501
-        """cancel_scheduled_docker_run_state_by_id  # noqa: E501
+        """Cancel scheduled run  # noqa: E501
 
         Cancel a scheduled run. This will fail if the state of the scheduled run is no longer OPEN (e.g when it is LOCKED)   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -230,7 +230,7 @@ class DockerApi(object):
 
     @validate_arguments
     def confirm_docker_run_artifact_creation(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], artifact_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the artifact of the docker run")], **kwargs) -> None:  # noqa: E501
-        """confirm_docker_run_artifact_creation  # noqa: E501
+        """Confirm run artifact upload  # noqa: E501
 
         confirm that the docker run artifact has been uploaded and is available  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -261,7 +261,7 @@ class DockerApi(object):
 
     @validate_arguments
     def confirm_docker_run_artifact_creation_with_http_info(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], artifact_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the artifact of the docker run")], **kwargs) -> ApiResponse:  # noqa: E501
-        """confirm_docker_run_artifact_creation  # noqa: E501
+        """Confirm run artifact upload  # noqa: E501
 
         confirm that the docker run artifact has been uploaded and is available  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -375,7 +375,7 @@ class DockerApi(object):
 
     @validate_arguments
     def create_docker_run(self, docker_run_create_request : DockerRunCreateRequest, **kwargs) -> CreateEntityResponse:  # noqa: E501
-        """create_docker_run  # noqa: E501
+        """Create docker run  # noqa: E501
 
         Creates a new docker run database entry.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -404,7 +404,7 @@ class DockerApi(object):
 
     @validate_arguments
     def create_docker_run_with_http_info(self, docker_run_create_request : DockerRunCreateRequest, **kwargs) -> ApiResponse:  # noqa: E501
-        """create_docker_run  # noqa: E501
+        """Create docker run  # noqa: E501
 
         Creates a new docker run database entry.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -525,7 +525,7 @@ class DockerApi(object):
 
     @validate_arguments
     def create_docker_run_artifact(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], docker_run_artifact_create_request : DockerRunArtifactCreateRequest, **kwargs) -> DockerRunArtifactCreatedData:  # noqa: E501
-        """create_docker_run_artifact  # noqa: E501
+        """Create run artifact  # noqa: E501
 
         creates a docker run artifact and returns the writeUrl and artifactId to upload and confirm  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -556,7 +556,7 @@ class DockerApi(object):
 
     @validate_arguments
     def create_docker_run_artifact_with_http_info(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], docker_run_artifact_create_request : DockerRunArtifactCreateRequest, **kwargs) -> ApiResponse:  # noqa: E501
-        """create_docker_run_artifact  # noqa: E501
+        """Create run artifact  # noqa: E501
 
         creates a docker run artifact and returns the writeUrl and artifactId to upload and confirm  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -683,7 +683,7 @@ class DockerApi(object):
 
     @validate_arguments
     def create_docker_run_log_by_id(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], docker_run_log_create_entry_data : conlist(DockerRunLogCreateEntryData), **kwargs) -> None:  # noqa: E501
-        """create_docker_run_log_by_id  # noqa: E501
+        """Create run log  # noqa: E501
 
         Creates a new log msg for a docker run database entry.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -714,7 +714,7 @@ class DockerApi(object):
 
     @validate_arguments
     def create_docker_run_log_by_id_with_http_info(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], docker_run_log_create_entry_data : conlist(DockerRunLogCreateEntryData), **kwargs) -> ApiResponse:  # noqa: E501
-        """create_docker_run_log_by_id  # noqa: E501
+        """Create run log  # noqa: E501
 
         Creates a new log msg for a docker run database entry.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -835,7 +835,7 @@ class DockerApi(object):
 
     @validate_arguments
     def create_docker_run_scheduled_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], docker_run_scheduled_create_request : DockerRunScheduledCreateRequest, disable_config_validation : Annotated[Optional[StrictBool], Field(description="if set, disables the sanity check and validation where we check if the provided configuration can run on your datasource e.g     if predictions are used, we check that the bucket structure + tasks.json, schema.json are correct     if metadata is used, we check that the bucket structure + schema.json are correct     if relevantFilenamesFile is set, we check that the file exists ")] = None, **kwargs) -> CreateEntityResponse:  # noqa: E501
-        """create_docker_run_scheduled_by_dataset_id  # noqa: E501
+        """Schedule run by dataset id  # noqa: E501
 
         Schedule a docker run by dataset id. With docker runs it's possible to process unlabeled images from a datasource and use active learning to select the most relevant samples for further processing and visualization in the web app   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -868,7 +868,7 @@ class DockerApi(object):
 
     @validate_arguments
     def create_docker_run_scheduled_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], docker_run_scheduled_create_request : DockerRunScheduledCreateRequest, disable_config_validation : Annotated[Optional[StrictBool], Field(description="if set, disables the sanity check and validation where we check if the provided configuration can run on your datasource e.g     if predictions are used, we check that the bucket structure + tasks.json, schema.json are correct     if metadata is used, we check that the bucket structure + schema.json are correct     if relevantFilenamesFile is set, we check that the file exists ")] = None, **kwargs) -> ApiResponse:  # noqa: E501
-        """create_docker_run_scheduled_by_dataset_id  # noqa: E501
+        """Schedule run by dataset id  # noqa: E501
 
         Schedule a docker run by dataset id. With docker runs it's possible to process unlabeled images from a datasource and use active learning to select the most relevant samples for further processing and visualization in the web app   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1003,7 +1003,7 @@ class DockerApi(object):
 
     @validate_arguments
     def create_docker_worker_config(self, docker_worker_config_create_request : DockerWorkerConfigCreateRequest, **kwargs) -> CreateEntityResponse:  # noqa: E501
-        """(Deprecated) create_docker_worker_config  # noqa: E501
+        """(Deprecated) Create worker configuration  # noqa: E501
 
         Creates a docker worker configuration.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1032,7 +1032,7 @@ class DockerApi(object):
 
     @validate_arguments
     def create_docker_worker_config_with_http_info(self, docker_worker_config_create_request : DockerWorkerConfigCreateRequest, **kwargs) -> ApiResponse:  # noqa: E501
-        """(Deprecated) create_docker_worker_config  # noqa: E501
+        """(Deprecated) Create worker configuration  # noqa: E501
 
         Creates a docker worker configuration.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1154,7 +1154,7 @@ class DockerApi(object):
 
     @validate_arguments
     def create_docker_worker_config_v2(self, docker_worker_config_v2_create_request : DockerWorkerConfigV2CreateRequest, **kwargs) -> CreateEntityResponse:  # noqa: E501
-        """(Deprecated) create_docker_worker_config_v2  # noqa: E501
+        """(Deprecated) Create worker v2 configuration  # noqa: E501
 
         Creates a docker worker v2 configuration.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1183,7 +1183,7 @@ class DockerApi(object):
 
     @validate_arguments
     def create_docker_worker_config_v2_with_http_info(self, docker_worker_config_v2_create_request : DockerWorkerConfigV2CreateRequest, **kwargs) -> ApiResponse:  # noqa: E501
-        """(Deprecated) create_docker_worker_config_v2  # noqa: E501
+        """(Deprecated) Create worker v2 configuration  # noqa: E501
 
         Creates a docker worker v2 configuration.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1305,7 +1305,7 @@ class DockerApi(object):
 
     @validate_arguments
     def create_docker_worker_config_v3(self, docker_worker_config_v3_create_request : DockerWorkerConfigV3CreateRequest, **kwargs) -> CreateEntityResponse:  # noqa: E501
-        """(Deprecated) create_docker_worker_config_v3  # noqa: E501
+        """(Deprecated) Create worker v3 configuration  # noqa: E501
 
         Creates a docker worker v3 configuration.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1334,7 +1334,7 @@ class DockerApi(object):
 
     @validate_arguments
     def create_docker_worker_config_v3_with_http_info(self, docker_worker_config_v3_create_request : DockerWorkerConfigV3CreateRequest, **kwargs) -> ApiResponse:  # noqa: E501
-        """(Deprecated) create_docker_worker_config_v3  # noqa: E501
+        """(Deprecated) Create worker v3 configuration  # noqa: E501
 
         Creates a docker worker v3 configuration.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1456,7 +1456,7 @@ class DockerApi(object):
 
     @validate_arguments
     def create_docker_worker_config_vx(self, docker_worker_config_omni_vx_create_request : DockerWorkerConfigOmniVXCreateRequest, **kwargs) -> CreateEntityResponse:  # noqa: E501
-        """create_docker_worker_config_vx  # noqa: E501
+        """Create worker configuration  # noqa: E501
 
         Creates a docker worker configuration for any version. Can either be V2, V3, V4, V5 etc.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1485,7 +1485,7 @@ class DockerApi(object):
 
     @validate_arguments
     def create_docker_worker_config_vx_with_http_info(self, docker_worker_config_omni_vx_create_request : DockerWorkerConfigOmniVXCreateRequest, **kwargs) -> ApiResponse:  # noqa: E501
-        """create_docker_worker_config_vx  # noqa: E501
+        """Create worker configuration  # noqa: E501
 
         Creates a docker worker configuration for any version. Can either be V2, V3, V4, V5 etc.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1605,7 +1605,7 @@ class DockerApi(object):
 
     @validate_arguments
     def delete_docker_worker_registry_entry_by_id(self, worker_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker")], **kwargs) -> None:  # noqa: E501
-        """delete_docker_worker_registry_entry_by_id  # noqa: E501
+        """Delete registered worker  # noqa: E501
 
         Deletes a worker registry entry by id.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1634,7 +1634,7 @@ class DockerApi(object):
 
     @validate_arguments
     def delete_docker_worker_registry_entry_by_id_with_http_info(self, worker_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker")], **kwargs) -> ApiResponse:  # noqa: E501
-        """delete_docker_worker_registry_entry_by_id  # noqa: E501
+        """Delete registered worker  # noqa: E501
 
         Deletes a worker registry entry by id.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1742,7 +1742,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_default_or_register_worker(self, **kwargs) -> DockerWorkerRegistryEntryData:  # noqa: E501
-        """get_default_or_register_worker  # noqa: E501
+        """Get or register default worker  # noqa: E501
 
         Return a free default worker or register a new worker if no default worker exists.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1769,7 +1769,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_default_or_register_worker_with_http_info(self, **kwargs) -> ApiResponse:  # noqa: E501
-        """get_default_or_register_worker  # noqa: E501
+        """Get or register default worker  # noqa: E501
 
         Return a free default worker or register a new worker if no default worker exists.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1876,7 +1876,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_license_information(self, **kwargs) -> DockerLicenseInformation:  # noqa: E501
-        """get_docker_license_information  # noqa: E501
+        """Get license information  # noqa: E501
 
         Requests license information to run the container.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1903,7 +1903,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_license_information_with_http_info(self, **kwargs) -> ApiResponse:  # noqa: E501
-        """get_docker_license_information  # noqa: E501
+        """Get license information  # noqa: E501
 
         Requests license information to run the container.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -2010,7 +2010,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_run_artifact_read_url_by_id(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], artifact_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the artifact of the docker run")], **kwargs) -> str:  # noqa: E501
-        """get_docker_run_artifact_read_url_by_id  # noqa: E501
+        """Get run artifact read URL  # noqa: E501
 
         Get the url of a specific docker runs artifact  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -2041,7 +2041,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_run_artifact_read_url_by_id_with_http_info(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], artifact_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the artifact of the docker run")], **kwargs) -> ApiResponse:  # noqa: E501
-        """get_docker_run_artifact_read_url_by_id  # noqa: E501
+        """Get run artifact read URL  # noqa: E501
 
         Get the url of a specific docker runs artifact  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -2161,7 +2161,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_run_by_id(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], **kwargs) -> DockerRunData:  # noqa: E501
-        """get_docker_run_by_id  # noqa: E501
+        """Get run by id  # noqa: E501
 
         Gets a docker run by docker run id.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -2190,7 +2190,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_run_by_id_with_http_info(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], **kwargs) -> ApiResponse:  # noqa: E501
-        """get_docker_run_by_id  # noqa: E501
+        """Get run by id  # noqa: E501
 
         Gets a docker run by docker run id.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -2304,7 +2304,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_run_by_scheduled_id(self, scheduled_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker run")], **kwargs) -> DockerRunData:  # noqa: E501
-        """get_docker_run_by_scheduled_id  # noqa: E501
+        """Get run by scheduled id  # noqa: E501
 
         Retrieves the associated docker run of a scheduled run; returns the docker run by the id of the scheduled run which caused this docker run. If a scheduled docker run has not yet started being processed by a worker, a 404 will be returned.   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -2333,7 +2333,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_run_by_scheduled_id_with_http_info(self, scheduled_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker run")], **kwargs) -> ApiResponse:  # noqa: E501
-        """get_docker_run_by_scheduled_id  # noqa: E501
+        """Get run by scheduled id  # noqa: E501
 
         Retrieves the associated docker run of a scheduled run; returns the docker run by the id of the scheduled run which caused this docker run. If a scheduled docker run has not yet started being processed by a worker, a 404 will be returned.   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -2447,7 +2447,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_run_logs_by_id(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], cursor : Annotated[Optional[conint(strict=True, ge=0)], Field(description="the cursor of where the logs last were")] = None, **kwargs) -> DockerRunLogData:  # noqa: E501
-        """get_docker_run_logs_by_id  # noqa: E501
+        """Get run logs  # noqa: E501
 
         Gets the logs of a docker run by docker run id.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -2478,7 +2478,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_run_logs_by_id_with_http_info(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], cursor : Annotated[Optional[conint(strict=True, ge=0)], Field(description="the cursor of where the logs last were")] = None, **kwargs) -> ApiResponse:  # noqa: E501
-        """get_docker_run_logs_by_id  # noqa: E501
+        """Get run logs  # noqa: E501
 
         Gets the logs of a docker run by docker run id.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -2601,7 +2601,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_run_report_read_url_by_id(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], **kwargs) -> str:  # noqa: E501
-        """(Deprecated) get_docker_run_report_read_url_by_id  # noqa: E501
+        """(Deprecated) Get run report read URL  # noqa: E501
 
         DEPRECATED, use getDockerRunArtifactReadUrlById - Get the url of a specific docker runs report  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -2630,7 +2630,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_run_report_read_url_by_id_with_http_info(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], **kwargs) -> ApiResponse:  # noqa: E501
-        """(Deprecated) get_docker_run_report_read_url_by_id  # noqa: E501
+        """(Deprecated) Get run report read URL  # noqa: E501
 
         DEPRECATED, use getDockerRunArtifactReadUrlById - Get the url of a specific docker runs report  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -2746,7 +2746,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_run_report_write_url_by_id(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], **kwargs) -> str:  # noqa: E501
-        """(Deprecated) get_docker_run_report_write_url_by_id  # noqa: E501
+        """(Deprecated) Get run report write URL  # noqa: E501
 
         DEPRECATED, use createDockerRunArtifact - Get the signed url to upload a report of a docker run  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -2775,7 +2775,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_run_report_write_url_by_id_with_http_info(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], **kwargs) -> ApiResponse:  # noqa: E501
-        """(Deprecated) get_docker_run_report_write_url_by_id  # noqa: E501
+        """(Deprecated) Get run report write URL  # noqa: E501
 
         DEPRECATED, use createDockerRunArtifact - Get the signed url to upload a report of a docker run  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -2891,7 +2891,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_run_tags(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], **kwargs) -> List[TagData]:  # noqa: E501
-        """get_docker_run_tags  # noqa: E501
+        """Get run tags  # noqa: E501
 
         Gets all tags which were created from a docker run by docker run id.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -2920,7 +2920,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_run_tags_with_http_info(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], **kwargs) -> ApiResponse:  # noqa: E501
-        """get_docker_run_tags  # noqa: E501
+        """Get run tags  # noqa: E501
 
         Gets all tags which were created from a docker run by docker run id.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -3034,7 +3034,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_runs(self, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, show_archived : Annotated[Optional[StrictBool], Field(description="if this flag is true, we also get the archived assets")] = None, **kwargs) -> List[DockerRunData]:  # noqa: E501
-        """get_docker_runs  # noqa: E501
+        """Get Docker runs  # noqa: E501
 
         Gets all docker runs for a user.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -3071,7 +3071,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_runs_with_http_info(self, page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, show_archived : Annotated[Optional[StrictBool], Field(description="if this flag is true, we also get the archived assets")] = None, **kwargs) -> ApiResponse:  # noqa: E501
-        """get_docker_runs  # noqa: E501
+        """Get Docker runs  # noqa: E501
 
         Gets all docker runs for a user.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -3224,7 +3224,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_runs_count(self, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, show_archived : Annotated[Optional[StrictBool], Field(description="if this flag is true, we also get the archived assets")] = None, **kwargs) -> str:  # noqa: E501
-        """get_docker_runs_count  # noqa: E501
+        """Get runs count  # noqa: E501
 
         Gets the total count of the amount of runs existing for a user  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -3257,7 +3257,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_runs_count_with_http_info(self, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, show_archived : Annotated[Optional[StrictBool], Field(description="if this flag is true, we also get the archived assets")] = None, **kwargs) -> ApiResponse:  # noqa: E501
-        """get_docker_runs_count  # noqa: E501
+        """Get runs count  # noqa: E501
 
         Gets the total count of the amount of runs existing for a user  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -3392,7 +3392,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_runs_query_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, **kwargs) -> List[DockerRunData]:  # noqa: E501
-        """get_docker_runs_query_by_dataset_id  # noqa: E501
+        """Get runs by dataset id  # noqa: E501
 
         Get all docker runs of a user by dataset id  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -3429,7 +3429,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_runs_query_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], page_size : Annotated[Optional[conint(strict=True, ge=1)], Field(description="pagination size/limit of the number of samples to return")] = None, page_offset : Annotated[Optional[conint(strict=True, ge=0)], Field(description="pagination offset")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, **kwargs) -> ApiResponse:  # noqa: E501
-        """get_docker_runs_query_by_dataset_id  # noqa: E501
+        """Get runs by dataset id  # noqa: E501
 
         Get all docker runs of a user by dataset id  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -3578,7 +3578,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_runs_scheduled_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], state : Optional[DockerRunScheduledState] = None, states : Optional[conlist(DockerRunScheduledState)] = None, **kwargs) -> List[DockerRunScheduledData]:  # noqa: E501
-        """get_docker_runs_scheduled_by_dataset_id  # noqa: E501
+        """Get scheduled runs by dataset id  # noqa: E501
 
         Get all scheduled docker runs by dataset id. If no state(s) is specified, returns runs which have not yet finished (neither DONE or CANCELED).  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -3611,7 +3611,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_runs_scheduled_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], state : Optional[DockerRunScheduledState] = None, states : Optional[conlist(DockerRunScheduledState)] = None, **kwargs) -> ApiResponse:  # noqa: E501
-        """get_docker_runs_scheduled_by_dataset_id  # noqa: E501
+        """Get scheduled runs by dataset id  # noqa: E501
 
         Get all scheduled docker runs by dataset id. If no state(s) is specified, returns runs which have not yet finished (neither DONE or CANCELED).  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -3743,7 +3743,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_runs_scheduled_by_state_and_labels(self, state : Optional[DockerRunScheduledState] = None, labels : Optional[conlist(StrictStr)] = None, version : Optional[StrictStr] = None, include_unlockable_runs : Annotated[Optional[StrictBool], Field(description="Unlockable runs are runs which can't be locked due to e.g another run with the same datasetId being locked/processed. This safeguards two workers processing the same dataset. Only has an effect if querying for runs with state=OPEN ")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, **kwargs) -> List[DockerRunScheduledData]:  # noqa: E501
-        """get_docker_runs_scheduled_by_state_and_labels  # noqa: E501
+        """Get scheduled runs  # noqa: E501
 
         Get all scheduled docker runs of the user. Additionally, you can filter by state.  Furthermore, you can filter by only providing labels and only return scheduled runs whose runsOn labels are included in the provided labels. Runs are filtered by the provided version parameter. Version parameter set to * returns all configs   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -3782,7 +3782,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_runs_scheduled_by_state_and_labels_with_http_info(self, state : Optional[DockerRunScheduledState] = None, labels : Optional[conlist(StrictStr)] = None, version : Optional[StrictStr] = None, include_unlockable_runs : Annotated[Optional[StrictBool], Field(description="Unlockable runs are runs which can't be locked due to e.g another run with the same datasetId being locked/processed. This safeguards two workers processing the same dataset. Only has an effect if querying for runs with state=OPEN ")] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, **kwargs) -> ApiResponse:  # noqa: E501
-        """get_docker_runs_scheduled_by_state_and_labels  # noqa: E501
+        """Get scheduled runs  # noqa: E501
 
         Get all scheduled docker runs of the user. Additionally, you can filter by state.  Furthermore, you can filter by only providing labels and only return scheduled runs whose runsOn labels are included in the provided labels. Runs are filtered by the provided version parameter. Version parameter set to * returns all configs   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -3944,7 +3944,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_runs_scheduled_by_worker_id(self, worker_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker")], state : Optional[DockerRunScheduledState] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, **kwargs) -> List[DockerRunScheduledData]:  # noqa: E501
-        """get_docker_runs_scheduled_by_worker_id  # noqa: E501
+        """Get a workers scheduled runs  # noqa: E501
 
         Get all scheduled runs that might be picked up by the worker with that workerId.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -3979,7 +3979,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_runs_scheduled_by_worker_id_with_http_info(self, worker_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker")], state : Optional[DockerRunScheduledState] = None, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, **kwargs) -> ApiResponse:  # noqa: E501
-        """get_docker_runs_scheduled_by_worker_id  # noqa: E501
+        """Get a workers scheduled runs  # noqa: E501
 
         Get all scheduled runs that might be picked up by the worker with that workerId.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -4119,7 +4119,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_worker_config_by_id(self, config_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker config")], **kwargs) -> DockerWorkerConfigV0Data:  # noqa: E501
-        """(Deprecated) get_docker_worker_config_by_id  # noqa: E501
+        """(Deprecated) Get worker configuration  # noqa: E501
 
         Gets a docker worker configuration by id. It will try to return the config version but expects (and will fail if not) the config to be of v0   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -4148,7 +4148,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_worker_config_by_id_with_http_info(self, config_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker config")], **kwargs) -> ApiResponse:  # noqa: E501
-        """(Deprecated) get_docker_worker_config_by_id  # noqa: E501
+        """(Deprecated) Get worker configuration  # noqa: E501
 
         Gets a docker worker configuration by id. It will try to return the config version but expects (and will fail if not) the config to be of v0   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -4263,7 +4263,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_worker_config_v2_by_id(self, config_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker config")], **kwargs) -> DockerWorkerConfigV2Data:  # noqa: E501
-        """(Deprecated) get_docker_worker_config_v2_by_id  # noqa: E501
+        """(Deprecated) Get worker v2 configuration  # noqa: E501
 
         Gets a docker worker configuration by id which needs to be v2   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -4292,7 +4292,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_worker_config_v2_by_id_with_http_info(self, config_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker config")], **kwargs) -> ApiResponse:  # noqa: E501
-        """(Deprecated) get_docker_worker_config_v2_by_id  # noqa: E501
+        """(Deprecated) Get worker v2 configuration  # noqa: E501
 
         Gets a docker worker configuration by id which needs to be v2   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -4407,7 +4407,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_worker_config_v3_by_id(self, config_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker config")], **kwargs) -> DockerWorkerConfigV3Data:  # noqa: E501
-        """(Deprecated) get_docker_worker_config_v3_by_id  # noqa: E501
+        """(Deprecated) Get worker v3 configuration  # noqa: E501
 
         Gets a docker worker configuration by id which needs to be v3   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -4436,7 +4436,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_worker_config_v3_by_id_with_http_info(self, config_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker config")], **kwargs) -> ApiResponse:  # noqa: E501
-        """(Deprecated) get_docker_worker_config_v3_by_id  # noqa: E501
+        """(Deprecated) Get worker v3 configuration  # noqa: E501
 
         Gets a docker worker configuration by id which needs to be v3   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -4551,7 +4551,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_worker_config_vxby_id(self, config_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker config")], **kwargs) -> DockerWorkerConfigVXData:  # noqa: E501
-        """get_docker_worker_config_vxby_id  # noqa: E501
+        """Get worker configuration  # noqa: E501
 
         Gets a docker worker configuration by id. It will return whichever config version the configId corresponds to.   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -4580,7 +4580,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_worker_config_vxby_id_with_http_info(self, config_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker config")], **kwargs) -> ApiResponse:  # noqa: E501
-        """get_docker_worker_config_vxby_id  # noqa: E501
+        """Get worker configuration  # noqa: E501
 
         Gets a docker worker configuration by id. It will return whichever config version the configId corresponds to.   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -4693,7 +4693,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_worker_configs(self, **kwargs) -> List[DockerWorkerConfigV0Data]:  # noqa: E501
-        """(Deprecated) get_docker_worker_configs  # noqa: E501
+        """(Deprecated) Get worker configurations  # noqa: E501
 
         Get docker worker configurations.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -4720,7 +4720,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_worker_configs_with_http_info(self, **kwargs) -> ApiResponse:  # noqa: E501
-        """(Deprecated) get_docker_worker_configs  # noqa: E501
+        """(Deprecated) Get worker configurations  # noqa: E501
 
         Get docker worker configurations.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -4829,7 +4829,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_worker_registry_entries(self, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, **kwargs) -> List[DockerWorkerRegistryEntryData]:  # noqa: E501
-        """get_docker_worker_registry_entries  # noqa: E501
+        """Get registered workers  # noqa: E501
 
         Returns all worker registry entries for a given user.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -4860,7 +4860,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_worker_registry_entries_with_http_info(self, get_assets_of_team : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user rather than the assets of the user")] = None, get_assets_of_team_inclusive_self : Annotated[Optional[StrictBool], Field(description="if this flag is true, we get the relevant asset of the team of the user including the assets of the user")] = None, **kwargs) -> ApiResponse:  # noqa: E501
-        """get_docker_worker_registry_entries  # noqa: E501
+        """Get registered workers  # noqa: E501
 
         Returns all worker registry entries for a given user.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -4985,7 +4985,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_worker_registry_entry_by_id(self, worker_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker")], **kwargs) -> DockerWorkerRegistryEntryData:  # noqa: E501
-        """get_docker_worker_registry_entry_by_id  # noqa: E501
+        """Get registered worker  # noqa: E501
 
         Returns worker registry entry by id.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -5014,7 +5014,7 @@ class DockerApi(object):
 
     @validate_arguments
     def get_docker_worker_registry_entry_by_id_with_http_info(self, worker_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker")], **kwargs) -> ApiResponse:  # noqa: E501
-        """get_docker_worker_registry_entry_by_id  # noqa: E501
+        """Get registered worker  # noqa: E501
 
         Returns worker registry entry by id.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -5127,9 +5127,9 @@ class DockerApi(object):
 
     @validate_arguments
     def post_docker_authorization_request(self, docker_authorization_request : DockerAuthorizationRequest, **kwargs) -> DockerAuthorizationResponse:  # noqa: E501
-        """post_docker_authorization_request  # noqa: E501
+        """(Deprecated) Authorize Docker container  # noqa: E501
 
-        Performs an authorization to run the container.  # noqa: E501
+        Deprecated, use postDockerWorkerAuthorizationRequest. Performs an authorization to run the container.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -5156,9 +5156,9 @@ class DockerApi(object):
 
     @validate_arguments
     def post_docker_authorization_request_with_http_info(self, docker_authorization_request : DockerAuthorizationRequest, **kwargs) -> ApiResponse:  # noqa: E501
-        """post_docker_authorization_request  # noqa: E501
+        """(Deprecated) Authorize Docker container  # noqa: E501
 
-        Performs an authorization to run the container.  # noqa: E501
+        Deprecated, use postDockerWorkerAuthorizationRequest. Performs an authorization to run the container.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -5191,6 +5191,8 @@ class DockerApi(object):
                  returns the request thread.
         :rtype: tuple(DockerAuthorizationResponse, status_code(int), headers(HTTPHeaderDict))
         """
+
+        warnings.warn("POST /v1/docker/authorization is deprecated.", DeprecationWarning)
 
         _params = locals()
 
@@ -5276,7 +5278,7 @@ class DockerApi(object):
 
     @validate_arguments
     def post_docker_usage_stats(self, docker_user_stats : DockerUserStats, **kwargs) -> None:  # noqa: E501
-        """post_docker_usage_stats  # noqa: E501
+        """Create docker usage stats  # noqa: E501
 
         Adds a diagnostic entry of user stats.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -5305,7 +5307,7 @@ class DockerApi(object):
 
     @validate_arguments
     def post_docker_usage_stats_with_http_info(self, docker_user_stats : DockerUserStats, **kwargs) -> ApiResponse:  # noqa: E501
-        """post_docker_usage_stats  # noqa: E501
+        """Create docker usage stats  # noqa: E501
 
         Adds a diagnostic entry of user stats.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -5420,7 +5422,7 @@ class DockerApi(object):
 
     @validate_arguments
     def post_docker_worker_authorization_request(self, docker_worker_authorization_request : DockerWorkerAuthorizationRequest, **kwargs) -> str:  # noqa: E501
-        """post_docker_worker_authorization_request  # noqa: E501
+        """Authorize Lightly Worker  # noqa: E501
 
         Performs an authorization to run the Lightly Worker.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -5449,7 +5451,7 @@ class DockerApi(object):
 
     @validate_arguments
     def post_docker_worker_authorization_request_with_http_info(self, docker_worker_authorization_request : DockerWorkerAuthorizationRequest, **kwargs) -> ApiResponse:  # noqa: E501
-        """post_docker_worker_authorization_request  # noqa: E501
+        """Authorize Lightly Worker  # noqa: E501
 
         Performs an authorization to run the Lightly Worker.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -5569,7 +5571,7 @@ class DockerApi(object):
 
     @validate_arguments
     def register_docker_worker(self, create_docker_worker_registry_entry_request : CreateDockerWorkerRegistryEntryRequest, for_user_id : Annotated[Optional[StrictStr], Field(description="The userId for which we want to create the worker for. This is only allowed for users within the same team.")] = None, **kwargs) -> CreateEntityResponse:  # noqa: E501
-        """register_docker_worker  # noqa: E501
+        """Register worker  # noqa: E501
 
         Registers a worker for a user. If a worker with the same name is passed that already exists, the same workerId will be returned  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -5600,7 +5602,7 @@ class DockerApi(object):
 
     @validate_arguments
     def register_docker_worker_with_http_info(self, create_docker_worker_registry_entry_request : CreateDockerWorkerRegistryEntryRequest, for_user_id : Annotated[Optional[StrictStr], Field(description="The userId for which we want to create the worker for. This is only allowed for users within the same team.")] = None, **kwargs) -> ApiResponse:  # noqa: E501
-        """register_docker_worker  # noqa: E501
+        """Register worker  # noqa: E501
 
         Registers a worker for a user. If a worker with the same name is passed that already exists, the same workerId will be returned  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -5729,7 +5731,7 @@ class DockerApi(object):
 
     @validate_arguments
     def update_docker_run_by_id(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], docker_run_update_request : DockerRunUpdateRequest, **kwargs) -> None:  # noqa: E501
-        """update_docker_run_by_id  # noqa: E501
+        """Update run by id  # noqa: E501
 
         Updates a docker run database entry.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -5760,7 +5762,7 @@ class DockerApi(object):
 
     @validate_arguments
     def update_docker_run_by_id_with_http_info(self, run_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker run")], docker_run_update_request : DockerRunUpdateRequest, **kwargs) -> ApiResponse:  # noqa: E501
-        """update_docker_run_by_id  # noqa: E501
+        """Update run by id  # noqa: E501
 
         Updates a docker run database entry.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -5881,7 +5883,7 @@ class DockerApi(object):
 
     @validate_arguments
     def update_docker_worker_config_by_id(self, config_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker config")], docker_worker_config_create_request : DockerWorkerConfigCreateRequest, **kwargs) -> None:  # noqa: E501
-        """(Deprecated) update_docker_worker_config_by_id  # noqa: E501
+        """(Deprecated) Update worker configuration  # noqa: E501
 
         DEPRECATED, DONT USE. Updates a docker worker configuration by id.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -5912,7 +5914,7 @@ class DockerApi(object):
 
     @validate_arguments
     def update_docker_worker_config_by_id_with_http_info(self, config_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker config")], docker_worker_config_create_request : DockerWorkerConfigCreateRequest, **kwargs) -> ApiResponse:  # noqa: E501
-        """(Deprecated) update_docker_worker_config_by_id  # noqa: E501
+        """(Deprecated) Update worker configuration  # noqa: E501
 
         DEPRECATED, DONT USE. Updates a docker worker configuration by id.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -6035,7 +6037,7 @@ class DockerApi(object):
 
     @validate_arguments
     def update_docker_worker_registry_entry_by_id(self, worker_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker")], update_docker_worker_registry_entry_request : UpdateDockerWorkerRegistryEntryRequest, **kwargs) -> None:  # noqa: E501
-        """update_docker_worker_registry_entry_by_id  # noqa: E501
+        """Update worker status  # noqa: E501
 
         Updates the worker status by id.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -6066,7 +6068,7 @@ class DockerApi(object):
 
     @validate_arguments
     def update_docker_worker_registry_entry_by_id_with_http_info(self, worker_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker")], update_docker_worker_registry_entry_request : UpdateDockerWorkerRegistryEntryRequest, **kwargs) -> ApiResponse:  # noqa: E501
-        """update_docker_worker_registry_entry_by_id  # noqa: E501
+        """Update worker status  # noqa: E501
 
         Updates the worker status by id.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -6187,7 +6189,7 @@ class DockerApi(object):
 
     @validate_arguments
     def update_scheduled_docker_run_state_by_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], worker_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker")], scheduled_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker run")], docker_run_scheduled_update_request : DockerRunScheduledUpdateRequest, **kwargs) -> None:  # noqa: E501
-        """update_scheduled_docker_run_state_by_id  # noqa: E501
+        """Update scheduled run state  # noqa: E501
 
         Update the state of a scheduled run. This will fail if the state of the scheduled run is LOCKED.   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -6222,7 +6224,7 @@ class DockerApi(object):
 
     @validate_arguments
     def update_scheduled_docker_run_state_by_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], worker_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker")], scheduled_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the docker worker run")], docker_run_scheduled_update_request : DockerRunScheduledUpdateRequest, **kwargs) -> ApiResponse:  # noqa: E501
-        """update_scheduled_docker_run_state_by_id  # noqa: E501
+        """Update scheduled run state  # noqa: E501
 
         Update the state of a scheduled run. This will fail if the state of the scheduled run is LOCKED.   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an

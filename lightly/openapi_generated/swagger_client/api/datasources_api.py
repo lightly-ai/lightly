@@ -41,6 +41,7 @@ from lightly.openapi_generated.swagger_client.models.datasource_purpose import D
 from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_data import DatasourceRawSamplesData
 from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_metadata_data import DatasourceRawSamplesMetadataData
 from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_predictions_data import DatasourceRawSamplesPredictionsData
+from lightly.openapi_generated.swagger_client.models.divide_and_conquer_cursor_data import DivideAndConquerCursorData
 
 from lightly.openapi_generated.swagger_client.api_client import ApiClient
 from lightly.openapi_generated.swagger_client.api_response import ApiResponse
@@ -64,7 +65,7 @@ class DatasourcesApi(object):
 
     @validate_arguments
     def get_custom_embedding_file_read_url_from_datasource_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], file_name : Annotated[constr(strict=True, min_length=4), Field(..., description="The name of the csv file within the embeddings folder to get the GET readUrl for")], **kwargs) -> str:  # noqa: E501
-        """get_custom_embedding_file_read_url_from_datasource_by_dataset_id  # noqa: E501
+        """Get custom embedding file ReadURL  # noqa: E501
 
         Get the GET ReadURL of a custom embedding csv file within the embeddings folder (e.g myCustomEmbedding.csv)  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -95,7 +96,7 @@ class DatasourcesApi(object):
 
     @validate_arguments
     def get_custom_embedding_file_read_url_from_datasource_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], file_name : Annotated[constr(strict=True, min_length=4), Field(..., description="The name of the csv file within the embeddings folder to get the GET readUrl for")], **kwargs) -> ApiResponse:  # noqa: E501
-        """get_custom_embedding_file_read_url_from_datasource_by_dataset_id  # noqa: E501
+        """Get custom embedding file ReadURL  # noqa: E501
 
         Get the GET ReadURL of a custom embedding csv file within the embeddings folder (e.g myCustomEmbedding.csv)  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -218,7 +219,7 @@ class DatasourcesApi(object):
 
     @validate_arguments
     def get_datasource_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], purpose : Annotated[Optional[DatasourcePurpose], Field(description="Which datasource with which purpose we want to get. Defaults to INPUT_OUTPUT")] = None, **kwargs) -> DatasourceConfig:  # noqa: E501
-        """(Deprecated) get_datasource_by_dataset_id  # noqa: E501
+        """(Deprecated) Get datasource by dataset id  # noqa: E501
 
         DEPRECATED - use getDatasourcesByDatasetId. Get the datasource of a dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -249,7 +250,7 @@ class DatasourcesApi(object):
 
     @validate_arguments
     def get_datasource_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], purpose : Annotated[Optional[DatasourcePurpose], Field(description="Which datasource with which purpose we want to get. Defaults to INPUT_OUTPUT")] = None, **kwargs) -> ApiResponse:  # noqa: E501
-        """(Deprecated) get_datasource_by_dataset_id  # noqa: E501
+        """(Deprecated) Get datasource by dataset id  # noqa: E501
 
         DEPRECATED - use getDatasourcesByDatasetId. Get the datasource of a dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -374,7 +375,7 @@ class DatasourcesApi(object):
 
     @validate_arguments
     def get_datasource_processed_until_timestamp_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], **kwargs) -> DatasourceProcessedUntilTimestampResponse:  # noqa: E501
-        """get_datasource_processed_until_timestamp_by_dataset_id  # noqa: E501
+        """Get processed timestamp by dataset id  # noqa: E501
 
         Get timestamp of last treated resource  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -403,7 +404,7 @@ class DatasourcesApi(object):
 
     @validate_arguments
     def get_datasource_processed_until_timestamp_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], **kwargs) -> ApiResponse:  # noqa: E501
-        """get_datasource_processed_until_timestamp_by_dataset_id  # noqa: E501
+        """Get processed timestamp by dataset id  # noqa: E501
 
         Get timestamp of last treated resource  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -517,7 +518,7 @@ class DatasourcesApi(object):
 
     @validate_arguments
     def get_datasources_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], **kwargs) -> List[DatasourceConfig]:  # noqa: E501
-        """get_datasources_by_dataset_id  # noqa: E501
+        """Get all datasources by dataset id  # noqa: E501
 
         Get all the datasources of a dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -546,7 +547,7 @@ class DatasourcesApi(object):
 
     @validate_arguments
     def get_datasources_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], **kwargs) -> ApiResponse:  # noqa: E501
-        """get_datasources_by_dataset_id  # noqa: E501
+        """Get all datasources by dataset id  # noqa: E501
 
         Get all the datasources of a dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -659,8 +660,624 @@ class DatasourcesApi(object):
             _request_auth=_params.get('_request_auth'))
 
     @validate_arguments
+    def get_divide_and_conquer_list_of_raw_samples_from_datasource_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], dnc_shards : Annotated[conint(strict=True, ge=1), Field(..., description="The amount of shards we should split the data into when using the divide and conquer strategy. ")], var_from : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Unix timestamp, only samples with a creation date after `from` will be returned. This parameter is ignored if `cursor` is specified. ")] = None, to : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Unix timestamp, only samples with a creation date before `to` will be returned. This parameter is ignored if `cursor` is specified. ")] = None, relevant_filenames_file_name : Annotated[Optional[constr(strict=True, min_length=4)], Field(description="The name of the file within your datasource which contains a list of relevant filenames to list. See https://docs.lightly.ai/docker/getting_started/first_steps.html#specify-relevant-files for more details  ")] = None, **kwargs) -> DivideAndConquerCursorData:  # noqa: E501
+        """divide and conquer the listing of samples files into multiple cursors  # noqa: E501
+
+        Use divide and conquer to get multiple cursors for listing the raw samples  from the datasource for a specific taskName in parallel. The cursors should be used at the endpoint getListOfRawSamplesFromDatasourceByDatasetId. There is no guarantee that the cursors returned are in order, that any cursor will return the same number of items, or that there will be more than one cursor returned.   # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+
+        >>> thread = api.get_divide_and_conquer_list_of_raw_samples_from_datasource_by_dataset_id(dataset_id, dnc_shards, var_from, to, relevant_filenames_file_name, async_req=True)
+        >>> result = thread.get()
+
+        :param dataset_id: ObjectId of the dataset (required)
+        :type dataset_id: str
+        :param dnc_shards: The amount of shards we should split the data into when using the divide and conquer strategy.  (required)
+        :type dnc_shards: int
+        :param var_from: Unix timestamp, only samples with a creation date after `from` will be returned. This parameter is ignored if `cursor` is specified. 
+        :type var_from: int
+        :param to: Unix timestamp, only samples with a creation date before `to` will be returned. This parameter is ignored if `cursor` is specified. 
+        :type to: int
+        :param relevant_filenames_file_name: The name of the file within your datasource which contains a list of relevant filenames to list. See https://docs.lightly.ai/docker/getting_started/first_steps.html#specify-relevant-files for more details  
+        :type relevant_filenames_file_name: str
+        :param async_req: Whether to execute the request asynchronously.
+        :type async_req: bool, optional
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :return: Returns the result object.
+                 If the method is called asynchronously,
+                 returns the request thread.
+        :rtype: DivideAndConquerCursorData
+        """
+        kwargs['_return_http_data_only'] = True
+        if '_preload_content' in kwargs:
+            raise ValueError("Error! Please call the get_divide_and_conquer_list_of_raw_samples_from_datasource_by_dataset_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
+        return self.get_divide_and_conquer_list_of_raw_samples_from_datasource_by_dataset_id_with_http_info(dataset_id, dnc_shards, var_from, to, relevant_filenames_file_name, **kwargs)  # noqa: E501
+
+    @validate_arguments
+    def get_divide_and_conquer_list_of_raw_samples_from_datasource_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], dnc_shards : Annotated[conint(strict=True, ge=1), Field(..., description="The amount of shards we should split the data into when using the divide and conquer strategy. ")], var_from : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Unix timestamp, only samples with a creation date after `from` will be returned. This parameter is ignored if `cursor` is specified. ")] = None, to : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Unix timestamp, only samples with a creation date before `to` will be returned. This parameter is ignored if `cursor` is specified. ")] = None, relevant_filenames_file_name : Annotated[Optional[constr(strict=True, min_length=4)], Field(description="The name of the file within your datasource which contains a list of relevant filenames to list. See https://docs.lightly.ai/docker/getting_started/first_steps.html#specify-relevant-files for more details  ")] = None, **kwargs) -> ApiResponse:  # noqa: E501
+        """divide and conquer the listing of samples files into multiple cursors  # noqa: E501
+
+        Use divide and conquer to get multiple cursors for listing the raw samples  from the datasource for a specific taskName in parallel. The cursors should be used at the endpoint getListOfRawSamplesFromDatasourceByDatasetId. There is no guarantee that the cursors returned are in order, that any cursor will return the same number of items, or that there will be more than one cursor returned.   # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+
+        >>> thread = api.get_divide_and_conquer_list_of_raw_samples_from_datasource_by_dataset_id_with_http_info(dataset_id, dnc_shards, var_from, to, relevant_filenames_file_name, async_req=True)
+        >>> result = thread.get()
+
+        :param dataset_id: ObjectId of the dataset (required)
+        :type dataset_id: str
+        :param dnc_shards: The amount of shards we should split the data into when using the divide and conquer strategy.  (required)
+        :type dnc_shards: int
+        :param var_from: Unix timestamp, only samples with a creation date after `from` will be returned. This parameter is ignored if `cursor` is specified. 
+        :type var_from: int
+        :param to: Unix timestamp, only samples with a creation date before `to` will be returned. This parameter is ignored if `cursor` is specified. 
+        :type to: int
+        :param relevant_filenames_file_name: The name of the file within your datasource which contains a list of relevant filenames to list. See https://docs.lightly.ai/docker/getting_started/first_steps.html#specify-relevant-files for more details  
+        :type relevant_filenames_file_name: str
+        :param async_req: Whether to execute the request asynchronously.
+        :type async_req: bool, optional
+        :param _preload_content: if False, the ApiResponse.data will
+                                 be set to none and raw_data will store the 
+                                 HTTP response body without reading/decoding.
+                                 Default is True.
+        :type _preload_content: bool, optional
+        :param _return_http_data_only: response data instead of ApiResponse
+                                       object with status code, headers, etc
+        :type _return_http_data_only: bool, optional
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the authentication
+                              in the spec for a single request.
+        :type _request_auth: dict, optional
+        :type _content_type: string, optional: force content-type for the request
+        :return: Returns the result object.
+                 If the method is called asynchronously,
+                 returns the request thread.
+        :rtype: tuple(DivideAndConquerCursorData, status_code(int), headers(HTTPHeaderDict))
+        """
+
+        _params = locals()
+
+        _all_params = [
+            'dataset_id',
+            'dnc_shards',
+            'var_from',
+            'to',
+            'relevant_filenames_file_name'
+        ]
+        _all_params.extend(
+            [
+                'async_req',
+                '_return_http_data_only',
+                '_preload_content',
+                '_request_timeout',
+                '_request_auth',
+                '_content_type',
+                '_headers'
+            ]
+        )
+
+        # validate the arguments
+        for _key, _val in _params['kwargs'].items():
+            if _key not in _all_params:
+                raise ApiTypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method get_divide_and_conquer_list_of_raw_samples_from_datasource_by_dataset_id" % _key
+                )
+            _params[_key] = _val
+        del _params['kwargs']
+
+        _collection_formats = {}
+
+        # process the path parameters
+        _path_params = {}
+        if _params['dataset_id']:
+            _path_params['datasetId'] = _params['dataset_id']
+
+
+        # process the query parameters
+        _query_params = []
+        if _params.get('var_from') is not None:  # noqa: E501
+            _query_params.append((
+                'from',
+                _params['var_from'].value if hasattr(_params['var_from'], 'value') else _params['var_from']
+            ))
+
+        if _params.get('to') is not None:  # noqa: E501
+            _query_params.append((
+                'to',
+                _params['to'].value if hasattr(_params['to'], 'value') else _params['to']
+            ))
+
+        if _params.get('relevant_filenames_file_name') is not None:  # noqa: E501
+            _query_params.append((
+                'relevantFilenamesFileName',
+                _params['relevant_filenames_file_name'].value if hasattr(_params['relevant_filenames_file_name'], 'value') else _params['relevant_filenames_file_name']
+            ))
+
+        if _params.get('dnc_shards') is not None:  # noqa: E501
+            _query_params.append((
+                'dncShards',
+                _params['dnc_shards'].value if hasattr(_params['dnc_shards'], 'value') else _params['dnc_shards']
+            ))
+
+        # process the header parameters
+        _header_params = dict(_params.get('_headers', {}))
+        # process the form parameters
+        _form_params = []
+        _files = {}
+        # process the body parameter
+        _body_params = None
+        # set the HTTP header `Accept`
+        _header_params['Accept'] = self.api_client.select_header_accept(
+            ['application/json'])  # noqa: E501
+
+        # authentication setting
+        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+
+        _response_types_map = {
+            '200': "DivideAndConquerCursorData",
+            '400': "ApiErrorResponse",
+            '401': "ApiErrorResponse",
+            '403': "ApiErrorResponse",
+            '404': "ApiErrorResponse",
+        }
+
+        return self.api_client.call_api(
+            '/v1/datasets/{datasetId}/datasource/list/dnc', 'GET',
+            _path_params,
+            _query_params,
+            _header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            response_types_map=_response_types_map,
+            auth_settings=_auth_settings,
+            async_req=_params.get('async_req'),
+            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _preload_content=_params.get('_preload_content', True),
+            _request_timeout=_params.get('_request_timeout'),
+            collection_formats=_collection_formats,
+            _request_auth=_params.get('_request_auth'))
+
+    @validate_arguments
+    def get_divide_and_conquer_list_of_raw_samples_metadata_from_datasource_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], dnc_shards : Annotated[conint(strict=True, ge=1), Field(..., description="The amount of shards we should split the data into when using the divide and conquer strategy. ")], var_from : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Unix timestamp, only samples with a creation date after `from` will be returned. This parameter is ignored if `cursor` is specified. ")] = None, to : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Unix timestamp, only samples with a creation date before `to` will be returned. This parameter is ignored if `cursor` is specified. ")] = None, relevant_filenames_file_name : Annotated[Optional[constr(strict=True, min_length=4)], Field(description="The name of the file within your datasource which contains a list of relevant filenames to list. See https://docs.lightly.ai/docker/getting_started/first_steps.html#specify-relevant-files for more details  ")] = None, relevant_filenames_run_id : Annotated[Optional[constr(strict=True)], Field(description="The run id of the run which generated an artifact to be used as the relevant filenames file. (see DatasourceRelevantFilenamesArtifactIdParam) ")] = None, relevant_filenames_artifact_id : Annotated[Optional[constr(strict=True)], Field(description="The artifact id of the run provided by DatasourceRelevantFilenamesRunIdParam to be used as the relevant filenames file. ")] = None, **kwargs) -> DivideAndConquerCursorData:  # noqa: E501
+        """divide and conquer the listing of metadata files into multiple cursors  # noqa: E501
+
+        Use divide and conquer to get multiple cursors for listing the raw samples metadata from the datasource for a specific taskName in parallel. The cursors should be used at the endpoint getListOfRawSamplesMetadataFromDatasourceByDatasetId. There is no guarantee that the cursors returned are in order, that any cursor will return the same number of items, or that there will be more than one cursor returned.   # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+
+        >>> thread = api.get_divide_and_conquer_list_of_raw_samples_metadata_from_datasource_by_dataset_id(dataset_id, dnc_shards, var_from, to, relevant_filenames_file_name, relevant_filenames_run_id, relevant_filenames_artifact_id, async_req=True)
+        >>> result = thread.get()
+
+        :param dataset_id: ObjectId of the dataset (required)
+        :type dataset_id: str
+        :param dnc_shards: The amount of shards we should split the data into when using the divide and conquer strategy.  (required)
+        :type dnc_shards: int
+        :param var_from: Unix timestamp, only samples with a creation date after `from` will be returned. This parameter is ignored if `cursor` is specified. 
+        :type var_from: int
+        :param to: Unix timestamp, only samples with a creation date before `to` will be returned. This parameter is ignored if `cursor` is specified. 
+        :type to: int
+        :param relevant_filenames_file_name: The name of the file within your datasource which contains a list of relevant filenames to list. See https://docs.lightly.ai/docker/getting_started/first_steps.html#specify-relevant-files for more details  
+        :type relevant_filenames_file_name: str
+        :param relevant_filenames_run_id: The run id of the run which generated an artifact to be used as the relevant filenames file. (see DatasourceRelevantFilenamesArtifactIdParam) 
+        :type relevant_filenames_run_id: str
+        :param relevant_filenames_artifact_id: The artifact id of the run provided by DatasourceRelevantFilenamesRunIdParam to be used as the relevant filenames file. 
+        :type relevant_filenames_artifact_id: str
+        :param async_req: Whether to execute the request asynchronously.
+        :type async_req: bool, optional
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :return: Returns the result object.
+                 If the method is called asynchronously,
+                 returns the request thread.
+        :rtype: DivideAndConquerCursorData
+        """
+        kwargs['_return_http_data_only'] = True
+        if '_preload_content' in kwargs:
+            raise ValueError("Error! Please call the get_divide_and_conquer_list_of_raw_samples_metadata_from_datasource_by_dataset_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
+        return self.get_divide_and_conquer_list_of_raw_samples_metadata_from_datasource_by_dataset_id_with_http_info(dataset_id, dnc_shards, var_from, to, relevant_filenames_file_name, relevant_filenames_run_id, relevant_filenames_artifact_id, **kwargs)  # noqa: E501
+
+    @validate_arguments
+    def get_divide_and_conquer_list_of_raw_samples_metadata_from_datasource_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], dnc_shards : Annotated[conint(strict=True, ge=1), Field(..., description="The amount of shards we should split the data into when using the divide and conquer strategy. ")], var_from : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Unix timestamp, only samples with a creation date after `from` will be returned. This parameter is ignored if `cursor` is specified. ")] = None, to : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Unix timestamp, only samples with a creation date before `to` will be returned. This parameter is ignored if `cursor` is specified. ")] = None, relevant_filenames_file_name : Annotated[Optional[constr(strict=True, min_length=4)], Field(description="The name of the file within your datasource which contains a list of relevant filenames to list. See https://docs.lightly.ai/docker/getting_started/first_steps.html#specify-relevant-files for more details  ")] = None, relevant_filenames_run_id : Annotated[Optional[constr(strict=True)], Field(description="The run id of the run which generated an artifact to be used as the relevant filenames file. (see DatasourceRelevantFilenamesArtifactIdParam) ")] = None, relevant_filenames_artifact_id : Annotated[Optional[constr(strict=True)], Field(description="The artifact id of the run provided by DatasourceRelevantFilenamesRunIdParam to be used as the relevant filenames file. ")] = None, **kwargs) -> ApiResponse:  # noqa: E501
+        """divide and conquer the listing of metadata files into multiple cursors  # noqa: E501
+
+        Use divide and conquer to get multiple cursors for listing the raw samples metadata from the datasource for a specific taskName in parallel. The cursors should be used at the endpoint getListOfRawSamplesMetadataFromDatasourceByDatasetId. There is no guarantee that the cursors returned are in order, that any cursor will return the same number of items, or that there will be more than one cursor returned.   # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+
+        >>> thread = api.get_divide_and_conquer_list_of_raw_samples_metadata_from_datasource_by_dataset_id_with_http_info(dataset_id, dnc_shards, var_from, to, relevant_filenames_file_name, relevant_filenames_run_id, relevant_filenames_artifact_id, async_req=True)
+        >>> result = thread.get()
+
+        :param dataset_id: ObjectId of the dataset (required)
+        :type dataset_id: str
+        :param dnc_shards: The amount of shards we should split the data into when using the divide and conquer strategy.  (required)
+        :type dnc_shards: int
+        :param var_from: Unix timestamp, only samples with a creation date after `from` will be returned. This parameter is ignored if `cursor` is specified. 
+        :type var_from: int
+        :param to: Unix timestamp, only samples with a creation date before `to` will be returned. This parameter is ignored if `cursor` is specified. 
+        :type to: int
+        :param relevant_filenames_file_name: The name of the file within your datasource which contains a list of relevant filenames to list. See https://docs.lightly.ai/docker/getting_started/first_steps.html#specify-relevant-files for more details  
+        :type relevant_filenames_file_name: str
+        :param relevant_filenames_run_id: The run id of the run which generated an artifact to be used as the relevant filenames file. (see DatasourceRelevantFilenamesArtifactIdParam) 
+        :type relevant_filenames_run_id: str
+        :param relevant_filenames_artifact_id: The artifact id of the run provided by DatasourceRelevantFilenamesRunIdParam to be used as the relevant filenames file. 
+        :type relevant_filenames_artifact_id: str
+        :param async_req: Whether to execute the request asynchronously.
+        :type async_req: bool, optional
+        :param _preload_content: if False, the ApiResponse.data will
+                                 be set to none and raw_data will store the 
+                                 HTTP response body without reading/decoding.
+                                 Default is True.
+        :type _preload_content: bool, optional
+        :param _return_http_data_only: response data instead of ApiResponse
+                                       object with status code, headers, etc
+        :type _return_http_data_only: bool, optional
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the authentication
+                              in the spec for a single request.
+        :type _request_auth: dict, optional
+        :type _content_type: string, optional: force content-type for the request
+        :return: Returns the result object.
+                 If the method is called asynchronously,
+                 returns the request thread.
+        :rtype: tuple(DivideAndConquerCursorData, status_code(int), headers(HTTPHeaderDict))
+        """
+
+        _params = locals()
+
+        _all_params = [
+            'dataset_id',
+            'dnc_shards',
+            'var_from',
+            'to',
+            'relevant_filenames_file_name',
+            'relevant_filenames_run_id',
+            'relevant_filenames_artifact_id'
+        ]
+        _all_params.extend(
+            [
+                'async_req',
+                '_return_http_data_only',
+                '_preload_content',
+                '_request_timeout',
+                '_request_auth',
+                '_content_type',
+                '_headers'
+            ]
+        )
+
+        # validate the arguments
+        for _key, _val in _params['kwargs'].items():
+            if _key not in _all_params:
+                raise ApiTypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method get_divide_and_conquer_list_of_raw_samples_metadata_from_datasource_by_dataset_id" % _key
+                )
+            _params[_key] = _val
+        del _params['kwargs']
+
+        _collection_formats = {}
+
+        # process the path parameters
+        _path_params = {}
+        if _params['dataset_id']:
+            _path_params['datasetId'] = _params['dataset_id']
+
+
+        # process the query parameters
+        _query_params = []
+        if _params.get('var_from') is not None:  # noqa: E501
+            _query_params.append((
+                'from',
+                _params['var_from'].value if hasattr(_params['var_from'], 'value') else _params['var_from']
+            ))
+
+        if _params.get('to') is not None:  # noqa: E501
+            _query_params.append((
+                'to',
+                _params['to'].value if hasattr(_params['to'], 'value') else _params['to']
+            ))
+
+        if _params.get('relevant_filenames_file_name') is not None:  # noqa: E501
+            _query_params.append((
+                'relevantFilenamesFileName',
+                _params['relevant_filenames_file_name'].value if hasattr(_params['relevant_filenames_file_name'], 'value') else _params['relevant_filenames_file_name']
+            ))
+
+        if _params.get('relevant_filenames_run_id') is not None:  # noqa: E501
+            _query_params.append((
+                'relevantFilenamesRunId',
+                _params['relevant_filenames_run_id'].value if hasattr(_params['relevant_filenames_run_id'], 'value') else _params['relevant_filenames_run_id']
+            ))
+
+        if _params.get('relevant_filenames_artifact_id') is not None:  # noqa: E501
+            _query_params.append((
+                'relevantFilenamesArtifactId',
+                _params['relevant_filenames_artifact_id'].value if hasattr(_params['relevant_filenames_artifact_id'], 'value') else _params['relevant_filenames_artifact_id']
+            ))
+
+        if _params.get('dnc_shards') is not None:  # noqa: E501
+            _query_params.append((
+                'dncShards',
+                _params['dnc_shards'].value if hasattr(_params['dnc_shards'], 'value') else _params['dnc_shards']
+            ))
+
+        # process the header parameters
+        _header_params = dict(_params.get('_headers', {}))
+        # process the form parameters
+        _form_params = []
+        _files = {}
+        # process the body parameter
+        _body_params = None
+        # set the HTTP header `Accept`
+        _header_params['Accept'] = self.api_client.select_header_accept(
+            ['application/json'])  # noqa: E501
+
+        # authentication setting
+        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+
+        _response_types_map = {
+            '200': "DivideAndConquerCursorData",
+            '400': "ApiErrorResponse",
+            '401': "ApiErrorResponse",
+            '403': "ApiErrorResponse",
+            '404': "ApiErrorResponse",
+        }
+
+        return self.api_client.call_api(
+            '/v1/datasets/{datasetId}/datasource/metadata/list/dnc', 'GET',
+            _path_params,
+            _query_params,
+            _header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            response_types_map=_response_types_map,
+            auth_settings=_auth_settings,
+            async_req=_params.get('async_req'),
+            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _preload_content=_params.get('_preload_content', True),
+            _request_timeout=_params.get('_request_timeout'),
+            collection_formats=_collection_formats,
+            _request_auth=_params.get('_request_auth'))
+
+    @validate_arguments
+    def get_divide_and_conquer_list_of_raw_samples_predictions_from_datasource_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], task_name : Annotated[constr(strict=True), Field(..., description="The prediction task name for which one wants to list the predictions")], dnc_shards : Annotated[conint(strict=True, ge=1), Field(..., description="The amount of shards we should split the data into when using the divide and conquer strategy. ")], var_from : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Unix timestamp, only samples with a creation date after `from` will be returned. This parameter is ignored if `cursor` is specified. ")] = None, to : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Unix timestamp, only samples with a creation date before `to` will be returned. This parameter is ignored if `cursor` is specified. ")] = None, relevant_filenames_file_name : Annotated[Optional[constr(strict=True, min_length=4)], Field(description="The name of the file within your datasource which contains a list of relevant filenames to list. See https://docs.lightly.ai/docker/getting_started/first_steps.html#specify-relevant-files for more details  ")] = None, relevant_filenames_run_id : Annotated[Optional[constr(strict=True)], Field(description="The run id of the run which generated an artifact to be used as the relevant filenames file. (see DatasourceRelevantFilenamesArtifactIdParam) ")] = None, relevant_filenames_artifact_id : Annotated[Optional[constr(strict=True)], Field(description="The artifact id of the run provided by DatasourceRelevantFilenamesRunIdParam to be used as the relevant filenames file. ")] = None, **kwargs) -> DivideAndConquerCursorData:  # noqa: E501
+        """divide and conquer the listing of predictions files into multiple cursors  # noqa: E501
+
+        Use divide and conquer to get multiple cursors for listing the raw samples predictions from the datasource for a specific taskName in parallel. The cursors should be used at the endpoint getListOfRawSamplesPredictionsFromDatasourceByDatasetId. There is no guarantee that the cursors returned are in order, that any cursor will return the same number of items, or that there will be more than one cursor returned.   # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+
+        >>> thread = api.get_divide_and_conquer_list_of_raw_samples_predictions_from_datasource_by_dataset_id(dataset_id, task_name, dnc_shards, var_from, to, relevant_filenames_file_name, relevant_filenames_run_id, relevant_filenames_artifact_id, async_req=True)
+        >>> result = thread.get()
+
+        :param dataset_id: ObjectId of the dataset (required)
+        :type dataset_id: str
+        :param task_name: The prediction task name for which one wants to list the predictions (required)
+        :type task_name: str
+        :param dnc_shards: The amount of shards we should split the data into when using the divide and conquer strategy.  (required)
+        :type dnc_shards: int
+        :param var_from: Unix timestamp, only samples with a creation date after `from` will be returned. This parameter is ignored if `cursor` is specified. 
+        :type var_from: int
+        :param to: Unix timestamp, only samples with a creation date before `to` will be returned. This parameter is ignored if `cursor` is specified. 
+        :type to: int
+        :param relevant_filenames_file_name: The name of the file within your datasource which contains a list of relevant filenames to list. See https://docs.lightly.ai/docker/getting_started/first_steps.html#specify-relevant-files for more details  
+        :type relevant_filenames_file_name: str
+        :param relevant_filenames_run_id: The run id of the run which generated an artifact to be used as the relevant filenames file. (see DatasourceRelevantFilenamesArtifactIdParam) 
+        :type relevant_filenames_run_id: str
+        :param relevant_filenames_artifact_id: The artifact id of the run provided by DatasourceRelevantFilenamesRunIdParam to be used as the relevant filenames file. 
+        :type relevant_filenames_artifact_id: str
+        :param async_req: Whether to execute the request asynchronously.
+        :type async_req: bool, optional
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :return: Returns the result object.
+                 If the method is called asynchronously,
+                 returns the request thread.
+        :rtype: DivideAndConquerCursorData
+        """
+        kwargs['_return_http_data_only'] = True
+        if '_preload_content' in kwargs:
+            raise ValueError("Error! Please call the get_divide_and_conquer_list_of_raw_samples_predictions_from_datasource_by_dataset_id_with_http_info method with `_preload_content` instead and obtain raw data from ApiResponse.raw_data")
+        return self.get_divide_and_conquer_list_of_raw_samples_predictions_from_datasource_by_dataset_id_with_http_info(dataset_id, task_name, dnc_shards, var_from, to, relevant_filenames_file_name, relevant_filenames_run_id, relevant_filenames_artifact_id, **kwargs)  # noqa: E501
+
+    @validate_arguments
+    def get_divide_and_conquer_list_of_raw_samples_predictions_from_datasource_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], task_name : Annotated[constr(strict=True), Field(..., description="The prediction task name for which one wants to list the predictions")], dnc_shards : Annotated[conint(strict=True, ge=1), Field(..., description="The amount of shards we should split the data into when using the divide and conquer strategy. ")], var_from : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Unix timestamp, only samples with a creation date after `from` will be returned. This parameter is ignored if `cursor` is specified. ")] = None, to : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Unix timestamp, only samples with a creation date before `to` will be returned. This parameter is ignored if `cursor` is specified. ")] = None, relevant_filenames_file_name : Annotated[Optional[constr(strict=True, min_length=4)], Field(description="The name of the file within your datasource which contains a list of relevant filenames to list. See https://docs.lightly.ai/docker/getting_started/first_steps.html#specify-relevant-files for more details  ")] = None, relevant_filenames_run_id : Annotated[Optional[constr(strict=True)], Field(description="The run id of the run which generated an artifact to be used as the relevant filenames file. (see DatasourceRelevantFilenamesArtifactIdParam) ")] = None, relevant_filenames_artifact_id : Annotated[Optional[constr(strict=True)], Field(description="The artifact id of the run provided by DatasourceRelevantFilenamesRunIdParam to be used as the relevant filenames file. ")] = None, **kwargs) -> ApiResponse:  # noqa: E501
+        """divide and conquer the listing of predictions files into multiple cursors  # noqa: E501
+
+        Use divide and conquer to get multiple cursors for listing the raw samples predictions from the datasource for a specific taskName in parallel. The cursors should be used at the endpoint getListOfRawSamplesPredictionsFromDatasourceByDatasetId. There is no guarantee that the cursors returned are in order, that any cursor will return the same number of items, or that there will be more than one cursor returned.   # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+
+        >>> thread = api.get_divide_and_conquer_list_of_raw_samples_predictions_from_datasource_by_dataset_id_with_http_info(dataset_id, task_name, dnc_shards, var_from, to, relevant_filenames_file_name, relevant_filenames_run_id, relevant_filenames_artifact_id, async_req=True)
+        >>> result = thread.get()
+
+        :param dataset_id: ObjectId of the dataset (required)
+        :type dataset_id: str
+        :param task_name: The prediction task name for which one wants to list the predictions (required)
+        :type task_name: str
+        :param dnc_shards: The amount of shards we should split the data into when using the divide and conquer strategy.  (required)
+        :type dnc_shards: int
+        :param var_from: Unix timestamp, only samples with a creation date after `from` will be returned. This parameter is ignored if `cursor` is specified. 
+        :type var_from: int
+        :param to: Unix timestamp, only samples with a creation date before `to` will be returned. This parameter is ignored if `cursor` is specified. 
+        :type to: int
+        :param relevant_filenames_file_name: The name of the file within your datasource which contains a list of relevant filenames to list. See https://docs.lightly.ai/docker/getting_started/first_steps.html#specify-relevant-files for more details  
+        :type relevant_filenames_file_name: str
+        :param relevant_filenames_run_id: The run id of the run which generated an artifact to be used as the relevant filenames file. (see DatasourceRelevantFilenamesArtifactIdParam) 
+        :type relevant_filenames_run_id: str
+        :param relevant_filenames_artifact_id: The artifact id of the run provided by DatasourceRelevantFilenamesRunIdParam to be used as the relevant filenames file. 
+        :type relevant_filenames_artifact_id: str
+        :param async_req: Whether to execute the request asynchronously.
+        :type async_req: bool, optional
+        :param _preload_content: if False, the ApiResponse.data will
+                                 be set to none and raw_data will store the 
+                                 HTTP response body without reading/decoding.
+                                 Default is True.
+        :type _preload_content: bool, optional
+        :param _return_http_data_only: response data instead of ApiResponse
+                                       object with status code, headers, etc
+        :type _return_http_data_only: bool, optional
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the authentication
+                              in the spec for a single request.
+        :type _request_auth: dict, optional
+        :type _content_type: string, optional: force content-type for the request
+        :return: Returns the result object.
+                 If the method is called asynchronously,
+                 returns the request thread.
+        :rtype: tuple(DivideAndConquerCursorData, status_code(int), headers(HTTPHeaderDict))
+        """
+
+        _params = locals()
+
+        _all_params = [
+            'dataset_id',
+            'task_name',
+            'dnc_shards',
+            'var_from',
+            'to',
+            'relevant_filenames_file_name',
+            'relevant_filenames_run_id',
+            'relevant_filenames_artifact_id'
+        ]
+        _all_params.extend(
+            [
+                'async_req',
+                '_return_http_data_only',
+                '_preload_content',
+                '_request_timeout',
+                '_request_auth',
+                '_content_type',
+                '_headers'
+            ]
+        )
+
+        # validate the arguments
+        for _key, _val in _params['kwargs'].items():
+            if _key not in _all_params:
+                raise ApiTypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method get_divide_and_conquer_list_of_raw_samples_predictions_from_datasource_by_dataset_id" % _key
+                )
+            _params[_key] = _val
+        del _params['kwargs']
+
+        _collection_formats = {}
+
+        # process the path parameters
+        _path_params = {}
+        if _params['dataset_id']:
+            _path_params['datasetId'] = _params['dataset_id']
+
+
+        # process the query parameters
+        _query_params = []
+        if _params.get('task_name') is not None:  # noqa: E501
+            _query_params.append((
+                'taskName',
+                _params['task_name'].value if hasattr(_params['task_name'], 'value') else _params['task_name']
+            ))
+
+        if _params.get('var_from') is not None:  # noqa: E501
+            _query_params.append((
+                'from',
+                _params['var_from'].value if hasattr(_params['var_from'], 'value') else _params['var_from']
+            ))
+
+        if _params.get('to') is not None:  # noqa: E501
+            _query_params.append((
+                'to',
+                _params['to'].value if hasattr(_params['to'], 'value') else _params['to']
+            ))
+
+        if _params.get('relevant_filenames_file_name') is not None:  # noqa: E501
+            _query_params.append((
+                'relevantFilenamesFileName',
+                _params['relevant_filenames_file_name'].value if hasattr(_params['relevant_filenames_file_name'], 'value') else _params['relevant_filenames_file_name']
+            ))
+
+        if _params.get('relevant_filenames_run_id') is not None:  # noqa: E501
+            _query_params.append((
+                'relevantFilenamesRunId',
+                _params['relevant_filenames_run_id'].value if hasattr(_params['relevant_filenames_run_id'], 'value') else _params['relevant_filenames_run_id']
+            ))
+
+        if _params.get('relevant_filenames_artifact_id') is not None:  # noqa: E501
+            _query_params.append((
+                'relevantFilenamesArtifactId',
+                _params['relevant_filenames_artifact_id'].value if hasattr(_params['relevant_filenames_artifact_id'], 'value') else _params['relevant_filenames_artifact_id']
+            ))
+
+        if _params.get('dnc_shards') is not None:  # noqa: E501
+            _query_params.append((
+                'dncShards',
+                _params['dnc_shards'].value if hasattr(_params['dnc_shards'], 'value') else _params['dnc_shards']
+            ))
+
+        # process the header parameters
+        _header_params = dict(_params.get('_headers', {}))
+        # process the form parameters
+        _form_params = []
+        _files = {}
+        # process the body parameter
+        _body_params = None
+        # set the HTTP header `Accept`
+        _header_params['Accept'] = self.api_client.select_header_accept(
+            ['application/json'])  # noqa: E501
+
+        # authentication setting
+        _auth_settings = ['auth0Bearer', 'ApiKeyAuth']  # noqa: E501
+
+        _response_types_map = {
+            '200': "DivideAndConquerCursorData",
+            '400': "ApiErrorResponse",
+            '401': "ApiErrorResponse",
+            '403': "ApiErrorResponse",
+            '404': "ApiErrorResponse",
+        }
+
+        return self.api_client.call_api(
+            '/v1/datasets/{datasetId}/datasource/predictions/list/dnc', 'GET',
+            _path_params,
+            _query_params,
+            _header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            response_types_map=_response_types_map,
+            auth_settings=_auth_settings,
+            async_req=_params.get('async_req'),
+            _return_http_data_only=_params.get('_return_http_data_only'),  # noqa: E501
+            _preload_content=_params.get('_preload_content', True),
+            _request_timeout=_params.get('_request_timeout'),
+            collection_formats=_collection_formats,
+            _request_auth=_params.get('_request_auth'))
+
+    @validate_arguments
     def get_head_file_read_url_from_datasource_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], file_name : Annotated[constr(strict=True, min_length=1), Field(..., description="The name of the file within the the datasource to get a HEAD readUrl or GET readURL")], **kwargs) -> str:  # noqa: E501
-        """get_head_file_read_url_from_datasource_by_dataset_id  # noqa: E501
+        """Get HEAD ReadURL of file  # noqa: E501
 
         Get a HEAD ReadURL of a file within datasources. Can only be used for HEAD request, no GET requests.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -691,7 +1308,7 @@ class DatasourcesApi(object):
 
     @validate_arguments
     def get_head_file_read_url_from_datasource_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], file_name : Annotated[constr(strict=True, min_length=1), Field(..., description="The name of the file within the the datasource to get a HEAD readUrl or GET readURL")], **kwargs) -> ApiResponse:  # noqa: E501
-        """get_head_file_read_url_from_datasource_by_dataset_id  # noqa: E501
+        """Get HEAD ReadURL of file  # noqa: E501
 
         Get a HEAD ReadURL of a file within datasources. Can only be used for HEAD request, no GET requests.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -814,7 +1431,7 @@ class DatasourcesApi(object):
 
     @validate_arguments
     def get_list_of_raw_samples_from_datasource_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], var_from : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Unix timestamp, only samples with a creation date after `from` will be returned. This parameter is ignored if `cursor` is specified. ")] = None, to : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Unix timestamp, only samples with a creation date before `to` will be returned. This parameter is ignored if `cursor` is specified. ")] = None, cursor : Annotated[Optional[StrictStr], Field(description="Cursor from previous request, encodes `from` and `to` parameters. Specify to continue reading samples from the list. ")] = None, use_redirected_read_url : Annotated[Optional[StrictBool], Field(description="By default this is set to false unless a S3DelegatedAccess is configured in which case its always true and this param has no effect. When true this will return RedirectedReadUrls instead of ReadUrls meaning that  returned URLs allow for unlimited access to the file ")] = None, relevant_filenames_file_name : Annotated[Optional[constr(strict=True, min_length=4)], Field(description="The name of the file within your datasource which contains a list of relevant filenames to list. See https://docs.lightly.ai/docker/getting_started/first_steps.html#specify-relevant-files for more details  ")] = None, **kwargs) -> DatasourceRawSamplesData:  # noqa: E501
-        """get_list_of_raw_samples_from_datasource_by_dataset_id  # noqa: E501
+        """list samples from datasource  # noqa: E501
 
         Get list of raw samples from datasource  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -853,7 +1470,7 @@ class DatasourcesApi(object):
 
     @validate_arguments
     def get_list_of_raw_samples_from_datasource_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], var_from : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Unix timestamp, only samples with a creation date after `from` will be returned. This parameter is ignored if `cursor` is specified. ")] = None, to : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Unix timestamp, only samples with a creation date before `to` will be returned. This parameter is ignored if `cursor` is specified. ")] = None, cursor : Annotated[Optional[StrictStr], Field(description="Cursor from previous request, encodes `from` and `to` parameters. Specify to continue reading samples from the list. ")] = None, use_redirected_read_url : Annotated[Optional[StrictBool], Field(description="By default this is set to false unless a S3DelegatedAccess is configured in which case its always true and this param has no effect. When true this will return RedirectedReadUrls instead of ReadUrls meaning that  returned URLs allow for unlimited access to the file ")] = None, relevant_filenames_file_name : Annotated[Optional[constr(strict=True, min_length=4)], Field(description="The name of the file within your datasource which contains a list of relevant filenames to list. See https://docs.lightly.ai/docker/getting_started/first_steps.html#specify-relevant-files for more details  ")] = None, **kwargs) -> ApiResponse:  # noqa: E501
-        """get_list_of_raw_samples_from_datasource_by_dataset_id  # noqa: E501
+        """list samples from datasource  # noqa: E501
 
         Get list of raw samples from datasource  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1012,7 +1629,7 @@ class DatasourcesApi(object):
 
     @validate_arguments
     def get_list_of_raw_samples_metadata_from_datasource_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], var_from : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Unix timestamp, only samples with a creation date after `from` will be returned. This parameter is ignored if `cursor` is specified. ")] = None, to : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Unix timestamp, only samples with a creation date before `to` will be returned. This parameter is ignored if `cursor` is specified. ")] = None, cursor : Annotated[Optional[StrictStr], Field(description="Cursor from previous request, encodes `from` and `to` parameters. Specify to continue reading samples from the list. ")] = None, use_redirected_read_url : Annotated[Optional[StrictBool], Field(description="By default this is set to false unless a S3DelegatedAccess is configured in which case its always true and this param has no effect. When true this will return RedirectedReadUrls instead of ReadUrls meaning that  returned URLs allow for unlimited access to the file ")] = None, relevant_filenames_file_name : Annotated[Optional[constr(strict=True, min_length=4)], Field(description="The name of the file within your datasource which contains a list of relevant filenames to list. See https://docs.lightly.ai/docker/getting_started/first_steps.html#specify-relevant-files for more details  ")] = None, relevant_filenames_run_id : Annotated[Optional[constr(strict=True)], Field(description="The run id of the run which generated an artifact to be used as the relevant filenames file. (see DatasourceRelevantFilenamesArtifactIdParam) ")] = None, relevant_filenames_artifact_id : Annotated[Optional[constr(strict=True)], Field(description="The artifact id of the run provided by DatasourceRelevantFilenamesRunIdParam to be used as the relevant filenames file. ")] = None, **kwargs) -> DatasourceRawSamplesMetadataData:  # noqa: E501
-        """get_list_of_raw_samples_metadata_from_datasource_by_dataset_id  # noqa: E501
+        """list metadata files  # noqa: E501
 
         Get list of the raw samples metadata from datasource for a specific taskName  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1055,7 +1672,7 @@ class DatasourcesApi(object):
 
     @validate_arguments
     def get_list_of_raw_samples_metadata_from_datasource_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], var_from : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Unix timestamp, only samples with a creation date after `from` will be returned. This parameter is ignored if `cursor` is specified. ")] = None, to : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Unix timestamp, only samples with a creation date before `to` will be returned. This parameter is ignored if `cursor` is specified. ")] = None, cursor : Annotated[Optional[StrictStr], Field(description="Cursor from previous request, encodes `from` and `to` parameters. Specify to continue reading samples from the list. ")] = None, use_redirected_read_url : Annotated[Optional[StrictBool], Field(description="By default this is set to false unless a S3DelegatedAccess is configured in which case its always true and this param has no effect. When true this will return RedirectedReadUrls instead of ReadUrls meaning that  returned URLs allow for unlimited access to the file ")] = None, relevant_filenames_file_name : Annotated[Optional[constr(strict=True, min_length=4)], Field(description="The name of the file within your datasource which contains a list of relevant filenames to list. See https://docs.lightly.ai/docker/getting_started/first_steps.html#specify-relevant-files for more details  ")] = None, relevant_filenames_run_id : Annotated[Optional[constr(strict=True)], Field(description="The run id of the run which generated an artifact to be used as the relevant filenames file. (see DatasourceRelevantFilenamesArtifactIdParam) ")] = None, relevant_filenames_artifact_id : Annotated[Optional[constr(strict=True)], Field(description="The artifact id of the run provided by DatasourceRelevantFilenamesRunIdParam to be used as the relevant filenames file. ")] = None, **kwargs) -> ApiResponse:  # noqa: E501
-        """get_list_of_raw_samples_metadata_from_datasource_by_dataset_id  # noqa: E501
+        """list metadata files  # noqa: E501
 
         Get list of the raw samples metadata from datasource for a specific taskName  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1232,7 +1849,7 @@ class DatasourcesApi(object):
 
     @validate_arguments
     def get_list_of_raw_samples_predictions_from_datasource_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], task_name : Annotated[constr(strict=True), Field(..., description="The prediction task name for which one wants to list the predictions")], var_from : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Unix timestamp, only samples with a creation date after `from` will be returned. This parameter is ignored if `cursor` is specified. ")] = None, to : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Unix timestamp, only samples with a creation date before `to` will be returned. This parameter is ignored if `cursor` is specified. ")] = None, cursor : Annotated[Optional[StrictStr], Field(description="Cursor from previous request, encodes `from` and `to` parameters. Specify to continue reading samples from the list. ")] = None, use_redirected_read_url : Annotated[Optional[StrictBool], Field(description="By default this is set to false unless a S3DelegatedAccess is configured in which case its always true and this param has no effect. When true this will return RedirectedReadUrls instead of ReadUrls meaning that  returned URLs allow for unlimited access to the file ")] = None, relevant_filenames_file_name : Annotated[Optional[constr(strict=True, min_length=4)], Field(description="The name of the file within your datasource which contains a list of relevant filenames to list. See https://docs.lightly.ai/docker/getting_started/first_steps.html#specify-relevant-files for more details  ")] = None, relevant_filenames_run_id : Annotated[Optional[constr(strict=True)], Field(description="The run id of the run which generated an artifact to be used as the relevant filenames file. (see DatasourceRelevantFilenamesArtifactIdParam) ")] = None, relevant_filenames_artifact_id : Annotated[Optional[constr(strict=True)], Field(description="The artifact id of the run provided by DatasourceRelevantFilenamesRunIdParam to be used as the relevant filenames file. ")] = None, **kwargs) -> DatasourceRawSamplesPredictionsData:  # noqa: E501
-        """get_list_of_raw_samples_predictions_from_datasource_by_dataset_id  # noqa: E501
+        """Get list of raw samples predictions  # noqa: E501
 
         Get list of the raw samples predictions from datasource for a specific taskName  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1277,7 +1894,7 @@ class DatasourcesApi(object):
 
     @validate_arguments
     def get_list_of_raw_samples_predictions_from_datasource_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], task_name : Annotated[constr(strict=True), Field(..., description="The prediction task name for which one wants to list the predictions")], var_from : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Unix timestamp, only samples with a creation date after `from` will be returned. This parameter is ignored if `cursor` is specified. ")] = None, to : Annotated[Optional[conint(strict=True, ge=0)], Field(description="Unix timestamp, only samples with a creation date before `to` will be returned. This parameter is ignored if `cursor` is specified. ")] = None, cursor : Annotated[Optional[StrictStr], Field(description="Cursor from previous request, encodes `from` and `to` parameters. Specify to continue reading samples from the list. ")] = None, use_redirected_read_url : Annotated[Optional[StrictBool], Field(description="By default this is set to false unless a S3DelegatedAccess is configured in which case its always true and this param has no effect. When true this will return RedirectedReadUrls instead of ReadUrls meaning that  returned URLs allow for unlimited access to the file ")] = None, relevant_filenames_file_name : Annotated[Optional[constr(strict=True, min_length=4)], Field(description="The name of the file within your datasource which contains a list of relevant filenames to list. See https://docs.lightly.ai/docker/getting_started/first_steps.html#specify-relevant-files for more details  ")] = None, relevant_filenames_run_id : Annotated[Optional[constr(strict=True)], Field(description="The run id of the run which generated an artifact to be used as the relevant filenames file. (see DatasourceRelevantFilenamesArtifactIdParam) ")] = None, relevant_filenames_artifact_id : Annotated[Optional[constr(strict=True)], Field(description="The artifact id of the run provided by DatasourceRelevantFilenamesRunIdParam to be used as the relevant filenames file. ")] = None, **kwargs) -> ApiResponse:  # noqa: E501
-        """get_list_of_raw_samples_predictions_from_datasource_by_dataset_id  # noqa: E501
+        """Get list of raw samples predictions  # noqa: E501
 
         Get list of the raw samples predictions from datasource for a specific taskName  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1463,7 +2080,7 @@ class DatasourcesApi(object):
 
     @validate_arguments
     def get_metadata_file_read_url_from_datasource_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], file_name : Annotated[constr(strict=True, min_length=5), Field(..., description="The name of the file within the metadata folder to get the GET readUrl for")], **kwargs) -> str:  # noqa: E501
-        """get_metadata_file_read_url_from_datasource_by_dataset_id  # noqa: E501
+        """Get metadata file ReadURL  # noqa: E501
 
         Get the GET ReadURL of a file within the metadata folder (e.g. my_image.json or my_video-099-mp4.json)  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1494,7 +2111,7 @@ class DatasourcesApi(object):
 
     @validate_arguments
     def get_metadata_file_read_url_from_datasource_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], file_name : Annotated[constr(strict=True, min_length=5), Field(..., description="The name of the file within the metadata folder to get the GET readUrl for")], **kwargs) -> ApiResponse:  # noqa: E501
-        """get_metadata_file_read_url_from_datasource_by_dataset_id  # noqa: E501
+        """Get metadata file ReadURL  # noqa: E501
 
         Get the GET ReadURL of a file within the metadata folder (e.g. my_image.json or my_video-099-mp4.json)  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1617,7 +2234,7 @@ class DatasourcesApi(object):
 
     @validate_arguments
     def get_prediction_file_read_url_from_datasource_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], file_name : Annotated[constr(strict=True, min_length=4), Field(..., description="The name of the file within the prediction folder to get the GET readUrl for")], **kwargs) -> str:  # noqa: E501
-        """get_prediction_file_read_url_from_datasource_by_dataset_id  # noqa: E501
+        """Get prediction file readURL  # noqa: E501
 
         Get the GET ReadURL of a file within the predictions folder (e.g tasks.json or my_classification_task/schema.json)  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1648,7 +2265,7 @@ class DatasourcesApi(object):
 
     @validate_arguments
     def get_prediction_file_read_url_from_datasource_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], file_name : Annotated[constr(strict=True, min_length=4), Field(..., description="The name of the file within the prediction folder to get the GET readUrl for")], **kwargs) -> ApiResponse:  # noqa: E501
-        """get_prediction_file_read_url_from_datasource_by_dataset_id  # noqa: E501
+        """Get prediction file readURL  # noqa: E501
 
         Get the GET ReadURL of a file within the predictions folder (e.g tasks.json or my_classification_task/schema.json)  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1771,7 +2388,7 @@ class DatasourcesApi(object):
 
     @validate_arguments
     def get_prediction_file_write_url_from_datasource_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], file_name : Annotated[constr(strict=True, min_length=4), Field(..., description="The name of the file within the prediction folder to get the GET readUrl for")], **kwargs) -> str:  # noqa: E501
-        """get_prediction_file_write_url_from_datasource_by_dataset_id  # noqa: E501
+        """Get prediction file writeURL  # noqa: E501
 
         Get the WriteURL of a file within the predictions folder (e.g tasks.json or my_classification_task/schema.json)  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1802,7 +2419,7 @@ class DatasourcesApi(object):
 
     @validate_arguments
     def get_prediction_file_write_url_from_datasource_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], file_name : Annotated[constr(strict=True, min_length=4), Field(..., description="The name of the file within the prediction folder to get the GET readUrl for")], **kwargs) -> ApiResponse:  # noqa: E501
-        """get_prediction_file_write_url_from_datasource_by_dataset_id  # noqa: E501
+        """Get prediction file writeURL  # noqa: E501
 
         Get the WriteURL of a file within the predictions folder (e.g tasks.json or my_classification_task/schema.json)  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1925,7 +2542,7 @@ class DatasourcesApi(object):
 
     @validate_arguments
     def get_resource_read_url_redirect(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], path : Annotated[StrictStr, Field(..., description="the resource path")], **kwargs) -> None:  # noqa: E501
-        """get_resource_read_url_redirect  # noqa: E501
+        """Get resource read URL redirect  # noqa: E501
 
         This endpoint enables anyone given the correct credentials to access the actual image directly via a redirect. By creating a readURL for the resource and redirecting to that URL, the client can use this endpoint to always have a way to access the resource as there is no expiration   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -1956,7 +2573,7 @@ class DatasourcesApi(object):
 
     @validate_arguments
     def get_resource_read_url_redirect_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], path : Annotated[StrictStr, Field(..., description="the resource path")], **kwargs) -> ApiResponse:  # noqa: E501
-        """get_resource_read_url_redirect  # noqa: E501
+        """Get resource read URL redirect  # noqa: E501
 
         This endpoint enables anyone given the correct credentials to access the actual image directly via a redirect. By creating a readURL for the resource and redirecting to that URL, the client can use this endpoint to always have a way to access the resource as there is no expiration   # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -2073,7 +2690,7 @@ class DatasourcesApi(object):
 
     @validate_arguments
     def update_datasource_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], datasource_config : Annotated[DatasourceConfig, Field(..., description="updated datasource configuration for a dataset")], **kwargs) -> None:  # noqa: E501
-        """update_datasource_by_dataset_id  # noqa: E501
+        """Update datasource by dataset id  # noqa: E501
 
         Update the datasource of a specific dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -2104,7 +2721,7 @@ class DatasourcesApi(object):
 
     @validate_arguments
     def update_datasource_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], datasource_config : Annotated[DatasourceConfig, Field(..., description="updated datasource configuration for a dataset")], **kwargs) -> ApiResponse:  # noqa: E501
-        """update_datasource_by_dataset_id  # noqa: E501
+        """Update datasource by dataset id  # noqa: E501
 
         Update the datasource of a specific dataset  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -2225,7 +2842,7 @@ class DatasourcesApi(object):
 
     @validate_arguments
     def update_datasource_processed_until_timestamp_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], datasource_processed_until_timestamp_request : Annotated[DatasourceProcessedUntilTimestampRequest, Field(..., description="The updated timestamp to set")], **kwargs) -> None:  # noqa: E501
-        """update_datasource_processed_until_timestamp_by_dataset_id  # noqa: E501
+        """Update processed timestamp by dataset id  # noqa: E501
 
         Update timestamp of last resource in datapool  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -2256,7 +2873,7 @@ class DatasourcesApi(object):
 
     @validate_arguments
     def update_datasource_processed_until_timestamp_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], datasource_processed_until_timestamp_request : Annotated[DatasourceProcessedUntilTimestampRequest, Field(..., description="The updated timestamp to set")], **kwargs) -> ApiResponse:  # noqa: E501
-        """update_datasource_processed_until_timestamp_by_dataset_id  # noqa: E501
+        """Update processed timestamp by dataset id  # noqa: E501
 
         Update timestamp of last resource in datapool  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -2377,7 +2994,7 @@ class DatasourcesApi(object):
 
     @validate_arguments
     def verify_datasource_by_dataset_id(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], **kwargs) -> DatasourceConfigVerifyData:  # noqa: E501
-        """verify_datasource_by_dataset_id  # noqa: E501
+        """Verify datasource by dataset id  # noqa: E501
 
         Test and verify that the configured datasource can be accessed correctly  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
@@ -2406,7 +3023,7 @@ class DatasourcesApi(object):
 
     @validate_arguments
     def verify_datasource_by_dataset_id_with_http_info(self, dataset_id : Annotated[constr(strict=True), Field(..., description="ObjectId of the dataset")], **kwargs) -> ApiResponse:  # noqa: E501
-        """verify_datasource_by_dataset_id  # noqa: E501
+        """Verify datasource by dataset id  # noqa: E501
 
         Test and verify that the configured datasource can be accessed correctly  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
