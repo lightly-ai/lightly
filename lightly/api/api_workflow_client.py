@@ -17,6 +17,7 @@ from lightly.api.api_workflow_datasets import _DatasetsMixin
 from lightly.api.api_workflow_datasources import _DatasourcesMixin
 from lightly.api.api_workflow_download_dataset import _DownloadDatasetMixin
 from lightly.api.api_workflow_export import _ExportDatasetMixin
+from lightly.api.api_workflow_listing import _ListingMixin
 from lightly.api.api_workflow_predictions import _PredictionsMixin
 from lightly.api.api_workflow_selection import _SelectionMixin
 from lightly.api.api_workflow_tags import _TagsMixin
@@ -56,6 +57,7 @@ class ApiWorkflowClient(
     _UploadCustomMetadataMixin,
     _TagsMixin,
     _DatasourcesMixin,
+    _ListingMixin,
     _ComputeWorkerMixin,
     _CollaborationMixin,
     _PredictionsMixin,
