@@ -24,10 +24,14 @@ from lightly.openapi_generated.swagger_client.models.datasource_processed_until_
 from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_data import (
     DatasourceRawSamplesData,
 )
+from lightly.openapi_generated.swagger_client.rest import ApiException
 
 
 class TestDatasourcesMixin:
-    def test_download_raw_samples(self, mocker: MockerFixture) -> None:
+    @pytest.mark.parametrize("with_retry", [True, False])
+    def test_download_raw_samples(
+        self, mocker: MockerFixture, with_retry: bool
+    ) -> None:
         response = DatasourceRawSamplesData(
             hasMore=False,
             cursor="",
@@ -37,14 +41,22 @@ class TestDatasourcesMixin:
             ],
         )
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
+        side_effects = [response]
+        if with_retry:
+            side_effects.insert(
+                0, ApiException(status=500, reason="Internal Server Error")
+            )
         mocker.patch.object(
             client._datasources_api,
             "get_list_of_raw_samples_from_datasource_by_dataset_id",
-            side_effect=[response],
+            side_effect=side_effects,
         )
         assert client.download_raw_samples() == [("file1", "url1"), ("file2", "url2")]
 
-    def test_download_raw_predictions(self, mocker: MockerFixture) -> None:
+    @pytest.mark.parametrize("with_retry", [True, False])
+    def test_download_raw_predictions(
+        self, mocker: MockerFixture, with_retry: bool
+    ) -> None:
         response = DatasourceRawSamplesData(
             hasMore=False,
             cursor="",
@@ -54,10 +66,15 @@ class TestDatasourcesMixin:
             ],
         )
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
+        side_effects = [response]
+        if with_retry:
+            side_effects.insert(
+                0, ApiException(status=500, reason="Internal Server Error")
+            )
         mocker.patch.object(
             client._datasources_api,
             "get_list_of_raw_samples_predictions_from_datasource_by_dataset_id",
-            side_effect=[response],
+            side_effect=side_effects,
         )
         assert client.download_raw_predictions(task_name="task") == [
             ("file1", "url1"),
@@ -164,7 +181,10 @@ class TestDatasourcesMixin:
                 )
             )
 
-    def test_download_raw_metadata(self, mocker: MockerFixture) -> None:
+    @pytest.mark.parametrize("with_retry", [True, False])
+    def test_download_raw_metadata(
+        self, mocker: MockerFixture, with_retry: bool
+    ) -> None:
         response = DatasourceRawSamplesData(
             hasMore=False,
             cursor="",
@@ -174,10 +194,15 @@ class TestDatasourcesMixin:
             ],
         )
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
+        side_effects = [response]
+        if with_retry:
+            side_effects.insert(
+                0, ApiException(status=500, reason="Internal Server Error")
+            )
         mocker.patch.object(
             client._datasources_api,
             "get_list_of_raw_samples_metadata_from_datasource_by_dataset_id",
-            side_effect=[response],
+            side_effect=side_effects,
         )
         assert client.download_raw_metadata() == [
             ("file1", "url1"),
@@ -277,6 +302,10 @@ class TestDatasourcesMixin:
             )
 
     def test_download_new_raw_samples(self, mocker: MockerFixture) -> None:
+        # This test is not tested with retry, as it calls three functions that are called with retry:
+        # - get_processed_until_timestamp
+        # - download_raw_samples
+        # - update_processed_until_timestamp
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
         client.get_processed_until_timestamp = mocker.MagicMock(return_value=2)
         mocker.patch("time.time", return_value=5)
@@ -308,25 +337,41 @@ class TestDatasourcesMixin:
         )
         client.update_processed_until_timestamp.assert_called_once_with(timestamp=5)
 
-    def test_get_processed_until_timestamp(self, mocker: MockerFixture) -> None:
+    @pytest.mark.parametrize("with_retry", [True, False])
+    def test_get_processed_until_timestamp(
+        self, mocker: MockerFixture, with_retry: bool
+    ) -> None:
+        response = DatasourceProcessedUntilTimestampResponse(processedUntilTimestamp=5)
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
+        side_effects = [response]
+        if with_retry:
+            side_effects.insert(
+                0, ApiException(status=500, reason="Internal Server Error")
+            )
         mocker.patch.object(
             client._datasources_api,
             "get_datasource_processed_until_timestamp_by_dataset_id",
-            return_value=DatasourceProcessedUntilTimestampResponse(
-                processedUntilTimestamp=5
-            ),
+            side_effect=side_effects,
         )
         assert client.get_processed_until_timestamp() == 5
-        client._datasources_api.get_datasource_processed_until_timestamp_by_dataset_id.assert_called_once_with(
+        client._datasources_api.get_datasource_processed_until_timestamp_by_dataset_id.assert_called_with(
             dataset_id="dataset-id"
         )
 
-    def test_update_processed_until_timestamp(self, mocker: MockerFixture) -> None:
+    @pytest.mark.parametrize("with_retry", [True, False])
+    def test_update_processed_until_timestamp(
+        self, mocker: MockerFixture, with_retry: bool
+    ) -> None:
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
+        side_effects = [None]
+        if with_retry:
+            side_effects.insert(
+                0, ApiException(status=500, reason="Internal Server Error")
+            )
         mocker.patch.object(
             client._datasources_api,
             "update_datasource_processed_until_timestamp_by_dataset_id",
+            side_effect=side_effects,
         )
         client.update_processed_until_timestamp(timestamp=10)
         kwargs = client._datasources_api.update_datasource_processed_until_timestamp_by_dataset_id.call_args[
@@ -535,7 +580,10 @@ class TestDatasourcesMixin:
             download_function=download_function,
         ) == [("file1", "url1"), ("file2", "url2")]
 
-    def test__download_raw_files_iter(self, mocker: MockerFixture) -> None:
+    @pytest.mark.parametrize("with_retry", [True, False])
+    def test__download_raw_files_iter(
+        self, mocker: MockerFixture, with_retry: bool
+    ) -> None:
         response_1 = DatasourceRawSamplesData(
             hasMore=True,
             cursor="cursor1",
@@ -552,7 +600,15 @@ class TestDatasourcesMixin:
                 DatasourceRawSamplesDataRow(fileName="file4", readUrl="url4"),
             ],
         )
-        download_function = mocker.MagicMock(side_effect=[response_1, response_2])
+        if with_retry:
+            side_effects = [
+                ApiException(status=500, reason="Internal Server Error"),
+                response_1,
+                response_2,
+            ]
+        else:
+            side_effects = [response_1, response_2]
+        download_function = mocker.MagicMock(side_effect=side_effects)
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
         progress_bar = mocker.spy(tqdm, "tqdm")
         assert list(
@@ -571,25 +627,27 @@ class TestDatasourcesMixin:
             ("file3", "url3"),
             ("file4", "url4"),
         ]
-        download_function.assert_has_calls(
-            [
-                mocker.call(
-                    dataset_id="dataset-id",
-                    var_from=0,
-                    to=5,
-                    relevant_filenames_file_name="relevant-filenames",
-                    use_redirected_read_url=True,
-                    foo="bar",
-                ),
-                mocker.call(
-                    dataset_id="dataset-id",
-                    cursor="cursor1",
-                    relevant_filenames_file_name="relevant-filenames",
-                    use_redirected_read_url=True,
-                    foo="bar",
-                ),
-            ]
-        )
+        expected_calls = [
+            mocker.call(
+                dataset_id="dataset-id",
+                var_from=0,
+                to=5,
+                relevant_filenames_file_name="relevant-filenames",
+                use_redirected_read_url=True,
+                foo="bar",
+            ),
+            mocker.call(
+                dataset_id="dataset-id",
+                cursor="cursor1",
+                relevant_filenames_file_name="relevant-filenames",
+                use_redirected_read_url=True,
+                foo="bar",
+            ),
+        ]
+        if with_retry:
+            # Assert that only the first call is retried.
+            expected_calls.insert(0, expected_calls[0])
+        download_function.assert_has_calls(expected_calls)
         assert progress_bar.update.call_count == 4
 
     def test__download_raw_files_iter__no_relevant_filenames(
