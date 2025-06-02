@@ -16,7 +16,7 @@ from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_data
 )
 
 
-class _ListingMixin:
+class _DatasourceListingMixin:
     def download_raw_samples(
         self,
         from_: int = 0,
@@ -475,34 +475,6 @@ class _ListingMixin:
             dataset_id=self.dataset_id,
             file_name=filename,
         )
-
-    def list_datasource_permissions(
-        self,
-    ) -> Dict[str, Union[bool, Dict[str, str]]]:
-        """Lists granted access permissions for the datasource set up with a dataset.
-
-        Returns a string dictionary, with each permission mapped to a boolean value,
-        see the example below. An additional ``errors`` key is present if any permission
-        errors have been encountered. Permission errors are stored in a dictionary where
-        permission names are keys and error messages are values.
-
-        >>> from lightly.api import ApiWorkflowClient
-        >>> client = ApiWorkflowClient(
-        ...    token="MY_LIGHTLY_TOKEN", dataset_id="MY_DATASET_ID"
-        ... )
-        >>> client.list_datasource_permissions()
-        {
-            'can_read': True,
-            'can_write': True,
-            'can_list': False,
-            'can_overwrite': True,
-            'errors': {'can_list': 'error message'}
-        }
-
-        """
-        return self._datasources_api.verify_datasource_by_dataset_id(
-            dataset_id=self.dataset_id,
-        ).to_dict()
 
     def _download_raw_files(
         self,

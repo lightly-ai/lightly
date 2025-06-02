@@ -212,7 +212,7 @@ exclude = '''(?x)(
     lightly/api/api_workflow_selection.py |
     lightly/api/swagger_rest_client.py |
     lightly/api/api_workflow_datasources.py |
-    lightly/api/api_workflow_listing.py |
+    lightly/api/api_workflow_datasource_listing.py |
     lightly/api/api_workflow_upload_embeddings.py |
     lightly/api/api_workflow_client.py |
     lightly/api/api_workflow_upload_metadata.py |
@@ -273,7 +273,7 @@ exclude = '''(?x)(
     tests/api_workflow/test_api_workflow_client.py |
     tests/api_workflow/test_api_workflow_export.py |
     tests/api_workflow/test_api_workflow_datasources.py |
-    tests/api_workflow/test_api_workflow_listing.py |
+    tests/api_workflow/test_api_workflow_datasource_listing.py |
     tests/api_workflow/test_api_workflow_tags.py |
     tests/api_workflow/test_api_workflow_upload_custom_metadata.py |
     tests/api_workflow/test_api_workflow_upload_embeddings.py |
