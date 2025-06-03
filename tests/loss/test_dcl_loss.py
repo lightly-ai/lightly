@@ -102,13 +102,9 @@ class TestDCLLoss:
         assert loss0 > 0
         assert loss0 == pytest.approx(loss1)
 
-    @pytest.mark.parametrize(
-        "batch_size, dim, temperature",
-        [
-            (3, 5, 0.1),
-            (4, 7, 0.5),
-        ],
-    )
+    @pytest.mark.parametrize("batch_size", [3, 4])
+    @pytest.mark.parametrize("dim", [5, 7])
+    @pytest.mark.parametrize("temperature", [0.1, 0.5])
     def test_dclloss_matches_reference(
         self, batch_size: int, dim: int, temperature: float, seed: int = 0
     ) -> None:
@@ -129,14 +125,14 @@ class TestDCLLoss:
 
 
 def dcl_reference(
-    z1: torch.Tensor, z2: torch.Tensor, temperature: float
+    x1: torch.Tensor, x2: torch.Tensor, temperature: float
 ) -> torch.Tensor:
     """
     Loop-based reference:
       L = avg_i[ -sim_pos(i) + log(sum_j exp(sim_neg(i,j))) ]
     """
-    z1 = torch.nn.functional.normalize(z1, dim=1)
-    z2 = torch.nn.functional.normalize(z2, dim=1)
+    z1 = torch.nn.functional.normalize(x1, dim=1)
+    z2 = torch.nn.functional.normalize(x2, dim=1)
     N = z1.shape[0]
     z = torch.cat([z1, z2], dim=0)  # 2N × D
 
