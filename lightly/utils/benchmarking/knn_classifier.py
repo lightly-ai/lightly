@@ -134,8 +134,6 @@ class KNNClassifier(LightningModule):
         pass
 
     def validation_step(self, batch, batch_idx: int, dataloader_idx: int) -> None:
-        # Set model to eval mode to disable norm layer updates.
-        self.model.eval()
         images, targets = batch[0], batch[1]
         features = self(images)
 
