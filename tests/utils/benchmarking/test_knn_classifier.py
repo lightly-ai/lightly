@@ -42,7 +42,9 @@ class TestKNNClassifier:
 
         # Run KNN classifier.
         model = nn.Identity()
-        classifier = KNNClassifier(model, num_classes=4, knn_k=3, topk=(1, 2, 3, 4))
+        classifier = KNNClassifier(
+            model, num_classes=4, knn_k=3, knn_t=0.1, topk=(1, 2, 3, 4)
+        )
         trainer = Trainer(max_epochs=1, accelerator="cpu", devices=1)
         trainer.validate(
             model=classifier,
@@ -78,7 +80,7 @@ class TestKNNClassifier:
         model = nn.Sequential(linear, batch_norm)
         initial_weights = linear.weight.clone()
         initial_bn_weights = batch_norm.weight.clone()
-        classifier = KNNClassifier(model, num_classes=10, knn_k=20)
+        classifier = KNNClassifier(model, num_classes=10, knn_k=20, knn_t=0.1)
         trainer = Trainer(max_epochs=1, accelerator=accelerator, devices=1)
         train_features = torch.randn(40, 3)
         train_targets = torch.randint(0, 10, (40,))
@@ -126,7 +128,7 @@ class TestKNNClassifier:
         # Set feature_dtype to torch.int to test if classifier correctly changes dtype.
         # We cannot test for torch.float16 because it is not supported on cpu.
         classifier = KNNClassifier(
-            model, num_classes=10, knn_k=3, feature_dtype=torch.int
+            model, num_classes=10, knn_k=3, knn_t=0.1, feature_dtype=torch.int
         )
         trainer = Trainer(max_epochs=1, accelerator="cpu", devices=1)
         train_features = torch.randn(4, 3)
@@ -158,7 +160,7 @@ class TestKNNClassifier:
 
         # Test that normalize is called when normalize=True.
         classifier = KNNClassifier(
-            nn.Identity(), num_classes=10, knn_k=3, normalize=True
+            nn.Identity(), num_classes=10, knn_k=3, knn_t=0.1, normalize=True
         )
         trainer.validate(
             model=classifier,
@@ -169,7 +171,7 @@ class TestKNNClassifier:
 
         # Test that normalize is not called when normalize=False.
         classifier = KNNClassifier(
-            nn.Identity(), num_classes=10, knn_k=3, normalize=False
+            nn.Identity(), num_classes=10, knn_k=3, knn_t=0.1, normalize=False
         )
         trainer.validate(
             model=classifier,

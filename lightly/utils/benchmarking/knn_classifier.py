@@ -15,8 +15,8 @@ class KNNClassifier(LightningModule):
         self,
         model: Module,
         num_classes: int,
-        knn_k: int = 200,
-        knn_t: float = 0.07,
+        knn_k: int,
+        knn_t: float,
         topk: Tuple[int, ...] = (1, 5),
         feature_dtype: torch.dtype = torch.float32,
         normalize: bool = True,
@@ -162,16 +162,6 @@ class KNNClassifier(LightningModule):
             self.log_dict(
                 log_dict, prog_bar=True, sync_dist=True, batch_size=len(targets)
             )
-
-    def on_train_epoch_start(self) -> None:
-        # Set model to eval mode to disable norm layer updates.
-        self.model.eval()
-
-        # Reset features and targets.
-        self._train_features = []
-        self._train_targets = []
-        self._train_features_tensor = None
-        self._train_targets_tensor = None
 
     def configure_optimizers(self) -> None:
         # configure_optimizers must be implemented for PyTorch Lightning. Returning None

@@ -47,6 +47,8 @@ parser.add_argument("--compile-model", action="store_true")
 parser.add_argument("--methods", type=str, nargs="+")
 parser.add_argument("--num-classes", type=int, default=1000)
 parser.add_argument("--skip-knn-eval", action="store_true")
+parser.add_argument("--knn-k", type=int, default=200)
+parser.add_argument("--knn-t", type=float, default=0.1)
 parser.add_argument("--skip-linear-eval", action="store_true")
 parser.add_argument("--skip-finetune-eval", action="store_true")
 parser.add_argument("--float32-matmul-precision", type=str, default="high")
@@ -83,6 +85,8 @@ def main(
     compile_model: bool,
     methods: Union[Sequence[str], None],
     num_classes: int,
+    knn_k: int,
+    knn_t: float,
     skip_knn_eval: bool,
     skip_linear_eval: bool,
     skip_finetune_eval: bool,
@@ -147,6 +151,8 @@ def main(
                 accelerator=accelerator,
                 devices=devices,
                 strategy=strategy,
+                knn_k=knn_k,
+                knn_t=knn_t,
             )
 
         if skip_linear_eval:

@@ -25,6 +25,8 @@ def knn_eval(
     devices: int,
     strategy: str,
     num_classes: int,
+    knn_k: int,
+    knn_t: float,
 ) -> Dict[str, float]:
     """Runs KNN evaluation on the given model.
 
@@ -70,6 +72,8 @@ def knn_eval(
         model=model,
         num_classes=num_classes,
         feature_dtype=torch.float16,
+        knn_k=knn_k,
+        knn_t=knn_t,
     )
 
     # Run KNN evaluation.
