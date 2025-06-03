@@ -102,6 +102,31 @@ class TestDCLLoss:
         assert loss0 > 0
         assert loss0 == pytest.approx(loss1)
 
+    @pytest.mark.parametrize(
+        "batch_size, dim, temperature",
+        [
+            (3, 5, 0.1),
+            (4, 7, 0.5),
+        ],
+    )
+    def test_dclloss_matches_reference(
+        self, batch_size: int, dim: int, temperature: float, seed: int = 0
+    ) -> None:
+        """
+        Ensure patched DCLLoss matches loop-based reference for multiple configs.
+        """
+        torch.manual_seed(seed)
+        out0 = torch.randn(batch_size, dim)
+        out1 = torch.randn(batch_size, dim)
+
+        loss_fn = DCLLoss(temperature=temperature)
+        patched = loss_fn(out0, out1)
+
+        ref = dcl_reference(out0, out1, temperature)
+        assert torch.allclose(
+            patched, ref
+        ), f"patch={patched.item():.6f} vs ref={ref.item():.6f}"
+
 
 def dcl_reference(
     z1: torch.Tensor, z2: torch.Tensor, temperature: float
@@ -112,7 +137,7 @@ def dcl_reference(
     """
     z1 = torch.nn.functional.normalize(z1, dim=1)
     z2 = torch.nn.functional.normalize(z2, dim=1)
-    N, D = z1.shape
+    N = z1.shape[0]
     z = torch.cat([z1, z2], dim=0)  # 2N × D
 
     losses = []
@@ -126,23 +151,8 @@ def dcl_reference(
         mask[i] = False
         mask[pos_idx] = False
         sims = torch.matmul(z[i], z[mask].T) / temperature  # shape (2N-2,)
-        neg_term = torch.log(sims.exp().sum())
+        all_dims = tuple(range(sims.ndim))
+        neg_term = torch.logsumexp(sims, dim=all_dims)
         losses.append(-sim_pos + neg_term)
 
     return torch.stack(losses).mean()
-
-
-def test_dclloss_matches_reference() -> None:
-    """
-    Ensure patched DCLLoss matches loop-based reference for multiple configs.
-    """
-    torch.manual_seed(0)
-    for batch_size, dim, temperature in [(3, 5, 0.1), (4, 7, 0.5)]:
-        out0 = torch.randn(batch_size, dim)
-        out1 = torch.randn(batch_size, dim)
-
-        loss_fn = DCLLoss(temperature=temperature)
-        patched = loss_fn(out0, out1).item()
-        ref = dcl_reference(out0, out1, temperature).item()
-
-        assert abs(patched - ref) < 1e-6, f"patch={patched:.6f} vs ref={ref:.6f}"

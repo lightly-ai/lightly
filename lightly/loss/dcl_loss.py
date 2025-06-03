@@ -35,9 +35,7 @@ def negative_mises_fisher_weights(
     similarity = torch.einsum("nm,nm->n", out0.detach(), out1.detach()) / sigma
 
     # Return negative Mises-Fisher weights
-    return torch.tensor(
-        (2 - out0.shape[0] * nn.functional.softmax(similarity, dim=0)).clamp(min=0.0)
-    )
+    return torch.tensor(2 - out0.shape[0] * nn.functional.softmax(similarity, dim=0))
 
 
 class DCLLoss(nn.Module):
