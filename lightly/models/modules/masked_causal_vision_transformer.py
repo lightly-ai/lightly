@@ -1,12 +1,10 @@
-from typing import Callable, Optional, Tuple, Type, Union
+from typing import Optional
 
 import torch
 import torch.nn.functional as F
-from timm.layers import LayerType, Mlp, PatchEmbed
 from timm.models import _manipulate
 from timm.models.vision_transformer import Attention, Block, VisionTransformer
 from torch import Tensor, jit
-from torch.nn import GELU, LayerNorm, Module
 
 
 # Type ignore because superclass has Any types.
