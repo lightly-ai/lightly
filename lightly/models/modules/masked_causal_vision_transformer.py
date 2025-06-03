@@ -105,20 +105,10 @@ class MaskedCausalBlock(Block):  # type: ignore[misc]
     - [0]: AIM, 2024, https://arxiv.org/abs/2401.08541
     """
 
-    def __init__(
+    def __init__(  # type: ignore[no-untyped-def]
         self,
-        dim: int,
-        num_heads: int,
-        mlp_ratio: float = 4.0,
-        qkv_bias: bool = False,
-        qk_norm: bool = False,
-        proj_drop: float = 0.0,
-        attn_drop: float = 0.0,
-        init_values: Optional[float] = None,
-        drop_path: float = 0.0,
-        act_layer: Type[Module] = GELU,
-        norm_layer: Type[Module] = LayerNorm,
-        mlp_layer: Type[Module] = Mlp,
+        *args,
+        **kwargs,
     ) -> None:
         """Initializes the MaskedCausalBlock with the specified parameters.
 
@@ -133,6 +123,8 @@ class MaskedCausalBlock(Block):  # type: ignore[misc]
                 If True, add bias to the query, key, and value tensors.
             qk_norm:
                 If True, apply layer normalization to queries and keys.
+            proj_bias:
+                If True, add bias to the projection layer (with TIMM >= 1.0.14).
             proj_drop:
                 Percentage of elements set to zero after the projection layer.
             attn_drop:
@@ -149,27 +141,12 @@ class MaskedCausalBlock(Block):  # type: ignore[misc]
                 MLP layer to use.
         """
         super().__init__(
-            dim=dim,
-            num_heads=num_heads,
-            mlp_ratio=mlp_ratio,
-            qkv_bias=qkv_bias,
-            qk_norm=qk_norm,
-            proj_drop=proj_drop,
-            attn_drop=attn_drop,
-            init_values=init_values,
-            drop_path=drop_path,
-            act_layer=act_layer,
-            norm_layer=norm_layer,
-            mlp_layer=mlp_layer,
+            *args,
+            **kwargs,
         )
         self.attn = MaskedCausalAttention(
-            dim,
-            num_heads=num_heads,
-            qkv_bias=qkv_bias,
-            qk_norm=qk_norm,
-            attn_drop=attn_drop,
-            proj_drop=proj_drop,
-            norm_layer=norm_layer,
+            *args,
+            **kwargs,
         )
 
     def forward(self, x: Tensor, mask: Optional[Tensor] = None) -> Tensor:
@@ -200,39 +177,10 @@ class MaskedCausalVisionTransformer(VisionTransformer):  # type: ignore[misc]
     - [0]: AIM, 2024, https://arxiv.org/abs/2401.08541
     """
 
-    def __init__(
+    def __init__(  # type: ignore[no-untyped-def]
         self,
-        img_size: Union[int, Tuple[int, int]] = 224,
-        patch_size: Union[int, Tuple[int, int]] = 16,
-        in_chans: int = 3,
-        num_classes: int = 1000,
-        global_pool: str = "",
-        embed_dim: int = 768,
-        depth: int = 12,
-        num_heads: int = 12,
-        mlp_ratio: float = 4.0,
-        qkv_bias: bool = True,
-        qk_norm: bool = False,
-        init_values: Optional[float] = None,
-        class_token: bool = True,
-        no_embed_class: bool = False,
-        reg_tokens: int = 0,
-        pre_norm: bool = False,
-        fc_norm: Optional[bool] = None,
-        dynamic_img_size: bool = False,
-        dynamic_img_pad: bool = False,
-        drop_rate: float = 0.0,
-        pos_drop_rate: float = 0.0,
-        patch_drop_rate: float = 0.0,
-        proj_drop_rate: float = 0.0,
-        attn_drop_rate: float = 0.0,
-        drop_path_rate: float = 0.0,
-        weight_init: str = "",
-        embed_layer: Callable = PatchEmbed,  # type: ignore[type-arg]
-        norm_layer: Optional[LayerType] = None,
-        act_layer: Optional[LayerType] = None,
-        block_fn: Type[Module] = MaskedCausalBlock,
-        mlp_layer: Type[Module] = Mlp,
+        *args,
+        **kwargs,
     ) -> None:
         """Initializes the MaskedCausalVisionTransformer with the specified parameters.
 
@@ -259,6 +207,8 @@ class MaskedCausalVisionTransformer(VisionTransformer):  # type: ignore[misc]
                 If True, add bias to the query, key, and value tensors.
             qk_norm:
                 If True, apply layer normalization to queries and keys.
+            proj_bias:
+                If True, add bias to the projection layer (with TIMM >= 1.0.14).
             init_values:
                 Initial values for the layer.
             class_token:
@@ -300,38 +250,10 @@ class MaskedCausalVisionTransformer(VisionTransformer):  # type: ignore[misc]
             mlp_layer:
                 MLP layer to use.
         """
+        kwargs.setdefault("block_fn", MaskedCausalBlock)
         super().__init__(
-            img_size=img_size,
-            patch_size=patch_size,
-            in_chans=in_chans,
-            num_classes=num_classes,
-            global_pool=global_pool,
-            embed_dim=embed_dim,
-            depth=depth,
-            num_heads=num_heads,
-            mlp_ratio=mlp_ratio,
-            qkv_bias=qkv_bias,
-            qk_norm=qk_norm,
-            init_values=init_values,
-            class_token=class_token,
-            no_embed_class=no_embed_class,
-            reg_tokens=reg_tokens,
-            pre_norm=pre_norm,
-            fc_norm=fc_norm,
-            dynamic_img_size=dynamic_img_size,
-            dynamic_img_pad=dynamic_img_pad,
-            drop_rate=drop_rate,
-            pos_drop_rate=pos_drop_rate,
-            patch_drop_rate=patch_drop_rate,
-            proj_drop_rate=proj_drop_rate,
-            attn_drop_rate=attn_drop_rate,
-            drop_path_rate=drop_path_rate,
-            weight_init=weight_init,
-            embed_layer=embed_layer,
-            norm_layer=norm_layer,
-            act_layer=act_layer,
-            block_fn=block_fn,
-            mlp_layer=mlp_layer,
+            *args,
+            **kwargs,
         )
 
     def forward_features(self, x: Tensor, mask: Optional[Tensor] = None) -> Tensor:
