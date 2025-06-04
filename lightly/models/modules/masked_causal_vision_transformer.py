@@ -10,7 +10,8 @@ from torch import Tensor, jit
 # Type ignore because superclass has Any types.
 class MaskedCausalAttention(Attention):  # type: ignore[misc]
     """Identical to timm.models.vision_transformer.Attention, but supports causal
-    attention with masking.
+    attention with masking. Please check the source code of the
+    timm.models.vision_transformer.Attention class for input parameters.
 
     The implementation is based on AIM [0].
 
@@ -96,7 +97,8 @@ class MaskedCausalAttention(Attention):  # type: ignore[misc]
 # Type ignore because superclass has Any types.
 class MaskedCausalBlock(Block):  # type: ignore[misc]
     """Identical to timm.models.vision_transformer.Block, but uses PrefixCausalAttention
-    instead of Attention.
+    instead of Attention. Please check the source code of the timm.models.vision_transformer.Block
+    class for input parameters.
 
     The implementation is based on AIM [0].
 
@@ -108,35 +110,9 @@ class MaskedCausalBlock(Block):  # type: ignore[misc]
         *args,
         **kwargs,
     ) -> None:
-        """Initializes the MaskedCausalBlock with the specified parameters.
+        """Initializes the MaskedCausalBlock with the specified parameters. Please check the source code of the timm.models.vision_transformer.Block
+        class for input parameters.
 
-        Args:
-            dim:
-                Dimension of the input tokens.
-            num_heads:
-                Number of attention heads.
-            mlp_ratio:
-                Ratio of MLP hidden dim to embedding dim.
-            qkv_bias:
-                If True, add bias to the query, key, and value tensors.
-            qk_norm:
-                If True, apply layer normalization to queries and keys.
-            proj_bias:
-                If True, add bias to the projection layer (with TIMM >= 1.0.14).
-            proj_drop:
-                Percentage of elements set to zero after the projection layer.
-            attn_drop:
-                Percentage of elements set to zero after the attention head.
-            init_values:
-                Initial values for the layer.
-            drop_path:
-                Drop path rate for the block.
-            act_layer:
-                Activation layer to use.
-            norm_layer:
-                Normalization layer to use.
-            mlp_layer:
-                MLP layer to use.
         """
         super().__init__(
             *args,
@@ -170,7 +146,8 @@ class MaskedCausalBlock(Block):  # type: ignore[misc]
 
 # Type ignore because superclass has Any types.
 class MaskedCausalVisionTransformer(VisionTransformer):  # type: ignore[misc]
-    """Vision transformer with masked causal attention based on AIM [0].
+    """Vision transformer with masked causal attention based on AIM [0]. Please check the source code of the timm.models.vision_transformer.VisionTransformer
+    class for input parameters.
 
     - [0]: AIM, 2024, https://arxiv.org/abs/2401.08541
     """
@@ -180,73 +157,9 @@ class MaskedCausalVisionTransformer(VisionTransformer):  # type: ignore[misc]
         *args,
         **kwargs,
     ) -> None:
-        """Initializes the MaskedCausalVisionTransformer with the specified parameters.
+        """Initializes the MaskedCausalVisionTransformer with the specified parameters. Please check the source code of the timm.models.vision_transformer.VisionTransformer
+        class for input parameters.
 
-        Args:
-            img_size:
-                Input image size.
-            patch_size:
-                Width and height of the image patches.
-            in_chans:
-                Number of image input channels.
-            num_classes:
-                Number of classes for the classification head.
-            global_pool:
-                Global pooling type.
-            embed_dim:
-                Embedding dimension.
-            depth:
-                Depth of the transformer.
-            num_heads:
-                Number of attention heads.
-            mlp_ratio:
-                Ratio of MLP hidden dim to embedding dim.
-            qkv_bias:
-                If True, add bias to the query, key, and value tensors.
-            qk_norm:
-                If True, apply layer normalization to queries and keys.
-            proj_bias:
-                If True, add bias to the projection layer (with TIMM >= 1.0.14).
-            init_values:
-                Initial values for the layer.
-            class_token:
-                If True, add class token to the embeddings.
-            no_embed_class:
-                If True, do not embed class token.
-            reg_tokens:
-                Number of regularization tokens.
-            pre_norm :
-                If True, apply layer normalization before the transformer.
-            fc_norm:
-                If True, apply layer normalization to the final fully connected layer.
-            dynamic_img_size:
-                If True, dynamically adjust the image size.
-            dynamic_img_pad:
-                If True, dynamically pad the image.
-            drop_rate:
-                Percentage of elements set to zero after the dropout layer.
-            pos_drop_rate:
-                Percentage of elements set to zero after the positional dropout layer.
-            patch_drop_rate:
-                Percentage of elements set to zero after the patch dropout layer.
-            proj_drop_rate:
-                Percentage of elements set to zero after the projection dropout layer.
-            attn_drop_rate:
-                Percentage of elements set to zero after the attention head dropout.
-            drop_path_rate:
-                Drop path rate for the block.
-            weight_init:
-                Weight initialization method.
-            embed_layer:
-                Callable that creates the embedding layer.
-            norm_layer:
-                Normalization layer to use.
-            act_layer:
-                Activation layer to use.
-            block_fn:
-                Block function to use.
-            mlp_layer:
-                MLP layer to use.
         """
         kwargs.setdefault("block_fn", MaskedCausalBlock)
         super().__init__(
