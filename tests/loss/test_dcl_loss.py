@@ -101,3 +101,54 @@ class TestDCLLoss:
         loss1 = criterion(out1, out0)
         assert loss0 > 0
         assert loss0 == pytest.approx(loss1)
+
+    @pytest.mark.parametrize("batch_size", [3, 4])
+    @pytest.mark.parametrize("dim", [5, 7])
+    @pytest.mark.parametrize("temperature", [0.1, 0.5])
+    def test_dclloss_matches_reference(
+        self, batch_size: int, dim: int, temperature: float, seed: int = 0
+    ) -> None:
+        """
+        Ensure patched DCLLoss matches loop-based reference for multiple configs.
+        """
+        torch.manual_seed(seed)
+        out0 = torch.randn(batch_size, dim)
+        out1 = torch.randn(batch_size, dim)
+
+        loss_fn = DCLLoss(temperature=temperature)
+        patched = loss_fn(out0, out1)
+
+        ref = dcl_reference(out0, out1, temperature)
+        assert torch.allclose(
+            patched, ref
+        ), f"patch={patched.item():.6f} vs ref={ref.item():.6f}"
+
+
+def dcl_reference(
+    x1: torch.Tensor, x2: torch.Tensor, temperature: float
+) -> torch.Tensor:
+    """
+    Loop-based reference:
+      L = avg_i[ -sim_pos(i) + log(sum_j exp(sim_neg(i,j))) ]
+    """
+    z1 = torch.nn.functional.normalize(x1, dim=1)
+    z2 = torch.nn.functional.normalize(x2, dim=1)
+    N = z1.shape[0]
+    z = torch.cat([z1, z2], dim=0)  # 2N × D
+
+    losses = []
+    for i in range(2 * N):
+        # find positive index
+        pos_idx = i + N if i < N else i - N
+        sim_pos = torch.dot(z[i], z[pos_idx]) / temperature
+
+        # negatives are all except i and pos_idx
+        mask = torch.ones(2 * N, dtype=torch.bool)
+        mask[i] = False
+        mask[pos_idx] = False
+        sims = torch.matmul(z[i], z[mask].T) / temperature  # shape (2N-2,)
+        all_dims = tuple(range(sims.ndim))
+        neg_term = torch.logsumexp(sims, dim=all_dims)
+        losses.append(-sim_pos + neg_term)
+
+    return torch.stack(losses).mean()
