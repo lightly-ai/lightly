@@ -15,6 +15,9 @@ from lightly.utils.scheduler import CosineWarmupScheduler
     "step, max_steps, start_value, end_value, period, expected",
     [
         # No period
+        (0, 0, 1.0, 0.0, None, 0.0),
+        (1, 0, 1.0, 0.0, None, 0.0),
+        (1, 1, 1.0, 0.0, None, 0.0),
         (0, 10, 1.0, 0.0, None, 1.0),
         (1, 10, 1.0, 0.0, None, 0.96984631),
         (2, 10, 1.0, 0.0, None, 0.88302222),
@@ -27,6 +30,7 @@ from lightly.utils.scheduler import CosineWarmupScheduler
         (11, 20, 1.0, 0.0, 10, 0.90450849),
         (15, 20, 1.0, 0.0, 10, 0.0),
         (20, 20, 1.0, 0.0, 10, 1.0),
+        (20, 20, 1.0, 0.0, 20, 1.0),
     ],
 )
 def test_cosine_schedule(
@@ -50,8 +54,7 @@ def test_cosine_schedule(
     "step, max_steps, start_value, end_value, period, expected_message",
     [
         (-1, 1, 0.0, 1.0, None, "Current step number -1 can't be negative"),
-        (0, 0, 0.0, 1.0, None, "Total step number 0 must be >= 1"),
-        (1, 0, 0.0, 1.0, None, "Total step number 0 must be >= 1"),
+        (1, -1, 0.0, 1.0, None, "Total step number -1 can't be negative"),
         (0, 1, 0.0, 1.0, -1, "Period -1 must be >= 1"),
     ],
 )

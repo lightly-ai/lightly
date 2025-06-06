@@ -34,7 +34,7 @@ def cosine_schedule(
     if step < 0:
         raise ValueError(f"Current step number {step} can't be negative.")
     if max_steps < 0:
-        raise ValueError(f"Total step number {max_steps} must be >= 0.")
+        raise ValueError(f"Total step number {max_steps} can't be negative.")
     if period is None and step > max_steps:
         warnings.warn(
             f"Current step number {step} exceeds max_steps {max_steps}.",
@@ -52,7 +52,7 @@ def cosine_schedule(
     elif max_steps <= 1:
         # Avoid division by zero
         decay = end_value
-    elif step == max_steps:
+    elif step >= max_steps - 1:
         # Special case for Pytorch Lightning which updates LR scheduler also for epoch
         # after last training epoch.
         decay = end_value
