@@ -33,8 +33,8 @@ def cosine_schedule(
     """
     if step < 0:
         raise ValueError(f"Current step number {step} can't be negative.")
-    if max_steps < 1:
-        raise ValueError(f"Total step number {max_steps} must be >= 1.")
+    if max_steps < 0:
+        raise ValueError(f"Total step number {max_steps} must be >= 0.")
     if period is None and step > max_steps:
         warnings.warn(
             f"Current step number {step} exceeds max_steps {max_steps}.",
@@ -49,7 +49,7 @@ def cosine_schedule(
             end_value
             - (end_value - start_value) * (np.cos(2 * np.pi * step / period) + 1) / 2
         )
-    elif max_steps == 1:
+    elif max_steps <= 1:
         # Avoid division by zero
         decay = end_value
     elif step == max_steps:
@@ -123,7 +123,7 @@ def cosine_warmup_schedule(
             + (warmup_end_value - warmup_start_value) * (step + 1) / warmup_steps
         )
     else:
-        max_steps = max_steps - warmup_steps if period is None else 1
+        max_steps = max_steps - (warmup_steps if period is None else 1)
         return cosine_schedule(
             step=step - warmup_steps,
             max_steps=max_steps,
