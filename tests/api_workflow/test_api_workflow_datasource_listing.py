@@ -372,6 +372,7 @@ class TestListingMixin:
             to=5,
             relevant_filenames_file_name=None,
             use_redirected_read_url=False,
+            divide_and_conquer_shards=1,
         )
         client.update_processed_until_timestamp.assert_called_once_with(timestamp=5)
 
@@ -389,6 +390,7 @@ class TestListingMixin:
             to=5,
             relevant_filenames_file_name=None,
             use_redirected_read_url=False,
+            divide_and_conquer_shards=1,
         )
         client.update_processed_until_timestamp.assert_called_once_with(timestamp=5)
 
@@ -476,10 +478,15 @@ class TestListingMixin:
                 DatasourceRawSamplesDataRow(fileName="file2", readUrl="url2"),
             ],
         )
+        dnc_response = DivideAndConquerCursorData(
+            cursors=["divide_and_conquer_cursor1"]
+        )
         download_function = mocker.MagicMock(side_effect=[response])
+        dnc_function = mocker.MagicMock(return_value=dnc_response)
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
         assert client._download_raw_files(
             download_function=download_function,
+            dnc_function=dnc_function,
         ) == [("file1", "url1"), ("file2", "url2")]
 
     @pytest.mark.parametrize("with_retry", [True, False])
