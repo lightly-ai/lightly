@@ -229,21 +229,42 @@ class TestListingMixin:
                 DatasourceRawSamplesDataRow(fileName="file2", readUrl="url2"),
             ],
         )
+        dnc_response = DivideAndConquerCursorData(
+            cursors=["divide_and_conquer_cursor1"]
+        )
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
         side_effects = [response]
         if with_retry:
             side_effects.insert(
                 0, ApiException(status=500, reason="Internal Server Error")
             )
-        mocker.patch.object(
+
+        mock_download_function = mocker.patch.object(
             client._datasources_api,
             "get_list_of_raw_samples_metadata_from_datasource_by_dataset_id",
             side_effect=side_effects,
         )
-        assert client.download_raw_metadata() == [
-            ("file1", "url1"),
-            ("file2", "url2"),
-        ]
+        mock_dnc_function = mocker.patch.object(
+            client._datasources_api,
+            "get_divide_and_conquer_list_of_raw_samples_metadata_from_datasource_by_dataset_id",
+            return_value=dnc_response,
+        )
+
+        result = client.download_raw_metadata()
+
+        assert result == [("file1", "url1"), ("file2", "url2")]
+
+        # Verify divide and conquer function was called correctly
+        mock_dnc_function.assert_called_once_with(
+            dataset_id="dataset-id", var_from=0, to=mocker.ANY, dnc_shards=1
+        )
+
+        # Verify download function was called with the cursor from divide and conquer
+        mock_download_function.assert_called_with(
+            dataset_id="dataset-id",
+            cursor="divide_and_conquer_cursor1",
+            use_redirected_read_url=False,
+        )
 
     def test_download_raw_metadata_iter(self, mocker: MockerFixture) -> None:
         response_1 = DatasourceRawSamplesData(
