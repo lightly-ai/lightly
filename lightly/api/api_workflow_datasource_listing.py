@@ -1,6 +1,7 @@
 import time
 import warnings
-from typing import Dict, Iterator, List, Optional, Set, Tuple, Union
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from typing import Iterator, List, Optional, Set, Tuple, Union
 
 import tqdm
 
@@ -14,14 +15,13 @@ from lightly.openapi_generated.swagger_client.models import (
 from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_data_row import (
     DatasourceRawSamplesDataRow,
 )
-from lightly.openapi_generated.swagger_client.models.divide_and_conquer_cursor_data import DivideAndConquerCursorData
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Callable, Union
-
+from lightly.openapi_generated.swagger_client.models.divide_and_conquer_cursor_data import (
+    DivideAndConquerCursorData,
+)
 
 DownloadFunction = Union[
     "DatasourcesApi.get_list_of_raw_samples_from_datasource_by_dataset_id",
-    "DatasourcesApi.get_list_of_raw_samples_predictions_from_datasource_by_dataset_id", 
+    "DatasourcesApi.get_list_of_raw_samples_predictions_from_datasource_by_dataset_id",
     "DatasourcesApi.get_list_of_raw_samples_metadata_from_datasource_by_dataset_id",
 ]
 
@@ -30,6 +30,7 @@ DivideAndConquerFunction = Union[
     "DatasourcesApi.get_divide_and_conquer_list_of_raw_samples_metadata_from_datasource_by_dataset_id",
     "DatasourcesApi.get_divide_and_conquer_list_of_raw_samples_predictions_from_datasource_by_dataset_id",
 ]
+
 
 class _DatasourceListingMixin:
     def download_raw_samples(
@@ -212,21 +213,25 @@ class _DatasourceListingMixin:
             divide_and_conquer_shards=divide_and_conquer_shards,
             **relevant_filenames_kwargs,
         )
-        
+
         def download_with_cursor(cursor):
-            return list(self._download_raw_files_cursor_iter(
-                download_function=self._datasources_api.get_list_of_raw_samples_predictions_from_datasource_by_dataset_id,
-                cursor=cursor,
-                relevant_filenames_file_name=relevant_filenames_file_name,
-                use_redirected_read_url=use_redirected_read_url,
-                task_name=task_name,
-                progress_bar=progress_bar,
-                **relevant_filenames_kwargs,
-            ))
+            return list(
+                self._download_raw_files_cursor_iter(
+                    download_function=self._datasources_api.get_list_of_raw_samples_predictions_from_datasource_by_dataset_id,
+                    cursor=cursor,
+                    relevant_filenames_file_name=relevant_filenames_file_name,
+                    use_redirected_read_url=use_redirected_read_url,
+                    task_name=task_name,
+                    progress_bar=progress_bar,
+                    **relevant_filenames_kwargs,
+                )
+            )
 
         # download in parallel using threads
         with ThreadPoolExecutor() as executor:
-            futures = [executor.submit(download_with_cursor, cursor) for cursor in cursors]
+            futures = [
+                executor.submit(download_with_cursor, cursor) for cursor in cursors
+            ]
             for future in as_completed(futures):
                 yield from future.result()
 
@@ -346,24 +351,29 @@ class _DatasourceListingMixin:
         )
 
         def download_with_cursor(cursor):
-            return list(self._download_raw_files_cursor_iter(
-                download_function=self._datasources_api.get_list_of_raw_samples_metadata_from_datasource_by_dataset_id,
-                cursor=cursor,
-                relevant_filenames_file_name=relevant_filenames_file_name,
-                use_redirected_read_url=use_redirected_read_url,
-                progress_bar=progress_bar,
-                **relevant_filenames_kwargs,
-            ))
+            return list(
+                self._download_raw_files_cursor_iter(
+                    download_function=self._datasources_api.get_list_of_raw_samples_metadata_from_datasource_by_dataset_id,
+                    cursor=cursor,
+                    relevant_filenames_file_name=relevant_filenames_file_name,
+                    use_redirected_read_url=use_redirected_read_url,
+                    progress_bar=progress_bar,
+                    **relevant_filenames_kwargs,
+                )
+            )
 
         # download in parallel using threads
         with ThreadPoolExecutor() as executor:
-            futures = [executor.submit(download_with_cursor, cursor) for cursor in cursors]
+            futures = [
+                executor.submit(download_with_cursor, cursor) for cursor in cursors
+            ]
             for future in as_completed(futures):
                 yield from future.result()
 
     def download_new_raw_samples(
         self,
         use_redirected_read_url: bool = False,
+        divide_and_conquer_shards: int = 1,
     ) -> List[Tuple[str, str]]:
         """Downloads filenames and read urls of unprocessed samples from the datasource.
 
@@ -403,6 +413,7 @@ class _DatasourceListingMixin:
             from_=from_,
             to=to,
             relevant_filenames_file_name=None,
+            divide_and_conquer_shards=divide_and_conquer_shards,
             use_redirected_read_url=use_redirected_read_url,
         )
         self.update_processed_until_timestamp(timestamp=to)
@@ -536,7 +547,6 @@ class _DatasourceListingMixin:
             file_name=filename,
         )
 
-    
     def _get_divide_and_conquer_list_cursors(
         self,
         dnc_function: DivideAndConquerFunction,
@@ -546,7 +556,6 @@ class _DatasourceListingMixin:
         divide_and_conquer_shards: int = 1,
         **kwargs,
     ) -> List[str]:
-        
         if to is None:
             to = int(time.time())
 
@@ -568,7 +577,7 @@ class _DatasourceListingMixin:
         )
 
         return response.cursors
-    
+
     def _download_raw_files(
         self,
         download_function: DownloadFunction,
@@ -581,7 +590,6 @@ class _DatasourceListingMixin:
         progress_bar: Optional[tqdm.tqdm] = None,
         **kwargs,
     ) -> List[Tuple[str, str]]:
-    
         return list(
             self._download_raw_files_divide_and_conquer_iter(
                 download_function=download_function,
@@ -637,21 +645,24 @@ class _DatasourceListingMixin:
         )
 
         def download_with_cursor(cursor):
-            return list(self._download_raw_files_cursor_iter(
-                download_function=download_function,
-                cursor=cursor,
-                relevant_filenames_file_name=relevant_filenames_file_name,
-                use_redirected_read_url=use_redirected_read_url,
-                progress_bar=progress_bar,
-                **relevant_filenames_kwargs,
-            ))
+            return list(
+                self._download_raw_files_cursor_iter(
+                    download_function=download_function,
+                    cursor=cursor,
+                    relevant_filenames_file_name=relevant_filenames_file_name,
+                    use_redirected_read_url=use_redirected_read_url,
+                    progress_bar=progress_bar,
+                    **relevant_filenames_kwargs,
+                )
+            )
 
         # download in parallel using threads
         with ThreadPoolExecutor() as executor:
-            futures = [executor.submit(download_with_cursor, cursor) for cursor in cursors]
+            futures = [
+                executor.submit(download_with_cursor, cursor) for cursor in cursors
+            ]
             for future in as_completed(futures):
                 yield from future.result()
-
 
     def _download_raw_files_cursor_iter(
         self,
@@ -684,9 +695,9 @@ class _DatasourceListingMixin:
                 if progress_bar is not None:
                     progress_bar.update(1)
 
-        active_cursor = cursor 
+        active_cursor = cursor
         while active_cursor:
-            print('calling..')
+            print("calling..")
             response: DatasourceRawSamplesData = retry(
                 fn=download_function,
                 dataset_id=self.dataset_id,
@@ -695,7 +706,9 @@ class _DatasourceListingMixin:
                 **relevant_filenames_kwargs,
                 **kwargs,
             )
-            print(f"Downloading samples with cursor: {active_cursor} {len(response.data)} samples found")
+            print(
+                f"Downloading samples with cursor: {active_cursor} {len(response.data)} samples found"
+            )
             yield from get_entries(response=response)
 
             active_cursor = response.cursor
