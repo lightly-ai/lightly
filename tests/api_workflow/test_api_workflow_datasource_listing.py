@@ -511,7 +511,7 @@ class TestListingMixin:
         ) == [("file1", "url1"), ("file2", "url2")]
 
     @pytest.mark.parametrize("with_retry", [True, False])
-    def test__download_raw_files_iter(
+    def test__download_raw_files_divide_and_conquer_iter(
         self, mocker: MockerFixture, with_retry: bool
     ) -> None:
         response_1 = DatasourceRawSamplesData(
@@ -542,7 +542,7 @@ class TestListingMixin:
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
         progress_bar = mocker.spy(tqdm, "tqdm")
         assert list(
-            client._download_raw_files_iter(
+            client._download_raw_files_divide_and_conquer_iter(
                 download_function=download_function,
                 from_=0,
                 to=5,
@@ -580,16 +580,16 @@ class TestListingMixin:
         download_function.assert_has_calls(expected_calls)
         assert progress_bar.update.call_count == 4
 
-    def test__download_raw_files_iter__no_relevant_filenames(
+    def test__download_raw_files_divide_and_conquer_iter__no_relevant_filenames(
         self, mocker: MockerFixture
     ) -> None:
         response = DatasourceRawSamplesData(hasMore=False, cursor="", data=[])
         download_function = mocker.MagicMock(side_effect=[response])
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
-        list(client._download_raw_files_iter(download_function=download_function))
+        list(client._download_raw_files_divide_and_conquer_iter(download_function=download_function))
         assert "relevant_filenames_file_name" not in download_function.call_args[1]
 
-    def test__download_raw_files_iter__warning(self, mocker: MockerFixture) -> None:
+    def test__download_raw_files_divide_and_conquer_iter__warning(self, mocker: MockerFixture) -> None:
         response = DatasourceRawSamplesData(
             hasMore=False,
             cursor="",
@@ -600,7 +600,7 @@ class TestListingMixin:
         download_function = mocker.MagicMock(side_effect=[response])
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
         with pytest.warns(UserWarning, match="Absolute file paths like /file1"):
-            list(client._download_raw_files_iter(download_function=download_function))
+            list(client._download_raw_files_divide_and_conquer_iter(download_function=download_function))
 
     def test__get_divide_and_conquer_list_cursors__basic(
         self, mocker: MockerFixture
