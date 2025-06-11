@@ -89,6 +89,14 @@ class TestListingMixin:
             "get_list_of_raw_samples_predictions_from_datasource_by_dataset_id",
             side_effect=side_effects,
         )
+        dnc_response = DivideAndConquerCursorData(
+            cursors=["divide_and_conquer_cursor1"]
+        )
+        mocker.patch.object(
+            client._datasources_api,
+            "get_divide_and_conquer_list_of_raw_samples_predictions_from_datasource_by_dataset_id",
+            return_value=dnc_response,
+        )
         assert client.download_raw_predictions(task_name="task") == [
             ("file1", "url1"),
             ("file2", "url2"),
@@ -181,6 +189,14 @@ class TestListingMixin:
             client._datasources_api,
             "get_list_of_raw_samples_predictions_from_datasource_by_dataset_id",
             side_effect=[response],
+        )
+        dnc_response = DivideAndConquerCursorData(
+            cursors=["divide_and_conquer_cursor1"]
+        )
+        mocker.patch.object(
+            client._datasources_api,
+            "get_divide_and_conquer_list_of_raw_samples_predictions_from_datasource_by_dataset_id",
+            return_value=dnc_response,
         )
         assert list(
             client.download_raw_predictions_iter(
@@ -346,6 +362,14 @@ class TestListingMixin:
             client._datasources_api,
             "get_list_of_raw_samples_metadata_from_datasource_by_dataset_id",
             side_effect=[response],
+        )
+        dnc_response = DivideAndConquerCursorData(
+            cursors=["divide_and_conquer_cursor1"]
+        )
+        mocker.patch.object(
+            client._datasources_api,
+            "get_divide_and_conquer_list_of_raw_samples_metadata_from_datasource_by_dataset_id",
+            return_value=dnc_response,
         )
         assert list(
             client.download_raw_metadata_iter(
@@ -530,6 +554,9 @@ class TestListingMixin:
                 DatasourceRawSamplesDataRow(fileName="file4", readUrl="url4"),
             ],
         )
+        dnc_response = DivideAndConquerCursorData(
+            cursors=["divide_and_conquer_cursor1"]
+        )
         if with_retry:
             side_effects = [
                 ApiException(status=500, reason="Internal Server Error"),
@@ -539,11 +566,13 @@ class TestListingMixin:
         else:
             side_effects = [response_1, response_2]
         download_function = mocker.MagicMock(side_effect=side_effects)
+        dnc_function = mocker.MagicMock(return_value=dnc_response)
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
         progress_bar = mocker.spy(tqdm, "tqdm")
         assert list(
             client._download_raw_files_divide_and_conquer_iter(
                 download_function=download_function,
+                dnc_function=dnc_function,
                 from_=0,
                 to=5,
                 relevant_filenames_file_name="relevant-filenames",
@@ -584,9 +613,11 @@ class TestListingMixin:
         self, mocker: MockerFixture
     ) -> None:
         response = DatasourceRawSamplesData(hasMore=False, cursor="", data=[])
+        dnc_response = DivideAndConquerCursorData(cursors=["dnc_cursor1"])
         download_function = mocker.MagicMock(side_effect=[response])
+        dnc_function = mocker.MagicMock(return_value=dnc_response)
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
-        list(client._download_raw_files_divide_and_conquer_iter(download_function=download_function))
+        list(client._download_raw_files_divide_and_conquer_iter(download_function=download_function, dnc_function=dnc_function))
         assert "relevant_filenames_file_name" not in download_function.call_args[1]
 
     def test__download_raw_files_divide_and_conquer_iter__warning(self, mocker: MockerFixture) -> None:
@@ -598,9 +629,11 @@ class TestListingMixin:
             ],
         )
         download_function = mocker.MagicMock(side_effect=[response])
+        dnc_response = DivideAndConquerCursorData(cursors=["dnc_cursor1"])
+        dnc_function = mocker.MagicMock(return_value=dnc_response)
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
         with pytest.warns(UserWarning, match="Absolute file paths like /file1"):
-            list(client._download_raw_files_divide_and_conquer_iter(download_function=download_function))
+            list(client._download_raw_files_divide_and_conquer_iter(download_function=download_function, dnc_function=dnc_function))
 
     def test__get_divide_and_conquer_list_cursors__basic(
         self, mocker: MockerFixture
