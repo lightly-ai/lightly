@@ -25,7 +25,8 @@ def cosine_schedule(
             Target value.
         period:
             The number of steps over which the cosine function completes a full cycle.
-            Defaults to max_steps.
+            If no period is provided, the scheduler will complete a half cycle over
+            max_steps.
 
     Returns:
         Cosine decay value.
@@ -33,8 +34,8 @@ def cosine_schedule(
     """
     if step < 0:
         raise ValueError(f"Current step number {step} can't be negative.")
-    if max_steps < 1:
-        raise ValueError(f"Total step number {max_steps} must be >= 1.")
+    if max_steps < 0:
+        raise ValueError(f"Total step number {max_steps} can't be negative.")
     if period is None and step > max_steps:
         warnings.warn(
             f"Current step number {step} exceeds max_steps {max_steps}.",
@@ -49,10 +50,10 @@ def cosine_schedule(
             end_value
             - (end_value - start_value) * (np.cos(2 * np.pi * step / period) + 1) / 2
         )
-    elif max_steps == 1:
+    elif max_steps <= 1:
         # Avoid division by zero
         decay = end_value
-    elif step == max_steps:
+    elif step >= max_steps - 1:
         # Special case for Pytorch Lightning which updates LR scheduler also for epoch
         # after last training epoch.
         decay = end_value
@@ -97,7 +98,8 @@ def cosine_warmup_schedule(
             Target value for warmup. Defaults to start_value.
         period:
             The number of steps over which the cosine function completes a full cycle.
-            Defaults to max_steps - warmup_steps.
+            If no period is provided, the scheduler will complete a half cycle over
+            max_steps - warmup_steps.
     Returns:
         Cosine decay value.
     """
@@ -123,7 +125,7 @@ def cosine_warmup_schedule(
             + (warmup_end_value - warmup_start_value) * (step + 1) / warmup_steps
         )
     else:
-        max_steps = max_steps - warmup_steps if period is None else 1
+        max_steps = max_steps - (warmup_steps if period is None else 1)
         return cosine_schedule(
             step=step - warmup_steps,
             max_steps=max_steps,
