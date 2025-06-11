@@ -25,7 +25,8 @@ def cosine_schedule(
             Target value.
         period:
             The number of steps over which the cosine function completes a full cycle.
-            Defaults to max_steps.
+            If no period is provided, the scheduler will complete a half cycle over
+            max_steps.
 
     Returns:
         Cosine decay value.
@@ -97,7 +98,8 @@ def cosine_warmup_schedule(
             Target value for warmup. Defaults to start_value.
         period:
             The number of steps over which the cosine function completes a full cycle.
-            Defaults to max_steps - warmup_steps.
+            If no period is provided, the scheduler will complete a half cycle over
+            max_steps - warmup_steps.
     Returns:
         Cosine decay value.
     """
