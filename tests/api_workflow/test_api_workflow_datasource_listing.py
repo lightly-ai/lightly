@@ -208,6 +208,15 @@ class TestListingMixin:
             ("file1", "url1"),
             ("file2", "url2"),
         ]
+        client._datasources_api.get_divide_and_conquer_list_of_raw_samples_predictions_from_datasource_by_dataset_id.assert_called_once_with(
+            dataset_id="dataset-id",
+            var_from=0,
+            to=mocker.ANY,
+            dnc_shards=1,
+            task_name="task",
+            relevant_filenames_run_id="run-id",
+            relevant_filenames_artifact_id="relevant-filenames",
+        )
         client._datasources_api.get_list_of_raw_samples_predictions_from_datasource_by_dataset_id.assert_called_once_with(
             dataset_id="dataset-id",
             task_name="task",
@@ -379,6 +388,14 @@ class TestListingMixin:
             ("file1", "url1"),
             ("file2", "url2"),
         ]
+        client._datasources_api.get_divide_and_conquer_list_of_raw_samples_metadata_from_datasource_by_dataset_id.assert_called_once_with(
+            dataset_id="dataset-id",
+            var_from=0,
+            to=mocker.ANY,
+            dnc_shards=1,
+            relevant_filenames_run_id="run-id",
+            relevant_filenames_artifact_id="relevant-filenames",
+        )
         client._datasources_api.get_list_of_raw_samples_metadata_from_datasource_by_dataset_id.assert_called_once_with(
             dataset_id="dataset-id",
             cursor="divide_and_conquer_cursor1",
@@ -566,7 +583,7 @@ class TestListingMixin:
         download_function = mocker.MagicMock(side_effect=side_effects)
         dnc_function = mocker.MagicMock(return_value=dnc_response)
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
-        progress_bar = mocker.spy(tqdm, "tqdm")
+        mock_progress_bar = mocker.MagicMock()
         assert list(
             client._download_raw_files_divide_and_conquer_iter(
                 download_function=download_function,
@@ -575,7 +592,7 @@ class TestListingMixin:
                 to=5,
                 relevant_filenames_file_name="relevant-filenames",
                 use_redirected_read_url=True,
-                progress_bar=progress_bar,
+                progress_bar=mock_progress_bar,
                 foo="bar",
             )
         ) == [
@@ -586,8 +603,8 @@ class TestListingMixin:
         ]
         expected_calls = [
             mocker.call(
-                cursor="divide_and_conquer_cursor1",
                 dataset_id="dataset-id",
+                cursor="divide_and_conquer_cursor1",
                 relevant_filenames_file_name="relevant-filenames",
                 use_redirected_read_url=True,
             ),
@@ -596,14 +613,13 @@ class TestListingMixin:
                 cursor="cursor1",
                 relevant_filenames_file_name="relevant-filenames",
                 use_redirected_read_url=True,
-                foo="bar",
             ),
         ]
         if with_retry:
             # Assert that only the first call is retried.
             expected_calls.insert(0, expected_calls[0])
         download_function.assert_has_calls(expected_calls)
-        assert progress_bar.update.call_count == 4
+        assert mock_progress_bar.update.call_count == 4
 
     def test__download_raw_files_divide_and_conquer_iter__no_relevant_filenames(
         self, mocker: MockerFixture
