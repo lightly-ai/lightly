@@ -214,6 +214,8 @@ class _DatasourceListingMixin:
             **relevant_filenames_kwargs,
         )
 
+        
+
         def download_with_cursor(cursor):
             return list(
                 self._download_raw_files_cursor_iter(
@@ -228,7 +230,7 @@ class _DatasourceListingMixin:
             )
 
         # download in parallel using threads
-        with ThreadPoolExecutor() as executor:
+        with ThreadPoolExecutor(max_workers=len(cursors)) as executor:
             futures = [
                 executor.submit(download_with_cursor, cursor) for cursor in cursors
             ]
@@ -363,7 +365,7 @@ class _DatasourceListingMixin:
             )
 
         # download in parallel using threads
-        with ThreadPoolExecutor() as executor:
+        with ThreadPoolExecutor(max_workers=len(cursors)) as executor:
             futures = [
                 executor.submit(download_with_cursor, cursor) for cursor in cursors
             ]
@@ -656,9 +658,10 @@ class _DatasourceListingMixin:
                     **kwargs,
                 )
             )
+    
 
         # download in parallel using threads
-        with ThreadPoolExecutor() as executor:
+        with ThreadPoolExecutor(max_workers=len(cursors)) as executor:
             futures = [
                 executor.submit(download_with_cursor, cursor) for cursor in cursors
             ]
