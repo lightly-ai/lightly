@@ -697,7 +697,6 @@ class _DatasourceListingMixin:
 
         active_cursor = cursor
         while active_cursor:
-            print("calling..")
             response: DatasourceRawSamplesData = retry(
                 fn=download_function,
                 dataset_id=self.dataset_id,
@@ -705,9 +704,6 @@ class _DatasourceListingMixin:
                 use_redirected_read_url=use_redirected_read_url,
                 **relevant_filenames_kwargs,
                 **kwargs,
-            )
-            print(
-                f"Downloading samples with cursor: {active_cursor} {len(response.data)} samples found"
             )
             yield from get_entries(response=response)
 

@@ -588,12 +588,10 @@ class TestListingMixin:
         ]
         expected_calls = [
             mocker.call(
+                cursor="divide_and_conquer_cursor1",
                 dataset_id="dataset-id",
-                var_from=0,
-                to=5,
                 relevant_filenames_file_name="relevant-filenames",
                 use_redirected_read_url=True,
-                foo="bar",
             ),
             mocker.call(
                 dataset_id="dataset-id",
