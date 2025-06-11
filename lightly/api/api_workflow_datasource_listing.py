@@ -653,6 +653,7 @@ class _DatasourceListingMixin:
                     use_redirected_read_url=use_redirected_read_url,
                     progress_bar=progress_bar,
                     **relevant_filenames_kwargs,
+                    **kwargs,
                 )
             )
 
