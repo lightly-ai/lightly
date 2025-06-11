@@ -44,7 +44,7 @@ jobs:
         run: |
           # Install libavformat-dev and libavdevice-dev for PyAV as versions before 9.0
           # do not provide wheels including FFMPEG.
-          sudo apt-get install --fix-broken libavformat-dev libavdevice-dev
+          sudo apt-get install -f -m libavformat-dev libavdevice-dev
           make install-uv reset-venv
           source .venv/bin/activate
           make install-${{ matrix.dependencies }}
