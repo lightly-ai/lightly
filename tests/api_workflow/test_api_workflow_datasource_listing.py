@@ -644,10 +644,16 @@ class TestListingMixin:
         download_function = mocker.MagicMock(side_effect=[response])
         dnc_function = mocker.MagicMock(return_value=dnc_response)
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
-        list(client._download_raw_files_divide_and_conquer_iter(download_function=download_function, dnc_function=dnc_function))
+        list(
+            client._download_raw_files_divide_and_conquer_iter(
+                download_function=download_function, dnc_function=dnc_function
+            )
+        )
         assert "relevant_filenames_file_name" not in download_function.call_args[1]
 
-    def test__download_raw_files_divide_and_conquer_iter__warning(self, mocker: MockerFixture) -> None:
+    def test__download_raw_files_divide_and_conquer_iter__warning(
+        self, mocker: MockerFixture
+    ) -> None:
         response = DatasourceRawSamplesData(
             hasMore=False,
             cursor="",
@@ -660,7 +666,11 @@ class TestListingMixin:
         dnc_function = mocker.MagicMock(return_value=dnc_response)
         client = ApiWorkflowClient(token="abc", dataset_id="dataset-id")
         with pytest.warns(UserWarning, match="Absolute file paths like /file1"):
-            list(client._download_raw_files_divide_and_conquer_iter(download_function=download_function, dnc_function=dnc_function))
+            list(
+                client._download_raw_files_divide_and_conquer_iter(
+                    download_function=download_function, dnc_function=dnc_function
+                )
+            )
 
     def test__get_divide_and_conquer_list_cursors__basic(
         self, mocker: MockerFixture
