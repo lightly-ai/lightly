@@ -3,11 +3,14 @@ from __future__ import annotations
 import copy
 import math
 import re
+from functools import partial
+from typing import Any
 
 import torch
 from pytorch_lightning import LightningModule
 from timm.models.vision_transformer import vit_small_patch16_224
 from torch import Tensor
+from torch.nn import Module
 from torch.optim import AdamW, Optimizer
 
 from lightly.loss import DINOLoss, IBOTPatchLoss, KoLeoLoss
@@ -27,6 +30,42 @@ from lightly.utils.scheduler import (
 )
 
 
+def freeze_eval_module(module: Module) -> None:
+    """Freeze the parameters of a module."""
+    for param in module.parameters():
+        param.requires_grad = False
+    module.eval()
+
+
+# Wrappers to ensure the param groups are named differently for the DINO and iBOT heads
+class DINOHead(Module):
+    """A wrapper for the DINO projection head."""
+
+    def __init__(self, dino_head: Module) -> None:
+        super().__init__()
+        self._dino_head = dino_head
+
+    def forward(self, x: Tensor) -> Any:
+        return self._dino_head(x)
+
+    def cancel_last_layer_gradients(self, current_epoch: int) -> None:
+        self._dino_head.cancel_last_layer_gradients(current_epoch)
+
+
+class IBOTHead(Module):
+    """A wrapper for the IBOT projection head."""
+
+    def __init__(self, ibot_head: Module) -> None:
+        super().__init__()
+        self._ibot_head = ibot_head
+
+    def forward(self, x: Tensor) -> Any:
+        return self._ibot_head(x)
+
+    def cancel_last_layer_gradients(self, current_epoch: int) -> None:
+        self._ibot_head.cancel_last_layer_gradients(current_epoch)
+
+
 class DINOv2(LightningModule):
     def __init__(
         self,
@@ -38,7 +77,7 @@ class DINOv2(LightningModule):
         self.save_hyperparameters()
         self.batch_size_per_device = batch_size_per_device
 
-        # Teacher
+        # Backbones
         vit_teacher = vit_small_patch16_224(
             pos_embed="learn",
             dynamic_img_size=True,
@@ -49,18 +88,6 @@ class DINOv2(LightningModule):
             antialias=False,
             pos_embed_initialization="skip",
         )
-
-        self.teacher_dino_head = DINOProjectionHead(
-            input_dim=384, norm_last_layer=False
-        )
-        if ibot_separate_head:
-            self.teacher_ibot_head = DINOProjectionHead(
-                input_dim=384, norm_last_layer=False
-            )
-        else:
-            self.teacher_ibot_head = self.teacher_dino_head
-
-        # Student
         self.student_backbone = copy.deepcopy(self.teacher_backbone)
         update_drop_path_rate(
             self.student_backbone.vit,
@@ -68,15 +95,34 @@ class DINOv2(LightningModule):
             mode="uniform",
         )
 
-        self.student_dino_head = DINOProjectionHead(
-            input_dim=384, freeze_last_layer=1, norm_last_layer=False
+        freeze_eval_module(self.teacher_backbone)
+
+        # Heads
+        dino_head = partial(
+            DINOProjectionHead,
+            input_dim=384,
+            norm_last_layer=False,
         )
+
+        self.teacher_dino_head = DINOHead(dino_head())
+        self.student_dino_head = DINOHead(dino_head(freeze_last_layer=1))
         if ibot_separate_head:
-            self.student_ibot_head = DINOProjectionHead(
-                input_dim=384, freeze_last_layer=1, norm_last_layer=False
+            ibot_head = partial(
+                DINOProjectionHead,
+                norm_last_layer=False,
+            )
+            self.teacher_ibot_head = IBOTHead(ibot_head())
+            self.student_ibot_head = IBOTHead(
+                ibot_head(
+                    freeze_last_layer=1,
+                )
             )
         else:
+            self.teacher_ibot_head = self.teacher_dino_head
             self.student_ibot_head = self.student_dino_head
+
+        freeze_eval_module(self.teacher_dino_head)
+        freeze_eval_module(self.teacher_ibot_head)
 
         # Losses
         self.dino_criterion = DINOLoss()
@@ -106,16 +152,6 @@ class DINOv2(LightningModule):
     def training_step(
         self, batch: tuple[list[Tensor], Tensor, list[str]], batch_idx: int
     ) -> Tensor:
-        # Momentum update teacher.
-        momentum = cosine_schedule(
-            step=self.trainer.global_step,
-            max_steps=self.trainer.estimated_stepping_batches,
-            start_value=0.992,
-            end_value=1.0,
-        )
-        update_momentum(self.student_backbone, self.teacher_backbone, m=momentum)
-        update_momentum(self.student_dino_head, self.teacher_dino_head, m=momentum)
-
         views, targets = batch[0], batch[1]
         global_views = torch.cat(views[:2])
         local_views = torch.cat(views[2:])
@@ -181,7 +217,6 @@ class DINOv2(LightningModule):
                 "train_dino_loss": dino_loss,
                 "train_ibot_loss": ibot_loss,
                 "train_koleo_loss": koleo_loss,
-                "ema_momentum": momentum,
                 "teacher_temp": teacher_temp,
             },
             prog_bar=True,
@@ -190,11 +225,12 @@ class DINOv2(LightningModule):
         )
 
         # Online classification.
-        cls_loss, cls_log = self.online_classifier.training_step(
+        _, cls_log = self.online_classifier.training_step(
             (teacher_cls_token.chunk(2)[0].detach(), targets), batch_idx
         )
         self.log_dict(cls_log, sync_dist=True, batch_size=len(targets))
-        return loss + cls_loss
+
+        return loss
 
     def validation_step(
         self, batch: tuple[Tensor, Tensor, list[str]], batch_idx: int
@@ -208,6 +244,7 @@ class DINOv2(LightningModule):
         return cls_loss
 
     def configure_optimizers(self):
+        min_lr = 1e-6
         lr_scale = math.sqrt(
             self.batch_size_per_device * self.trainer.world_size / 1024
         )
@@ -281,10 +318,23 @@ class DINOv2(LightningModule):
                     * 10
                 ),
                 max_epochs=int(self.trainer.estimated_stepping_batches),
+                end_value=min_lr / lr,
             ),
             "interval": "step",
         }
         return [optimizer], [scheduler]
+
+    def configure_gradient_clipping(
+        self,
+        optimizer: Optimizer,
+        gradient_clip_val: int | float | None = None,
+        gradient_clip_algorithm: str | None = None,
+    ) -> None:
+        self.clip_gradients(
+            optimizer=optimizer,
+            gradient_clip_val=3.0,
+            gradient_clip_algorithm="norm",
+        )
 
     def on_before_optimizer_step(self, optimizer: AdamW, *args) -> None:
         self.student_dino_head.cancel_last_layer_gradients(self.current_epoch)
@@ -301,19 +351,23 @@ class DINOv2(LightningModule):
         for group in optimizer.param_groups:
             if group["weight_decay"] != 0.0:
                 updates.append({"name": group["name"], "weight_decay": weight_decay})
+
         update_param_groups(optimizer, updates=updates)
 
-    def configure_gradient_clipping(
-        self,
-        optimizer: Optimizer,
-        gradient_clip_val: int | float | None = None,
-        gradient_clip_algorithm: str | None = None,
-    ) -> None:
-        self.clip_gradients(
-            optimizer=optimizer,
-            gradient_clip_val=3.0,
-            gradient_clip_algorithm="norm",
+    def on_train_batch_end(self, outputs, batch, batch_idx):
+        # Momentum update teacher.
+        momentum = cosine_schedule(
+            step=self.trainer.global_step,
+            max_steps=self.trainer.estimated_stepping_batches,
+            start_value=0.992,
+            end_value=1.0,
         )
+        update_momentum(self.student_backbone, self.teacher_backbone, m=momentum)
+        update_momentum(self.student_dino_head, self.teacher_dino_head, m=momentum)
+        if self.ibot_separate_head:
+            update_momentum(self.student_ibot_head, self.teacher_ibot_head, m=momentum)
+
+        return super().on_train_batch_end(outputs, batch, batch_idx)
 
 
 transform = DINOTransform(
