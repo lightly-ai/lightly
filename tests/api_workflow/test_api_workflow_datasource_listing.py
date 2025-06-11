@@ -211,8 +211,7 @@ class TestListingMixin:
         client._datasources_api.get_list_of_raw_samples_predictions_from_datasource_by_dataset_id.assert_called_once_with(
             dataset_id="dataset-id",
             task_name="task",
-            var_from=0,
-            to=mocker.ANY,
+            cursor="divide_and_conquer_cursor1",
             relevant_filenames_run_id="run-id",
             relevant_filenames_artifact_id="relevant-filenames",
             use_redirected_read_url=False,
@@ -382,8 +381,7 @@ class TestListingMixin:
         ]
         client._datasources_api.get_list_of_raw_samples_metadata_from_datasource_by_dataset_id.assert_called_once_with(
             dataset_id="dataset-id",
-            var_from=0,
-            to=mocker.ANY,
+            cursor="divide_and_conquer_cursor1",
             relevant_filenames_run_id="run-id",
             relevant_filenames_artifact_id="relevant-filenames",
             use_redirected_read_url=False,
