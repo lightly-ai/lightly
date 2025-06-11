@@ -119,6 +119,11 @@ class TestListingMixin:
                 DatasourceRawSamplesDataRow(fileName="file4", readUrl="url4"),
             ],
         )
+        response_3 = DatasourceRawSamplesData(
+            hasMore=False,
+            cursor="",
+            data=[],
+        )
         dnc_response = DivideAndConquerCursorData(
             cursors=["divide_and_conquer_cursor1", "divide_and_conquer_cursor2"]
         )
@@ -127,7 +132,7 @@ class TestListingMixin:
         mock_download_function = mocker.patch.object(
             client._datasources_api,
             "get_list_of_raw_samples_predictions_from_datasource_by_dataset_id",
-            side_effect=[response_1, response_2],
+            side_effect=[response_1, response_2, response_3],
         )
         mock_dnc_function = mocker.patch.object(
             client._datasources_api,
@@ -150,6 +155,7 @@ class TestListingMixin:
             var_from=0,
             to=mocker.ANY,
             dnc_shards=1,
+            use_redirected_read_url=False,
             task_name="task",
         )
 
@@ -160,14 +166,20 @@ class TestListingMixin:
                 mocker.call(
                     dataset_id="dataset-id",
                     cursor="divide_and_conquer_cursor1",
-                    task_name="task",
                     use_redirected_read_url=False,
+                    task_name="task",
                 ),
                 mocker.call(
                     dataset_id="dataset-id",
                     cursor="continuous_cursor1",
-                    task_name="task",
                     use_redirected_read_url=False,
+                    task_name="task",
+                ),
+                mocker.call(
+                    dataset_id="dataset-id",
+                    cursor="divide_and_conquer_cursor2",
+                    use_redirected_read_url=False,
+                    task_name="task",
                 ),
             ]
         )
@@ -213,17 +225,18 @@ class TestListingMixin:
             var_from=0,
             to=mocker.ANY,
             dnc_shards=1,
+            use_redirected_read_url=False,
             task_name="task",
             relevant_filenames_run_id="run-id",
             relevant_filenames_artifact_id="relevant-filenames",
         )
         client._datasources_api.get_list_of_raw_samples_predictions_from_datasource_by_dataset_id.assert_called_once_with(
             dataset_id="dataset-id",
-            task_name="task",
             cursor="divide_and_conquer_cursor1",
+            use_redirected_read_url=False,
             relevant_filenames_run_id="run-id",
             relevant_filenames_artifact_id="relevant-filenames",
-            use_redirected_read_url=False,
+            task_name="task",
         )
 
         # should raise ValueError when only run_id is given
@@ -605,14 +618,16 @@ class TestListingMixin:
             mocker.call(
                 dataset_id="dataset-id",
                 cursor="divide_and_conquer_cursor1",
-                relevant_filenames_file_name="relevant-filenames",
                 use_redirected_read_url=True,
+                relevant_filenames_file_name="relevant-filenames",
+                foo="bar",
             ),
             mocker.call(
                 dataset_id="dataset-id",
                 cursor="cursor1",
-                relevant_filenames_file_name="relevant-filenames",
                 use_redirected_read_url=True,
+                relevant_filenames_file_name="relevant-filenames",
+                foo="bar",
             ),
         ]
         if with_retry:
