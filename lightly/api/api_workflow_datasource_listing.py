@@ -579,7 +579,11 @@ class _DatasourceListingMixin:
             **relevant_filenames_kwargs,
             **kwargs,
         )
-
+        if not response.cursors or len(response.cursors) == 0:
+            # this should never happen from the API side, but we handle it gracefully for the unlikely case
+            raise ValueError(
+                "No cursors returned from the datasource."
+            )
         return response.cursors
 
     def _download_raw_files(
@@ -624,7 +628,7 @@ class _DatasourceListingMixin:
     ) -> Iterator[Tuple[str, str]]:
         if run_id is not None and relevant_filenames_artifact_id is None:
             raise ValueError(
-                "'relevant_filenames_artifact_id' should not be `None` when 'run_id' "
+                "'relevant_filenames_artifact_id' should not be 'None' when 'run_id' "
                 "is specified."
             )
         if run_id is None and relevant_filenames_artifact_id is not None:
