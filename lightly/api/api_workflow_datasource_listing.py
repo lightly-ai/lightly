@@ -57,6 +57,8 @@ class _DatasourceListingMixin:
             relevant_filenames_file_name:
                 Path to the relevant filenames text file in the cloud bucket.
                 The path is relative to the datasource root. Optional.
+            divide_and_conquer_shards:
+                Number of shards to use for divide and conquer listing. Typically num_workers/cpu_count.
             use_redirected_read_url:
                 Flag for redirected read urls. When this flag is true,
                 RedirectedReadUrls are returned instead of ReadUrls, meaning that the
@@ -97,9 +99,9 @@ class _DatasourceListingMixin:
         from_: int = 0,
         to: Optional[int] = None,
         relevant_filenames_file_name: Optional[str] = None,
-        divide_and_conquer_shards: int = 1,
         run_id: Optional[str] = None,
         relevant_filenames_artifact_id: Optional[str] = None,
+        divide_and_conquer_shards: int = 1,
         use_redirected_read_url: bool = False,
         progress_bar: Optional[tqdm.tqdm] = None,
     ) -> List[Tuple[str, str]]:
@@ -116,8 +118,8 @@ class _DatasourceListingMixin:
                 to=to,
                 relevant_filenames_file_name=relevant_filenames_file_name,
                 run_id=run_id,
-                divide_and_conquer_shards=divide_and_conquer_shards,
                 relevant_filenames_artifact_id=relevant_filenames_artifact_id,
+                divide_and_conquer_shards=divide_and_conquer_shards,
                 use_redirected_read_url=use_redirected_read_url,
                 progress_bar=progress_bar,
             )
@@ -129,9 +131,9 @@ class _DatasourceListingMixin:
         from_: int = 0,
         to: Optional[int] = None,
         relevant_filenames_file_name: Optional[str] = None,
-        divide_and_conquer_shards: int = 1,
         run_id: Optional[str] = None,
         relevant_filenames_artifact_id: Optional[str] = None,
+        divide_and_conquer_shards: int = 1,
         use_redirected_read_url: bool = False,
         progress_bar: Optional[tqdm.tqdm] = None,
     ) -> Iterator[Tuple[str, str]]:
@@ -159,14 +161,14 @@ class _DatasourceListingMixin:
                 ID of the relevant filename artifact. Optional. Should be given along
                 with `run_id` to download relevant files only. Note that this is
                 different from `relevant_filenames_file_name`.
+            divide_and_conquer_shards:
+                Number of shards to use for divide and conquer listing. Typically num_workers/cpu_count.
             use_redirected_read_url:
                 Flag for redirected read urls. When this flag is true,
                 RedirectedReadUrls are returned instead of ReadUrls, meaning that the
                 returned URLs have unlimited access to the file.
                 Defaults to False. When S3DelegatedAccess is configured, this flag has
                 no effect because RedirectedReadUrls are always returned.
-            divide_and_conquer_shards:
-                Number of shards to use for divide and conquer listing. Typically num_workers/cpu_count.
             progress_bar:
                 Tqdm progress bar to show how many prediction files have already been
                 retrieved.
@@ -208,9 +210,9 @@ class _DatasourceListingMixin:
             from_=from_,
             to=to,
             relevant_filenames_file_name=relevant_filenames_file_name,
+            divide_and_conquer_shards=divide_and_conquer_shards,
             use_redirected_read_url=use_redirected_read_url,
             task_name=task_name,
-            divide_and_conquer_shards=divide_and_conquer_shards,
             **relevant_filenames_kwargs,
         )
 
@@ -259,8 +261,8 @@ class _DatasourceListingMixin:
                 run_id=run_id,
                 relevant_filenames_artifact_id=relevant_filenames_artifact_id,
                 relevant_filenames_file_name=relevant_filenames_file_name,
-                use_redirected_read_url=use_redirected_read_url,
                 divide_and_conquer_shards=divide_and_conquer_shards,
+                use_redirected_read_url=use_redirected_read_url,
                 progress_bar=progress_bar,
             )
         )
@@ -272,8 +274,8 @@ class _DatasourceListingMixin:
         run_id: Optional[str] = None,
         relevant_filenames_artifact_id: Optional[str] = None,
         relevant_filenames_file_name: Optional[str] = None,
-        use_redirected_read_url: bool = False,
         divide_and_conquer_shards: int = 1,
+        use_redirected_read_url: bool = False,
         progress_bar: Optional[tqdm.tqdm] = None,
     ) -> Iterator[Tuple[str, str]]:
         """Downloads all metadata filenames and read urls from the datasource.
@@ -298,14 +300,14 @@ class _DatasourceListingMixin:
                 ID of the relevant filename artifact. Optional. Should be given along
                 with `run_id` to download relevant files only. Note that this is
                 different from `relevant_filenames_file_name`.
+            divide_and_conquer_shards:
+                Number of shards to use for divide and conquer listing. Typically num_workers/cpu_count.
             use_redirected_read_url:
                 Flag for redirected read urls. When this flag is true,
                 RedirectedReadUrls are returned instead of ReadUrls, meaning that the
                 returned URLs have unlimited access to the file.
                 Defaults to False. When S3DelegatedAccess is configured, this flag has
                 no effect because RedirectedReadUrls are always returned.
-            divide_and_conquer_shards:
-                Number of shards to use for divide and conquer listing. Typically num_workers/cpu_count.
             progress_bar:
                 Tqdm progress bar to show how many metadata files have already been
                 retrieved.
@@ -372,8 +374,8 @@ class _DatasourceListingMixin:
 
     def download_new_raw_samples(
         self,
-        use_redirected_read_url: bool = False,
         divide_and_conquer_shards: int = 1,
+        use_redirected_read_url: bool = False,
     ) -> List[Tuple[str, str]]:
         """Downloads filenames and read urls of unprocessed samples from the datasource.
 
@@ -382,6 +384,8 @@ class _DatasourceListingMixin:
         This function can be repeatedly called to retrieve new samples from the datasource.
 
         Args:
+            divide_and_conquer_shards:
+                Number of shards to use for divide and conquer listing. Typically num_workers/cpu_count.
             use_redirected_read_url:
                 Flag for redirected read urls. When this flag is true,
                 RedirectedReadUrls are returned instead of ReadUrls, meaning that the
@@ -597,8 +601,8 @@ class _DatasourceListingMixin:
                 from_=from_,
                 to=to,
                 relevant_filenames_file_name=relevant_filenames_file_name,
-                use_redirected_read_url=use_redirected_read_url,
                 divide_and_conquer_shards=divide_and_conquer_shards,
+                use_redirected_read_url=use_redirected_read_url,
                 progress_bar=progress_bar,
                 **kwargs,
             )
@@ -613,8 +617,8 @@ class _DatasourceListingMixin:
         run_id: Optional[str] = None,
         relevant_filenames_artifact_id: Optional[str] = None,
         relevant_filenames_file_name: Optional[str] = None,
-        use_redirected_read_url: bool = False,
         divide_and_conquer_shards: int = 1,
+        use_redirected_read_url: bool = False,
         progress_bar: Optional[tqdm.tqdm] = None,
         **kwargs,
     ) -> Iterator[Tuple[str, str]]:
