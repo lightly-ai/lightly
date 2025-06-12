@@ -581,9 +581,7 @@ class _DatasourceListingMixin:
         )
         if not response.cursors or len(response.cursors) == 0:
             # this should never happen from the API side, but we handle it gracefully for the unlikely case
-            raise ValueError(
-                "No cursors returned from the datasource."
-            )
+            raise ValueError("No cursors returned from the datasource.")
         return response.cursors
 
     def _download_raw_files(
