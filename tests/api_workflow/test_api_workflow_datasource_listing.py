@@ -155,7 +155,6 @@ class TestListingMixin:
             var_from=0,
             to=mocker.ANY,
             dnc_shards=1,
-            use_redirected_read_url=False,
             task_name="task",
         )
 
@@ -225,7 +224,6 @@ class TestListingMixin:
             var_from=0,
             to=mocker.ANY,
             dnc_shards=1,
-            use_redirected_read_url=False,
             task_name="task",
             relevant_filenames_run_id="run-id",
             relevant_filenames_artifact_id="relevant-filenames",

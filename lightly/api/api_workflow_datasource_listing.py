@@ -188,54 +188,19 @@ class _DatasourceListingMixin:
 
         :meta private:  # Skip docstring generation
         """
-        if run_id is not None and relevant_filenames_artifact_id is None:
-            raise ValueError(
-                "'relevant_filenames_artifact_id' should not be `None` when 'run_id' "
-                "is specified."
-            )
-        if run_id is None and relevant_filenames_artifact_id is not None:
-            raise ValueError(
-                "'run_id' should not be `None` when 'relevant_filenames_artifact_id' "
-                "is specified."
-            )
-        relevant_filenames_kwargs = {}
-        if run_id is not None and relevant_filenames_artifact_id is not None:
-            relevant_filenames_kwargs["relevant_filenames_run_id"] = run_id
-            relevant_filenames_kwargs[
-                "relevant_filenames_artifact_id"
-            ] = relevant_filenames_artifact_id
-
-        cursors = self._get_divide_and_conquer_list_cursors(
+        return self._download_raw_files_divide_and_conquer_iter(
+            download_function=self._datasources_api.get_list_of_raw_samples_predictions_from_datasource_by_dataset_id,
             dnc_function=self._datasources_api.get_divide_and_conquer_list_of_raw_samples_predictions_from_datasource_by_dataset_id,
+            task_name=task_name,
             from_=from_,
             to=to,
             relevant_filenames_file_name=relevant_filenames_file_name,
+            run_id=run_id,
+            relevant_filenames_artifact_id=relevant_filenames_artifact_id,
             divide_and_conquer_shards=divide_and_conquer_shards,
             use_redirected_read_url=use_redirected_read_url,
-            task_name=task_name,
-            **relevant_filenames_kwargs,
+            progress_bar=progress_bar,
         )
-
-        def download_with_cursor(cursor):
-            return list(
-                self._download_raw_files_cursor_iter(
-                    download_function=self._datasources_api.get_list_of_raw_samples_predictions_from_datasource_by_dataset_id,
-                    cursor=cursor,
-                    relevant_filenames_file_name=relevant_filenames_file_name,
-                    use_redirected_read_url=use_redirected_read_url,
-                    task_name=task_name,
-                    progress_bar=progress_bar,
-                    **relevant_filenames_kwargs,
-                )
-            )
-
-        # download in parallel using threads
-        with ThreadPoolExecutor(max_workers=len(cursors)) as executor:
-            futures = [
-                executor.submit(download_with_cursor, cursor) for cursor in cursors
-            ]
-            for future in as_completed(futures):
-                yield from future.result()
 
     def download_raw_metadata(
         self,
@@ -326,51 +291,18 @@ class _DatasourceListingMixin:
 
         :meta private:  # Skip docstring generation
         """
-        if run_id is not None and relevant_filenames_artifact_id is None:
-            raise ValueError(
-                "'relevant_filenames_artifact_id' should not be `None` when 'run_id' "
-                "is specified."
-            )
-        if run_id is None and relevant_filenames_artifact_id is not None:
-            raise ValueError(
-                "'run_id' should not be `None` when 'relevant_filenames_artifact_id' "
-                "is specified."
-            )
-        relevant_filenames_kwargs = {}
-        if run_id is not None and relevant_filenames_artifact_id is not None:
-            relevant_filenames_kwargs["relevant_filenames_run_id"] = run_id
-            relevant_filenames_kwargs[
-                "relevant_filenames_artifact_id"
-            ] = relevant_filenames_artifact_id
-
-        cursors = self._get_divide_and_conquer_list_cursors(
+        return self._download_raw_files_divide_and_conquer_iter(
+            download_function=self._datasources_api.get_list_of_raw_samples_metadata_from_datasource_by_dataset_id,
             dnc_function=self._datasources_api.get_divide_and_conquer_list_of_raw_samples_metadata_from_datasource_by_dataset_id,
             from_=from_,
             to=to,
+            run_id=run_id,
+            relevant_filenames_artifact_id=relevant_filenames_artifact_id,
             relevant_filenames_file_name=relevant_filenames_file_name,
             divide_and_conquer_shards=divide_and_conquer_shards,
-            **relevant_filenames_kwargs,
+            use_redirected_read_url=use_redirected_read_url,
+            progress_bar=progress_bar,
         )
-
-        def download_with_cursor(cursor):
-            return list(
-                self._download_raw_files_cursor_iter(
-                    download_function=self._datasources_api.get_list_of_raw_samples_metadata_from_datasource_by_dataset_id,
-                    cursor=cursor,
-                    relevant_filenames_file_name=relevant_filenames_file_name,
-                    use_redirected_read_url=use_redirected_read_url,
-                    progress_bar=progress_bar,
-                    **relevant_filenames_kwargs,
-                )
-            )
-
-        # download in parallel using threads
-        with ThreadPoolExecutor(max_workers=len(cursors)) as executor:
-            futures = [
-                executor.submit(download_with_cursor, cursor) for cursor in cursors
-            ]
-            for future in as_completed(futures):
-                yield from future.result()
 
     def download_new_raw_samples(
         self,
@@ -648,6 +580,7 @@ class _DatasourceListingMixin:
             relevant_filenames_file_name=relevant_filenames_file_name,
             divide_and_conquer_shards=divide_and_conquer_shards,
             **relevant_filenames_kwargs,
+            **kwargs,
         )
 
         def download_with_cursor(cursor):
