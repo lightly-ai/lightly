@@ -1,6 +1,7 @@
 import time
 import warnings
-from typing import Dict, Iterator, List, Optional, Set, Tuple, Union
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from typing import Iterator, List, Optional, Set, Tuple, Union
 
 import tqdm
 
@@ -14,6 +15,21 @@ from lightly.openapi_generated.swagger_client.models import (
 from lightly.openapi_generated.swagger_client.models.datasource_raw_samples_data_row import (
     DatasourceRawSamplesDataRow,
 )
+from lightly.openapi_generated.swagger_client.models.divide_and_conquer_cursor_data import (
+    DivideAndConquerCursorData,
+)
+
+DownloadFunction = Union[
+    "DatasourcesApi.get_list_of_raw_samples_from_datasource_by_dataset_id",
+    "DatasourcesApi.get_list_of_raw_samples_predictions_from_datasource_by_dataset_id",
+    "DatasourcesApi.get_list_of_raw_samples_metadata_from_datasource_by_dataset_id",
+]
+
+DivideAndConquerFunction = Union[
+    "DatasourcesApi.get_divide_and_conquer_list_of_raw_samples_from_datasource_by_dataset_id",
+    "DatasourcesApi.get_divide_and_conquer_list_of_raw_samples_metadata_from_datasource_by_dataset_id",
+    "DatasourcesApi.get_divide_and_conquer_list_of_raw_samples_predictions_from_datasource_by_dataset_id",
+]
 
 
 class _DatasourceListingMixin:
@@ -22,6 +38,7 @@ class _DatasourceListingMixin:
         from_: int = 0,
         to: Optional[int] = None,
         relevant_filenames_file_name: Optional[str] = None,
+        divide_and_conquer_shards: int = 1,
         use_redirected_read_url: bool = False,
         progress_bar: Optional[tqdm.tqdm] = None,
     ) -> List[Tuple[str, str]]:
@@ -40,6 +57,8 @@ class _DatasourceListingMixin:
             relevant_filenames_file_name:
                 Path to the relevant filenames text file in the cloud bucket.
                 The path is relative to the datasource root. Optional.
+            divide_and_conquer_shards:
+                Number of shards to use for divide and conquer listing. Typically num_workers/cpu_count.
             use_redirected_read_url:
                 Flag for redirected read urls. When this flag is true,
                 RedirectedReadUrls are returned instead of ReadUrls, meaning that the
@@ -65,10 +84,12 @@ class _DatasourceListingMixin:
         """
         return self._download_raw_files(
             download_function=self._datasources_api.get_list_of_raw_samples_from_datasource_by_dataset_id,
+            dnc_function=self._datasources_api.get_divide_and_conquer_list_of_raw_samples_from_datasource_by_dataset_id,
             from_=from_,
             to=to,
             relevant_filenames_file_name=relevant_filenames_file_name,
             use_redirected_read_url=use_redirected_read_url,
+            divide_and_conquer_shards=divide_and_conquer_shards,
             progress_bar=progress_bar,
         )
 
@@ -80,6 +101,7 @@ class _DatasourceListingMixin:
         relevant_filenames_file_name: Optional[str] = None,
         run_id: Optional[str] = None,
         relevant_filenames_artifact_id: Optional[str] = None,
+        divide_and_conquer_shards: int = 1,
         use_redirected_read_url: bool = False,
         progress_bar: Optional[tqdm.tqdm] = None,
     ) -> List[Tuple[str, str]]:
@@ -97,6 +119,7 @@ class _DatasourceListingMixin:
                 relevant_filenames_file_name=relevant_filenames_file_name,
                 run_id=run_id,
                 relevant_filenames_artifact_id=relevant_filenames_artifact_id,
+                divide_and_conquer_shards=divide_and_conquer_shards,
                 use_redirected_read_url=use_redirected_read_url,
                 progress_bar=progress_bar,
             )
@@ -110,6 +133,7 @@ class _DatasourceListingMixin:
         relevant_filenames_file_name: Optional[str] = None,
         run_id: Optional[str] = None,
         relevant_filenames_artifact_id: Optional[str] = None,
+        divide_and_conquer_shards: int = 1,
         use_redirected_read_url: bool = False,
         progress_bar: Optional[tqdm.tqdm] = None,
     ) -> Iterator[Tuple[str, str]]:
@@ -137,6 +161,8 @@ class _DatasourceListingMixin:
                 ID of the relevant filename artifact. Optional. Should be given along
                 with `run_id` to download relevant files only. Note that this is
                 different from `relevant_filenames_file_name`.
+            divide_and_conquer_shards:
+                Number of shards to use for divide and conquer listing. Typically num_workers/cpu_count.
             use_redirected_read_url:
                 Flag for redirected read urls. When this flag is true,
                 RedirectedReadUrls are returned instead of ReadUrls, meaning that the
@@ -162,32 +188,18 @@ class _DatasourceListingMixin:
 
         :meta private:  # Skip docstring generation
         """
-        if run_id is not None and relevant_filenames_artifact_id is None:
-            raise ValueError(
-                "'relevant_filenames_artifact_id' should not be `None` when 'run_id' "
-                "is specified."
-            )
-        if run_id is None and relevant_filenames_artifact_id is not None:
-            raise ValueError(
-                "'run_id' should not be `None` when 'relevant_filenames_artifact_id' "
-                "is specified."
-            )
-        relevant_filenames_kwargs = {}
-        if run_id is not None and relevant_filenames_artifact_id is not None:
-            relevant_filenames_kwargs["relevant_filenames_run_id"] = run_id
-            relevant_filenames_kwargs[
-                "relevant_filenames_artifact_id"
-            ] = relevant_filenames_artifact_id
-
-        yield from self._download_raw_files_iter(
+        return self._download_raw_files_divide_and_conquer_iter(
             download_function=self._datasources_api.get_list_of_raw_samples_predictions_from_datasource_by_dataset_id,
+            dnc_function=self._datasources_api.get_divide_and_conquer_list_of_raw_samples_predictions_from_datasource_by_dataset_id,
+            task_name=task_name,
             from_=from_,
             to=to,
             relevant_filenames_file_name=relevant_filenames_file_name,
+            run_id=run_id,
+            relevant_filenames_artifact_id=relevant_filenames_artifact_id,
+            divide_and_conquer_shards=divide_and_conquer_shards,
             use_redirected_read_url=use_redirected_read_url,
-            task_name=task_name,
             progress_bar=progress_bar,
-            **relevant_filenames_kwargs,
         )
 
     def download_raw_metadata(
@@ -197,6 +209,7 @@ class _DatasourceListingMixin:
         run_id: Optional[str] = None,
         relevant_filenames_artifact_id: Optional[str] = None,
         relevant_filenames_file_name: Optional[str] = None,
+        divide_and_conquer_shards: int = 1,
         use_redirected_read_url: bool = False,
         progress_bar: Optional[tqdm.tqdm] = None,
     ) -> List[Tuple[str, str]]:
@@ -213,6 +226,7 @@ class _DatasourceListingMixin:
                 run_id=run_id,
                 relevant_filenames_artifact_id=relevant_filenames_artifact_id,
                 relevant_filenames_file_name=relevant_filenames_file_name,
+                divide_and_conquer_shards=divide_and_conquer_shards,
                 use_redirected_read_url=use_redirected_read_url,
                 progress_bar=progress_bar,
             )
@@ -225,6 +239,7 @@ class _DatasourceListingMixin:
         run_id: Optional[str] = None,
         relevant_filenames_artifact_id: Optional[str] = None,
         relevant_filenames_file_name: Optional[str] = None,
+        divide_and_conquer_shards: int = 1,
         use_redirected_read_url: bool = False,
         progress_bar: Optional[tqdm.tqdm] = None,
     ) -> Iterator[Tuple[str, str]]:
@@ -250,6 +265,8 @@ class _DatasourceListingMixin:
                 ID of the relevant filename artifact. Optional. Should be given along
                 with `run_id` to download relevant files only. Note that this is
                 different from `relevant_filenames_file_name`.
+            divide_and_conquer_shards:
+                Number of shards to use for divide and conquer listing. Typically num_workers/cpu_count.
             use_redirected_read_url:
                 Flag for redirected read urls. When this flag is true,
                 RedirectedReadUrls are returned instead of ReadUrls, meaning that the
@@ -274,35 +291,22 @@ class _DatasourceListingMixin:
 
         :meta private:  # Skip docstring generation
         """
-        if run_id is not None and relevant_filenames_artifact_id is None:
-            raise ValueError(
-                "'relevant_filenames_artifact_id' should not be `None` when 'run_id' "
-                "is specified."
-            )
-        if run_id is None and relevant_filenames_artifact_id is not None:
-            raise ValueError(
-                "'run_id' should not be `None` when 'relevant_filenames_artifact_id' "
-                "is specified."
-            )
-        relevant_filenames_kwargs = {}
-        if run_id is not None and relevant_filenames_artifact_id is not None:
-            relevant_filenames_kwargs["relevant_filenames_run_id"] = run_id
-            relevant_filenames_kwargs[
-                "relevant_filenames_artifact_id"
-            ] = relevant_filenames_artifact_id
-
-        yield from self._download_raw_files_iter(
+        return self._download_raw_files_divide_and_conquer_iter(
             download_function=self._datasources_api.get_list_of_raw_samples_metadata_from_datasource_by_dataset_id,
+            dnc_function=self._datasources_api.get_divide_and_conquer_list_of_raw_samples_metadata_from_datasource_by_dataset_id,
             from_=from_,
             to=to,
+            run_id=run_id,
+            relevant_filenames_artifact_id=relevant_filenames_artifact_id,
             relevant_filenames_file_name=relevant_filenames_file_name,
+            divide_and_conquer_shards=divide_and_conquer_shards,
             use_redirected_read_url=use_redirected_read_url,
             progress_bar=progress_bar,
-            **relevant_filenames_kwargs,
         )
 
     def download_new_raw_samples(
         self,
+        divide_and_conquer_shards: int = 1,
         use_redirected_read_url: bool = False,
     ) -> List[Tuple[str, str]]:
         """Downloads filenames and read urls of unprocessed samples from the datasource.
@@ -312,6 +316,8 @@ class _DatasourceListingMixin:
         This function can be repeatedly called to retrieve new samples from the datasource.
 
         Args:
+            divide_and_conquer_shards:
+                Number of shards to use for divide and conquer listing. Typically num_workers/cpu_count.
             use_redirected_read_url:
                 Flag for redirected read urls. When this flag is true,
                 RedirectedReadUrls are returned instead of ReadUrls, meaning that the
@@ -343,6 +349,7 @@ class _DatasourceListingMixin:
             from_=from_,
             to=to,
             relevant_filenames_file_name=None,
+            divide_and_conquer_shards=divide_and_conquer_shards,
             use_redirected_read_url=use_redirected_read_url,
         )
         self.update_processed_until_timestamp(timestamp=to)
@@ -476,48 +483,136 @@ class _DatasourceListingMixin:
             file_name=filename,
         )
 
-    def _download_raw_files(
+    def _get_divide_and_conquer_list_cursors(
         self,
-        download_function: Union[
-            "DatasourcesApi.get_list_of_raw_samples_from_datasource_by_dataset_id",
-            "DatasourcesApi.get_list_of_raw_samples_predictions_from_datasource_by_dataset_id",
-            "DatasourcesApi.get_list_of_raw_samples_metadata_from_datasource_by_dataset_id",
-        ],
+        dnc_function: DivideAndConquerFunction,
         from_: int = 0,
         to: Optional[int] = None,
         relevant_filenames_file_name: Optional[str] = None,
+        divide_and_conquer_shards: int = 1,
+        **kwargs,
+    ) -> List[str]:
+        if to is None:
+            to = int(time.time())
+
+        divide_and_conquer_shards = max(1, divide_and_conquer_shards)
+
+        relevant_filenames_kwargs = (
+            {"relevant_filenames_file_name": relevant_filenames_file_name}
+            if relevant_filenames_file_name
+            else dict()
+        )
+        response: DivideAndConquerCursorData = retry(
+            fn=dnc_function,
+            dataset_id=self.dataset_id,
+            var_from=from_,
+            to=to,
+            dnc_shards=divide_and_conquer_shards,
+            **relevant_filenames_kwargs,
+            **kwargs,
+        )
+        if not response.cursors or len(response.cursors) == 0:
+            # this should never happen from the API side, but we handle it gracefully for the unlikely case
+            raise ValueError("No cursors returned from the datasource.")
+        return response.cursors
+
+    def _download_raw_files(
+        self,
+        download_function: DownloadFunction,
+        dnc_function: DivideAndConquerFunction,
+        from_: int = 0,
+        to: Optional[int] = None,
+        relevant_filenames_file_name: Optional[str] = None,
+        divide_and_conquer_shards: int = 1,
         use_redirected_read_url: bool = False,
         progress_bar: Optional[tqdm.tqdm] = None,
         **kwargs,
     ) -> List[Tuple[str, str]]:
         return list(
-            self._download_raw_files_iter(
+            self._download_raw_files_divide_and_conquer_iter(
                 download_function=download_function,
+                dnc_function=dnc_function,
                 from_=from_,
                 to=to,
                 relevant_filenames_file_name=relevant_filenames_file_name,
+                divide_and_conquer_shards=divide_and_conquer_shards,
                 use_redirected_read_url=use_redirected_read_url,
                 progress_bar=progress_bar,
                 **kwargs,
             )
         )
 
-    def _download_raw_files_iter(
+    def _download_raw_files_divide_and_conquer_iter(
         self,
-        download_function: Union[
-            "DatasourcesApi.get_list_of_raw_samples_from_datasource_by_dataset_id",
-            "DatasourcesApi.get_list_of_raw_samples_predictions_from_datasource_by_dataset_id",
-            "DatasourcesApi.get_list_of_raw_samples_metadata_from_datasource_by_dataset_id",
-        ],
+        download_function: DownloadFunction,
+        dnc_function: DivideAndConquerFunction,
         from_: int = 0,
         to: Optional[int] = None,
+        run_id: Optional[str] = None,
+        relevant_filenames_artifact_id: Optional[str] = None,
+        relevant_filenames_file_name: Optional[str] = None,
+        divide_and_conquer_shards: int = 1,
+        use_redirected_read_url: bool = False,
+        progress_bar: Optional[tqdm.tqdm] = None,
+        **kwargs,
+    ) -> Iterator[Tuple[str, str]]:
+        if run_id is not None and relevant_filenames_artifact_id is None:
+            raise ValueError(
+                "'relevant_filenames_artifact_id' should not be 'None' when 'run_id' "
+                "is specified."
+            )
+        if run_id is None and relevant_filenames_artifact_id is not None:
+            raise ValueError(
+                "'run_id' should not be `None` when 'relevant_filenames_artifact_id' "
+                "is specified."
+            )
+        relevant_filenames_kwargs = {}
+        if run_id is not None and relevant_filenames_artifact_id is not None:
+            relevant_filenames_kwargs["relevant_filenames_run_id"] = run_id
+            relevant_filenames_kwargs[
+                "relevant_filenames_artifact_id"
+            ] = relevant_filenames_artifact_id
+
+        cursors = self._get_divide_and_conquer_list_cursors(
+            dnc_function=dnc_function,
+            from_=from_,
+            to=to,
+            relevant_filenames_file_name=relevant_filenames_file_name,
+            divide_and_conquer_shards=divide_and_conquer_shards,
+            **relevant_filenames_kwargs,
+            **kwargs,
+        )
+
+        def download_with_cursor(cursor):
+            return list(
+                self._download_raw_files_cursor_iter(
+                    download_function=download_function,
+                    cursor=cursor,
+                    relevant_filenames_file_name=relevant_filenames_file_name,
+                    use_redirected_read_url=use_redirected_read_url,
+                    progress_bar=progress_bar,
+                    **relevant_filenames_kwargs,
+                    **kwargs,
+                )
+            )
+
+        # download in parallel using threads
+        with ThreadPoolExecutor(max_workers=len(cursors)) as executor:
+            futures = [
+                executor.submit(download_with_cursor, cursor) for cursor in cursors
+            ]
+            for future in as_completed(futures):
+                yield from future.result()
+
+    def _download_raw_files_cursor_iter(
+        self,
+        download_function: DownloadFunction,
+        cursor: str,
         relevant_filenames_file_name: Optional[str] = None,
         use_redirected_read_url: bool = False,
         progress_bar: Optional[tqdm.tqdm] = None,
         **kwargs,
     ) -> Iterator[Tuple[str, str]]:
-        if to is None:
-            to = int(time.time())
         relevant_filenames_kwargs = (
             {"relevant_filenames_file_name": relevant_filenames_file_name}
             if relevant_filenames_file_name
@@ -526,40 +621,35 @@ class _DatasourceListingMixin:
 
         listed_filenames = set()
 
-        def get_samples(
+        def get_entries(
             response: DatasourceRawSamplesData,
         ) -> Iterator[Tuple[str, str]]:
-            for sample in response.data:
+            for entry in response.data:
                 if _sample_unseen_and_valid(
-                    sample=sample,
+                    sample=entry,
                     relevant_filenames_file_name=relevant_filenames_file_name,
                     listed_filenames=listed_filenames,
                 ):
-                    listed_filenames.add(sample.file_name)
-                    yield sample.file_name, sample.read_url
+                    listed_filenames.add(entry.file_name)
+                    yield entry.file_name, entry.read_url
                 if progress_bar is not None:
                     progress_bar.update(1)
 
-        response: DatasourceRawSamplesData = retry(
-            fn=download_function,
-            dataset_id=self.dataset_id,
-            var_from=from_,
-            to=to,
-            use_redirected_read_url=use_redirected_read_url,
-            **relevant_filenames_kwargs,
-            **kwargs,
-        )
-        yield from get_samples(response=response)
-        while response.has_more:
+        active_cursor = cursor
+        while active_cursor:
             response: DatasourceRawSamplesData = retry(
                 fn=download_function,
                 dataset_id=self.dataset_id,
-                cursor=response.cursor,
+                cursor=active_cursor,
                 use_redirected_read_url=use_redirected_read_url,
                 **relevant_filenames_kwargs,
                 **kwargs,
             )
-            yield from get_samples(response=response)
+            yield from get_entries(response=response)
+
+            active_cursor = response.cursor
+            if not response.has_more:
+                active_cursor = None
 
 
 def _sample_unseen_and_valid(
