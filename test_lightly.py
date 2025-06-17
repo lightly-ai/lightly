@@ -37,8 +37,9 @@ transform = transforms.SimCLRTransform(input_size=32, cj_prob=0.5)
 
 
 # Create a dataset from your image folder.
-input_dir = "/git/datasets/shezhen_original_data/shezhen_unlabel_data"
+input_dir = "/git/datasets/shezhen_original_data"
 dataset = LightlyDataset(input_dir=input_dir, transform=transform)
+print(len(dataset))
 
 # Build a PyTorch dataloader.
 dataloader = torch.utils.data.DataLoader(

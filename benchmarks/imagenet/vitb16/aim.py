@@ -1,3 +1,5 @@
+import sys
+sys.path.append('/git/lightly')
 from typing import List, Optional, Tuple, Union
 
 import torch

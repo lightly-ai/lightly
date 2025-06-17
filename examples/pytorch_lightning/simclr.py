@@ -9,10 +9,14 @@ import pytorch_lightning as pl
 import torch
 import torchvision
 from torch import nn
-
+import sys
+sys.path.append('/git/lightly')
 from lightly.loss import NTXentLoss
 from lightly.models.modules import SimCLRProjectionHead
 from lightly.transforms.simclr_transform import SimCLRTransform
+from lightly.data import LightlyDataset
+
+
 
 
 class SimCLR(pl.LightningModule):
@@ -43,15 +47,16 @@ class SimCLR(pl.LightningModule):
 model = SimCLR()
 
 transform = SimCLRTransform(input_size=32)
-dataset = torchvision.datasets.CIFAR10(
-    "datasets/cifar10", download=True, transform=transform
-)
+
+input_dir = "/git/datasets/shezhen_original_data"
+dataset = LightlyDataset(input_dir=input_dir, transform=transform)
+
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder", transform=transform)
 
 dataloader = torch.utils.data.DataLoader(
     dataset,
-    batch_size=256,
+    batch_size=512,
     shuffle=True,
     drop_last=True,
     num_workers=8,

@@ -311,9 +311,11 @@ class DINOv2(LightningModule):
     ) -> None:
         self.clip_gradients(
             optimizer=optimizer,
-            gradient_clip_val=3.0,
-            gradient_clip_algorithm="norm",
+            gradient_clip_val=gradient_clip_val,
+            gradient_clip_algorithm=gradient_clip_algorithm,
         )
+
+
 
 
 transform = DINOTransform(

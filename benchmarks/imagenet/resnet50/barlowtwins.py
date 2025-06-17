@@ -6,6 +6,8 @@ from pytorch_lightning import LightningModule
 from torch import Tensor
 from torch.nn import Identity
 from torchvision.models import resnet50
+import sys
+sys.path.append("/git/lightly")
 
 from lightly.loss import BarlowTwinsLoss
 from lightly.models.modules import BarlowTwinsProjectionHead

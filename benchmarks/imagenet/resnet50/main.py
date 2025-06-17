@@ -2,7 +2,8 @@ from argparse import ArgumentParser
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Sequence, Union
-
+import sys 
+sys.path.append("/git/lightly")
 import barlowtwins
 import byol
 import dcl
@@ -92,7 +93,6 @@ def main(
     seed: int | None = None,
 ) -> None:
     print_rank_zero(f"Args: {locals()}")
-    seed_everything(seed, workers=True, verbose=True)
 
     torch.set_float32_matmul_precision(float32_matmul_precision)
 
@@ -215,6 +215,7 @@ def pretrain(
         num_workers=num_workers,
         drop_last=True,
         persistent_workers=True,
+        pin_memory=True
     )
 
     # Setup validation data.
@@ -233,6 +234,7 @@ def pretrain(
         shuffle=False,
         num_workers=num_workers,
         persistent_workers=True,
+        pin_memory=True,
     )
 
     # Train model.
