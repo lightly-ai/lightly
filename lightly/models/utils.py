@@ -804,10 +804,12 @@ def random_block_mask_image(
     log_max_aspect = math.log(max_block_aspect_ratio)
 
     H, W = size
-    mask = torch.zeros((H, W), dtype=torch.bool, device=device)
+    mask = np.zeros((H, W), dtype=np.bool_)
     mask_count = 0
+
+    # Main loop: update mask using numpy ops (much faster for 2D binary mask manipulation).
+    # Convert to torch boolean tensor at the end.
     while mask_count < num_masks:
-        # Try masking a block
         max_new_masked = min(num_masks - mask_count, max_num_masks_per_block)
         delta = 0
         for _ in range(max_attempts_per_block):
@@ -818,18 +820,27 @@ def random_block_mask_image(
             if w < W and h < H:
                 top = random.randint(0, H - h)
                 left = random.randint(0, W - w)
-                num_already_masked = mask[top : top + h, left : left + w].sum().item()
-                num_new_masked = h * w - num_already_masked
-                if 0 < num_new_masked <= max_new_masked:
-                    mask[top : top + h, left : left + w] = 1
-                    delta += num_new_masked
+                mask_region = mask[top : top + h, left : left + w]
+                num_already_masked = np.count_nonzero(mask_region)
+                num_to_mask = h * w - num_already_masked
+                if 0 < num_to_mask <= max_new_masked:
+                    # Only set those positions that are not already masked
+                    if num_already_masked == 0:
+                        mask[top : top + h, left : left + w] = True
+                    else:
+                        # Only update unmasked portion
+                        unmasked_coords = np.where(~mask_region)
+                        mask_region[unmasked_coords] = True
+                        mask[top : top + h, left : left + w] = mask_region
+                    delta += num_to_mask
             if delta > 0:
                 break
         if delta == 0:
             break
-        else:
-            mask_count += delta
-    return mask
+        mask_count += delta
+
+    # Convert result to torch boolean tensor in one call and on target device
+    return torch.from_numpy(mask).to(device=device)
 
 
 def nearest_neighbors(
