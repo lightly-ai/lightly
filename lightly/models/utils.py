@@ -64,16 +64,17 @@ def _mask_reduce_batched(
     source: Tensor, mask: Tensor, num_cls: int, reduce: str = "mean"
 ) -> Tensor:
     b, c, h, w = source.shape
-    cls = torch.arange(num_cls, device=mask.device)
-    num_cls = cls.size(0)
-    # create output tensor
-    output = source.new_zeros((b, c, num_cls))  # (B C N)
-    mask = mask.unsqueeze(1).expand(-1, c, -1, -1).view(b, c, -1)  # (B C HW)
-    source = source.view(b, c, -1)  # (B C HW)
+    # Prepare output tensor directly
+    output = source.new_zeros((b, c, num_cls))
+    # Move mask expansion/view in one go, minimal copies
+    mask_flat = mask.view(b, -1)  # shape (B, HW)
+    src_flat = source.view(b, c, -1)  # shape (B, C, HW)
+    mask_exp = mask_flat.unsqueeze(1).expand(-1, c, -1)  # shape (B, C, HW)
+    # Use scatter_reduce_ in-place, avoid constructing cls
     output.scatter_reduce_(
-        dim=2, index=mask, src=source, reduce=reduce, include_self=False
-    )  # (B C N)
-    # scatter_reduce_ produces NaNs if the count is zero
+        dim=2, index=mask_exp, src=src_flat, reduce=reduce, include_self=False
+    )
+    # Clean up nan if empty reduction
     output = torch.nan_to_num(output, nan=0.0)
     return output
 
