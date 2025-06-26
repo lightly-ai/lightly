@@ -6,74 +6,255 @@
 # run on a small dataset with a single GPU.
 
 import copy
+from functools import partial
 
 import pytorch_lightning as pl
 import torch
 import torchvision
-from torch import nn
+from timm.models.vision_transformer import vit_small_patch16_224
+from torch import Tensor
+from torch.nn import Module
+from torch.optim import AdamW
 
-from lightly.loss import DINOLoss
-from lightly.models.modules import DINOProjectionHead
-from lightly.models.utils import deactivate_requires_grad, update_momentum
+from lightly.loss import DINOLoss, IBOTPatchLoss, KoLeoLoss
+from lightly.models.modules import DINOv2ProjectionHead, MaskedVisionTransformerTIMM
+from lightly.models.utils import (
+    random_block_mask,
+    update_drop_path_rate,
+    update_momentum,
+)
 from lightly.transforms.dino_transform import DINOTransform
-from lightly.utils.scheduler import cosine_schedule
+from lightly.utils.optim import update_param_groups
+from lightly.utils.scheduler import cosine_schedule, linear_warmup_schedule
 
 
-class DINO(pl.LightningModule):
-    def __init__(self):
+def freeze_eval_module(module: Module) -> None:
+    """Freeze the parameters of a module."""
+    for param in module.parameters():
+        param.requires_grad = False
+    module.eval()
+
+
+class DINOv2Head(Module):
+    def __init__(
+        self, dino_head: DINOv2ProjectionHead, ibot_head: DINOv2ProjectionHead
+    ) -> None:
         super().__init__()
-        resnet = torchvision.models.resnet18()
-        backbone = nn.Sequential(*list(resnet.children())[:-1])
-        input_dim = 512
-        # instead of a resnet you can also use a vision transformer backbone as in the
-        # original paper (you might have to reduce the batch size in this case):
-        # backbone = torch.hub.load('facebookresearch/dino:main', 'dino_vits16', pretrained=False)
-        # input_dim = backbone.embed_dim
+        self.dino_head = dino_head
+        self.ibot_head = ibot_head
 
-        self.student_backbone = backbone
-        self.student_head = DINOProjectionHead(
-            input_dim, 512, 64, 2048, freeze_last_layer=1
+
+class DINOv2(pl.LightningModule):
+    def __init__(
+        self,
+        ibot_separate_head: bool = False,
+    ) -> None:
+        super().__init__()
+        self.save_hyperparameters()
+
+        # Backbones
+        vit_teacher = vit_small_patch16_224(
+            pos_embed="learn",
+            dynamic_img_size=True,
+            init_values=1e-5,
         )
-        self.teacher_backbone = copy.deepcopy(backbone)
-        self.teacher_head = DINOProjectionHead(input_dim, 512, 64, 2048)
-        deactivate_requires_grad(self.teacher_backbone)
-        deactivate_requires_grad(self.teacher_head)
+        self.teacher_backbone = MaskedVisionTransformerTIMM(
+            vit=vit_teacher,
+            antialias=False,
+            pos_embed_initialization="skip",
+        )
+        self.student_backbone = copy.deepcopy(self.teacher_backbone)
+        update_drop_path_rate(
+            self.student_backbone.vit,
+            drop_path_rate=0.1,  # we recommend using smaller rates like 0.1 for vit-s-14
+            mode="uniform",
+        )
 
-        self.criterion = DINOLoss(output_dim=2048, warmup_teacher_temp_epochs=5)
+        freeze_eval_module(self.teacher_backbone)
 
-    def forward(self, x):
-        y = self.student_backbone(x).flatten(start_dim=1)
-        z = self.student_head(y)
-        return z
+        # Heads
+        dino_head = partial(
+            DINOv2ProjectionHead,
+            input_dim=384,
+        )
 
-    def forward_teacher(self, x):
-        y = self.teacher_backbone(x).flatten(start_dim=1)
-        z = self.teacher_head(y)
-        return z
+        teacher_dino_head = dino_head()
+        student_dino_head = dino_head()
 
-    def training_step(self, batch, batch_idx):
-        momentum = cosine_schedule(self.current_epoch, 10, 0.996, 1)
-        update_momentum(self.student_backbone, self.teacher_backbone, m=momentum)
-        update_momentum(self.student_head, self.teacher_head, m=momentum)
-        views = batch[0]
-        views = [view.to(self.device) for view in views]
-        global_views = views[:2]
-        teacher_out = [self.forward_teacher(view) for view in global_views]
-        student_out = [self.forward(view) for view in views]
-        loss = self.criterion(teacher_out, student_out, epoch=self.current_epoch)
+        ibot_head = partial(
+            DINOv2ProjectionHead,
+            input_dim=384,
+        )
+
+        if ibot_separate_head:
+            teacher_ibot_head = ibot_head()
+            student_ibot_head = ibot_head()
+        else:
+            teacher_ibot_head = teacher_dino_head
+            student_ibot_head = student_dino_head
+
+        self.teacher_head = DINOv2Head(
+            dino_head=teacher_dino_head,
+            ibot_head=teacher_ibot_head,
+        )
+        self.student_head = DINOv2Head(
+            dino_head=student_dino_head,
+            ibot_head=student_ibot_head,
+        )
+
+        freeze_eval_module(self.teacher_head)
+
+        # Losses
+        self.dino_criterion = DINOLoss()
+        self.ibot_criterion = IBOTPatchLoss()
+        self.koleo_criterion = KoLeoLoss()
+
+    def forward(self, x: Tensor) -> Tensor:
+        return self.teacher_backbone(x)
+
+    def forward_teacher(self, x: Tensor) -> tuple[Tensor, Tensor]:
+        features = self.teacher_backbone.encode(x)
+        cls_tokens = features[:, 0]
+        return cls_tokens, features
+
+    def forward_student(
+        self, x: Tensor, mask: Tensor | None
+    ) -> tuple[Tensor, Tensor | None]:
+        features = self.student_backbone.encode(x, mask=mask)
+        cls_tokens = features[:, 0]
+        masked_features = None if mask is None else features[mask]
+        return cls_tokens, masked_features
+
+    def training_step(
+        self, batch: tuple[list[Tensor], Tensor, list[str]], batch_idx: int
+    ) -> Tensor:
+        views, targets = batch[0], batch[1]
+        global_views = torch.cat(views[:2])
+        local_views = torch.cat(views[2:])
+
+        # Masking
+        B = len(global_views)
+        sequence_length = self.teacher_backbone.sequence_length
+        mask = global_views.new_zeros((B, sequence_length), dtype=torch.bool)
+        # Mask patches except class token.
+        H, W = self.teacher_backbone.vit.patch_embed.grid_size
+        assert (
+            H * W == sequence_length - 1
+        ), f"Unexpected grid size: {H}x{W}, sequence_length {sequence_length}"
+        block_mask = random_block_mask(size=(B, H, W), device=mask.device)
+        mask[:, 1:] = block_mask.flatten(start_dim=1)
+
+        # Teacher forward
+        with torch.no_grad():
+            teacher_cls_token, teacher_features = self.forward_teacher(global_views)
+            teacher_cls_out = self.teacher_head.dino_head.forward(teacher_cls_token)
+            teacher_masked_out = self.teacher_head.ibot_head.forward(
+                teacher_features[mask]
+            )
+
+        # Student forward
+        student_global_cls_token, student_global_masked_features = self.forward_student(
+            global_views, mask=mask
+        )
+        student_global_cls_out = self.student_head.dino_head.forward(
+            student_global_cls_token
+        )
+        student_global_masked_out = self.student_head.ibot_head.forward(
+            student_global_masked_features
+        )
+
+        student_local_cls_token, _ = self.forward_student(local_views, mask=None)
+        student_local_cls_out = self.student_head.dino_head.forward(
+            student_local_cls_token
+        )
+        student_cls_out = torch.cat([student_global_cls_out, student_local_cls_out])
+
+        teacher_temp = linear_warmup_schedule(
+            step=self.trainer.global_step,
+            warmup_steps=int(
+                30 / self.trainer.max_epochs * self.trainer.estimated_stepping_batches
+            ),
+            start_value=0.04,
+            end_value=0.07,
+        )
+        dino_loss = self.dino_criterion(
+            teacher_out=teacher_cls_out.chunk(2),
+            student_out=student_cls_out.chunk(len(views)),
+            teacher_temp=teacher_temp,
+        )
+        ibot_loss = self.ibot_criterion(
+            teacher_out=teacher_masked_out,
+            student_out=student_global_masked_out,
+            mask=block_mask,
+            teacher_temp=teacher_temp,
+        )
+        koleo_loss = 0.1 * sum(
+            self.koleo_criterion(t) for t in student_global_cls_token.chunk(2)
+        )
+        loss = dino_loss + ibot_loss + koleo_loss
+
+        self.log_dict(
+            {
+                "train_loss": loss,
+                "train_dino_loss": dino_loss,
+                "train_ibot_loss": ibot_loss,
+                "train_koleo_loss": koleo_loss,
+                "teacher_temp": teacher_temp,
+            },
+            prog_bar=True,
+            sync_dist=True,
+            batch_size=len(targets),
+        )
+
         return loss
-
-    def on_after_backward(self):
-        self.student_head.cancel_last_layer_gradients(current_epoch=self.current_epoch)
 
     def configure_optimizers(self):
         optim = torch.optim.Adam(self.parameters(), lr=0.001)
         return optim
 
+    def on_before_optimizer_step(self, optimizer: AdamW, *args) -> None:
+        # Optionally zero out the learning rate of the last layer.
+        if self.current_epoch < 1:
+            for param_group in optimizer.param_groups:
+                if "last_layer" in param_group:
+                    param_group["lr"] = 0.0
 
-model = DINO()
+        # Apply weight decay schedule
+        weight_decay = cosine_schedule(
+            step=self.trainer.global_step,
+            max_steps=self.trainer.estimated_stepping_batches,
+            start_value=0.04,
+            end_value=0.4,
+        )
+        updates = []
+        for group in optimizer.param_groups:
+            if group["weight_decay"] != 0.0:
+                updates.append({"name": group["name"], "weight_decay": weight_decay})
 
-transform = DINOTransform()
+        update_param_groups(optimizer, updates=updates)
+
+    def on_train_batch_end(self, outputs, batch, batch_idx):
+        # Momentum update teacher.
+        momentum = cosine_schedule(
+            step=self.trainer.global_step,
+            max_steps=self.trainer.estimated_stepping_batches,
+            start_value=0.992,
+            end_value=1.0,
+        )
+        update_momentum(self.student_backbone, self.teacher_backbone, m=momentum)
+        update_momentum(self.student_head, self.teacher_head, m=momentum)
+
+        return super().on_train_batch_end(outputs, batch, batch_idx)
+
+
+model = DINOv2()
+
+transform = DINOTransform(
+    global_crop_scale=(0.32, 1),
+    local_crop_scale=(0.05, 0.32),
+    n_local_views=8,
+)
+
 # we ignore object detection annotations by setting target_transform to return 0
 
 
@@ -95,7 +276,7 @@ dataloader = torch.utils.data.DataLoader(
     batch_size=64,
     shuffle=True,
     drop_last=True,
-    num_workers=8,
+    num_workers=0,
 )
 
 accelerator = "gpu" if torch.cuda.is_available() else "cpu"
