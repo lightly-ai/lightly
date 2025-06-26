@@ -9,6 +9,7 @@ from lightly.models.modules.heads import (
     BYOLProjectionHead,
     DenseCLProjectionHead,
     DINOProjectionHead,
+    DINOv2ProjectionHead,
     MMCRProjectionHead,
     MoCoProjectionHead,
     MSNProjectionHead,
@@ -227,6 +228,37 @@ class TestProjectionHeads(unittest.TestCase):
                                     self.assertFalse(are_same)
                                 else:
                                     self.assertTrue(are_same)
+
+    def test_dinov2_projection_head(self, device: str = "cpu", seed: int = 0) -> None:
+        input_dim, hidden_dim, output_dim = self.n_features[0]
+        for bottleneck_dim in [8, 16, 32]:
+            for batch_norm in [False, True]:
+                torch.manual_seed(seed)
+                head = DINOv2ProjectionHead(
+                    input_dim=input_dim,
+                    hidden_dim=hidden_dim,
+                    output_dim=output_dim,
+                    bottleneck_dim=bottleneck_dim,
+                    batch_norm=batch_norm,
+                )
+                head = head.eval()
+                head = head.to(device)
+                for batch_size in [1, 2]:
+                    msg = (
+                        f"bottleneck_dim={bottleneck_dim}, " f"batch_norm={batch_norm}"
+                    )
+                    with self.subTest(msg=msg):
+                        x = torch.torch.rand((batch_size, input_dim)).to(device)
+                        with torch.no_grad():
+                            y = head(x)
+                        self.assertEqual(y.shape[0], batch_size)
+                        self.assertEqual(y.shape[1], output_dim)
+
+    @unittest.skipUnless(torch.cuda.is_available(), "skip")
+    def test_dinov2_projection_head_cuda(
+        self, device: str = "cuda", seed: int = 0
+    ) -> None:
+        self.test_dinov2_projection_head(device=device, seed=seed)
 
     def test_simclr_projection_head_multiple_layers(
         self, device: str = "cpu", seed: int = 0
