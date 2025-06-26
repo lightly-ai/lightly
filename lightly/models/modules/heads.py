@@ -730,6 +730,52 @@ class DINOProjectionHead(ProjectionHead):
                 nn.init.constant_(module.bias, 0)
 
 
+class DINOv2ProjectionHead(ProjectionHead):
+    def __init__(
+        self,
+        input_dim: int = 2048,
+        hidden_dim: int = 2048,
+        bottleneck_dim: int = 256,
+        output_dim: int = 65536,
+        batch_norm: bool = False,
+    ) -> None:
+        super().__init__(
+            [
+                (
+                    input_dim,
+                    hidden_dim,
+                    nn.BatchNorm1d(hidden_dim) if batch_norm else None,
+                    nn.GELU(),
+                ),
+                (
+                    hidden_dim,
+                    hidden_dim,
+                    nn.BatchNorm1d(hidden_dim) if batch_norm else None,
+                    nn.GELU(),
+                ),
+                (hidden_dim, bottleneck_dim, None, None),
+            ]
+        )
+        self.apply(self._init_weights)
+        self.last_layer = nn.utils.weight_norm(
+            nn.Linear(bottleneck_dim, output_dim, bias=False)
+        )
+        self.last_layer.weight_g.data.fill_(1)  # type: ignore[operator]
+
+    def _init_weights(self, m: nn.Module) -> None:
+        if isinstance(m, nn.Linear):
+            nn.init.trunc_normal_(m.weight, std=0.02)
+            if isinstance(m, nn.Linear) and m.bias is not None:
+                nn.init.constant_(m.bias, 0)
+
+    def forward(self, x: Tensor) -> Tensor:
+        x = self.layers(x)
+        eps = 1e-6 if x.dtype == torch.float16 else 1e-12
+        x = nn.functional.normalize(x, dim=-1, p=2, eps=eps)
+        x = self.last_layer(x)
+        return x
+
+
 class MMCRProjectionHead(ProjectionHead):
     """Projection head used for MMCR.
 

@@ -14,7 +14,7 @@ from torch.nn import Module
 from torch.optim import AdamW, Optimizer
 
 from lightly.loss import DINOLoss, IBOTPatchLoss, KoLeoLoss
-from lightly.models.modules import DINOProjectionHead, MaskedVisionTransformerTIMM
+from lightly.models.modules import DINOv2ProjectionHead, MaskedVisionTransformerTIMM
 from lightly.models.utils import (
     random_block_mask,
     update_drop_path_rate,
@@ -37,33 +37,13 @@ def freeze_eval_module(module: Module) -> None:
     module.eval()
 
 
-# Wrappers to ensure the param groups are named differently for the DINO and iBOT heads
-class DINOHead(Module):
-    """A wrapper for the DINO projection head."""
-
-    def __init__(self, dino_head: Module) -> None:
+class DINOv2Head(Module):
+    def __init__(
+        self, dino_head: DINOv2ProjectionHead, ibot_head: DINOv2ProjectionHead
+    ) -> None:
         super().__init__()
-        self._dino_head = dino_head
-
-    def forward(self, x: Tensor) -> Any:
-        return self._dino_head(x)
-
-    def cancel_last_layer_gradients(self, current_epoch: int) -> None:
-        self._dino_head.cancel_last_layer_gradients(current_epoch)
-
-
-class IBOTHead(Module):
-    """A wrapper for the IBOT projection head."""
-
-    def __init__(self, ibot_head: Module) -> None:
-        super().__init__()
-        self._ibot_head = ibot_head
-
-    def forward(self, x: Tensor) -> Any:
-        return self._ibot_head(x)
-
-    def cancel_last_layer_gradients(self, current_epoch: int) -> None:
-        self._ibot_head.cancel_last_layer_gradients(current_epoch)
+        self.dino_head = dino_head
+        self.ibot_head = ibot_head
 
 
 class DINOv2(LightningModule):
@@ -99,30 +79,35 @@ class DINOv2(LightningModule):
 
         # Heads
         dino_head = partial(
-            DINOProjectionHead,
+            DINOv2ProjectionHead,
             input_dim=384,
-            norm_last_layer=False,
         )
 
-        self.teacher_dino_head = DINOHead(dino_head())
-        self.student_dino_head = DINOHead(dino_head(freeze_last_layer=1))
-        if ibot_separate_head:
-            ibot_head = partial(
-                DINOProjectionHead,
-                norm_last_layer=False,
-            )
-            self.teacher_ibot_head = IBOTHead(ibot_head())
-            self.student_ibot_head = IBOTHead(
-                ibot_head(
-                    freeze_last_layer=1,
-                )
-            )
-        else:
-            self.teacher_ibot_head = self.teacher_dino_head
-            self.student_ibot_head = self.student_dino_head
+        teacher_dino_head = dino_head()
+        student_dino_head = dino_head()
 
-        freeze_eval_module(self.teacher_dino_head)
-        freeze_eval_module(self.teacher_ibot_head)
+        ibot_head = partial(
+            DINOv2ProjectionHead,
+            input_dim=384,
+        )
+
+        if ibot_separate_head:
+            teacher_ibot_head = ibot_head()
+            student_ibot_head = ibot_head()
+        else:
+            teacher_ibot_head = teacher_dino_head
+            student_ibot_head = student_dino_head
+
+        self.teacher_head = DINOv2Head(
+            dino_head=teacher_dino_head,
+            ibot_head=teacher_ibot_head,
+        )
+        self.student_head = DINOv2Head(
+            dino_head=student_dino_head,
+            ibot_head=student_ibot_head,
+        )
+
+        freeze_eval_module(self.teacher_head)
 
         # Losses
         self.dino_criterion = DINOLoss()
@@ -171,20 +156,26 @@ class DINOv2(LightningModule):
         # Teacher forward
         with torch.no_grad():
             teacher_cls_token, teacher_features = self.forward_teacher(global_views)
-            teacher_cls_out = self.teacher_dino_head(teacher_cls_token)
-            teacher_masked_out = self.teacher_ibot_head(teacher_features[mask])
+            teacher_cls_out = self.teacher_head.dino_head.forward(teacher_cls_token)
+            teacher_masked_out = self.teacher_head.ibot_head.forward(
+                teacher_features[mask]
+            )
 
         # Student forward
         student_global_cls_token, student_global_masked_features = self.forward_student(
             global_views, mask=mask
         )
-        student_global_cls_out = self.student_dino_head(student_global_cls_token)
-        student_global_masked_out = self.student_ibot_head(
+        student_global_cls_out = self.student_head.dino_head.forward(
+            student_global_cls_token
+        )
+        student_global_masked_out = self.student_head.ibot_head.forward(
             student_global_masked_features
         )
 
         student_local_cls_token, _ = self.forward_student(local_views, mask=None)
-        student_local_cls_out = self.student_dino_head(student_local_cls_token)
+        student_local_cls_out = self.student_head.dino_head.forward(
+            student_local_cls_token
+        )
         student_cls_out = torch.cat([student_global_cls_out, student_local_cls_out])
 
         teacher_temp = linear_warmup_schedule(
@@ -337,8 +328,11 @@ class DINOv2(LightningModule):
         )
 
     def on_before_optimizer_step(self, optimizer: AdamW, *args) -> None:
-        self.student_dino_head.cancel_last_layer_gradients(self.current_epoch)
-        self.student_ibot_head.cancel_last_layer_gradients(self.current_epoch)
+        # Optionally zero out the learning rate of the last layer.
+        if self.current_epoch < 1:
+            for param_group in optimizer.param_groups:
+                if "last_layer" in param_group["name"]:
+                    param_group["lr"] = 0.0
 
         # Apply weight decay schedule
         weight_decay = cosine_schedule(
@@ -363,9 +357,7 @@ class DINOv2(LightningModule):
             end_value=1.0,
         )
         update_momentum(self.student_backbone, self.teacher_backbone, m=momentum)
-        update_momentum(self.student_dino_head, self.teacher_dino_head, m=momentum)
-        if self.ibot_separate_head:
-            update_momentum(self.student_ibot_head, self.teacher_ibot_head, m=momentum)
+        update_momentum(self.student_head, self.teacher_head, m=momentum)
 
         return super().on_train_batch_end(outputs, batch, batch_idx)
 
