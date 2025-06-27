@@ -3,36 +3,30 @@
 DINOv2
 ======
 
-DINOv2 
+DINOv2 (DIstillation with NO labels v2) [0]_ is an advanced self-supervised learning framework developed by Meta AI for robust visual representation learning without labeled data. Extending the original DINO [1]_ approach, DINOv2 trains a student network to match outputs from a momentum-averaged teacher network. By leveraging self-distillation objectives at both image and patch levels, enhances both global and local feature learning. Combined with other various innovations in both the training recipe and efficient training implementation, DINOv2 exhibits state-of-the-art performance across various computer vision tasks, including classification, segmentation, and depth estimation, without the necessity for task-specific fine-tuning.
 
 Key Components
 --------------
 
-- **Data Augmentations**: DINO [0]_ uses random cropping, resizing, color jittering, and
-  Gaussian blur to create diverse views of the same image. In particular, DINO
-  generates two global views and multiple local views that are smaller crops of the
-  original image.
-- **Backbone**: Vision transformers, such as ViTs, and convolutional neural networks,
-  such as ResNets, are employed to encode augmented images into feature representations.
-- **Projection Head**: A multilayer perceptron (MLP) maps features to a distribution
-  over a set of learnable clusters.
-- **Distillation Loss**: The self-distillation loss encourages similarity between the
-  student and teacher output distributions when processing independent views of the same
-  image.
+- **Multi-level Objectives**: DINOv2 combines image-level and patch-level self-supervised objectives. It employs DINO loss for the image-level objective and iBOT [2]_ loss for patch-level objective. This multi-level approach enhances both global and local feature representations, significantly improving performance on dense prediction tasks like segmentation and depth estimation.
+- **Untied Projection Heads**: DINOv2 employs distinct projection heads for image-level and patch-level objectives. Untying these projection heads helps prevent the model from underfitting at the patch level and overfitting at the image level, thus simultaneously improving feature quality and representation stability.
+- **KoLeo Regularizer**: DINOv2 introduces the KoLeo regularizer [3]_, which promotes uniform spreading of features within a batch, significantly enhancing the quality of nearest-neighbor retrieval tasks without negatively affecting classification or segmentation performance.
 
 Good to Know
 ------------
 
-- **Backbone Networks**: DINO [0]_ works well with transformer and convolutional neural
-    network architectures.
-- **Feature Quality**: DINO [0]_ learns particularly strong features without fine-tuning
-    on downstream tasks. This is especially useful for clustering or
-    k-Nearest Neighbors (kNN) classification.
-
+- **SOTA out-of-the-box**: DINOv2 currently represents the state-of-the-art (SOTA) among self-supervised learning (SSL) methods in computer vision, outperforming existing frameworks in various benchmarks.
+- **Relation to other SSL methods**: DINOv2 can be seen as a combination of DINO and iBOT losses with the centering of SwAV [4]_.
+- **Sinkhorn-Knopp centering**: for long training schedules, DINOv2 adopts the Sinkhorn-Knopp algorithm for centering the teacher's output distribution, replacing the standard softmax-centering step from previous methods. This approach stabilizes training by ensuring a balanced distribution of cluster assignments.
+- **Efficient implementation for training at scale**: for training large models like ViT-g, DINOv2 also includes several optimizations such as custom implementations of FlashAttention for memory-efficient attention computation, nested tensors for simultaneous processing of different crop resolutions, efficient stochastic depth for reduced computation and memory usage, and Fully-Sharded Data Parallel (FSDP) training for improved scalability and reduced inter-GPU communication.
 
 Reference:
 
-    .. [0] _
+    .. [0] `DINOv2: Learning Robust Visual Features without Supervision, 2023 <https://arxiv.org/abs/2304.07193>`_
+    .. [1] `Emerging Properties in Self-Supervised Vision Transformers, 2021 <https://arxiv.org/abs/2104.14294>`_
+    .. [2] `iBOT: Image BERT Pre-Training with Online Tokenizer, 2021 <https://arxiv.org/abs/2111.07832>`_
+    .. [3] `Spreading vectors for similarity search, 2018 <https://arxiv.org/abs/1806.03198>`_
+    .. [4] `Unsupervised Learning of Visual Features by Contrasting Cluster Assignments, 2020 <https://arxiv.org/abs/2006.09882>`_
 
 
 .. tabs::
