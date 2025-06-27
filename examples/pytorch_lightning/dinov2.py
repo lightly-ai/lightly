@@ -209,7 +209,7 @@ class DINOv2(pl.LightningModule):
         return loss
 
     def configure_optimizers(self):
-        optim = torch.optim.Adam(self.parameters(), lr=0.001)
+        optim = AdamW(self.parameters(), lr=0.001)
         return optim
 
     def on_before_optimizer_step(self, optimizer: AdamW, *args) -> None:
@@ -255,9 +255,8 @@ transform = DINOTransform(
     n_local_views=8,
 )
 
+
 # we ignore object detection annotations by setting target_transform to return 0
-
-
 def target_transform(t):
     return 0
 
@@ -276,7 +275,7 @@ dataloader = torch.utils.data.DataLoader(
     batch_size=64,
     shuffle=True,
     drop_last=True,
-    num_workers=0,
+    num_workers=8,
 )
 
 accelerator = "gpu" if torch.cuda.is_available() else "cpu"

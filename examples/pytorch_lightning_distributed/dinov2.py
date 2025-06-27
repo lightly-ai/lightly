@@ -209,7 +209,7 @@ class DINOv2(pl.LightningModule):
         return loss
 
     def configure_optimizers(self):
-        optim = torch.optim.Adam(self.parameters(), lr=0.001)
+        optim = AdamW(self.parameters(), lr=0.001)
         return optim
 
     def on_before_optimizer_step(self, optimizer: AdamW, *args) -> None:
@@ -275,7 +275,7 @@ dataloader = torch.utils.data.DataLoader(
     batch_size=64,
     shuffle=True,
     drop_last=True,
-    num_workers=3,
+    num_workers=8,
 )
 
 # Train with DDP and use Synchronized Batch Norm for a more accurate batch norm
