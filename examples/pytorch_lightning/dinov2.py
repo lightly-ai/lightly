@@ -24,7 +24,6 @@ from lightly.models.utils import (
     update_momentum,
 )
 from lightly.transforms.dino_transform import DINOTransform
-from lightly.utils.optim import update_param_groups
 from lightly.utils.scheduler import cosine_schedule, linear_warmup_schedule
 
 
@@ -226,12 +225,9 @@ class DINOv2(pl.LightningModule):
             start_value=0.04,
             end_value=0.4,
         )
-        updates = []
         for group in optimizer.param_groups:
             if group["weight_decay"] != 0.0:
-                updates.append({"name": group["name"], "weight_decay": weight_decay})
-
-        update_param_groups(optimizer, updates=updates)
+                group["weight_decay"] = weight_decay
 
     def on_train_batch_end(self, outputs, batch, batch_idx):
         # Momentum update teacher.
