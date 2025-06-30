@@ -308,7 +308,8 @@ def _same_mask(mask0: Tensor, mask1: Tensor) -> Tensor:
             matrix where the entry :math:`(k, i, :, j)` is 1 if the masks :math:`mask0(k, i)`
             and :math:`mask1(k, j)'` are the same and 0 otherwise.
     """
-    return (mask0[:, :, None] == mask1[:, None, :]).float()[:, :, None, :]
+    # Efficiently compute (B, M, M) bool mask and directly unsqueeze at dim=2 to get (B, M, 1, M)
+    return (mask0.unsqueeze(2) == mask1.unsqueeze(1)).float().unsqueeze(2)
 
 
 def _torch_manual_cross_entropy(
