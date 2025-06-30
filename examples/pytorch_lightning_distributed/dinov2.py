@@ -1,17 +1,20 @@
-from __future__ import annotations
+# This example requires the following dependencies to be installed:
+# pip install lightly
+
+# Note: The model and training settings do not follow the reference settings
+# from the paper. The settings are chosen such that the example can easily be
+# run on a small dataset with a single GPU.
 
 import copy
-import math
-import re
 from functools import partial
-from typing import Any
 
+import pytorch_lightning as pl
 import torch
-from pytorch_lightning import LightningModule
+import torchvision
 from timm.models.vision_transformer import vit_small_patch16_224
 from torch import Tensor
 from torch.nn import Module
-from torch.optim import AdamW, Optimizer
+from torch.optim import AdamW
 
 from lightly.loss import DINOLoss, IBOTPatchLoss, KoLeoLoss
 from lightly.models.modules import DINOv2ProjectionHead, MaskedVisionTransformerTIMM
@@ -20,14 +23,9 @@ from lightly.models.utils import (
     update_drop_path_rate,
     update_momentum,
 )
-from lightly.transforms import DINOTransform
-from lightly.utils.benchmarking import OnlineLinearClassifier
+from lightly.transforms.dino_transform import DINOTransform
 from lightly.utils.optim import update_param_groups
-from lightly.utils.scheduler import (
-    CosineWarmupScheduler,
-    cosine_schedule,
-    linear_warmup_schedule,
-)
+from lightly.utils.scheduler import cosine_schedule, linear_warmup_schedule
 
 
 def freeze_eval_module(module: Module) -> None:
@@ -46,16 +44,13 @@ class DINOv2Head(Module):
         self.ibot_head = ibot_head
 
 
-class DINOv2(LightningModule):
+class DINOv2(pl.LightningModule):
     def __init__(
         self,
-        batch_size_per_device: int,
-        num_classes: int,
         ibot_separate_head: bool = False,
     ) -> None:
         super().__init__()
         self.save_hyperparameters()
-        self.batch_size_per_device = batch_size_per_device
 
         # Backbones
         vit_teacher = vit_small_patch16_224(
@@ -114,12 +109,8 @@ class DINOv2(LightningModule):
         self.ibot_criterion = IBOTPatchLoss()
         self.koleo_criterion = KoLeoLoss()
 
-        self.online_classifier = OnlineLinearClassifier(
-            feature_dim=384, num_classes=num_classes
-        )
-
     def forward(self, x: Tensor) -> Tensor:
-        return self.teacher_backbone(x)
+        pass
 
     def forward_teacher(self, x: Tensor) -> tuple[Tensor, Tensor]:
         features = self.teacher_backbone.encode(x)
@@ -215,123 +206,17 @@ class DINOv2(LightningModule):
             batch_size=len(targets),
         )
 
-        # Online classification.
-        _, cls_log = self.online_classifier.training_step(
-            (teacher_cls_token.chunk(2)[0].detach(), targets), batch_idx
-        )
-        self.log_dict(cls_log, sync_dist=True, batch_size=len(targets))
-
         return loss
 
-    def validation_step(
-        self, batch: tuple[Tensor, Tensor, list[str]], batch_idx: int
-    ) -> Tensor:
-        images, targets = batch[0], batch[1]
-        cls_token = self.forward(images)
-        cls_loss, cls_log = self.online_classifier.validation_step(
-            (cls_token.detach(), targets), batch_idx
-        )
-        self.log_dict(cls_log, prog_bar=True, sync_dist=True, batch_size=len(targets))
-        return cls_loss
-
     def configure_optimizers(self):
-        min_lr = 1e-6
-        lr_scale = math.sqrt(
-            self.batch_size_per_device * self.trainer.world_size / 1024
-        )
-        lr = 0.004 * lr_scale
-        num_layers = len(self.student_backbone.vit.blocks)
-
-        def lr_layer(layer_idx: int) -> float:
-            return 0.9 ** (num_layers + 1 - layer_idx)  # layer_scale defaults to 0.9
-
-        param_groups = []
-        for name, param in self.named_parameters():
-            if not "student" in name:
-                continue  # Ignore teacher parameters
-
-            group = {
-                "name": name,
-                "params": [param],
-                "lr": lr,
-                "weight_decay": 0.04,
-            }
-
-            # Update lr
-            if any(
-                s in name
-                for s in [
-                    "pos_embed",
-                    "mask_token",
-                    "cls_token",
-                    "register_tokens",
-                ]
-            ):
-                group["lr"] = lr * lr_layer(0)
-            elif "patch_embed" in name:
-                group["lr"] = lr * lr_layer(0) * 0.2
-            elif "residual" in name:
-                group["lr"] = lr
-            elif "blocks" in name:
-                layer_idx = int(re.search(r"blocks\.(\d+)\.", name).group(1))
-                group["lr"] = lr * lr_layer(layer_idx + 1)
-            elif "vit.norm" in name:
-                pass  # Do not update vit.norm parameters
-            elif "head" in name:
-                pass  # Do not update classification and dino/ibot head parameters
-            else:
-                assert False, f"Unknown parameter: {name}"
-
-            # Update weight_decay
-            if name.endswith(".bias") or ".norm" in name or "gamma" in name:
-                group["weight_decay"] = 0.0
-
-            # Ignore ViT classification head
-            if not "vit.head" in name:
-                param_groups.append(group)
-
-        param_groups.append(
-            {
-                "name": "online_classifier",
-                "params": self.online_classifier.parameters(),
-                "lr": lr,
-                "weight_decay": 0.0,
-            }
-        )
-
-        optimizer = AdamW(param_groups, lr=lr)
-        scheduler = {
-            "scheduler": CosineWarmupScheduler(
-                optimizer=optimizer,
-                warmup_epochs=int(
-                    self.trainer.estimated_stepping_batches
-                    / self.trainer.max_epochs
-                    * 10
-                ),
-                max_epochs=int(self.trainer.estimated_stepping_batches),
-                end_value=min_lr / lr,
-            ),
-            "interval": "step",
-        }
-        return [optimizer], [scheduler]
-
-    def configure_gradient_clipping(
-        self,
-        optimizer: Optimizer,
-        gradient_clip_val: int | float | None = None,
-        gradient_clip_algorithm: str | None = None,
-    ) -> None:
-        self.clip_gradients(
-            optimizer=optimizer,
-            gradient_clip_val=3.0,
-            gradient_clip_algorithm="norm",
-        )
+        optim = AdamW(self.parameters(), lr=0.001)
+        return optim
 
     def on_before_optimizer_step(self, optimizer: AdamW, *args) -> None:
         # Optionally zero out the learning rate of the last layer.
         if self.current_epoch < 1:
             for param_group in optimizer.param_groups:
-                if "last_layer" in param_group["name"]:
+                if "last_layer" in param_group:
                     param_group["lr"] = 0.0
 
         # Apply weight decay schedule
@@ -341,12 +226,9 @@ class DINOv2(LightningModule):
             start_value=0.04,
             end_value=0.4,
         )
-        updates = []
         for group in optimizer.param_groups:
             if group["weight_decay"] != 0.0:
-                updates.append({"name": group["name"], "weight_decay": weight_decay})
-
-        update_param_groups(optimizer, updates=updates)
+                group["weight_decay"] = weight_decay
 
     def on_train_batch_end(self, outputs, batch, batch_idx):
         # Momentum update teacher.
@@ -362,8 +244,45 @@ class DINOv2(LightningModule):
         return super().on_train_batch_end(outputs, batch, batch_idx)
 
 
+model = DINOv2()
+
 transform = DINOTransform(
     global_crop_scale=(0.32, 1),
     local_crop_scale=(0.05, 0.32),
     n_local_views=8,
 )
+
+
+# we ignore object detection annotations by setting target_transform to return 0
+def target_transform(t):
+    return 0
+
+
+dataset = torchvision.datasets.VOCDetection(
+    "datasets/pascal_voc",
+    download=True,
+    transform=transform,
+    target_transform=target_transform,
+)
+# or create a dataset from a folder containing images or videos:
+# dataset = LightlyDataset("path/to/folder")
+
+dataloader = torch.utils.data.DataLoader(
+    dataset,
+    batch_size=64,
+    shuffle=True,
+    drop_last=True,
+    num_workers=8,
+)
+
+# Train with DDP and use Synchronized Batch Norm for a more accurate batch norm
+# calculation. Distributed sampling is also enabled with replace_sampler_ddp=True.
+trainer = pl.Trainer(
+    max_epochs=50,
+    devices="auto",
+    accelerator="gpu",
+    strategy="ddp_find_unused_parameters_true",
+    sync_batchnorm=True,
+    use_distributed_sampler=True,  # or replace_sampler_ddp=True for PyTorch Lightning <2.0
+)
+trainer.fit(model=model, train_dataloaders=dataloader)
