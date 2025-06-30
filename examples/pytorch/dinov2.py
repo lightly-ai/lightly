@@ -164,7 +164,7 @@ koleo_criterion = koleo_criterion.to(device)
 
 optimizer = AdamW(model.parameters(), lr=0.001)
 
-epochs = 10
+epochs = 50
 num_batches = len(dataloader)
 total_steps = epochs * num_batches
 

@@ -278,7 +278,7 @@ dataloader = torch.utils.data.DataLoader(
 # Train with DDP and use Synchronized Batch Norm for a more accurate batch norm
 # calculation. Distributed sampling is also enabled with replace_sampler_ddp=True.
 trainer = pl.Trainer(
-    max_epochs=10,
+    max_epochs=50,
     devices="auto",
     accelerator="gpu",
     strategy="ddp_find_unused_parameters_true",

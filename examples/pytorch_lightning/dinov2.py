@@ -276,5 +276,5 @@ dataloader = torch.utils.data.DataLoader(
 
 accelerator = "gpu" if torch.cuda.is_available() else "cpu"
 
-trainer = pl.Trainer(max_epochs=10, devices=1, accelerator=accelerator)
+trainer = pl.Trainer(max_epochs=50, devices=1, accelerator=accelerator)
 trainer.fit(model=model, train_dataloaders=dataloader)
