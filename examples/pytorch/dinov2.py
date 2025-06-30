@@ -181,7 +181,7 @@ for epoch in range(epochs):
         B = len(global_views)
         sequence_length = model.teacher_backbone.sequence_length
         mask = global_views.new_zeros((B, sequence_length), dtype=torch.bool)
-        
+
         # Mask patches except class token.
         H, W = model.teacher_backbone.vit.patch_embed.grid_size
         assert (
@@ -257,7 +257,7 @@ for epoch in range(epochs):
             start_value=0.04,
             end_value=0.4,
         )
-        
+
         # Update weight decay directly for all parameter groups.
         for group in optimizer.param_groups:
             if group["weight_decay"] != 0.0:
