@@ -8,16 +8,14 @@ DINOv2 (DIstillation with NO labels v2) [0]_ is an advanced self-supervised lear
 Key Components
 --------------
 
-- **Multi-level Objectives**: DINOv2 combines image-level and patch-level self-supervised objectives. It employs DINO loss for the image-level objective and iBOT [2]_ loss for patch-level objective. This multi-level approach enhances both global and local feature representations, significantly improving performance on dense prediction tasks like segmentation and depth estimation.
-- **Untied Projection Heads**: DINOv2 employs distinct projection heads for image-level and patch-level objectives. Untying these projection heads helps prevent the model from underfitting at the patch level and overfitting at the image level, thus simultaneously improving feature quality and representation stability.
-- **KoLeo Regularizer**: DINOv2 introduces the KoLeo regularizer [3]_, which promotes uniform spreading of features within a batch, significantly enhancing the quality of nearest-neighbor retrieval tasks without negatively affecting classification or segmentation performance.
+- **Multi-level Objectives**: DINOv2 employs DINO loss for the image-level objective and iBOT [2]_ loss for patch-level objective. This multi-level approach enhances both global and local feature representations, significantly improving performance on dense prediction tasks like segmentation and depth estimation.
+- **KoLeo Regularizer**: DINOv2 introduces the KoLeo regularizer [3]_, which promotes uniform spreading of features within a batch, significantly enhancing the quality of nearest-neighbor retrieval tasks without negatively affecting performance on dense downstream tasks.
 
 Good to Know
 ------------
 
 - **SOTA out-of-the-box**: DINOv2 currently represents the state-of-the-art (SOTA) among self-supervised learning (SSL) methods in computer vision, outperforming existing frameworks in various benchmarks.
 - **Relation to other SSL methods**: DINOv2 can be seen as a combination of DINO and iBOT losses with the centering of SwAV [4]_.
-- **Sinkhorn-Knopp centering**: for long training schedules, DINOv2 adopts the Sinkhorn-Knopp algorithm for centering the teacher's output distribution, replacing the standard softmax-centering step from previous methods. This approach stabilizes training by ensuring a balanced distribution of cluster assignments.
 - **Efficient implementation for training at scale**: for training large models like ViT-g, DINOv2 also includes several optimizations such as custom implementations of FlashAttention for memory-efficient attention computation, nested tensors for simultaneous processing of different crop resolutions, efficient stochastic depth for reduced computation and memory usage, and Fully-Sharded Data Parallel (FSDP) training for improved scalability and reduced inter-GPU communication.
 
 Reference:
