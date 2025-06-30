@@ -127,7 +127,7 @@ transform = DINOTransform(
 )
 
 
-# we ignore object detection annotations by setting target_transform to return 0
+# We ignore object detection annotations by setting target_transform to return 0.
 def target_transform(t):
     return 0
 
@@ -141,7 +141,7 @@ dataset = torchvision.datasets.VOCDetection(
     transform=transform,
     target_transform=target_transform,
 )
-# or create a dataset from a folder containing images or videos:
+# Or create a dataset from a folder containing images or videos.
 # dataset = LightlyDataset("path/to/folder")
 
 dataloader = torch.utils.data.DataLoader(
@@ -152,12 +152,12 @@ dataloader = torch.utils.data.DataLoader(
     num_workers=8,
 )
 
-# Create the loss functions
+# Create the loss functions.
 dino_criterion = DINOLoss()
 ibot_criterion = IBOTPatchLoss()
 koleo_criterion = KoLeoLoss()
 
-# move loss to correct device because it also contains parameters
+# Move loss to correct device because it also contains parameters.
 dino_criterion = dino_criterion.to(device)
 ibot_criterion = ibot_criterion.to(device)
 koleo_criterion = koleo_criterion.to(device)
@@ -181,6 +181,7 @@ for epoch in range(epochs):
         B = len(global_views)
         sequence_length = model.teacher_backbone.sequence_length
         mask = global_views.new_zeros((B, sequence_length), dtype=torch.bool)
+        
         # Mask patches except class token.
         H, W = model.teacher_backbone.vit.patch_embed.grid_size
         assert (
@@ -214,10 +215,10 @@ for epoch in range(epochs):
         )
         student_cls_out = torch.cat([student_global_cls_out, student_local_cls_out])
 
-        # Calculate current global step based on epoch and batch index
+        # Calculate current global step based on epoch and batch index.
         global_step = epoch * num_batches + batch_idx
 
-        # Calculate the loss
+        # Calculate the loss.
         teacher_temp = linear_warmup_schedule(
             step=global_step,
             warmup_steps=int(30 / epochs * total_steps),
@@ -249,14 +250,15 @@ for epoch in range(epochs):
                 if "last_layer" in param_group:
                     param_group["lr"] = 0.0
 
-        # Apply weight decay schedule
+        # Apply weight decay schedule.
         weight_decay = cosine_schedule(
             step=global_step,
             max_steps=total_steps,
             start_value=0.04,
             end_value=0.4,
         )
-        # Update weight decay directly for all parameter groups
+        
+        # Update weight decay directly for all parameter groups.
         for group in optimizer.param_groups:
             if group["weight_decay"] != 0.0:
                 group["weight_decay"] = weight_decay

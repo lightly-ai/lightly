@@ -16,7 +16,6 @@ Good to Know
 
 - **SOTA out-of-the-box**: DINOv2 currently represents the state-of-the-art (SOTA) among self-supervised learning (SSL) methods in computer vision, outperforming existing frameworks in various benchmarks.
 - **Relation to other SSL methods**: DINOv2 can be seen as a combination of DINO and iBOT losses with the centering of SwAV [4]_.
-- **Efficient implementation for training at scale**: for training large models like ViT-g, DINOv2 also includes several optimizations such as custom implementations of FlashAttention for memory-efficient attention computation, nested tensors for simultaneous processing of different crop resolutions, efficient stochastic depth for reduced computation and memory usage, and Fully-Sharded Data Parallel (FSDP) training for improved scalability and reduced inter-GPU communication.
 
 Reference:
 
