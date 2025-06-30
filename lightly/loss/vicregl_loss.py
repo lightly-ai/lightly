@@ -86,7 +86,7 @@ class VICRegLLoss(Module):
         self.nu_param = nu_param
         self.eps = eps
         self.gather_distributed = gather_distributed
-        self.running_device = None
+        self.device = torch.device("cpu")
         # Note: We multiply nu_param by 0.5 because the implementations of the VICReg
         # covariance loss differ by a factor of 0.5 between the original VICReg and
         # VICRegL codebases. See:
@@ -192,9 +192,7 @@ class VICRegLLoss(Module):
         Returns:
             The computed global features loss.
         """
-        if self.running_device is None:
-            # TODO: Might be weird for DDP training?
-            self.running_device = global_view_features[0][0].device
+        self.device = global_view_features[0][0].device
         inv_loss = self._global_invariance_loss(
             global_view_features=global_view_features,
             local_view_features=local_view_features,
@@ -227,8 +225,8 @@ class VICRegLLoss(Module):
         Returns:
             The computed invariance loss from global features.
         """
-        loss = torch.tensor(0.0).to(self.running_device)
-        loss_count = torch.tensor(0).to(self.running_device)
+        loss = torch.tensor(0.0).to(self.device)
+        loss_count = torch.tensor(0).to(self.device)
 
         # Compute invariance loss between global views
         for global_features_a, _ in global_view_features:
@@ -265,9 +263,9 @@ class VICRegLLoss(Module):
         if local_view_features is not None:
             view_features = view_features + list(local_view_features)
 
-        var_loss = torch.tensor(0.0).to(self.running_device)
-        cov_loss = torch.tensor(0.0).to(self.running_device)
-        loss_count = torch.tensor(0).to(self.running_device)
+        var_loss = torch.tensor(0.0).to(self.device)
+        cov_loss = torch.tensor(0.0).to(self.device)
+        loss_count = torch.tensor(0).to(self.device)
         for global_features, _ in view_features:
             if self.gather_distributed and dist.is_initialized():
                 world_size = dist.get_world_size()
@@ -315,8 +313,8 @@ class VICRegLLoss(Module):
         Returns:
             The computed loss from local features based on nearest neighbor matching.
         """
-        loss = torch.tensor(0.0).to(self.running_device)
-        loss_count = torch.tensor(0).to(self.running_device)
+        loss = torch.tensor(0.0).to(self.device)
+        loss_count = torch.tensor(0).to(self.device)
 
         # Compute the loss for global views
         for (_, z_a_local_features), grid_a in zip(
