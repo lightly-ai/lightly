@@ -136,8 +136,8 @@ device = "cuda" if torch.cuda.is_available() else "mps"
 model.to(device)
 
 dataset = torchvision.datasets.VOCDetection(
-    "/Users/yutong/datasets/pascal_voc",
-    # download=True,
+    "datasets/pascal_voc",
+    download=True,
     transform=transform,
     target_transform=target_transform,
 )

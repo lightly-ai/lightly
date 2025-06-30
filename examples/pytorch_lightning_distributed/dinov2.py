@@ -260,7 +260,7 @@ def target_transform(t):
 
 dataset = torchvision.datasets.VOCDetection(
     "datasets/pascal_voc",
-    # download=True,
+    download=True,
     transform=transform,
     target_transform=target_transform,
 )
