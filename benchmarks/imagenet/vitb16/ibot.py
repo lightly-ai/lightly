@@ -269,8 +269,4 @@ class IBOT(LightningModule):
         return super().on_train_batch_end(outputs, batch, batch_idx)
 
 
-transform = IBOTTransform(
-    global_crop_scale=(0.32, 1),
-    local_crop_scale=(0.05, 0.32),
-    n_local_views=8,
-)
+transform = IBOTTransform()
