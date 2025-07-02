@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+from functools import partial
 
 import torch
 from pytorch_lightning import LightningModule
@@ -43,6 +44,7 @@ class IBOT(LightningModule):
         super().__init__()
         self.save_hyperparameters()
         self.batch_size_per_device = batch_size_per_device
+        self.output_dim = 8192
 
         # Backbones
         vit_teacher = vit_small_patch16_224(
@@ -58,25 +60,39 @@ class IBOT(LightningModule):
         self.student_backbone = copy.deepcopy(self.teacher_backbone)
         update_drop_path_rate(
             self.student_backbone.vit,
-            drop_path_rate=0.1,  # we recommend using smaller rates like 0.1 for vit-s-14
+            drop_path_rate=0.1,
             mode="uniform",
         )
         freeze_eval_module(self.teacher_backbone)
+        self.embed_dim = self.student_backbone.vit.embed_dim
 
-        self.student_head = DINOProjectionHead(
-            input_dim=384,
-            norm_last_layer=False,
-            freeze_last_layer=1,
+        # Projection heads
+        projection_head = partial(
+            DINOProjectionHead,
+            input_dim=self.embed_dim,
+            output_dim=self.output_dim,
         )
-        self.teacher_head = self.student_head
+
+        self.student_head = projection_head(norm_last_layer=False)
+        self.student_cls_head = self.student_patch_head = self.student_head
+
+        self.teacher_head = projection_head()
+        self.teacher_cls_head = self.teacher_patch_head = self.teacher_head
+
         freeze_eval_module(self.teacher_head)
 
         # Losses
-        self.cls_criterion = DINOLoss()
-        self.patch_criterion = IBOTPatchLoss()
+        self.cls_criterion = DINOLoss(
+            output_dim=self.output_dim,
+            teacher_temp=0.07,
+        )
+        self.patch_criterion = IBOTPatchLoss(
+            output_dim=self.output_dim,
+            teacher_temp=0.07,
+        )
 
         self.online_classifier = OnlineLinearClassifier(
-            feature_dim=384, num_classes=num_classes
+            feature_dim=self.embed_dim, num_classes=num_classes
         )
 
     def forward(self, x: Tensor) -> Tensor:
@@ -117,15 +133,15 @@ class IBOT(LightningModule):
         # Teacher forward
         with torch.no_grad():
             teacher_cls_token, teacher_features = self.forward_teacher(global_views)
-            teacher_cls_out = self.teacher_head.forward(teacher_cls_token)
-            teacher_masked_out = self.teacher_head.forward(teacher_features[mask])
+            teacher_cls_out = self.teacher_cls_head.forward(teacher_cls_token)
+            teacher_masked_out = self.teacher_patch_head.forward(teacher_features[mask])
 
         # Student forward
         student_global_cls_token, student_global_masked_features = self.forward_student(
             global_views, mask=mask
         )
-        student_global_cls_out = self.student_head.forward(student_global_cls_token)
-        student_global_masked_out = self.student_head.forward(
+        student_global_cls_out = self.student_cls_head.forward(student_global_cls_token)
+        student_global_masked_out = self.student_patch_head.forward(
             student_global_masked_features
         )
 
