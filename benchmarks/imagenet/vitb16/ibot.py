@@ -1,9 +1,6 @@
 from __future__ import annotations
 
 import copy
-import math
-import re
-from functools import partial
 
 import torch
 from pytorch_lightning import LightningModule
@@ -12,14 +9,15 @@ from torch import Tensor
 from torch.nn import Module
 from torch.optim import AdamW, Optimizer
 
-from lightly.loss import DINOLoss, IBOTPatchLoss, KoLeoLoss
-from lightly.models.modules import DINOv2ProjectionHead, MaskedVisionTransformerTIMM
+from lightly.loss import DINOLoss, IBOTPatchLoss
+from lightly.models.modules import DINOProjectionHead, MaskedVisionTransformerTIMM
 from lightly.models.utils import (
+    get_weight_decay_parameters,
     random_block_mask,
     update_drop_path_rate,
     update_momentum,
 )
-from lightly.transforms import DINOTransform
+from lightly.transforms import IBOTTransform
 from lightly.utils.benchmarking import OnlineLinearClassifier
 from lightly.utils.optim import update_param_groups
 from lightly.utils.scheduler import (
@@ -36,21 +34,11 @@ def freeze_eval_module(module: Module) -> None:
     module.eval()
 
 
-class DINOv2Head(Module):
-    def __init__(
-        self, dino_head: DINOv2ProjectionHead, ibot_head: DINOv2ProjectionHead
-    ) -> None:
-        super().__init__()
-        self.dino_head = dino_head
-        self.ibot_head = ibot_head
-
-
-class DINOv2(LightningModule):
+class IBOT(LightningModule):
     def __init__(
         self,
         batch_size_per_device: int,
         num_classes: int,
-        ibot_separate_head: bool = False,
     ) -> None:
         super().__init__()
         self.save_hyperparameters()
@@ -73,45 +61,19 @@ class DINOv2(LightningModule):
             drop_path_rate=0.1,  # we recommend using smaller rates like 0.1 for vit-s-14
             mode="uniform",
         )
-
         freeze_eval_module(self.teacher_backbone)
 
-        # Heads
-        dino_head = partial(
-            DINOv2ProjectionHead,
+        self.student_head = DINOProjectionHead(
             input_dim=384,
+            norm_last_layer=False,
+            freeze_last_layer=1,
         )
-
-        teacher_dino_head = dino_head()
-        student_dino_head = dino_head()
-
-        ibot_head = partial(
-            DINOv2ProjectionHead,
-            input_dim=384,
-        )
-
-        if ibot_separate_head:
-            teacher_ibot_head = ibot_head()
-            student_ibot_head = ibot_head()
-        else:
-            teacher_ibot_head = teacher_dino_head
-            student_ibot_head = student_dino_head
-
-        self.teacher_head = DINOv2Head(
-            dino_head=teacher_dino_head,
-            ibot_head=teacher_ibot_head,
-        )
-        self.student_head = DINOv2Head(
-            dino_head=student_dino_head,
-            ibot_head=student_ibot_head,
-        )
-
+        self.teacher_head = self.student_head
         freeze_eval_module(self.teacher_head)
 
         # Losses
-        self.dino_criterion = DINOLoss()
-        self.ibot_criterion = IBOTPatchLoss()
-        self.koleo_criterion = KoLeoLoss()
+        self.cls_criterion = DINOLoss()
+        self.patch_criterion = IBOTPatchLoss()
 
         self.online_classifier = OnlineLinearClassifier(
             feature_dim=384, num_classes=num_classes
@@ -155,26 +117,20 @@ class DINOv2(LightningModule):
         # Teacher forward
         with torch.no_grad():
             teacher_cls_token, teacher_features = self.forward_teacher(global_views)
-            teacher_cls_out = self.teacher_head.dino_head.forward(teacher_cls_token)
-            teacher_masked_out = self.teacher_head.ibot_head.forward(
-                teacher_features[mask]
-            )
+            teacher_cls_out = self.teacher_head.forward(teacher_cls_token)
+            teacher_masked_out = self.teacher_head.forward(teacher_features[mask])
 
         # Student forward
         student_global_cls_token, student_global_masked_features = self.forward_student(
             global_views, mask=mask
         )
-        student_global_cls_out = self.student_head.dino_head.forward(
-            student_global_cls_token
-        )
-        student_global_masked_out = self.student_head.ibot_head.forward(
+        student_global_cls_out = self.student_head.forward(student_global_cls_token)
+        student_global_masked_out = self.student_head.forward(
             student_global_masked_features
         )
 
         student_local_cls_token, _ = self.forward_student(local_views, mask=None)
-        student_local_cls_out = self.student_head.dino_head.forward(
-            student_local_cls_token
-        )
+        student_local_cls_out = self.student_head.forward(student_local_cls_token)
         student_cls_out = torch.cat([student_global_cls_out, student_local_cls_out])
 
         teacher_temp = linear_warmup_schedule(
@@ -185,28 +141,24 @@ class DINOv2(LightningModule):
             start_value=0.04,
             end_value=0.07,
         )
-        dino_loss = self.dino_criterion(
+        cls_loss = self.cls_criterion(
             teacher_out=teacher_cls_out.chunk(2),
             student_out=student_cls_out.chunk(len(views)),
             teacher_temp=teacher_temp,
         )
-        ibot_loss = self.ibot_criterion(
+        patch_loss = self.patch_criterion(
             teacher_out=teacher_masked_out,
             student_out=student_global_masked_out,
             mask=block_mask,
             teacher_temp=teacher_temp,
         )
-        koleo_loss = 0.1 * sum(
-            self.koleo_criterion(t) for t in student_global_cls_token.chunk(2)
-        )
-        loss = dino_loss + ibot_loss + koleo_loss
+        loss = cls_loss + patch_loss
 
         self.log_dict(
             {
                 "train_loss": loss,
-                "train_dino_loss": dino_loss,
-                "train_ibot_loss": ibot_loss,
-                "train_koleo_loss": koleo_loss,
+                "train_cls_loss": cls_loss,
+                "train_patch_loss": patch_loss,
                 "teacher_temp": teacher_temp,
             },
             prog_bar=True,
@@ -234,71 +186,28 @@ class DINOv2(LightningModule):
         return cls_loss
 
     def configure_optimizers(self):
-        min_lr = 1e-6
-        lr_scale = math.sqrt(
-            self.batch_size_per_device * self.trainer.world_size / 1024
-        )
-        lr = 0.004 * lr_scale
-        num_layers = len(self.student_backbone.vit.blocks)
-
-        def lr_layer(layer_idx: int) -> float:
-            return 0.9 ** (num_layers + 1 - layer_idx)  # layer_scale defaults to 0.9
-
-        param_groups = []
-        for name, param in self.named_parameters():
-            if not "student" in name:
-                continue  # Ignore teacher parameters
-
-            group = {
-                "name": name,
-                "params": [param],
-                "lr": lr,
-                "weight_decay": 0.04,
-            }
-
-            # Update lr
-            if any(
-                s in name
-                for s in [
-                    "pos_embed",
-                    "mask_token",
-                    "cls_token",
-                    "register_tokens",
-                ]
-            ):
-                group["lr"] = lr * lr_layer(0)
-            elif "patch_embed" in name:
-                group["lr"] = lr * lr_layer(0) * 0.2
-            elif "residual" in name:
-                group["lr"] = lr
-            elif "blocks" in name:
-                layer_idx = int(re.search(r"blocks\.(\d+)\.", name).group(1))
-                group["lr"] = lr * lr_layer(layer_idx + 1)
-            elif "vit.norm" in name:
-                pass  # Do not update vit.norm parameters
-            elif "head" in name:
-                pass  # Do not update classification and dino/ibot head parameters
-            else:
-                assert False, f"Unknown parameter: {name}"
-
-            # Update weight_decay
-            if name.endswith(".bias") or ".norm" in name or "gamma" in name:
-                group["weight_decay"] = 0.0
-
-            # Ignore ViT classification head
-            if not "vit.head" in name:
-                param_groups.append(group)
-
-        param_groups.append(
-            {
-                "name": "online_classifier",
-                "params": self.online_classifier.parameters(),
-                "lr": lr,
-                "weight_decay": 0.0,
-            }
+        # Don't use weight decay for batch norm, bias parameters, and classification
+        # head to improve performance.
+        params, params_no_weight_decay = get_weight_decay_parameters(
+            [self.student_backbone, self.student_head]
         )
 
-        optimizer = AdamW(param_groups, lr=lr)
+        optimizer = AdamW(
+            [
+                {"name": "dino", "params": params, "weight_decay": 0.04},
+                {
+                    "name": "dino_no_weight_decay",
+                    "params": params_no_weight_decay,
+                    "weight_decay": 0.0,
+                },
+                {
+                    "name": "online_classifier",
+                    "params": self.online_classifier.parameters(),
+                    "weight_decay": 0.0,
+                },
+            ],
+            lr=0.0005 * self.batch_size_per_device * self.trainer.world_size / 256,
+        )
         scheduler = {
             "scheduler": CosineWarmupScheduler(
                 optimizer=optimizer,
@@ -308,7 +217,6 @@ class DINOv2(LightningModule):
                     * 10
                 ),
                 max_epochs=int(self.trainer.estimated_stepping_batches),
-                end_value=min_lr / lr,
             ),
             "interval": "step",
         }
@@ -361,7 +269,7 @@ class DINOv2(LightningModule):
         return super().on_train_batch_end(outputs, batch, batch_idx)
 
 
-transform = DINOTransform(
+transform = IBOTTransform(
     global_crop_scale=(0.32, 1),
     local_crop_scale=(0.05, 0.32),
     n_local_views=8,
