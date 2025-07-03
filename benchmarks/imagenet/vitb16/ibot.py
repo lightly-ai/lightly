@@ -204,6 +204,10 @@ class IBOT(LightningModule):
     def configure_optimizers(self):
         # Don't use weight decay for batch norm, bias parameters, and classification
         # head to improve performance.
+        min_lr = 1e-6
+        lr_scale = self.batch_size_per_device * self.trainer.world_size / 1024
+        lr = 0.0005 * lr_scale
+
         params, params_no_weight_decay = get_weight_decay_parameters(
             [self.student_backbone, self.student_head]
         )
@@ -222,7 +226,7 @@ class IBOT(LightningModule):
                     "weight_decay": 0.0,
                 },
             ],
-            lr=0.0005 * self.batch_size_per_device * self.trainer.world_size / 256,
+            lr=lr,
         )
         scheduler = {
             "scheduler": CosineWarmupScheduler(
@@ -233,6 +237,7 @@ class IBOT(LightningModule):
                     * 10
                 ),
                 max_epochs=int(self.trainer.estimated_stepping_batches),
+                end_value=min_lr / lr,
             ),
             "interval": "step",
         }
@@ -276,7 +281,7 @@ class IBOT(LightningModule):
         momentum = cosine_schedule(
             step=self.trainer.global_step,
             max_steps=self.trainer.estimated_stepping_batches,
-            start_value=0.992,
+            start_value=0.996,
             end_value=1.0,
         )
         update_momentum(self.student_backbone, self.teacher_backbone, m=momentum)
