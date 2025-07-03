@@ -3,21 +3,30 @@
 iBOT
 ======
 
-iBOT [0]_ is a self-supervised learning model that uses an online tokenizer to pre-train a Vision Transformer (ViT) on image data. It is based on the Image BERT (iBOT) architecture, which was introduced in the paper . iBOT learns to predict masked patches in images, similar to how BERT predicts masked words in text.
+iBOT (image BERT pre-training with Online Tokenizer) [0]_ is a self-supervised learning framework for visual representation learning based on masked image modeling (MIM) and self-distillation. It trains a student network to reconstruct masked image patches by predicting the outputs from an online tokenizer, implemented as a momentum-updated teacher network, thereby eliminating the need for offline pre-trained tokenizers. iBOT jointly optimizes the tokenizer and the representation learner through a combination of masked patch prediction and cross-view self-distillation on the class token. Key components include progressive learning of semantically meaningful visual tokens, block-wise masking augmentation, and a shared projection head for improved feature abstraction. iBOT achieves state-of-the-art results in image classification, robustness to image corruptions, and dense prediction tasks, highlighting its ability to capture rich local semantics and robust visual representations.
 
 Key Components
 --------------
 
 
+- **Online Tokenizer**: iBOT introduces an online tokenizer implemented as a momentum-updated teacher network, eliminating the need for a separate offline tokenizer.
+- **Masked Image Modeling (MIM)**: iBOT performs masked prediction of image patches using a self-distillation objective, where the student network reconstructs masked tokens based on predictions from the teacher network.
+- **Cross-View Self-Distillation**: Similar to DINO [1]_, iBOT applies self-distillation to the [CLS] tokens of two augmented views of the same image, promoting semantic abstraction.
+- **Projection Head**: A shared multilayer perceptron (MLP) projects both patch and [CLS] tokens into a high-dimensional embedding space, enabling effective knowledge transfer and feature representation.
+- **Block-Wise Masking**: iBOT employs random block-wise masking to generate diverse training samples, facilitating richer context learning.
+
 
 Good to Know
 ------------
+
+- **Tokenization Strategy**: iBOT does not require pre-trained offline tokenizers, as tokenization and representation learning are conducted jointly online.
+- **Semantic Representation**: iBOT learns semantically rich visual representations, improving robustness against common corruptions and benefiting downstream dense tasks like object detection and semantic segmentation.
 
 
 Reference:
 
     .. [0] `iBOT: Image BERT Pre-Training with Online Tokenizer, 2021 <https://arxiv.org/abs/2111.07832>`_
-
+    .. [1] `Emerging Properties in Self-Supervised Vision Transformers, 2021 <https://arxiv.org/abs/2104.14294>`_
 
 .. tabs::
     .. tab:: PyTorch
