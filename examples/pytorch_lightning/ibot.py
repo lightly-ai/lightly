@@ -274,14 +274,7 @@ dataloader = torch.utils.data.DataLoader(
     num_workers=8,
 )
 
-# Train with DDP and use Synchronized Batch Norm for a more accurate batch norm
-# calculation. Distributed sampling is also enabled with replace_sampler_ddp=True.
-trainer = pl.Trainer(
-    max_epochs=50,
-    devices="auto",
-    accelerator="gpu",
-    strategy="ddp_find_unused_parameters_true",
-    sync_batchnorm=True,
-    use_distributed_sampler=True,  # or replace_sampler_ddp=True for PyTorch Lightning <2.0
-)
+accelerator = "gpu" if torch.cuda.is_available() else "cpu"
+
+trainer = pl.Trainer(max_epochs=50, devices=1, accelerator=accelerator)
 trainer.fit(model=model, train_dataloaders=dataloader)

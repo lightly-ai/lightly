@@ -8,7 +8,6 @@
 import copy
 from functools import partial
 
-import pytorch_lightning as pl
 import torch
 import torchvision
 from timm.models.vision_transformer import vit_small_patch16_224
@@ -43,13 +42,12 @@ class DINOv2Head(Module):
         self.ibot_head = ibot_head
 
 
-class DINOv2(pl.LightningModule):
+class DINOv2(Module):
     def __init__(
         self,
         ibot_separate_head: bool = False,
     ) -> None:
         super().__init__()
-        self.save_hyperparameters()
 
         # Backbones
         vit_teacher = vit_small_patch16_224(
@@ -103,13 +101,8 @@ class DINOv2(pl.LightningModule):
 
         freeze_eval_module(self.teacher_head)
 
-        # Losses
-        self.dino_criterion = DINOLoss()
-        self.ibot_criterion = IBOTPatchLoss()
-        self.koleo_criterion = KoLeoLoss()
-
     def forward(self, x: Tensor) -> Tensor:
-        pass
+        return self.teacher_backbone(x)
 
     def forward_teacher(self, x: Tensor) -> tuple[Tensor, Tensor]:
         features = self.teacher_backbone.encode(x)
@@ -124,124 +117,6 @@ class DINOv2(pl.LightningModule):
         masked_features = None if mask is None else features[mask]
         return cls_tokens, masked_features
 
-    def training_step(
-        self, batch: tuple[list[Tensor], Tensor, list[str]], batch_idx: int
-    ) -> Tensor:
-        views, targets = batch[0], batch[1]
-        global_views = torch.cat(views[:2])
-        local_views = torch.cat(views[2:])
-
-        # Masking
-        B = len(global_views)
-        sequence_length = self.teacher_backbone.sequence_length
-        mask = global_views.new_zeros((B, sequence_length), dtype=torch.bool)
-        # Mask patches except class token.
-        H, W = self.teacher_backbone.vit.patch_embed.grid_size
-        assert (
-            H * W == sequence_length - 1
-        ), f"Unexpected grid size: {H}x{W}, sequence_length {sequence_length}"
-        block_mask = random_block_mask(size=(B, H, W), device=mask.device)
-        mask[:, 1:] = block_mask.flatten(start_dim=1)
-
-        # Teacher forward
-        with torch.no_grad():
-            teacher_cls_token, teacher_features = self.forward_teacher(global_views)
-            teacher_cls_out = self.teacher_head.dino_head.forward(teacher_cls_token)
-            teacher_masked_out = self.teacher_head.ibot_head.forward(
-                teacher_features[mask]
-            )
-
-        # Student forward
-        student_global_cls_token, student_global_masked_features = self.forward_student(
-            global_views, mask=mask
-        )
-        student_global_cls_out = self.student_head.dino_head.forward(
-            student_global_cls_token
-        )
-        student_global_masked_out = self.student_head.ibot_head.forward(
-            student_global_masked_features
-        )
-
-        student_local_cls_token, _ = self.forward_student(local_views, mask=None)
-        student_local_cls_out = self.student_head.dino_head.forward(
-            student_local_cls_token
-        )
-        student_cls_out = torch.cat([student_global_cls_out, student_local_cls_out])
-
-        teacher_temp = linear_warmup_schedule(
-            step=self.trainer.global_step,
-            warmup_steps=int(
-                30 / self.trainer.max_epochs * self.trainer.estimated_stepping_batches
-            ),
-            start_value=0.04,
-            end_value=0.07,
-        )
-        dino_loss = self.dino_criterion(
-            teacher_out=teacher_cls_out.chunk(2),
-            student_out=student_cls_out.chunk(len(views)),
-            teacher_temp=teacher_temp,
-        )
-        ibot_loss = self.ibot_criterion(
-            teacher_out=teacher_masked_out,
-            student_out=student_global_masked_out,
-            mask=block_mask,
-            teacher_temp=teacher_temp,
-        )
-        koleo_loss = 0.1 * sum(
-            self.koleo_criterion(t) for t in student_global_cls_token.chunk(2)
-        )
-        loss = dino_loss + ibot_loss + koleo_loss
-
-        self.log_dict(
-            {
-                "train_loss": loss,
-                "train_dino_loss": dino_loss,
-                "train_ibot_loss": ibot_loss,
-                "train_koleo_loss": koleo_loss,
-                "teacher_temp": teacher_temp,
-            },
-            prog_bar=True,
-            sync_dist=True,
-            batch_size=len(targets),
-        )
-
-        return loss
-
-    def configure_optimizers(self):
-        optim = AdamW(self.parameters(), lr=0.001)
-        return optim
-
-    def on_before_optimizer_step(self, optimizer: AdamW, *args) -> None:
-        # Optionally zero out the learning rate of the last layer.
-        if self.current_epoch < 1:
-            for param_group in optimizer.param_groups:
-                if "last_layer" in param_group:
-                    param_group["lr"] = 0.0
-
-        # Apply weight decay schedule
-        weight_decay = cosine_schedule(
-            step=self.trainer.global_step,
-            max_steps=self.trainer.estimated_stepping_batches,
-            start_value=0.04,
-            end_value=0.4,
-        )
-        for group in optimizer.param_groups:
-            if group["weight_decay"] != 0.0:
-                group["weight_decay"] = weight_decay
-
-    def on_train_batch_end(self, outputs, batch, batch_idx):
-        # Momentum update teacher.
-        momentum = cosine_schedule(
-            step=self.trainer.global_step,
-            max_steps=self.trainer.estimated_stepping_batches,
-            start_value=0.992,
-            end_value=1.0,
-        )
-        update_momentum(self.student_backbone, self.teacher_backbone, m=momentum)
-        update_momentum(self.student_head, self.teacher_head, m=momentum)
-
-        return super().on_train_batch_end(outputs, batch, batch_idx)
-
 
 model = DINOv2()
 
@@ -252,10 +127,13 @@ transform = DINOTransform(
 )
 
 
-# we ignore object detection annotations by setting target_transform to return 0
+# We ignore object detection annotations by setting target_transform to return 0.
 def target_transform(t):
     return 0
 
+
+device = "cuda" if torch.cuda.is_available() else "mps"
+model.to(device)
 
 dataset = torchvision.datasets.VOCDetection(
     "datasets/pascal_voc",
@@ -263,7 +141,7 @@ dataset = torchvision.datasets.VOCDetection(
     transform=transform,
     target_transform=target_transform,
 )
-# or create a dataset from a folder containing images or videos:
+# Or create a dataset from a folder containing images or videos.
 # dataset = LightlyDataset("path/to/folder")
 
 dataloader = torch.utils.data.DataLoader(
@@ -274,14 +152,129 @@ dataloader = torch.utils.data.DataLoader(
     num_workers=8,
 )
 
-# Train with DDP and use Synchronized Batch Norm for a more accurate batch norm
-# calculation. Distributed sampling is also enabled with replace_sampler_ddp=True.
-trainer = pl.Trainer(
-    max_epochs=50,
-    devices="auto",
-    accelerator="gpu",
-    strategy="ddp_find_unused_parameters_true",
-    sync_batchnorm=True,
-    use_distributed_sampler=True,  # or replace_sampler_ddp=True for PyTorch Lightning <2.0
-)
-trainer.fit(model=model, train_dataloaders=dataloader)
+# Create the loss functions.
+dino_criterion = DINOLoss()
+ibot_criterion = IBOTPatchLoss()
+koleo_criterion = KoLeoLoss()
+
+# Move loss to correct device because it also contains parameters.
+dino_criterion = dino_criterion.to(device)
+ibot_criterion = ibot_criterion.to(device)
+koleo_criterion = koleo_criterion.to(device)
+
+optimizer = AdamW(model.parameters(), lr=0.001)
+
+epochs = 50
+num_batches = len(dataloader)
+total_steps = epochs * num_batches
+
+print("Starting Training")
+for epoch in range(epochs):
+    total_loss = 0
+    for batch_idx, batch in enumerate(dataloader):
+        views = batch[0]
+        views = [view.to(device) for view in views]
+        global_views = torch.cat(views[:2])
+        local_views = torch.cat(views[2:])
+
+        # Masking
+        B = len(global_views)
+        sequence_length = model.teacher_backbone.sequence_length
+        mask = global_views.new_zeros((B, sequence_length), dtype=torch.bool)
+
+        # Mask patches except class token.
+        H, W = model.teacher_backbone.vit.patch_embed.grid_size
+        assert (
+            H * W == sequence_length - 1
+        ), f"Unexpected grid size: {H}x{W}, sequence_length {sequence_length}"
+        block_mask = random_block_mask(size=(B, H, W), device=mask.device)
+        mask[:, 1:] = block_mask.flatten(start_dim=1)
+
+        # Teacher forward
+        with torch.no_grad():
+            teacher_cls_token, teacher_features = model.forward_teacher(global_views)
+            teacher_cls_out = model.teacher_head.dino_head.forward(teacher_cls_token)
+            teacher_masked_out = model.teacher_head.ibot_head.forward(
+                teacher_features[mask]
+            )
+
+        # Student forward
+        (
+            student_global_cls_token,
+            student_global_masked_features,
+        ) = model.forward_student(global_views, mask=mask)
+        student_global_cls_out = model.student_head.dino_head.forward(
+            student_global_cls_token
+        )
+        student_global_masked_out = model.student_head.ibot_head.forward(
+            student_global_masked_features
+        )
+        student_local_cls_token, _ = model.forward_student(local_views, mask=None)
+        student_local_cls_out = model.student_head.dino_head.forward(
+            student_local_cls_token
+        )
+        student_cls_out = torch.cat([student_global_cls_out, student_local_cls_out])
+
+        # Calculate current global step based on epoch and batch index.
+        global_step = epoch * num_batches + batch_idx
+
+        # Calculate the loss.
+        teacher_temp = linear_warmup_schedule(
+            step=global_step,
+            warmup_steps=int(30 / epochs * total_steps),
+            start_value=0.04,
+            end_value=0.07,
+        )
+        dino_loss = dino_criterion(
+            teacher_out=teacher_cls_out.chunk(2),
+            student_out=student_cls_out.chunk(len(views)),
+            teacher_temp=teacher_temp,
+        )
+        ibot_loss = ibot_criterion(
+            teacher_out=teacher_masked_out,
+            student_out=student_global_masked_out,
+            mask=block_mask,
+            teacher_temp=teacher_temp,
+        )
+        koleo_loss = 0.1 * sum(
+            koleo_criterion(t) for t in student_global_cls_token.chunk(2)
+        )
+        loss = dino_loss + ibot_loss + koleo_loss
+
+        total_loss += loss.detach()
+        loss.backward()
+
+        # Optionally zero out the learning rate of the last layer.
+        if epoch < 1:
+            for param_group in optimizer.param_groups:
+                if "last_layer" in param_group:
+                    param_group["lr"] = 0.0
+
+        # Apply weight decay schedule.
+        weight_decay = cosine_schedule(
+            step=global_step,
+            max_steps=total_steps,
+            start_value=0.04,
+            end_value=0.4,
+        )
+
+        # Update weight decay directly for all parameter groups.
+        for group in optimizer.param_groups:
+            if group["weight_decay"] != 0.0:
+                group["weight_decay"] = weight_decay
+
+        optimizer.step()
+        optimizer.zero_grad()
+
+        # Momentum update teacher.
+        momentum = cosine_schedule(
+            step=global_step,
+            max_steps=total_steps,
+            start_value=0.992,
+            end_value=1.0,
+        )
+        update_momentum(model.student_backbone, model.teacher_backbone, m=momentum)
+        update_momentum(model.student_head, model.teacher_head, m=momentum)
+
+    avg_loss = total_loss / len(dataloader)
+    print(f"epoch: {epoch:>02}, loss: {avg_loss:.5f}")
