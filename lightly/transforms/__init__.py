@@ -25,6 +25,7 @@ from lightly.transforms.fda_transform import (
 )
 from lightly.transforms.gaussian_blur import GaussianBlur
 from lightly.transforms.gaussian_mixture_masks_transform import GaussianMixtureMask
+from lightly.transforms.ibot_transform import IBOTTransform, IBOTViewTransform
 from lightly.transforms.irfft2d_transform import IRFFT2DTransform
 from lightly.transforms.jigsaw import Jigsaw
 from lightly.transforms.mae_transform import MAETransform
