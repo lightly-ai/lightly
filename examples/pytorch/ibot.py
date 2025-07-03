@@ -16,13 +16,13 @@ from torch.nn import Module
 from torch.optim import AdamW
 
 from lightly.loss import DINOLoss, IBOTPatchLoss, KoLeoLoss
-from lightly.models.modules import DINOv2ProjectionHead, MaskedVisionTransformerTIMM
+from lightly.models.modules import DINOProjectionHead, MaskedVisionTransformerTIMM
 from lightly.models.utils import (
     random_block_mask,
     update_drop_path_rate,
     update_momentum,
 )
-from lightly.transforms.dino_transform import DINOTransform
+from lightly.transforms.ibot_transform import IBOTTransform
 from lightly.utils.scheduler import cosine_schedule, linear_warmup_schedule
 
 
@@ -33,19 +33,10 @@ def freeze_eval_module(module: Module) -> None:
     module.eval()
 
 
-class DINOv2Head(Module):
-    def __init__(
-        self, dino_head: DINOv2ProjectionHead, ibot_head: DINOv2ProjectionHead
-    ) -> None:
-        super().__init__()
-        self.dino_head = dino_head
-        self.ibot_head = ibot_head
-
-
-class DINOv2(Module):
+class IBOT(Module):
     def __init__(
         self,
-        ibot_separate_head: bool = False,
+        output_dim: int = 8192,  # Output dimension of the projection head
     ) -> None:
         super().__init__()
 
@@ -68,36 +59,20 @@ class DINOv2(Module):
         )
 
         freeze_eval_module(self.teacher_backbone)
+        self.embed_dim = self.student_backbone.vit.embed_dim
 
-        # Heads
-        dino_head = partial(
-            DINOv2ProjectionHead,
-            input_dim=384,
+        # Projection heads
+        projection_head = partial(
+            DINOProjectionHead,
+            input_dim=self.embed_dim,
+            output_dim=output_dim,
         )
 
-        teacher_dino_head = dino_head()
-        student_dino_head = dino_head()
+        self.student_head = projection_head(norm_last_layer=False)
+        self.student_cls_head = self.student_patch_head = self.student_head
 
-        ibot_head = partial(
-            DINOv2ProjectionHead,
-            input_dim=384,
-        )
-
-        if ibot_separate_head:
-            teacher_ibot_head = ibot_head()
-            student_ibot_head = ibot_head()
-        else:
-            teacher_ibot_head = teacher_dino_head
-            student_ibot_head = student_dino_head
-
-        self.teacher_head = DINOv2Head(
-            dino_head=teacher_dino_head,
-            ibot_head=teacher_ibot_head,
-        )
-        self.student_head = DINOv2Head(
-            dino_head=student_dino_head,
-            ibot_head=student_ibot_head,
-        )
+        self.teacher_head = projection_head()
+        self.teacher_cls_head = self.teacher_patch_head = self.teacher_head
 
         freeze_eval_module(self.teacher_head)
 
@@ -117,10 +92,10 @@ class DINOv2(Module):
         masked_features = None if mask is None else features[mask]
         return cls_tokens, masked_features
 
+output_dim = 8192
+model = IBOT(output_dim=output_dim)
 
-model = DINOv2()
-
-transform = DINOTransform(
+transform = IBOTTransform(
     global_crop_scale=(0.32, 1),
     local_crop_scale=(0.05, 0.32),
     n_local_views=8,
@@ -153,14 +128,18 @@ dataloader = torch.utils.data.DataLoader(
 )
 
 # Create the loss functions.
-dino_criterion = DINOLoss()
-ibot_criterion = IBOTPatchLoss()
-koleo_criterion = KoLeoLoss()
+dino_criterion = DINOLoss(
+    output_dim=output_dim,
+    teacher_temp=0.07,
+)
+ibot_criterion = IBOTPatchLoss(
+    output_dim=output_dim,
+    teacher_temp=0.07,
+)
 
 # Move loss to correct device because it also contains parameters.
 dino_criterion = dino_criterion.to(device)
 ibot_criterion = ibot_criterion.to(device)
-koleo_criterion = koleo_criterion.to(device)
 
 optimizer = AdamW(model.parameters(), lr=0.001)
 
@@ -193,8 +172,8 @@ for epoch in range(epochs):
         # Teacher forward
         with torch.no_grad():
             teacher_cls_token, teacher_features = model.forward_teacher(global_views)
-            teacher_cls_out = model.teacher_head.dino_head.forward(teacher_cls_token)
-            teacher_masked_out = model.teacher_head.ibot_head.forward(
+            teacher_cls_out = model.teacher_cls_head.forward(teacher_cls_token)
+            teacher_masked_out = model.teacher_patch_head.forward(
                 teacher_features[mask]
             )
 
@@ -203,14 +182,14 @@ for epoch in range(epochs):
             student_global_cls_token,
             student_global_masked_features,
         ) = model.forward_student(global_views, mask=mask)
-        student_global_cls_out = model.student_head.dino_head.forward(
+        student_global_cls_out = model.student_cls_head.forward(
             student_global_cls_token
         )
-        student_global_masked_out = model.student_head.ibot_head.forward(
+        student_global_masked_out = model.student_patch_head.forward(
             student_global_masked_features
         )
         student_local_cls_token, _ = model.forward_student(local_views, mask=None)
-        student_local_cls_out = model.student_head.dino_head.forward(
+        student_local_cls_out = model.student_cls_head.forward(
             student_local_cls_token
         )
         student_cls_out = torch.cat([student_global_cls_out, student_local_cls_out])
@@ -236,10 +215,7 @@ for epoch in range(epochs):
             mask=block_mask,
             teacher_temp=teacher_temp,
         )
-        koleo_loss = 0.1 * sum(
-            koleo_criterion(t) for t in student_global_cls_token.chunk(2)
-        )
-        loss = dino_loss + ibot_loss + koleo_loss
+        loss = dino_loss + ibot_loss
 
         total_loss += loss.detach()
         loss.backward()
