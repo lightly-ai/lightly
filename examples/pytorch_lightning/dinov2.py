@@ -192,19 +192,6 @@ class DINOv2(pl.LightningModule):
         )
         loss = dino_loss + ibot_loss + koleo_loss
 
-        self.log_dict(
-            {
-                "train_loss": loss,
-                "train_dino_loss": dino_loss,
-                "train_ibot_loss": ibot_loss,
-                "train_koleo_loss": koleo_loss,
-                "teacher_temp": teacher_temp,
-            },
-            prog_bar=True,
-            sync_dist=True,
-            batch_size=len(targets),
-        )
-
         return loss
 
     def configure_optimizers(self):
