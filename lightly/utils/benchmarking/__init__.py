@@ -7,3 +7,4 @@ from lightly.utils.benchmarking.linear_classifier import (
 )
 from lightly.utils.benchmarking.metric_callback import MetricCallback
 from lightly.utils.benchmarking.online_linear_classifier import OnlineLinearClassifier
+from lightly.utils.benchmarking.online_linear_classifier_muti import OnlineLinearClassifier_muti

@@ -9,4 +9,4 @@ $img sleep infinity
 
 docker exec -it lightly /bin/bash
 
-
+# --resume-from /git/lightly/checkpoints/simclr_imagenet1k_epoch=99-step=500400.ckpt \

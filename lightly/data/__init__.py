@@ -23,4 +23,4 @@ from lightly.data.collate import (
     VICRegLCollateFunction,
     imagenet_normalize,
 )
-from lightly.data.dataset import LightlyDataset
+from lightly.data.dataset import LightlyDataset, MultiLabelDataset

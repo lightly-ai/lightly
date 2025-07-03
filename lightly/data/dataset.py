@@ -1,10 +1,12 @@
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
-
+import random
 import bisect
 import os
 import shutil
 import tempfile
+import torch
+from torch.utils.data import DataLoader, Dataset
 from typing import Any, Callable, Dict, List, Optional, Union
 
 import torchvision.datasets as datasets
@@ -86,10 +88,21 @@ class LightlyDataset:
             filepaths = set(filepaths)
 
             def is_valid_file(filepath: str):
-                return filepath in filepaths
+                # return filepath in filepaths
+                # 检查文件路径是否包含 模糊 或 模糊图片 文件夹
+                if "模糊" in os.path.dirname(filepath) or "模糊图片" in os.path.dirname(filepath):
+                    return False
+                valid_extensions = ('.jpg', '.jpeg', '.png', '.bmp', '.gif', '.tiff', '.webp')
+                return filepath in filepaths and filepath.lower().endswith(valid_extensions)
 
         else:
-            is_valid_file = None
+            # is_valid_file = None
+            def is_valid_file(filepath: str):
+                # 检查文件路径是否包含 模糊 或 模糊图片 文件夹
+                if "模糊" in os.path.dirname(filepath) or "模糊图片" in os.path.dirname(filepath):
+                    return False
+                valid_extensions = ('.jpg', '.jpeg', '.png', '.bmp', '.gif', '.tiff', '.webp')
+                return filepath.lower().endswith(valid_extensions)
 
         if self.input_dir is not None:
             self.dataset = _load_dataset_from_folder(
@@ -358,3 +371,65 @@ def _dump_image(dataset, output_dir, filename, index, fmt):
         # need to load the image and save it to the output directory
         image, _ = dataset[index]
         _save_image(image, output_dir, filename, fmt)
+
+
+class MultiLabelDataset(Dataset):
+    def __init__(self, root_dir, all_classes, transform=None):
+        """
+        初始化多标签数据集
+
+        参数:
+            root_dir: 数据根目录
+            all_classes: 所有可能的类别列表
+            transform: 图像转换操作
+        """
+        self.root_dir = root_dir
+        self.all_classes = all_classes
+        self.transform = transform
+        self.samples = self._load_samples()
+
+        # 创建类别到索引的映射
+        self.class_to_idx = {cls: i for i, cls in enumerate(all_classes)}
+
+    def _load_samples(self):
+        """加载所有样本及其标签"""
+        samples = []
+
+        # 获取所有标签组合的文件夹
+        label_folders = [d for d in os.listdir(self.root_dir) if os.path.isdir(os.path.join(self.root_dir, d))]
+
+        for label_folder in label_folders:
+            # 解析文件夹名称中的多个标签
+            labels = [label.strip() for label in label_folder.split(',')]
+
+            # 获取文件夹中的所有图像文件
+            img_dir = os.path.join(self.root_dir, label_folder)
+            img_files = [f for f in os.listdir(img_dir) if f.lower().endswith(('.jpg', '.jpeg', '.png', '.bmp'))]
+
+            # 添加到样本列表
+            for img_file in img_files:
+                img_path = os.path.join(img_dir, img_file)
+                samples.append((img_path, labels))
+
+        return samples
+
+    def __len__(self):
+        return len(self.samples)
+
+    def __getitem__(self, idx):
+        img_path, labels = self.samples[idx]
+
+        image = Image.open(img_path).convert('RGB')
+
+        if self.transform:
+            image = self.transform(image)
+            if not image.is_contiguous():       # 确保张量可写
+                image = image.contiguous()
+        # image = image.clone()        
+        # 创建多标签的二进制表示
+        label_vector = torch.zeros(len(self.all_classes), dtype=torch.float32)
+        for label in labels:
+            if label in self.class_to_idx:
+                label_vector[self.class_to_idx[label]] = 1.0
+        # label_vector = label_vector.contiguous().clone()
+        return image, label_vector

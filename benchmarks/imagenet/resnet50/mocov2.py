@@ -17,7 +17,7 @@ from lightly.models.utils import (
     update_momentum,
 )
 from lightly.transforms import MoCoV2Transform
-from lightly.utils.benchmarking import OnlineLinearClassifier
+from lightly.utils.benchmarking import OnlineLinearClassifier_muti
 from lightly.utils.scheduler import CosineWarmupScheduler
 
 
@@ -39,7 +39,7 @@ class MoCoV2(LightningModule):
             gather_distributed=True,
         )
 
-        self.online_classifier = OnlineLinearClassifier(num_classes=num_classes)
+        self.online_classifier = OnlineLinearClassifier_muti(num_classes=num_classes)
 
     def forward(self, x: Tensor) -> Tensor:
         return self.backbone(x)
@@ -88,11 +88,15 @@ class MoCoV2(LightningModule):
         )
 
         # Online linear evaluation.
-        cls_loss, cls_log = self.online_classifier.training_step(
-            (query_features.detach(), targets), batch_idx
-        )
-        self.log_dict(cls_log, sync_dist=True, batch_size=len(targets))
-        return loss + cls_loss
+        # cls_loss, cls_log = self.online_classifier.training_step(
+        #     (query_features.detach(), targets), batch_idx
+        # )
+        # self.log_dict(cls_log, sync_dist=True, batch_size=len(targets))
+        # self.manual_backward(loss)  # 反向传播，计算梯度
+        for name, param in self.named_parameters():
+            if param.grad is not None:
+                self.log(f"grad/{name}", param.grad.norm(), prog_bar=False, sync_dist=True)
+        return loss
 
     def validation_step(
         self, batch: Tuple[Tensor, Tensor, List[str]], batch_idx: int

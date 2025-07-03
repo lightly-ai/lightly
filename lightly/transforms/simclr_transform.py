@@ -1,7 +1,7 @@
 from typing import Dict, List, Optional, Tuple, Union
-
-from PIL.Image import Image
+from PIL import Image,ImageFilter
 from torch import Tensor
+import torchvision.transforms.functional as F
 
 from lightly.transforms.gaussian_blur import GaussianBlur
 from lightly.transforms.multi_view_transform import MultiViewTransform
@@ -9,7 +9,69 @@ from lightly.transforms.rotation import random_rotation_transform
 from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 
+import numpy as np
+import random
+class RedColorJitter:
+    def __init__(self, brightness=0.2, contrast=0.2):
+        self.brightness = brightness
+        self.contrast = contrast
+        
+    def __call__(self, img):
+        # 转换为HSV色域
+        img_hsv = img.convert('HSV')
+        h, s, v = img_hsv.split()
+        
+        # 微调亮度和对比度（红色在HSV中对应特定的H值范围）
+        if np.random.random() < 0.5:
+            v = v.point(lambda x: x + np.random.uniform(-self.brightness*255, self.brightness*255))
+        if np.random.random() < 0.5:
+            factor = np.random.uniform(1-self.contrast, 1+self.contrast)
+            v = v.point(lambda x: x * factor)
+            
+        # 限制S和V值范围，避免颜色偏离红色色相
+        s = s.point(lambda x: min(max(x, 50), 200))  # 限制饱和度
+        v = v.point(lambda x: min(max(x, 100), 255))  # 限制亮度
+        
+        img_hsv = Image.merge('HSV', (h, s, v))
+        return img_hsv.convert('RGB')
 
+class EdgeEnhanceTransform:
+    def __init__(self, prob=0.5):
+        self.prob = prob
+
+    def __call__(self, img):
+        if random.random() < self.prob:
+            if isinstance(img, Image.Image):
+                return img.filter(ImageFilter.EDGE_ENHANCE)
+            else:
+                # 对Tensor做Sobel边缘检测
+                kernel = torch.tensor([[-1, -2, -1],
+                                      [ 0,  0,  0],
+                                      [ 1,  2,  1]], dtype=img.dtype, device=img.device).unsqueeze(0).unsqueeze(0)
+                if img.dim() == 3:
+                    img = img.unsqueeze(0)
+                edge = torch.nn.functional.conv2d(img, kernel, padding=1)
+                return img + edge
+        return img
+
+class TextureEnhanceTransform:
+    def __init__(self, prob=0.5):
+        self.prob = prob
+
+    def __call__(self, img):
+        if random.random() < self.prob:
+            if isinstance(img, Image.Image):
+                return img.filter(ImageFilter.DETAIL)
+            else:
+                # 对Tensor做高通滤波
+                kernel = torch.tensor([[-1, -1, -1],
+                                      [-1,  8, -1],
+                                      [-1, -1, -1]], dtype=img.dtype, device=img.device).unsqueeze(0).unsqueeze(0)
+                if img.dim() == 3:
+                    img = img.unsqueeze(0)
+                texture = torch.nn.functional.conv2d(img, kernel, padding=1)
+                return img + texture
+        return img
 class SimCLRTransform(MultiViewTransform):
     """Implements the transformations for SimCLR [0, 1].
 
@@ -93,15 +155,15 @@ class SimCLRTransform(MultiViewTransform):
         cj_contrast: float = 0.8,
         cj_sat: float = 0.8,
         cj_hue: float = 0.2,
-        min_scale: float = 0.08,
+        min_scale: float = 0.9,
         random_gray_scale: float = 0.2,
-        gaussian_blur: float = 0.5,
+        gaussian_blur: float = 0.25,
         kernel_size: Optional[float] = None,
-        sigmas: Tuple[float, float] = (0.1, 2),
+        sigmas: Tuple[float, float] = (0.1, 0.5),
         vf_prob: float = 0.0,
         hf_prob: float = 0.5,
-        rr_prob: float = 0.0,
-        rr_degrees: Optional[Union[float, Tuple[float, float]]] = None,
+        rr_prob: float = 0.2,
+        rr_degrees: Optional[Union[float, Tuple[float, float]]] = 15,
         normalize: Union[None, Dict[str, List[float]]] = IMAGENET_NORMALIZE,
     ):
         view_transform = SimCLRViewTransform(
@@ -136,15 +198,15 @@ class SimCLRViewTransform:
         cj_contrast: float = 0.8,
         cj_sat: float = 0.8,
         cj_hue: float = 0.2,
-        min_scale: float = 0.08,
+        min_scale: float = 0.9,
         random_gray_scale: float = 0.2,
-        gaussian_blur: float = 0.5,
+        gaussian_blur: float = 0.25,
         kernel_size: Optional[float] = None,
-        sigmas: Tuple[float, float] = (0.1, 2),
+        sigmas: Tuple[float, float] = (0.1, 0.5),
         vf_prob: float = 0.0,
         hf_prob: float = 0.5,
-        rr_prob: float = 0.0,
-        rr_degrees: Optional[Union[float, Tuple[float, float]]] = None,
+        rr_prob: float = 0.2,
+        rr_degrees: Optional[Union[float, Tuple[float, float]]] = 15,
         normalize: Union[None, Dict[str, List[float]]] = IMAGENET_NORMALIZE,
     ):
         color_jitter = T.ColorJitter(
@@ -155,20 +217,23 @@ class SimCLRViewTransform:
         )
 
         transform = [
+            # T.Resize(size=input_size),
             T.RandomResizedCrop(size=input_size, scale=(min_scale, 1.0)),
             random_rotation_transform(rr_prob=rr_prob, rr_degrees=rr_degrees),
             T.RandomHorizontalFlip(p=hf_prob),
-            T.RandomVerticalFlip(p=vf_prob),
-            T.RandomApply([color_jitter], p=cj_prob),
-            T.RandomGrayscale(p=random_gray_scale),
+            # T.RandomVerticalFlip(p=vf_prob),        # 随机垂直翻转
+            T.RandomApply([RedColorJitter()], p=cj_prob),
+            # T.RandomGrayscale(p=random_gray_scale),
             GaussianBlur(kernel_size=kernel_size, sigmas=sigmas, prob=gaussian_blur),
+            EdgeEnhanceTransform(prob=0.3),      # 新增
+            TextureEnhanceTransform(prob=0.3),   # 新增
             T.ToTensor(),
         ]
         if normalize:
             transform += [T.Normalize(mean=normalize["mean"], std=normalize["std"])]
         self.transform = T.Compose(transform)
 
-    def __call__(self, image: Union[Tensor, Image]) -> Tensor:
+    def __call__(self, image: Union[Tensor, Image.Image]) -> Tensor:
         """
         Applies the transforms to the input image.
 
