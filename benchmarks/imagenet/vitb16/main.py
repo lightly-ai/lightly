@@ -7,6 +7,7 @@ import aim
 import dino
 import dinov2
 import finetune_eval
+import ibot
 import knn_eval
 import linear_eval
 import mae
@@ -53,6 +54,7 @@ parser.add_argument("--seed", type=int, default=None)
 METHODS = {
     "dino": {"model": dino.DINO, "transform": dino.transform},
     "dinov2": {"model": dinov2.DINOv2, "transform": dinov2.transform},
+    "ibot": {"model": ibot.IBOT, "transform": ibot.transform},
     "mae": {"model": mae.MAE, "transform": mae.transform},
     "aim": {"model": aim.AIM, "transform": aim.transform},
 }
