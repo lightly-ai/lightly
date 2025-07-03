@@ -75,11 +75,12 @@ class DINOv2(LightningModule):
         )
 
         freeze_eval_module(self.teacher_backbone)
+        self.embed_dim = self.student_backbone.vit.embed_dim
 
         # Heads
         dino_head = partial(
             DINOv2ProjectionHead,
-            input_dim=384,
+            input_dim=self.embed_dim,
         )
 
         teacher_dino_head = dino_head()
@@ -87,7 +88,7 @@ class DINOv2(LightningModule):
 
         ibot_head = partial(
             DINOv2ProjectionHead,
-            input_dim=384,
+            input_dim=self.embed_dim,
         )
 
         if ibot_separate_head:
@@ -114,7 +115,7 @@ class DINOv2(LightningModule):
         self.koleo_criterion = KoLeoLoss()
 
         self.online_classifier = OnlineLinearClassifier(
-            feature_dim=384, num_classes=num_classes
+            feature_dim=self.embed_dim, num_classes=num_classes
         )
 
     def forward(self, x: Tensor) -> Tensor:
