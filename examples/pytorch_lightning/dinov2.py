@@ -127,7 +127,7 @@ class DINOv2(pl.LightningModule):
     def training_step(
         self, batch: tuple[list[Tensor], Tensor, list[str]], batch_idx: int
     ) -> Tensor:
-        views, targets = batch[0], batch[1]
+        views, _ = batch[0], batch[1]
         global_views = torch.cat(views[:2])
         local_views = torch.cat(views[2:])
 

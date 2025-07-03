@@ -92,6 +92,7 @@ class IBOT(Module):
         masked_features = None if mask is None else features[mask]
         return cls_tokens, masked_features
 
+
 output_dim = 8192
 model = IBOT(output_dim=output_dim)
 
@@ -189,9 +190,7 @@ for epoch in range(epochs):
             student_global_masked_features
         )
         student_local_cls_token, _ = model.forward_student(local_views, mask=None)
-        student_local_cls_out = model.student_cls_head.forward(
-            student_local_cls_token
-        )
+        student_local_cls_out = model.student_cls_head.forward(student_local_cls_token)
         student_cls_out = torch.cat([student_global_cls_out, student_local_cls_out])
 
         # Calculate current global step based on epoch and batch index.
