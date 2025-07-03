@@ -146,7 +146,7 @@ class IBOT(LightningModule):
         )
 
         student_local_cls_token, _ = self.forward_student(local_views, mask=None)
-        student_local_cls_out = self.student_head.forward(student_local_cls_token)
+        student_local_cls_out = self.student_cls_head.forward(student_local_cls_token)
         student_cls_out = torch.cat([student_global_cls_out, student_local_cls_out])
 
         teacher_temp = linear_warmup_schedule(
