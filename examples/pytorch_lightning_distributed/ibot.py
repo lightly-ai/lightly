@@ -88,7 +88,7 @@ class IBOT(pl.LightningModule):
         )
 
     def forward(self, x: Tensor) -> Tensor:
-        return self.teacher_backbone(x)
+        pass
 
     def forward_teacher(self, x: Tensor) -> tuple[Tensor, Tensor]:
         features = self.teacher_backbone.encode(x)
