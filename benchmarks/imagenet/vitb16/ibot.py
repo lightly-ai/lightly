@@ -205,7 +205,7 @@ class IBOT(LightningModule):
         # Don't use weight decay for batch norm, bias parameters, and classification
         # head to improve performance.
         min_lr = 1e-6
-        lr_scale = self.batch_size_per_device * self.trainer.world_size / 1024
+        lr_scale = self.batch_size_per_device * self.trainer.world_size / 256
         lr = 0.0005 * lr_scale
 
         params, params_no_weight_decay = get_weight_decay_parameters(
