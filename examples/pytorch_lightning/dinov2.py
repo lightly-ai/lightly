@@ -127,7 +127,7 @@ class DINOv2(pl.LightningModule):
     def training_step(
         self, batch: tuple[list[Tensor], Tensor, list[str]], batch_idx: int
     ) -> Tensor:
-        views, targets = batch[0], batch[1]
+        views, _ = batch[0], batch[1]
         global_views = torch.cat(views[:2])
         local_views = torch.cat(views[2:])
 
@@ -191,19 +191,6 @@ class DINOv2(pl.LightningModule):
             self.koleo_criterion(t) for t in student_global_cls_token.chunk(2)
         )
         loss = dino_loss + ibot_loss + koleo_loss
-
-        self.log_dict(
-            {
-                "train_loss": loss,
-                "train_dino_loss": dino_loss,
-                "train_ibot_loss": ibot_loss,
-                "train_koleo_loss": koleo_loss,
-                "teacher_temp": teacher_temp,
-            },
-            prog_bar=True,
-            sync_dist=True,
-            batch_size=len(targets),
-        )
 
         return loss
 

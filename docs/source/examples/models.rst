@@ -18,6 +18,7 @@ for PyTorch and PyTorch Lightning to give you a headstart when implementing your
     dino.rst
     dinov2.rst
     fastsiam.rst
+    ibot.rst
     mae.rst
     mmcr.rst
     msn.rst
