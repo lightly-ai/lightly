@@ -96,11 +96,7 @@ class IBOT(Module):
 output_dim = 8192
 model = IBOT(output_dim=output_dim)
 
-transform = IBOTTransform(
-    global_crop_scale=(0.32, 1),
-    local_crop_scale=(0.05, 0.32),
-    n_local_views=8,
-)
+transform = IBOTTransform()
 
 
 # We ignore object detection annotations by setting target_transform to return 0.
