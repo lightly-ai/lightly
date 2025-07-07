@@ -16,14 +16,14 @@ from torch import Tensor
 from torch.nn import Module
 from torch.optim import AdamW
 
-from lightly.loss import DINOLoss, IBOTPatchLoss, KoLeoLoss
-from lightly.models.modules import DINOv2ProjectionHead, MaskedVisionTransformerTIMM
+from lightly.loss import DINOLoss, IBOTPatchLoss
+from lightly.models.modules import DINOProjectionHead, MaskedVisionTransformerTIMM
 from lightly.models.utils import (
     random_block_mask,
     update_drop_path_rate,
     update_momentum,
 )
-from lightly.transforms.dino_transform import DINOTransform
+from lightly.transforms.ibot_transform import IBOTTransform
 from lightly.utils.scheduler import cosine_schedule, linear_warmup_schedule
 
 
@@ -34,22 +34,13 @@ def freeze_eval_module(module: Module) -> None:
     module.eval()
 
 
-class DINOv2Head(Module):
-    def __init__(
-        self, dino_head: DINOv2ProjectionHead, ibot_head: DINOv2ProjectionHead
-    ) -> None:
-        super().__init__()
-        self.dino_head = dino_head
-        self.ibot_head = ibot_head
-
-
-class DINOv2(pl.LightningModule):
+class IBOT(pl.LightningModule):
     def __init__(
         self,
-        ibot_separate_head: bool = False,
     ) -> None:
         super().__init__()
         self.save_hyperparameters()
+        self.output_dim = 8192
 
         # Backbones
         vit_teacher = vit_small_patch16_224(
@@ -65,48 +56,36 @@ class DINOv2(pl.LightningModule):
         self.student_backbone = copy.deepcopy(self.teacher_backbone)
         update_drop_path_rate(
             self.student_backbone.vit,
-            drop_path_rate=0.1,  # we recommend using smaller rates like 0.1 for vit-s-14
+            drop_path_rate=0.1,
             mode="uniform",
         )
-
         freeze_eval_module(self.teacher_backbone)
+        self.embed_dim = self.student_backbone.vit.embed_dim
 
-        # Heads
-        dino_head = partial(
-            DINOv2ProjectionHead,
-            input_dim=384,
+        # Projection heads
+        projection_head = partial(
+            DINOProjectionHead,
+            input_dim=self.embed_dim,
+            output_dim=self.output_dim,
         )
 
-        teacher_dino_head = dino_head()
-        student_dino_head = dino_head()
+        self.student_head = projection_head(norm_last_layer=False)
+        self.student_cls_head = self.student_patch_head = self.student_head
 
-        ibot_head = partial(
-            DINOv2ProjectionHead,
-            input_dim=384,
-        )
-
-        if ibot_separate_head:
-            teacher_ibot_head = ibot_head()
-            student_ibot_head = ibot_head()
-        else:
-            teacher_ibot_head = teacher_dino_head
-            student_ibot_head = student_dino_head
-
-        self.teacher_head = DINOv2Head(
-            dino_head=teacher_dino_head,
-            ibot_head=teacher_ibot_head,
-        )
-        self.student_head = DINOv2Head(
-            dino_head=student_dino_head,
-            ibot_head=student_ibot_head,
-        )
+        self.teacher_head = projection_head()
+        self.teacher_cls_head = self.teacher_patch_head = self.teacher_head
 
         freeze_eval_module(self.teacher_head)
 
         # Losses
-        self.dino_criterion = DINOLoss()
-        self.ibot_criterion = IBOTPatchLoss()
-        self.koleo_criterion = KoLeoLoss()
+        self.cls_criterion = DINOLoss(
+            output_dim=self.output_dim,
+            teacher_temp=0.07,
+        )
+        self.patch_criterion = IBOTPatchLoss(
+            output_dim=self.output_dim,
+            teacher_temp=0.07,
+        )
 
     def forward(self, x: Tensor) -> Tensor:
         pass
@@ -146,26 +125,20 @@ class DINOv2(pl.LightningModule):
         # Teacher forward
         with torch.no_grad():
             teacher_cls_token, teacher_features = self.forward_teacher(global_views)
-            teacher_cls_out = self.teacher_head.dino_head.forward(teacher_cls_token)
-            teacher_masked_out = self.teacher_head.ibot_head.forward(
-                teacher_features[mask]
-            )
+            teacher_cls_out = self.teacher_cls_head.forward(teacher_cls_token)
+            teacher_masked_out = self.teacher_patch_head.forward(teacher_features[mask])
 
         # Student forward
         student_global_cls_token, student_global_masked_features = self.forward_student(
             global_views, mask=mask
         )
-        student_global_cls_out = self.student_head.dino_head.forward(
-            student_global_cls_token
-        )
-        student_global_masked_out = self.student_head.ibot_head.forward(
+        student_global_cls_out = self.student_cls_head.forward(student_global_cls_token)
+        student_global_masked_out = self.student_patch_head.forward(
             student_global_masked_features
         )
 
         student_local_cls_token, _ = self.forward_student(local_views, mask=None)
-        student_local_cls_out = self.student_head.dino_head.forward(
-            student_local_cls_token
-        )
+        student_local_cls_out = self.student_head.forward(student_local_cls_token)
         student_cls_out = torch.cat([student_global_cls_out, student_local_cls_out])
 
         teacher_temp = linear_warmup_schedule(
@@ -176,21 +149,18 @@ class DINOv2(pl.LightningModule):
             start_value=0.04,
             end_value=0.07,
         )
-        dino_loss = self.dino_criterion(
+        cls_loss = self.cls_criterion(
             teacher_out=teacher_cls_out.chunk(2),
             student_out=student_cls_out.chunk(len(views)),
             teacher_temp=teacher_temp,
         )
-        ibot_loss = self.ibot_criterion(
+        patch_loss = self.patch_criterion(
             teacher_out=teacher_masked_out,
             student_out=student_global_masked_out,
             mask=block_mask,
             teacher_temp=teacher_temp,
         )
-        koleo_loss = 0.1 * sum(
-            self.koleo_criterion(t) for t in student_global_cls_token.chunk(2)
-        )
-        loss = dino_loss + ibot_loss + koleo_loss
+        loss = cls_loss + patch_loss
 
         return loss
 
@@ -199,11 +169,8 @@ class DINOv2(pl.LightningModule):
         return optim
 
     def on_before_optimizer_step(self, optimizer: AdamW, *args) -> None:
-        # Optionally zero out the learning rate of the last layer.
-        if self.current_epoch < 1:
-            for param_group in optimizer.param_groups:
-                if "last_layer" in param_group:
-                    param_group["lr"] = 0.0
+        # Cancel gradients of the last layer of the student head
+        self.student_head.cancel_last_layer_gradients(self.current_epoch)
 
         # Apply weight decay schedule
         weight_decay = cosine_schedule(
@@ -221,7 +188,7 @@ class DINOv2(pl.LightningModule):
         momentum = cosine_schedule(
             step=self.trainer.global_step,
             max_steps=self.trainer.estimated_stepping_batches,
-            start_value=0.992,
+            start_value=0.996,
             end_value=1.0,
         )
         update_momentum(self.student_backbone, self.teacher_backbone, m=momentum)
@@ -230,13 +197,9 @@ class DINOv2(pl.LightningModule):
         return super().on_train_batch_end(outputs, batch, batch_idx)
 
 
-model = DINOv2()
+model = IBOT()
 
-transform = DINOTransform(
-    global_crop_scale=(0.32, 1),
-    local_crop_scale=(0.05, 0.32),
-    n_local_views=8,
-)
+transform = IBOTTransform()
 
 
 # we ignore object detection annotations by setting target_transform to return 0
@@ -261,14 +224,7 @@ dataloader = torch.utils.data.DataLoader(
     num_workers=8,
 )
 
-# Train with DDP and use Synchronized Batch Norm for a more accurate batch norm
-# calculation. Distributed sampling is also enabled with replace_sampler_ddp=True.
-trainer = pl.Trainer(
-    max_epochs=50,
-    devices="auto",
-    accelerator="gpu",
-    strategy="ddp_find_unused_parameters_true",
-    sync_batchnorm=True,
-    use_distributed_sampler=True,  # or replace_sampler_ddp=True for PyTorch Lightning <2.0
-)
+accelerator = "gpu" if torch.cuda.is_available() else "cpu"
+
+trainer = pl.Trainer(max_epochs=50, devices=1, accelerator=accelerator)
 trainer.fit(model=model, train_dataloaders=dataloader)
