@@ -3,19 +3,19 @@
 iBOT
 ======
 
-iBOT (image BERT pre-training with Online Tokenizer) [0]_ is a self-supervised learning framework for visual representation learning. It is based on masked image modeling (MIM) which draws inspiration from pretext task of masked language modeling (MLM) from NLP. It also incorporates ideas from DINO [1]_ for self-distillation and cross-view learning. More specifically, it trains a student network to reconstruct masked image patches by predicting the outputs from an online visual tokenizer (teacher). Then, iBOT jointly optimizes the tokenizer and the representation learner through a combination of masked patch prediction and cross-view self-distillation on the class token. iBOT achieves state-of-the-art results in many downstream tasks, including image classification, object detection, instance segmentation, and semantic segmentation by showing emerging local semantic patterns.
+iBOT (image BERT pre-training with Online Tokenizer) [0]_ is a self-supervised learning framework for visual representation learning. It is based on masked image modeling (MIM) which draws inspiration from pretext task of masked language modeling (MLM) from NLP. It also incorporates ideas from DINO [1]_ for self-distillation and cross-view learning. More specifically, it trains a student network to reconstruct masked image patches by predicting the outputs from an online visual tokenizer (teacher). Then, iBOT jointly optimizes the tokenizer and the representation learner through a combination of masked patch prediction and cross-view self-distillation on the class token. iBOT improves the results in many downstream tasks compared to the previous methods, including image classification, object detection, instance segmentation, and semantic segmentation by showing emerging local semantic patterns.
 
 Key Components
 --------------
 
-- **Masked Image Modeling (MIM)**: iBOT performs masked prediction of image patches using a self-distillation objective, where the student network reconstructs masked tokens based on predictions from the teacher network.
+- **Masked Image Modeling (MIM)**:In iBOT, the student predicts feature representations of masked patches to match the teacher’s outputs, using a self-distillation objective rather than reconstructing pixel values.
 - **Online Tokenizer**: iBOT introduces an online tokenizer implemented as a momentum-updated teacher network, eliminating the need for a separate offline tokenizer.
-- **Cross-View Self-Distillation**: Similar to DINO, iBOT applies self-distillation to the [CLS] tokens of two augmented views of the same image, promoting semantic abstraction.
+- **Cross-View Self-Distillation**: Like DINO, iBOT uses self-distillation on the [CLS] tokens from two augmented views to encourage semantic consistency.
 
 Good to Know
 ------------
 
-- **Relation to other SSL methods**: iBOT can be seen as DINO (which only uses class-level objectives) plus patch-level objectives. Further, DINOv2 [2]_ can be seen as a combination of iBOT and Koleo loss with the centering of SwAV [3]_.
+- **Relation to other SSL methods**: iBOT can be seen as DINO (which only uses image-level objectives) plus patch-level objectives. Further, DINOv2 [2]_ can be seen as a combination of iBOT and Koleo loss with the centering of SwAV [3]_.
 
 Reference:
 

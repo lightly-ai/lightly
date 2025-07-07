@@ -221,9 +221,9 @@ for epoch in range(epochs):
 
         # Optionally zero out the learning rate of the last layer.
         if epoch < 1:
-            for param_group in optimizer.param_groups:
-                if "last_layer" in param_group:
-                    param_group["lr"] = 0.0
+            for name, param in model.student_head.named_parameters():
+                if "last_layer" in name:
+                    param.grad = None
 
         # Apply weight decay schedule.
         weight_decay = cosine_schedule(
