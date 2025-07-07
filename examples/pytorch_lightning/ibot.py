@@ -169,11 +169,8 @@ class IBOT(pl.LightningModule):
         return optim
 
     def on_before_optimizer_step(self, optimizer: AdamW, *args) -> None:
-        # Optionally zero out the learning rate of the last layer.
-        if self.current_epoch < 1:
-            for name, param in self.student_head.named_parameters():
-                if "last_layer" in name:
-                    param.grad = None
+        # Cancel gradients of the last layer of the student head
+        self.student_head.cancel_last_layer_gradients(self.current_epoch)
 
         # Apply weight decay schedule
         weight_decay = cosine_schedule(
