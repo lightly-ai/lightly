@@ -14,7 +14,7 @@ class TestNegativeCosineSimilarity:
         # symmetry
         l1 = loss(x0, x1)
         l2 = loss(x1, x0)
-        assert l1 == pytest.approx(l2, abs=1e-5)
+        assert torch.allclose(l1, l2)
 
     @pytest.mark.skipif(not torch.cuda.is_available(), reason="No cuda")
     @pytest.mark.parametrize("bsz", range(1, 20))
@@ -26,4 +26,4 @@ class TestNegativeCosineSimilarity:
         # symmetry
         l1 = loss(x0, x1)
         l2 = loss(x1, x0)
-        assert l1 == pytest.approx(l2, abs=1e-5)
+        assert torch.allclose(l1, l2)

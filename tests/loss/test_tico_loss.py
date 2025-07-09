@@ -32,7 +32,7 @@ class TestTiCoLoss:
             # symmetry
             l1 = loss(x0, x1, update_covariance_matrix=False)
             l2 = loss(x1, x0, update_covariance_matrix=False)
-            assert l1 == pytest.approx(l2, abs=1e-2)
+            assert torch.allclose(l1, l2, atol=1e-2)
 
     @pytest.mark.skipif(not torch.cuda.is_available(), reason="No cuda")
     def test_forward_pass_cuda(self) -> None:
@@ -45,7 +45,7 @@ class TestTiCoLoss:
             # symmetry
             l1 = loss(x0, x1, update_covariance_matrix=False)
             l2 = loss(x1, x0, update_covariance_matrix=False)
-            assert l1 == pytest.approx(l2, abs=1e-2)
+            assert torch.allclose(l1, l2, atol=1e-2)
 
     def test_forward_pass__error_batch_size_1(self) -> None:
         torch.manual_seed(0)

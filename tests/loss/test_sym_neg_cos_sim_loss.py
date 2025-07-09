@@ -16,7 +16,7 @@ class TestSymNegCosineSimilarityLoss:
         # symmetry
         l1 = loss((z0, p0), (z1, p1))
         l2 = loss((z1, p1), (z0, p0))
-        assert l1 == pytest.approx(l2)
+        assert torch.allclose(l1, l2)
 
     @pytest.mark.skipif(not torch.cuda.is_available(), reason="No cuda")
     @pytest.mark.parametrize("bsz", range(1, 20))
@@ -30,7 +30,7 @@ class TestSymNegCosineSimilarityLoss:
         # symmetry
         l1 = loss((z0, p0), (z1, p1))
         l2 = loss((z1, p1), (z0, p0))
-        assert l1 == pytest.approx(l2)
+        assert torch.allclose(l1, l2)
 
     @pytest.mark.parametrize("bsz", range(1, 20))
     def test_neg_cosine_simililarity(self, bsz: int) -> None:
@@ -41,7 +41,7 @@ class TestSymNegCosineSimilarityLoss:
         # symmetry
         l1 = loss._neg_cosine_simililarity(x, y)
         l2 = loss._neg_cosine_simililarity(y, x)
-        assert l1 == pytest.approx(l2)
+        assert torch.allclose(l1, l2)
 
     @pytest.mark.skipif(not torch.cuda.is_available(), reason="No cuda")
     @pytest.mark.parametrize("bsz", range(1, 20))
@@ -53,4 +53,4 @@ class TestSymNegCosineSimilarityLoss:
         # symmetry
         l1 = loss._neg_cosine_simililarity(x, y)
         l2 = loss._neg_cosine_simililarity(y, x)
-        assert l1 == pytest.approx(l2)
+        assert torch.allclose(l1, l2)
