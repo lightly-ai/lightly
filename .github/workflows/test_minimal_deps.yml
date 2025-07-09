@@ -44,9 +44,9 @@ jobs:
         run: |
           # Install libavformat-dev and libavdevice-dev for PyAV as versions before 9.0
           # do not provide wheels including FFMPEG.
-          # TODO (Yutong, 06/25): we specifically use libvpx7 version 1.11.0-2ubuntu2 to fix the hold of broken package when installing 1.11.0-2ubuntu2.3, 
-          # this should be removed once the issue is resolved for `1.11.0-2ubuntu2.3` and above in the future.
-          sudo apt-get install libvpx7=1.11.0-2ubuntu2 libavformat-dev libavdevice-dev 
+          # TODO (Yutong, 07/25): we specifically use libssh-gcrypt version 0.9.6-2build1 to fix the 404 error when fetching the package, 
+          # this should be removed once the issue is resolved in the future.
+          sudo apt-get install libssh-gcrypt-4=0.9.6-2build1 libavformat-dev libavdevice-dev 
           make install-uv reset-venv
           source .venv/bin/activate
           make install-${{ matrix.dependencies }}
