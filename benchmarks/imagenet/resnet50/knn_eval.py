@@ -71,7 +71,6 @@ def knn_eval(
     classifier = KNNClassifier(
         model=model,
         num_classes=num_classes,
-        feature_dtype=torch.float16,
         knn_k=knn_k,
         knn_t=knn_t,
     )
