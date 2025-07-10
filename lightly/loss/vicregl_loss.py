@@ -312,7 +312,7 @@ class VICRegLLoss(Module):
             The computed loss from local features based on nearest neighbor matching.
         """
         loss = global_view_features[0][0].new_zeros(1)
-        loss_count = torch.tensor(0, device=loss.device)
+        loss_count = loss.new_zeros(1)
 
         # Compute the loss for global views
         for (_, z_a_local_features), grid_a in zip(
