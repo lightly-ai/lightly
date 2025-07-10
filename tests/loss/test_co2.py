@@ -14,7 +14,7 @@ class TestCO2Regularizer:
         # symmetry
         l1 = reg(batch_1, batch_2)
         l2 = reg(batch_2, batch_1)
-        assert l1 == pytest.approx(l2)
+        assert torch.allclose(l1, l2)
 
     @pytest.mark.parametrize("bsz", range(1, 20))
     def test_forward_pass_memory_bank(self, bsz: int) -> None:
@@ -35,7 +35,7 @@ class TestCO2Regularizer:
         # symmetry
         l1 = reg(batch_1, batch_2)
         l2 = reg(batch_2, batch_1)
-        assert l1 == pytest.approx(l2)
+        assert torch.allclose(l1, l2)
 
     @pytest.mark.skipif(not torch.cuda.is_available(), reason="No cuda")
     @pytest.mark.parametrize("bsz", range(1, 20))

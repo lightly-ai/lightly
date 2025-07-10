@@ -157,7 +157,7 @@ class SwaVLoss(nn.Module):
         n_crops = len(high_resolution_outputs) + len(low_resolution_outputs)
 
         # Multi-crop iterations
-        loss = torch.tensor(0.0)
+        loss = high_resolution_outputs[0].new_zeros(1)
         for i in range(len(high_resolution_outputs)):
             # Compute codes of i-th high resolution crop
             with torch.no_grad():
@@ -180,7 +180,7 @@ class SwaVLoss(nn.Module):
                     q = q[: len(high_resolution_outputs[i])]
 
             # Compute subloss for each pair of crops
-            subloss = torch.tensor(0.0)
+            subloss = high_resolution_outputs[i].new_zeros(1)
             for v in range(len(high_resolution_outputs)):
                 if v != i:
                     subloss += self.subloss(high_resolution_outputs[v], q)
