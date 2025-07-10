@@ -224,7 +224,7 @@ class VICRegLLoss(Module):
             The computed invariance loss from global features.
         """
         loss = global_view_features[0][0].new_zeros(1)
-        loss_count = torch.tensor(0, device=loss.device)
+        loss_count = loss.new_zeros(1)
 
         # Compute invariance loss between global views
         for global_features_a, _ in global_view_features:
