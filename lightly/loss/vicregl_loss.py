@@ -262,8 +262,8 @@ class VICRegLLoss(Module):
             view_features = view_features + list(local_view_features)
 
         var_loss = global_view_features[0][0].new_zeros(1)
-        cov_loss = global_view_features[0][0].new_zeros(1)
-        loss_count = torch.tensor(0, device=var_loss.device)
+        cov_loss = var_loss.new_zeros(1)
+        loss_count = var_loss.new_zeros(1)
         for global_features, _ in view_features:
             if self.gather_distributed and dist.is_initialized():
                 world_size = dist.get_world_size()
