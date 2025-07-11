@@ -216,18 +216,18 @@ class DINOv2(LightningModule):
         )
 
         # Online classification.
-        _, cls_log = self.online_classifier.training_step(
+        cls_loss, cls_log = self.online_classifier.training_step(
             (teacher_cls_token.chunk(2)[0].detach(), targets), batch_idx
         )
         self.log_dict(cls_log, sync_dist=True, batch_size=len(targets))
 
-        return loss
+        return loss + cls_loss
 
     def validation_step(
         self, batch: tuple[Tensor, Tensor, list[str]], batch_idx: int
     ) -> Tensor:
         images, targets = batch[0], batch[1]
-        cls_token = self.forward(images)
+        cls_token = self.forward(images).flatten(start_dim=1)
         cls_loss, cls_log = self.online_classifier.validation_step(
             (cls_token.detach(), targets), batch_idx
         )
