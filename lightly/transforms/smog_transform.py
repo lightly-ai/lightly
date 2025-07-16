@@ -157,7 +157,7 @@ class SmoGViewTransform:
                 sigmas=sigmas,
             ),
             RandomSolarization(prob=solarize_prob),
-            T.ToTensor(),
+            ToTensor(),
         ]
         if normalize:
             transform += [T.Normalize(mean=normalize["mean"], std=normalize["std"])]

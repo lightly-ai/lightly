@@ -9,7 +9,7 @@ from PIL import Image as Image
 from PIL.Image import Image as PILImage
 from torch import Tensor
 
-from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T, ToTensor
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
@@ -46,7 +46,7 @@ class Jigsaw(object):
         n_grid: int = 3,
         img_size: int = 255,
         crop_size: int = 64,
-        transform: T.Compose = T.ToTensor(),
+        transform: T.Compose = ToTensor(),
     ):
         self.n_grid = n_grid
         self.img_size = img_size
