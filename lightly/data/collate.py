@@ -11,10 +11,10 @@ from warnings import warn
 import torch
 import torch.nn as nn
 import torchvision
-import torchvision.transforms as T
 from PIL import Image
 
 from lightly.transforms import GaussianBlur, Jigsaw, RandomSolarization
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.torchvision_v2_compatibility import ToTensor
 from lightly.transforms.random_crop_and_flip_with_grid import RandomResizedCropAndFlip
 from lightly.transforms.rotation import random_rotation_transform
