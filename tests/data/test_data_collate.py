@@ -12,7 +12,6 @@ from lightly.data import (
     PIRLCollateFunction,
     SimCLRCollateFunction,
     SwaVCollateFunction,
-    collate,
 )
 from lightly.data.collate import (
     DINOCollateFunction,
@@ -22,7 +21,7 @@ from lightly.data.collate import (
     VICRegCollateFunction,
     VICRegLCollateFunction,
 )
-from lightly.transforms import RandomRotate
+from lightly.transforms.torchvision_v2_compatibility import ToTensor
 
 
 class TestDataCollate(unittest.TestCase):
@@ -115,7 +114,7 @@ class TestDataCollate(unittest.TestCase):
                         crop_counts=[high, low],
                         crop_min_scales=[0.14, 0.04],
                         crop_max_scales=[1.0, 0.14],
-                        transforms=torchvision.transforms.ToTensor(),
+                        transforms=ToTensor(),
                     )
                     samples, labels, fnames = multi_crop_collate(batch)
                     self.assertIsNotNone(multi_crop_collate)
