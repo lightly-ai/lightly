@@ -3,8 +3,8 @@ from typing import Dict, List, Tuple, Union
 from PIL.Image import Image
 from torch import Tensor
 
-from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.torchvision_v2_compatibility import ToTensor
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 
 

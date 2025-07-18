@@ -3,8 +3,8 @@ from typing import Dict, List, Tuple, Union
 from lightly.transforms.jigsaw import Jigsaw
 from lightly.transforms.multi_view_transform import MultiViewTransform
 from lightly.transforms.rotation import random_rotation_transform
-from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.torchvision_v2_compatibility import ToTensor
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 
 

@@ -2,8 +2,8 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 from lightly.transforms.add_grid_transform import AddGridTransform
 from lightly.transforms.multi_view_transform_v2 import MultiViewTransformV2
-from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.torchvision_v2_compatibility import ToTensor
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 
 

@@ -15,8 +15,8 @@ from lightly.transforms.random_frequency_mask_transform import (
 from lightly.transforms.rfft2d_transform import RFFT2DTransform
 from lightly.transforms.rotation import random_rotation_transform
 from lightly.transforms.solarize import RandomSolarization
-from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.torchvision_v2_compatibility import ToTensor
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 
 

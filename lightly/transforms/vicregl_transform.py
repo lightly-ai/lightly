@@ -7,8 +7,8 @@ from lightly.transforms.gaussian_blur import GaussianBlur
 from lightly.transforms.image_grid_transform import ImageGridTransform
 from lightly.transforms.random_crop_and_flip_with_grid import RandomResizedCropAndFlip
 from lightly.transforms.solarize import RandomSolarization
-from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.torchvision_v2_compatibility import ToTensor
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 
 
