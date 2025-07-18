@@ -41,7 +41,7 @@ class TestDataCollate(unittest.TestCase):
 
     def test_base_collate(self):
         batch = self.create_batch()
-        transform = transforms.ToTensor()
+        transform = ToTensor()
         collate = BaseCollateFunction(transform)
         samples, labels, fnames = collate(batch)
         samples0, samples1 = samples
@@ -139,7 +139,7 @@ class TestDataCollate(unittest.TestCase):
             )
 
     def test_multi_view_collate(self):
-        to_tensor = transforms.ToTensor()
+        to_tensor = ToTensor()
         hflip = transforms.Compose(
             [
                 transforms.RandomHorizontalFlip(p=1),
