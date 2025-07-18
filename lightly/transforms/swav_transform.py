@@ -6,6 +6,7 @@ from torch import Tensor
 from lightly.transforms.gaussian_blur import GaussianBlur
 from lightly.transforms.multi_crop_transform import MultiCropTranform
 from lightly.transforms.rotation import random_rotation_transform
+from lightly.transforms.torchvision_v2_compatibility import ToTensor
 from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 
@@ -159,7 +160,7 @@ class SwaVViewTransform:
             T.RandomApply([color_jitter], p=cj_prob),
             T.RandomGrayscale(p=random_gray_scale),
             GaussianBlur(kernel_size=kernel_size, sigmas=sigmas, prob=gaussian_blur),
-            T.ToTensor(),
+            ToTensor(),
         ]
         if normalize:
             transforms += [T.Normalize(mean=normalize["mean"], std=normalize["std"])]
