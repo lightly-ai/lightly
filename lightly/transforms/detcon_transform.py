@@ -22,9 +22,9 @@ class DetConSTransform(MultiViewTransformV2):
 
     Applies the following augmentations by default:
         - RandomResizedCrop
-        - RandomRotation
         - RandomHorizontalFlip
         - RandomVerticalFlip
+        - RandomRotation
         - ColorJitter
         - RandomGrayscale
         - GaussianBlur (only for the first view)
@@ -195,9 +195,9 @@ class DetConSViewTransform:
 
         transform = [
             T.RandomResizedCrop(size=input_size, scale=(min_scale, 1.0)),
-            T.RandomApply([T.RandomRotation(rr_degrees)], p=rr_prob),
             T.RandomHorizontalFlip(p=hf_prob),
             T.RandomVerticalFlip(p=vf_prob),
+            T.RandomApply([T.RandomRotation(rr_degrees)], p=rr_prob),
             T.RandomApply([color_jitter], p=cj_prob),
             T.RandomGrayscale(p=random_gray_scale),
             T.RandomApply(
