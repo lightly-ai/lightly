@@ -52,8 +52,7 @@ def ToTensor() -> Union[_torchvision_transforms.Compose, ToTensorV1]:
 
 
 class DeprecatedShim:
-    """
-    Shim class to replace deprecated transforms.
+    """Shim class to replace deprecated transforms.
 
     This replaces existing, (soon to be) deprecated transforms with custom
     input transforms for compatibility reasons.
