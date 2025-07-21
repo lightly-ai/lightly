@@ -20,10 +20,10 @@ from pytorch_lightning.callbacks import (
 )
 from pytorch_lightning.loggers import TensorBoardLogger
 from torch.utils.data import DataLoader
-from torchvision import transforms as T
 
 from lightly.data import LightlyDataset
 from lightly.data.multi_view_collate import MultiViewCollate
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils.benchmarking import MetricCallback
 from lightly.utils.dist import print_rank_zero

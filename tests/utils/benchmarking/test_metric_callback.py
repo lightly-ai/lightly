@@ -2,8 +2,8 @@ import torch
 from pytorch_lightning import LightningModule, Trainer
 from torch.utils.data import DataLoader
 from torchvision.datasets import FakeData
-from torchvision.transforms import ToTensor
 
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.utils.benchmarking import MetricCallback
 
 
@@ -12,7 +12,7 @@ class TestMetricCallback:
         callback = MetricCallback()
         trainer = Trainer(accelerator="cpu", callbacks=[callback], max_epochs=3)
         dataset = FakeData(
-            size=10, image_size=(3, 32, 32), num_classes=10, transform=ToTensor()
+            size=10, image_size=(3, 32, 32), num_classes=10, transform=T.ToTensor()
         )
         train_dataloader = DataLoader(dataset, batch_size=2)
         val_dataloader = DataLoader(dataset, batch_size=2)

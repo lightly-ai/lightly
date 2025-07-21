@@ -8,9 +8,9 @@ from torch.nn import CrossEntropyLoss, Flatten, Linear, Sequential
 from torch.optim import SGD, Optimizer
 from torch.utils.data import DataLoader
 from torchvision.datasets import FakeData
-from torchvision.transforms import ToTensor
 
 from lightly.data import LightlyDataset
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.utils.benchmarking import BenchmarkModule
 
 
@@ -19,7 +19,7 @@ class TestBenchmarkModule:
         torch.manual_seed(0)
         dataset = LightlyDataset.from_torch_dataset(
             FakeData(
-                size=10, image_size=(3, 32, 32), num_classes=2, transform=ToTensor()
+                size=10, image_size=(3, 32, 32), num_classes=2, transform=T.ToTensor()
             )
         )
         dataloader = DataLoader(dataset, batch_size=2)
@@ -41,7 +41,7 @@ class TestBenchmarkModule:
         torch.manual_seed(0)
         dataset_train = LightlyDataset.from_torch_dataset(
             FakeData(
-                size=10, image_size=(3, 32, 32), num_classes=2, transform=ToTensor()
+                size=10, image_size=(3, 32, 32), num_classes=2, transform=T.ToTensor()
             )
         )
         dataloader_train = DataLoader(dataset_train, batch_size=2)
@@ -50,7 +50,7 @@ class TestBenchmarkModule:
                 size=10,
                 image_size=(3, 32, 32),
                 num_classes=2,
-                transform=ToTensor(),
+                transform=T.ToTensor(),
                 random_offset=10,
             )
         )

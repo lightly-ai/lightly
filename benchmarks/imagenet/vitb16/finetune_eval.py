@@ -10,7 +10,6 @@ from torch import Tensor
 from torch.nn import Module
 from torch.optim import AdamW, Optimizer
 from torch.utils.data import DataLoader
-from torchvision import transforms as T
 
 from lightly.data import LightlyDataset
 from lightly.models.utils import (
@@ -18,6 +17,7 @@ from lightly.models.utils import (
     get_named_leaf_modules,
     get_weight_decay_parameters,
 )
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils.benchmarking import FinetuneClassifier, MetricCallback
 from lightly.utils.benchmarking.topk import mean_topk_accuracy

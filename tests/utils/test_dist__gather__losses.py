@@ -12,13 +12,13 @@ from torch.nn import Linear, Module
 from torch.optim import SGD
 from torch.utils.data import DataLoader, TensorDataset
 from torchvision.datasets import FakeData
-from torchvision.transforms import ToTensor
 
 from lightly.data import LightlyDataset
 from lightly.loss.dcl_loss import DCLLoss
 from lightly.loss.ntx_ent_loss import NTXentLoss
 from lightly.loss.tico_loss import TiCoLoss
 from lightly.loss.vicreg_loss import VICRegLoss
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from tests.utils.benchmarking.test_benchmark_module import (
     _DummyModel as _BenchmarkDummyModel,
 )

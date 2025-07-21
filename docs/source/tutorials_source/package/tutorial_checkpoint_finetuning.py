@@ -29,8 +29,8 @@ import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 from pytorch_lightning.loggers import TensorBoardLogger
-from torchvision import transforms
 
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 
 # %%
@@ -95,12 +95,12 @@ num_classes = 101
 
 
 # Training Transformations
-train_transform = transforms.Compose(
+train_transform = T.Compose(
     [
-        transforms.RandomResizedCrop(input_size),
-        transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(),
-        transforms.Normalize(
+        T.RandomResizedCrop(input_size),
+        T.RandomHorizontalFlip(),
+        T.ToTensor(),
+        T.Normalize(
             mean=IMAGENET_NORMALIZE["mean"],
             std=IMAGENET_NORMALIZE["std"],
         ),
@@ -119,12 +119,12 @@ train_dataloader = DataLoader(
 )
 
 # Validation Transformations
-val_transform = transforms.Compose(
+val_transform = T.Compose(
     [
-        transforms.Resize(input_size),
-        transforms.CenterCrop(input_size),
-        transforms.ToTensor(),
-        transforms.Normalize(
+        T.Resize(input_size),
+        T.CenterCrop(input_size),
+        T.ToTensor(),
+        T.Normalize(
             mean=IMAGENET_NORMALIZE["mean"],
             std=IMAGENET_NORMALIZE["std"],
         ),

@@ -7,9 +7,9 @@ from pytorch_lightning.loggers import TensorBoardLogger
 from torch.nn import BatchNorm1d, Linear, Module, Sequential
 from torch.optim import Optimizer
 from torch.utils.data import DataLoader
-from torchvision import transforms as T
 
 from lightly.data import LightlyDataset
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils.benchmarking import LinearClassifier, MetricCallback
 from lightly.utils.dist import print_rank_zero

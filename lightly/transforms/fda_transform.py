@@ -15,7 +15,6 @@ from lightly.transforms.random_frequency_mask_transform import (
 from lightly.transforms.rfft2d_transform import RFFT2DTransform
 from lightly.transforms.rotation import random_rotation_transform
 from lightly.transforms.solarize import RandomSolarization
-from lightly.transforms.torchvision_v2_compatibility import ToTensor
 from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 
@@ -69,7 +68,7 @@ class FDAView1Transform:
 
         transform = [
             T.RandomResizedCrop(size=input_size, scale=(min_scale, 1.0)),
-            ToTensor(),
+            T.ToTensor(),
             RFFT2DTransform(),
             T.RandomApply(
                 [AmplitudeRescaleTransform(range=ampl_rescale_range)],
@@ -99,7 +98,7 @@ class FDAView1Transform:
             T.RandomGrayscale(p=random_gray_scale),
             GaussianBlur(kernel_size=kernel_size, sigmas=sigmas, prob=gaussian_blur),
             RandomSolarization(prob=solarization_prob),
-            ToTensor(),
+            T.ToTensor(),
         ]
         if normalize:
             transform += [T.Normalize(mean=normalize["mean"], std=normalize["std"])]
@@ -170,7 +169,7 @@ class FDAView2Transform:
 
         transform = [
             T.RandomResizedCrop(size=input_size, scale=(min_scale, 1.0)),
-            ToTensor(),
+            T.ToTensor(),
             RFFT2DTransform(),
             T.RandomApply(
                 [AmplitudeRescaleTransform(range=ampl_rescale_range)],
@@ -200,7 +199,7 @@ class FDAView2Transform:
             T.RandomGrayscale(p=random_gray_scale),
             GaussianBlur(kernel_size=kernel_size, sigmas=sigmas, prob=gaussian_blur),
             RandomSolarization(prob=solarization_prob),
-            ToTensor(),
+            T.ToTensor(),
         ]
         if normalize:
             transform += [T.Normalize(mean=normalize["mean"], std=normalize["std"])]

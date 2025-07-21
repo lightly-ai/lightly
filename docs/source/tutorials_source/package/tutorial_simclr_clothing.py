@@ -47,6 +47,7 @@ from sklearn.preprocessing import normalize
 
 from lightly.data import LightlyDataset
 from lightly.transforms import SimCLRTransform, utils
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 
 # %%
 # Configuration
@@ -92,11 +93,11 @@ transform = SimCLRTransform(input_size=input_size, vf_prob=0.5, rr_prob=0.5)
 
 # We create a torchvision transformation for embedding the dataset after
 # training
-test_transform = torchvision.transforms.Compose(
+test_transform = T.Compose(
     [
-        torchvision.transforms.Resize((input_size, input_size)),
-        torchvision.transforms.ToTensor(),
-        torchvision.transforms.Normalize(
+        T.Resize((input_size, input_size)),
+        T.ToTensor(),
+        T.Normalize(
             mean=utils.IMAGENET_NORMALIZE["mean"],
             std=utils.IMAGENET_NORMALIZE["std"],
         ),

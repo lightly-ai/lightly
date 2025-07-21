@@ -192,10 +192,10 @@ and `albumentations <https://albumentations.ai/docs/>`_ or the ones offered by L
 .. code-block:: python
 
     import albumentations as A
-    import torchvision.transforms as T
     from albumentations.pytorch import ToTensorV2
 
     from lightly.data import LightlyDataset
+    from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 
     ## Torchvision Transforms
     torchvision_transform = T.Compose(

@@ -93,6 +93,7 @@ from lightly.transforms import (
     SMoGTransform,
     SwaVTransform,
 )
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils.benchmarking import BenchmarkModule
 
@@ -213,10 +214,10 @@ smog_transform = SMoGTransform(
 )
 
 # No additional augmentations for the test set
-test_transforms = torchvision.transforms.Compose(
+test_transforms = T.Compose(
     [
-        torchvision.transforms.ToTensor(),
-        torchvision.transforms.Normalize(
+        T.ToTensor(),
+        T.Normalize(
             mean=IMAGENET_NORMALIZE["mean"],
             std=IMAGENET_NORMALIZE["std"],
         ),

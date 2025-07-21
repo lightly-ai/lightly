@@ -3,7 +3,6 @@ import unittest
 
 import torch
 import torchvision
-import torchvision.transforms as transforms
 
 from lightly.data import (
     BaseCollateFunction,
@@ -21,7 +20,7 @@ from lightly.data.collate import (
     VICRegCollateFunction,
     VICRegLCollateFunction,
 )
-from lightly.transforms.torchvision_v2_compatibility import ToTensor
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 
 
 class TestDataCollate(unittest.TestCase):
@@ -41,7 +40,7 @@ class TestDataCollate(unittest.TestCase):
 
     def test_base_collate(self):
         batch = self.create_batch()
-        transform = ToTensor()
+        transform = T.ToTensor()
         collate = BaseCollateFunction(transform)
         samples, labels, fnames = collate(batch)
         samples0, samples1 = samples
@@ -114,7 +113,7 @@ class TestDataCollate(unittest.TestCase):
                         crop_counts=[high, low],
                         crop_min_scales=[0.14, 0.04],
                         crop_max_scales=[1.0, 0.14],
-                        transforms=ToTensor(),
+                        transforms=T.ToTensor(),
                     )
                     samples, labels, fnames = multi_crop_collate(batch)
                     self.assertIsNotNone(multi_crop_collate)
@@ -139,16 +138,16 @@ class TestDataCollate(unittest.TestCase):
             )
 
     def test_multi_view_collate(self):
-        to_tensor = ToTensor()
-        hflip = transforms.Compose(
+        to_tensor = T.ToTensor()
+        hflip = T.Compose(
             [
-                transforms.RandomHorizontalFlip(p=1),
+                T.RandomHorizontalFlip(p=1),
                 to_tensor,
             ]
         )
-        vflip = transforms.Compose(
+        vflip = T.Compose(
             [
-                transforms.RandomVerticalFlip(p=1),
+                T.RandomVerticalFlip(p=1),
                 to_tensor,
             ]
         )

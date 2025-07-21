@@ -10,6 +10,7 @@ from PIL.Image import Image
 
 from lightly.data import LightlyDataset
 from lightly.data._utils import check_images
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 
 try:
     import av as _
@@ -169,9 +170,7 @@ class TestLightlyDataset(unittest.TestCase):
 
     def test_from_torch_dataset_with_transform(self):
         dataset_ = torchvision.datasets.FakeData(size=1, image_size=(3, 32, 32))
-        dataset = LightlyDataset.from_torch_dataset(
-            dataset_, transform=torchvision.transforms.ToTensor()
-        )
+        dataset = LightlyDataset.from_torch_dataset(dataset_, transform=T.ToTensor())
         self.assertIsNotNone(dataset.transform)
         self.assertIsNotNone(dataset.dataset.transform)
 
@@ -300,14 +299,14 @@ class TestLightlyDataset(unittest.TestCase):
         self.assertIsNone(dataset.transform)
         self.assertIsNone(dataset.dataset.transform)
         # use the setter
-        dataset.transform = torchvision.transforms.ToTensor()
+        dataset.transform = T.ToTensor()
         # assert that the transform is set in the nested dataset
         self.assertIsNotNone(dataset.transform)
         self.assertIsNotNone(dataset.dataset.transform)
 
     def test_no_dir_no_transform_fails(self):
         with self.assertRaises(ValueError):
-            LightlyDataset(None, transform=torchvision.transforms.ToTensor())
+            LightlyDataset(None, transform=T.ToTensor())
 
     @unittest.skipUnless(VIDEO_DATASET_AVAILABLE, "PyAV or CV2 is/are not installed")
     def test_dataset_get_filenames(self):

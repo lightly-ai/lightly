@@ -9,7 +9,6 @@ from PIL import Image as Image
 from PIL.Image import Image as PILImage
 from torch import Tensor
 
-from lightly.transforms.torchvision_v2_compatibility import ToTensor
 from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 
 if TYPE_CHECKING:
@@ -36,7 +35,7 @@ class Jigsaw(object):
     Examples:
         >>> from lightly.transforms import Jigsaw
         >>>
-        >>> jigsaw_crop = Jigsaw(n_grid=3, img_size=255, crop_size=64, transform=transforms.ToTensor())
+        >>> jigsaw_crop = Jigsaw(n_grid=3, img_size=255, crop_size=64, transform=T.ToTensor())
         >>>
         >>> # img is a PIL image
         >>> crops = jigsaw_crops(img)
@@ -47,7 +46,7 @@ class Jigsaw(object):
         n_grid: int = 3,
         img_size: int = 255,
         crop_size: int = 64,
-        transform: T.Compose = ToTensor(),
+        transform: T.Compose = T.ToTensor(),
     ):
         self.n_grid = n_grid
         self.img_size = img_size

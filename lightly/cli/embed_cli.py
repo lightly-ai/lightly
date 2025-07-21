@@ -23,6 +23,7 @@ from lightly.cli._helpers import (
     get_model_from_config,
 )
 from lightly.data import LightlyDataset
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.utils.hipify import bcolors
 from lightly.utils.io import save_embeddings
 
@@ -52,15 +53,11 @@ def _embed_cli(
     else:
         device = torch.device("cpu")
 
-    transform = torchvision.transforms.Compose(
+    transform = T.Compose(
         [
-            torchvision.transforms.Resize(
-                (cfg["collate"]["input_size"], cfg["collate"]["input_size"])
-            ),
-            torchvision.transforms.ToTensor(),
-            torchvision.transforms.Normalize(
-                mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
-            ),
+            T.Resize((cfg["collate"]["input_size"], cfg["collate"]["input_size"])),
+            T.ToTensor(),
+            T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ]
     )
 
@@ -85,9 +82,9 @@ def _embed_cli(
         path = os.path.join(os.getcwd(), "embeddings.csv")
         save_embeddings(path, embeddings, labels, filenames)
         print(f"Embeddings are stored at {bcolors.OKBLUE}{path}{bcolors.ENDC}")
-        os.environ[
-            cfg["environment_variable_names"]["lightly_last_embedding_path"]
-        ] = path
+        os.environ[cfg["environment_variable_names"]["lightly_last_embedding_path"]] = (
+            path
+        )
         return path
 
     return embeddings, labels, filenames

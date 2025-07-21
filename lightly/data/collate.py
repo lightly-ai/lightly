@@ -16,7 +16,6 @@ from PIL import Image
 from lightly.transforms import GaussianBlur, Jigsaw, RandomSolarization
 from lightly.transforms.random_crop_and_flip_with_grid import RandomResizedCropAndFlip
 from lightly.transforms.rotation import random_rotation_transform
-from lightly.transforms.torchvision_v2_compatibility import ToTensor
 from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 
@@ -39,7 +38,7 @@ class BaseCollateFunction(nn.Module):
 
     """
 
-    def __init__(self, transform: torchvision.transforms.Compose):
+    def __init__(self, transform: T.Compose):
         _deprecation_warning_collate_functions()
         super(BaseCollateFunction, self).__init__()
         self.transform = transform
@@ -178,7 +177,7 @@ class ImageCollateFunction(BaseCollateFunction):
             T.RandomApply([color_jitter], p=cj_prob),
             T.RandomGrayscale(p=random_gray_scale),
             GaussianBlur(kernel_size=kernel_size, sigmas=sigmas, prob=gaussian_blur),
-            ToTensor(),
+            T.ToTensor(),
         ]
 
         if normalize:
@@ -199,7 +198,7 @@ class MultiViewCollateFunction(nn.Module):
 
     """
 
-    def __init__(self, transforms: List[torchvision.transforms.Compose]):
+    def __init__(self, transforms: List[T.Compose]):
         _deprecation_warning_collate_functions()
         super().__init__()
         self.transforms = transforms
@@ -551,7 +550,7 @@ class SwaVCollateFunction(MultiCropCollateFunction):
                 GaussianBlur(
                     kernel_size=kernel_size, sigmas=sigmas, prob=gaussian_blur
                 ),
-                ToTensor(),
+                T.ToTensor(),
                 T.Normalize(mean=normalize["mean"], std=normalize["std"]),
             ]
         )
@@ -674,7 +673,7 @@ class DINOCollateFunction(MultiViewCollateFunction):
         )
         normalize = T.Compose(
             [
-                ToTensor(),
+                T.ToTensor(),
                 T.Normalize(mean=normalize["mean"], std=normalize["std"]),
             ]
         )
@@ -764,7 +763,7 @@ class MAECollateFunction(MultiViewCollateFunction):
                 input_size, scale=(min_scale, 1.0), interpolation=3
             ),  # 3 is bicubic
             T.RandomHorizontalFlip(),
-            ToTensor(),
+            T.ToTensor(),
         ]
 
         if normalize:
@@ -848,7 +847,7 @@ class PIRLCollateFunction(nn.Module):
             T.RandomHorizontalFlip(p=hf_prob),
             T.RandomApply([color_jitter], p=cj_prob),
             T.RandomGrayscale(p=random_gray_scale),
-            ToTensor(),
+            T.ToTensor(),
         ]
 
         if normalize:
@@ -858,7 +857,7 @@ class PIRLCollateFunction(nn.Module):
         self.no_augment = T.Compose(
             [
                 T.RandomResizedCrop(size=input_size, scale=(min_scale, 1.0)),
-                ToTensor(),
+                T.ToTensor(),
                 T.Normalize(mean=normalize["mean"], std=normalize["std"]),
             ]
         )
@@ -969,7 +968,7 @@ class MSNCollateFunction(MultiViewCollateFunction):
                 GaussianBlur(
                     kernel_size=kernel_size, sigmas=sigmas, prob=gaussian_blur
                 ),
-                ToTensor(),
+                T.ToTensor(),
                 T.Normalize(mean=normalize["mean"], std=normalize["std"]),
             ]
         )
@@ -983,7 +982,7 @@ class MSNCollateFunction(MultiViewCollateFunction):
                 GaussianBlur(
                     kernel_size=kernel_size, sigmas=sigmas, prob=gaussian_blur
                 ),
-                ToTensor(),
+                T.ToTensor(),
                 T.Normalize(mean=normalize["mean"], std=normalize["std"]),
             ]
         )
@@ -1068,7 +1067,7 @@ class SMoGCollateFunction(MultiViewCollateFunction):
                                 sigmas=gaussian_blur_sigmas,
                             ),  # TODO
                             RandomSolarization(prob=solarize_probs[i]),
-                            ToTensor(),
+                            T.ToTensor(),
                             T.Normalize(mean=normalize["mean"], std=normalize["std"]),
                         ]
                     )
@@ -1168,7 +1167,7 @@ class VICRegCollateFunction(BaseCollateFunction):
             T.RandomGrayscale(p=random_gray_scale),
             RandomSolarization(prob=solarize_prob),
             GaussianBlur(kernel_size=kernel_size, sigmas=sigmas, prob=gaussian_blur),
-            ToTensor(),
+            T.ToTensor(),
         ]
 
         if normalize:
@@ -1282,7 +1281,7 @@ class VICRegLCollateFunction(nn.Module):
                     sigmas=global_gaussian_blur_sigmas,
                 ),
                 RandomSolarization(prob=global_solarize_prob),
-                ToTensor(),
+                T.ToTensor(),
                 T.Normalize(mean=normalize["mean"], std=normalize["std"]),
             ]
         )
@@ -1297,14 +1296,12 @@ class VICRegLCollateFunction(nn.Module):
                     sigmas=local_gaussian_blur_sigmas,
                 ),
                 RandomSolarization(prob=local_solarize_prob),
-                ToTensor(),
+                T.ToTensor(),
                 T.Normalize(mean=normalize["mean"], std=normalize["std"]),
             ]
         )
 
-    def forward(
-        self, batch: List[Tuple[Image.Image, int, str]]
-    ) -> Tuple[
+    def forward(self, batch: List[Tuple[Image.Image, int, str]]) -> Tuple[
         Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor],
         torch.Tensor,
         torch.Tensor,

@@ -2,7 +2,6 @@ from typing import Dict, List, Tuple, Union
 
 from lightly.transforms.jigsaw import Jigsaw
 from lightly.transforms.multi_view_transform import MultiViewTransform
-from lightly.transforms.torchvision_v2_compatibility import ToTensor
 from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 
@@ -78,7 +77,7 @@ class PIRLTransform(MultiViewTransform):
         # Cropping and normalisation for non-transformed image
         transforms_no_augment = [
             T.RandomResizedCrop(size=input_size, scale=(min_scale, 1.0)),
-            ToTensor(),
+            T.ToTensor(),
         ]
 
         if normalize is not None:
@@ -100,7 +99,7 @@ class PIRLTransform(MultiViewTransform):
             T.RandomHorizontalFlip(p=hf_prob),
             T.RandomApply([color_jitter], p=cj_prob),
             T.RandomGrayscale(p=random_gray_scale),
-            ToTensor(),
+            T.ToTensor(),
         ]
 
         if normalize is not None:

@@ -60,6 +60,7 @@ from lightly.models.utils import (
     update_momentum,
 )
 from lightly.transforms import MoCoV2Transform, utils
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 
 # %%
 # Configuration
@@ -136,12 +137,12 @@ transform = MoCoV2Transform(
 # the same way as we do with the training data.
 
 # Augmentations typically used to train on cifar-10
-train_classifier_transforms = torchvision.transforms.Compose(
+train_classifier_transforms = T.Compose(
     [
-        torchvision.transforms.RandomCrop(32, padding=4),
-        torchvision.transforms.RandomHorizontalFlip(),
-        torchvision.transforms.ToTensor(),
-        torchvision.transforms.Normalize(
+        T.RandomCrop(32, padding=4),
+        T.RandomHorizontalFlip(),
+        T.ToTensor(),
+        T.Normalize(
             mean=utils.IMAGENET_NORMALIZE["mean"],
             std=utils.IMAGENET_NORMALIZE["std"],
         ),
@@ -149,11 +150,11 @@ train_classifier_transforms = torchvision.transforms.Compose(
 )
 
 # No additional augmentations for the test set
-test_transforms = torchvision.transforms.Compose(
+test_transforms = T.Compose(
     [
-        torchvision.transforms.Resize((32, 32)),
-        torchvision.transforms.ToTensor(),
-        torchvision.transforms.Normalize(
+        T.Resize((32, 32)),
+        T.ToTensor(),
+        T.Normalize(
             mean=utils.IMAGENET_NORMALIZE["mean"],
             std=utils.IMAGENET_NORMALIZE["std"],
         ),
