@@ -62,8 +62,8 @@ class DINO(LightningModule):
         local_views = torch.cat(views[2:])
 
         with torch.no_grad():
-            teacher_features = self.forward(global_views).flatten(start_dim=1)
-            teacher_projections = self.projection_head(teacher_features)
+            teacher_cls_token = self.forward(global_views).flatten(start_dim=1)
+            teacher_projections = self.projection_head(teacher_cls_token)
 
         student_projections = torch.cat(
             [self.forward_student(global_views), self.forward_student(local_views)]
@@ -82,8 +82,10 @@ class DINO(LightningModule):
         )
 
         # Online classification.
+        # The original DINO codebase uses the average of the cls tokens from the last 4 layers for linear evals: https://github.com/facebookresearch/dino/blob/7c446df5b9f45747937fb0d72314eb9f7b66930a/eval_linear.py#L257
+        # Here we use the first cls token from the teacher backbone for simplicity.
         cls_loss, cls_log = self.online_classifier.training_step(
-            (teacher_features.chunk(2)[0].detach(), targets), batch_idx
+            (teacher_cls_token.chunk(2)[0].detach(), targets), batch_idx
         )
         self.log_dict(cls_log, sync_dist=True, batch_size=len(targets))
         return loss + cls_loss
@@ -92,9 +94,12 @@ class DINO(LightningModule):
         self, batch: Tuple[Tensor, Tensor, List[str]], batch_idx: int
     ) -> Tensor:
         images, targets = batch[0], batch[1]
-        features = self.forward(images).flatten(start_dim=1)
+        cls_token = self.forward(images).flatten(start_dim=1)
+
+        # The original DINO codebase uses the average of the cls tokens from the last 4 layers for linear evals: https://github.com/facebookresearch/dino/blob/7c446df5b9f45747937fb0d72314eb9f7b66930a/eval_linear.py#L257
+        # Here we use the first cls token from the teacher backbone for simplicity.
         cls_loss, cls_log = self.online_classifier.validation_step(
-            (features.detach(), targets), batch_idx
+            (cls_token.detach(), targets), batch_idx
         )
         self.log_dict(cls_log, prog_bar=True, sync_dist=True, batch_size=len(targets))
         return cls_loss
