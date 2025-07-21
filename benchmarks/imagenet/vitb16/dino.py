@@ -2,7 +2,7 @@ from typing import List, Tuple
 
 import torch
 from pytorch_lightning import LightningModule
-from timm.models.vision_transformer import vit_small_patch16_224
+from timm.models.vision_transformer import vit_small_patch16_224, vit_base_patch16_224
 from torch import Tensor
 from torch.optim import AdamW
 
@@ -10,7 +10,7 @@ from lightly.loss import DINOLoss
 from lightly.models.modules import DINOProjectionHead, MaskedVisionTransformerTIMM
 from lightly.models.utils import get_weight_decay_parameters, update_momentum
 from lightly.transforms import DINOTransform
-from lightly.utils.benchmarking import OnlineLinearClassifier
+from lightly.utils.benchmarking import OnlineLinearClassifier_muti
 from lightly.utils.optim import update_param_groups
 from lightly.utils.scheduler import CosineWarmupScheduler, cosine_schedule
 
@@ -21,19 +21,19 @@ class DINO(LightningModule):
         self.save_hyperparameters()
         self.batch_size_per_device = batch_size_per_device
 
-        vit = vit_small_patch16_224(dynamic_img_size=True)
+        vit = vit_base_patch16_224(dynamic_img_size=True)
         self.backbone = MaskedVisionTransformerTIMM(vit=vit)
-        self.projection_head = DINOProjectionHead(input_dim=384, norm_last_layer=False)
+        self.projection_head = DINOProjectionHead(input_dim=768, norm_last_layer=False)
 
-        vit_student = vit_small_patch16_224(dynamic_img_size=True, drop_path_rate=0.1)
+        vit_student = vit_base_patch16_224(dynamic_img_size=True, drop_path_rate=0.1)
         self.student_backbone = MaskedVisionTransformerTIMM(vit=vit_student)
         self.student_projection_head = DINOProjectionHead(
-            input_dim=384, freeze_last_layer=1, norm_last_layer=False
+            input_dim=768, freeze_last_layer=1, norm_last_layer=False
         )
 
         self.criterion = DINOLoss()
-        self.online_classifier = OnlineLinearClassifier(
-            feature_dim=384, num_classes=num_classes
+        self.online_classifier = OnlineLinearClassifier_muti(
+            feature_dim=768, num_classes=num_classes
         )
 
     def forward(self, x: Tensor) -> Tensor:
@@ -82,19 +82,20 @@ class DINO(LightningModule):
         )
 
         # Online classification.
-        cls_loss, cls_log = self.online_classifier.training_step(
-            (teacher_features.chunk(2)[0].detach(), targets), batch_idx
-        )
-        self.log_dict(cls_log, sync_dist=True, batch_size=len(targets))
-        return loss + cls_loss
+        # cls_loss, cls_log = self.online_classifier.training_step(
+        #     (teacher_features.chunk(2)[0].detach(), targets), batch_idx
+        # )
+        # self.log_dict(cls_log, sync_dist=True, batch_size=len(targets))
+        return loss
 
+    # 在评估时更新features参数
     def validation_step(
         self, batch: Tuple[Tensor, Tensor, List[str]], batch_idx: int
     ) -> Tensor:
         images, targets = batch[0], batch[1]
         features = self.forward(images).flatten(start_dim=1)
         cls_loss, cls_log = self.online_classifier.validation_step(
-            (features.detach(), targets), batch_idx
+            (features, targets), batch_idx
         )
         self.log_dict(cls_log, prog_bar=True, sync_dist=True, batch_size=len(targets))
         return cls_loss

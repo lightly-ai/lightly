@@ -18,7 +18,7 @@ from lightly.models.utils import (
     update_momentum,
 )
 from lightly.transforms import DINOTransform
-from lightly.utils.benchmarking import OnlineLinearClassifier
+from lightly.utils.benchmarking import OnlineLinearClassifier_muti
 from lightly.utils.optim import update_param_groups
 from lightly.utils.scheduler import (
     CosineWarmupScheduler,
@@ -83,7 +83,7 @@ class DINOv2(LightningModule):
         self.ibot_criterion = IBOTPatchLoss()
         self.koleo_criterion = KoLeoLoss()
 
-        self.online_classifier = OnlineLinearClassifier(
+        self.online_classifier = OnlineLinearClassifier_muti(
             feature_dim=384, num_classes=num_classes
         )
 
@@ -190,11 +190,11 @@ class DINOv2(LightningModule):
         )
 
         # Online classification.
-        cls_loss, cls_log = self.online_classifier.training_step(
-            (teacher_cls_token.chunk(2)[0].detach(), targets), batch_idx
-        )
-        self.log_dict(cls_log, sync_dist=True, batch_size=len(targets))
-        return loss + cls_loss
+        # cls_loss, cls_log = self.online_classifier.training_step(
+        #     (teacher_cls_token.chunk(2)[0].detach(), targets), batch_idx
+        # )
+        # self.log_dict(cls_log, sync_dist=True, batch_size=len(targets))
+        return loss
 
     def validation_step(
         self, batch: tuple[Tensor, Tensor, list[str]], batch_idx: int
@@ -303,23 +303,22 @@ class DINOv2(LightningModule):
                 updates.append({"name": group["name"], "weight_decay": weight_decay})
         update_param_groups(optimizer, updates=updates)
 
-    def configure_gradient_clipping(
-        self,
-        optimizer: Optimizer,
-        gradient_clip_val: int | float | None = None,
-        gradient_clip_algorithm: str | None = None,
-    ) -> None:
-        self.clip_gradients(
-            optimizer=optimizer,
-            gradient_clip_val=gradient_clip_val,
-            gradient_clip_algorithm=gradient_clip_algorithm,
-        )
+    # def configure_gradient_clipping(
+    #     self,
+    #     optimizer: Optimizer,
+    #     gradient_clip_val: int | float | None = None,
+    #     gradient_clip_algorithm: str | None = None,
+    # ) -> None:
+    #     self.clip_gradients(
+    #         optimizer=optimizer,
+    #         gradient_clip_val=gradient_clip_val,
+    #         gradient_clip_algorithm=gradient_clip_algorithm,
+    #     )
 
 
-
-
+# 尽可能保留模型较为完整的细节
 transform = DINOTransform(
-    global_crop_scale=(0.32, 1),
-    local_crop_scale=(0.05, 0.32),
-    n_local_views=8,
+    global_crop_scale=(0.8, 1),
+    local_crop_scale=(0.05, 0.8),
+    n_local_views=4,
 )
