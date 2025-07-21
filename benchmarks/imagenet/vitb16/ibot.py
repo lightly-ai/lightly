@@ -127,7 +127,11 @@ class IBOT(LightningModule):
         assert (
             H * W == sequence_length - 1
         ), f"Unexpected grid size: {H}x{W}, sequence_length {sequence_length}"
-        block_mask = random_block_mask(size=(B, H, W), device=mask.device)
+        block_mask = random_block_mask(
+            size=(B, H, W),
+            device=mask.device,
+            min_num_masks_per_block=(min(H, W) // 3) ** 2,
+        )
         mask[:, 1:] = block_mask.flatten(start_dim=1)
 
         # Teacher forward
