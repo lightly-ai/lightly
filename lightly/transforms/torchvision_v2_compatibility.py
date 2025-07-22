@@ -25,7 +25,7 @@ else:
     _TRANSFORMS_V2 = False
 
 
-def ToTensor() -> Union[_torchvision_transforms.Compose, ToTensorV1]:
+class ToTensor:
     """Convert a PIL Image to a tensor with value normalization, similar to [0].
 
     This implementation is required since `torchvision.transforms.v2.ToTensor` is
@@ -40,15 +40,21 @@ def ToTensor() -> Union[_torchvision_transforms.Compose, ToTensorV1]:
     - [0] https://pytorch.org/vision/main/generated/torchvision.transforms.ToTensor.html
     - [1] https://pytorch.org/vision/0.20/generated/torchvision.transforms.v2.ToTensor.html?highlight=totensor#torchvision.transforms.v2.ToTensor
     """
-    T = _torchvision_transforms
-    if _TRANSFORMS_V2 and hasattr(T, "ToImage") and hasattr(T, "ToDtype"):
-        # v2.transforms.ToTensor is deprecated and will be removed in the future.
-        # This is the new recommended way to convert a PIL Image to a tensor since
-        # torchvision v0.16.
-        # See also https://github.com/pytorch/vision/blame/33e47d88265b2d57c2644aad1425be4fccd64605/torchvision/transforms/v2/_deprecated.py#L19
-        return T.Compose([T.ToImage(), T.ToDtype(dtype=torch.float32, scale=True)])
-    else:
-        return T.ToTensor()
+
+    def __init__(self) -> None:
+        T = _torchvision_transforms
+        if _TRANSFORMS_V2:
+            self.transform: Callable[[Union[Image, Tensor]], Tensor] = T.Compose(
+                [T.ToImage(), T.ToDtype(dtype=torch.float32, scale=True)]
+            )
+        else:
+            self.transform = T.ToTensor()
+
+    def __call__(self, img: Union[Image, Tensor]) -> Tensor:
+        return self.transform(img)
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}({self.transform})"
 
 
 class DeprecatedShim:
