@@ -5,44 +5,9 @@ repos:
   - id: detect-private-key      # check for private keys
   - id: check-added-large-files # prevent commit of files >500kB
     args: ['--maxkb=500']
-- repo: https://github.com/psf/black
-  rev: 24.8.0  # aligned with the version defined in pyproject.toml
-  hooks:
-  - id: black
-- repo: https://github.com/pycqa/isort
-  rev: 5.13.2  # aligned with the version defined in pyproject.toml
-  hooks:
-  - id: isort
-- repo: https://github.com/pre-commit/mirrors-mypy
-  rev: v1.11.1  # aligned with the version defined in pyproject.toml
-  hooks:
-  - id: mypy
-    additional_dependencies:
-      - 'numpy'
 - repo: https://github.com/nbQA-dev/nbQA
   rev: 1.8.7
   hooks:
     - id: nbqa-black
     - id: nbqa-isort
       args: ["--profile=black"]
-- repo: local
-  hooks:
-  - id: pytest-check                     # run all tests
-    name: pytest-check
-    entry: make test-fast
-    language: system
-    pass_filenames: false
-    stages: [push]
-    # Avoid running tests if non-tested files have changed.
-    # The regex follows the pattern in the docs: https://pre-commit.com/#regular-expressions
-    exclude: |
-      (?x)^(
-          benchmark_logs/.*|
-          docs/.*|
-          examples/.*|
-          \.gitignore|
-          CONTRIBUTING\.md|
-          LICENSE\.txt|
-          README\.md
-          PRECOMMITHOOKS\.md|
-      )$

@@ -127,6 +127,7 @@ EXCLUDE_NEWER_DATE="2024-08-07"
 .PHONY: install-dev
 install-dev:
 	uv pip install ${EDITABLE} . --all-extras --requirement pyproject.toml
+	pre-commit install
 
 
 # Install package with API dependencies only.

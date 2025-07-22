@@ -84,7 +84,8 @@ Follow these steps to start contributing:
 4. Set up a development environment by running the following command in a virtual environment:
 
    ```bash
-   pip install -e ".[dev]"
+   pip install -e . --all-extras --requirement pyproject.toml
+   pre-commit install
    ```
 
    If you are using [uv](https://github.com/astral-sh/uv) instead of pip, you can use
@@ -94,34 +95,7 @@ Follow these steps to start contributing:
    make install-dev
    ```
 
-5. **(Optional)** Install pre-commit hooks:
-
-   ```bash
-   pip install pre-commit
-   pre-commit install
-   ```
-
-   We use pre-commit hooks to identify simple issues before submission to code review. In particular, our hooks currently check for:
-   * Private keys in the commit
-   * Large files in the commit (>500kB)
-   * Run formatting checks using `black`, `isort` and `mypy`.
-   * Units which don't pass their unit tests (on push only)
-
-   You can verify that the hooks were installed correctly with
-   ```
-   pre-commit run --all-files
-   ```
-   The output should look like this:
-   ```
-   pre-commit run --all-files
-   Detect Private Key................................Passed
-   Check for added large files.......................Passed
-   black.............................................Passed
-   isort.............................................Passed
-   mypy..............................................Passed
-   ```
-
-6. Develop the features on your branch.
+5. Develop the features on your branch.
 
    As you work on the features, you should make sure that the code is formatted and the
    test suite passes:
