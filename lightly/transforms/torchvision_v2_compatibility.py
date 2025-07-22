@@ -5,7 +5,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 #
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Union
+from typing import Any, Callable, Dict, List, Union
 
 import torch
 from PIL.Image import Image
@@ -21,9 +21,6 @@ else:
     from torchvision import transforms as _torchvision_transforms
 
     _TRANSFORMS_V2 = False
-
-if TYPE_CHECKING:
-    from numpy.typing import NDArray
 
 
 class ToTensor:
@@ -53,7 +50,7 @@ class ToTensor:
 
     def __call__(
         self,
-        *args: Union[torch.Tensor, Image, NDArray[Any]],
+        *args: Union[Tensor, Image],
         **kwargs: Dict[str, Any],
     ) -> Tensor:
         return self.transform(*args, **kwargs)
