@@ -8,7 +8,8 @@ import numpy as np
 from PIL import ImageFilter
 from PIL.Image import Image
 from torch import Tensor
-from torchvision.transforms.functional import to_pil_image, to_tensor
+
+from lightly.transforms.torchvision_v2_compatibility import functional as F
 
 
 class GaussianBlur:
@@ -64,7 +65,7 @@ class GaussianBlur:
 
         # Convert to PIL image if it's a tensor, otherwise use as is
         is_input_tensor = isinstance(sample, Tensor)
-        sample_pil: Image = to_pil_image(sample) if is_input_tensor else sample
+        sample_pil: Image = F.to_pil_image(sample) if is_input_tensor else sample
 
         if prob < self.prob:
             # choose randomized std for Gaussian filtering
@@ -75,4 +76,4 @@ class GaussianBlur:
             sample_pil = sample_pil.filter(ImageFilter.GaussianBlur(radius=sigma))
 
         # Convert back to tensor if input was a tensor
-        return to_tensor(sample_pil) if is_input_tensor else sample_pil
+        return F.to_tensor(sample_pil) if is_input_tensor else sample_pil
