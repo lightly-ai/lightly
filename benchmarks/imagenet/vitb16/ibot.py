@@ -187,7 +187,7 @@ class IBOT(LightningModule):
         )
 
         # Online classification.
-        # The original iBOT codebase uses the average of the cls tokens from the last 4 layers for linear evals: https://github.com/bytedance/ibot/blob/da316d82636a7a7356835ef224b13d5f3ace0489/evaluation/eval_linear.py#L289
+        # The original iBOT codebase concatenates the cls tokens from the last 4 layers for linear evals: https://github.com/bytedance/ibot/blob/da316d82636a7a7356835ef224b13d5f3ace0489/evaluation/eval_linear.py#L289
         # Here we use the first cls token from the teacher backbone for simplicity.
         cls_loss, cls_log = self.online_classifier.training_step(
             (teacher_cls_token.chunk(2)[0].detach(), targets), batch_idx
@@ -202,7 +202,7 @@ class IBOT(LightningModule):
         images, targets = batch[0], batch[1]
         cls_token = self.forward(images).flatten(start_dim=1)
 
-        # The original iBOT codebase uses the average of the cls tokens from the last 4 layers for linear evals: https://github.com/bytedance/ibot/blob/da316d82636a7a7356835ef224b13d5f3ace0489/evaluation/eval_linear.py#L289
+        # The original iBOT codebase concatenates the cls tokens from the last 4 layers for linear evals: https://github.com/bytedance/ibot/blob/da316d82636a7a7356835ef224b13d5f3ace0489/evaluation/eval_linear.py#L289
         # Here we use the first cls token from the teacher backbone for simplicity.
         cls_loss, cls_log = self.online_classifier.validation_step(
             (cls_token.detach(), targets), batch_idx

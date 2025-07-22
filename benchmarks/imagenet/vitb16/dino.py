@@ -82,7 +82,7 @@ class DINO(LightningModule):
         )
 
         # Online classification.
-        # The original DINO codebase uses the average of the cls tokens from the last 4 layers for linear evals: https://github.com/facebookresearch/dino/blob/7c446df5b9f45747937fb0d72314eb9f7b66930a/eval_linear.py#L257
+        # The original DINO codebase concatenates the cls tokens from the last 4 layers for linear evals: https://github.com/facebookresearch/dino/blob/7c446df5b9f45747937fb0d72314eb9f7b66930a/eval_linear.py#L257
         # Here we use the first cls token from the teacher backbone for simplicity.
         cls_loss, cls_log = self.online_classifier.training_step(
             (teacher_cls_token.chunk(2)[0].detach(), targets), batch_idx
@@ -96,7 +96,7 @@ class DINO(LightningModule):
         images, targets = batch[0], batch[1]
         cls_token = self.forward(images).flatten(start_dim=1)
 
-        # The original DINO codebase uses the average of the cls tokens from the last 4 layers for linear evals: https://github.com/facebookresearch/dino/blob/7c446df5b9f45747937fb0d72314eb9f7b66930a/eval_linear.py#L257
+        # The original DINO codebase concatenates the cls tokens from the last 4 layers for linear evals: https://github.com/facebookresearch/dino/blob/7c446df5b9f45747937fb0d72314eb9f7b66930a/eval_linear.py#L257
         # Here we use the first cls token from the teacher backbone for simplicity.
         cls_loss, cls_log = self.online_classifier.validation_step(
             (cls_token.detach(), targets), batch_idx
