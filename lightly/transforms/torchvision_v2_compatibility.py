@@ -5,10 +5,10 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 #
-from types import ModuleType
 from typing import Any, Callable, Dict, List, Union
 
 import torch
+from numpy.typing import NDArray
 from PIL.Image import Image
 from torch import Tensor
 from torchvision.transforms import ToTensor as ToTensorV1
@@ -44,14 +44,16 @@ class ToTensor:
     def __init__(self) -> None:
         T = _torchvision_transforms
         if _TRANSFORMS_V2:
-            self.transform: Callable[[Union[Image, Tensor]], Tensor] = T.Compose(
+            self.transform: Callable[..., Tensor] = T.Compose(
                 [T.ToImage(), T.ToDtype(dtype=torch.float32, scale=True)]
             )
         else:
             self.transform = T.ToTensor()
 
-    def __call__(self, img: Union[Image, Tensor]) -> Tensor:
-        return self.transform(img)
+    def __call__(
+        self, *args: Union[torch.Tensor, Image, NDArray[Any]], **kwargs: dict[str, Any]
+    ) -> Tensor:
+        return self.transform(*args, **kwargs)
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.transform})"
