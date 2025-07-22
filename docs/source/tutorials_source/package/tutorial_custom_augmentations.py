@@ -28,6 +28,7 @@ on most Linux systems.
 
 """
 
+
 # %%
 # Imports
 # -------
@@ -57,7 +58,6 @@ from lightly.models.utils import (
     update_momentum,
 )
 from lightly.transforms.multi_view_transform import MultiViewTransform
-from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 
 # %%
 # Configuration
@@ -156,15 +156,15 @@ class GaussianNoise:
 # is used.
 
 # Compose the custom augmentations with available augmentations.
-view_transform = T.Compose(
+view_transform = torchvision.transforms.Compose(
     [
         HistogramNormalize(),
-        T.Grayscale(num_output_channels=3),
-        T.RandomResizedCrop(size=input_size, scale=(0.2, 1.0)),
-        T.RandomHorizontalFlip(p=0.5),
-        T.RandomVerticalFlip(p=0.5),
-        T.GaussianBlur(21),
-        T.ToTensor(),
+        torchvision.transforms.Grayscale(num_output_channels=3),
+        torchvision.transforms.RandomResizedCrop(size=input_size, scale=(0.2, 1.0)),
+        torchvision.transforms.RandomHorizontalFlip(p=0.5),
+        torchvision.transforms.RandomVerticalFlip(p=0.5),
+        torchvision.transforms.GaussianBlur(21),
+        torchvision.transforms.ToTensor(),
         GaussianNoise(),
     ]
 )
@@ -333,12 +333,12 @@ trainer.fit(model, dataloader_train)
 
 # test transforms differ from training transforms as they do not introduce
 # additional noise
-test_transforms = T.Compose(
+test_transforms = torchvision.transforms.Compose(
     [
         HistogramNormalize(),
-        T.Grayscale(num_output_channels=3),
-        T.Resize(input_size),
-        T.ToTensor(),
+        torchvision.transforms.Grayscale(num_output_channels=3),
+        torchvision.transforms.Resize(input_size),
+        torchvision.transforms.ToTensor(),
     ]
 )
 

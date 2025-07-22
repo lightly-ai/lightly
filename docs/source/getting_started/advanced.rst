@@ -117,8 +117,8 @@ There are three ways how you can customize augmentations in Lightly\ **SSL**:
 
   .. code-block:: python
 
+    from torchvision import transforms as T
     from lightly.transforms.multi_view_transform import MultiViewTransform
-    from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 
     # Create a global view transform that crops 224x224 patches from the input image.
     global_view = T.Compose([

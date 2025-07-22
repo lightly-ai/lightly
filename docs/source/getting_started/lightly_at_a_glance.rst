@@ -70,7 +70,6 @@ with the normalized temperature-scaled cross entropy loss and simple stochastic 
 
     from lightly.loss import NTXentLoss
     from lightly.models.modules.heads import SimCLRProjectionHead
-    from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 
     # use a resnet backbone
     resnet = torchvision.models.resnet18()
@@ -190,7 +189,7 @@ model directly.
 
     # make a new dataloader without the transformations
     # The only transformation needed is to make a torch tensor out of the PIL image
-    dataset.transform = T.ToTensor()
+    dataset.transform = torchvision.transforms.ToTensor()
     dataloader = torch.utils.data.DataLoader(
         dataset,        # use the same dataset as before
         batch_size=1,   # we can use batch size 1 for inference

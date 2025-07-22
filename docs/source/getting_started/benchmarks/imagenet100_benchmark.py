@@ -55,7 +55,6 @@ from lightly.transforms import (
     SimSiamTransform,
     SwaVTransform,
 )
-from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils.benchmarking import BenchmarkModule
 from lightly.utils.lars import LARS
@@ -129,12 +128,12 @@ swav_transform = SwaVTransform()
 dino_transform = DINOTransform()
 
 # No additional augmentations for the test set
-test_transforms = T.Compose(
+test_transforms = torchvision.transforms.Compose(
     [
-        T.Resize(input_size),
-        T.CenterCrop(224),
-        T.ToTensor(),
-        T.Normalize(
+        torchvision.transforms.Resize(input_size),
+        torchvision.transforms.CenterCrop(224),
+        torchvision.transforms.ToTensor(),
+        torchvision.transforms.Normalize(
             mean=IMAGENET_NORMALIZE["mean"],
             std=IMAGENET_NORMALIZE["std"],
         ),

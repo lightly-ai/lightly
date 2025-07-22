@@ -111,7 +111,6 @@ from lightly.transforms import (
     VICRegLTransform,
     VICRegTransform,
 )
-from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils import scheduler
 from lightly.utils.benchmarking import BenchmarkModule
@@ -234,17 +233,17 @@ vicregl_transform = VICRegLTransform(
     cj_strength=0.5,
 )
 
-normalize_transform = T.Normalize(
+normalize_transform = torchvision.transforms.Normalize(
     mean=IMAGENET_NORMALIZE["mean"],
     std=IMAGENET_NORMALIZE["std"],
 )
 
 # No additional augmentations for the test set
-test_transforms = T.Compose(
+test_transforms = torchvision.transforms.Compose(
     [
-        T.Resize(input_size),
-        T.CenterCrop(128),
-        T.ToTensor(),
+        torchvision.transforms.Resize(input_size),
+        torchvision.transforms.CenterCrop(128),
+        torchvision.transforms.ToTensor(),
         normalize_transform,
     ]
 )

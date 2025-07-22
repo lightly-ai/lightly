@@ -45,7 +45,6 @@ from lightly.data import LightlyDataset
 from lightly.loss import NegativeCosineSimilarity
 from lightly.models.modules.heads import SimSiamPredictionHead, SimSiamProjectionHead
 from lightly.transforms import SimCLRTransform, utils
-from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 
 # %%
 # Configuration
@@ -123,11 +122,11 @@ dataloader_train_simsiam = torch.utils.data.DataLoader(
 # create a torchvision transformation for embedding the dataset after training
 # here, we resize the images to match the input size during training and apply
 # a normalization of the color channel based on statistics from imagenet
-test_transforms = T.Compose(
+test_transforms = torchvision.transforms.Compose(
     [
-        T.Resize((input_size, input_size)),
-        T.ToTensor(),
-        T.Normalize(
+        torchvision.transforms.Resize((input_size, input_size)),
+        torchvision.transforms.ToTensor(),
+        torchvision.transforms.Normalize(
             mean=utils.IMAGENET_NORMALIZE["mean"],
             std=utils.IMAGENET_NORMALIZE["std"],
         ),
