@@ -6,8 +6,8 @@ from typing import Callable, Tuple, Union
 import numpy as np
 from PIL.Image import Image
 from torch import Tensor
-from torchvision.transforms import functional as TF
 
+from lightly.transforms.torchvision_v2_compatibility import functional as F
 from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 
 
@@ -48,7 +48,7 @@ class RandomRotate:
         """
         prob = np.random.random_sample()
         if prob < self.prob:
-            image = TF.rotate(image, self.angle)
+            image = F.rotate(image, self.angle)
         return image
 
 

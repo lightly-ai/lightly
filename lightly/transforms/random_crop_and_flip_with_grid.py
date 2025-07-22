@@ -2,10 +2,10 @@ from dataclasses import dataclass
 from typing import Tuple
 
 import torch
-import torchvision.transforms.functional as F
 from PIL import Image
 from torch import nn
 
+from lightly.transforms.torchvision_v2_compatibility import functional as F
 from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 
 
@@ -45,7 +45,7 @@ class RandomResizedCropWithLocation(T.RandomResizedCrop):  # type: ignore[misc] 
 
         """
         top, left, height, width = self.get_params(img, self.scale, self.ratio)
-        image_width, image_height = T.functional.get_image_size(img)
+        image_width, image_height = F.get_image_size(img)
         location = Location(
             top=top,
             left=left,
@@ -54,7 +54,7 @@ class RandomResizedCropWithLocation(T.RandomResizedCrop):  # type: ignore[misc] 
             image_height=image_height,
             image_width=image_width,
         )
-        img = T.functional.resized_crop(
+        img = F.resized_crop(
             img, top, left, height, width, self.size, self.interpolation
         )
         return img, location

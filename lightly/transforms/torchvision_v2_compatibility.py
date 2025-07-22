@@ -85,3 +85,4 @@ class DeprecatedShim:
 # Set the compatibility layer to the shim, providing
 # the functions to replace.
 torchvision_transforms: Any = DeprecatedShim(dict(ToTensor=ToTensor))
+functional = torchvision_transforms.functional
