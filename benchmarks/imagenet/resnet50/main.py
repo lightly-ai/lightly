@@ -1,3 +1,16 @@
+import traceback
+import warnings
+
+
+def warn_with_traceback(message, category, filename, lineno, file=None, line=None):
+    log = f"{filename}:{lineno}: {category.__name__}: {message}\n"
+    log += "".join(traceback.format_stack())
+    print(log)
+
+
+warnings.showwarning = warn_with_traceback
+
+
 from argparse import ArgumentParser
 from datetime import datetime
 from pathlib import Path
@@ -25,9 +38,9 @@ from pytorch_lightning.callbacks import (
 )
 from pytorch_lightning.loggers import TensorBoardLogger
 from torch.utils.data import DataLoader
-from torchvision import transforms as T
 
 from lightly.data import LightlyDataset
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils.benchmarking import MetricCallback
 from lightly.utils.dist import print_rank_zero

@@ -7,7 +7,6 @@ from lightly.transforms.gaussian_blur import GaussianBlur
 from lightly.transforms.multi_view_transform import MultiViewTransform
 from lightly.transforms.rotation import random_rotation_transform
 from lightly.transforms.solarize import RandomSolarization
-from lightly.transforms.torchvision_v2_compatibility import ToTensor
 from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 
@@ -161,7 +160,7 @@ class VICRegViewTransform:
             T.RandomGrayscale(p=random_gray_scale),
             RandomSolarization(prob=solarize_prob),
             GaussianBlur(kernel_size=kernel_size, sigmas=sigmas, prob=gaussian_blur),
-            ToTensor(),
+            T.ToTensor(),
         ]
         if normalize:
             transform += [T.Normalize(mean=normalize["mean"], std=normalize["std"])]

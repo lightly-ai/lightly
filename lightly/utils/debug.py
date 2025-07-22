@@ -5,7 +5,7 @@ import torchvision
 from PIL import Image
 
 from lightly.data.collate import BaseCollateFunction, MultiViewCollateFunction
-from lightly.transforms.torchvision_v2_compatibility import ToTensor
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 
 try:
     import matplotlib.pyplot as plt
@@ -64,10 +64,10 @@ def apply_transform_without_normalize(
         The transformed image.
     """
     skippable_transforms = (
-        type(ToTensor()),
-        torchvision.transforms.Normalize,
+        type(T.ToTensor()),
+        T.Normalize,
     )
-    if isinstance(transform, torchvision.transforms.Compose):
+    if isinstance(transform, T.Compose):
         for transform_ in transform.transforms:
             image = apply_transform_without_normalize(image, transform_)
     elif not isinstance(transform, skippable_transforms):

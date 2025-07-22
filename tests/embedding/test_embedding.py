@@ -19,6 +19,7 @@ from torch.utils.data import DataLoader
 
 from lightly.cli._helpers import get_model_from_config
 from lightly.data import LightlyDataset
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 
 
 class TestLightlyDataset(unittest.TestCase):
@@ -47,7 +48,7 @@ class TestLightlyDataset(unittest.TestCase):
 
     def test_embed_correct_order(self):
         # get dataset and encoder
-        transform = torchvision.transforms.ToTensor()
+        transform = T.ToTensor()
         dataset = LightlyDataset(self.folder_path, transform=transform)
         encoder = get_model_from_config(self.cfg)
         if torch.cuda.is_available():

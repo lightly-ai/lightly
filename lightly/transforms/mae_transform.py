@@ -3,7 +3,6 @@ from typing import Dict, List, Tuple, Union
 from PIL.Image import Image
 from torch import Tensor
 
-from lightly.transforms.torchvision_v2_compatibility import ToTensor
 from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 
@@ -44,7 +43,7 @@ class MAETransform:
                 input_size, scale=(min_scale, 1.0), interpolation=3
             ),  # 3 is bicubic
             T.RandomHorizontalFlip(),
-            ToTensor(),
+            T.ToTensor(),
         ]
         if normalize:
             transforms.append(T.Normalize(mean=normalize["mean"], std=normalize["std"]))
