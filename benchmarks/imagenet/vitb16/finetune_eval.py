@@ -158,8 +158,12 @@ def finetune_eval(
     """Runs fine-tune evaluation on the given model."""
     print_rank_zero("Running fine-tune evaluation...")
 
-    # Setup training data.
+    # Ensure model is in train mode.
+    for param in model.parameters():
+        param.requires_grad = True
+    model.train()
 
+    # Set up evaluation method.
     if eval_method == "mae":
         # NOTE: We use transforms from the timm library here as they are the default in MAE
         # and torchvision does not provide all required parameters.
@@ -188,6 +192,7 @@ def finetune_eval(
         )
         print_rank_zero("Using SimCLR training transform.")
 
+    # Setup training data.
     train_dataset = LightlyDataset(input_dir=str(train_dir), transform=train_transform)
     train_dataloader = DataLoader(
         train_dataset,
