@@ -8,10 +8,9 @@
 from typing import Any, Callable, Dict, List, Union
 
 import torch
-from numpy.typing import NDArray
+from numpy import ndarray
 from PIL.Image import Image
 from torch import Tensor
-from torchvision.transforms import ToTensor as ToTensorV1
 
 from lightly.utils import dependency as _dependency
 
@@ -51,7 +50,9 @@ class ToTensor:
             self.transform = T.ToTensor()
 
     def __call__(
-        self, *args: Union[torch.Tensor, Image, NDArray[Any]], **kwargs: Dict[str, Any]
+        self,
+        *args: Union[torch.Tensor, Image, ndarray[Any, Any]],
+        **kwargs: Dict[str, Any],
     ) -> Tensor:
         return self.transform(*args, **kwargs)
 
