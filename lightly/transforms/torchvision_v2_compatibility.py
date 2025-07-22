@@ -51,7 +51,7 @@ class ToTensor:
             self.transform = T.ToTensor()
 
     def __call__(
-        self, *args: Union[torch.Tensor, Image, NDArray[Any]], **kwargs: dict[str, Any]
+        self, *args: Union[torch.Tensor, Image, NDArray[Any]], **kwargs: Dict[str, Any]
     ) -> Tensor:
         return self.transform(*args, **kwargs)
 
