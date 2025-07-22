@@ -22,8 +22,9 @@ Training a model takes around four days for 100 epochs (35 min per epoch), inclu
 
 Evaluation settings are based on the following papers:
 
-- Linear: `SimCLR <https://arxiv.org/abs/2002.05709>`_
-- Finetune: `SimCLR <https://arxiv.org/abs/2002.05709>`_
+- Linear & Fine-tune: 
+  - ResNet: `SimCLR <https://arxiv.org/abs/2002.05709>`_
+  - ViT: `MAE <https://arxiv.org/abs/2111.06377>`_
 - kNN: `InstDisc <https://arxiv.org/abs/1805.01978>`_
 
 .. csv-table:: Imagenet benchmark results.
@@ -34,6 +35,7 @@ Evaluation settings are based on the following papers:
   "BYOL", "Res50", "256", "100", "62.5", "85.0", "74.5", "92.0", "46.0", "74.8", "`tensorboard BYOL <https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_byol_2024-02-14_16-10-09/pretrain/version_0/events.out.tfevents.1707923418.Machine2.3205.0>`_", "`checkpoint BYOL <https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_byol_2024-02-14_16-10-09/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt>`_"
   "DINO", "Res50", "128", "100", "68.2", "87.9", "72.5", "90.8", "49.9", "78.7", "`tensorboard DINO <https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_dino_2023-06-06_13-59-48/pretrain/version_0/events.out.tfevents.1686052799.Machine2.482599.0>`_", "`checkpoint DINO <https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_dino_2023-06-06_13-59-48/pretrain/version_0/checkpoints/epoch%3D99-step%3D1000900.ckpt>`_"
   "DINO", "ViT-S/16", "128", "100", "73.3", "91.3", "79.8", "95.0", "67.5", "89.7", "`tensorboard DINO <https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_vits14_dino_2025-02-16_16-03-14/pretrain/version_0/events.out.tfevents.1739718198.compute-03-ubuntu-4x4090.2832462.0>`_", "`checkpoint DINO <https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_vits14_dino_2025-02-16_16-03-14/pretrain/version_0/checkpoints/epoch%3D99-step%3D1000900.ckpt>`_"
+  "iBOT", "ViT-S/16", "128", "100", "72.2", "90.5", "78.3", "94.3", "65.4", "88.5", "`tensorboard iBOT <https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_vits16_ibot_2025-07-10_13-47-17/pretrain/version_0/events.out.tfevents.1752148040.compute-01-ubuntu-2x4090.253473.0>`_", "`checkpoint iBOT <https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_vits16_ibot_2025-07-10_13-47-17/pretrain/version_0/checkpoints/epoch%3D99-step%3D1000900.ckpt>`_"
   "MAE", "ViT-B/16", "256", "100", "46.0", "70.2", "81.3", "95.5", "11.2", "24.5", "`tensorboard MAE <https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_vitb16_mae_2024-02-25_19-57-30/pretrain/version_0/events.out.tfevents.1708887459.Machine2.1092409.0>`_", "`checkpoint MAE <https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_vitb16_mae_2024-02-25_19-57-30/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt>`_"
   "MoCoV2", "Res50", "256", "100", "61.5", "84.1", "74.3", "91.9", "41.8", "72.2", "`tensorboard MoCoV2 <https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_mocov2_2024-02-18_10-29-14/pretrain/version_0/events.out.tfevents.1708248562.Machine2.439033.0>`_", "`checkpoint MoCoV2 <https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_mocov2_2024-02-18_10-29-14/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt>`_"
   "SimCLR*", "Res50", "256", "100", "63.2", "85.2", "73.9", "91.9", "44.8", "73.9", "`tensorboard SimCLR <https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_simclr_2023-06-22_09-11-13/pretrain/version_0/events.out.tfevents.1687417883.Machine2.33270.0>`_", "`checkpoint SimCLR <https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_simclr_2023-06-22_09-11-13/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt>`_"
