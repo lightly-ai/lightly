@@ -158,7 +158,7 @@ Once you have a trained model checkpoint, you can create an embedding of a datas
 
 .. code-block:: bash
 
-    # use pre-trained models provided by Lighly
+    # use pre-trained models provided by Lightly
     lightly-embed input_dir=cat
 
     # use custom checkpoint
