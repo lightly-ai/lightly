@@ -21,7 +21,6 @@ checkpoints.
 from lightly.models import utils
 from lightly.models.barlowtwins import BarlowTwins
 from lightly.models.byol import BYOL
-from lightly.models.directclr import DirectCLR
 from lightly.models.moco import MoCo
 from lightly.models.nnclr import NNCLR
 from lightly.models.resnet import ResNetGenerator

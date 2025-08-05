@@ -6,28 +6,27 @@
 # run on a small dataset with a single GPU.
 
 import torch
-import torchvision
 from torch import nn
+from torch.optim import SGD
+from torch.utils.data import DataLoader
+from torchvision import models
+from torchvision.datasets import CIFAR10
 
-from lightly.loss import NTXentLoss
-from lightly.models import DirectCLR
+from lightly.loss import DirectCLRLoss
 from lightly.transforms.simclr_transform import SimCLRTransform
 
-resnet = torchvision.models.resnet18()
-backbone = nn.Sequential(*list(resnet.children())[:-1])
-model = DirectCLR(backbone)
+resnet = models.resnet18()
+model = nn.Sequential(*list(resnet.children())[:-1])
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
 
 transform = SimCLRTransform(input_size=32, gaussian_blur=0.0)
-dataset = torchvision.datasets.CIFAR10(
-    "datasets/cifar10", download=True, transform=transform
-)
+dataset = CIFAR10("datasets/cifar10", download=True, transform=transform)
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder", transform=transform)
 
-dataloader = torch.utils.data.DataLoader(
+dataloader = DataLoader(
     dataset,
     batch_size=256,
     shuffle=True,
@@ -35,8 +34,8 @@ dataloader = torch.utils.data.DataLoader(
     num_workers=8,
 )
 
-criterion = NTXentLoss()
-optimizer = torch.optim.SGD(model.parameters(), lr=0.06)
+criterion = DirectCLRLoss(loss_dim=32)
+optimizer = SGD(model.parameters(), lr=0.06)
 
 print("Starting Training")
 for epoch in range(10):
