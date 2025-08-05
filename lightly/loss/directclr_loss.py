@@ -4,6 +4,8 @@
 # All Rights Reserved
 
 
+from typing import Any
+
 from torch import Tensor
 
 from lightly.loss import NTXentLoss
@@ -43,7 +45,12 @@ class DirectCLRLoss(NTXentLoss):
 
     """
 
-    def __init__(self, loss_dim: int = 64, *args, **kwargs):
+    def __init__(
+        self,
+        loss_dim: int = 64,
+        *args: Any,
+        **kwargs: Any,
+    ):
         """Initializes the DirectCLRLoss module with the specified parameters.
 
         Args:
