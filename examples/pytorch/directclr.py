@@ -42,10 +42,8 @@ for epoch in range(10):
     total_loss = 0
     for batch in dataloader:
         x0, x1 = batch[0]
-        x0 = x0.to(device)
-        x1 = x1.to(device)
-        z0 = model(x0)
-        z1 = model(x1)
+        x = torch.cat([x0, x1]).to(device)
+        z0, z1 = model(x).chunk(2, dim=0)
         loss = criterion(z0, z1)
         total_loss += loss.detach()
         loss.backward()
