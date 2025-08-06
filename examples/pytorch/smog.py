@@ -1,5 +1,6 @@
 # This example requires the following dependencies to be installed:
 # pip install lightly
+# pip install "scikit-learn>=1.7.1"
 
 # Note: The model and training settings do not follow the reference settings
 # from the paper. The settings are chosen such that the example can easily be
@@ -44,7 +45,7 @@ class SMoGModel(nn.Module):
     def _cluster_features(self, features: torch.Tensor) -> torch.Tensor:
         # clusters the features using sklearn
         # (note: faiss is probably more efficient)
-        features = features.cpu().numpy()
+        features = features.cpu().numpy().T  # type: ignore
         kmeans = KMeans(self.n_groups).fit(features)
         clustered = torch.from_numpy(kmeans.cluster_centers_).float()
         clustered = torch.nn.functional.normalize(clustered, dim=1)

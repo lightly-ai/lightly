@@ -16,6 +16,7 @@ from torch import nn
 from lightly import loss, models
 from lightly.models import utils
 from lightly.models.modules import heads
+from lightly.models.modules.memory_bank import MemoryBankModule
 from lightly.transforms.smog_transform import SMoGTransform
 
 
@@ -39,7 +40,7 @@ class SMoGModel(pl.LightningModule):
         # smog
         self.n_groups = 300
         memory_bank_size = 10000
-        self.memory_bank = loss.memory_bank.MemoryBankModule(size=memory_bank_size)
+        self.memory_bank = MemoryBankModule(size=(memory_bank_size, 128))
         # create our loss
         group_features = torch.nn.functional.normalize(
             torch.rand(self.n_groups, 128), dim=1
@@ -48,7 +49,7 @@ class SMoGModel(pl.LightningModule):
         self.criterion = nn.CrossEntropyLoss()
 
     def _cluster_features(self, features: torch.Tensor) -> torch.Tensor:
-        features = features.cpu().numpy()
+        features = features.cpu().numpy().T  # type: ignore
         kmeans = KMeans(self.n_groups).fit(features)
         clustered = torch.from_numpy(kmeans.cluster_centers_).float()
         clustered = torch.nn.functional.normalize(clustered, dim=1)
