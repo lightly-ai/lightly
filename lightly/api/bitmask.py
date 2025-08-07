@@ -1,9 +1,9 @@
-""" Module to work with Lightly BitMasks """
+"""Module to work with Lightly BitMasks"""
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 import copy
-from typing import List
+from typing import Any, List, Optional
 
 
 def _hex_to_int(hexstring: str) -> int:
@@ -28,6 +28,7 @@ def _int_to_bin(x: int) -> str:
 
 def _get_nonzero_bits(x: int) -> List[int]:
     """Returns a list of indices of nonzero bits in x."""
+
     offset = 0
     nonzero_bit_indices = []
     while x > 0:
@@ -40,10 +41,14 @@ def _get_nonzero_bits(x: int) -> List[int]:
     return nonzero_bit_indices
 
 
-def _invert(x: int, total_size: int) -> int:
+def _invert(x: int, total_size: Optional[int] = None) -> int:
     """Flips every bit of x as if x was an unsigned integer."""
     # use XOR of x and 0xFFFFFF to get the inverse
-    return x ^ (2**total_size - 1)
+
+    if total_size is None:
+        total_size = len(_int_to_bin(x)) - 2  # account for the "0b" prefix
+
+    return int(x ^ (2 ** total_size - 1))  # casting to int needed only for type checking
 
 
 def _union(x: int, y: int) -> int:
@@ -93,30 +98,30 @@ class BitMask:
         >>> # indices is [0, 3, 4, 6]
     """
 
-    def __init__(self, x):
+    def __init__(self, x: int):
         self.x = x
 
     @classmethod
-    def from_hex(cls, hexstring: str):
+    def from_hex(cls, hexstring: str) -> "BitMask":
         """Creates a bit mask object from a hexstring."""
         return cls(_hex_to_int(hexstring))
 
     @classmethod
-    def from_bin(cls, binstring: str):
+    def from_bin(cls, binstring: str) -> "BitMask":
         """Creates a BitMask from a binary string."""
         return cls(_bin_to_int(binstring))
 
     @classmethod
-    def from_length(cls, length: int):
+    def from_length(cls, length: int) -> "BitMask":
         """Creates a all-true bitmask of a predefined length"""
         binstring = "0b" + "1" * length
         return cls.from_bin(binstring)
 
-    def to_hex(self):
+    def to_hex(self) -> str:
         """Creates a BitMask from a hex string."""
         return _int_to_hex(self.x)
 
-    def to_bin(self):
+    def to_bin(self) -> str:
         """Returns a binary string representing the bit mask."""
         return _int_to_bin(self.x)
 
@@ -129,21 +134,21 @@ class BitMask:
         """
         return _get_nonzero_bits(self.x)
 
-    def invert(self, total_size: int):
+    def invert(self, total_size: Optional[int] = None) -> None:
         """Sets every 0 to 1 and every 1 to 0 in the bitstring.
 
         Args:
             total_size:
-                Total size of the tag.
-
+            (Optional) Total size of the tag. If not specified, it is inferred based on the length of the binary representation (excluding the '0b' prefix).
+            For example, x=3 -> bin(x)='0b11' -> total_size=2.
         """
         self.x = _invert(self.x, total_size)
 
-    def complement(self):
+    def complement(self, total_size: Optional[int] = None) -> None:
         """Same as invert but with the appropriate name."""
-        self.invert()
+        self.invert(total_size)
 
-    def union(self, other):
+    def union(self, other: "BitMask") -> None:
         """Calculates the union of two bit masks.
         Examples:
             >>> mask1 = BitMask.from_bin('0b0011')
@@ -153,7 +158,7 @@ class BitMask:
         """
         self.x = _union(self.x, other.x)
 
-    def intersection(self, other):
+    def intersection(self, other: "BitMask") -> None:
         """Calculates the intersection of two bit masks.
         Examples:
             >>> mask1 = BitMask.from_bin('0b0011')
@@ -163,7 +168,7 @@ class BitMask:
         """
         self.x = _intersection(self.x, other.x)
 
-    def difference(self, other):
+    def difference(self, other: "BitMask") -> None:
         """Calculates the difference of two bit masks.
         Examples:
             >>> mask1 = BitMask.from_bin('0b0111')
@@ -174,15 +179,17 @@ class BitMask:
         self.union(other)
         self.x = self.x - other.x
 
-    def __sub__(self, other):
+    def __sub__(self, other: "BitMask") -> "BitMask":
         ret = copy.deepcopy(self)
         ret.difference(other)
         return ret
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, BitMask):  # needed for type checking
+            return NotImplemented
         return self.to_bin() == other.to_bin()
 
-    def masked_select_from_list(self, list_: List):
+    def masked_select_from_list(self, list_: List[Any]) -> List[Any]:
         """Returns a subset of a list depending on the bitmask.
 
         The bitmask is read from right to left, i.e. the least significant bit
@@ -202,7 +209,7 @@ class BitMask:
         """Returns the boolean value of the kth bit from the right."""
         return _get_kth_bit(self.x, k) > 0
 
-    def set_kth_bit(self, k: int):
+    def set_kth_bit(self, k: int) -> None:
         """Sets the kth bit from the right to '1'.
         Examples:
             >>> mask = BitMask('0b0000')
@@ -211,7 +218,7 @@ class BitMask:
         """
         self.x = _set_kth_bit(self.x, k)
 
-    def unset_kth_bit(self, k: int):
+    def unset_kth_bit(self, k: int) -> None:
         """Unsets the kth bit from the right to '0'.
         Examples:
             >>> mask = BitMask('0b1111')

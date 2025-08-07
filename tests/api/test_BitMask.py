@@ -1,6 +1,6 @@
 import unittest
 from copy import deepcopy
-from random import randint, random, seed
+from random import randint, seed
 
 from lightly.api.bitmask import BitMask
 
@@ -8,10 +8,8 @@ N = 10
 
 
 class TestBitMask(unittest.TestCase):
-    def setup(self, psuccess=1.0):
-        pass
 
-    def test_get_and_set(self):
+    def test_get_and_set(self) -> None:
         mask = BitMask.from_bin("0b11110000")
 
         self.assertFalse(mask.get_kth_bit(2))
@@ -22,27 +20,25 @@ class TestBitMask(unittest.TestCase):
         mask.unset_kth_bit(4)
         self.assertFalse(mask.get_kth_bit(4))
 
-    def test_large_bitmasks(self):
+    def test_large_bitmasks(self) -> None:
         bitstring = "0b" + "1" * 5678
         mask = BitMask.from_bin(bitstring)
         mask_as_bitstring = mask.to_bin()
         self.assertEqual(mask_as_bitstring, bitstring)
 
-    def test_bitmask_from_length(self):
+    def test_bitmask_from_length(self) -> None:
         length = 4
         mask = BitMask.from_length(length)
         self.assertEqual(mask.to_bin(), "0b1111")
 
-    def test_get_and_set_outside_of_range(self):
+    def test_get_and_set_outside_of_range(self) -> None:
         mask = BitMask.from_bin("0b11110000")
 
         self.assertFalse(mask.get_kth_bit(100))
         mask.set_kth_bit(100)
         self.assertTrue(mask.get_kth_bit(100))
 
-    def test_inverse(self):
-        # TODO: proper implementation
-        return
+    def test_inverse(self) -> None:
 
         x = int("0b11110000", 2)
         y = int("0b00001111", 2)
@@ -52,11 +48,13 @@ class TestBitMask(unittest.TestCase):
 
         x = int("0b010101010101010101", 2)
         y = int("0b101010101010101010", 2)
+        total_size = 18  # when the leading bit is 0, the total size should be specified
+
         mask = BitMask(x)
-        mask.invert()
+        mask.invert(total_size)
         self.assertEqual(mask.x, y)
 
-    def test_store_and_retrieve(self):
+    def test_store_and_retrieve(self) -> None:
         x = int("0b01010100100100100100100010010100100100101001001010101010", 2)
         mask = BitMask(x)
         mask.set_kth_bit(11)
@@ -78,38 +76,38 @@ class TestBitMask(unittest.TestCase):
         self.assertEqual(mask.x, mask_somewhere.x)
         self.assertEqual(mask.x, mask_somewhere_else.x)
 
-    def test_union(self):
+    def test_union(self) -> None:
         mask_a = BitMask.from_bin("0b001")
         mask_b = BitMask.from_bin("0b100")
         mask_a.union(mask_b)
         self.assertEqual(mask_a.x, int("0b101", 2))
 
-    def test_intersection(self):
+    def test_intersection(self) -> None:
         mask_a = BitMask.from_bin("0b101")
         mask_b = BitMask.from_bin("0b100")
         mask_a.intersection(mask_b)
         self.assertEqual(mask_a.x, int("0b100", 2))
 
-    def assert_difference(self, bistring_1: str, bitstring_2: str, target: str):
+    def assert_difference(self, bistring_1: str, bitstring_2: str, target: str) -> None:
         mask_a = BitMask.from_bin(bistring_1)
         mask_b = BitMask.from_bin(bitstring_2)
         mask_a.difference(mask_b)
         self.assertEqual(mask_a.x, int(target, 2))
 
-    def test_differences(self):
+    def test_differences(self) -> None:
         self.assert_difference("0b101", "0b001", "0b100")
         self.assert_difference("0b0111", "0b1100", "0b0011")
         self.assert_difference("0b10111", "0b01100", "0b10011")
 
-    def random_bitstring(self, length: int):
-        bitsting = "0b"
-        for i in range(length):
-            bitsting += str(randint(0, 1))
-        return bitsting
+    def random_bitstring(self, length: int) -> str:
+        bitstring = "0b"
+        for _ in range(length):
+            bitstring += str(randint(0, 1))
+        return bitstring
 
-    def test_difference_random(self):
+    def test_difference_random(self) -> None:
         seed(42)
-        for rep in range(10):
+        for _ in range(10):
             for string_length in range(1, 100, 10):
                 bitstring_1 = self.random_bitstring(string_length)
                 bitstring_2 = self.random_bitstring(string_length)
@@ -121,7 +119,7 @@ class TestBitMask(unittest.TestCase):
                         target += "0"
                 self.assert_difference(bitstring_1, bitstring_2, target)
 
-    def test_operator_minus(self):
+    def test_operator_minus(self) -> None:
         mask_a = BitMask.from_bin("0b10111")
         mask_a_old = deepcopy(mask_a)
         mask_b = BitMask.from_bin("0b01100")
@@ -132,12 +130,12 @@ class TestBitMask(unittest.TestCase):
             mask_a_old, mask_a
         )  # make sure the original mask is unchanged.
 
-    def test_equal(self):
+    def test_equal(self) -> None:
         mask_a = BitMask.from_bin("0b101")
         mask_b = BitMask.from_bin("0b101")
         self.assertEqual(mask_a, mask_b)
 
-    def test_masked_select_from_list(self):
+    def test_masked_select_from_list(self) -> None:
         n = 1000
         list_ = [randint(0, 1) for _ in range(n - 2)] + [0, 1]
         mask = BitMask.from_length(n)
@@ -155,13 +153,13 @@ class TestBitMask(unittest.TestCase):
         self.assertTrue(all([item_ > 0 for item_ in all_ones]))
         self.assertTrue(all([item_ == 0 for item_ in all_zeros]))
 
-    def test_masked_select_from_list_example(self):
+    def test_masked_select_from_list_example(self) -> None:
         list_ = [1, 2, 3, 4, 5, 6]
         mask = BitMask.from_bin("0b001101")  # expected result is [1, 3, 4]
         selected = mask.masked_select_from_list(list_)
         self.assertListEqual(selected, [1, 3, 4])
 
-    def test_invert(self):
+    def test_invert(self) -> None:
         # get random bitstring
         length = 10
         bitstring = self.random_bitstring(10)
@@ -180,7 +178,7 @@ class TestBitMask(unittest.TestCase):
             else:
                 self.assertEqual(inverted[-i - 1], "0")
 
-    def test_nonzero_bits(self):
+    def test_nonzero_bits(self) -> None:
         mask = BitMask.from_bin("0b0")
         indices = [100, 1000, 10_000, 100_000]
 
