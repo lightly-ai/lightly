@@ -48,6 +48,9 @@ class ContrastMode(Enum):
     ONLY_NEGATIVES = 3
 
 
+VALID_CONTRAST_MODES = set(item.name for item in ContrastMode)
+
+
 class SupConLoss(nn.Module):
     """Implementation of the Supervised Contrastive Loss.
 
@@ -68,21 +71,24 @@ class SupConLoss(nn.Module):
     Raises:
         ValueError: If abs(temperature) < 1e-8 to prevent divide by zero.
         ValueError: If gather_distributed is True but torch.distributed is not available.
-        NotImplementedError: If contrast_mode is outside the accepted ContrastMode values.
+        ValueError: If contrast_mode is outside the accepted ContrastMode values.
 
     Examples:
-        >>> # initialize loss function without memory bank
-        >>> loss_fn = NTXentLoss(memory_bank_size=0)
+        >>> # initialize loss function
+        >>> loss_fn = SupConLoss()
         >>>
-        >>> # generate two random transforms of images
+        >>> # generate two or more views of images
         >>> t0 = transforms(images)
         >>> t1 = transforms(images)
         >>>
-        >>> # feed through SimCLR or MoCo model
+        >>> # feed through SimCLR model
         >>> out0, out1 = model(t0), model(t1)
         >>>
+        >>> # Stack views along 2nd dimensions
+        >>> features = torch.stack([out0, out1], dim=1)
+        >>>
         >>> # calculate loss
-        >>> loss = loss_fn(out0, out1)
+        >>> loss = loss_fn(features, labels)
 
     """
 
@@ -92,18 +98,21 @@ class SupConLoss(nn.Module):
         contrast_mode: ContrastMode = ContrastMode.ALL,
         gather_distributed: bool = False,
     ):
-        """Initializes the NTXentLoss module with the specified parameters.
+        """Initializes the SupConLoss module with the specified parameters.
 
         Args:
             temperature:
                  Scale logits by the inverse of the temperature.
+            contrast_mode:
+                Whether to use all positives, one positive, or none. All negatives are
+                used in all cases.
             gather_distributed:
                  If True, negatives from all GPUs are gathered before the loss calculation.
 
         Raises:
             ValueError: If temperature is less than 1e-8 to prevent divide by zero.
             ValueError: If gather_distributed is True but torch.distributed is not available.
-            NotImplementedError: If contrast_mode is outside the accepted ContrastMode values.
+            ValueError: If contrast_mode is outside the accepted ContrastMode values.
         """
         super().__init__()
         self.temperature = temperature
@@ -124,6 +133,11 @@ class SupConLoss(nn.Module):
                 "distributed support."
             )
 
+        if contrast_mode.name not in VALID_CONTRAST_MODES:
+            raise ValueError(
+                f"contrast_mode is {contrast_mode} but must be one of ContrastMode.{VALID_CONTRAST_MODES}"
+            )
+
     def forward(self, features: Tensor, labels: Optional[Tensor] = None) -> Tensor:
         """Forward pass through Supervised Contrastive Loss.
 
@@ -140,13 +154,33 @@ class SupConLoss(nn.Module):
         Raises:
             ValueError: If features does not have at least 3 dimensions.
             ValueError: If number of labels does not match batch_size.
+            ValueError: If labels is not one-hot encoded.
 
         Returns:
             Supervised Contrastive Loss value.
         """
 
+        if len(features.shape) < 3:
+            raise ValueError(
+                f"Features must have at least 3 dimensions, got {len(features.shape)}."
+            )
+
         device = features.device
         batch_size, num_views = features.shape[:2]
+
+        if labels is not None and labels.size(0) != batch_size:
+            raise ValueError(
+                f"When setting labels, labels must match batch_size {batch_size}, got {labels.size(0)}."
+            )
+
+        if labels is not None:
+            if not self._is_one_hot(labels):
+                raise ValueError(
+                    "labels must be a 2D matrix representing the one-hot encoded classes."
+                )
+
+        # Flatten the features in case they are still images or other
+        features = features.flatten(2)
 
         # Normalize the features to length 1
         features = F.normalize(features, dim=2)
@@ -178,31 +212,43 @@ class SupConLoss(nn.Module):
         else:
             mask = (labels @ global_labels.T).to(device)
 
-        # Get features in shape [num_views * n, c]
+        # Get features in shape [num_views * batch_size, c]
         all_global_features = global_features.permute(1, 0, 2).reshape(
             -1, global_features.size(-1)
         )
 
         if self.contrast_mode == ContrastMode.ONE_POSITIVE:
+            # We take only the first view as anchor
             anchor_features = features[:, 0]
             num_anchor_views = 1
         else:
+            # We take all views as anchors in the same shape as the global features
             anchor_features = features.permute(1, 0, 2).reshape(-1, features.size(-1))
             num_anchor_views = num_views
 
         # Obtain the logits between anchor features and features across all processes
         # Logits will be shaped [local_batch_size * num_anchor_views, global_batch_size * num_views]
         # We then temperature scale it and subtract the max to improve numerical stability
+        # In the einsum, n is local_batch_size * num_anchor_views, m is global_batch_size * num_views,
+        # and c is the flattened feature length
+        # Note: features are ordered by view first, i.e. first all samples of view 0, then all samples
+        # of view 1, and so on.
         logits = torch.einsum("nc,mc->nm", anchor_features, all_global_features)
         logits /= self.temperature
         logits -= logits.max(dim=1, keepdim=True)[0].detach()
         exp_logits = torch.exp(logits)
 
+        # Get the positive and negative masks for numerator & denominator
         positives_mask, negatives_mask = self._create_tiled_masks(
-            mask, diag_mask, num_views, num_anchor_views, self.positives_cap
+            mask.long(),
+            diag_mask.long(),
+            num_views,
+            num_anchor_views,
+            self.positives_cap,
         )
         num_positives_per_row = positives_mask.sum(dim=1)
 
+        # Calculate denominator based on contrast_mode
         if self.contrast_mode == ContrastMode.ONE_POSITIVE:
             denominator = exp_logits + (exp_logits * negatives_mask).sum(
                 dim=1, keepdim=True
@@ -216,13 +262,14 @@ class SupConLoss(nn.Module):
         # num_positives_per_row can be zero iff 1 view is used. Here we use a safe
         # dividing method seting those values to zero to prevent division by zero errors.
 
-        # Only implements SupCon_{out}
+        # Only implements SupCon_{out}.
         log_probs = (logits - torch.log(denominator)) * positives_mask
         log_probs = log_probs.sum(dim=1)
         log_probs = divide_no_nan(log_probs, num_positives_per_row)
 
         loss = -log_probs
 
+        # Adjust for num_positives_per_row being zero when using exactly 1 view
         if num_views != 1:
             loss = loss.mean(dim=0)
         else:
@@ -232,21 +279,27 @@ class SupConLoss(nn.Module):
         return loss
 
     def _create_tiled_masks(
-        self, untiled_mask, diagonal_mask, num_views, num_anchor_views, positives_cap
+        self,
+        untiled_mask: Tensor,
+        diagonal_mask: Tensor,
+        num_views: int,
+        num_anchor_views: int,
+        positives_cap: int,
     ) -> Tuple[Tensor, Tensor]:
         # Get total batch size across all processes
-        print(untiled_mask.shape)
         global_batch_size = untiled_mask.size(1)
 
         # Find index of the anchor for each sample
-        labels = torch.argmax(diagonal_mask.long(), dim=1)
+        labels = torch.argmax(diagonal_mask, dim=1)
 
         # Generate tiled labels across views
         tiled_labels = []
         for i in range(num_anchor_views):
             tiled_labels.append(labels + global_batch_size * i)
-        tiled_labels = torch.cat(tiled_labels, 0)
-        tiled_diagonal_mask = F.one_hot(tiled_labels, global_batch_size * num_views)
+        tiled_labels_tensor = torch.cat(tiled_labels, 0)
+        tiled_diagonal_mask = F.one_hot(
+            tiled_labels_tensor, global_batch_size * num_views
+        )
 
         # Mask to zero the diagonal at the end
         all_but_diagonal_mask = 1 - tiled_diagonal_mask
@@ -257,7 +310,7 @@ class SupConLoss(nn.Module):
         )
 
         # The negatives is simply the bitflipped positives
-        negatives_mask = 1 - uncapped_positives_mask
+        negatives_mask = 1.0 - uncapped_positives_mask
 
         # For when positives_cap is implemented
         if positives_cap > -1:
@@ -269,3 +322,17 @@ class SupConLoss(nn.Module):
         positives_mask *= all_but_diagonal_mask
 
         return positives_mask, negatives_mask
+
+    def _is_one_hot(self, tensor: Tensor) -> bool:
+        # Tensor is not a 2D matrix
+        if tensor.ndim != 2:
+            return False
+
+        # Check values are only 0 or 1
+        is_binary = ((tensor == 0) | (tensor == 1)).all()
+
+        # Check each row sums to 1
+        row_sums = tensor.sum(dim=1)
+        has_single_one = (row_sums == 1).all()
+
+        return bool(is_binary.item() and has_single_one.item())
