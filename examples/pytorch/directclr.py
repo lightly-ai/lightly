@@ -6,7 +6,7 @@
 # run on a small dataset with a single GPU.
 
 import torch
-from torch import nn
+from torch.nn import Sequential
 from torch.optim import SGD
 from torch.utils.data import DataLoader
 from torchvision import models
@@ -16,7 +16,7 @@ from lightly.loss import DirectCLRLoss
 from lightly.transforms.simclr_transform import SimCLRTransform
 
 resnet = models.resnet18()
-model = nn.Sequential(*list(resnet.children())[:-1])
+model = Sequential(*list(resnet.children())[:-1])
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)

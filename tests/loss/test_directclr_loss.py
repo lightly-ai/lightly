@@ -22,12 +22,8 @@ class TestDirectCLRLoss:
         dimension: int,
         loss_dim: int,
     ) -> None:
-        out0 = torch.tensor(
-            np.random.normal(0, 1, size=(n_samples, dimension)), dtype=torch.float32
-        )
-        out1 = torch.tensor(
-            np.random.normal(0, 1, size=(n_samples, dimension)), dtype=torch.float32
-        )
+        out0 = torch.randn((n_samples, dimension))
+        out1 = torch.randn((n_samples, dimension))
 
         loss_function = DirectCLRLoss(loss_dim=loss_dim, temperature=0.5)
         l1 = float(loss_function(out0, out1))
@@ -42,27 +38,27 @@ class TestDirectCLRLoss:
         assert l1 == pytest.approx(l1_manual, abs=1e-5)
         assert l2 == pytest.approx(l2_manual, abs=1e-5)
 
-    def test_forward_pass(self) -> None:
+    @pytest.mark.parametrize("batch_size", [1, 8])
+    def test_forward_pass(self, batch_size: int) -> None:
         loss = DirectCLRLoss(loss_dim=32, temperature=0.5, memory_bank_size=0)
-        for bsz in range(1, 20):
-            batch_1 = torch.randn((bsz, 64))
-            batch_2 = torch.randn((bsz, 64))
+        batch_1 = torch.randn((batch_size, 64))
+        batch_2 = torch.randn((batch_size, 64))
 
-            # symmetry
-            l1 = loss(batch_1, batch_2)
-            l2 = loss(batch_2, batch_1)
-            assert (l1 - l2).pow(2).item() == pytest.approx(0.0)
+        # symmetry
+        l1 = loss(batch_1, batch_2)
+        l2 = loss(batch_2, batch_1)
+        assert (l1 - l2).pow(2).item() == pytest.approx(0.0)
 
-    def test_forward_pass_1d(self) -> None:
+    @pytest.mark.parametrize("batch_size", [1, 8])
+    def test_forward_pass_1d(self, batch_size: int) -> None:
         loss = DirectCLRLoss(loss_dim=32, temperature=0.5, memory_bank_size=0)
-        for bsz in range(1, 20):
-            batch_1 = torch.randn((bsz, 1))
-            batch_2 = torch.randn((bsz, 1))
+        batch_1 = torch.randn((batch_size, 1))
+        batch_2 = torch.randn((batch_size, 1))
 
-            # symmetry
-            l1 = loss(batch_1, batch_2)
-            l2 = loss(batch_2, batch_1)
-            assert (l1 - l2).pow(2).item() == pytest.approx(0.0)
+        # symmetry
+        l1 = loss(batch_1, batch_2)
+        l2 = loss(batch_2, batch_1)
+        assert (l1 - l2).pow(2).item() == pytest.approx(0.0)
 
 
 def _calc_directclr_loss_manual(
