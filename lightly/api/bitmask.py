@@ -48,7 +48,9 @@ def _invert(x: int, total_size: Optional[int] = None) -> int:
     if total_size is None:
         total_size = len(_int_to_bin(x)) - 2  # account for the "0b" prefix
 
-    return int(x ^ (2 ** total_size - 1))  # casting to int needed only for type checking
+    return int(
+        x ^ (2**total_size - 1)
+    )  # casting to int needed only for type checking
 
 
 def _union(x: int, y: int) -> int:

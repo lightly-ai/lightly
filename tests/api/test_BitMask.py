@@ -8,7 +8,6 @@ N = 10
 
 
 class TestBitMask(unittest.TestCase):
-
     def test_get_and_set(self) -> None:
         mask = BitMask.from_bin("0b11110000")
 
@@ -39,7 +38,6 @@ class TestBitMask(unittest.TestCase):
         self.assertTrue(mask.get_kth_bit(100))
 
     def test_inverse(self) -> None:
-
         x = int("0b11110000", 2)
         y = int("0b00001111", 2)
         mask = BitMask(x)
