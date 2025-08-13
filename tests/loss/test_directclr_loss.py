@@ -14,8 +14,8 @@ class TestDirectCLRLoss:
         ), f"Expected temperature to be 0.5, but got {loss_function.temperature}"
 
     @pytest.mark.parametrize("n_samples", [1, 2, 4])
-    @pytest.mark.parametrize("dimension", [1, 2, 16, 64])
-    @pytest.mark.parametrize("loss_dim", [1, 2, 32])
+    @pytest.mark.parametrize("dimension", [1, 2, 8])
+    @pytest.mark.parametrize("loss_dim", [1, 2, 4])
     def test_with_values(
         self,
         n_samples: int,

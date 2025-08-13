@@ -8,7 +8,7 @@ from typing import Sequence, Union
 
 from torch import Tensor
 
-from lightly.loss import NTXentLoss
+from lightly.loss.ntx_ent_loss import NTXentLoss
 
 
 class DirectCLRLoss(NTXentLoss):
