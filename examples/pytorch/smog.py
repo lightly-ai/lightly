@@ -45,7 +45,7 @@ class SMoGModel(nn.Module):
     def _cluster_features(self, features: torch.Tensor) -> torch.Tensor:
         # clusters the features using sklearn
         # (note: faiss is probably more efficient)
-        features = features.cpu().numpy().T  # type: ignore
+        features = features.cpu().numpy()
         kmeans = KMeans(self.n_groups).fit(features)
         clustered = torch.from_numpy(kmeans.cluster_centers_).float()
         clustered = torch.nn.functional.normalize(clustered, dim=1)
@@ -54,7 +54,7 @@ class SMoGModel(nn.Module):
     def reset_group_features(self, memory_bank):
         # see https://arxiv.org/pdf/2207.06167.pdf Table 7b)
         features = memory_bank.bank
-        group_features = self._cluster_features(features.t())
+        group_features = self._cluster_features(features)
         self.smog.set_group_features(group_features)
 
     def reset_momentum_weights(self):

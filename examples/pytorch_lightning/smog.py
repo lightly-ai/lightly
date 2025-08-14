@@ -49,7 +49,7 @@ class SMoGModel(pl.LightningModule):
         self.criterion = nn.CrossEntropyLoss()
 
     def _cluster_features(self, features: torch.Tensor) -> torch.Tensor:
-        features = features.cpu().numpy().T  # type: ignore
+        features = features.cpu().numpy()
         kmeans = KMeans(self.n_groups).fit(features)
         clustered = torch.from_numpy(kmeans.cluster_centers_).float()
         clustered = torch.nn.functional.normalize(clustered, dim=1)
@@ -58,7 +58,7 @@ class SMoGModel(pl.LightningModule):
     def _reset_group_features(self):
         # see https://arxiv.org/pdf/2207.06167.pdf Table 7b)
         features = self.memory_bank.bank
-        group_features = self._cluster_features(features.t())
+        group_features = self._cluster_features(features)
         self.smog.set_group_features(group_features)
 
     def _reset_momentum_weights(self):
