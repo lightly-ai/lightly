@@ -7,11 +7,13 @@ from lightly.loss import DirectCLRLoss
 
 
 class TestDirectCLRLoss:
+    temperature = 0.5
+
     def test_set_parent_temperature(self) -> None:
-        loss_function = DirectCLRLoss(loss_dim=32, temperature=0.5)
+        loss_function = DirectCLRLoss(loss_dim=32, temperature=self.temperature)
         assert (
-            loss_function.temperature == 0.5
-        ), f"Expected temperature to be 0.5, but got {loss_function.temperature}"
+            loss_function.temperature == self.temperature
+        ), f"Expected temperature to be {self.temperature}, but got {loss_function.temperature}"
 
     @pytest.mark.parametrize("n_samples", [1, 2, 4])
     @pytest.mark.parametrize("dimension", [1, 2, 8])
@@ -25,14 +27,14 @@ class TestDirectCLRLoss:
         out0 = torch.randn((n_samples, dimension))
         out1 = torch.randn((n_samples, dimension))
 
-        loss_function = DirectCLRLoss(loss_dim=loss_dim, temperature=0.5)
+        loss_function = DirectCLRLoss(loss_dim=loss_dim, temperature=self.temperature)
         l1 = float(loss_function(out0, out1))
         l2 = float(loss_function(out1, out0))
         l1_manual = _calc_directclr_loss_manual(
-            out0, out1, loss_dim=loss_dim, temperature=0.5
+            out0, out1, loss_dim=loss_dim, temperature=self.temperature
         )
         l2_manual = _calc_directclr_loss_manual(
-            out0, out1, loss_dim=loss_dim, temperature=0.5
+            out0, out1, loss_dim=loss_dim, temperature=self.temperature
         )
         assert l1 == pytest.approx(l2, abs=1e-5)
         assert l1 == pytest.approx(l1_manual, abs=1e-5)
@@ -40,7 +42,7 @@ class TestDirectCLRLoss:
 
     @pytest.mark.parametrize("batch_size", [1, 8])
     def test_forward_pass(self, batch_size: int) -> None:
-        loss = DirectCLRLoss(loss_dim=32, temperature=0.5, memory_bank_size=0)
+        loss = DirectCLRLoss(loss_dim=32)
         batch_1 = torch.randn((batch_size, 64))
         batch_2 = torch.randn((batch_size, 64))
 
@@ -51,7 +53,7 @@ class TestDirectCLRLoss:
 
     @pytest.mark.parametrize("batch_size", [1, 8])
     def test_forward_pass_1d(self, batch_size: int) -> None:
-        loss = DirectCLRLoss(loss_dim=32, temperature=0.5, memory_bank_size=0)
+        loss = DirectCLRLoss(loss_dim=32)
         batch_1 = torch.randn((batch_size, 1))
         batch_2 = torch.randn((batch_size, 1))
 
