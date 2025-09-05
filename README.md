@@ -1,8 +1,8 @@
 <a name="top"></a>
 ![LightlySSL self-supervised learning Logo](docs/logos/lightly_SSL_logo_crop.png)
 
-![GitHub](https://img.shields.io/github/license/lightly-ai/lightly)
-![Unit Tests](https://github.com/lightly-ai/lightly/workflows/Unit%20Tests/badge.svg)
+[![GitHub](https://img.shields.io/github/license/lightly-ai/lightly)](https://github.com/lightly-ai/lightly/blob/master/LICENSE.txt)
+[![Unit Tests](https://github.com/lightly-ai/lightly/workflows/Unit%20Tests/badge.svg)](https://github.com/lightly-ai/lightly/actions/workflows/test.yml)
 [![PyPI](https://img.shields.io/pypi/v/lightly)](https://pypi.org/project/lightly/)
 [![Downloads](https://static.pepy.tech/badge/lightly)](https://pepy.tech/project/lightly)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
