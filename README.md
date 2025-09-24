@@ -8,7 +8,7 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Discord](https://img.shields.io/discord/752876370337726585?logo=discord&logoColor=white&label=discord&color=7289da)](https://discord.gg/xvNJW94)
 [![Twitter](https://img.shields.io/twitter/follow/LightlyAI)](https://x.com/LightlyAI)
-![codecov.io](https://codecov.io/github/lightly-ai/lightly/coverage.svg?branch=master)
+[![codecov.io](https://codecov.io/github/lightly-ai/lightly/coverage.svg?branch=master)](https://app.codecov.io/gh/lightly-ai/lightly)
 
 
 Lightly**SSL** is a computer vision framework for self-supervised learning.
