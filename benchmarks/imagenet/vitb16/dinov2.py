@@ -159,18 +159,25 @@ class DINOv2(LightningModule):
             start_value=0.04,
             end_value=0.07,
         )
+        #对学生的 CLS（或图像级 token）经过 DINO projection head 得到 prototype logits，softmax 后与教师端对应视图的分布做 交叉熵（Cross-Entropy）
+        # 削弱权重至0.7
         dino_loss = self.dino_criterion(
             teacher_out=teacher_cls_out.chunk(2),
             student_out=student_cls_out.chunk(len(views)),
             teacher_temp=teacher_temp,
         )
-        ibot_loss = self.ibot_criterion(
+        # 随机 Mask 学生输入的一部分 patch，教师看到完整图像。学生需要在 被 Mask 掉的位置 上预测教师对这些位置 patch 的语义分布
+        #（同样是 prototype 分类式分布，经 iBOT projection head）。这里同样使用交叉熵；
+        # 削弱权重至0.7
+        ibot_loss = 0.7 * self.ibot_criterion(
             teacher_out=teacher_masked_out,
             student_out=student_global_masked_out,
             mask=block_mask,
             teacher_temp=teacher_temp,
         )
-        koleo_loss = 0.1 * sum(
+        # KoLeo 正则（源于 Kozachenko‑Leonenko 微分熵估计）鼓励一个 batch 内的特征在单位球面上 均匀分布 / 拉开最邻近距离，以缓解塌缩、提升覆盖度。
+        # 增加至1
+        koleo_loss = sum(
             self.koleo_criterion(t) for t in student_global_cls_token.chunk(2)
         )
         loss = dino_loss + ibot_loss + koleo_loss
@@ -211,7 +218,7 @@ class DINOv2(LightningModule):
         lr_scale = math.sqrt(
             self.batch_size_per_device * self.trainer.world_size / 1024
         )
-        lr = 0.004 * lr_scale
+        lr = 0.0004 * lr_scale
         num_layers = len(self.student_backbone.vit.blocks)
 
         def lr_layer(layer_idx: int) -> float:
@@ -275,11 +282,12 @@ class DINOv2(LightningModule):
         scheduler = {
             "scheduler": CosineWarmupScheduler(
                 optimizer=optimizer,
-                warmup_epochs=int(
-                    self.trainer.estimated_stepping_batches
-                    / self.trainer.max_epochs
-                    * 10
-                ),
+                # warmup_epochs=int(
+                #     self.trainer.estimated_stepping_batches
+                #     / self.trainer.max_epochs
+                #     * 10
+                # ),
+                warmup_epochs = 0,
                 max_epochs=int(self.trainer.estimated_stepping_batches),
             ),
             "interval": "step",

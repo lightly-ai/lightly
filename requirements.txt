@@ -15,3 +15,4 @@ timm>=0.9.9
 #pip uninstall lightning
 #pip install pytorch_lightning==1.9.5
 
+#pip3 install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu128

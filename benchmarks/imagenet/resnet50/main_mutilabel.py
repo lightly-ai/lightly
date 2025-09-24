@@ -47,7 +47,7 @@ parser.add_argument("--batch-size-per-device", type=int, default=128)
 parser.add_argument("--epochs", type=int, default=100)
 parser.add_argument("--num-workers", type=int, default=8)
 parser.add_argument("--accelerator", type=str, default="gpu")
-parser.add_argument("--devices", type=int, default=2)
+parser.add_argument("--devices", type=int, default=1)
 parser.add_argument("--precision", type=str, default="16-mixed") 
 parser.add_argument("--ckpt-path", type=Path, default=None)
 parser.add_argument("--resume-from", type=Path, default=None)
@@ -303,8 +303,8 @@ def pretrain(
     metric_callback = MetricCallback()
     # 权重保存逻辑
     checkpoint_callback = ModelCheckpoint(
-        dirpath="./checkpoints/simclr/pretrain",  # 保存目录
-        filename="simclr_shezhen-{epoch}-{step}",  # 文件名格式
+        dirpath="./checkpoints/mocov2",  # 保存目录
+        filename="simclr_shezhen-train-{epoch}-{step}",  # 文件名格式
         monitor="train_loss",         # 监控的指标（可选）
         save_top_k=1,                 # 保留最好的k个模型
         mode="min",                   # 监控模式（min/max）

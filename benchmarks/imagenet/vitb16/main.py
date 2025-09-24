@@ -26,6 +26,13 @@ from lightly.data.multi_view_collate import MultiViewCollate
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils.benchmarking import MetricCallback
 from lightly.utils.dist import print_rank_zero
+#import numpy as np
+
+# 允许 numpy.core.multiarray.scalar 和 numpy.dtype
+#torch.serialization.add_safe_globals([np.core.multiarray.scalar, np.dtype])
+
+# ...existing code...
+
 
 parser = ArgumentParser("ImageNet ViT-B/16 Benchmarks")
 parser.add_argument("--train-dir", type=Path, default="/datasets/imagenet/train")
@@ -81,7 +88,7 @@ def main(
     seed: int | None = None,
 ) -> None:
     print_rank_zero(f"Args: {locals()}")
-    seed_everything(seed, workers=True, verbose=True)
+    seed_everything(seed, workers=True)
     torch.set_float32_matmul_precision(float32_matmul_precision)
 
     method_names = methods or METHODS.keys()
@@ -103,9 +110,10 @@ def main(
         if epochs <= 0:
             print_rank_zero("Epochs <= 0, skipping pretraining.")
             if ckpt_path is not None:
-                model.load_state_dict(
-                    torch.load(ckpt_path, weights_only=False)["state_dict"]
-                )
+                    model.load_state_dict(
+                        torch.load(ckpt_path, weights_only=False)["state_dict"]
+                    )
+
         else:
             pretrain(
                 model=model,
@@ -253,7 +261,7 @@ def pretrain(
         model=model,
         train_dataloaders=train_dataloader,
         val_dataloaders=val_dataloader,
-        ckpt_path=ckpt_path,
+        ckpt_path=None,
     )
     for metric in ["val_online_cls_top1", "val_online_cls_top5"]:
         print_rank_zero(

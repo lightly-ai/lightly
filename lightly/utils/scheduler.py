@@ -1,9 +1,10 @@
 import warnings
 from typing import Optional
+from torch.optim.lr_scheduler import _LRScheduler
 
 import numpy as np
 import torch
-
+import math
 
 def cosine_schedule(
     step: int,
@@ -206,7 +207,38 @@ class CosineWarmupScheduler(torch.optim.lr_scheduler.LambdaLR):
             warmup_end_value=self.warmup_end_value,
             period=self.period,
         )
+class DelayedCosineAnnealingLR(_LRScheduler):
+    """
+    自定义调度器：从指定epoch开始余弦退火衰减，直到结束epoch时学习率降至初始值的1/100
+    Args:
+        optimizer: 优化器对象
+        start_epoch: 开始衰减的epoch（在此之前保持初始学习率）
+        end_epoch: 结束衰减的epoch
+        last_epoch: 当前最后一个epoch（用于恢复训练，默认-1）
+    """
+    def __init__(self, optimizer, start_epoch, end_epoch, last_epoch=-1):
+        self.start_epoch = start_epoch
+        self.end_epoch = end_epoch
+        self.eta_min = optimizer.param_groups[0]['lr'] / 100  # 目标最小学习率（初始值的1/100）
+        super().__init__(optimizer, last_epoch)
 
+    def get_lr(self):
+        if self.last_epoch < self.start_epoch:
+            # 衰减开始前：保持初始学习率
+            return [group['lr'] for group in self.param_groups]
+        
+        elif self.start_epoch <= self.last_epoch <= self.end_epoch:
+            # 余弦退火阶段
+            progress = (self.last_epoch - self.start_epoch) / (self.end_epoch - self.start_epoch)
+            cosine_decay = 0.5 * (1 + math.cos(math.pi * progress))
+            return [
+                self.eta_min + (base_lr - self.eta_min) * cosine_decay
+                for base_lr in self.base_lrs
+            ]
+        
+        else:
+            # 衰减结束后：保持最小学习率
+            return [self.eta_min for _ in self.param_groups]
 
 def linear_warmup_schedule(
     step: int,

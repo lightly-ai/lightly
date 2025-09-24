@@ -1,7 +1,9 @@
 from typing import Dict, List, Optional, Tuple, Union
 
 import PIL
+import torchvision.transforms.functional as F
 from PIL.Image import Image
+from PIL import Image,ImageFilter
 from torch import Tensor
 
 from lightly.transforms.gaussian_blur import GaussianBlur
@@ -11,6 +13,69 @@ from lightly.transforms.solarize import RandomSolarization
 from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 
+import numpy as np
+import random
+class RedColorJitter:
+    def __init__(self, brightness=0.2, contrast=0.2):
+        self.brightness = brightness
+        self.contrast = contrast
+        
+    def __call__(self, img):
+        # 转换为HSV色域
+        img_hsv = img.convert('HSV')
+        h, s, v = img_hsv.split()
+        
+        # 微调亮度和对比度（红色在HSV中对应特定的H值范围）
+        if np.random.random() < 0.5:
+            v = v.point(lambda x: x + np.random.uniform(-self.brightness*255, self.brightness*255))
+        if np.random.random() < 0.5:
+            factor = np.random.uniform(1-self.contrast, 1+self.contrast)
+            v = v.point(lambda x: x * factor)
+            
+        # 限制S和V值范围，避免颜色偏离红色色相
+        s = s.point(lambda x: min(max(x, 50), 200))  # 限制饱和度
+        v = v.point(lambda x: min(max(x, 100), 255))  # 限制亮度
+        
+        img_hsv = Image.merge('HSV', (h, s, v))
+        return img_hsv.convert('RGB')
+
+class EdgeEnhanceTransform:
+    def __init__(self, prob=0.5):
+        self.prob = prob
+
+    def __call__(self, img):
+        if random.random() < self.prob:
+            if isinstance(img, Image.Image):
+                return img.filter(ImageFilter.EDGE_ENHANCE)
+            else:
+                # 对Tensor做Sobel边缘检测
+                kernel = torch.tensor([[-1, -2, -1],
+                                      [ 0,  0,  0],
+                                      [ 1,  2,  1]], dtype=img.dtype, device=img.device).unsqueeze(0).unsqueeze(0)
+                if img.dim() == 3:
+                    img = img.unsqueeze(0)
+                edge = torch.nn.functional.conv2d(img, kernel, padding=1)
+                return img + edge
+        return img
+
+class TextureEnhanceTransform:
+    def __init__(self, prob=0.5):
+        self.prob = prob
+
+    def __call__(self, img):
+        if random.random() < self.prob:
+            if isinstance(img, Image.Image):
+                return img.filter(ImageFilter.DETAIL)
+            else:
+                # 对Tensor做高通滤波
+                kernel = torch.tensor([[-1, -1, -1],
+                                      [-1,  8, -1],
+                                      [-1, -1, -1]], dtype=img.dtype, device=img.device).unsqueeze(0).unsqueeze(0)
+                if img.dim() == 3:
+                    img = img.unsqueeze(0)
+                texture = torch.nn.functional.conv2d(img, kernel, padding=1)
+                return img + texture
+        return img
 
 class DINOTransform(MultiViewTransform):
     """Implements the global and local view augmentations for DINO [0].
@@ -103,8 +168,8 @@ class DINOTransform(MultiViewTransform):
         n_local_views: int = 6,
         hf_prob: float = 0.5,
         vf_prob: float = 0,
-        rr_prob: float = 0,
-        rr_degrees: Optional[Union[float, Tuple[float, float]]] = None,
+        rr_prob: float = 0.2,
+        rr_degrees: Optional[Union[float, Tuple[float, float]]] = 15,
         cj_prob: float = 0.8,
         cj_strength: float = 0.5,
         cj_bright: float = 0.8,
@@ -112,10 +177,10 @@ class DINOTransform(MultiViewTransform):
         cj_sat: float = 0.4,
         cj_hue: float = 0.2,
         random_gray_scale: float = 0.2,
-        gaussian_blur: Tuple[float, float, float] = (1.0, 0.1, 0.5),
+        gaussian_blur: Tuple[float, float, float] = (0.25, 0.1, 0.),
         kernel_size: Optional[float] = None,
         kernel_scale: Optional[float] = None,
-        sigmas: Tuple[float, float] = (0.1, 2),
+        sigmas: Tuple[float, float] = (0.1, 0.5),
         solarization_prob: float = 0.2,
         normalize: Union[None, Dict[str, List[float]]] = IMAGENET_NORMALIZE,
     ):
@@ -199,8 +264,8 @@ class DINOViewTransform:
         crop_scale: Tuple[float, float] = (0.4, 1.0),
         hf_prob: float = 0.5,
         vf_prob: float = 0,
-        rr_prob: float = 0,
-        rr_degrees: Optional[Union[float, Tuple[float, float]]] = None,
+        rr_prob: float = 0.2,
+        rr_degrees: Optional[Union[float, Tuple[float, float]]] = 10,
         cj_prob: float = 0.8,
         cj_strength: float = 0.5,
         cj_bright: float = 0.8,
@@ -208,10 +273,10 @@ class DINOViewTransform:
         cj_sat: float = 0.4,
         cj_hue: float = 0.2,
         random_gray_scale: float = 0.2,
-        gaussian_blur: float = 1.0,
+        gaussian_blur: float = 0.25,
         kernel_size: Optional[float] = None,
         kernel_scale: Optional[float] = None,
-        sigmas: Tuple[float, float] = (0.1, 2),
+        sigmas: Tuple[float, float] = (0.1, 0.5),
         solarization_prob: float = 0.2,
         normalize: Union[None, Dict[str, List[float]]] = IMAGENET_NORMALIZE,
     ):
@@ -223,20 +288,23 @@ class DINOViewTransform:
                 interpolation=PIL.Image.BICUBIC,  # type: ignore[attr-defined]
             ),
             T.RandomHorizontalFlip(p=hf_prob),
-            T.RandomVerticalFlip(p=vf_prob),
+            # T.RandomVerticalFlip(p=vf_prob),
             random_rotation_transform(rr_prob=rr_prob, rr_degrees=rr_degrees),
-            T.RandomApply(
-                [
-                    T.ColorJitter(
-                        brightness=cj_strength * cj_bright,
-                        contrast=cj_strength * cj_contrast,
-                        saturation=cj_strength * cj_sat,
-                        hue=cj_strength * cj_hue,
-                    )
-                ],
-                p=cj_prob,
-            ),
-            T.RandomGrayscale(p=random_gray_scale),
+            # T.RandomApply(
+            #     [
+            #         T.ColorJitter(
+            #             brightness=cj_strength * cj_bright,
+            #             contrast=cj_strength * cj_contrast,
+            #             saturation=cj_strength * cj_sat,
+            #             hue=cj_strength * cj_hue,
+            #         )
+            #     ],
+            #     p=cj_prob,
+            # ),
+            # T.RandomGrayscale(p=random_gray_scale),
+            T.RandomApply([RedColorJitter()], p=cj_prob),
+            EdgeEnhanceTransform(prob=0.3),      # 新增
+            TextureEnhanceTransform(prob=0.3),   # 新增
             GaussianBlur(
                 kernel_size=kernel_size,
                 scale=kernel_scale,

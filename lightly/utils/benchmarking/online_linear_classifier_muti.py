@@ -75,20 +75,20 @@ class OnlineLinearClassifier_muti(LightningModule):
         # 计算每个类别的F1分数，然后取平均
         macro_f1 = f1_score(targets, pred_binary, average='macro')
 
-        # 2. 子集准确率 (Subset Accuracy)
-        # 检查预测标签集合与真实标签集合是否完全一致
-        exact_matches = 0
-        for pred, tgt in zip(pred_binary, targets):
-            if np.array_equal(pred, tgt):
-                exact_matches += 1
-        subset_accuracy = exact_matches / batch_size
+        # # 2. 子集准确率 (Subset Accuracy)
+        # # 检查预测标签集合与真实标签集合是否完全一致
+        # exact_matches = 0
+        # for pred, tgt in zip(pred_binary, targets):
+        #     if np.array_equal(pred, tgt):
+        #         exact_matches += 1
+        # subset_accuracy = exact_matches / batch_size
 
-        # 3. 汉明损失 (Hamming Loss)
-        hamming_loss_val = hamming_loss(targets, pred_binary)
+        # # 3. 汉明损失 (Hamming Loss)
+        # hamming_loss_val = hamming_loss(targets, pred_binary)
 
-        # 4. 标签级准确率 (Label-based Accuracy)
-        # 汉明准确率 = 1 - 汉明损失
-        label_accuracy = 1 - hamming_loss_val
+        # # 4. 标签级准确率 (Label-based Accuracy)
+        # # 汉明准确率 = 1 - 汉明损失
+        # label_accuracy = 1 - hamming_loss_val
 
         # 5. 平均精度均值 (mAP)
         mAP = 0.0
@@ -126,9 +126,9 @@ class OnlineLinearClassifier_muti(LightningModule):
         # 整理结果
         metrics = {
             'f1-macro': macro_f1,
-            'subset_accuracy': subset_accuracy,
-            'hamming_loss': hamming_loss_val,
-            'acc': label_accuracy,
+            # 'subset_accuracy': subset_accuracy,
+            # 'hamming_loss': hamming_loss_val,
+            # 'acc': label_accuracy,
             'mAP': mAP,
             'jaccard': avg_jaccard
         }

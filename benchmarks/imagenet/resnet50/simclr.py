@@ -99,7 +99,7 @@ class SimCLR(LightningModule):
                 warmup_epochs=int(
                     self.trainer.estimated_stepping_batches
                     / self.trainer.max_epochs
-                    * 10
+                    *1
                 ),
                 max_epochs=int(self.trainer.estimated_stepping_batches),
             ),

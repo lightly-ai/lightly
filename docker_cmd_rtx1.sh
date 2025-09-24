@@ -7,6 +7,6 @@ docker run --rm  --gpus all --privileged=true  --workdir /git --name "ligthly"  
 $img sleep infinity
 
 
-docker exec -it ligthly /bin/bash
+docker exec -it lightly /bin/bash
 
 
