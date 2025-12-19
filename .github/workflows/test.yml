@@ -41,6 +41,11 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
+      - name: Install PyAV build dependencies
+        run: |
+          sudo apt-get install -y --no-install-recommends \
+            libavformat-dev libavcodec-dev libavdevice-dev libavutil-dev \
+            libavfilter-dev libswscale-dev libswresample-dev
       - name: Set Up Environment
         run: |
           make install-uv reset-venv
