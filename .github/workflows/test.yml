@@ -32,7 +32,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        python: ["3.7", "3.12"]
+        python: ["3.8", "3.12"]
 
     steps:
       - name: Checkout Code
@@ -41,11 +41,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
-      - name: Install PyAV build dependencies
-        run: |
-          sudo apt-get install -y --no-install-recommends \
-            libavformat-dev libavcodec-dev libavdevice-dev libavutil-dev \
-            libavfilter-dev libswscale-dev libswresample-dev
       - name: Set Up Environment
         run: |
           make install-uv reset-venv
@@ -55,6 +50,12 @@ jobs:
         run: rm -f .coverage
       - name: Run Pytest (Python 3.7)
         if: matrix.python == '3.7'
+        run: |
+          source .venv/bin/activate
+          export LIGHTLY_SERVER_LOCATION="localhost:-1"
+          python -m pytest -s -v --runslow --ignore=./lightly/openapi_generated/
+      - name: Run Pytest (Python 3.8)
+        if: matrix.python == '3.8'
         run: |
           source .venv/bin/activate
           export LIGHTLY_SERVER_LOCATION="localhost:-1"
