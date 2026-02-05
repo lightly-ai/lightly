@@ -151,13 +151,13 @@ class SparseConvNeXtLayerNorm(nn.LayerNorm):
                         H=x.shape[1], W=x.shape[2], returning_active_ex=False
                     )
                     nc = x[ii]
-                    nc = super(SparseConvNeXtLayerNorm, self).forward(nc)
+                    nc = super().forward(nc)
 
                     x = torch.zeros_like(x)
                     x[ii] = nc
                     return x
                 else:
-                    return super(SparseConvNeXtLayerNorm, self).forward(x)
+                    return super().forward(x)
             else:
                 if self.sparse:
                     ii = _get_active_ex_or_ii(
@@ -165,7 +165,7 @@ class SparseConvNeXtLayerNorm(nn.LayerNorm):
                     )
                     bhwc = x.permute(0, 2, 3, 1)
                     nc = bhwc[ii]
-                    nc = super(SparseConvNeXtLayerNorm, self).forward(nc)
+                    nc = super().forward(nc)
 
                     x = torch.zeros_like(bhwc)
                     x[ii] = nc
@@ -180,11 +180,11 @@ class SparseConvNeXtLayerNorm(nn.LayerNorm):
             if self.sparse:
                 raise NotImplementedError
             else:
-                return super(SparseConvNeXtLayerNorm, self).forward(x)
+                return super().forward(x)
 
     def __repr__(self):
         return (
-            super(SparseConvNeXtLayerNorm, self).__repr__()[:-1]
+            super().__repr__()[:-1]
             + f", ch={self.data_format.split('_')[-1]}, sp={self.sparse})"
         )
 
@@ -258,7 +258,7 @@ class SparseConvNeXtBlock(nn.Module):
         return x
 
     def __repr__(self):
-        return super(SparseConvNeXtBlock, self).__repr__()[:-1] + f", sp={self.sparse})"
+        return super().__repr__()[:-1] + f", sp={self.sparse})"
 
 # Code adapted from https://github.com/keyu-tian/SparK/blob/main/pretrain/models/resnet.py
 
@@ -781,7 +781,7 @@ class SparK(nn.Module):
         return (
             f"\n"
             f"[SparK.config]: {pformat(self.get_config(), indent=2, width=250)}\n"
-            f"[SparK.structure]: {super(SparK, self).__repr__().replace(SparK.__name__, '')}"
+            f"[SparK.structure]: {super().__repr__().replace(SparK.__name__, '')}"
         )
 
     def get_config(self):
