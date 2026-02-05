@@ -797,7 +797,7 @@ class SparK(nn.Module):
     def state_dict(
         self, destination=None, prefix="", keep_vars=False, with_config=False
     ):
-        state = super(SparK, self).state_dict(
+        state = super().state_dict(
             destination=destination, prefix=prefix, keep_vars=keep_vars
         )
         if with_config:
@@ -806,7 +806,7 @@ class SparK(nn.Module):
 
     def load_state_dict(self, state_dict, strict=True):
         config: dict = state_dict.pop("config", None)
-        incompatible_keys = super(SparK, self).load_state_dict(
+        incompatible_keys = super().load_state_dict(
             state_dict, strict=strict
         )
         if config is not None:
