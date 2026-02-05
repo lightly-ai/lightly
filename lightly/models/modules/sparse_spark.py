@@ -26,11 +26,9 @@ def drop_path(x, drop_prob: float = 0.0, training: bool = False):
     if drop_prob == 0.0 or not training:
         return x
     keep_prob = 1 - drop_prob
-    shape = (x.shape[0],) + (1,) * (
-        x.ndim - 1
-    )  
+    shape = (x.shape[0],) + (1,) * (x.ndim - 1)
     random_tensor = keep_prob + torch.rand(shape, dtype=x.dtype, device=x.device)
-    random_tensor.floor_()  
+    random_tensor.floor_()
     output = x.div(keep_prob) * random_tensor
     return output
 
@@ -62,15 +60,16 @@ def _get_active_ex_or_ii(
         active_ex
         if returning_active_ex
         else active_ex.squeeze(1).nonzero(as_tuple=True)
-    )  
+    )
 
 
 def sp_conv_forward(self, x: torch.Tensor) -> torch.Tensor:
     x = super(type(self), self).forward(x)
     x *= _get_active_ex_or_ii(
         self.sparse_mask.mask, H=x.shape[2], W=x.shape[3], returning_active_ex=True
-    ) 
+    )
     return x
+
 
 def sp_bn_forward(self, x: torch.Tensor):
     ii = _get_active_ex_or_ii(
@@ -155,7 +154,7 @@ class SparseConvNeXtLayerNorm(nn.LayerNorm):
                     return x
                 else:
                     return super(SparseConvNeXtLayerNorm, self).forward(x)
-            else: 
+            else:
                 if self.sparse:
                     ii = _get_active_ex_or_ii(
                         H=x.shape[2], W=x.shape[3], returning_active_ex=False
@@ -182,7 +181,7 @@ class SparseConvNeXtLayerNorm(nn.LayerNorm):
     def __repr__(self):
         return (
             super(SparseConvNeXtLayerNorm, self).__repr__()[:-1]
-            + f', ch={self.data_format.split("_")[-1]}, sp={self.sparse})'
+            + f", ch={self.data_format.split('_')[-1]}, sp={self.sparse})"
         )
 
 
