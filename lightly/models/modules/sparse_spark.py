@@ -3,6 +3,7 @@ import sys
 from pprint import pformat
 from typing import List
 
+import timm
 import torch
 import torch.nn as nn
 from timm.models.layers import DropPath, trunc_normal_
@@ -208,7 +209,26 @@ class SparseConvNeXtBlock(nn.Module):
         return super().__repr__()[:-1] + f", sp={self.sparse})"
 
 
+def get_downsample_ratio_from_timm_model(model: nn.Module) -> int:
+    return model.feature_info[-1]["reduction"]
+
+
+def get_enc_feat_map_chs_from_timm_model(model: nn.Module) -> List[int]:
+    return [fi["num_chs"] for fi in model.feature_info]
+
+
 class SparseEncoder(nn.Module):
+    """
+    Converts a dense CNN model to a sparse CNN model by replacing standard layers
+
+    Attributes:
+        enc_feat_map_chs: List[int]: list of channel numbers of feature maps at different scales, in the order from shallow to deep
+
+
+    """
+
+    enc_feat_map_chs: List[int]
+
     def __init__(self, cnn, input_size, sbn=False, verbose=False):
         super().__init__()
         self.sp_cnn = SparseEncoder.dense_model_to_sparse(
@@ -216,8 +236,8 @@ class SparseEncoder(nn.Module):
         )
         self.input_size, self.downsample_raito, self.enc_feat_map_chs = (
             input_size,
-            cnn.get_downsample_ratio(),
-            cnn.get_feature_map_channels(),
+            get_downsample_ratio_from_timm_model(cnn),
+            get_enc_feat_map_chs_from_timm_model(cnn),
         )
 
     @staticmethod
@@ -293,7 +313,7 @@ class SparseEncoder(nn.Module):
         return oup
 
     def forward(self, x):
-        return self.sp_cnn(x, hierarchical=True)
+        return self.sp_cnn(x)
 
 
 # Copyright (c) ByteDance, Inc. and its affiliates.
@@ -385,6 +405,29 @@ class LightDecoder(nn.Module):
 #
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
+
+pretrain_default_model_kwargs = {
+    "your_convnet": dict(),
+    "resnet50": dict(drop_path_rate=0.05),
+    "resnet101": dict(drop_path_rate=0.08),
+    "resnet152": dict(drop_path_rate=0.10),
+    "resnet200": dict(drop_path_rate=0.15),
+    "convnext_small": dict(sparse=True, drop_path_rate=0.2),
+    "convnext_base": dict(sparse=True, drop_path_rate=0.3),
+    "convnext_large": dict(sparse=True, drop_path_rate=0.4),
+}
+
+
+def build_sparse_encoder(
+    name: str, input_size: int, sbn=False, drop_path_rate=0.0, verbose=False
+):
+    kwargs = pretrain_default_model_kwargs[name]
+    if drop_path_rate != 0:
+        kwargs["drop_path_rate"] = drop_path_rate
+    print(f"[build_sparse_encoder] model kwargs={kwargs}")
+    cnn = timm.create_model(name, **kwargs)
+
+    return SparseEncoder(cnn, input_size=input_size, sbn=sbn, verbose=verbose)
 
 
 class SparK(nn.Module):
@@ -501,6 +544,7 @@ class SparK(nn.Module):
         active_b1ff = active_b1ff or self.mask(
             inp_bchw.shape[0], inp_bchw.device
         )  # (B, 1, f, f)
+        global _cur_active
         _cur_active = active_b1ff  # (B, 1, f, f)
         active_b1hw = active_b1ff.repeat_interleave(
             self.downsample_raito, 2
