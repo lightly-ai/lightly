@@ -107,7 +107,7 @@ class SparseConvNeXtLayerNorm(nn.LayerNorm):
                         H=x.shape[1], W=x.shape[2], returning_active_ex=False
                     )
                     nc = x[ii]
-                    nc = super(SparseConvNeXtLayerNorm, self).forward(nc)
+                        nc = super().forward(nc)
 
                     x = torch.zeros_like(x)
                     x[ii] = nc
@@ -121,7 +121,7 @@ class SparseConvNeXtLayerNorm(nn.LayerNorm):
                     )
                     bhwc = x.permute(0, 2, 3, 1)
                     nc = bhwc[ii]
-                    nc = super(SparseConvNeXtLayerNorm, self).forward(nc)
+                        nc = super().forward(nc)
 
                     x = torch.zeros_like(bhwc)
                     x[ii] = nc
@@ -136,13 +136,13 @@ class SparseConvNeXtLayerNorm(nn.LayerNorm):
             if self.sparse:
                 raise NotImplementedError
             else:
-                return super(SparseConvNeXtLayerNorm, self).forward(x)
+                return super().forward(x)
 
     def __repr__(self):
-        return (
-            super(SparseConvNeXtLayerNorm, self).__repr__()[:-1]
-            + f", ch={self.data_format.split('_')[-1]}, sp={self.sparse})"
-        )
+            return (
+                super().__repr__()[:-1]
+                + f", ch={self.data_format.split('_')[-1]}, sp={self.sparse})"
+            )
 
 
 class SparseConvNeXtBlock(nn.Module):
@@ -203,12 +203,12 @@ class SparseConvNeXtBlock(nn.Module):
         return x
 
     def __repr__(self):
-        return super(SparseConvNeXtBlock, self).__repr__()[:-1] + f", sp={self.sparse})"
+        return super().__repr__()[:-1] + f", sp={self.sparse})"
 
 
 class SparseEncoder(nn.Module):
     def __init__(self, cnn, input_size, sbn=False, verbose=False):
-        super(SparseEncoder, self).__init__()
+        super().__init__()
         self.sp_cnn = SparseEncoder.dense_model_to_sparse(
             m=cnn, verbose=verbose, sbn=sbn
         )
@@ -579,7 +579,7 @@ class SparK(nn.Module):
         return (
             f"\n"
             f"[SparK.config]: {pformat(self.get_config(), indent=2, width=250)}\n"
-            f"[SparK.structure]: {super(SparK, self).__repr__().replace(SparK.__name__, '')}"
+            f"[SparK.structure]: {super().__repr__().replace(SparK.__name__, '')}"
         )
 
     def get_config(self):
@@ -598,7 +598,7 @@ class SparK(nn.Module):
     def state_dict(
         self, destination=None, prefix="", keep_vars=False, with_config=False
     ) -> dict[str, torch.Tensor]:
-        state = super(SparK, self).state_dict(
+        state = super().state_dict(
             destination=destination, prefix=prefix, keep_vars=keep_vars
         )
         if with_config:
@@ -609,7 +609,7 @@ class SparK(nn.Module):
         self, state_dict: dict[str, torch.Tensor], strict=True
     ) -> dict[str, torch.Tensor]:
         config: dict = state_dict.pop("config", None)
-        incompatible_keys = super(SparK, self).load_state_dict(
+        incompatible_keys = super().load_state_dict(
             state_dict, strict=strict
         )
         if config is not None:
