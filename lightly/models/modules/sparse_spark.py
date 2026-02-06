@@ -243,7 +243,6 @@ class SparseEncoder(nn.Module):
                 oup.bias.data.copy_(m.bias.data)
 
         elif isinstance(m, nn.MaxPool2d):
-            m: nn.MaxPool2d
             oup = SparseMaxPooling(
                 m.kernel_size,
                 stride=m.stride,
@@ -253,7 +252,6 @@ class SparseEncoder(nn.Module):
                 ceil_mode=m.ceil_mode,
             )
         elif isinstance(m, nn.AvgPool2d):
-            m: nn.AvgPool2d
             oup = SparseAvgPooling(
                 m.kernel_size,
                 m.stride,
@@ -263,7 +261,6 @@ class SparseEncoder(nn.Module):
                 divisor_override=m.divisor_override,
             )
         elif isinstance(m, (nn.BatchNorm2d, nn.SyncBatchNorm)):
-            m: nn.BatchNorm2d
             oup = (SparseSyncBatchNorm2d if sbn else SparseBatchNorm2d)(
                 m.weight.shape[0],
                 eps=m.eps,
@@ -279,7 +276,6 @@ class SparseEncoder(nn.Module):
             if hasattr(m, "qconfig"):
                 oup.qconfig = m.qconfig
         elif isinstance(m, nn.LayerNorm) and not isinstance(m, SparseConvNeXtLayerNorm):
-            m: nn.LayerNorm
             oup = SparseConvNeXtLayerNorm(m.weight.shape[0], eps=m.eps)
             oup.weight.data.copy_(m.weight.data)
             oup.bias.data.copy_(m.bias.data)
@@ -360,7 +356,7 @@ class LightDecoder(nn.Module):
     def extra_repr(self) -> str:
         return f"width={self.width}"
 
-    def initialize(self):
+    def initialize(self) -> None:
         for m in self.modules():
             if isinstance(m, nn.Linear):
                 trunc_normal_(m.weight, std=0.02)
@@ -380,7 +376,7 @@ class LightDecoder(nn.Module):
                 nn.init.constant_(m.bias, 0)
                 nn.init.constant_(m.weight, 1.0)
 
-                # Copyright (c) ByteDance, Inc. and its affiliates.
+        # Copyright (c) ByteDance, Inc. and its affiliates.
 
 
 # All rights reserved.
@@ -483,7 +479,7 @@ class SparK(nn.Module):
         self.register_buffer("norm_black", torch.zeros(1, 3, input_size, input_size))
         self.vis_active = self.vis_active_ex = self.vis_inp = self.vis_inp_mask = ...
 
-    def mask(self, B: int, device, generator=None):
+    def mask(self, B: int, device, generator=None) -> torch.BoolTensor:
         h, w = self.fmap_h, self.fmap_w
         idx = torch.rand(B, h * w, generator=generator).argsort(dim=1)
         idx = idx[:, : self.len_keep].to(device)  # (B, len_keep)
@@ -493,12 +489,16 @@ class SparK(nn.Module):
             .view(B, 1, h, w)
         )
 
-    def forward(self, inp_bchw: torch.Tensor, active_b1ff=None, vis=False):
+    def forward(
+        self,
+        inp_bchw: torch.Tensor,
+        active_b1ff: None | torch.BoolTensor = None,
+        vis=False,
+    ):
         # step1. Mask
-        if active_b1ff is None:  # rand mask
-            active_b1ff: torch.BoolTensor = self.mask(
-                inp_bchw.shape[0], inp_bchw.device
-            )  # (B, 1, f, f)
+        active_b1ff = active_b1ff or self.mask(
+            inp_bchw.shape[0], inp_bchw.device
+        )  # (B, 1, f, f)
         _cur_active = active_b1ff  # (B, 1, f, f)
         active_b1hw = active_b1ff.repeat_interleave(
             self.downsample_raito, 2
@@ -597,7 +597,7 @@ class SparK(nn.Module):
 
     def state_dict(
         self, destination=None, prefix="", keep_vars=False, with_config=False
-    ):
+    ) -> dict[str, torch.Tensor]:
         state = super(SparK, self).state_dict(
             destination=destination, prefix=prefix, keep_vars=keep_vars
         )
@@ -605,7 +605,9 @@ class SparK(nn.Module):
             state["config"] = self.get_config()
         return state
 
-    def load_state_dict(self, state_dict, strict=True):
+    def load_state_dict(
+        self, state_dict: dict[str, torch.Tensor], strict=True
+    ) -> dict[str, torch.Tensor]:
         config: dict = state_dict.pop("config", None)
         incompatible_keys = super(SparK, self).load_state_dict(
             state_dict, strict=strict
