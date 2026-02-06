@@ -99,50 +99,52 @@ class SparseConvNeXtLayerNorm(nn.LayerNorm):
         self.data_format = data_format
         self.sparse = sparse
 
-    def forward(self, x):
-        if x.ndim == 4:  # BHWC or BCHW
+    def forward(self, input: torch.Tensor):
+        if input.ndim == 4:  # BHWC or BCHW
             if self.data_format == "channels_last":  # BHWC
                 if self.sparse:
                     ii = _get_active_ex_or_ii(
-                        H=x.shape[1], W=x.shape[2], returning_active_ex=False
+                        H=input.shape[1], W=input.shape[2], returning_active_ex=False
                     )
-                    nc = x[ii]
-                        nc = super().forward(nc)
+                    nc = input[ii]
+                    nc = super().forward(nc)
 
-                    x = torch.zeros_like(x)
-                    x[ii] = nc
-                    return x
+                    input = torch.zeros_like(input)
+                    input[ii] = nc
+                    return input
                 else:
-                    return super(SparseConvNeXtLayerNorm, self).forward(x)
+                    return super(SparseConvNeXtLayerNorm, self).forward(input)
             else:  # channels_first, BCHW
                 if self.sparse:
                     ii = _get_active_ex_or_ii(
-                        H=x.shape[2], W=x.shape[3], returning_active_ex=False
+                        H=input.shape[2], W=input.shape[3], returning_active_ex=False
                     )
-                    bhwc = x.permute(0, 2, 3, 1)
+                    bhwc = input.permute(0, 2, 3, 1)
                     nc = bhwc[ii]
-                        nc = super().forward(nc)
+                    nc = super().forward(nc)
 
-                    x = torch.zeros_like(bhwc)
-                    x[ii] = nc
-                    return x.permute(0, 3, 1, 2)
+                    input = torch.zeros_like(bhwc)
+                    input[ii] = nc
+                    return input.permute(0, 3, 1, 2)
                 else:
-                    u = x.mean(1, keepdim=True)
-                    s = (x - u).pow(2).mean(1, keepdim=True)
-                    x = (x - u) / torch.sqrt(s + self.eps)
-                    x = self.weight[:, None, None] * x + self.bias[:, None, None]
-                    return x
+                    u = input.mean(1, keepdim=True)
+                    s = (input - u).pow(2).mean(1, keepdim=True)
+                    input = (input - u) / torch.sqrt(s + self.eps)
+                    input = (
+                        self.weight[:, None, None] * input + self.bias[:, None, None]
+                    )
+                    return input
         else:  # BLC or BC
             if self.sparse:
                 raise NotImplementedError
             else:
-                return super().forward(x)
+                return super().forward(input)
 
     def __repr__(self):
-            return (
-                super().__repr__()[:-1]
-                + f", ch={self.data_format.split('_')[-1]}, sp={self.sparse})"
-            )
+        return (
+            super().__repr__()[:-1]
+            + f", ch={self.data_format.split('_')[-1]}, sp={self.sparse})"
+        )
 
 
 class SparseConvNeXtBlock(nn.Module):
@@ -609,9 +611,7 @@ class SparK(nn.Module):
         self, state_dict: dict[str, torch.Tensor], strict=True
     ) -> dict[str, torch.Tensor]:
         config: dict = state_dict.pop("config", None)
-        incompatible_keys = super().load_state_dict(
-            state_dict, strict=strict
-        )
+        incompatible_keys = super().load_state_dict(state_dict, strict=strict)
         if config is not None:
             for k, v in self.get_config().items():
                 ckpt_v = config.get(k, None)
