@@ -494,6 +494,16 @@ class SparKDensfiyBlock(nn.Module):
 
 
 class SparKDensifier(nn.Module):
+    """
+    A stack of SparKDensfiyBlocks to convert hierarchical sparse features to hierarchical dense features for decoding
+
+    Args:
+        encoder_in_channels: list of channel numbers of feature maps at different scales from the encoder, in the order from shallow to deep
+        decoder_in_channel: channel number of the feature map at the deepest scale for decoding
+        densify_norm_str: the type of normalization inside SparKDensfiyBlock; can be "bn", "ln" or "none"
+        sbn: whether to use SyncBatchNorm (True) or BatchNorm (False) if densify_norm_str is "bn"
+    """
+
     def __init__(
         self,
         encoder_in_channels: list[int],
@@ -506,7 +516,7 @@ class SparKDensifier(nn.Module):
         self.encoder_in_channels = encoder_in_channels
         self.decoder_in_channel = decoder_in_channel
         d_width = decoder_in_channel
-        for i, e_width in enumerate(encoder_in_channels):
+        for i, e_width in enumerate(encoder_in_channels[::-1]):
             # from the smallest feat map to the largest; i=0: the last feat map; i=1: the second last feat map ...
             # fork arguments that depend on the position (previously used idx inside the block)
             use_identity = i == 0 and e_width == d_width
@@ -525,7 +535,12 @@ class SparKDensifier(nn.Module):
             d_width //= 2
 
     def forward(self, fea_bcffs: List[torch.Tensor]):
+        """
+        Args:
+            fea_bcffs: a list of feature maps at different scales from the encoder, in the order from shallow to deep; each feature map is a tensor of shape (B, C, f, f)
+        """
         to_dec = []
+        fea_bcffs = fea_bcffs[::-1]  # from the smallest feat map to the largest
         global _cur_active
         for i, bcff in enumerate(
             fea_bcffs
@@ -606,11 +621,8 @@ class SparK(nn.Module):
 
         # step2. Encode: get hierarchical encoded sparse features (a list containing 4 feature maps at 4 scales)
         fea_bcffs: List[torch.Tensor] = self.sparse_encoder(masked_bchw)
-        fea_bcffs.reverse()  # after reversion: from the smallest feature map to the largest
-
         # step3. Densify: get hierarchical dense features for decoding
-        to_dec = self.densifier(fea_bcffs, active_b1ff)
-
+        to_dec = self.densifier(fea_bcffs)
         # step4. Decode and reconstruct
         rec_bchw = self.dense_decoder(to_dec)
         inp, rec = (
