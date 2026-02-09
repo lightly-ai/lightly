@@ -609,37 +609,24 @@ class SparK(nn.Module):
         self,
         sparse_encoder: SparseEncoder,
         dense_decoder: LightDecoder,
-        mask_ratio=0.6,
-        densify_norm="bn",
+        mask_ratio: float = 0.6,
+        densify_norm: str = "bn",
         sbn=False,
     ):
         super().__init__()
         # spatial and size info moved to SparseEncoder
-        self.mask_ratio = mask_ratio
-        self.len_keep = round(
-            sparse_encoder.fmap_h * sparse_encoder.fmap_w * (1 - mask_ratio)
-        )
-
         self.sparse_encoder = sparse_encoder
         self.dense_decoder = dense_decoder
-
-        self.sbn = sbn
-        self.densify_norm_str = densify_norm.lower()
-
         self.masker = SparKMasker(sparse_encoder=sparse_encoder, mask_ratio=mask_ratio)
-
         self.densifier = SparKDensifier(
             encoder_in_channels=self.sparse_encoder.enc_feat_map_chs,
             decoder_in_channel=self.dense_decoder.width,
-            densify_norm_str=self.densify_norm_str,
-            sbn=self.sbn,
+            densify_norm_str=densify_norm.lower(),
+            sbn=sbn,
         )
         print(
             f"[SparK.__init__] dims of mask_tokens={tuple(b.mask_token.numel() for b in self.densifier.blocks)}"
         )
-
-        # these are deprecated and would never be used; can be removed.
-        self.vis_active = self.vis_active_ex = self.vis_inp = self.vis_inp_mask = ...
 
     def forward(
         self,
