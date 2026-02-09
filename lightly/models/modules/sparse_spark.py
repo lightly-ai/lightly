@@ -631,7 +631,7 @@ class SparKPatchReconLoss(nn.Module):
         Args:
             inp_patches: (B, L, N) original patches
             rec_patches: (B, L, N) reconstructed patches
-            active_mask: (B, 1, f, f) boolean mask (required)
+            active_mask: (B, L, f, f) boolean mask (required)
 
         Returns:
             recon_loss: scalar tensor
@@ -725,9 +725,7 @@ class SparK(nn.Module):
             densify_norm_str=densify_norm.lower(),
             sbn=sbn,
         )
-        print(
-            f"[SparK.__init__] dims of mask_tokens={tuple(b.mask_token.numel() for b in self.densifier.blocks)}"
-        )
+        self.downsample_ratio = self.sparse_encoder.downsample_ratio
         # loss module for patch reconstruction
         self.recon_loss_fn = SparKPatchReconLoss()
         # output decoder for visualization (pass minimal spatial props)
@@ -754,8 +752,8 @@ class SparK(nn.Module):
         # step4. Decode and reconstruct
         rec_bchw = self.dense_decoder(to_dec)
         inp, rec = (
-            self.patchify(inp_bchw),
-            self.patchify(rec_bchw),
+            patchify(inp_bchw, self.downsample_ratio),
+            patchify(rec_bchw, self.downsample_ratio),
         )  # inp and rec: (B, L = f*f, N = C*downsample_raito**2)
 
         recon_loss, mean, var = self.recon_loss_fn(inp, rec, active_b1fHfW)
@@ -764,10 +762,6 @@ class SparK(nn.Module):
             return self.output_decoder(rec, mean, var, inp_bchw, active_b1hw)
         else:
             return recon_loss
-
-    def patchify(self, bchw):
-        p = self.sparse_encoder.downsample_ratio
-        return patchify(bchw, p)  # (B, L=f*f, N=C*p*p)
 
     def __repr__(self):
         return (
