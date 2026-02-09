@@ -9,7 +9,7 @@ import torch.nn as nn
 from timm.models.layers import DropPath, trunc_normal_
 from torch.nn.common_types import _size_2_t
 
-from lightly.models.utils import random_token_mask
+from lightly.models.utils import patchify, random_token_mask, unpatchify
 
 
 def is_pow2n(x):
@@ -634,12 +634,7 @@ class SparK(nn.Module):
         p = self.downsample_raito
         h, w = self.fmap_h, self.fmap_w
         B, C = bchw.shape[:2]
-        bchw = bchw.reshape(shape=(B, C, h, p, w, p))
-        bchw = torch.einsum("bchpwq->bhwpqc", bchw)
-        bln = bchw.reshape(
-            shape=(B, h * w, C * p**2)
-        )  # (B, f*f, 3*downsample_raito**2)
-        return bln
+        return patchify(bchw, p)  # (B, L=f*f, N=C*p*p)
 
     def unpatchify(self, bln):
         p = self.downsample_raito
