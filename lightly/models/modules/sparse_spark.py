@@ -1,15 +1,14 @@
+# Copyright (c) 2023 Keyu Tian
+# Copyright (c) ByteDance, Inc. and its affiliates.
 import math
-import sys
-from pprint import pformat
 from typing import List, NamedTuple
 
-import timm
 import torch
 import torch.nn as nn
 from timm.models.layers import DropPath, trunc_normal_
 from torch.nn.common_types import _size_2_t
 
-from lightly.models.utils import patchify, random_token_mask
+from lightly.models.utils import random_token_mask
 
 
 def is_pow2n(x):
@@ -321,13 +320,6 @@ class SparseEncoder(nn.Module):
         return self.sp_cnn(x)
 
 
-# Copyright (c) ByteDance, Inc. and its affiliates.
-# All rights reserved.
-#
-# This source code is licensed under the license found in the
-# LICENSE file in the root directory of this source tree.
-
-
 class UNetBlock(nn.Module):
     def __init__(self, cin, cout, bn2d):
         """
@@ -402,37 +394,6 @@ class LightDecoder(nn.Module):
             ):
                 nn.init.constant_(m.bias, 0)
                 nn.init.constant_(m.weight, 1.0)
-
-        # Copyright (c) ByteDance, Inc. and its affiliates.
-
-
-# All rights reserved.
-#
-# This source code is licensed under the license found in the
-# LICENSE file in the root directory of this source tree.
-
-pretrain_default_model_kwargs = {
-    "your_convnet": dict(),
-    "resnet50": dict(drop_path_rate=0.05),
-    "resnet101": dict(drop_path_rate=0.08),
-    "resnet152": dict(drop_path_rate=0.10),
-    "resnet200": dict(drop_path_rate=0.15),
-    "convnext_small": dict(sparse=True, drop_path_rate=0.2),
-    "convnext_base": dict(sparse=True, drop_path_rate=0.3),
-    "convnext_large": dict(sparse=True, drop_path_rate=0.4),
-}
-
-
-def build_sparse_encoder(
-    name: str, input_size: int, sbn=False, drop_path_rate=0.0, verbose=False
-):
-    kwargs = pretrain_default_model_kwargs[name]
-    if drop_path_rate != 0:
-        kwargs["drop_path_rate"] = drop_path_rate
-    print(f"[build_sparse_encoder] model kwargs={kwargs}")
-    cnn = timm.create_model(name, **kwargs)
-
-    return SparseEncoder(cnn, input_size=input_size, sbn=sbn, verbose=verbose)
 
 
 class SparKDensfiyBlock(nn.Module):
