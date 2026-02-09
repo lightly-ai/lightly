@@ -769,15 +769,6 @@ class SparK(nn.Module):
         p = self.sparse_encoder.downsample_ratio
         return patchify(bchw, p)  # (B, L=f*f, N=C*p*p)
 
-    def unpatchify(self, bln):
-        p = self.sparse_encoder.downsample_ratio
-        h, w = self.sparse_encoder.fmap_h, self.sparse_encoder.fmap_w
-        B, C = bln.shape[0], bln.shape[-1] // p**2
-        bln = bln.reshape(shape=(B, h, w, p, p, C))
-        bln = torch.einsum("bhwpqc->bchpwq", bln)
-        bchw = bln.reshape(shape=(B, C, h * p, w * p))
-        return bchw
-
     def __repr__(self):
         return (
             f"\n"
