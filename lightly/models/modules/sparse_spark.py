@@ -565,13 +565,19 @@ class SparKMaskingOuptut(NamedTuple):
 
 
 class SparKMasker(nn.Module):
-    def __init__(self, sparse_encoder: SparseEncoder, mask_ratio: float = 0.6):
+    def __init__(
+        self,
+        feature_map_size: tuple[int, int],
+        downsample_ratio: int,
+        mask_ratio: float = 0.6,
+    ) -> None:
         super().__init__()
-        self.sparse_encoder = sparse_encoder
+        self.fmap_h, self.fmap_w = feature_map_size
+        self.downsample_ratio = downsample_ratio
         self.mask_ratio = mask_ratio
 
     def mask(self, B: int, device: torch.device) -> torch.Tensor:
-        h, w = self.sparse_encoder.fmap_h, self.sparse_encoder.fmap_w
+        h, w = self.fmap_h, self.fmap_w
         index_keep, _ = random_token_mask(
             size=(B, h * w), mask_ratio=self.mask_ratio, device=device
         )
@@ -586,7 +592,7 @@ class SparKMasker(nn.Module):
         global _cur_active
         _cur_active = self.mask(inp_bchw.shape[0], inp_bchw.device)  # (B, 1, f, f)
         active_b1ff = _cur_active.clone()
-        downsample_ratio = self.sparse_encoder.downsample_ratio
+        downsample_ratio = self.downsample_ratio
         per_level_mask = [active_b1ff]
         for i in range(int(math.log2(downsample_ratio))):
             previous_mask = per_level_mask[-1]
@@ -617,7 +623,11 @@ class SparK(nn.Module):
         # spatial and size info moved to SparseEncoder
         self.sparse_encoder = sparse_encoder
         self.dense_decoder = dense_decoder
-        self.masker = SparKMasker(sparse_encoder=sparse_encoder, mask_ratio=mask_ratio)
+        self.masker = SparKMasker(
+            feature_map_size=(self.sparse_encoder.fmap_h, self.sparse_encoder.fmap_w),
+            downsample_ratio=self.sparse_encoder.downsample_ratio,
+            mask_ratio=mask_ratio,
+        )
         self.densifier = SparKDensifier(
             encoder_in_channels=self.sparse_encoder.enc_feat_map_chs,
             decoder_in_channel=self.dense_decoder.width,
