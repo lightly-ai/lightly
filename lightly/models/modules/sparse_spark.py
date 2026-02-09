@@ -610,6 +610,52 @@ class SparKMasker(nn.Module):
         )
 
 
+class SparKPatchReconLoss(nn.Module):
+    """Loss module that computes per-patch normalized reconstruction loss.
+
+    Accepts the non-flattened mask `(B, 1, f, f)` and flattens internally.
+    """
+
+    def __init__(self, eps: float = 1e-6):
+        super().__init__()
+        self.eps = eps
+
+    def forward(
+        self,
+        inp_patches: torch.Tensor,
+        rec_patches: torch.Tensor,
+        active_mask: torch.Tensor,
+    ):
+        """Compute reconstruction loss and return per-patch stats.
+
+        Args:
+            inp_patches: (B, L, N) original patches
+            rec_patches: (B, L, N) reconstructed patches
+            active_mask: (B, 1, f, f) boolean mask (required)
+
+        Returns:
+            recon_loss: scalar tensor
+            mean: (B, L, 1) per-patch mean
+            var: (B, L, 1) per-patch std
+        """
+        if active_mask.ndim != 4:
+            raise ValueError(
+                "active_mask must be non-flattened with shape (B, 1, f, f)"
+            )
+
+        mean = inp_patches.mean(dim=-1, keepdim=True)
+        var = (inp_patches.var(dim=-1, keepdim=True) + self.eps) ** 0.5
+
+        inp_norm = (inp_patches - mean) / var
+
+        l2_loss = ((rec_patches - inp_norm) ** 2).mean(dim=2)  # (B, L)
+
+        non_active = active_mask.logical_not().int().view(active_mask.shape[0], -1)
+
+        recon_loss = l2_loss.mul_(non_active).sum() / (non_active.sum() + 1e-8)
+        return recon_loss, mean, var
+
+
 class SparK(nn.Module):
     def __init__(
         self,
@@ -637,6 +683,8 @@ class SparK(nn.Module):
         print(
             f"[SparK.__init__] dims of mask_tokens={tuple(b.mask_token.numel() for b in self.densifier.blocks)}"
         )
+        # loss module for patch reconstruction
+        self.recon_loss_fn = SparKPatchReconLoss()
 
     def forward(
         self,
@@ -658,19 +706,8 @@ class SparK(nn.Module):
             self.patchify(inp_bchw),
             self.patchify(rec_bchw),
         )  # inp and rec: (B, L = f*f, N = C*downsample_raito**2)
-        mean = inp.mean(dim=-1, keepdim=True)
-        var = (inp.var(dim=-1, keepdim=True) + 1e-6) ** 0.5
-        inp = (inp - mean) / var
-        l2_loss = ((rec - inp) ** 2).mean(
-            dim=2, keepdim=False
-        )  # (B, L, C) ==mean==> (B, L)
 
-        non_active = (
-            active_b1fHfW.logical_not().int().view(active_b1fHfW.shape[0], -1)
-        )  # (B, 1, f, f) => (B, L)
-        recon_loss = l2_loss.mul_(non_active).sum() / (
-            non_active.sum() + 1e-8
-        )  # loss only on masked (non-active) patches
+        recon_loss, mean, var = self.recon_loss_fn(inp, rec, active_b1fHfW)
 
         if vis:
             masked_bchw = inp_bchw * active_b1hw
