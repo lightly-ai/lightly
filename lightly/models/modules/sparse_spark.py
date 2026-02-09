@@ -562,18 +562,11 @@ class SparK(nn.Module):
         self.dense_decoder = dense_decoder
 
         self.sbn = sbn
-        self.hierarchy = len(sparse_encoder.enc_feat_map_chs)
         self.densify_norm_str = densify_norm.lower()
 
-        # build the `densify` layers
-        e_widths, d_width = (
-            self.sparse_encoder.enc_feat_map_chs,
-            self.dense_decoder.width,
-        )
-
         self.densifier = SparKDensifier(
-            encoder_in_channels=e_widths,
-            decoder_in_channel=d_width,
+            encoder_in_channels=self.sparse_encoder.enc_feat_map_chs,
+            decoder_in_channel=self.dense_decoder.width,
             densify_norm_str=self.densify_norm_str,
             sbn=self.sbn,
         )
@@ -679,7 +672,6 @@ class SparK(nn.Module):
             "mask_ratio": self.mask_ratio,
             "densify_norm_str": self.densify_norm_str,
             "sbn": self.sbn,
-            "hierarchy": self.hierarchy,
             # enc
             "sparse_encoder.input_size": self.sparse_encoder.input_size,
             # dec
