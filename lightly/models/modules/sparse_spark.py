@@ -491,19 +491,46 @@ class SparKDensfiyBlock(nn.Module):
 
 
 class SparKDensifier(nn.Module):
-    def __init__(self, blocks: List[SparKDensfiyBlock]):
+    def __init__(
+        self,
+        encoder_in_channels: list[int],
+        decoder_in_channel: int,
+        densify_norm_str: str = "bn",
+        sbn: bool = False,
+    ):
         super().__init__()
-        self.blocks = nn.ModuleList(blocks)
+        self.blocks = nn.ModuleList()
+        self.encoder_in_channels = encoder_in_channels
+        self.decoder_in_channel = decoder_in_channel
+        d_width = decoder_in_channel
+        for i, e_width in enumerate(encoder_in_channels):
+            # from the smallest feat map to the largest; i=0: the last feat map; i=1: the second last feat map ...
+            # fork arguments that depend on the position (previously used idx inside the block)
+            use_identity = i == 0 and e_width == d_width
+            kernel_size = 1 if i <= 0 else 3
+            # build densify block and append
+            block = SparKDensfiyBlock(
+                e_width=e_width,
+                d_width=d_width,
+                densify_norm_str=densify_norm_str,
+                sbn=sbn,
+                use_identity_proj=use_identity,
+                kernel_size=kernel_size,
+            )
+            self.blocks.append(block)
+            # todo: the decoder's width follows a simple halfing rule; you can change it to any other rule
+            d_width //= 2
 
-    def forward(self, fea_bcffs: List[torch.Tensor], cur_active: torch.BoolTensor):
+    def forward(self, fea_bcffs: List[torch.Tensor]):
         to_dec = []
+        global _cur_active
         for i, bcff in enumerate(
             fea_bcffs
         ):  # from the smallest feature map to the largest
             if bcff is not None:
-                bcff = self.blocks[i](bcff, cur_active)
+                bcff = self.blocks[i](bcff, _cur_active)
             to_dec.append(bcff)
-            cur_active = cur_active.repeat_interleave(2, dim=2).repeat_interleave(
+            _cur_active = _cur_active.repeat_interleave(2, dim=2).repeat_interleave(
                 2, dim=3
             )  # dilate the mask map, from (B, 1, f, f) to (B, 1, H, W)
         return to_dec
@@ -543,28 +570,13 @@ class SparK(nn.Module):
             self.sparse_encoder.enc_feat_map_chs,
             self.dense_decoder.width,
         )
-        e_widths: List[int]
-        densify_blocks = []
-        for i in range(self.hierarchy):
-            # from the smallest feat map to the largest; i=0: the last feat map; i=1: the second last feat map ...
-            e_width = e_widths.pop()
-            # fork arguments that depend on the position (previously used idx inside the block)
-            use_identity = i == 0 and e_width == d_width
-            kernel_size = 1 if i <= 0 else 3
-            # build densify block and append
-            block = SparKDensfiyBlock(
-                e_width=e_width,
-                d_width=d_width,
-                densify_norm_str=self.densify_norm_str,
-                sbn=self.sbn,
-                use_identity_proj=use_identity,
-                kernel_size=kernel_size,
-            )
-            densify_blocks.append(block)
-            # todo: the decoder's width follows a simple halfing rule; you can change it to any other rule
-            d_width //= 2
 
-        self.densifier = SparKDensifier(densify_blocks)
+        self.densifier = SparKDensifier(
+            encoder_in_channels=e_widths,
+            decoder_in_channel=d_width,
+            densify_norm_str=self.densify_norm_str,
+            sbn=self.sbn,
+        )
         print(
             f"[SparK.__init__] dims of mask_tokens={tuple(b.mask_token.numel() for b in self.densify_blocks)}"
         )
