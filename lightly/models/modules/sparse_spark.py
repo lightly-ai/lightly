@@ -656,6 +656,51 @@ class SparKPatchReconLoss(nn.Module):
         return recon_loss, mean, var
 
 
+class SparKOutputDecoder(nn.Module):
+    """Handles de-normalizing reconstructed patches and producing visualization tensors.
+
+    Usage: call with `rec_patches, mean, var, inp_bchw, active_mask_full` where
+    `rec_patches` is (B, L, N), `mean`/`var` are (B, L, 1), `inp_bchw` is original image
+    and `active_mask_full` is (B, 1, H, W) boolean mask indicating visible patches.
+    The decoder is configured with only the minimal spatial properties: `fmap_h`,
+    `fmap_w` and `downsample_ratio` (no encoder object required).
+    """
+
+    def __init__(self, fmap_h: int, fmap_w: int, downsample_ratio: int):
+        super().__init__()
+        self.fmap_h = fmap_h
+        self.fmap_w = fmap_w
+        self.downsample_ratio = downsample_ratio
+
+    def unpatchify(self, bln: torch.Tensor) -> torch.Tensor:
+        p = self.downsample_ratio
+        h, w = self.fmap_h, self.fmap_w
+        B, C = bln.shape[0], bln.shape[-1] // p**2
+        bln = bln.reshape(shape=(B, h, w, p, p, C))
+        bln = torch.einsum("bhwpqc->bchpwq", bln)
+        bchw = bln.reshape(shape=(B, C, h * p, w * p))
+        return bchw
+
+    def forward(
+        self,
+        rec_patches: torch.Tensor,
+        mean: torch.Tensor,
+        var: torch.Tensor,
+        inp_bchw: torch.Tensor,
+        active_mask_full: torch.Tensor,
+    ):
+        # de-normalize and unpatchify
+        rec_bchw = self.unpatchify(rec_patches * var + mean)
+
+        # masked input at full resolution
+        masked_bchw = inp_bchw * active_mask_full
+
+        # combine: use original where visible, reconstructed where masked
+        rec_or_inp = torch.where(active_mask_full, inp_bchw, rec_bchw)
+
+        return inp_bchw, masked_bchw, rec_or_inp
+
+
 class SparK(nn.Module):
     def __init__(
         self,
@@ -685,6 +730,12 @@ class SparK(nn.Module):
         )
         # loss module for patch reconstruction
         self.recon_loss_fn = SparKPatchReconLoss()
+        # output decoder for visualization (pass minimal spatial props)
+        self.output_decoder = SparKOutputDecoder(
+            self.sparse_encoder.fmap_h,
+            self.sparse_encoder.fmap_w,
+            self.sparse_encoder.downsample_ratio,
+        )
 
     def forward(
         self,
@@ -710,10 +761,7 @@ class SparK(nn.Module):
         recon_loss, mean, var = self.recon_loss_fn(inp, rec, active_b1fHfW)
 
         if vis:
-            masked_bchw = inp_bchw * active_b1hw
-            rec_bchw = self.unpatchify(rec * var + mean)
-            rec_or_inp = torch.where(active_b1hw, inp_bchw, rec_bchw)
-            return inp_bchw, masked_bchw, rec_or_inp
+            return self.output_decoder(rec, mean, var, inp_bchw, active_b1hw)
         else:
             return recon_loss
 
