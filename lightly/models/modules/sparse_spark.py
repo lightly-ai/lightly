@@ -9,7 +9,7 @@ import torch.nn as nn
 from timm.models.layers import DropPath, trunc_normal_
 from torch.nn.common_types import _size_2_t
 
-from lightly.models.utils import patchify, random_token_mask, unpatchify
+from lightly.models.utils import patchify, random_token_mask
 
 
 def is_pow2n(x):
@@ -490,6 +490,25 @@ class SparKDensfiyBlock(nn.Module):
         return bcff
 
 
+class SparKDensifier(nn.Module):
+    def __init__(self, blocks: List[SparKDensfiyBlock]):
+        super().__init__()
+        self.blocks = nn.ModuleList(blocks)
+
+    def forward(self, fea_bcffs: List[torch.Tensor], cur_active: torch.BoolTensor):
+        to_dec = []
+        for i, bcff in enumerate(
+            fea_bcffs
+        ):  # from the smallest feature map to the largest
+            if bcff is not None:
+                bcff = self.blocks[i](bcff, cur_active)
+            to_dec.append(bcff)
+            cur_active = cur_active.repeat_interleave(2, dim=2).repeat_interleave(
+                2, dim=3
+            )  # dilate the mask map, from (B, 1, f, f) to (B, 1, H, W)
+        return to_dec
+
+
 class SparK(nn.Module):
     def __init__(
         self,
@@ -518,7 +537,6 @@ class SparK(nn.Module):
         self.sbn = sbn
         self.hierarchy = len(sparse_encoder.enc_feat_map_chs)
         self.densify_norm_str = densify_norm.lower()
-        self.densify_blocks = nn.ModuleList()
 
         # build the `densify` layers
         e_widths, d_width = (
@@ -526,6 +544,7 @@ class SparK(nn.Module):
             self.dense_decoder.width,
         )
         e_widths: List[int]
+        densify_blocks = []
         for i in range(self.hierarchy):
             # from the smallest feat map to the largest; i=0: the last feat map; i=1: the second last feat map ...
             e_width = e_widths.pop()
@@ -541,11 +560,11 @@ class SparK(nn.Module):
                 use_identity_proj=use_identity,
                 kernel_size=kernel_size,
             )
-            self.densify_blocks.append(block)
-
+            densify_blocks.append(block)
             # todo: the decoder's width follows a simple halfing rule; you can change it to any other rule
             d_width //= 2
 
+        self.densifier = SparKDensifier(densify_blocks)
         print(
             f"[SparK.__init__] dims of mask_tokens={tuple(b.mask_token.numel() for b in self.densify_blocks)}"
         )
@@ -590,17 +609,7 @@ class SparK(nn.Module):
         fea_bcffs.reverse()  # after reversion: from the smallest feature map to the largest
 
         # step3. Densify: get hierarchical dense features for decoding
-        cur_active = active_b1ff  # (B, 1, f, f)
-        to_dec = []
-        for i, bcff in enumerate(
-            fea_bcffs
-        ):  # from the smallest feature map to the largest
-            if bcff is not None:
-                bcff = self.densify_blocks[i](bcff, cur_active)
-            to_dec.append(bcff)
-            cur_active = cur_active.repeat_interleave(2, dim=2).repeat_interleave(
-                2, dim=3
-            )  # dilate the mask map, from (B, 1, f, f) to (B, 1, H, W)
+        to_dec = self.densifier(fea_bcffs, active_b1ff)
 
         # step4. Decode and reconstruct
         rec_bchw = self.dense_decoder(to_dec)
