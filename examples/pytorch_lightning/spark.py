@@ -20,12 +20,15 @@ class SparseSpark(pl.LightningModule):
     def __init__(self) -> None:
         super().__init__()
         backbone = timm.create_model(
-            "resnet50", drop_path_rate=0.05, features_only=True
+            "resnet18", drop_path_rate=0.05, features_only=True
         )
         self.sparse_encoder = SparseEncoder(
             backbone, input_size=416, sbn=False, verbose=True
         )
-        self.dense_decoder = LightDecoder(self.sparse_encoder.downsample_raito)
+        self.dense_decoder = LightDecoder(
+            self.sparse_encoder.downsample_ratio,
+            width=self.sparse_encoder.enc_feat_map_chs[-1],
+        )
         self.spark = SparK(
             sparse_encoder=self.sparse_encoder,
             dense_decoder=self.dense_decoder,
