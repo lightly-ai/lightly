@@ -1,7 +1,7 @@
 import math
 import sys
 from pprint import pformat
-from typing import List
+from typing import List, NamedTuple
 
 import timm
 import torch
@@ -542,16 +542,66 @@ class SparKDensifier(nn.Module):
         to_dec = []
         fea_bcffs = fea_bcffs[::-1]  # from the smallest feat map to the largest
         global _cur_active
+        active_fmap_current = (
+            _cur_active  # (B, 1, f, f), the mask map at the current scale
+        )
         for i, bcff in enumerate(
             fea_bcffs
         ):  # from the smallest feature map to the largest
             if bcff is not None:
-                bcff = self.blocks[i](bcff, _cur_active)
+                bcff = self.blocks[i](bcff, active_fmap_current)
             to_dec.append(bcff)
-            _cur_active = _cur_active.repeat_interleave(2, dim=2).repeat_interleave(
+            active_fmap_current = active_fmap_current.repeat_interleave(
+                2, dim=2
+            ).repeat_interleave(
                 2, dim=3
             )  # dilate the mask map, from (B, 1, f, f) to (B, 1, H, W)
         return to_dec
+
+
+class SparKMaskingOuptut(NamedTuple):
+    masked_bchw: torch.Tensor
+    per_level_mask: List[torch.Tensor]
+
+
+class SparKMasker(nn.Module):
+    def __init__(self, sparse_encoder: SparseEncoder, mask_ratio: float = 0.6):
+        super().__init__()
+        self.sparse_encoder = sparse_encoder
+        self.mask_ratio = mask_ratio
+
+    def mask(self, B: int, device: torch.device) -> torch.Tensor:
+        h, w = self.sparse_encoder.fmap_h, self.sparse_encoder.fmap_w
+        index_keep, _ = random_token_mask(
+            size=(B, h * w), mask_ratio=self.mask_ratio, device=device
+        )
+        return (
+            torch.zeros(B, 1, h * w, dtype=torch.bool, device=device)
+            .scatter_(dim=2, index=index_keep.unsqueeze(1), value=True)
+            .view(B, 1, h, w)
+            .bool()
+        )
+
+    def forward(self, inp_bchw: torch.Tensor) -> SparKMaskingOuptut:
+        global _cur_active
+        _cur_active = self.mask(inp_bchw.shape[0], inp_bchw.device)  # (B, 1, f, f)
+        active_b1ff = _cur_active.clone()
+        downsample_ratio = self.sparse_encoder.downsample_ratio
+        per_level_mask = [active_b1ff]
+        for i in range(int(math.log2(downsample_ratio))):
+            previous_mask = per_level_mask[-1]
+            active_b1cHcW = previous_mask.repeat_interleave(2, dim=2).repeat_interleave(
+                2, dim=3
+            )  # (B, 1, f*ds, f*ds)
+            per_level_mask.append(active_b1cHcW)
+
+        active_b1hw = per_level_mask[
+            -1
+        ]  # the mask map at the deepest scale (the smallest feature map), which would be used for masking the input to the encoder; shape: (B, 1, f, f)
+        masked_bchw = inp_bchw * active_b1hw
+        return SparKMaskingOuptut(
+            masked_bchw=masked_bchw, per_level_mask=per_level_mask
+        )
 
 
 class SparK(nn.Module):
@@ -576,6 +626,8 @@ class SparK(nn.Module):
         self.sbn = sbn
         self.densify_norm_str = densify_norm.lower()
 
+        self.masker = SparKMasker(sparse_encoder=sparse_encoder, mask_ratio=mask_ratio)
+
         self.densifier = SparKDensifier(
             encoder_in_channels=self.sparse_encoder.enc_feat_map_chs,
             decoder_in_channel=self.dense_decoder.width,
@@ -589,36 +641,16 @@ class SparK(nn.Module):
         # these are deprecated and would never be used; can be removed.
         self.vis_active = self.vis_active_ex = self.vis_inp = self.vis_inp_mask = ...
 
-    def mask(self, B: int, device: torch.device) -> torch.Tensor:
-        h, w = self.sparse_encoder.fmap_h, self.sparse_encoder.fmap_w
-        index_keep, _ = random_token_mask(
-            size=(B, h * w), mask_ratio=self.mask_ratio, device=device
-        )
-        return (
-            torch.zeros(B, 1, h * w, dtype=torch.bool, device=device)
-            .scatter_(dim=2, index=index_keep.unsqueeze(1), value=True)
-            .view(B, 1, h, w)
-            .bool()
-        )
-
     def forward(
         self,
         inp_bchw: torch.Tensor,
-        active_b1ff: None | torch.Tensor = None,
         vis=False,
     ):
         # step1. Mask
-        active_b1ff = active_b1ff or self.mask(
-            inp_bchw.shape[0], inp_bchw.device
-        )  # (B, 1, f, f)
-        global _cur_active
-        _cur_active = active_b1ff  # (B, 1, f, f)
-        ds = self.sparse_encoder.downsample_ratio
-        active_b1hw = active_b1ff.repeat_interleave(ds, 2).repeat_interleave(
-            ds, 3
-        )  # (B, 1, H, W)
-        masked_bchw = inp_bchw * active_b1hw
-
+        mask_out: SparKMaskingOuptut = self.masker(inp_bchw)
+        masked_bchw, per_level_mask = mask_out
+        active_b1fHfW = per_level_mask[0]
+        active_b1hw = per_level_mask[-1]
         # step2. Encode: get hierarchical encoded sparse features (a list containing 4 feature maps at 4 scales)
         fea_bcffs: List[torch.Tensor] = self.sparse_encoder(masked_bchw)
         # step3. Densify: get hierarchical dense features for decoding
@@ -637,7 +669,7 @@ class SparK(nn.Module):
         )  # (B, L, C) ==mean==> (B, L)
 
         non_active = (
-            active_b1ff.logical_not().int().view(active_b1ff.shape[0], -1)
+            active_b1fHfW.logical_not().int().view(active_b1fHfW.shape[0], -1)
         )  # (B, 1, f, f) => (B, L)
         recon_loss = l2_loss.mul_(non_active).sum() / (
             non_active.sum() + 1e-8
