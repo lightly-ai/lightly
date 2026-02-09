@@ -574,12 +574,12 @@ class SparK(nn.Module):
         # these are deprecated and would never be used; can be removed.
         self.vis_active = self.vis_active_ex = self.vis_inp = self.vis_inp_mask = ...
 
-    def mask(self, B: int, device: torch.device) -> torch.BoolTensor:
+    def mask(self, B: int, device: torch.device) -> torch.Tensor:
         h, w = self.sparse_encoder.fmap_h, self.sparse_encoder.fmap_w
         index_keep, _ = random_token_mask(
             size=(B, h * w), mask_ratio=self.mask_ratio, device=device
         )
-        return torch.BoolTensor(
+        return (
             torch.zeros(B, 1, h * w, dtype=torch.bool, device=device)
             .scatter_(dim=2, index=index_keep.unsqueeze(1), value=True)
             .view(B, 1, h, w)
@@ -589,7 +589,7 @@ class SparK(nn.Module):
     def forward(
         self,
         inp_bchw: torch.Tensor,
-        active_b1ff: None | torch.BoolTensor = None,
+        active_b1ff: None | torch.Tensor = None,
         vis=False,
     ):
         # step1. Mask
