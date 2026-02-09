@@ -236,7 +236,7 @@ class SparseEncoder(nn.Module):
         self.sp_cnn = SparseEncoder.dense_model_to_sparse(
             m=cnn, verbose=verbose, sbn=sbn
         )
-        self.input_size, self.downsample_raito, self.enc_feat_map_chs = (
+        self.input_size, self.downsample_ratio, self.enc_feat_map_chs = (
             input_size,
             get_downsample_ratio_from_timm_model(cnn),
             get_enc_feat_map_chs_from_timm_model(cnn),
@@ -519,14 +519,14 @@ class SparK(nn.Module):
         sbn=False,
     ):
         super().__init__()
-        input_size, downsample_raito = (
+        input_size, downsample_ratio = (
             sparse_encoder.input_size,
-            sparse_encoder.downsample_raito,
+            sparse_encoder.downsample_ratio,
         )
-        self.downsample_raito = downsample_raito
+        self.downsample_ratio = downsample_ratio
         self.fmap_h, self.fmap_w = (
-            input_size // downsample_raito,
-            input_size // downsample_raito,
+            input_size // downsample_ratio,
+            input_size // downsample_ratio,
         )
         self.mask_ratio = mask_ratio
         self.len_keep = round(self.fmap_h * self.fmap_w * (1 - mask_ratio))
@@ -600,8 +600,8 @@ class SparK(nn.Module):
         global _cur_active
         _cur_active = active_b1ff  # (B, 1, f, f)
         active_b1hw = active_b1ff.repeat_interleave(
-            self.downsample_raito, 2
-        ).repeat_interleave(self.downsample_raito, 3)  # (B, 1, H, W)
+            self.downsample_ratio, 2
+        ).repeat_interleave(self.downsample_ratio, 3)  # (B, 1, H, W)
         masked_bchw = inp_bchw * active_b1hw
 
         # step2. Encode: get hierarchical encoded sparse features (a list containing 4 feature maps at 4 scales)
@@ -640,13 +640,13 @@ class SparK(nn.Module):
             return recon_loss
 
     def patchify(self, bchw):
-        p = self.downsample_raito
+        p = self.downsample_ratio
         h, w = self.fmap_h, self.fmap_w
         B, C = bchw.shape[:2]
         return patchify(bchw, p)  # (B, L=f*f, N=C*p*p)
 
     def unpatchify(self, bln):
-        p = self.downsample_raito
+        p = self.downsample_ratio
         h, w = self.fmap_h, self.fmap_w
         B, C = bln.shape[0], bln.shape[-1] // p**2
         bln = bln.reshape(shape=(B, h, w, p, p, C))
