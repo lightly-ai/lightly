@@ -9,6 +9,8 @@ import torch.nn as nn
 from timm.models.layers import DropPath, trunc_normal_
 from torch.nn.common_types import _size_2_t
 
+from lightly.models.utils import random_token_mask
+
 
 def is_pow2n(x):
     return x > 0 and (x & (x - 1) == 0)
@@ -430,6 +432,64 @@ def build_sparse_encoder(
     return SparseEncoder(cnn, input_size=input_size, sbn=sbn, verbose=verbose)
 
 
+class SparKDensfiyBlock(nn.Module):
+    def __init__(
+        self,
+        e_width: int,
+        d_width: int,
+        densify_norm_str: str = "bn",
+        sbn: bool = False,
+        use_identity_proj: bool = False,
+        kernel_size: int = 3,
+    ):
+        super().__init__()
+        # mask token
+        p = nn.Parameter(torch.zeros(1, e_width, 1, 1))
+        trunc_normal_(p, mean=0, std=0.02, a=-0.02, b=0.02)
+        self.mask_token = p
+
+        # densify norm
+        if densify_norm_str == "bn":
+            self.densify_norm = (SparseSyncBatchNorm2d if sbn else SparseBatchNorm2d)(
+                e_width
+            )
+        elif densify_norm_str == "ln":
+            self.densify_norm = SparseConvNeXtLayerNorm(
+                e_width, data_format="channels_first", sparse=True
+            )
+        else:
+            self.densify_norm = nn.Identity()
+
+        # densify proj
+        if use_identity_proj:
+            self.densify_proj = nn.Identity()
+            print(
+                f"[SparKDensfiyBlock.__init__]: use nn.Identity() as densify_proj (e_width==d_width)"
+            )
+        else:
+            densify_proj = nn.Conv2d(
+                e_width,
+                d_width,
+                kernel_size=kernel_size,
+                stride=1,
+                padding=kernel_size // 2,
+                bias=True,
+            )
+            print(
+                f"[SparKDensfiyBlock.__init__]: densify_proj(ksz={kernel_size}, #para={sum(x.numel() for x in densify_proj.parameters()) / 1e6:.2f}M)"
+            )
+            self.densify_proj = densify_proj
+
+    def forward(self, bcff: torch.Tensor, cur_active: torch.BoolTensor):
+        if bcff is None:
+            return None
+        bcff = self.densify_norm(bcff)
+        mask_tokens = self.mask_token.expand_as(bcff)
+        bcff = torch.where(cur_active.expand_as(bcff), bcff, mask_tokens)
+        bcff = self.densify_proj(bcff)
+        return bcff
+
+
 class SparK(nn.Module):
     def __init__(
         self,
@@ -458,9 +518,7 @@ class SparK(nn.Module):
         self.sbn = sbn
         self.hierarchy = len(sparse_encoder.enc_feat_map_chs)
         self.densify_norm_str = densify_norm.lower()
-        self.densify_norms = nn.ModuleList()
-        self.densify_projs = nn.ModuleList()
-        self.mask_tokens = nn.ParameterList()
+        self.densify_blocks = nn.ModuleList()
 
         # build the `densify` layers
         e_widths, d_width = (
@@ -468,54 +526,28 @@ class SparK(nn.Module):
             self.dense_decoder.width,
         )
         e_widths: List[int]
-        for i in range(
-            self.hierarchy
-        ):  # from the smallest feat map to the largest; i=0: the last feat map; i=1: the second last feat map ...
+        for i in range(self.hierarchy):
+            # from the smallest feat map to the largest; i=0: the last feat map; i=1: the second last feat map ...
             e_width = e_widths.pop()
-            # create mask token
-            p = nn.Parameter(torch.zeros(1, e_width, 1, 1))
-            trunc_normal_(p, mean=0, std=0.02, a=-0.02, b=0.02)
-            self.mask_tokens.append(p)
-
-            # create densify norm
-            if self.densify_norm_str == "bn":
-                densify_norm = (
-                    SparseSyncBatchNorm2d if self.sbn else SparseBatchNorm2d
-                )(e_width)
-            elif self.densify_norm_str == "ln":
-                densify_norm = SparseConvNeXtLayerNorm(
-                    e_width, data_format="channels_first", sparse=True
-                )
-            else:
-                densify_norm = nn.Identity()
-            self.densify_norms.append(densify_norm)
-
-            # create densify proj
-            if i == 0 and e_width == d_width:
-                densify_proj = nn.Identity()  # todo: NOTE THAT CONVNEXT-S WOULD USE THIS, because it has a width of 768 that equals to the decoder's width 768
-                print(
-                    f"[SparK.__init__, densify {i + 1}/{self.hierarchy}]: use nn.Identity() as densify_proj"
-                )
-            else:
-                kernel_size = 1 if i <= 0 else 3
-                densify_proj = nn.Conv2d(
-                    e_width,
-                    d_width,
-                    kernel_size=kernel_size,
-                    stride=1,
-                    padding=kernel_size // 2,
-                    bias=True,
-                )
-                print(
-                    f"[SparK.__init__, densify {i + 1}/{self.hierarchy}]: densify_proj(ksz={kernel_size}, #para={sum(x.numel() for x in densify_proj.parameters()) / 1e6:.2f}M)"
-                )
-            self.densify_projs.append(densify_proj)
+            # fork arguments that depend on the position (previously used idx inside the block)
+            use_identity = i == 0 and e_width == d_width
+            kernel_size = 1 if i <= 0 else 3
+            # build densify block and append
+            block = SparKDensfiyBlock(
+                e_width=e_width,
+                d_width=d_width,
+                densify_norm_str=self.densify_norm_str,
+                sbn=self.sbn,
+                use_identity_proj=use_identity,
+                kernel_size=kernel_size,
+            )
+            self.densify_blocks.append(block)
 
             # todo: the decoder's width follows a simple halfing rule; you can change it to any other rule
             d_width //= 2
 
         print(
-            f"[SparK.__init__] dims of mask_tokens={tuple(p.numel() for p in self.mask_tokens)}"
+            f"[SparK.__init__] dims of mask_tokens={tuple(b.mask_token.numel() for b in self.densify_blocks)}"
         )
 
         # these are deprecated and would never be used; can be removed.
@@ -524,14 +556,16 @@ class SparK(nn.Module):
         self.register_buffer("norm_black", torch.zeros(1, 3, input_size, input_size))
         self.vis_active = self.vis_active_ex = self.vis_inp = self.vis_inp_mask = ...
 
-    def mask(self, B: int, device, generator=None) -> torch.BoolTensor:
+    def mask(self, B: int, device: torch.device) -> torch.BoolTensor:
         h, w = self.fmap_h, self.fmap_w
-        idx = torch.rand(B, h * w, generator=generator).argsort(dim=1)
-        idx = idx[:, : self.len_keep].to(device)  # (B, len_keep)
-        return (
-            torch.zeros(B, h * w, dtype=torch.bool, device=device)
-            .scatter_(dim=1, index=idx, value=True)
+        index_keep, _ = random_token_mask(
+            size=(B, h * w), mask_ratio=self.mask_ratio, device=device
+        )
+        return torch.BoolTensor(
+            torch.zeros(B, 1, h * w, dtype=torch.bool, device=device)
+            .scatter_(dim=2, index=index_keep.unsqueeze(1), value=True)
             .view(B, 1, h, w)
+            .bool()
         )
 
     def forward(
@@ -562,12 +596,7 @@ class SparK(nn.Module):
             fea_bcffs
         ):  # from the smallest feature map to the largest
             if bcff is not None:
-                bcff = self.densify_norms[i](bcff)
-                mask_tokens = self.mask_tokens[i].expand_as(bcff)
-                bcff = torch.where(
-                    cur_active.expand_as(bcff), bcff, mask_tokens
-                )  # fill in empty (non-active) positions with [mask] tokens
-                bcff: torch.Tensor = self.densify_projs[i](bcff)
+                bcff = self.densify_blocks[i](bcff, cur_active)
             to_dec.append(bcff)
             cur_active = cur_active.repeat_interleave(2, dim=2).repeat_interleave(
                 2, dim=3
