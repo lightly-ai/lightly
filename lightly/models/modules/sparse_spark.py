@@ -211,14 +211,6 @@ class SparseConvNeXtBlock(nn.Module):
         return super().__repr__()[:-1] + f", sp={self.sparse})"
 
 
-def get_downsample_ratio_from_timm_model(model: nn.Module) -> int:
-    return model.feature_info[-1]["reduction"]
-
-
-def get_enc_feat_map_chs_from_timm_model(model: nn.Module) -> List[int]:
-    return [fi["num_chs"] for fi in model.feature_info]
-
-
 class SparseEncoder(nn.Module):
     """
     Converts a dense CNN model to a sparse CNN model by replacing standard layers
@@ -231,15 +223,23 @@ class SparseEncoder(nn.Module):
 
     enc_feat_map_chs: List[int]
 
-    def __init__(self, cnn, input_size, sbn=False, verbose=False):
+    def __init__(
+        self,
+        cnn,
+        input_size,
+        downsample_ratio: int,
+        feature_map_channels: list[int],
+        sbn=False,
+        verbose=False,
+    ):
         super().__init__()
         self.sp_cnn = SparseEncoder.dense_model_to_sparse(
             m=cnn, verbose=verbose, sbn=sbn
         )
         self.input_size, self.downsample_ratio, self.enc_feat_map_chs = (
             input_size,
-            get_downsample_ratio_from_timm_model(cnn),
-            get_enc_feat_map_chs_from_timm_model(cnn),
+            downsample_ratio,
+            feature_map_channels,
         )
         # feature-map spatial size (height, width) at encoder output (patch grid)
         self.fmap_h = input_size // self.downsample_ratio
@@ -699,111 +699,3 @@ class SparKOutputDecoder(nn.Module):
         rec_or_inp = torch.where(active_mask_full, inp_bchw, rec_bchw)
 
         return inp_bchw, masked_bchw, rec_or_inp
-
-
-class SparK(nn.Module):
-    def __init__(
-        self,
-        sparse_encoder: SparseEncoder,
-        dense_decoder: LightDecoder,
-        mask_ratio: float = 0.6,
-        densify_norm: str = "bn",
-        sbn=False,
-    ):
-        super().__init__()
-        # spatial and size info moved to SparseEncoder
-        self.sparse_encoder = sparse_encoder
-        self.dense_decoder = dense_decoder
-        self.masker = SparKMasker(
-            feature_map_size=(self.sparse_encoder.fmap_h, self.sparse_encoder.fmap_w),
-            downsample_ratio=self.sparse_encoder.downsample_ratio,
-            mask_ratio=mask_ratio,
-        )
-        self.densifier = SparKDensifier(
-            encoder_in_channels=self.sparse_encoder.enc_feat_map_chs,
-            decoder_in_channel=self.dense_decoder.width,
-            densify_norm_str=densify_norm.lower(),
-            sbn=sbn,
-        )
-        self.downsample_ratio = self.sparse_encoder.downsample_ratio
-        # loss module for patch reconstruction
-        self.recon_loss_fn = SparKPatchReconLoss()
-        # output decoder for visualization (pass minimal spatial props)
-        self.output_decoder = SparKOutputDecoder(
-            self.sparse_encoder.fmap_h,
-            self.sparse_encoder.fmap_w,
-            self.sparse_encoder.downsample_ratio,
-        )
-
-    def forward(
-        self,
-        inp_bchw: torch.Tensor,
-        vis=False,
-    ):
-        # step1. Mask
-        mask_out: SparKMaskingOuptut = self.masker(inp_bchw)
-        masked_bchw, per_level_mask = mask_out
-        active_b1fHfW = per_level_mask[0]
-        active_b1hw = per_level_mask[-1]
-        # step2. Encode: get hierarchical encoded sparse features (a list containing 4 feature maps at 4 scales)
-        fea_bcffs: List[torch.Tensor] = self.sparse_encoder(masked_bchw)
-        # step3. Densify: get hierarchical dense features for decoding
-        to_dec = self.densifier(fea_bcffs)
-        # step4. Decode and reconstruct
-        rec_bchw = self.dense_decoder(to_dec)
-        inp, rec = (
-            patchify(inp_bchw, self.downsample_ratio),
-            patchify(rec_bchw, self.downsample_ratio),
-        )  # inp and rec: (B, L = f*f, N = C*downsample_raito**2)
-
-        recon_loss, mean, var = self.recon_loss_fn(inp, rec, active_b1fHfW)
-
-        if vis:
-            return self.output_decoder(rec, mean, var, inp_bchw, active_b1hw)
-        else:
-            return recon_loss
-
-    def __repr__(self):
-        return (
-            f"\n"
-            f"[SparK.config]: {pformat(self.get_config(), indent=2, width=250)}\n"
-            f"[SparK.structure]: {super().__repr__().replace(SparK.__name__, '')}"
-        )
-
-    def get_config(self):
-        return {
-            # self
-            "mask_ratio": self.mask_ratio,
-            "densify_norm_str": self.densify_norm_str,
-            "sbn": self.sbn,
-            # enc
-            "sparse_encoder.input_size": self.sparse_encoder.input_size,
-            # dec
-            "dense_decoder.width": self.dense_decoder.width,
-        }
-
-    def state_dict(
-        self, destination=None, prefix="", keep_vars=False, with_config=False
-    ) -> dict[str, torch.Tensor]:
-        state = super().state_dict(
-            destination=destination, prefix=prefix, keep_vars=keep_vars
-        )
-        if with_config:
-            state["config"] = self.get_config()
-        return state
-
-    def load_state_dict(
-        self, state_dict: dict[str, torch.Tensor], strict=True
-    ) -> dict[str, torch.Tensor]:
-        config: dict = state_dict.pop("config", None)
-        incompatible_keys = super().load_state_dict(state_dict, strict=strict)
-        if config is not None:
-            for k, v in self.get_config().items():
-                ckpt_v = config.get(k, None)
-                if ckpt_v != v:
-                    err = f"[SparseMIM.load_state_dict] config mismatch:  this.{k}={v} (ckpt.{k}={ckpt_v})"
-                    if strict:
-                        raise AttributeError(err)
-                    else:
-                        print(err, file=sys.stderr)
-        return incompatible_keys
