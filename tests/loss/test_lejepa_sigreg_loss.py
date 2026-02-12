@@ -12,7 +12,5 @@ class TestSIGReg:
         loss_gaussian = loss_fn(proj)
         proj_skewed = proj * 1.5 + 0.3
         loss_skewed = loss_fn(proj_skewed)
-        print(f"{loss_gaussian.item()=}, {loss_skewed.item()=}")
-        breakpoint()
         assert loss_skewed.item() > 0.0
         assert loss_skewed.item() > loss_gaussian.item()
