@@ -1,7 +1,10 @@
 # Copyright (c) 2023 Keyu Tian
 # Copyright (c) ByteDance, Inc. and its affiliates.
+
+from __future__ import annotations
+
 import math
-from typing import List, NamedTuple, Optional, Tuple, Union
+from typing import NamedTuple
 
 import torch
 import torch.nn as nn
@@ -43,14 +46,14 @@ def coalesce_to_size_2_t(t: tuple[int, ...]) -> _size_2_t:
         raise ValueError(f"Invalid tuple length: {len(t)}; expected 1 or 2.")
 
 
-_cur_active: Optional[torch.Tensor] = (
+_cur_active: torch.Tensor | None = (
     None  # B1ff - Global active/mask tensor tracked during forward passes
 )
 
 
 def _get_active_ex_or_ii(
     H: int, W: int, returning_active_ex: bool = True
-) -> Union[torch.Tensor, Tuple[torch.Tensor, ...]]:
+) -> torch.Tensor | tuple[torch.Tensor, ...]:
     """Get active indices or expanded active mask from global _cur_active.
 
     Converts the global _cur_active mask (shape B, 1, f, f) to a given spatial resolution (H, W).
@@ -332,7 +335,7 @@ class SparseEncoder(nn.Module):
         fmap_w: Width of feature map at encoder output (patch grid).
     """
 
-    enc_feat_map_chs: List[int]
+    enc_feat_map_chs: list[int]
 
     def __init__(
         self,
@@ -527,7 +530,7 @@ class LightDecoder(nn.Module):
 
         self.initialize()
 
-    def forward(self, to_dec: List[torch.Tensor]) -> torch.Tensor:
+    def forward(self, to_dec: list[torch.Tensor]) -> torch.Tensor:
         """Progressively upsample and combine feature maps.
 
         Args:
@@ -638,7 +641,7 @@ class SparKDensfiyBlock(nn.Module):
 
     def forward(
         self, bcff: torch.Tensor, cur_active: torch.Tensor
-    ) -> Optional[torch.Tensor]:
+    ) -> torch.Tensor | None:
         """Densify sparse features by filling masked regions with learned tokens.
 
         Args:
@@ -696,7 +699,7 @@ class SparKDensifier(nn.Module):
             self.blocks.append(block)
             d_width //= 2
 
-    def forward(self, fea_bcffs: List[torch.Tensor]) -> List[Optional[torch.Tensor]]:
+    def forward(self, fea_bcffs: list[torch.Tensor]) -> list[torch.Tensor | None]:
         """Convert sparse features to dense by filling masked regions.
 
         Args:
@@ -729,7 +732,7 @@ class SparKMaskingOuptut(NamedTuple):
     """
 
     masked_bchw: torch.Tensor
-    per_level_mask: List[torch.Tensor]
+    per_level_mask: list[torch.Tensor]
 
 
 class SparKMasker(nn.Module):
@@ -827,7 +830,7 @@ class SparKPatchReconLoss(nn.Module):
         inp_patches: torch.Tensor,
         rec_patches: torch.Tensor,
         active_mask: torch.Tensor,
-    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """Compute reconstruction loss and per-patch statistics.
 
         Normalizes original patches based on per-patch mean and variance, then computes
@@ -916,7 +919,7 @@ class SparKOutputDecoder(nn.Module):
         var: torch.Tensor,
         inp_bchw: torch.Tensor,
         active_mask_full: torch.Tensor,
-    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """Reconstruct image by blending original and reconstructed regions.
 
         Denormalizes reconstructed patches, unpatchifies them, and performs pixel-wise
