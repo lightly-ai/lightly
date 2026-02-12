@@ -1,7 +1,7 @@
 # Copyright (c) 2023 Keyu Tian
 # Copyright (c) ByteDance, Inc. and its affiliates.
 import math
-from typing import List, NamedTuple
+from typing import List, NamedTuple, Optional, Tuple, Union
 
 import torch
 import torch.nn as nn
@@ -11,11 +11,30 @@ from torch.nn.common_types import _size_2_t
 from lightly.models.utils import random_token_mask
 
 
-def is_pow2n(x):
+def is_pow2n(x: int) -> bool:
+    """Check if an integer is a power of 2.
+
+    Args:
+        x: Integer to check.
+
+    Returns:
+        True if x is a power of 2, False otherwise.
+    """
     return x > 0 and (x & (x - 1) == 0)
 
 
 def coalesce_to_size_2_t(t: tuple[int, ...]) -> _size_2_t:
+    """Convert a 1-tuple or 2-tuple to standard (H, W) format.
+
+    Args:
+        t: Tuple of length 1 or 2 containing integers.
+
+    Returns:
+        A 2-tuple (h, w). If input is 1-tuple, both dimensions are equal.
+
+    Raises:
+        ValueError: If tuple length is not 1 or 2.
+    """
     if len(t) == 2:
         return t
     elif len(t) == 1:
@@ -24,11 +43,35 @@ def coalesce_to_size_2_t(t: tuple[int, ...]) -> _size_2_t:
         raise ValueError(f"Invalid tuple length: {len(t)}; expected 1 or 2.")
 
 
-_cur_active: torch.Tensor = None  # B1ff
+_cur_active: Optional[torch.Tensor] = (
+    None  # B1ff - Global active/mask tensor tracked during forward passes
+)
 
 
-# todo: try to use `gather` for speed?
-def _get_active_ex_or_ii(H: int, W: int, returning_active_ex=True):
+def _get_active_ex_or_ii(
+    H: int, W: int, returning_active_ex: bool = True
+) -> Union[torch.Tensor, Tuple[torch.Tensor, ...]]:
+    """Get active indices or expanded active mask from global _cur_active.
+
+    Converts the global _cur_active mask (shape B, 1, f, f) to a given spatial resolution (H, W).
+    Uses repeat_interleave to expand the mask to match the target spatial dimensions.
+
+    Args:
+        H: Target height dimension.
+        W: Target width dimension.
+        returning_active_ex: If True, return expanded binary mask (B, 1, H, W).
+                            If False, return tuple of nonzero indices (bi, hi, wi).
+
+    Returns:
+        If returning_active_ex=True: Tensor of shape (B, 1, H, W) with binary active mask.
+        If returning_active_ex=False: Tuple of 3 tensors (batch_idx, height_idx, width_idx) for active positions.
+
+    Note:
+        Optimization opportunity: Consider using gather() for better performance (see TODO).
+    """
+    assert _cur_active is not None, (
+        "_cur_active must be set before calling this function"
+    )
     h_repeat, w_repeat = H // _cur_active.shape[-2], W // _cur_active.shape[-1]
     active_ex = _cur_active.repeat_interleave(h_repeat, dim=2).repeat_interleave(
         w_repeat, dim=3
@@ -37,27 +80,46 @@ def _get_active_ex_or_ii(H: int, W: int, returning_active_ex=True):
         active_ex
         if returning_active_ex
         else active_ex.squeeze(1).nonzero(as_tuple=True)
-    )  # ii: bi, hi, wi
+    )
 
 
-def sp_conv_forward(self, x: torch.Tensor):
+def sp_conv_forward(self, x: torch.Tensor) -> torch.Tensor:
+    """Forward pass for sparse convolution/pooling layers.
+
+    Applies the parent class forward operation and masks the output using the global
+    active mask to zero out inactive spatial positions.
+
+    Args:
+        self: ConvTranspose2d, MaxPool2d, or AvgPool2d instance.
+        x: Input tensor of shape (B, C, H, W).
+
+    Returns:
+        Masked output tensor of same shape as input, with inactive spatial positions zeroed.
+    """
     x = super(type(self), self).forward(x)
-    x *= _get_active_ex_or_ii(
-        H=x.shape[2], W=x.shape[3], returning_active_ex=True
-    )  # (BCHW) *= (B1HW), mask the output of conv
+    x *= _get_active_ex_or_ii(H=x.shape[2], W=x.shape[3], returning_active_ex=True)
     return x
 
 
-def sp_bn_forward(self, x: torch.Tensor):
+def sp_bn_forward(self, x: torch.Tensor) -> torch.Tensor:
+    """Forward pass for sparse batch normalization layers.
+
+    Applies batch norm only to active (unmasked) spatial positions, efficiently handling
+    sparse feature maps by extracting active features, normalizing them, and reconstructing.
+    Uses 1D batch norm on flattened active features rather than standard 2D batch norm.
+
+    Args:
+        self: BatchNorm1d or SyncBatchNorm instance.
+        x: Input tensor of shape (B, C, H, W) in channels_first format.
+
+    Returns:
+        Output tensor of same shape as input, with batch norm applied only to active positions.
+    """
     ii = _get_active_ex_or_ii(H=x.shape[2], W=x.shape[3], returning_active_ex=False)
 
     bhwc = x.permute(0, 2, 3, 1)
-    nc = bhwc[
-        ii
-    ]  # select the features on non-masked positions to form a flatten feature `nc`
-    nc = super(type(self), self).forward(
-        nc
-    )  # use BN1d to normalize this flatten feature `nc`
+    nc = bhwc[ii]
+    nc = super(type(self), self).forward(nc)
 
     bchw = torch.zeros_like(bhwc)
     bchw[ii] = nc
@@ -66,42 +128,83 @@ def sp_bn_forward(self, x: torch.Tensor):
 
 
 class SparseConv2d(nn.Conv2d):
-    forward = sp_conv_forward  # hack: override the forward function; see `sp_conv_forward` above for more details
+    """Sparse 2D convolution layer that respects active/mask regions.
+
+    Overrides forward pass to apply global active mask to output, zeroing inactive regions.
+    Uses function override pattern for efficiency rather than standard subclassing override.
+    """
+
+    forward = sp_conv_forward
 
 
 class SparseMaxPooling(nn.MaxPool2d):
-    forward = sp_conv_forward  # hack: override the forward function; see `sp_conv_forward` above for more details
+    """Sparse max pooling layer that respects active/mask regions.
+
+    Overrides forward pass to apply global active mask to output, zeroing inactive regions.
+    Uses function override pattern for efficiency rather than standard subclassing override.
+    """
+
+    forward = sp_conv_forward
 
 
 class SparseAvgPooling(nn.AvgPool2d):
-    forward = sp_conv_forward  # hack: override the forward function; see `sp_conv_forward` above for more details
+    """Sparse average pooling layer that respects active/mask regions.
+
+    Overrides forward pass to apply global active mask to output, zeroing inactive regions.
+    Uses function override pattern for efficiency rather than standard subclassing override.
+    """
+
+    forward = sp_conv_forward
 
 
 class SparseBatchNorm2d(nn.BatchNorm1d):
-    forward = sp_bn_forward  # hack: override the forward function; see `sp_bn_forward` above for more details
+    """Sparse batch normalization for 2D feature maps.
+
+    Overrides forward pass to apply batch norm only to active (unmasked) positions.
+    Internally converts to 1D batch norm for efficient processing of sparse features.
+    Uses function override pattern for efficiency rather than standard subclassing override.
+    """
+
+    forward = sp_bn_forward
 
 
 class SparseSyncBatchNorm2d(nn.SyncBatchNorm):
-    forward = sp_bn_forward  # hack: override the forward function; see `sp_bn_forward` above for more details
+    """Sparse synchronized batch normalization for 2D feature maps.
+
+    Overrides forward pass to apply synchronized batch norm only to active (unmasked) positions.
+    Internally converts to 1D batch norm for efficient processing of sparse features.
+    Uses function override pattern for efficiency rather than standard subclassing override.
+    Recommended for distributed training scenarios.
+    """
+
+    forward = sp_bn_forward
 
 
 class SparseConvNeXtLayerNorm(nn.LayerNorm):
     r"""LayerNorm that supports two data formats: channels_last (default) or channels_first.
+
     The ordering of the dimensions in the inputs. channels_last corresponds to inputs with
     shape (batch_size, height, width, channels) while channels_first corresponds to inputs
     with shape (batch_size, channels, height, width).
+
+    When sparse=True, only applies normalization to active (unmasked) spatial positions,
+    using indices from the global _cur_active mask.
     """
 
     def __init__(
-        self, normalized_shape, eps=1e-6, data_format="channels_last", sparse=True
-    ):
+        self,
+        normalized_shape: int,
+        eps: float = 1e-6,
+        data_format: str = "channels_last",
+        sparse: bool = True,
+    ) -> None:
         if data_format not in ["channels_last", "channels_first"]:
             raise NotImplementedError
         super().__init__(normalized_shape, eps, elementwise_affine=True)
         self.data_format = data_format
         self.sparse = sparse
 
-    def forward(self, input: torch.Tensor):
+    def forward(self, input: torch.Tensor) -> torch.Tensor:
         if input.ndim == 4:  # BHWC or BCHW
             if self.data_format == "channels_last":  # BHWC
                 if self.sparse:
@@ -150,28 +253,34 @@ class SparseConvNeXtLayerNorm(nn.LayerNorm):
 
 
 class SparseConvNeXtBlock(nn.Module):
-    r"""ConvNeXt Block. There are two equivalent implementations:
+    r"""ConvNeXt Block with optional sparse computation support.
+
+    There are two equivalent implementations:
     (1) DwConv -> LayerNorm (channels_first) -> 1x1 Conv -> GELU -> 1x1 Conv; all in (N, C, H, W)
     (2) DwConv -> Permute to (N, H, W, C); LayerNorm (channels_last) -> Linear -> GELU -> Linear; Permute back
-    We use (2) as we find it slightly faster in PyTorch
+
+    We use (2) as we find it slightly faster in PyTorch. When sparse=True, applies masking to the output.
 
     Args:
-        dim (int): Number of input channels.
-        drop_path (float): Stochastic depth rate. Default: 0.0
-        layer_scale_init_value (float): Init value for Layer Scale. Default: 1e-6.
+        dim: Number of input channels.
+        drop_path: Stochastic depth rate. Default: 0.0
+        layer_scale_init_value: Init value for Layer Scale. Default: 1e-6.
+        sparse: Whether to apply sparse masking. Default: True.
+        ks: Kernel size for depthwise convolution. Default: 7.
     """
 
     def __init__(
-        self, dim, drop_path=0.0, layer_scale_init_value=1e-6, sparse=True, ks=7
-    ):
+        self,
+        dim: int,
+        drop_path: float = 0.0,
+        layer_scale_init_value: float = 1e-6,
+        sparse: bool = True,
+        ks: int = 7,
+    ) -> None:
         super().__init__()
-        self.dwconv = nn.Conv2d(
-            dim, dim, kernel_size=ks, padding=ks // 2, groups=dim
-        )  # depthwise conv
+        self.dwconv = nn.Conv2d(dim, dim, kernel_size=ks, padding=ks // 2, groups=dim)
         self.norm = SparseConvNeXtLayerNorm(dim, eps=1e-6, sparse=sparse)
-        self.pwconv1 = nn.Linear(
-            dim, 4 * dim
-        )  # pointwise/1x1 convs, implemented with linear layers
+        self.pwconv1 = nn.Linear(dim, 4 * dim)
         self.act = nn.GELU()
         self.pwconv2 = nn.Linear(4 * dim, dim)
         self.gamma = (
@@ -184,19 +293,17 @@ class SparseConvNeXtBlock(nn.Module):
         )
         self.sparse = sparse
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         input = x
         x = self.dwconv(x)
-        x = x.permute(0, 2, 3, 1)  # (N, C, H, W) -> (N, H, W, C)
+        x = x.permute(0, 2, 3, 1)
         x = self.norm(x)
         x = self.pwconv1(x)
-        x = self.act(
-            x
-        )  # GELU(0) == (0), so there is no need to mask x (no need to `x *= _get_active_ex_or_ii`)
+        x = self.act(x)
         x = self.pwconv2(x)
         if self.gamma is not None:
             x = self.gamma * x
-        x = x.permute(0, 3, 1, 2)  # (N, H, W, C) -> (N, C, H, W)
+        x = x.permute(0, 3, 1, 2)
 
         if self.sparse:
             x *= _get_active_ex_or_ii(
@@ -211,26 +318,31 @@ class SparseConvNeXtBlock(nn.Module):
 
 
 class SparseEncoder(nn.Module):
-    """
-    Converts a dense CNN model to a sparse CNN model by replacing standard layers
+    """Converts a dense CNN model to a sparse CNN model by replacing standard layers.
+
+    Recursively traverses a model and replaces standard layers (Conv2d, Pooling, BatchNorm, LayerNorm)
+    with their sparse counterparts. Sparse layers respect a global active mask (_cur_active) that
+    indicates which spatial regions should be processed.
 
     Attributes:
-        enc_feat_map_chs: List[int]: list of channel numbers of feature maps at different scales, in the order from shallow to deep
-
-
+        enc_feat_map_chs: List of channel numbers of feature maps at different scales, shallow to deep.
+        input_size: Original input image size (assumed square).
+        downsample_ratio: Total spatial downsampling ratio from input to deepest feature map.
+        fmap_h: Height of feature map at encoder output (patch grid).
+        fmap_w: Width of feature map at encoder output (patch grid).
     """
 
     enc_feat_map_chs: List[int]
 
     def __init__(
         self,
-        cnn,
-        input_size,
+        cnn: nn.Module,
+        input_size: int,
         downsample_ratio: int,
         feature_map_channels: list[int],
-        sbn=False,
-        verbose=False,
-    ):
+        sbn: bool = False,
+        verbose: bool = False,
+    ) -> None:
         super().__init__()
         self.sp_cnn = SparseEncoder.dense_model_to_sparse(
             m=cnn, verbose=verbose, sbn=sbn
@@ -240,12 +352,29 @@ class SparseEncoder(nn.Module):
             downsample_ratio,
             feature_map_channels,
         )
-        # feature-map spatial size (height, width) at encoder output (patch grid)
         self.fmap_h = input_size // self.downsample_ratio
         self.fmap_w = input_size // self.downsample_ratio
 
     @staticmethod
-    def dense_model_to_sparse(m: nn.Module, verbose=False, sbn=False):
+    def dense_model_to_sparse(
+        m: nn.Module, verbose: bool = False, sbn: bool = False
+    ) -> nn.Module:
+        """Recursively convert a dense model to sparse by replacing layer types.
+
+        Handles Conv2d, MaxPool2d, AvgPool2d, BatchNorm2d, SyncBatchNorm, and LayerNorm layers.
+        Copies weight and state tensors to maintain the original model's parameters.
+
+        Args:
+            m: Original dense model or module.
+            verbose: Whether to print conversion details. Default: False.
+            sbn: Whether to use SyncBatchNorm instead of BatchNorm2d. Default: False.
+
+        Returns:
+            Sparse version of the input model with converted layers.
+
+        Raises:
+            NotImplementedError: If Conv1d layers are encountered.
+        """
         oup = m
         if isinstance(m, nn.Conv2d):
             bias = m.bias is not None
@@ -316,15 +445,31 @@ class SparseEncoder(nn.Module):
         del m
         return oup
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """Forward pass through the sparse CNN encoder.
+
+        Args:
+            x: Input image tensor.
+
+        Returns:
+            Output feature tensor from the sparse CNN.
+        """
         return self.sp_cnn(x)
 
 
 class UNetBlock(nn.Module):
-    def __init__(self, cin, cout, bn2d):
-        """
-        a UNet block with 2x up sampling
-        """
+    """U-Net upsampling block with 2x spatial upsampling and conv refinement.
+
+    Combines transposed convolution for 2x upsampling followed by residual convolutions
+    with batch normalization and ReLU activation.
+
+    Args:
+        cin: Number of input channels.
+        cout: Number of output channels.
+        bn2d: Batch normalization layer class (e.g., nn.BatchNorm2d or nn.SyncBatchNorm).
+    """
+
+    def __init__(self, cin: int, cout: int, bn2d: type) -> None:
         super().__init__()
         self.up_sample = nn.ConvTranspose2d(
             cin, cin, kernel_size=4, stride=2, padding=1, bias=True
@@ -337,22 +482,40 @@ class UNetBlock(nn.Module):
             bn2d(cout),
         )
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """Apply upsampling and convolution refinement.
+
+        Args:
+            x: Input feature tensor.
+
+        Returns:
+            Upsampled and refined feature tensor.
+        """
         x = self.up_sample(x)
         return self.conv(x)
 
 
 class LightDecoder(nn.Module):
+    """Lightweight hierarchical decoder for feature map reconstruction.
+
+    Applies a series of UNetBlocks to progressively upsample feature maps from deep to shallow,
+    halving channels at each level according to a simple rule (width //= 2).
+    Final projection outputs 3 channels for visualization/reconstruction.
+
+    Args:
+        up_sample_ratio: Total spatial upsampling ratio (must be power of 2).
+        width: Base channel width at deepest level. Default: 768.
+        sbn: Whether to use SyncBatchNorm (True) or BatchNorm2d (False). Default: True.
+    """
+
     def __init__(
-        self, up_sample_ratio, width=768, sbn=True
-    ):  # todo: the decoder's width follows a simple halfing rule; you can change it to any other rule
+        self, up_sample_ratio: int, width: int = 768, sbn: bool = True
+    ) -> None:
         super().__init__()
         self.width = width
         assert is_pow2n(up_sample_ratio)
         n = round(math.log2(up_sample_ratio))
-        channels = [
-            self.width // 2**i for i in range(n + 1)
-        ]  # todo: the decoder's width follows a simple halfing rule; you can change it to any other rule
+        channels = [self.width // 2**i for i in range(n + 1)]
         bn2d = nn.SyncBatchNorm if sbn else nn.BatchNorm2d
         self.dec = nn.ModuleList(
             [
@@ -364,9 +527,17 @@ class LightDecoder(nn.Module):
 
         self.initialize()
 
-    def forward(self, to_dec: List[torch.Tensor]):
+    def forward(self, to_dec: List[torch.Tensor]) -> torch.Tensor:
+        """Progressively upsample and combine feature maps.
+
+        Args:
+            to_dec: List of feature tensors from different scales (shallow to deep).
+
+        Returns:
+            Upsampled feature tensor with 3 output channels.
+        """
         x = 0
-        for i, d in enumerate(self.dec):
+        for i in range(len(self.dec)):
             if i < len(to_dec) and to_dec[i] is not None:
                 x = x + to_dec[i]
             x = self.dec[i](x)
@@ -376,6 +547,13 @@ class LightDecoder(nn.Module):
         return f"width={self.width}"
 
     def initialize(self) -> None:
+        """Initialize weights and biases using appropriate initialization schemes.
+
+        Uses:
+        - trunc_normal_ for Linear and Conv2d layers (std=0.02)
+        - kaiming_normal_ for ConvTranspose2d layers
+        - constant initialization for batch norm and layer norm (weight=1.0, bias=0.0)
+        """
         for m in self.modules():
             if isinstance(m, nn.Linear):
                 trunc_normal_(m.weight, std=0.02)
@@ -397,6 +575,20 @@ class LightDecoder(nn.Module):
 
 
 class SparKDensfiyBlock(nn.Module):
+    """Block for densifying sparse features by filling masked regions with learned tokens.
+
+    Applies normalization to sparse features, then uses learned mask tokens to fill inactive
+    regions, finally projecting to target channel dimension.
+
+    Args:
+        e_width: Number of input channels (encoder width).
+        d_width: Number of output channels (decoder width).
+        densify_norm_str: Type of normalization ('bn', 'ln', or 'none'). Default: 'bn'.
+        sbn: Whether to use SyncBatchNorm if densify_norm_str='bn'. Default: False.
+        use_identity_proj: If True, use identity projection (assumes e_width == d_width). Default: False.
+        kernel_size: Kernel size for projection convolution. Default: 3.
+    """
+
     def __init__(
         self,
         e_width: int,
@@ -405,7 +597,7 @@ class SparKDensfiyBlock(nn.Module):
         sbn: bool = False,
         use_identity_proj: bool = False,
         kernel_size: int = 3,
-    ):
+    ) -> None:
         super().__init__()
         # mask token
         p = nn.Parameter(torch.zeros(1, e_width, 1, 1))
@@ -444,7 +636,18 @@ class SparKDensfiyBlock(nn.Module):
             )
             self.densify_proj = densify_proj
 
-    def forward(self, bcff: torch.Tensor, cur_active: torch.BoolTensor):
+    def forward(
+        self, bcff: torch.Tensor, cur_active: torch.Tensor
+    ) -> Optional[torch.Tensor]:
+        """Densify sparse features by filling masked regions with learned tokens.
+
+        Args:
+            bcff: Sparse feature tensor of shape (B, C, H, W).
+            cur_active: Boolean mask tensor of shape (B, 1, H, W) indicating active regions.
+
+        Returns:
+            Densified and projected feature tensor, or None if input is None.
+        """
         if bcff is None:
             return None
         bcff = self.densify_norm(bcff)
@@ -455,14 +658,16 @@ class SparKDensfiyBlock(nn.Module):
 
 
 class SparKDensifier(nn.Module):
-    """
-    A stack of SparKDensfiyBlocks to convert hierarchical sparse features to hierarchical dense features for decoding
+    """Stack of densify blocks to convert sparse hierarchical features to dense features.
+
+    Processes encoder feature maps from deepest to shallowest scale, applying SparKDensfiyBlock
+    to each level. Handles the global _cur_active mask, dilating it at each upsampling level.
 
     Args:
-        encoder_in_channels: list of channel numbers of feature maps at different scales from the encoder, in the order from shallow to deep
-        decoder_in_channel: channel number of the feature map at the deepest scale for decoding
-        densify_norm_str: the type of normalization inside SparKDensfiyBlock; can be "bn", "ln" or "none"
-        sbn: whether to use SyncBatchNorm (True) or BatchNorm (False) if densify_norm_str is "bn"
+        encoder_in_channels: List of channel numbers from encoder, shallow to deep.
+        decoder_in_channel: Base channel number for decoder (at deepest scale).
+        densify_norm_str: Type of normalization ('bn', 'ln', or 'none'). Default: 'bn'.
+        sbn: Whether to use SyncBatchNorm if densify_norm_str='bn'. Default: False.
     """
 
     def __init__(
@@ -471,18 +676,15 @@ class SparKDensifier(nn.Module):
         decoder_in_channel: int,
         densify_norm_str: str = "bn",
         sbn: bool = False,
-    ):
+    ) -> None:
         super().__init__()
         self.blocks = nn.ModuleList()
         self.encoder_in_channels = encoder_in_channels
         self.decoder_in_channel = decoder_in_channel
         d_width = decoder_in_channel
         for i, e_width in enumerate(encoder_in_channels[::-1]):
-            # from the smallest feat map to the largest; i=0: the last feat map; i=1: the second last feat map ...
-            # fork arguments that depend on the position (previously used idx inside the block)
             use_identity = i == 0 and e_width == d_width
             kernel_size = 1 if i <= 0 else 3
-            # build densify block and append
             block = SparKDensfiyBlock(
                 e_width=e_width,
                 d_width=d_width,
@@ -492,40 +694,56 @@ class SparKDensifier(nn.Module):
                 kernel_size=kernel_size,
             )
             self.blocks.append(block)
-            # todo: the decoder's width follows a simple halfing rule; you can change it to any other rule
             d_width //= 2
 
-    def forward(self, fea_bcffs: List[torch.Tensor]):
-        """
+    def forward(self, fea_bcffs: List[torch.Tensor]) -> List[Optional[torch.Tensor]]:
+        """Convert sparse features to dense by filling masked regions.
+
         Args:
-            fea_bcffs: a list of feature maps at different scales from the encoder, in the order from shallow to deep; each feature map is a tensor of shape (B, C, f, f)
+            fea_bcffs: List of feature tensors from encoder at different scales (shallow to deep).
+                      Each tensor has shape (B, C, f, f) where f varies per scale.
+
+        Returns:
+            List of densified feature tensors for decoder processing (order reversed and dilated).
         """
         to_dec = []
-        fea_bcffs = fea_bcffs[::-1]  # from the smallest feat map to the largest
+        fea_bcffs = fea_bcffs[::-1]
         global _cur_active
-        active_fmap_current = (
-            _cur_active  # (B, 1, f, f), the mask map at the current scale
-        )
-        for i, bcff in enumerate(
-            fea_bcffs
-        ):  # from the smallest feature map to the largest
+        active_fmap_current = _cur_active
+        for i, bcff in enumerate(fea_bcffs):
             if bcff is not None:
                 bcff = self.blocks[i](bcff, active_fmap_current)
             to_dec.append(bcff)
             active_fmap_current = active_fmap_current.repeat_interleave(
                 2, dim=2
-            ).repeat_interleave(
-                2, dim=3
-            )  # dilate the mask map, from (B, 1, f, f) to (B, 1, H, W)
+            ).repeat_interleave(2, dim=3)
         return to_dec
 
 
 class SparKMaskingOuptut(NamedTuple):
+    """Output container for SparKMasker forward pass.
+
+    Attributes:
+        masked_bchw: Input image with masks applied at full resolution.
+        per_level_mask: List of binary masks at each hierarchical level.
+    """
+
     masked_bchw: torch.Tensor
     per_level_mask: List[torch.Tensor]
 
 
 class SparKMasker(nn.Module):
+    """Generates hierarchical random token masks for sparse feature processing.
+
+    Creates a binary mask at patch level and expands it hierarchically to match
+    feature maps at different spatial resolutions in the encoder.
+
+    Args:
+        feature_map_size: Tuple of (height, width) at patch/feature map level.
+        downsample_ratio: Total downsampling ratio from input to feature map level.
+        mask_ratio: Fraction of tokens to mask (make inactive). Default: 0.6.
+    """
+
     def __init__(
         self,
         feature_map_size: tuple[int, int],
@@ -538,6 +756,15 @@ class SparKMasker(nn.Module):
         self.mask_ratio = mask_ratio
 
     def mask(self, B: int, device: torch.device) -> torch.Tensor:
+        """Generate a random binary mask for features.
+
+        Args:
+            B: Batch size.
+            device: Device to create the mask on.
+
+        Returns:
+            Boolean mask tensor of shape (B, 1, fmap_h, fmap_w) indicating active tokens.
+        """
         h, w = self.fmap_h, self.fmap_w
         index_keep, _ = random_token_mask(
             size=(B, h * w), mask_ratio=self.mask_ratio, device=device
@@ -550,21 +777,31 @@ class SparKMasker(nn.Module):
         )
 
     def forward(self, inp_bchw: torch.Tensor) -> SparKMaskingOuptut:
+        """Generate hierarchical masks for the input.
+
+        Creates masks at multiple scales from the patch level up to full input resolution.
+
+        Args:
+            inp_bchw: Input image tensor of shape (B, C, H, W).
+
+        Returns:
+            SparKMaskingOuptut containing:
+            - masked_bchw: Input image masked at full resolution.
+            - per_level_mask: List of masks at each hierarchical level.
+        """
         global _cur_active
-        _cur_active = self.mask(inp_bchw.shape[0], inp_bchw.device)  # (B, 1, f, f)
+        _cur_active = self.mask(inp_bchw.shape[0], inp_bchw.device)
         active_b1ff = _cur_active.clone()
         downsample_ratio = self.downsample_ratio
         per_level_mask = [active_b1ff]
-        for i in range(int(math.log2(downsample_ratio))):
+        for _ in range(int(math.log2(downsample_ratio))):
             previous_mask = per_level_mask[-1]
             active_b1cHcW = previous_mask.repeat_interleave(2, dim=2).repeat_interleave(
                 2, dim=3
-            )  # (B, 1, f*ds, f*ds)
+            )
             per_level_mask.append(active_b1cHcW)
 
-        active_b1hw = per_level_mask[
-            -1
-        ]  # the mask map at the deepest scale (the smallest feature map), which would be used for masking the input to the encoder; shape: (B, 1, f, f)
+        active_b1hw = per_level_mask[-1]
         masked_bchw = inp_bchw * active_b1hw
         return SparKMaskingOuptut(
             masked_bchw=masked_bchw, per_level_mask=per_level_mask
@@ -572,12 +809,16 @@ class SparKMasker(nn.Module):
 
 
 class SparKPatchReconLoss(nn.Module):
-    """Loss module that computes per-patch normalized reconstruction loss.
+    """Computes per-patch normalized reconstruction loss for masked regions.
 
-    Accepts the non-flattened mask `(B, 1, f, f)` and flattens internally.
+    Calculates L2 loss between reconstructed and original patches, normalized per-patch
+    to account for varying feature statistics. Loss is computed only on masked (inactive) regions.
+
+    Args:
+        eps: Small value for numerical stability. Default: 1e-6.
     """
 
-    def __init__(self, eps: float = 1e-6):
+    def __init__(self, eps: float = 1e-6) -> None:
         super().__init__()
         self.eps = eps
 
@@ -586,18 +827,27 @@ class SparKPatchReconLoss(nn.Module):
         inp_patches: torch.Tensor,
         rec_patches: torch.Tensor,
         active_mask: torch.Tensor,
-    ):
-        """Compute reconstruction loss and return per-patch stats.
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        """Compute reconstruction loss and per-patch statistics.
+
+        Normalizes original patches based on per-patch mean and variance, then computes
+        L2 loss between normalized original and reconstructed patches. Averages loss
+        only over masked (active_mask=False) patches.
 
         Args:
-            inp_patches: (B, L, N) original patches
-            rec_patches: (B, L, N) reconstructed patches
-            active_mask: (B, L, f, f) boolean mask (required)
+            inp_patches: Original patches of shape (B, L, N) where B=batch, L=levels, N=patch_dim.
+            rec_patches: Reconstructed patches of shape (B, L, N).
+            active_mask: Boolean mask of shape (B, 1, f, f) indicating active regions.
+                        Must have 4 dimensions (2D spatial mask).
 
         Returns:
-            recon_loss: scalar tensor
-            mean: (B, L, 1) per-patch mean
-            var: (B, L, 1) per-patch std
+            Tuple of:
+            - recon_loss: Scalar tensor with averaged reconstruction loss on masked regions.
+            - mean: Per-patch mean of shape (B, L, 1).
+            - var: Per-patch standard deviation of shape (B, L, 1).
+
+        Raises:
+            ValueError: If active_mask does not have 4 dimensions.
         """
         if active_mask.ndim != 4:
             raise ValueError(
@@ -609,7 +859,7 @@ class SparKPatchReconLoss(nn.Module):
 
         inp_norm = (inp_patches - mean) / var
 
-        l2_loss = ((rec_patches - inp_norm) ** 2).mean(dim=2)  # (B, L)
+        l2_loss = ((rec_patches - inp_norm) ** 2).mean(dim=2)
 
         non_active = active_mask.logical_not().int().view(active_mask.shape[0], -1)
 
@@ -618,22 +868,39 @@ class SparKPatchReconLoss(nn.Module):
 
 
 class SparKOutputDecoder(nn.Module):
-    """Handles de-normalizing reconstructed patches and producing visualization tensors.
+    """Decodes reconstructed patches back to image space and combines with original.
 
-    Usage: call with `rec_patches, mean, var, inp_bchw, active_mask_full` where
-    `rec_patches` is (B, L, N), `mean`/`var` are (B, L, 1), `inp_bchw` is original image
-    and `active_mask_full` is (B, 1, H, W) boolean mask indicating visible patches.
-    The decoder is configured with only the minimal spatial properties: `fmap_h`,
-    `fmap_w` and `downsample_ratio` (no encoder object required).
+    Handles denormalization and unpatchifying of reconstructed patches, then performs
+    per-pixel blending: uses original pixels where visible (active), reconstructed pixels
+    where masked (inactive).
+
+    Minimal configuration: only requires spatial properties (fmap_h, fmap_w, downsample_ratio).
+    No encoder object needed.
+
+    Args:
+        fmap_h: Height of feature map at patch level.
+        fmap_w: Width of feature map at patch level.
+        downsample_ratio: Ratio of input image size to feature map size.
     """
 
-    def __init__(self, fmap_h: int, fmap_w: int, downsample_ratio: int):
+    def __init__(self, fmap_h: int, fmap_w: int, downsample_ratio: int) -> None:
         super().__init__()
         self.fmap_h = fmap_h
         self.fmap_w = fmap_w
         self.downsample_ratio = downsample_ratio
 
     def unpatchify(self, bln: torch.Tensor) -> torch.Tensor:
+        """Convert flattened patches back to spatial feature map format.
+
+        Reverses the patchify operation: reshapes from (B, L*p*p, N) to (B, N, H, W)
+        where p is the patch size (downsample_ratio).
+
+        Args:
+            bln: Flattened patches of shape (B, L, N).
+
+        Returns:
+            Spatial feature map of shape (B, C, H, W).
+        """
         p = self.downsample_ratio
         h, w = self.fmap_h, self.fmap_w
         B, C = bln.shape[0], bln.shape[-1] // p**2
@@ -649,14 +916,27 @@ class SparKOutputDecoder(nn.Module):
         var: torch.Tensor,
         inp_bchw: torch.Tensor,
         active_mask_full: torch.Tensor,
-    ):
-        # de-normalize and unpatchify
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        """Reconstruct image by blending original and reconstructed regions.
+
+        Denormalizes reconstructed patches, unpatchifies them, and performs pixel-wise
+        blending based on the active mask: original where visible, reconstructed where masked.
+
+        Args:
+            rec_patches: Reconstructed patches of shape (B, L, N).
+            mean: Per-patch mean of shape (B, L, 1).
+            var: Per-patch standard deviation of shape (B, L, 1).
+            inp_bchw: Original input image of shape (B, C, H, W).
+            active_mask_full: Boolean mask of shape (B, 1, H, W) at full resolution.
+
+        Returns:
+            Tuple of:
+            - inp_bchw: Original input image (unchanged).
+            - masked_bchw: Input with inactive regions zeroed.
+            - rec_or_inp: Blended result using original where visible, reconstructed where masked.
+        """
         rec_bchw = self.unpatchify(rec_patches * var + mean)
-
-        # masked input at full resolution
         masked_bchw = inp_bchw * active_mask_full
-
-        # combine: use original where visible, reconstructed where masked
         rec_or_inp = torch.where(active_mask_full, inp_bchw, rec_bchw)
 
         return inp_bchw, masked_bchw, rec_or_inp
