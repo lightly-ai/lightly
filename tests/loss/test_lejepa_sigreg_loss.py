@@ -28,6 +28,11 @@ class TestSIGReg:
         with pytest.raises(IndexError):
             loss_fn(proj)
 
+    @pytest.mark.parametrize("knots", [0, -1, -5])
+    def test_knots_must_be_positive_non_null(self, knots: int) -> None:
+        with pytest.raises(ValueError):
+            SIGReg(knots=knots)
+
     def test_non_gaussian_positive(self) -> None:
         torch.manual_seed(0)
         loss_fn = SIGReg()

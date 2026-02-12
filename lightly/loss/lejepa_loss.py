@@ -12,6 +12,9 @@ class SIGReg(nn.Module):
             knots: Number of frequency samples used for the integration grid.
         """
         super().__init__()
+        if knots <= 0:
+            raise ValueError("knots must be a positive non-null integer.")
+
         t = torch.linspace(0, 3, knots, dtype=torch.float32)
         # t are frequencies
         dt = 3 / (knots - 1)
