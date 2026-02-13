@@ -85,3 +85,38 @@ def test__get_active_ex_or_ii_returning_ex_false_correct_values() -> None:
         active_ex_scattered[active_b, :, active_h, active_w] = 1
 
         assert torch.equal(active_ex, active_ex_scattered)
+
+
+def test_sp_conv_forward() -> None:
+    with _cleanup_curr_active():
+        H, W = 32, 32
+        sparse_spark._cur_active = torch.tensor(
+            [
+                [
+                    [
+                        [1, 0],
+                        [0, 1],
+                    ]
+                ]
+            ],
+            dtype=torch.bool,
+        )
+
+        conv = sparse_spark.SparseConv2d(
+            in_channels=1,
+            out_channels=1,
+            kernel_size=3,
+            padding=1,
+        )
+        conv.weight.data.fill_(1)
+        assert conv.bias is not None
+        conv.bias.data.fill_(0)
+
+        x = torch.ones(1, 1, H, W)
+        out = conv(x)
+
+        assert out.shape == (1, 1, H, W)
+        assert out[:, :, :16, :16].all()
+        assert out[:, :, :16, 16:].logical_not().all()
+        assert out[:, :, 16:, :16].logical_not().all()
+        assert out[:, :, 16:, 16:].all()
