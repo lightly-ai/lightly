@@ -72,16 +72,16 @@ def _get_active_ex_or_ii(
     Note:
         Optimization opportunity: Consider using gather() for better performance (see TODO).
     """
-    assert (
-        _cur_active is not None
-    ), "_cur_active must be set before calling this function"
+    assert _cur_active is not None, (
+        "_cur_active must be set before calling this function"
+    )
     h_repeat, w_repeat = H // _cur_active.shape[-2], W // _cur_active.shape[-1]
-    assert (
-        h_repeat > 0
-    ), f"Target height {H} must be >= mask height {_cur_active.shape[-2]}"
-    assert (
-        w_repeat > 0
-    ), f"Target width {W} must be >= mask width {_cur_active.shape[-1]}"
+    assert h_repeat > 0, (
+        f"Target height {H} must be >= mask height {_cur_active.shape[-2]}"
+    )
+    assert w_repeat > 0, (
+        f"Target width {W} must be >= mask width {_cur_active.shape[-1]}"
+    )
     active_ex = _cur_active.repeat_interleave(h_repeat, dim=2).repeat_interleave(
         w_repeat, dim=3
     )
