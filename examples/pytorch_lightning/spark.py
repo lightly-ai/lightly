@@ -17,11 +17,11 @@ from lightly.loss.sparse_spark import SparKPatchReconLoss
 
 ## The global projection head is the same as the Barlow Twins one
 from lightly.models.modules.sparse_spark import (
-    LightDecoder,
     SparKDensifier,
     SparKMasker,
     SparKMaskingOuptut,
     SparKOutputDecoder,
+    UNetDecoder,
     dense_model_to_sparse,
 )
 from lightly.models.utils import patchify
@@ -52,7 +52,7 @@ class SparseSparK(pl.LightningModule):
         self.sparse_encoder = dense_model_to_sparse(backbone, sbn=sbn, verbose=True)
         self.fmap_h = input_size // downsample_ratio
         self.fmap_w = input_size // downsample_ratio
-        self.dense_decoder = LightDecoder(
+        self.dense_decoder = UNetDecoder(
             downsample_ratio,
             width=enc_feat_map_chs[-1],
         )
