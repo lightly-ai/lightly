@@ -22,7 +22,7 @@ from lightly.models.modules.sparse_spark import (
     SparKMasker,
     SparKMaskingOuptut,
     SparKOutputDecoder,
-    SparseEncoder,
+    dense_model_to_sparse,
 )
 from lightly.models.utils import patchify
 
@@ -47,37 +47,34 @@ class SparseSparK(pl.LightningModule):
         backbone = timm.create_model(
             "resnet18", drop_path_rate=0.05, features_only=True
         )
-        self.sparse_encoder = SparseEncoder(
-            backbone,
-            downsample_ratio=get_downsample_ratio_from_timm_model(backbone),
-            feature_map_channels=get_enc_feat_map_chs_from_timm_model(backbone),
-            input_size=input_size,
-            sbn=sbn,
-            verbose=True,
-        )
+        downsample_ratio = get_downsample_ratio_from_timm_model(backbone)
+        enc_feat_map_chs = get_enc_feat_map_chs_from_timm_model(backbone)
+        self.sparse_encoder = dense_model_to_sparse(backbone, sbn=sbn, verbose=True)
+        self.fmap_h = input_size // downsample_ratio
+        self.fmap_w = input_size // downsample_ratio
         self.dense_decoder = LightDecoder(
-            self.sparse_encoder.downsample_ratio,
-            width=self.sparse_encoder.enc_feat_map_chs[-1],
+            downsample_ratio,
+            width=enc_feat_map_chs[-1],
         )
         self.masker = SparKMasker(
-            feature_map_size=(self.sparse_encoder.fmap_h, self.sparse_encoder.fmap_w),
-            downsample_ratio=self.sparse_encoder.downsample_ratio,
+            feature_map_size=(self.fmap_h, self.fmap_w),
+            downsample_ratio=downsample_ratio,
             mask_ratio=mask_ratio,
         )
         self.densifier = SparKDensifier(
-            encoder_in_channels=self.sparse_encoder.enc_feat_map_chs,
+            encoder_in_channels=enc_feat_map_chs,
             decoder_in_channel=self.dense_decoder.width,
             densify_norm_str=densify_norm.lower(),
             sbn=sbn,
         )
-        self.downsample_ratio = self.sparse_encoder.downsample_ratio
+        self.downsample_ratio = downsample_ratio
         # loss module for patch reconstruction
         self.recon_loss_fn = SparKPatchReconLoss()
         # output decoder for visualization (pass minimal spatial props)
         self.output_decoder = SparKOutputDecoder(
-            self.sparse_encoder.fmap_h,
-            self.sparse_encoder.fmap_w,
-            self.sparse_encoder.downsample_ratio,
+            self.fmap_h,
+            self.fmap_w,
+            downsample_ratio,
         )
 
     def forward(
