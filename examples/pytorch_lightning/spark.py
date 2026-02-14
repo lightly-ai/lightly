@@ -13,6 +13,8 @@ from pytorch_lightning.callbacks import ModelCheckpoint, RichProgressBar
 from torch import nn
 from torchvision.transforms import v2
 
+from lightly.loss.sparse_spark import SparKPatchReconLoss
+
 ## The global projection head is the same as the Barlow Twins one
 from lightly.models.modules.sparse_spark import (
     LightDecoder,
@@ -20,7 +22,6 @@ from lightly.models.modules.sparse_spark import (
     SparKMasker,
     SparKMaskingOuptut,
     SparKOutputDecoder,
-    SparKPatchReconLoss,
     SparseEncoder,
 )
 from lightly.models.utils import patchify
