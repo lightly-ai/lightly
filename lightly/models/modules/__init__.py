@@ -33,7 +33,7 @@ from lightly.models.modules.sparse_spark import (
     SparKDensifier,
     SparKMasker,
     SparKOutputDecoder,
-    SparseEncoder,
+    dense_model_to_sparse,
 )
 from lightly.utils import dependency as _dependency
 

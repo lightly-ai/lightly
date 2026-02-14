@@ -72,16 +72,16 @@ def _get_active_ex_or_ii(
     Note:
         Optimization opportunity: Consider using gather() for better performance (see TODO).
     """
-    assert (
-        _cur_active is not None
-    ), "_cur_active must be set before calling this function"
+    assert _cur_active is not None, (
+        "_cur_active must be set before calling this function"
+    )
     h_repeat, w_repeat = H // _cur_active.shape[-2], W // _cur_active.shape[-1]
-    assert (
-        h_repeat > 0
-    ), f"Target height {H} must be >= mask height {_cur_active.shape[-2]}"
-    assert (
-        w_repeat > 0
-    ), f"Target width {W} must be >= mask width {_cur_active.shape[-1]}"
+    assert h_repeat > 0, (
+        f"Target height {H} must be >= mask height {_cur_active.shape[-2]}"
+    )
+    assert w_repeat > 0, (
+        f"Target width {W} must be >= mask width {_cur_active.shape[-1]}"
+    )
     active_ex = _cur_active.repeat_interleave(h_repeat, dim=2).repeat_interleave(
         w_repeat, dim=3
     )
@@ -295,144 +295,91 @@ class SparseConvNeXtBlock(nn.Module):
         return x
 
 
-class SparseEncoder(nn.Module):
-    """Converts a dense CNN model to a sparse CNN model by replacing standard layers.
+def dense_model_to_sparse(
+    m: nn.Module, verbose: bool = False, sbn: bool = False
+) -> nn.Module:
+    """Recursively convert a dense model to sparse by replacing layer types.
 
-    Recursively traverses a model and replaces standard layers (Conv2d, Pooling, BatchNorm, LayerNorm)
-    with their sparse counterparts. Sparse layers respect a global active mask (_cur_active) that
-    indicates which spatial regions should be processed.
+    Handles Conv2d, MaxPool2d, AvgPool2d, BatchNorm2d, SyncBatchNorm, and LayerNorm layers.
+    Copies weight and state tensors to maintain the original model's parameters.
 
-    Attributes:
-        enc_feat_map_chs: List of channel numbers of feature maps at different scales, shallow to deep.
-        input_size: Original input image size (assumed square).
-        downsample_ratio: Total spatial downsampling ratio from input to deepest feature map.
-        fmap_h: Height of feature map at encoder output (patch grid).
-        fmap_w: Width of feature map at encoder output (patch grid).
+    Args:
+        m: Original dense model or module.
+        verbose: Whether to print conversion details. Default: False.
+        sbn: Whether to use SyncBatchNorm instead of BatchNorm2d. Default: False.
+
+    Returns:
+        Sparse version of the input model with converted layers.
+
+    Raises:
+        NotImplementedError: If Conv1d layers are encountered.
     """
+    oup = m
+    if isinstance(m, nn.Conv2d):
+        bias = m.bias is not None
 
-    enc_feat_map_chs: list[int]
-
-    def __init__(
-        self,
-        cnn: nn.Module,
-        input_size: int,
-        downsample_ratio: int,
-        feature_map_channels: list[int],
-        sbn: bool = False,
-        verbose: bool = False,
-    ) -> None:
-        super().__init__()
-        self.sp_cnn = SparseEncoder.dense_model_to_sparse(
-            m=cnn, verbose=verbose, sbn=sbn
+        oup = SparseConv2d(
+            m.in_channels,
+            m.out_channels,
+            kernel_size=coalesce_to_size_2_t(m.kernel_size),
+            stride=coalesce_to_size_2_t(m.stride),
+            padding=m.padding
+            if isinstance(m.padding, str)
+            else coalesce_to_size_2_t(m.padding),
+            dilation=coalesce_to_size_2_t(m.dilation),
+            groups=m.groups,
+            bias=bias,
+            padding_mode=m.padding_mode,
         )
-        self.input_size, self.downsample_ratio, self.enc_feat_map_chs = (
-            input_size,
-            downsample_ratio,
-            feature_map_channels,
+        oup.weight.data.copy_(m.weight.data)
+
+        if m.bias is not None and oup.bias is not None:
+            oup.bias.data.copy_(m.bias.data)
+
+    elif isinstance(m, nn.MaxPool2d):
+        oup = SparseMaxPooling(
+            m.kernel_size,
+            stride=m.stride,
+            padding=m.padding,
+            dilation=m.dilation,
+            return_indices=m.return_indices,
+            ceil_mode=m.ceil_mode,
         )
-        self.fmap_h = input_size // self.downsample_ratio
-        self.fmap_w = input_size // self.downsample_ratio
+    elif isinstance(m, nn.AvgPool2d):
+        oup = SparseAvgPooling(
+            m.kernel_size,
+            m.stride,
+            m.padding,
+            ceil_mode=m.ceil_mode,
+            count_include_pad=m.count_include_pad,
+            divisor_override=m.divisor_override,
+        )
+    elif isinstance(m, (nn.BatchNorm2d, nn.SyncBatchNorm)):
+        oup = (SparseSyncBatchNorm2d if sbn else SparseBatchNorm2d)(
+            m.weight.shape[0],
+            eps=m.eps,
+            momentum=m.momentum,
+            affine=m.affine,
+            track_running_stats=m.track_running_stats,
+        )
+        oup.weight.data.copy_(m.weight.data)
+        oup.bias.data.copy_(m.bias.data)
+        oup.running_mean.data.copy_(m.running_mean.data)
+        oup.running_var.data.copy_(m.running_var.data)
+        oup.num_batches_tracked.data.copy_(m.num_batches_tracked.data)
+        if hasattr(m, "qconfig"):
+            oup.qconfig = m.qconfig
+    elif isinstance(m, nn.LayerNorm) and not isinstance(m, SparseConvNeXtLayerNorm):
+        oup = SparseConvNeXtLayerNorm(m.weight.shape[0], eps=m.eps)
+        oup.weight.data.copy_(m.weight.data)
+        oup.bias.data.copy_(m.bias.data)
+    elif isinstance(m, (nn.Conv1d,)):
+        raise NotImplementedError
 
-    @staticmethod
-    def dense_model_to_sparse(
-        m: nn.Module, verbose: bool = False, sbn: bool = False
-    ) -> nn.Module:
-        """Recursively convert a dense model to sparse by replacing layer types.
-
-        Handles Conv2d, MaxPool2d, AvgPool2d, BatchNorm2d, SyncBatchNorm, and LayerNorm layers.
-        Copies weight and state tensors to maintain the original model's parameters.
-
-        Args:
-            m: Original dense model or module.
-            verbose: Whether to print conversion details. Default: False.
-            sbn: Whether to use SyncBatchNorm instead of BatchNorm2d. Default: False.
-
-        Returns:
-            Sparse version of the input model with converted layers.
-
-        Raises:
-            NotImplementedError: If Conv1d layers are encountered.
-        """
-        oup = m
-        if isinstance(m, nn.Conv2d):
-            bias = m.bias is not None
-
-            oup = SparseConv2d(
-                m.in_channels,
-                m.out_channels,
-                kernel_size=coalesce_to_size_2_t(m.kernel_size),
-                stride=coalesce_to_size_2_t(m.stride),
-                padding=m.padding
-                if isinstance(m.padding, str)
-                else coalesce_to_size_2_t(m.padding),
-                dilation=coalesce_to_size_2_t(m.dilation),
-                groups=m.groups,
-                bias=bias,
-                padding_mode=m.padding_mode,
-            )
-            oup.weight.data.copy_(m.weight.data)
-
-            if m.bias is not None and oup.bias is not None:
-                oup.bias.data.copy_(m.bias.data)
-
-        elif isinstance(m, nn.MaxPool2d):
-            oup = SparseMaxPooling(
-                m.kernel_size,
-                stride=m.stride,
-                padding=m.padding,
-                dilation=m.dilation,
-                return_indices=m.return_indices,
-                ceil_mode=m.ceil_mode,
-            )
-        elif isinstance(m, nn.AvgPool2d):
-            oup = SparseAvgPooling(
-                m.kernel_size,
-                m.stride,
-                m.padding,
-                ceil_mode=m.ceil_mode,
-                count_include_pad=m.count_include_pad,
-                divisor_override=m.divisor_override,
-            )
-        elif isinstance(m, (nn.BatchNorm2d, nn.SyncBatchNorm)):
-            oup = (SparseSyncBatchNorm2d if sbn else SparseBatchNorm2d)(
-                m.weight.shape[0],
-                eps=m.eps,
-                momentum=m.momentum,
-                affine=m.affine,
-                track_running_stats=m.track_running_stats,
-            )
-            oup.weight.data.copy_(m.weight.data)
-            oup.bias.data.copy_(m.bias.data)
-            oup.running_mean.data.copy_(m.running_mean.data)
-            oup.running_var.data.copy_(m.running_var.data)
-            oup.num_batches_tracked.data.copy_(m.num_batches_tracked.data)
-            if hasattr(m, "qconfig"):
-                oup.qconfig = m.qconfig
-        elif isinstance(m, nn.LayerNorm) and not isinstance(m, SparseConvNeXtLayerNorm):
-            oup = SparseConvNeXtLayerNorm(m.weight.shape[0], eps=m.eps)
-            oup.weight.data.copy_(m.weight.data)
-            oup.bias.data.copy_(m.bias.data)
-        elif isinstance(m, (nn.Conv1d,)):
-            raise NotImplementedError
-
-        for name, child in m.named_children():
-            oup.add_module(
-                name,
-                SparseEncoder.dense_model_to_sparse(child, verbose=verbose, sbn=sbn),
-            )
-        del m
-        return oup
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Forward pass through the sparse CNN encoder.
-
-        Args:
-            x: Input image tensor.
-
-        Returns:
-            Output feature tensor from the sparse CNN.
-        """
-        return self.sp_cnn(x)
+    for name, child in m.named_children():
+        oup.add_module(name, dense_model_to_sparse(child, verbose=verbose, sbn=sbn))
+    del m
+    return oup
 
 
 class UNetBlock(nn.Module):
@@ -589,7 +536,7 @@ class SparKDensfiyBlock(nn.Module):
             )
         elif densify_norm_str == "ln":
             self.densify_norm = SparseConvNeXtLayerNorm(
-                e_width, data_format="channels_first", sparse=True
+                e_width, data_format="channels_first"
             )
         else:
             self.densify_norm = nn.Identity()
