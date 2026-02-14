@@ -196,8 +196,8 @@ class SparseConvNeXtLayerNorm(nn.LayerNorm):
     shape (batch_size, height, width, channels) while channels_first corresponds to inputs
     with shape (batch_size, channels, height, width).
 
-    When sparse=True, only applies normalization to active (unmasked) spatial positions,
-    using indices from the global _cur_active mask.
+    This sparse implementation only applies normalization to active (unmasked) spatial
+    positions using indices from the global _cur_active mask.
     """
 
     def __init__(
@@ -205,76 +205,53 @@ class SparseConvNeXtLayerNorm(nn.LayerNorm):
         normalized_shape: int,
         eps: float = 1e-6,
         data_format: str = "channels_last",
-        sparse: bool = True,
     ) -> None:
         if data_format not in ["channels_last", "channels_first"]:
             raise NotImplementedError
         super().__init__(normalized_shape, eps, elementwise_affine=True)
         self.data_format = data_format
-        self.sparse = sparse
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         if input.ndim == 4:  # BHWC or BCHW
             if self.data_format == "channels_last":  # BHWC
-                if self.sparse:
-                    ii = _get_active_ex_or_ii(
-                        H=input.shape[1], W=input.shape[2], returning_active_ex=False
-                    )
-                    nc = input[ii]
-                    nc = super().forward(nc)
+                ii = _get_active_ex_or_ii(
+                    H=input.shape[1], W=input.shape[2], returning_active_ex=False
+                )
+                nc = input[ii]
+                nc = super().forward(nc)
 
-                    input = torch.zeros_like(input)
-                    input[ii] = nc
-                    return input
-                else:
-                    return super(SparseConvNeXtLayerNorm, self).forward(input)
+                input = torch.zeros_like(input)
+                input[ii] = nc
+                return input
             else:  # channels_first, BCHW
-                if self.sparse:
-                    ii = _get_active_ex_or_ii(
-                        H=input.shape[2], W=input.shape[3], returning_active_ex=False
-                    )
-                    bhwc = input.permute(0, 2, 3, 1)
-                    nc = bhwc[ii]
-                    nc = super().forward(nc)
+                ii = _get_active_ex_or_ii(
+                    H=input.shape[2], W=input.shape[3], returning_active_ex=False
+                )
+                bhwc = input.permute(0, 2, 3, 1)
+                nc = bhwc[ii]
+                nc = super().forward(nc)
 
-                    input = torch.zeros_like(bhwc)
-                    input[ii] = nc
-                    return input.permute(0, 3, 1, 2)
-                else:
-                    u = input.mean(1, keepdim=True)
-                    s = (input - u).pow(2).mean(1, keepdim=True)
-                    input = (input - u) / torch.sqrt(s + self.eps)
-                    input = (
-                        self.weight[:, None, None] * input + self.bias[:, None, None]
-                    )
-                    return input
+                input = torch.zeros_like(bhwc)
+                input[ii] = nc
+                return input.permute(0, 3, 1, 2)
         else:  # BLC or BC
-            if self.sparse:
-                raise NotImplementedError
-            else:
-                return super().forward(input)
-
-    def __repr__(self):
-        return (
-            super().__repr__()[:-1]
-            + f", ch={self.data_format.split('_')[-1]}, sp={self.sparse})"
-        )
+            raise NotImplementedError
 
 
 class SparseConvNeXtBlock(nn.Module):
-    r"""ConvNeXt Block with optional sparse computation support.
+    r"""ConvNeXt Block with sparse computation support.
 
     There are two equivalent implementations:
     (1) DwConv -> LayerNorm (channels_first) -> 1x1 Conv -> GELU -> 1x1 Conv; all in (N, C, H, W)
     (2) DwConv -> Permute to (N, H, W, C); LayerNorm (channels_last) -> Linear -> GELU -> Linear; Permute back
 
-    We use (2) as we find it slightly faster in PyTorch. When sparse=True, applies masking to the output.
+    We use (2) as we find it slightly faster in PyTorch. This sparse implementation always
+    applies masking to the output.
 
     Args:
         dim: Number of input channels.
         drop_path: Stochastic depth rate. Default: 0.0
         layer_scale_init_value: Init value for Layer Scale. Default: 1e-6.
-        sparse: Whether to apply sparse masking. Default: True.
         ks: Kernel size for depthwise convolution. Default: 7.
     """
 
@@ -283,12 +260,11 @@ class SparseConvNeXtBlock(nn.Module):
         dim: int,
         drop_path: float = 0.0,
         layer_scale_init_value: float = 1e-6,
-        sparse: bool = True,
         ks: int = 7,
     ) -> None:
         super().__init__()
         self.dwconv = nn.Conv2d(dim, dim, kernel_size=ks, padding=ks // 2, groups=dim)
-        self.norm = SparseConvNeXtLayerNorm(dim, eps=1e-6, sparse=sparse)
+        self.norm = SparseConvNeXtLayerNorm(dim, eps=1e-6)
         self.pwconv1 = nn.Linear(dim, 4 * dim)
         self.act = nn.GELU()
         self.pwconv2 = nn.Linear(4 * dim, dim)
@@ -300,7 +276,6 @@ class SparseConvNeXtBlock(nn.Module):
         self.drop_path: nn.Module = (
             DropPath(drop_path) if drop_path > 0.0 else nn.Identity()
         )
-        self.sparse = sparse
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         input = x
@@ -314,16 +289,11 @@ class SparseConvNeXtBlock(nn.Module):
             x = self.gamma * x
         x = x.permute(0, 3, 1, 2)
 
-        if self.sparse:
-            x *= _get_active_ex_or_ii(
-                H=x.shape[2], W=x.shape[3], returning_active_ex=True
-            )
+        x *= _get_active_ex_or_ii(H=x.shape[2], W=x.shape[3], returning_active_ex=True)
 
         x = input + self.drop_path(x)
         return x
 
-    def __repr__(self):
-        return super().__repr__()[:-1] + f", sp={self.sparse})"
 
 
 class SparseEncoder(nn.Module):
