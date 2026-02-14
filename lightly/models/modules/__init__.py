@@ -8,7 +8,6 @@ can be combined with any lightly model.
 # Copyright (c) 2021. Lightly AG and its affiliates.
 # All Rights Reserved
 
-
 from lightly.models.modules.heads import (
     BarlowTwinsProjectionHead,
     BYOLPredictionHead,
@@ -30,6 +29,12 @@ from lightly.models.modules.heads import (
     SwaVPrototypes,
 )
 from lightly.models.modules.nn_memory_bank import NNMemoryBankModule
+from lightly.models.modules.sparse_spark import (
+    SparKDensifier,
+    SparKMasker,
+    SparKOutputDecoder,
+    SparseEncoder,
+)
 from lightly.utils import dependency as _dependency
 
 if _dependency.torchvision_vit_available():
