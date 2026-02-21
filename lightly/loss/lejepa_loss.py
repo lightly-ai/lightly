@@ -12,8 +12,8 @@ class SIGReg(nn.Module):
             knots: Number of frequency samples used for the integration grid.
         """
         super().__init__()
-        if knots <= 0:
-            raise ValueError("knots must be a positive non-null integer.")
+        if knots <= 1:
+            raise ValueError("knots must be an integer greater than one.")
 
         t = torch.linspace(0, 3, knots, dtype=torch.float32)
         # t are frequencies
@@ -29,11 +29,12 @@ class SIGReg(nn.Module):
     def _generate_unit_vectors(
         self,
         device: torch.device,
+        dtype: torch.dtype,
         num_features: int,
         num_vectors: int = 256,
     ) -> torch.Tensor:
         """Sample unit vectors to project embeddings onto random directions."""
-        A = torch.randn(num_features, num_vectors, device=device)
+        A = torch.randn(num_features, num_vectors, device=device, dtype=dtype)
         A = A.div_(A.norm(p=2, dim=0))
         return A
 
@@ -50,7 +51,8 @@ class SIGReg(nn.Module):
         x_t: torch.Tensor,
     ) -> torch.Tensor:
         """Compute characteristic function error per frequency."""
-        return (x_t.cos().mean(-3) - self.phi).square() + x_t.sin().mean(-3).square()
+        phi = self.phi.to(dtype=x_t.dtype)
+        return (x_t.cos().mean(-3) - phi).square() + x_t.sin().mean(-3).square()
 
     def _integrate_via_trapezoidal_rule(
         self,
@@ -58,7 +60,8 @@ class SIGReg(nn.Module):
         num_samples: int,
     ) -> torch.Tensor:
         """Integrate the error over frequency using trapezoidal weights."""
-        statistic = (err_per_frequency @ self.weights) * num_samples
+        weights = self.weights.to(dtype=err_per_frequency.dtype)
+        statistic = (err_per_frequency @ weights) * num_samples
         return statistic.mean()
 
     def forward(self, proj: torch.Tensor) -> torch.Tensor:
@@ -71,7 +74,7 @@ class SIGReg(nn.Module):
 
         num_features = proj.size(-1)
         num_samples = proj.size(-2)
-        A = self._generate_unit_vectors(proj.device, num_features)
+        A = self._generate_unit_vectors(proj.device, proj.dtype, num_features)
         x_projected = self._project_embeddings_to_unit_vector(proj, A)
         x_t = x_projected.unsqueeze(-1) * self.t
         err_per_frequency = self._compute_cf_error_at_each_frequency(x_t)
