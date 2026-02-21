@@ -3,7 +3,7 @@ from torch import nn
 
 
 class SIGReg(nn.Module):
-    """Stochastic integral Gaussian regularizer for projected embeddings."""
+    """Sketched Isotropic Gaussian Regularization for projected embeddings."""
 
     def __init__(self, knots: int = 17):
         """Initialize the frequency grid and trapezoidal weights.
