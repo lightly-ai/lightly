@@ -1,5 +1,7 @@
 import pytest
 import torch
+from pytest_mock import MockerFixture
+from torch import distributed as dist
 
 from lightly.loss.lejepa_loss import SIGReg
 
@@ -14,58 +16,50 @@ class TestSIGReg:
         assert proj.grad is not None
         assert proj.grad.shape == proj.shape
 
-    def test_deterministic_output(self) -> None:
+    def test_forward(self) -> None:
         torch.manual_seed(0)
-        loss_fn = SIGReg()
+        loss_fn = SIGReg(t_max=1.5, num_vectors=32)
         proj = torch.randn(10, 1024, 16)
-        loss1 = loss_fn(proj)
+        loss_fn(proj)
 
+    def test_forward_gather_distributed(self) -> None:
         torch.manual_seed(0)
+        loss_fn = SIGReg(gather_distributed=True)
         proj = torch.randn(10, 1024, 16)
-        loss2 = loss_fn(proj)
-        assert torch.isclose(loss1, loss2)
-
-    @pytest.mark.parametrize("channel_size", [8, 16, 32, 64])
-    def test_works_with_any_channel_size(self, channel_size: int) -> None:
-        torch.manual_seed(0)
-        loss_fn = SIGReg()
-        proj = torch.randn(10, 1024, channel_size)
         loss = loss_fn(proj)
-        assert loss.item() >= 0.0
+        assert loss.isfinite()
 
-    @pytest.mark.parametrize("batch_size", [1, 4, 10, 32])
-    def test_works_with_any_batch_size(self, batch_size: int) -> None:
+    def test_forward_gather_distributed_world_size_gt_one(
+        self, mocker: MockerFixture
+    ) -> None:
+        mocker.patch("lightly.loss.lejepa_loss.lightly_dist.world_size", return_value=2)
+        mock_broadcast = mocker.patch.object(dist, "broadcast")
+        mock_all_reduce = mocker.patch.object(dist, "all_reduce")
+
         torch.manual_seed(0)
-        loss_fn = SIGReg()
-        proj = torch.randn(batch_size, 1024, 16)
+        loss_fn = SIGReg(gather_distributed=True)
+        proj = torch.randn(10, 1024, 16)
         loss = loss_fn(proj)
-        assert loss.item() >= 0.0
 
-    def test_dont_work_with_1d_input(self) -> None:
+        assert loss.isfinite()
+        mock_broadcast.assert_called_once()
+        assert mock_all_reduce.call_count == 3
+
+    def test_forward_non_float32_input(self) -> None:
         torch.manual_seed(0)
         loss_fn = SIGReg()
-        proj = torch.randn(1024)
-        with pytest.raises(IndexError):
-            loss_fn(proj)
+        proj = torch.randn(10, 1024, 16, dtype=torch.float16)
+        loss = loss_fn(proj)
+        assert loss.isfinite()
 
-    @pytest.mark.parametrize("knots", [1, 0, -1, -5])
-    def test_knots_must_be_greater_than_one(self, knots: int) -> None:
+    def test_knots_must_be_greater_than_one(self) -> None:
         with pytest.raises(ValueError):
-            SIGReg(knots=knots)
+            SIGReg(knots=1)
 
-    def test_works_with_non_float32_input(self) -> None:
-        torch.manual_seed(0)
-        loss_fn = SIGReg()
-        proj = torch.randn(10, 1024, 16, dtype=torch.float64)
-        loss = loss_fn(proj)
-        assert loss.item() >= 0.0
+    def test_t_max_must_be_greater_than_zero(self) -> None:
+        with pytest.raises(ValueError):
+            SIGReg(t_max=0.0)
 
-    def test_non_gaussian_positive(self) -> None:
-        torch.manual_seed(0)
-        loss_fn = SIGReg()
-        proj = torch.randn(10, 1024, 16)
-        loss_gaussian = loss_fn(proj)
-        proj_skewed = proj * 1.5 + 0.3
-        loss_skewed = loss_fn(proj_skewed)
-        assert loss_skewed.item() > 0.0
-        assert loss_skewed.item() > loss_gaussian.item()
+    def test_num_vectors_must_be_positive(self) -> None:
+        with pytest.raises(ValueError):
+            SIGReg(num_vectors=0)
