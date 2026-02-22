@@ -1,5 +1,8 @@
 import torch
+from torch import distributed as torch_dist
 from torch import nn
+
+from lightly.utils import dist as lightly_dist
 
 
 class SIGReg(nn.Module):
@@ -10,6 +13,7 @@ class SIGReg(nn.Module):
         knots: int = 17,
         t_max: float = 3.0,
         num_vectors: int = 256,
+        gather_distributed: bool = False,
     ):
         """Initialize the frequency grid and trapezoidal weights.
 
@@ -24,6 +28,9 @@ class SIGReg(nn.Module):
             knots: Number of frequency samples used for the integration grid.
             t_max: Maximum frequency for the integration grid.
             num_vectors: Number of random unit projection vectors (slices).
+            gather_distributed:
+                If True, aggregate statistics across distributed ranks so the
+                loss uses the global batch.
         """
         super().__init__()
         if knots <= 1:
@@ -32,8 +39,15 @@ class SIGReg(nn.Module):
             raise ValueError("t_max must be greater than zero.")
         if num_vectors <= 0:
             raise ValueError("num_vectors must be a positive integer.")
+        if gather_distributed and not torch_dist.is_available():
+            raise ValueError(
+                "gather_distributed is True but torch.distributed is not available. "
+                "Please set gather_distributed=False or install a torch version with "
+                "distributed support."
+            )
 
         self.num_vectors = num_vectors
+        self.gather_distributed = gather_distributed
 
         t = torch.linspace(0, t_max, knots, dtype=torch.float32)
         # t are frequencies
@@ -54,6 +68,8 @@ class SIGReg(nn.Module):
     ) -> torch.Tensor:
         """Sample unit vectors to project embeddings onto random directions."""
         A = torch.randn(num_features, self.num_vectors, device=device, dtype=dtype)
+        if self.gather_distributed and lightly_dist.world_size() > 1:
+            torch_dist.broadcast(A, src=0)
         A = A.div_(A.norm(p=2, dim=0))
         return A
 
@@ -70,8 +86,22 @@ class SIGReg(nn.Module):
         x_t: torch.Tensor,
     ) -> torch.Tensor:
         """Compute characteristic function error per frequency."""
+        cos_sum = x_t.cos().sum(-3)
+        sin_sum = x_t.sin().sum(-3)
+        num_samples = x_t.size(-3)
+        if self.gather_distributed and lightly_dist.world_size() > 1:
+            num_samples_tensor = torch.tensor(
+                float(num_samples), device=x_t.device, dtype=x_t.dtype
+            )
+            torch_dist.all_reduce(cos_sum)
+            torch_dist.all_reduce(sin_sum)
+            torch_dist.all_reduce(num_samples_tensor)
+            num_samples = int(num_samples_tensor.item())
+
+        cos_mean = cos_sum / num_samples
+        sin_mean = sin_sum / num_samples
         phi = self.phi.to(dtype=x_t.dtype)
-        return (x_t.cos().mean(-3) - phi).square() + x_t.sin().mean(-3).square()
+        return (cos_mean - phi).square() + sin_mean.square()
 
     def _integrate_via_trapezoidal_rule(
         self,
