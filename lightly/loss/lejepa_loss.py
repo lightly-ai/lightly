@@ -5,19 +5,39 @@ from torch import nn
 class SIGReg(nn.Module):
     """Sketched Isotropic Gaussian Regularization for projected embeddings."""
 
-    def __init__(self, knots: int = 17):
+    def __init__(
+        self,
+        knots: int = 17,
+        t_max: float = 3.0,
+        num_vectors: int = 256,
+    ):
         """Initialize the frequency grid and trapezoidal weights.
+
+        `t_max` sets how far the frequency grid extends. Higher values make the
+        loss more sensitive to fine-scale differences in the projected
+        distribution, but can also increase noise. `num_vectors` sets how many
+        random projection directions are averaged per forward pass. More vectors
+        usually improve stability at the cost of extra compute. The defaults
+        (`t_max=3.0`, `num_vectors=256`) follow LeJEPA settings.
 
         Args:
             knots: Number of frequency samples used for the integration grid.
+            t_max: Maximum frequency for the integration grid.
+            num_vectors: Number of random unit projection vectors (slices).
         """
         super().__init__()
         if knots <= 1:
             raise ValueError("knots must be an integer greater than one.")
+        if t_max <= 0:
+            raise ValueError("t_max must be greater than zero.")
+        if num_vectors <= 0:
+            raise ValueError("num_vectors must be a positive integer.")
 
-        t = torch.linspace(0, 3, knots, dtype=torch.float32)
+        self.num_vectors = num_vectors
+
+        t = torch.linspace(0, t_max, knots, dtype=torch.float32)
         # t are frequencies
-        dt = 3 / (knots - 1)
+        dt = t_max / (knots - 1)
         weights = torch.full((knots,), 2 * dt, dtype=torch.float32)
         weights[[0, -1]] = dt
         window = torch.exp(-t.square() / 2.0)
@@ -31,10 +51,9 @@ class SIGReg(nn.Module):
         device: torch.device,
         dtype: torch.dtype,
         num_features: int,
-        num_vectors: int = 256,
     ) -> torch.Tensor:
         """Sample unit vectors to project embeddings onto random directions."""
-        A = torch.randn(num_features, num_vectors, device=device, dtype=dtype)
+        A = torch.randn(num_features, self.num_vectors, device=device, dtype=dtype)
         A = A.div_(A.norm(p=2, dim=0))
         return A
 
@@ -69,7 +88,7 @@ class SIGReg(nn.Module):
         Compute the SIGReg loss for a batch of projections.
 
         Args:
-            proj: Projected embeddings of shape (B, N, C).
+            proj: Projected embeddings of shape (..., N, C).
         """
 
         num_features = proj.size(-1)
