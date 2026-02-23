@@ -84,19 +84,14 @@ class SIGReg(nn.Module):
     def _compute_cf_error_at_each_frequency(
         self,
         x_t: torch.Tensor,
+        num_samples: int,
     ) -> torch.Tensor:
         """Compute characteristic function error per frequency."""
         cos_sum = x_t.cos().sum(-3)
         sin_sum = x_t.sin().sum(-3)
-        num_samples = x_t.size(-3)
         if self.gather_distributed and lightly_dist.world_size() > 1:
-            num_samples_tensor = torch.tensor(
-                float(num_samples), device=x_t.device, dtype=x_t.dtype
-            )
             torch_dist.all_reduce(cos_sum)
             torch_dist.all_reduce(sin_sum)
-            torch_dist.all_reduce(num_samples_tensor)
-            num_samples = int(num_samples_tensor.item())
 
         cos_mean = cos_sum / num_samples
         sin_mean = sin_sum / num_samples
@@ -123,8 +118,15 @@ class SIGReg(nn.Module):
 
         num_features = proj.size(-1)
         num_samples = proj.size(-2)
+        if self.gather_distributed and lightly_dist.world_size() > 1:
+            num_samples_tensor = torch.tensor(
+                float(num_samples), device=proj.device, dtype=proj.dtype
+            )
+            torch_dist.all_reduce(num_samples_tensor)
+            num_samples = int(num_samples_tensor.item())
+
         A = self._generate_unit_vectors(proj.device, proj.dtype, num_features)
         x_projected = self._project_embeddings_to_unit_vector(proj, A)
         x_t = x_projected.unsqueeze(-1) * self.t
-        err_per_frequency = self._compute_cf_error_at_each_frequency(x_t)
+        err_per_frequency = self._compute_cf_error_at_each_frequency(x_t, num_samples)
         return self._integrate_via_trapezoidal_rule(err_per_frequency, num_samples)
