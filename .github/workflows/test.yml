@@ -54,7 +54,12 @@ jobs:
           sudo apt-get install -y libssh-gcrypt-4=0.9.6-2build1 libavformat-dev libavdevice-dev
           make install-uv reset-venv
           source .venv/bin/activate
-          make install-pinned-extras
+          if [ "${{ matrix.python }}" = "3.7" ]; then
+            # Avoid PyAV build issues on Python 3.7 by not installing the video extra.
+            uv pip install --exclude-newer "2025-08-07" --reinstall .[dev,matplotlib,minimal,timm] --requirement pyproject.toml
+          else
+            make install-pinned-extras
+          fi
       - name: Clean Previous Coverage Data
         run: rm -f .coverage
       - name: Run Pytest (Python 3.7)
