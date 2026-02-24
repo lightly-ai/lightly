@@ -57,5 +57,5 @@ class SparKPatchReconLoss(nn.Module):
 
         non_active = active_mask.logical_not().int().view(active_mask.shape[0], -1)
 
-        recon_loss = l2_loss.mul_(non_active).sum() / (non_active.sum() + 1e-8)
+        recon_loss = (l2_loss * non_active).sum() / (non_active.sum() + 1e-8)
         return recon_loss, mean, var
