@@ -499,7 +499,7 @@ class UNetDecoder(nn.Module):
                 nn.init.constant_(m.weight, 1.0)
 
 
-class SparKDensfiyBlock(nn.Module):
+class SparKDensifiyBlock(nn.Module):
     """Block for densifying sparse features by filling masked regions with learned tokens.
 
     Applies normalization to sparse features, then uses learned mask tokens to fill inactive
@@ -610,7 +610,7 @@ class SparKDensifier(nn.Module):
         for i, e_width in enumerate(encoder_in_channels[::-1]):
             use_identity = i == 0 and e_width == d_width
             kernel_size = 1 if i <= 0 else 3
-            block = SparKDensfiyBlock(
+            block = SparKDensifiyBlock(
                 e_width=e_width,
                 d_width=d_width,
                 densify_norm_str=densify_norm_str,
@@ -645,7 +645,7 @@ class SparKDensifier(nn.Module):
         return to_dec
 
 
-class SparKMaskingOuptut(NamedTuple):
+class SparKMaskingOutput(NamedTuple):
     """Output container for SparKMasker forward pass.
 
     Attributes:
@@ -701,7 +701,7 @@ class SparKMasker(nn.Module):
             .bool()
         )
 
-    def forward(self, inp_bchw: torch.Tensor) -> SparKMaskingOuptut:
+    def forward(self, inp_bchw: torch.Tensor) -> SparKMaskingOutput:
         """Generate hierarchical masks for the input.
 
         Creates masks at multiple scales from the patch level up to full input resolution.
@@ -728,7 +728,7 @@ class SparKMasker(nn.Module):
 
         active_b1hw = per_level_mask[-1]
         masked_bchw = inp_bchw * active_b1hw
-        return SparKMaskingOuptut(
+        return SparKMaskingOutput(
             masked_bchw=masked_bchw, per_level_mask=per_level_mask
         )
 
