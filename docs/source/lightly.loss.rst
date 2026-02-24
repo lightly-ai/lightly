@@ -56,6 +56,9 @@ lightly.loss
 .. autoclass:: lightly.loss.regularizer.co2.CO2Regularizer
    :members:
 
+.. autoclass:: lightly.loss.sparse_spark.SparKPatchReconLoss
+   :members:
+
 .. autoclass:: lightly.loss.swav_loss.SwaVLoss
    :members:
 
