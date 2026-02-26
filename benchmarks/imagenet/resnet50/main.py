@@ -148,6 +148,10 @@ def main(
                 precision=precision,
                 ckpt_path=ckpt_path,
                 strategy=strategy,
+                num_classes=num_classes, 
+                knn_k=knn_k, 
+                knn_t=knn_t,
+                skip_knn_eval=skip_knn_eval,
             )
         eval_metrics: Dict[str, Dict[str, float]] = dict()
         if skip_knn_eval:
@@ -221,6 +225,10 @@ def pretrain(
     precision: str,
     ckpt_path: Union[Path, None],
     strategy: str,
+    num_classes: int, 
+    knn_k: int, 
+    knn_t: float,
+    skip_knn_eval: bool
 ) -> None:
     print_rank_zero(f"Running pretraining for {method}...")
 
@@ -256,17 +264,36 @@ def pretrain(
 
     # Train model.
     metric_callback = MetricCallback()
-    trainer = Trainer(
-        max_epochs=epochs,
-        accelerator=accelerator,
-        devices=devices,
-        callbacks=[
+
+    callback_list = [
             LearningRateMonitor(),
             # Stop if training loss diverges.
             EarlyStopping(monitor="train_loss", patience=int(1e12), check_finite=True),
             DeviceStatsMonitor(),
-            metric_callback,
-        ],
+            metric_callback
+        ]
+    if skip_knn_eval:
+        pass
+    else:
+        knn_evaluation = knn_eval.KNNEvalCallback(
+            train_dir, 
+            val_dir,
+            batch_size_per_device, 
+            num_workers, 
+            accelerator, 
+            log_dir,
+            devices,
+            strategy,
+            num_classes,
+            knn_k,
+            knn_t)
+        callback_list.insert[3, knn_evaluation]
+        
+    trainer = Trainer(
+        max_epochs=epochs,
+        accelerator=accelerator,
+        devices=devices,
+        callbacks=callback_list,
         logger=TensorBoardLogger(save_dir=str(log_dir), name="pretrain"),
         precision=precision,
         strategy=strategy,

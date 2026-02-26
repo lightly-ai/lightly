@@ -33,7 +33,7 @@ class KNNEvalCallback(Callback):
         strategy: str,
         num_classes: int, 
         knn_k: int, 
-        knn_t: int):
+        knn_t: float):
         """
         Args:
             train_dir: Path to the training data directory.
