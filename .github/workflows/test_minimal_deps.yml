@@ -42,11 +42,8 @@ jobs:
           python-version: ${{ matrix.python }}
       - name: Set Up Environment
         run: |
-          # Install libavformat-dev and libavdevice-dev for PyAV as versions before 9.0
-          # do not provide wheels including FFMPEG.
-          # Refresh apt metadata first to avoid mirror/index mismatches (404 on transient package versions).
-          sudo apt-get update
-          sudo apt-get install -y libssh-gcrypt-4=0.9.6-2build1 libavformat-dev libavdevice-dev
+          # Install system dependencies required by PyAV on CI.
+          make install-av-system-deps
           make install-uv reset-venv
           source .venv/bin/activate
           make install-${{ matrix.dependencies }}
