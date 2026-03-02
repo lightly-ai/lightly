@@ -1,5 +1,5 @@
 from functools import partial
-from typing import Callable, Optional
+from typing import Any, Callable, Optional, cast
 
 import torch
 import torch.nn as nn
@@ -89,7 +89,8 @@ class MAEDecoderTIMM(Module):
                     decoder_num_heads,
                     mlp_ratio,
                     qkv_bias=True,
-                    norm_layer=norm_layer,
+                    # timm's type hints for norm_layer vary between versions.
+                    norm_layer=cast(Any, norm_layer),
                     proj_drop=proj_drop_rate,
                     attn_drop=attn_drop_rate,
                 )
