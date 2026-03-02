@@ -36,7 +36,6 @@ jobs:
         source .venv/bin/activate
         make format-check
     - name: Run Type Check
-      if: matrix.python == '3.7'
       run: |
         source .venv/bin/activate
         make type-check
