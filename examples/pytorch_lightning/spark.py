@@ -149,8 +149,6 @@ class SparseSparK(LightningModule):
 
 model = SparseSparK(input_size=416)
 
-
-# we ignore object detection annotations by setting target_transform to return 0
 dataset = torchvision.datasets.Caltech101(
     "datasets/caltech101",
     download=True,
@@ -174,14 +172,10 @@ dataloader = torch.utils.data.DataLoader(
     num_workers=8,
 )
 
-
-accelerator = "gpu" if torch.cuda.is_available() else "cpu"
-
 trainer = pl.Trainer(
     max_epochs=30,
-    devices=1,
-    accelerator=accelerator,
 )
+
 trainer.fit(
     model=model,
     train_dataloaders=dataloader,
