@@ -113,11 +113,13 @@ class TestMSNLoss:
             targets = head(targets)
         loss = criterion(anchors, targets, prototypes)
         loss.backward()
-        weights_before = head.layers[0].weight.data.clone()
+        first_layer = head.layers[0]
+        assert isinstance(first_layer, nn.Linear)
+        weights_before = first_layer.weight.detach().clone()
         optimizer.step()
-        weights_after = head.layers[0].weight.data
+        weights_after = first_layer.weight.detach()
         # backward pass should update weights
-        assert torch.any(weights_before != weights_after)
+        assert not torch.equal(weights_before, weights_after)
 
     @pytest.mark.skipif(not torch.cuda.is_available(), reason="No cuda")
     def test_backward_cuda(self) -> None:
@@ -135,8 +137,10 @@ class TestMSNLoss:
             targets = head(targets)
         loss = criterion(anchors, targets, prototypes)
         loss.backward()
-        weights_before = head.layers[0].weight.data.clone()
+        first_layer = head.layers[0]
+        assert isinstance(first_layer, nn.Linear)
+        weights_before = first_layer.weight.detach().clone()
         optimizer.step()
-        weights_after = head.layers[0].weight.data
+        weights_after = first_layer.weight.detach()
         # backward pass should update weights
-        assert torch.any(weights_before != weights_after)
+        assert not torch.equal(weights_before, weights_after)

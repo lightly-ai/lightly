@@ -26,7 +26,7 @@ jobs:
         run: |
           make install-uv reset-venv
           source .venv/bin/activate
-          make install-pinned-extras
+          make install-pinned-notebook
       - name: Convert using Script
         run: |
           source .venv/bin/activate
