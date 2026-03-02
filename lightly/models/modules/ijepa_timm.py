@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from functools import partial
-from typing import Any, Callable, cast
+from typing import Callable
 
 import torch
 import torch.nn as nn
@@ -92,7 +92,7 @@ class IJEPAPredictorTIMM(nn.Module):  # type: ignore[misc]
                     proj_drop=proj_drop_rate,
                     attn_drop=attn_drop_rate,
                     # timm's type hints for norm_layer vary between versions.
-                    norm_layer=cast(Any, norm_layer),
+                    norm_layer=norm_layer,  # type: ignore[arg-type]
                 )
                 for _ in range(depth)
             ]
