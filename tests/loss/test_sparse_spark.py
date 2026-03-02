@@ -59,6 +59,13 @@ def _reference_loss_implementation(
     active_b1ff: torch.Tensor,
     eps: float = 1e-6,
 ) -> torch.Tensor:
+    """
+    This loss implementation was taken from the official implementation of the
+    SparK paper, and serves as a reference to ensure that the
+    SparKPatchReconLoss implementation in lightly produces the same results.
+
+    https://github.com/keyu-tian/SparK/blob/a63e386f8e5186bc07ad7fce86e06b08f48a61ea/pretrain/spark.py#L112-L120
+    """
     mean = inp.mean(dim=-1, keepdim=True)
     var = (inp.var(dim=-1, keepdim=True) + eps) ** 0.5
     inp = (inp - mean) / var
