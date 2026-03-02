@@ -121,7 +121,7 @@ endif
 
 # Date until which dependencies installed with --exclude-newer must have been released.
 # Dependencies released after this date are ignored.
-EXCLUDE_NEWER_DATE="2024-08-07"
+EXCLUDE_NEWER_DATE="2025-08-07"
 
 # Install package for local development.
 .PHONY: install-dev
@@ -184,6 +184,31 @@ install-pinned:
 .PHONY: install-pinned-extras
 install-pinned-extras:
 	uv pip install --exclude-newer ${EXCLUDE_NEWER_DATE} --reinstall ${EDITABLE} . --all-extras --requirement pyproject.toml
+
+# Install package with selected extras pinned to the latest compatible version
+# available at EXCLUDE_NEWER_DATE. This excludes video dependencies.
+.PHONY: install-pinned-extras-no-video
+install-pinned-extras-no-video:
+	uv pip install --exclude-newer ${EXCLUDE_NEWER_DATE} --reinstall ${EDITABLE} ".[dev,matplotlib,minimal,timm]" --requirement pyproject.toml
+
+# Install package with pinned extras for notebook CI checks.
+.PHONY: install-pinned-notebook
+install-pinned-notebook: install-pinned-extras-no-video
+
+# Install system dependencies for PyAV in CI.
+.PHONY: install-av-system-deps
+install-av-system-deps:
+ifdef CI
+	sudo apt-get update
+	sudo apt-get install -y libssh-gcrypt-4=0.9.6-2build1 libavformat-dev libavdevice-dev
+else
+	@echo "Skipping PyAV system dependencies (CI only)."
+endif
+
+# Install package with pinned extras for specific Python versions used in CI.
+.PHONY: install-pinned-extras-3.7 install-pinned-extras-3.12
+install-pinned-extras-3.7: install-pinned-extras-no-video
+install-pinned-extras-3.12: install-av-system-deps install-pinned-extras
 
 # Install package with the latest dependencies.
 .PHONY: install-latest
