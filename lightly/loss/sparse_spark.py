@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import torch
 from torch import nn
+from lightly.utils.dist import gather
+import torch.distributed as dist
 
 
 class SparKPatchReconLoss(nn.Module):
@@ -14,9 +16,16 @@ class SparKPatchReconLoss(nn.Module):
         eps: Small value for numerical stability. Default: 1e-6.
     """
 
-    def __init__(self, eps: float = 1e-6) -> None:
+    def __init__(self, eps: float = 1e-6, gather_distributed: bool = False) -> None:
         super().__init__()
+        if gather_distributed and not dist.is_available():
+            raise ValueError(
+                "gather_distributed is True but torch.distributed is not available. "
+                "Please set gather_distributed=False or install a torch version with "
+                "distributed support."
+            )
         self.eps = eps
+        self.gather_distributed = gather_distributed
 
     def forward(
         self,
@@ -31,7 +40,7 @@ class SparKPatchReconLoss(nn.Module):
         only over masked (active_mask=False) patches.
 
         Args:
-            inp_patches: Original patches of shape (B, L, N) where B=batch, L=levels, N=patch_dim.
+            inp_patches: Original patches of shape (B, L, N) where B=batch, L=length, N=patch_dim.
             rec_patches: Reconstructed patches of shape (B, L, N).
             active_mask: Boolean mask of shape (B, 1, f, f) indicating active regions.
                         Must have 4 dimensions (2D spatial mask).
@@ -59,5 +68,19 @@ class SparKPatchReconLoss(nn.Module):
 
         non_active = active_mask.logical_not().int().view(active_mask.shape[0], -1)
 
-        recon_loss = (l2_loss * non_active).sum() / (non_active.sum() + self.eps)
+        local_numerator = (l2_loss * non_active).sum()
+        local_denominator = non_active.sum()
+
+        if self.gather_distributed and dist.is_available() and dist.is_initialized():
+            global_numerator = torch.cat(
+                gather(local_numerator.unsqueeze(0)), dim=0
+            ).sum()
+            global_denominator = torch.cat(
+                gather(local_denominator.unsqueeze(0)), dim=0
+            ).sum()
+        else:
+            global_numerator = local_numerator
+            global_denominator = local_denominator
+
+        recon_loss = global_numerator / (global_denominator + self.eps)
         return recon_loss, mean, var
