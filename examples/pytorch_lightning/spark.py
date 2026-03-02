@@ -151,10 +151,6 @@ model = SparseSparK(input_size=416)
 
 
 # we ignore object detection annotations by setting target_transform to return 0
-def target_transform(t):
-    return 0
-
-
 dataset = torchvision.datasets.Caltech101(
     "datasets/caltech101",
     download=True,
@@ -166,7 +162,6 @@ dataset = torchvision.datasets.Caltech101(
             v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ]
     ),
-    target_transform=target_transform,
 )
 # or create a dataset from a folder containing images or videos:
 # dataset = LightlyDataset("path/to/folder")
