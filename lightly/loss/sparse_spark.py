@@ -53,9 +53,9 @@ class SparKPatchReconLoss(nn.Module):
         mean = inp_patches.mean(dim=-1, keepdim=True)
         var = (inp_patches.var(dim=-1, keepdim=True) + self.eps) ** 0.5
 
-        inp_norm = (inp_patches - mean) / var
+        inp_normalized = (inp_patches - mean) / var
 
-        l2_loss = ((rec_patches - inp_norm) ** 2).mean(dim=2)
+        l2_loss = ((rec_patches - inp_normalized) ** 2).mean(dim=2)
 
         non_active = active_mask.logical_not().int().view(active_mask.shape[0], -1)
 
