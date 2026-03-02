@@ -4,12 +4,13 @@
 from __future__ import annotations
 
 import math
+from contextlib import contextmanager
+from contextvars import ContextVar
 from typing import NamedTuple
 
 import torch
 import torch.nn as nn
 from timm.models.layers import DropPath, trunc_normal_
-from torch.nn.common_types import _size_2_t
 
 from lightly.models.utils import random_token_mask
 
@@ -26,7 +27,7 @@ def is_pow2n(x: int) -> bool:
     return x > 0 and (x & (x - 1) == 0)
 
 
-def coalesce_to_size_2_t(t: tuple[int, ...]) -> _size_2_t:
+def coalesce_to_size_2_t(t: tuple[int, ...]) -> tuple[int, int]:
     """Convert a 1-tuple or 2-tuple to standard (H, W) format.
 
     Args:
@@ -46,9 +47,21 @@ def coalesce_to_size_2_t(t: tuple[int, ...]) -> _size_2_t:
         raise ValueError(f"Invalid tuple length: {len(t)}; expected 1 or 2.")
 
 
-_cur_active: torch.Tensor | None = (
-    None  # B1ff - Global active/mask tensor tracked during forward passes
-)
+_cur_active: ContextVar[torch.Tensor | None] = ContextVar("_cur_active", default=None)
+
+
+@contextmanager
+def sparse_layer_context(active_mask: torch.Tensor):
+    """Context manager to set the active mask for sparse layers.
+
+    Args:
+        active_mask: Boolean mask of shape (B, 1, f, f) indicating active regions.
+    """
+    token = _cur_active.set(active_mask)
+    try:
+        yield
+    finally:
+        _cur_active.reset(token)
 
 
 def _get_active_ex_or_ii(
@@ -72,17 +85,20 @@ def _get_active_ex_or_ii(
     Note:
         Optimization opportunity: Consider using gather() for better performance (see TODO).
     """
-    assert (
-        _cur_active is not None
-    ), "_cur_active must be set before calling this function"
-    h_repeat, w_repeat = H // _cur_active.shape[-2], W // _cur_active.shape[-1]
-    assert (
-        h_repeat > 0
-    ), f"Target height {H} must be >= mask height {_cur_active.shape[-2]}"
-    assert (
-        w_repeat > 0
-    ), f"Target width {W} must be >= mask width {_cur_active.shape[-1]}"
-    active_ex = _cur_active.repeat_interleave(h_repeat, dim=2).repeat_interleave(
+    active_mask = _cur_active.get()
+    if active_mask is None:
+        raise RuntimeError(
+            "_cur_active must be set before calling this function. "
+            "Use sparse_layer_context to set the mask."
+        )
+    h_repeat, w_repeat = H // active_mask.shape[-2], W // active_mask.shape[-1]
+    assert h_repeat > 0, (
+        f"Target height {H} must be >= mask height {active_mask.shape[-2]}"
+    )
+    assert w_repeat > 0, (
+        f"Target width {W} must be >= mask width {active_mask.shape[-1]}"
+    )
+    active_ex = active_mask.repeat_interleave(h_repeat, dim=2).repeat_interleave(
         w_repeat, dim=3
     )
     return (
@@ -92,7 +108,9 @@ def _get_active_ex_or_ii(
     )
 
 
-def sp_conv_forward(self, x: torch.Tensor) -> torch.Tensor:
+def sp_conv_forward(
+    module: nn.AvgPool2d | nn.MaxPool2d | nn.Conv2d, input: torch.Tensor
+) -> torch.Tensor:
     """Forward pass for sparse convolution/pooling layers.
 
     Applies the parent class forward operation and masks the output using the global
@@ -100,17 +118,21 @@ def sp_conv_forward(self, x: torch.Tensor) -> torch.Tensor:
 
     Args:
         self: ConvTranspose2d, MaxPool2d, or AvgPool2d instance.
-        x: Input tensor of shape (B, C, H, W).
+        input: Input tensor of shape (B, C, H, W).
 
     Returns:
         Masked output tensor of same shape as input, with inactive spatial positions zeroed.
     """
-    x = super(type(self), self).forward(x)
-    x *= _get_active_ex_or_ii(H=x.shape[2], W=x.shape[3], returning_active_ex=True)
+    x: torch.Tensor = super(type(module), module).forward(input)  # type: ignore[arg-type]
+    x *= _get_active_ex_or_ii(
+        H=input.shape[2], W=input.shape[3], returning_active_ex=True
+    )
     return x
 
 
-def sp_bn_forward(self, x: torch.Tensor) -> torch.Tensor:
+def sp_bn_forward(
+    module: nn.BatchNorm1d | nn.SyncBatchNorm, input: torch.Tensor
+) -> torch.Tensor:
     """Forward pass for sparse batch normalization layers.
 
     Applies batch norm only to active (unmasked) spatial positions, efficiently handling
@@ -119,16 +141,18 @@ def sp_bn_forward(self, x: torch.Tensor) -> torch.Tensor:
 
     Args:
         self: BatchNorm1d or SyncBatchNorm instance.
-        x: Input tensor of shape (B, C, H, W) in channels_first format.
+        input: Input tensor of shape (B, C, H, W) in channels_first format.
 
     Returns:
         Output tensor of same shape as input, with batch norm applied only to active positions.
     """
-    ii = _get_active_ex_or_ii(H=x.shape[2], W=x.shape[3], returning_active_ex=False)
+    ii = _get_active_ex_or_ii(
+        H=input.shape[2], W=input.shape[3], returning_active_ex=False
+    )
 
-    bhwc = x.permute(0, 2, 3, 1)
+    bhwc = input.permute(0, 2, 3, 1)
     nc = bhwc[ii]
-    nc = super(type(self), self).forward(nc)
+    nc = super(type(module), module).forward(nc)  # type: ignore[arg-type]
 
     bchw = torch.zeros_like(bhwc)
     bchw[ii] = nc
@@ -461,7 +485,7 @@ class UNetDecoder(nn.Module):
         Returns:
             Upsampled feature tensor with 3 output channels.
         """
-        x = 0
+        x = torch.tensor(0.0, device=to_dec[0].device)
         for i in range(len(self.dec)):
             if i < len(to_dec) and to_dec[i] is not None:
                 x = x + to_dec[i]
@@ -542,6 +566,7 @@ class SparKDensifiyBlock(nn.Module):
             self.densify_norm = nn.Identity()
 
         # densify proj
+        self.densify_proj: nn.Identity | nn.Conv2d
         if use_identity_proj:
             self.densify_proj = nn.Identity()
             print(
@@ -562,7 +587,7 @@ class SparKDensifiyBlock(nn.Module):
             self.densify_proj = densify_proj
 
     def forward(
-        self, bcff: torch.Tensor, cur_active: torch.Tensor
+        self, bcff: torch.Tensor | None, cur_active: torch.Tensor
     ) -> torch.Tensor | None:
         """Densify sparse features by filling masked regions with learned tokens.
 
@@ -576,6 +601,7 @@ class SparKDensifiyBlock(nn.Module):
         if bcff is None:
             return None
         bcff = self.densify_norm(bcff)
+        assert bcff is not None
         mask_tokens = self.mask_token.expand_as(bcff)
         bcff = torch.where(cur_active.expand_as(bcff), bcff, mask_tokens)
         bcff = self.densify_proj(bcff)
@@ -621,20 +647,26 @@ class SparKDensifier(nn.Module):
             self.blocks.append(block)
             d_width //= 2
 
-    def forward(self, fea_bcffs: list[torch.Tensor]) -> list[torch.Tensor | None]:
+    def forward(self, fea_bcffs: list[torch.Tensor]) -> list[torch.Tensor]:
         """Convert sparse features to dense by filling masked regions.
 
         Args:
-            fea_bcffs: List of feature tensors from encoder at different scales (shallow to deep).
-                      Each tensor has shape (B, C, f, f) where f varies per scale.
+            fea_bcffs: List of feature tensors from encoder at different scales (shallow
+                to deep). Each tensor has shape (B, C, f, f) where f varies per scale.
 
         Returns:
-            List of densified feature tensors for decoder processing (order reversed and dilated).
+            List of densified feature tensors for decoder processing (order reversed and
+                dilated).
         """
         to_dec = []
         fea_bcffs = fea_bcffs[::-1]
-        global _cur_active
-        active_fmap_current = _cur_active
+        active_mask = _cur_active.get()
+        if active_mask is None:
+            raise RuntimeError(
+                "_cur_active must be set before calling SparKDensifier.forward(). "
+                "Ensure you are within a sparse_layer_context."
+            )
+        active_fmap_current = active_mask
         for i, bcff in enumerate(fea_bcffs):
             if bcff is not None:
                 bcff = self.blocks[i](bcff, active_fmap_current)
@@ -714,9 +746,7 @@ class SparKMasker(nn.Module):
             - masked_bchw: Input image masked at full resolution.
             - per_level_mask: List of masks at each hierarchical level.
         """
-        global _cur_active
-        _cur_active = self.mask(inp_bchw.shape[0], inp_bchw.device)
-        active_b1ff = _cur_active.clone()
+        active_b1ff = self.mask(inp_bchw.shape[0], inp_bchw.device)
         downsample_ratio = self.downsample_ratio
         per_level_mask = [active_b1ff]
         for _ in range(int(math.log2(downsample_ratio))):
