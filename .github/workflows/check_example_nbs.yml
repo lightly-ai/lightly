@@ -26,8 +26,7 @@ jobs:
         run: |
           make install-uv reset-venv
           source .venv/bin/activate
-          # Notebook conversion does not require video dependencies.
-          uv pip install --exclude-newer "2025-08-07" --reinstall .[dev,matplotlib,minimal,timm] --requirement pyproject.toml
+          make install-pinned-notebook
       - name: Convert using Script
         run: |
           source .venv/bin/activate

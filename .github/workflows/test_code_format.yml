@@ -30,13 +30,13 @@ jobs:
       run: |
         make install-uv reset-venv
         source .venv/bin/activate
-        # Format/type checks do not require video dependencies.
-        uv pip install --exclude-newer "2025-08-07" --reinstall .[dev,matplotlib,minimal,timm] --requirement pyproject.toml
+        make install-pinned-extras
     - name: Run Format Check
       run: |
         source .venv/bin/activate
         make format-check
     - name: Run Type Check
+      if: matrix.python == '3.7'
       run: |
         source .venv/bin/activate
         make type-check
