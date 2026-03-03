@@ -96,7 +96,7 @@ class SIGReg(nn.Module):
         cos_mean = cos_sum / num_samples
         sin_mean = sin_sum / num_samples
         phi = self.phi.to(dtype=x_t.dtype)
-        return (cos_mean - phi).square() + sin_mean.square()
+        return (cos_mean - phi).square() + sin_mean.square()  # type: ignore[operator]
 
     def _integrate_via_trapezoidal_rule(
         self,
@@ -105,7 +105,7 @@ class SIGReg(nn.Module):
     ) -> torch.Tensor:
         """Integrate the error over frequency using trapezoidal weights."""
         weights = self.weights.to(dtype=err_per_frequency.dtype)
-        statistic = (err_per_frequency @ weights) * num_samples
+        statistic = (err_per_frequency @ weights) * num_samples  # type: ignore[operator]
         return statistic.mean()
 
     def forward(self, proj: torch.Tensor) -> torch.Tensor:
@@ -127,6 +127,6 @@ class SIGReg(nn.Module):
 
         A = self._generate_unit_vectors(proj.device, proj.dtype, num_features)
         x_projected = self._project_embeddings_to_unit_vector(proj, A)
-        x_t = x_projected.unsqueeze(-1) * self.t
+        x_t = x_projected.unsqueeze(-1) * self.t  # type: ignore[operator]
         err_per_frequency = self._compute_cf_error_at_each_frequency(x_t, num_samples)
         return self._integrate_via_trapezoidal_rule(err_per_frequency, num_samples)
