@@ -234,6 +234,17 @@ def fetch_smalltable_rows(
     """
 ```
 
+**Function usage and import style:**
+
+- When calling functions with more than one argument, prefer using keyword arguments for clarity and readability.
+- Functions should not be imported directly. Instead, import their module and access the function via the module, e.g.:
+  ```python
+  from module import submodule
+
+  submodule.myfunction(arg1, arg2)
+  ```
+```
+
 #### Classes
 
 Attributes of a class should be documented at the class level if they are meant to be public.
@@ -273,6 +284,14 @@ class SampleClass:
             x:
                 Some explanation for x.
         """
+```
+
+**Class import style:**
+
+- Classes should usually be imported directly, e.g.:
+  ```python
+  from module.submodule import MyClass
+  ```
 ```
 
 #### This guide was inspired by Transformers [transformers guide to contributing](https://github.com/huggingface/transformers/blob/master/CONTRIBUTING.md) which was influenced by Scikit-learn [scikit-learn guide to contributing](https://github.com/scikit-learn/scikit-learn/blob/master/CONTRIBUTING.md).
