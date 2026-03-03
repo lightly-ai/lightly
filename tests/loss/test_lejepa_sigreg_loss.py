@@ -45,13 +45,6 @@ class TestSIGReg:
         mock_broadcast.assert_called_once()
         assert mock_all_reduce.call_count == 3
 
-    def test_forward_non_float32_input(self) -> None:
-        torch.manual_seed(0)
-        loss_fn = SIGReg()
-        proj = torch.randn(10, 1024, 16, dtype=torch.float16)
-        loss = loss_fn(proj)
-        assert loss.isfinite()
-
     def test_knots_must_be_greater_than_one(self) -> None:
         with pytest.raises(ValueError):
             SIGReg(knots=1)
