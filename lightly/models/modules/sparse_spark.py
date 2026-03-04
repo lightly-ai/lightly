@@ -742,7 +742,7 @@ class SparKMasker(nn.Module):
             inp_bchw: Input image tensor of shape (B, C, H, W).
 
         Returns:
-            SparKMaskingOuptut containing:
+            SparKMaskingOutput containing:
             - masked_bchw: Input image masked at full resolution.
             - per_level_mask: List of masks at each hierarchical level.
         """
