@@ -10,6 +10,7 @@ from typing import NamedTuple
 
 import torch
 import torch.nn as nn
+from torch import Tensor
 from timm.models.layers import DropPath, trunc_normal_
 
 from lightly.models.utils import random_token_mask
@@ -47,11 +48,11 @@ def coalesce_to_size_2_t(t: tuple[int, ...]) -> tuple[int, int]:
         raise ValueError(f"Invalid tuple length: {len(t)}; expected 1 or 2.")
 
 
-_cur_active: ContextVar[torch.Tensor | None] = ContextVar("_cur_active", default=None)
+_cur_active: ContextVar[Tensor | None] = ContextVar("_cur_active", default=None)
 
 
 @contextmanager
-def sparse_layer_context(active_mask: torch.Tensor):
+def sparse_layer_context(active_mask: Tensor):
     """Context manager to set the active mask for sparse layers.
 
     Args:
@@ -66,7 +67,7 @@ def sparse_layer_context(active_mask: torch.Tensor):
 
 def _get_active_ex_or_ii(
     H: int, W: int, returning_active_ex: bool = True
-) -> torch.Tensor | tuple[torch.Tensor, ...]:
+) -> Tensor | tuple[Tensor, ...]:
     """Get active indices or expanded active mask from global _cur_active.
 
     Converts the global _cur_active mask (shape B, 1, f, f) to a given spatial resolution (H, W).
@@ -109,8 +110,8 @@ def _get_active_ex_or_ii(
 
 
 def sp_conv_forward(
-    module: nn.AvgPool2d | nn.MaxPool2d | nn.Conv2d, input: torch.Tensor
-) -> torch.Tensor:
+    module: nn.AvgPool2d | nn.MaxPool2d | nn.Conv2d, input: Tensor
+) -> Tensor:
     """Forward pass for sparse convolution/pooling layers.
 
     Applies the parent class forward operation and masks the output using the global
@@ -123,16 +124,14 @@ def sp_conv_forward(
     Returns:
         Masked output tensor of same shape as input, with inactive spatial positions zeroed.
     """
-    x: torch.Tensor = super(type(module), module).forward(input)  # type: ignore[arg-type]
+    x: Tensor = super(type(module), module).forward(input)  # type: ignore[arg-type]
     x *= _get_active_ex_or_ii(
         H=input.shape[2], W=input.shape[3], returning_active_ex=True
     )
     return x
 
 
-def sp_bn_forward(
-    module: nn.BatchNorm1d | nn.SyncBatchNorm, input: torch.Tensor
-) -> torch.Tensor:
+def sp_bn_forward(module: nn.BatchNorm1d | nn.SyncBatchNorm, input: Tensor) -> Tensor:
     """Forward pass for sparse batch normalization layers.
 
     Applies batch norm only to active (unmasked) spatial positions, efficiently handling
@@ -235,7 +234,7 @@ class SparseConvNeXtLayerNorm(nn.LayerNorm):
         super().__init__(normalized_shape, eps, elementwise_affine=True)
         self.data_format = data_format
 
-    def forward(self, input: torch.Tensor) -> torch.Tensor:
+    def forward(self, input: Tensor) -> Tensor:
         if input.ndim == 4:  # BHWC or BCHW
             if self.data_format == "channels_last":  # BHWC
                 ii = _get_active_ex_or_ii(
@@ -301,7 +300,7 @@ class SparseConvNeXtBlock(nn.Module):
             DropPath(drop_path) if drop_path > 0.0 else nn.Identity()
         )
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def forward(self, x: Tensor) -> Tensor:
         input = x
         x = self.dwconv(x)
         x = x.permute(0, 2, 3, 1)
@@ -431,7 +430,7 @@ class UNetBlock(nn.Module):
             bn2d(cout),
         )
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def forward(self, x: Tensor) -> Tensor:
         """Apply upsampling and convolution refinement.
 
         Args:
@@ -476,7 +475,7 @@ class UNetDecoder(nn.Module):
 
         self.initialize()
 
-    def forward(self, to_dec: list[torch.Tensor]) -> torch.Tensor:
+    def forward(self, to_dec: list[Tensor]) -> Tensor:
         """Progressively upsample and combine feature maps.
 
         Args:
@@ -586,9 +585,7 @@ class SparKDensifiyBlock(nn.Module):
             )
             self.densify_proj = densify_proj
 
-    def forward(
-        self, bcff: torch.Tensor | None, cur_active: torch.Tensor
-    ) -> torch.Tensor | None:
+    def forward(self, bcff: Tensor | None, cur_active: Tensor) -> Tensor | None:
         """Densify sparse features by filling masked regions with learned tokens.
 
         Args:
@@ -647,7 +644,7 @@ class SparKDensifier(nn.Module):
             self.blocks.append(block)
             d_width //= 2
 
-    def forward(self, fea_bcffs: list[torch.Tensor]) -> list[torch.Tensor]:
+    def forward(self, fea_bcffs: list[Tensor]) -> list[Tensor]:
         """Convert sparse features to dense by filling masked regions.
 
         Args:
@@ -685,8 +682,8 @@ class SparKMaskingOutput(NamedTuple):
         per_level_mask: List of binary masks at each hierarchical level.
     """
 
-    masked_bchw: torch.Tensor
-    per_level_mask: list[torch.Tensor]
+    masked_bchw: Tensor
+    per_level_mask: list[Tensor]
 
 
 class SparKMasker(nn.Module):
@@ -712,7 +709,7 @@ class SparKMasker(nn.Module):
         self.downsample_ratio = downsample_ratio
         self.mask_ratio = mask_ratio
 
-    def mask(self, B: int, device: torch.device) -> torch.Tensor:
+    def mask(self, B: int, device: torch.device) -> Tensor:
         """Generate a random binary mask for features.
 
         Args:
@@ -733,7 +730,7 @@ class SparKMasker(nn.Module):
             .bool()
         )
 
-    def forward(self, inp_bchw: torch.Tensor) -> SparKMaskingOutput:
+    def forward(self, inp_bchw: Tensor) -> SparKMaskingOutput:
         """Generate hierarchical masks for the input.
 
         Creates masks at multiple scales from the patch level up to full input resolution.
@@ -785,7 +782,7 @@ class SparKOutputDecoder(nn.Module):
         self.fmap_w = fmap_w
         self.downsample_ratio = downsample_ratio
 
-    def unpatchify(self, bln: torch.Tensor) -> torch.Tensor:
+    def unpatchify(self, bln: Tensor) -> Tensor:
         """Convert flattened patches back to spatial feature map format.
 
         Reverses the patchify operation: reshapes from (B, L*p*p, N) to (B, N, H, W)
@@ -807,12 +804,12 @@ class SparKOutputDecoder(nn.Module):
 
     def forward(
         self,
-        rec_patches: torch.Tensor,
-        mean: torch.Tensor,
-        var: torch.Tensor,
-        inp_bchw: torch.Tensor,
-        active_mask_full: torch.Tensor,
-    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        rec_patches: Tensor,
+        mean: Tensor,
+        var: Tensor,
+        inp_bchw: Tensor,
+        active_mask_full: Tensor,
+    ) -> tuple[Tensor, Tensor, Tensor]:
         """Reconstruct image by blending original and reconstructed regions.
 
         Denormalizes reconstructed patches, unpatchifies them, and performs pixel-wise

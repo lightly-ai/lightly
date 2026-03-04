@@ -4,6 +4,7 @@ import torch
 from torch import nn
 from lightly.utils.dist import gather
 import torch.distributed as dist
+from torch import Tensor
 
 
 class SparKPatchReconLoss(nn.Module):
@@ -29,10 +30,10 @@ class SparKPatchReconLoss(nn.Module):
 
     def forward(
         self,
-        inp_patches: torch.Tensor,
-        rec_patches: torch.Tensor,
-        active_mask: torch.Tensor,
-    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        inp_patches: Tensor,
+        rec_patches: Tensor,
+        active_mask: Tensor,
+    ) -> tuple[Tensor, Tensor, Tensor]:
         """Compute reconstruction loss and per-patch statistics.
 
         Normalizes original patches based on per-patch mean and variance, then computes
