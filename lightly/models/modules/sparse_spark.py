@@ -10,8 +10,8 @@ from typing import NamedTuple
 
 import torch
 import torch.nn as nn
-from torch import Tensor
 from timm.models.layers import DropPath, trunc_normal_
+from torch import Tensor
 
 from lightly.models.utils import random_token_mask
 
@@ -93,12 +93,12 @@ def _get_active_ex_or_ii(
             "Use sparse_layer_context to set the mask."
         )
     h_repeat, w_repeat = H // active_mask.shape[-2], W // active_mask.shape[-1]
-    assert h_repeat > 0, (
-        f"Target height {H} must be >= mask height {active_mask.shape[-2]}"
-    )
-    assert w_repeat > 0, (
-        f"Target width {W} must be >= mask width {active_mask.shape[-1]}"
-    )
+    assert (
+        h_repeat > 0
+    ), f"Target height {H} must be >= mask height {active_mask.shape[-2]}"
+    assert (
+        w_repeat > 0
+    ), f"Target width {W} must be >= mask width {active_mask.shape[-1]}"
     active_ex = active_mask.repeat_interleave(h_repeat, dim=2).repeat_interleave(
         w_repeat, dim=3
     )

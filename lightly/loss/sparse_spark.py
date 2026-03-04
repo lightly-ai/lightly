@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import torch
-from torch import nn
-from lightly.utils.dist import gather
 import torch.distributed as dist
-from torch import Tensor
+from torch import Tensor, nn
+
+from lightly.utils.dist import gather
 
 
 class SparKPatchReconLoss(nn.Module):

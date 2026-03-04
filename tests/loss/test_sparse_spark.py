@@ -1,8 +1,9 @@
-import torch.distributed as dist
-import torch
 import pytest
-from lightly.loss import SparKPatchReconLoss
+import torch
+import torch.distributed as dist
 from pytest_mock import MockerFixture
+
+from lightly.loss import SparKPatchReconLoss
 
 
 class TestSparKPatchReconLoss:
