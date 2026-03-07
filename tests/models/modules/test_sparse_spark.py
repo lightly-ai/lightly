@@ -2,6 +2,7 @@ import pytest
 import torch
 
 import lightly.models.modules.sparse_spark as sparse_spark
+from lightly.models.modules.sparse_spark import SparKMasker, SparKMaskingOutput
 from torch import Tensor
 
 
@@ -83,3 +84,66 @@ def test__sp_conv_forward() -> None:
         assert out[:, :, :16, 16:].logical_not().all()
         assert out[:, :, 16:, :16].logical_not().all()
         assert out[:, :, 16:, 16:].all()
+
+class TestSparKMasker:
+    def test_forward(self) -> None:
+        masker = SparKMasker(
+            feature_map_size=(4, 4),
+            downsample_ratio=8,
+        )
+        x = torch.ones(1, 1, 32, 32)
+        mask: SparKMaskingOutput = masker(x)
+
+        for i in range(len(mask.per_level_mask)):
+            mask_current = mask.per_level_mask[i]
+
+            assert mask_current.shape[0] == 1
+            assert mask_current.shape[1] == 1
+            assert mask_current.shape[2] == 4 * (2 ** i)
+            assert mask_current.shape[3] == 4 * (2 ** i)
+
+        for i in range(len(mask.per_level_mask)-1):
+            mask_current = mask.per_level_mask[i]
+            mask_next = mask.per_level_mask[i+1]
+            assert mask_current.shape[2] * 2 == mask_next.shape[2]
+            assert mask_current.shape[3] * 2 == mask_next.shape[3]
+            assert (mask_next == mask_current.repeat_interleave(2, dim=2).repeat_interleave(2, dim=3)).all()
+
+    def test_masked_bchw_applies_mask(self) -> None:
+        masker = SparKMasker(
+            feature_map_size=(4, 4),
+            downsample_ratio=8,
+        )
+        x = torch.arange(1, 65, dtype=torch.float32).view(1, 1, 8, 8)
+        mask: SparKMaskingOutput = masker(x)
+
+        # masked_bchw should be x * active_mask at full resolution
+        active_mask_full = mask.per_level_mask[-1]
+        expected = x * active_mask_full
+        assert torch.equal(mask.masked_bchw, expected)
+
+    def test_mask_ratio_zero_all_active(self) -> None:
+        masker = SparKMasker(
+            feature_map_size=(4, 4),
+            downsample_ratio=8,
+            mask_ratio=0.0,
+        )
+        x = torch.ones(1, 1, 32, 32)
+        mask: SparKMaskingOutput = masker(x)
+
+        # All tokens should be active (True)
+        assert mask.per_level_mask[0].all()
+
+    def test_batch_independence(self) -> None:
+        torch.manual_seed(42)  # Deterministic masks
+        masker = SparKMasker(
+            feature_map_size=(4, 4),
+            downsample_ratio=8,
+        )
+        x = torch.ones(4, 1, 32, 32)
+        mask: SparKMaskingOutput = masker(x)
+
+        # Each batch sample should have independent mask
+        assert mask.per_level_mask[0].shape[0] == 4
+        # Masks should differ across batch (with seed, guaranteed different)
+        assert not torch.equal(mask.per_level_mask[0][0], mask.per_level_mask[0][1])
