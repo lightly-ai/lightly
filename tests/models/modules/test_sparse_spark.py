@@ -2,9 +2,10 @@ import pytest
 import torch
 
 import lightly.models.modules.sparse_spark as sparse_spark
+from torch import Tensor
 
 
-def _create_mask() -> torch.Tensor:
+def _create_mask() -> Tensor:
     return torch.tensor(
         [
             [
@@ -61,7 +62,7 @@ def test__get_active_ex_or_ii_returning_ex_false_correct_values() -> None:
         assert torch.equal(active_ex, active_ex_scattered)
 
 
-def test_sp_conv_forward() -> None:
+def test__sp_conv_forward() -> None:
     H, W = 32, 32
     with sparse_spark.sparse_layer_context(_create_mask()):
         conv = sparse_spark.SparseConv2d(
