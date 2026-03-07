@@ -1,0 +1,149 @@
+import pytest
+import torch
+
+import lightly.models.modules.sparse_spark as sparse_spark
+from lightly.models.modules.sparse_spark import SparKMasker, SparKMaskingOutput
+from torch import Tensor
+
+
+def _create_mask() -> Tensor:
+    return torch.tensor(
+        [
+            [
+                [
+                    [1, 0],
+                    [0, 1],
+                ]
+            ]
+        ],
+        dtype=torch.bool,
+    )
+
+
+def test__get_active_ex_or_ii_expands_mask() -> None:
+    H, W = 32, 32
+    with sparse_spark.sparse_layer_context(_create_mask()):
+        active = sparse_spark._get_active_ex_or_ii(H=H, W=W, returning_active_ex=True)
+        assert not isinstance(active, tuple)
+
+        assert active.shape == (1, 1, H, W)
+        assert active[:, :, :16, :16].all()
+        assert active[:, :, :16, 16:].logical_not().all()
+        assert active[:, :, 16:, :16].logical_not().all()
+        assert active[:, :, 16:, 16:].all()
+
+
+def test__get_active_ex_or_ii_dont_shrink_mask() -> None:
+    H, W = 4, 4
+    with sparse_spark.sparse_layer_context(torch.ones(1, 1, 32, 32)):
+        with pytest.raises(AssertionError):
+            sparse_spark._get_active_ex_or_ii(H=H, W=W, returning_active_ex=False)
+
+
+def test__get_active_ex_or_ii_raise_on_non_active_mask() -> None:
+    H, W = 32, 32
+    with pytest.raises(RuntimeError):
+        sparse_spark._get_active_ex_or_ii(H=H, W=W, returning_active_ex=False)
+
+
+def test__get_active_ex_or_ii_returning_ex_false_correct_values() -> None:
+    H, W = 32, 32
+    with sparse_spark.sparse_layer_context(_create_mask()):
+        active_b, active_h, active_w = sparse_spark._get_active_ex_or_ii(
+            H=H, W=W, returning_active_ex=False
+        )
+        active_ex = sparse_spark._get_active_ex_or_ii(
+            H=H, W=W, returning_active_ex=True
+        )
+        assert not isinstance(active_ex, tuple)
+
+        active_ex_scattered = torch.zeros_like(active_ex)
+        active_ex_scattered[active_b, :, active_h, active_w] = 1
+
+        assert torch.equal(active_ex, active_ex_scattered)
+
+
+def test__sp_conv_forward() -> None:
+    H, W = 32, 32
+    with sparse_spark.sparse_layer_context(_create_mask()):
+        conv = sparse_spark.SparseConv2d(
+            in_channels=1,
+            out_channels=1,
+            kernel_size=3,
+            padding=1,
+        )
+        conv.weight.data.fill_(1)
+        assert conv.bias is not None
+        conv.bias.data.fill_(0)
+
+        x = torch.ones(1, 1, H, W)
+        out = conv(x)
+
+        assert out.shape == (1, 1, H, W)
+        assert out[:, :, :16, :16].all()
+        assert out[:, :, :16, 16:].logical_not().all()
+        assert out[:, :, 16:, :16].logical_not().all()
+        assert out[:, :, 16:, 16:].all()
+
+class TestSparKMasker:
+    def test_forward(self) -> None:
+        masker = SparKMasker(
+            feature_map_size=(4, 4),
+            downsample_ratio=8,
+        )
+        x = torch.ones(1, 1, 32, 32)
+        mask: SparKMaskingOutput = masker(x)
+
+        for i in range(len(mask.per_level_mask)):
+            mask_current = mask.per_level_mask[i]
+
+            assert mask_current.shape[0] == 1
+            assert mask_current.shape[1] == 1
+            assert mask_current.shape[2] == 4 * (2 ** i)
+            assert mask_current.shape[3] == 4 * (2 ** i)
+
+        for i in range(len(mask.per_level_mask)-1):
+            mask_current = mask.per_level_mask[i]
+            mask_next = mask.per_level_mask[i+1]
+            assert mask_current.shape[2] * 2 == mask_next.shape[2]
+            assert mask_current.shape[3] * 2 == mask_next.shape[3]
+            assert (mask_next == mask_current.repeat_interleave(2, dim=2).repeat_interleave(2, dim=3)).all()
+
+    def test_masked_bchw_applies_mask(self) -> None:
+        masker = SparKMasker(
+            feature_map_size=(4, 4),
+            downsample_ratio=8,
+        )
+        x = torch.arange(1, 65, dtype=torch.float32).view(1, 1, 8, 8)
+        mask: SparKMaskingOutput = masker(x)
+
+        # masked_bchw should be x * active_mask at full resolution
+        active_mask_full = mask.per_level_mask[-1]
+        expected = x * active_mask_full
+        assert torch.equal(mask.masked_bchw, expected)
+
+    def test_mask_ratio_zero_all_active(self) -> None:
+        masker = SparKMasker(
+            feature_map_size=(4, 4),
+            downsample_ratio=8,
+            mask_ratio=0.0,
+        )
+        x = torch.ones(1, 1, 32, 32)
+        mask: SparKMaskingOutput = masker(x)
+
+        # All tokens should be active (True)
+        assert mask.per_level_mask[0].all()
+
+    def test_batch_independence(self) -> None:
+        torch.manual_seed(42)  # Deterministic masks
+        masker = SparKMasker(
+            feature_map_size=(4, 4),
+            downsample_ratio=8,
+        )
+        x = torch.ones(4, 1, 32, 32)
+        mask: SparKMaskingOutput = masker(x)
+
+        # Each batch sample should have independent mask
+        assert mask.per_level_mask[0].shape[0] == 4
+        # Masks should differ across batch (with seed, guaranteed different)
+        assert not torch.equal(mask.per_level_mask[0][0], mask.per_level_mask[0][1])
