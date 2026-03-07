@@ -783,9 +783,6 @@ class SparKOutputDecoder(nn.Module):
     per-pixel blending: uses original pixels where visible (active), reconstructed pixels
     where masked (inactive).
 
-    Minimal configuration: only requires spatial properties (fmap_h, fmap_w, downsample_ratio).
-    No encoder object needed.
-
     Args:
         fmap_h: Height of feature map at patch level.
         fmap_w: Width of feature map at patch level.
