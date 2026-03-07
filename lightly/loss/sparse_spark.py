@@ -10,6 +10,8 @@ from lightly.utils.dist import gather
 class SparKPatchReconLoss(nn.Module):
     """Computes per-patch normalized reconstruction loss for masked regions.
 
+    Original paper: https://github.com/keyu-tian/SparK
+
     Calculates L2 loss between reconstructed and original patches, normalized per-patch
     to account for varying feature statistics. Loss is computed only on masked (inactive) regions.
 

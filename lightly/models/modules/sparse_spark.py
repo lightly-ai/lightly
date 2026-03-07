@@ -323,6 +323,8 @@ def dense_model_to_sparse(
 ) -> nn.Module:
     """Recursively convert a dense model to sparse by replacing layer types.
 
+    Original paper: https://github.com/keyu-tian/SparK
+
     Handles Conv2d, MaxPool2d, AvgPool2d, BatchNorm2d, SyncBatchNorm, and LayerNorm layers.
     Copies weight and state tensors to maintain the original model's parameters.
 
@@ -408,6 +410,8 @@ def dense_model_to_sparse(
 class UNetBlock(nn.Module):
     """U-Net upsampling block with 2x spatial upsampling and conv refinement.
 
+    Original paper: https://github.com/keyu-tian/SparK
+
     Combines transposed convolution for 2x upsampling followed by residual convolutions
     with batch normalization and ReLU activation.
 
@@ -445,6 +449,8 @@ class UNetBlock(nn.Module):
 
 class UNetDecoder(nn.Module):
     """Lightweight hierarchical decoder for feature map reconstruction.
+
+    Original paper: https://github.com/keyu-tian/SparK
 
     Applies a series of UNetBlocks to progressively upsample feature maps from deep to shallow,
     halving channels at each level according to a simple rule (width //= 2).
@@ -524,6 +530,8 @@ class UNetDecoder(nn.Module):
 
 class SparKDensifiyBlock(nn.Module):
     """Block for densifying sparse features by filling masked regions with learned tokens.
+
+    Original paper: https://github.com/keyu-tian/SparK
 
     Applies normalization to sparse features, then uses learned mask tokens to fill inactive
     regions, finally projecting to target channel dimension.
@@ -608,6 +616,8 @@ class SparKDensifiyBlock(nn.Module):
 class SparKDensifier(nn.Module):
     """Stack of densify blocks to convert sparse hierarchical features to dense features.
 
+    Original paper: https://github.com/keyu-tian/SparK
+
     Processes encoder feature maps from deepest to shallowest scale, applying SparKDensfiyBlock
     to each level. Handles the global _cur_active mask, dilating it at each upsampling level.
 
@@ -677,6 +687,8 @@ class SparKDensifier(nn.Module):
 class SparKMaskingOutput(NamedTuple):
     """Output container for SparKMasker forward pass.
 
+    Original paper: https://github.com/keyu-tian/SparK
+
     Attributes:
         masked_bchw: Input image with masks applied at full resolution.
         per_level_mask: List of binary masks at each hierarchical level.
@@ -688,6 +700,8 @@ class SparKMaskingOutput(NamedTuple):
 
 class SparKMasker(nn.Module):
     """Generates hierarchical random token masks for sparse feature processing.
+
+    Original paper: https://github.com/keyu-tian/SparK
 
     Creates a binary mask at patch level and expands it hierarchically to match
     feature maps at different spatial resolutions in the encoder.
@@ -762,6 +776,8 @@ class SparKMasker(nn.Module):
 
 class SparKOutputDecoder(nn.Module):
     """Decodes reconstructed patches back to image space and combines with original.
+
+    Original paper: https://github.com/keyu-tian/SparK
 
     Handles denormalization and unpatchifying of reconstructed patches, then performs
     per-pixel blending: uses original pixels where visible (active), reconstructed pixels
