@@ -607,7 +607,7 @@ class SparKDensifiyBlock(nn.Module):
         active_expanded: Tensor = active_mask.expand(features.size())
         return torch.where(active_expanded, features, mask_tokens)
 
-    def forward(self, bcff: Tensor | None, cur_active: Tensor) -> Tensor | None:
+    def forward(self, bcff: Tensor, cur_active: Tensor) -> Tensor:
         """Densify sparse features by filling masked regions with learned tokens.
 
         Args:
@@ -615,10 +615,8 @@ class SparKDensifiyBlock(nn.Module):
             cur_active: Boolean mask tensor of shape (B, 1, H, W) indicating active regions.
 
         Returns:
-            Densified and projected feature tensor, or None if input is None.
+            Densified and projected feature tensor of shape (B, C', H, W).
         """
-        if bcff is None:
-            return None
         bcff = self.densify_norm(bcff)
         bcff = self._fill_with_mask_tokens(bcff, cur_active)
         bcff = self.densify_proj(bcff)
@@ -687,8 +685,7 @@ class SparKDensifier(nn.Module):
             )
         active_fmap_current = active_mask
         for i, bcff in enumerate(fea_bcffs):
-            if bcff is not None:
-                bcff = self.blocks[i](bcff, active_fmap_current)
+            bcff = self.blocks[i](bcff, active_fmap_current)
             to_dec.append(bcff)
             active_fmap_current = active_fmap_current.repeat_interleave(
                 2, dim=2
