@@ -593,6 +593,20 @@ class SparKDensifiyBlock(nn.Module):
             )
             self.densify_proj = densify_proj
 
+    def _fill_with_mask_tokens(self, features: Tensor, active_mask: Tensor) -> Tensor:
+        """Fill masked regions with learned mask tokens.
+
+        Args:
+            features: Input tensor of shape (B, C, H, W).
+            active_mask: Boolean mask tensor of shape (B, 1, H, W) indicating active regions.
+
+        Returns:
+            Tensor of shape (B, C, H, W) with masked regions filled with learnable tokens.
+        """
+        mask_tokens: Tensor = self.mask_token.expand(features.size())
+        active_expanded: Tensor = active_mask.expand(features.size())
+        return torch.where(active_expanded, features, mask_tokens)
+
     def forward(self, bcff: Tensor | None, cur_active: Tensor) -> Tensor | None:
         """Densify sparse features by filling masked regions with learned tokens.
 
@@ -606,9 +620,7 @@ class SparKDensifiyBlock(nn.Module):
         if bcff is None:
             return None
         bcff = self.densify_norm(bcff)
-        assert bcff is not None
-        mask_tokens = self.mask_token.expand_as(bcff)
-        bcff = torch.where(cur_active.expand_as(bcff), bcff, mask_tokens)
+        bcff = self._fill_with_mask_tokens(bcff, cur_active)
         bcff = self.densify_proj(bcff)
         return bcff
 

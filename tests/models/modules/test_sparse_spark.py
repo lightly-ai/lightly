@@ -1,9 +1,13 @@
 import pytest
 import torch
+from torch import Tensor
 
 import lightly.models.modules.sparse_spark as sparse_spark
-from lightly.models.modules.sparse_spark import SparKMasker, SparKMaskingOutput
-from torch import Tensor
+from lightly.models.modules.sparse_spark import (
+    SparKDensifiyBlock,
+    SparKMasker,
+    SparKMaskingOutput,
+)
 
 
 def _create_mask() -> Tensor:
@@ -85,6 +89,7 @@ def test__sp_conv_forward() -> None:
         assert out[:, :, 16:, :16].logical_not().all()
         assert out[:, :, 16:, 16:].all()
 
+
 class TestSparKMasker:
     def test_forward(self) -> None:
         masker = SparKMasker(
@@ -99,15 +104,18 @@ class TestSparKMasker:
 
             assert mask_current.shape[0] == 1
             assert mask_current.shape[1] == 1
-            assert mask_current.shape[2] == 4 * (2 ** i)
-            assert mask_current.shape[3] == 4 * (2 ** i)
+            assert mask_current.shape[2] == 4 * (2**i)
+            assert mask_current.shape[3] == 4 * (2**i)
 
-        for i in range(len(mask.per_level_mask)-1):
+        for i in range(len(mask.per_level_mask) - 1):
             mask_current = mask.per_level_mask[i]
-            mask_next = mask.per_level_mask[i+1]
+            mask_next = mask.per_level_mask[i + 1]
             assert mask_current.shape[2] * 2 == mask_next.shape[2]
             assert mask_current.shape[3] * 2 == mask_next.shape[3]
-            assert (mask_next == mask_current.repeat_interleave(2, dim=2).repeat_interleave(2, dim=3)).all()
+            assert (
+                mask_next
+                == mask_current.repeat_interleave(2, dim=2).repeat_interleave(2, dim=3)
+            ).all()
 
     def test_masked_bchw_applies_mask(self) -> None:
         masker = SparKMasker(
@@ -147,3 +155,85 @@ class TestSparKMasker:
         assert mask.per_level_mask[0].shape[0] == 4
         # Masks should differ across batch (with seed, guaranteed different)
         assert not torch.equal(mask.per_level_mask[0][0], mask.per_level_mask[0][1])
+
+
+class TestSparKDensifiyBlock:
+    def test_fill_with_mask_tokens_preserves_active_regions(self) -> None:
+        block: SparKDensifiyBlock = SparKDensifiyBlock(
+            e_width=4, d_width=4, densify_norm_str="none"
+        )
+        block.mask_token.data.fill_(99.0)
+
+        features: Tensor = torch.arange(16, dtype=torch.float32).view(1, 4, 2, 2)
+        active_mask: Tensor = torch.tensor([[[[True, False], [False, True]]]])
+
+        result: Tensor = block._fill_with_mask_tokens(features, active_mask)
+
+        assert result[0, :, 0, 0].equal(features[0, :, 0, 0])
+        assert result[0, :, 1, 1].equal(features[0, :, 1, 1])
+
+    def test_fill_with_mask_tokens_fills_inactive_regions(self) -> None:
+        block: SparKDensifiyBlock = SparKDensifiyBlock(
+            e_width=4, d_width=4, densify_norm_str="none"
+        )
+        block.mask_token.data.fill_(99.0)
+
+        features: Tensor = torch.arange(16, dtype=torch.float32).view(1, 4, 2, 2)
+        active_mask: Tensor = torch.tensor([[[[True, False], [False, True]]]])
+
+        result: Tensor = block._fill_with_mask_tokens(features, active_mask)
+
+        expected_token: Tensor = torch.full((4,), 99.0, dtype=torch.float32)
+        assert result[0, :, 0, 1].equal(expected_token)
+        assert result[0, :, 1, 0].equal(expected_token)
+
+    def test_fill_with_mask_tokens_all_active(self) -> None:
+        block: SparKDensifiyBlock = SparKDensifiyBlock(
+            e_width=4, d_width=4, densify_norm_str="none"
+        )
+        block.mask_token.data.fill_(99.0)
+
+        features: Tensor = torch.arange(16, dtype=torch.float32).view(1, 4, 2, 2)
+        active_mask: Tensor = torch.ones(1, 1, 2, 2, dtype=torch.bool)
+
+        result: Tensor = block._fill_with_mask_tokens(features, active_mask)
+
+        assert result.equal(features)
+
+    def test_fill_with_mask_tokens_all_inactive(self) -> None:
+        block: SparKDensifiyBlock = SparKDensifiyBlock(
+            e_width=4, d_width=4, densify_norm_str="none"
+        )
+        block.mask_token.data.fill_(99.0)
+
+        features: Tensor = torch.arange(16, dtype=torch.float32).view(1, 4, 2, 2)
+        active_mask: Tensor = torch.zeros(1, 1, 2, 2, dtype=torch.bool)
+
+        result: Tensor = block._fill_with_mask_tokens(features, active_mask)
+
+        expected: Tensor = torch.full_like(features, 99.0)
+        assert result.equal(expected)
+
+    def test_fill_with_mask_tokens_batch_independence(self) -> None:
+        block: SparKDensifiyBlock = SparKDensifiyBlock(
+            e_width=4, d_width=4, densify_norm_str="none"
+        )
+        block.mask_token.data.fill_(99.0)
+
+        features: Tensor = torch.arange(32, dtype=torch.float32).view(2, 4, 2, 2)
+        active_mask: Tensor = torch.tensor(
+            [
+                [[[True, False], [False, True]]],
+                [[[False, True], [True, False]]],
+            ]
+        )
+
+        result: Tensor = block._fill_with_mask_tokens(features, active_mask)
+
+        expected_token: Tensor = torch.full((4,), 99.0, dtype=torch.float32)
+        # Batch 0: (0,0) active, (0,1) inactive
+        assert result[0, :, 0, 0].equal(features[0, :, 0, 0])
+        assert result[0, :, 0, 1].equal(expected_token)
+        # Batch 1: (0,0) inactive, (0,1) active
+        assert result[1, :, 0, 0].equal(expected_token)
+        assert result[1, :, 0, 1].equal(features[1, :, 0, 1])
