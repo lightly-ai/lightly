@@ -30,6 +30,8 @@ import swav
 import tico
 import torch
 import vicreg
+import inspect
+
 from pytorch_lightning import LightningModule, Trainer, seed_everything
 from pytorch_lightning.callbacks import (
     DeviceStatsMonitor,
@@ -120,9 +122,23 @@ def main(
             log_dir / method / datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         ).resolve()
         print_rank_zero(f"Logging to {method_dir}")
-        model = METHODS[method]["model"](
-            batch_size_per_device=batch_size_per_device, num_classes=num_classes
-        )
+      # Initialise the base arguments for all models
+        model_kwargs = {
+            "batch_size_per_device": batch_size_per_device,
+            "num_classes": num_classes,
+        }
+
+        # 2. Only add kNN args if the specific model class expects them
+        model_class = METHODS[method]["model"]
+        sig = inspect.signature(model_class.__init__)
+
+        if "knn_k" in sig.parameters:
+            model_kwargs["knn_k"] = knn_k
+        if "knn_t" in sig.parameters:
+            model_kwargs["knn_t"] = knn_t
+
+        # 3. Initialize with the unpacked dictionary
+        model = model_class(**model_kwargs)
 
         if compile_model and hasattr(torch, "compile"):
             # Compile model if PyTorch supports it.
@@ -254,6 +270,31 @@ def pretrain(
         persistent_workers=True,
     )
 
+    # Setup training knn data.
+    knn_train_dataset = LightlyDataset(input_dir=str(train_dir), transform=val_transform)
+    knn_train_dataloader = DataLoader(
+        knn_train_dataset,
+        batch_size=batch_size_per_device,
+        shuffle=False,
+        num_workers=num_workers,
+        drop_last=False,
+        persistent_workers=True,
+    )
+
+    # Check if 'dataloader_idx' is an accepted parameter
+    sig = inspect.signature(model.validation_step)
+    accepts_multiple_loaders = "dataloader_idx" in sig.parameters
+
+    # Decide which dataloaders to send to the trainer
+    if accepts_multiple_loaders:
+        # For updated model
+        val_loaders = [val_dataloader, knn_train_dataloader, val_dataloader]
+        print_rank_zero("Model supports multiple dataloaders. Running kNN eval per epoch.")
+    else:
+        # For model that have not been updated yet
+        val_loaders = val_dataloader
+        print_rank_zero("Model uses standard validation. Skipping per-epoch kNN.")
+
     # Train model.
     metric_callback = MetricCallback()
     trainer = Trainer(
@@ -276,7 +317,7 @@ def pretrain(
     trainer.fit(
         model=model,
         train_dataloaders=train_dataloader,
-        val_dataloaders=val_dataloader,
+        val_dataloaders=val_loaders,
         ckpt_path=ckpt_path,
     )
     for metric in ["val_online_cls_top1", "val_online_cls_top5"]:

@@ -12,12 +12,13 @@ from lightly.models.modules import SimCLRProjectionHead
 from lightly.models.utils import get_weight_decay_parameters
 from lightly.transforms import SimCLRTransform
 from lightly.utils.benchmarking import OnlineLinearClassifier
+from lightly.utils.benchmarking import KNNClassifier
 from lightly.utils.lars import LARS
 from lightly.utils.scheduler import CosineWarmupScheduler
 
 
 class SimCLR(LightningModule):
-    def __init__(self, batch_size_per_device: int, num_classes: int) -> None:
+    def __init__(self, batch_size_per_device: int, num_classes: int, knn_k: int, knn_t: float) -> None:
         super().__init__()
         self.save_hyperparameters()
         self.batch_size_per_device = batch_size_per_device
@@ -29,6 +30,8 @@ class SimCLR(LightningModule):
         self.criterion = NTXentLoss(temperature=0.1, gather_distributed=True)
 
         self.online_classifier = OnlineLinearClassifier(num_classes=num_classes)
+        self.knn_evaluator = KNNClassifier(model=self.backbone, num_classes=num_classes, knn_k=knn_k, knn_t=knn_t)
+
 
     def forward(self, x: Tensor) -> Tensor:
         return self.backbone(x)
@@ -52,15 +55,22 @@ class SimCLR(LightningModule):
         return loss + cls_loss
 
     def validation_step(
-        self, batch: Tuple[Tensor, Tensor, List[str]], batch_idx: int
+        self, batch: Tuple[Tensor, Tensor, List[str]], batch_idx: int, dataloader_idx: int = 0
     ) -> Tensor:
         images, targets = batch[0], batch[1]
         features = self.forward(images).flatten(start_dim=1)
-        cls_loss, cls_log = self.online_classifier.validation_step(
-            (features.detach(), targets), batch_idx
-        )
-        self.log_dict(cls_log, prog_bar=True, sync_dist=True, batch_size=len(targets))
-        return cls_loss
+        if dataloader_idx == 0:
+            cls_loss, cls_log = self.online_classifier.validation_step(
+                (features.detach(), targets), batch_idx
+            )
+            self.log_dict(cls_log, prog_bar=True, sync_dist=True, batch_size=len(targets))
+            return cls_loss
+        else:
+            self.knn_evaluator.validation_step(batch, batch_idx, dataloader_idx)
+            
+    def on_validation_epoch_end(self):
+        # Cleanup the tensor attributes 
+        self.knn_evaluator.reset_storage()
 
     def configure_optimizers(self):
         # Don't use weight decay for batch norm, bias parameters, and classification

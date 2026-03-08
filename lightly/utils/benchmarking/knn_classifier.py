@@ -137,11 +137,11 @@ class KNNClassifier(LightningModule):
         images, targets = batch[0], batch[1]
         features = self(images)
 
-        if dataloader_idx == 0:
+        if dataloader_idx == 1:
             # The first dataloader is the training dataloader.
             self.append_train_features(features=features, targets=targets)
         else:
-            if batch_idx == 0 and dataloader_idx == 1:
+            if batch_idx == 0 and dataloader_idx == 2:
                 # Concatenate train features when starting the validation dataloader.
                 self.concat_train_features()
 
@@ -167,3 +167,12 @@ class KNNClassifier(LightningModule):
         # configure_optimizers must be implemented for PyTorch Lightning. Returning None
         # means that no optimization is performed.
         pass
+    
+    # Inside knn_classifier.py
+
+    def reset_storage(self) -> None:
+        """Clears the feature bank to prepare for a new validation epoch."""
+        self._train_features = []
+        self._train_targets = []
+        self._train_features_tensor = None
+        self._train_targets_tensor = None
