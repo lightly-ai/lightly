@@ -30,7 +30,7 @@ class SimCLR(LightningModule):
         self.criterion = NTXentLoss(temperature=0.1, gather_distributed=True)
 
         self.online_classifier = OnlineLinearClassifier(num_classes=num_classes)
-        self.knn_evaluator = KNNClassifier(model=self.backbone, num_classes=num_classes, knn_k=knn_k, knn_t=knn_t)
+        self.knn_evaluator = KNNClassifier(model=self.backbone, num_classes=num_classes, knn_k=knn_k, knn_t=knn_t, feature_idx=1)
 
 
     def forward(self, x: Tensor) -> Tensor:
@@ -58,8 +58,8 @@ class SimCLR(LightningModule):
         self, batch: Tuple[Tensor, Tensor, List[str]], batch_idx: int, dataloader_idx: int = 0
     ) -> Tensor:
         images, targets = batch[0], batch[1]
-        features = self.forward(images).flatten(start_dim=1)
         if dataloader_idx == 0:
+            features = self.forward(images).flatten(start_dim=1)
             cls_loss, cls_log = self.online_classifier.validation_step(
                 (features.detach(), targets), batch_idx
             )

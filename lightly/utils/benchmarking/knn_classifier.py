@@ -17,6 +17,7 @@ class KNNClassifier(LightningModule):
         num_classes: int,
         knn_k: int,
         knn_t: float,
+        feature_idx: int = 0,
         topk: Tuple[int, ...] = (1, 5),
         feature_dtype: torch.dtype = torch.float32,
         normalize: bool = True,
@@ -89,6 +90,7 @@ class KNNClassifier(LightningModule):
                 "feature_dtype": str(feature_dtype),
             }
         )
+        self.feature_idx = feature_idx
         self.model = model
         self.num_classes = num_classes
         self.knn_k = knn_k
@@ -133,15 +135,15 @@ class KNNClassifier(LightningModule):
     def training_step(self, batch, batch_idx) -> None:
         pass
 
-    def validation_step(self, batch, batch_idx: int, dataloader_idx: int) -> None:
+    def validation_step(self, batch, batch_idx: int, dataloader_idx: int = 0) -> None:
         images, targets = batch[0], batch[1]
         features = self(images)
 
-        if dataloader_idx == 1:
+        if dataloader_idx == self.feature_idx:
             # The first dataloader is the training dataloader.
             self.append_train_features(features=features, targets=targets)
         else:
-            if batch_idx == 0 and dataloader_idx == 2:
+            if batch_idx == 0 and dataloader_idx == (self.feature_idx + 1):
                 # Concatenate train features when starting the validation dataloader.
                 self.concat_train_features()
 
@@ -168,8 +170,6 @@ class KNNClassifier(LightningModule):
         # means that no optimization is performed.
         pass
     
-    # Inside knn_classifier.py
-
     def reset_storage(self) -> None:
         """Clears the feature bank to prepare for a new validation epoch."""
         self._train_features = []
