@@ -13,14 +13,15 @@ from lightly.utils.benchmarking.topk import mean_topk_accuracy
 class KNNClassifier(LightningModule):
     def __init__(
         self,
-        model: Module,
         num_classes: int,
         knn_k: int,
         knn_t: float,
-        feature_idx: int = 0,
+        train_dataloader_idx: int,
+        val_dataloader_idx: int,
         topk: Tuple[int, ...] = (1, 5),
         feature_dtype: torch.dtype = torch.float32,
         normalize: bool = True,
+        model: Optional[Module] = None,
     ):
         """KNN classifier for benchmarking.
 
@@ -32,7 +33,8 @@ class KNNClassifier(LightningModule):
         Args:
             model:
                 Model used for feature extraction. Must define a forward(images) method
-                that returns a feature tensor.
+                that returns a feature tensor. If not defined, hands over the features
+                directly.
             num_classes:
                 Number of classes in the dataset.
             knn_k:
@@ -90,7 +92,8 @@ class KNNClassifier(LightningModule):
                 "feature_dtype": str(feature_dtype),
             }
         )
-        self.feature_idx = feature_idx
+        self.train_dataloader_idx = train_dataloader_idx
+        self.val_dataloader_idx = val_dataloader_idx
         self.model = model
         self.num_classes = num_classes
         self.knn_k = knn_k
@@ -131,19 +134,34 @@ class KNNClassifier(LightningModule):
             targets = targets.flatten().t().contiguous()
             self._train_targets_tensor = targets.to(self.device)
 
+    def reset_storage(self) -> None:
+        """Clears the feature bank to prepare for a new validation epoch."""
+        self._train_features = []
+        self._train_targets = []
+        self._train_features_tensor = None
+        self._train_targets_tensor = None
+
     @torch.no_grad()
     def training_step(self, batch, batch_idx) -> None:
         pass
 
-    def validation_step(self, batch, batch_idx: int, dataloader_idx: int = 0) -> None:
-        images, targets = batch[0], batch[1]
-        features = self(images)
+    def validation_step(self, batch, batch_idx: int, dataloader_idx: int) -> None:
+        if self.model is None:
+            # We recieve the features directly
+            features, targets = batch
+        else:
+            # Extracting features
+            images, targets = batch[0], batch[1]
+            features = self(images)
 
-        if dataloader_idx == self.feature_idx:
+        if dataloader_idx == self.train_dataloader_idx:
+            if batch_idx == 0:  
+                # Reset storage at beginning of new train dataloader.  
+                self.reset_storage()
             # The first dataloader is the training dataloader.
             self.append_train_features(features=features, targets=targets)
-        else:
-            if batch_idx == 0 and dataloader_idx == (self.feature_idx + 1):
+        elif dataloader_idx == self.val_dataloader_idx:
+            if batch_idx == 0:
                 # Concatenate train features when starting the validation dataloader.
                 self.concat_train_features()
 
@@ -160,7 +178,7 @@ class KNNClassifier(LightningModule):
             topk = mean_topk_accuracy(
                 predicted_classes=predicted_classes, targets=targets, k=self.topk
             )
-            log_dict = {f"val_top{k}": acc for k, acc in topk.items()}
+            log_dict = {f"val_knn_top{k}": acc for k, acc in topk.items()}
             self.log_dict(
                 log_dict, prog_bar=True, sync_dist=True, batch_size=len(targets)
             )
@@ -169,10 +187,3 @@ class KNNClassifier(LightningModule):
         # configure_optimizers must be implemented for PyTorch Lightning. Returning None
         # means that no optimization is performed.
         pass
-    
-    def reset_storage(self) -> None:
-        """Clears the feature bank to prepare for a new validation epoch."""
-        self._train_features = []
-        self._train_targets = []
-        self._train_features_tensor = None
-        self._train_targets_tensor = None

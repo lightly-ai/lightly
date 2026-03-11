@@ -23,15 +23,18 @@ class SimCLR(LightningModule):
         self.save_hyperparameters()
         self.batch_size_per_device = batch_size_per_device
 
-        resnet = resnet50()
-        resnet.fc = Identity()  # Ignore classification head
-        self.backbone = resnet
         self.projection_head = SimCLRProjectionHead()
         self.criterion = NTXentLoss(temperature=0.1, gather_distributed=True)
 
         self.online_classifier = OnlineLinearClassifier(num_classes=num_classes)
-        self.knn_evaluator = KNNClassifier(model=self.backbone, num_classes=num_classes, knn_k=knn_k, knn_t=knn_t, feature_idx=1)
-
+        self.knn_classifier = KNNClassifier(
+            model=None,
+            num_classes=num_classes, 
+            knn_k=knn_k, 
+            knn_t=knn_t, 
+            train_dataloader_idx=1, 
+            val_dataloader_idx=2
+        )
 
     def forward(self, x: Tensor) -> Tensor:
         return self.backbone(x)
@@ -55,22 +58,28 @@ class SimCLR(LightningModule):
         return loss + cls_loss
 
     def validation_step(
-        self, batch: Tuple[Tensor, Tensor, List[str]], batch_idx: int, dataloader_idx: int = 0
+        self, batch: Tuple[Tensor, Tensor, List[str]], batch_idx: int, dataloader_idx: int
     ) -> Tensor:
         images, targets = batch[0], batch[1]
+
+        features = self(images).flatten(start_dim=1)
+
         if dataloader_idx == 0:
-            features = self.forward(images).flatten(start_dim=1)
+            # kNN Training: build the bank
+            self.knn_classifier.validation_step((features.detach(), targets), batch_idx, dataloader_idx)
+        elif dataloader_idx == 1:
+            # Validation: Test both classifiers using the same features
+            self.knn_classifier.validation_step((features.detach(), targets), batch_idx, dataloader_idx)
+            
             cls_loss, cls_log = self.online_classifier.validation_step(
                 (features.detach(), targets), batch_idx
             )
             self.log_dict(cls_log, prog_bar=True, sync_dist=True, batch_size=len(targets))
             return cls_loss
-        else:
-            self.knn_evaluator.validation_step(batch, batch_idx, dataloader_idx)
             
     def on_validation_epoch_end(self):
         # Cleanup the tensor attributes 
-        self.knn_evaluator.reset_storage()
+        self.knn_classifier.reset_storage()
 
     def configure_optimizers(self):
         # Don't use weight decay for batch norm, bias parameters, and classification
@@ -116,6 +125,5 @@ class SimCLR(LightningModule):
             "interval": "step",
         }
         return [optimizer], [scheduler]
-
 
 transform = SimCLRTransform()

@@ -122,22 +122,22 @@ def main(
             log_dir / method / datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         ).resolve()
         print_rank_zero(f"Logging to {method_dir}")
-      # Initialise the base arguments for all models
+        # Initialise the base arguments for all models
         model_kwargs = {
             "batch_size_per_device": batch_size_per_device,
             "num_classes": num_classes,
         }
 
-        # 2. Only add kNN args if the specific model class expects them
+        # Only add kNN args if the specific model class expects them
         model_class = METHODS[method]["model"]
         sig = inspect.signature(model_class.__init__)
 
-        if "knn_k" in sig.parameters:
+        run_online_knn_eval = {"knn_k", "knn_t"} <= sig.parameters.keys()
+        if run_online_knn_eval:
             model_kwargs["knn_k"] = knn_k
-        if "knn_t" in sig.parameters:
             model_kwargs["knn_t"] = knn_t
 
-        # 3. Initialize with the unpacked dictionary
+        # Initialize with the unpacked dictionary
         model = model_class(**model_kwargs)
 
         if compile_model and hasattr(torch, "compile"):
@@ -237,6 +237,7 @@ def pretrain(
     precision: str,
     ckpt_path: Union[Path, None],
     strategy: str,
+    run_online_knn_eval: bool,
 ) -> None:
     print_rank_zero(f"Running pretraining for {method}...")
 
@@ -281,14 +282,10 @@ def pretrain(
         persistent_workers=True,
     )
 
-    # Check if 'dataloader_idx' is an accepted parameter
-    sig = inspect.signature(model.validation_step)
-    accepts_multiple_loaders = "dataloader_idx" in sig.parameters
-
     # Decide which dataloaders to send to the trainer
-    if accepts_multiple_loaders:
-        # For updated model
-        val_loaders = [val_dataloader, knn_train_dataloader, val_dataloader]
+    if run_online_knn_eval:
+        # For updated model that accepts multiple dataloaders
+        val_loaders = [knn_train_dataloader, val_dataloader]
         print_rank_zero("Model supports multiple dataloaders. Running kNN eval per epoch.")
     else:
         # For model that have not been updated yet
