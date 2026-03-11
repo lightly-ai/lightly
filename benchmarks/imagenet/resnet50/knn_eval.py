@@ -73,6 +73,8 @@ def knn_eval(
         num_classes=num_classes,
         knn_k=knn_k,
         knn_t=knn_t,
+        train_dataloader_idx=0, # We're only passing 2 dataloaders here
+        val_dataloader_idx=1,
     )
 
     # Run KNN evaluation.
