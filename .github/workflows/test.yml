@@ -32,16 +32,11 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        python: ["3.7", "3.12"]
+        python: ["3.8", "3.12"]
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-      - name: Hack to get setup-python to work on nektos/act
-        run: |
-          if [ ! -f "/etc/lsb-release" ] ; then
-            echo "DISTRIB_RELEASE=18.04" > /etc/lsb-release
-          fi
       - name: Set Up Python
         uses: actions/setup-python@v5
         with:
@@ -53,8 +48,8 @@ jobs:
           make install-pinned-extras-${{ matrix.python }}
       - name: Clean Previous Coverage Data
         run: rm -f .coverage
-      - name: Run Pytest (Python 3.7)
-        if: matrix.python == '3.7'
+      - name: Run Pytest (Python 3.8)
+        if: matrix.python == '3.8'
         run: |
           source .venv/bin/activate
           export LIGHTLY_SERVER_LOCATION="localhost:-1"
