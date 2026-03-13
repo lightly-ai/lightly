@@ -413,6 +413,7 @@ make format
 
 ## Lightly in Research
 
+- [DINOv2-3D: Self-Supervised 3D Vision Transformer Pretraining](https://github.com/AIM-Harvard/DINOv2-3D-Med)
 - [Joint-Embedding vs Reconstruction: Provable Benefits of Latent Space Prediction for Self-Supervised Learning, 2025](https://arxiv.org/abs/2505.12477)
 - [Reverse Engineering Self-Supervised Learning, 2023](https://arxiv.org/abs/2305.15614)
 - [Learning Visual Representations via Language-Guided Sampling, 2023](https://arxiv.org/pdf/2302.12248.pdf)
