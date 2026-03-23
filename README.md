@@ -28,13 +28,13 @@ on your data, check out [lightly.ai](https://www.lightly.ai). It's free to get s
 
 ## News 🚀
 
-* March 23, 2026 - Check out our latest open-source project [LightlyStudio](https://github.com/lightly-ai/lightly-studio) to visualize, annotate, and manage your data with ease. 🔍
+* March 23, 2026 - Check out our latest open-source project [LightlyStudio](https://github.com/lightly-ai/lightly-studio) to visualize, annotate, and manage your data with ease! 🔍
 * April 15, 2025 - We are excited to announce that you can now leverage SSL and distillation pretraining in just a few lines of code! We've worked hard to make self-supervised learning even more accessible with our new project [LightlyTrain](https://github.com/lightly-ai/lightly-train). Head over there to get started and supercharge your models! ⚡️
 
 <p>
 <a href="https://github.com/lightly-ai/lightly-train"><img src="https://storage.googleapis.com/lightly-public/train/lightlytrain_standard_horizontal_dark.png" alt="LightlyTrain" height="40"/></a>
 <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
-<a href="https://github.com/lightly-ai/lightly-studio"><img src="https://storage.googleapis.com/lightly-public/studio/lightlystudio_standard_horizontal_dark.png" alt="LightlyTrain" height="40"/></a>
+<a href="https://github.com/lightly-ai/lightly-studio"><img src="https://storage.googleapis.com/lightly-public/studio/lightlystudio_standard_horizontal_dark.png" alt="LightlyStudio" height="40"/></a>
 </p>
 
 ## Features
