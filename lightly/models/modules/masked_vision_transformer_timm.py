@@ -1,5 +1,5 @@
 import math
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, cast
 
 import torch
 import torch.nn as nn
@@ -77,11 +77,15 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
         mask: Optional[Tensor] = None,
     ) -> Tensor:
         x = self.encode(images, idx_mask=idx_mask, idx_keep=idx_keep, mask=mask)
-        if self.vit.attn_pool is not None:
-            x = self.vit.attn_pool(x)
-        elif self.vit.global_pool == "avg":
+        attn_pool = getattr(self.vit, "attn_pool", None)
+        if attn_pool is not None:
+            x = attn_pool(x)
+            return x
+
+        global_pool = cast(str, getattr(self.vit, "global_pool", ""))
+        if global_pool == "avg":
             x = x[:, self.vit.num_prefix_tokens :].mean(dim=1)
-        elif self.vit.global_pool:
+        elif global_pool:
             x = x[:, 0]  # class token
         return x
 
@@ -196,7 +200,8 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
 
         # Initialize the class token.
         if self.vit.has_class_token:
-            torch.nn.init.normal_(self.vit.cls_token, std=0.02)
+            if self.vit.cls_token is not None:
+                torch.nn.init.normal_(self.vit.cls_token, std=0.02)
 
         # initialize nn.Linear and nn.LayerNorm
         self.apply(init_weights)
