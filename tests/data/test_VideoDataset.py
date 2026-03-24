@@ -17,6 +17,7 @@ import torchvision
 from lightly.data import LightlyDataset, NonIncreasingTimestampError
 from lightly.data._video import (
     TORCHVISION_VIDEO_READER_AVAILABLE,
+    VIDEO_SUPPORT_AVAILABLE,
     VideoDataset,
     _find_non_increasing_timestamps,
     _make_dataset,
@@ -35,6 +36,13 @@ DEFAULT_BACKEND = "pyav"
 
 @unittest.skipUnless(
     PYAV_AVAILABLE or TORCHVISION_VIDEO_READER_AVAILABLE, "No video backend available"
+)
+@unittest.skipIf(
+    not VIDEO_SUPPORT_AVAILABLE, "torchvision video loading support unavailable"
+)
+@unittest.skipIf(
+    not hasattr(torchvision.io, "write_video"),
+    "torchvision.io.write_video is required for tests",
 )
 class TestVideoDataset(unittest.TestCase):
     def tearDown(self) -> None:
