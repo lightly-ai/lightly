@@ -263,7 +263,7 @@ class TestLightlyDataset(unittest.TestCase):
         image, _ = dataset[0]
         image.save(path)
         os.rename(path, os.path.join(tmp_dir, "my_file.avi"))
-        with self.assertRaises(ImportError):
+        with self.assertRaises(RuntimeError, msg="Video loading is not available"):
             dataset = LightlyDataset(input_dir=tmp_dir)
 
         shutil.rmtree(tmp_dir)
