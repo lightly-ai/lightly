@@ -32,6 +32,12 @@ TORCHVISION_VIDEO_READER_AVAILABLE = getattr(io, "_HAS_VIDEO_OPT", False) and ha
 if TORCHVISION_VIDEO_READER_AVAILABLE:
     torchvision.set_video_backend("video_reader")
 
+VIDEO_SUPPORT_AVAILABLE = (
+    (AV_AVAILABLE or TORCHVISION_VIDEO_READER_AVAILABLE)
+    and hasattr(io, "read_video")
+    and hasattr(io, "read_video_timestamps")
+)
+
 
 class VideoError(Exception):
     """Base exception class for errors during video loading."""
@@ -141,6 +147,11 @@ class VideoLoader(threading.local):
         backend: str = "video_reader",
         eps: float = 1e-6,
     ):
+        if not VIDEO_SUPPORT_AVAILABLE:
+            raise RuntimeError(
+                "Video loading is not available. Please make sure you have "
+                "torchvision <= 0.25 installed"
+            )
         self.path = path
         self.timestamps = timestamps
         self.current_index = None
@@ -341,6 +352,12 @@ class VideoDataset(datasets.VisionDataset):
         tqdm_args: Dict[str, Any] = None,
         num_workers: int = 0,
     ):
+        if not VIDEO_SUPPORT_AVAILABLE:
+            raise RuntimeError(
+                "Video loading is not available. Please make sure you have "
+                "torchvision <= 0.25 installed"
+            )
+
         super(VideoDataset, self).__init__(
             root, transform=transform, target_transform=target_transform
         )
@@ -607,6 +624,11 @@ class VideoDataset(datasets.VisionDataset):
 
 class _TimestampFpsFromVideosDataset(Dataset):
     def __init__(self, video_instances: List[str], pts_unit: str):
+        if not VIDEO_SUPPORT_AVAILABLE:
+            raise RuntimeError(
+                "Video loading is not available. Please make sure you have "
+                "torchvision <= 0.25 installed"
+            )
         self.video_instances = video_instances
         self.pts_unit = pts_unit
 
@@ -647,6 +669,11 @@ def _make_dataset(
         A list of video files, timestamps, frame offsets, and fps.
 
     """
+    if not VIDEO_SUPPORT_AVAILABLE:
+        raise RuntimeError(
+            "Video loading is not available. Please make sure you have "
+            "torchvision <= 0.25 installed"
+        )
 
     if tqdm_args is None:
         tqdm_args = {}
