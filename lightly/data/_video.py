@@ -25,7 +25,11 @@ try:
 except ImportError:
     AV_AVAILABLE = False
 
-if io._HAS_VIDEO_OPT:
+
+TORCHVISION_VIDEO_READER_AVAILABLE = getattr(io, "_HAS_VIDEO_OPT", False) and hasattr(
+    io, "VideoReader"
+)
+if TORCHVISION_VIDEO_READER_AVAILABLE:
     torchvision.set_video_backend("video_reader")
 
 
@@ -144,9 +148,7 @@ class VideoLoader(threading.local):
         self.backend = backend
         self.eps = eps
 
-        has_video_reader = io._HAS_VIDEO_OPT and hasattr(io, "VideoReader")
-
-        if has_video_reader and self.backend == "video_reader":
+        if TORCHVISION_VIDEO_READER_AVAILABLE and self.backend == "video_reader":
             self.reader = io.VideoReader(path=self.path)
         else:
             self.reader = None

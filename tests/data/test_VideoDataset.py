@@ -16,6 +16,7 @@ import torchvision
 
 from lightly.data import LightlyDataset, NonIncreasingTimestampError
 from lightly.data._video import (
+    TORCHVISION_VIDEO_READER_AVAILABLE,
     VideoDataset,
     _find_non_increasing_timestamps,
     _make_dataset,
@@ -28,13 +29,12 @@ try:
 except ModuleNotFoundError:
     PYAV_AVAILABLE = False
 
-VIDEO_READER_AVAILABLE = torchvision.io._HAS_VIDEO_OPT
 VIDEO_BACKENDS = ["pyav", "video_reader"]
 DEFAULT_BACKEND = "pyav"
 
 
 @unittest.skipUnless(
-    PYAV_AVAILABLE or VIDEO_READER_AVAILABLE, "No video backend available"
+    PYAV_AVAILABLE or TORCHVISION_VIDEO_READER_AVAILABLE, "No video backend available"
 )
 class TestVideoDataset(unittest.TestCase):
     def tearDown(self) -> None:
@@ -90,7 +90,7 @@ class TestVideoDataset(unittest.TestCase):
             )
 
     @unittest.skipUnless(
-        PYAV_AVAILABLE and VIDEO_READER_AVAILABLE,
+        PYAV_AVAILABLE and TORCHVISION_VIDEO_READER_AVAILABLE,
         "pyav and video_reader backends must be both available",
     )
     def test_video_similar_timestamps_for_different_backends(self) -> None:
@@ -174,7 +174,7 @@ class TestVideoDataset(unittest.TestCase):
         torchvision.set_video_backend("pyav")
         self._test_video_dataset_from_folder()
 
-    @unittest.skipUnless(VIDEO_READER_AVAILABLE, "video_reader unavailable")
+    @unittest.skipUnless(TORCHVISION_VIDEO_READER_AVAILABLE, "video_reader unavailable")
     def test_video_dataset_from_folder__video_reader(self) -> None:
         torchvision.set_video_backend("video_reader")
         self._test_video_dataset_from_folder()
@@ -235,7 +235,7 @@ class TestVideoDataset(unittest.TestCase):
         torchvision.set_video_backend("pyav")
         self._test_video_dataset_non_increasing_timestamps()
 
-    @unittest.skipUnless(VIDEO_READER_AVAILABLE, "video_reader unavailable")
+    @unittest.skipUnless(TORCHVISION_VIDEO_READER_AVAILABLE, "video_reader unavailable")
     def test_video_dataset_non_increasing_timestamps__video_reader(self) -> None:
         torchvision.set_video_backend("video_reader")
         self._test_video_dataset_non_increasing_timestamps()
@@ -297,7 +297,7 @@ class TestVideoDataset(unittest.TestCase):
         torchvision.set_video_backend("pyav")
         self._test_video_dataset_dataloader()
 
-    @unittest.skipUnless(VIDEO_READER_AVAILABLE, "video_reader unavailable")
+    @unittest.skipUnless(TORCHVISION_VIDEO_READER_AVAILABLE, "video_reader unavailable")
     def test_video_dataset_dataloader__video_reader(self) -> None:
         torchvision.set_video_backend("video_reader")
         self._test_video_dataset_dataloader()
