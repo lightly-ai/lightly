@@ -43,7 +43,13 @@ class TestKNNClassifier:
         # Run KNN classifier.
         model = nn.Identity()
         classifier = KNNClassifier(
-            model, num_classes=4, knn_k=3, knn_t=0.1, topk=(1, 2, 3, 4)
+            model,
+            num_classes=4,
+            knn_k=3,
+            knn_t=0.1,
+            topk=(1, 2, 3, 4),
+            train_dataloader_idx=0,
+            val_dataloader_idx=1,
         )
         trainer = Trainer(max_epochs=1, accelerator="cpu", devices=1)
         trainer.validate(
@@ -80,7 +86,14 @@ class TestKNNClassifier:
         model = nn.Sequential(linear, batch_norm)
         initial_weights = linear.weight.clone()
         initial_bn_weights = batch_norm.weight.clone()
-        classifier = KNNClassifier(model, num_classes=10, knn_k=20, knn_t=0.1)
+        classifier = KNNClassifier(
+            model,
+            num_classes=10,
+            knn_k=20,
+            knn_t=0.1,
+            train_dataloader_idx=0,
+            val_dataloader_idx=1,
+        )
         trainer = Trainer(max_epochs=1, accelerator=accelerator, devices=1)
         train_features = torch.randn(40, 3)
         train_targets = torch.randint(0, 10, (40,))
