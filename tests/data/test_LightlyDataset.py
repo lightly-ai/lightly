@@ -13,12 +13,12 @@ from lightly.data._utils import check_images
 from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 
 try:
-    import av as _
+    import av
     import cv2
 
-    from lightly.data._video import VideoDataset
+    from lightly.data._video import VIDEO_SUPPORT_AVAILABLE, VideoDataset
 
-    VIDEO_DATASET_AVAILABLE = True
+    VIDEO_DATASET_AVAILABLE = VIDEO_SUPPORT_AVAILABLE
 except ModuleNotFoundError:
     VIDEO_DATASET_AVAILABLE = False
 
@@ -237,7 +237,9 @@ class TestLightlyDataset(unittest.TestCase):
                 self.assertIsInstance(filename, str)
                 self.assertIn(filename, filenames_dataset)
 
-    @unittest.skipUnless(VIDEO_DATASET_AVAILABLE, "PyAV and CV2 are both installed")
+    @unittest.skipUnless(
+        VIDEO_DATASET_AVAILABLE, "torchvision<=0.25, PyAV, and CV2 are installed"
+    )
     def test_video_dataset_available(self):
         self.create_video_dataset()
         dataset = LightlyDataset(input_dir=self.input_dir)
@@ -248,7 +250,9 @@ class TestLightlyDataset(unittest.TestCase):
         for filename in os.listdir(out_dir):
             self.assertIn(filename, dataset.get_filenames()[(len(dataset) // 2) :])
 
-    @unittest.skipIf(VIDEO_DATASET_AVAILABLE, "PyAV or CV2 is/are not installed")
+    @unittest.skipIf(
+        VIDEO_DATASET_AVAILABLE, "torchvision<=0.25, PyAV, and CV2 are installed"
+    )
     def test_video_dataset_unavailable(self):
         tmp_dir = tempfile.mkdtemp()
         # simulate a video
@@ -259,13 +263,15 @@ class TestLightlyDataset(unittest.TestCase):
         image, _ = dataset[0]
         image.save(path)
         os.rename(path, os.path.join(tmp_dir, "my_file.avi"))
-        with self.assertRaises(ImportError):
+        with self.assertRaises(RuntimeError, msg="Video loading is not available"):
             dataset = LightlyDataset(input_dir=tmp_dir)
 
         shutil.rmtree(tmp_dir)
         return
 
-    @unittest.skipUnless(VIDEO_DATASET_AVAILABLE, "PyAV or CV2 are not available")
+    @unittest.skipUnless(
+        VIDEO_DATASET_AVAILABLE, "torchvision<=0.25, PyAV, and CV2 are installed"
+    )
     def test_video_dataset_filenames(self):
         self.create_video_dataset()
         all_filenames = self.filenames
@@ -308,7 +314,9 @@ class TestLightlyDataset(unittest.TestCase):
         with self.assertRaises(ValueError):
             LightlyDataset(None, transform=T.ToTensor())
 
-    @unittest.skipUnless(VIDEO_DATASET_AVAILABLE, "PyAV or CV2 is/are not installed")
+    @unittest.skipUnless(
+        VIDEO_DATASET_AVAILABLE, "torchvision<=0.25, PyAV, and CV2 are installed"
+    )
     def test_dataset_get_filenames(self):
         self.create_video_dataset()
         dataset = LightlyDataset(input_dir=self.input_dir)
