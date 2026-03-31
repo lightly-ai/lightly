@@ -110,12 +110,12 @@ class TestKNNClassifier:
                 val_dataloader,
             ],  # dataloader_idx_1 is val_dataloader
         )
-        assert trainer.callback_metrics["val_top1/dataloader_idx_1"].item() >= 0.0
+        assert trainer.callback_metrics["val_knn_top1/dataloader_idx_1"].item() >= 0.0
         assert (
-            trainer.callback_metrics["val_top5/dataloader_idx_1"].item()
-            >= trainer.callback_metrics["val_top1/dataloader_idx_1"].item()
+            trainer.callback_metrics["val_knn_top5/dataloader_idx_1"].item()
+            >= trainer.callback_metrics["val_knn_top1/dataloader_idx_1"].item()
         )
-        assert trainer.callback_metrics["val_top5/dataloader_idx_1"].item() <= 1.0
+        assert trainer.callback_metrics["val_knn_top5/dataloader_idx_1"].item() <= 1.0
         assert classifier._train_features == []
         assert classifier._train_targets == []
         assert classifier._train_features_tensor is not None
