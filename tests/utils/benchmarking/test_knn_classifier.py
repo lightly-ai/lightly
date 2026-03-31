@@ -43,7 +43,7 @@ class TestKNNClassifier:
         # Run KNN classifier.
         model = nn.Identity()
         classifier = KNNClassifier(
-            model,
+            model=model,
             num_classes=4,
             knn_k=3,
             knn_t=0.1,
@@ -87,7 +87,7 @@ class TestKNNClassifier:
         initial_weights = linear.weight.clone()
         initial_bn_weights = batch_norm.weight.clone()
         classifier = KNNClassifier(
-            model,
+            model=model,
             num_classes=10,
             knn_k=20,
             knn_t=0.1,
@@ -141,7 +141,13 @@ class TestKNNClassifier:
         # Set feature_dtype to torch.int to test if classifier correctly changes dtype.
         # We cannot test for torch.float16 because it is not supported on cpu.
         classifier = KNNClassifier(
-            model, num_classes=10, knn_k=3, knn_t=0.1, feature_dtype=torch.int
+            model=model,
+            num_classes=10,
+            knn_k=3,
+            knn_t=0.1,
+            feature_dtype=torch.int,
+            train_dataloader_idx=0,
+            val_dataloader_idx=1,
         )
         trainer = Trainer(max_epochs=1, accelerator="cpu", devices=1)
         train_features = torch.randn(4, 3)
@@ -173,7 +179,13 @@ class TestKNNClassifier:
 
         # Test that normalize is called when normalize=True.
         classifier = KNNClassifier(
-            nn.Identity(), num_classes=10, knn_k=3, knn_t=0.1, normalize=True
+            model=nn.Identity(),
+            num_classes=10,
+            knn_k=3,
+            knn_t=0.1,
+            normalize=True,
+            train_dataloader_idx=0,
+            val_dataloader_idx=1,
         )
         trainer.validate(
             model=classifier,
@@ -184,7 +196,13 @@ class TestKNNClassifier:
 
         # Test that normalize is not called when normalize=False.
         classifier = KNNClassifier(
-            nn.Identity(), num_classes=10, knn_k=3, knn_t=0.1, normalize=False
+            model=nn.Identity(),
+            num_classes=10,
+            knn_k=3,
+            knn_t=0.1,
+            normalize=False,
+            train_dataloader_idx=0,
+            val_dataloader_idx=1,
         )
         trainer.validate(
             model=classifier,
