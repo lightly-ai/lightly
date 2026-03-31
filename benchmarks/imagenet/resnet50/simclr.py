@@ -23,6 +23,9 @@ class SimCLR(LightningModule):
         self.save_hyperparameters()
         self.batch_size_per_device = batch_size_per_device
 
+        resnet = resnet50()
+        resnet.fc = Identity()
+        self.backbone = resnet
         self.projection_head = SimCLRProjectionHead()
         self.criterion = NTXentLoss(temperature=0.1, gather_distributed=True)
 

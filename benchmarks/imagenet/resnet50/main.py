@@ -164,6 +164,7 @@ def main(
                 precision=precision,
                 ckpt_path=ckpt_path,
                 strategy=strategy,
+                run_online_knn_eval=run_online_knn_eval,
             )
         eval_metrics: Dict[str, Dict[str, float]] = dict()
         if skip_knn_eval:
