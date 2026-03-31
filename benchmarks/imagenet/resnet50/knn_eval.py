@@ -98,7 +98,7 @@ def knn_eval(
     )
 
     metrics_dict: dict[str, float] = dict()
-    for metric in ["val_top1", "val_top5"]:
+    for metric in ["val_knn_top1", "val_knn_top5"]:
         for name, value in metric_callback.val_metrics.items():
             if name.startswith(metric):
                 print_rank_zero(f"knn {name}: {max(value)}")

@@ -60,16 +60,16 @@ class TestKNNClassifier:
             ],  # dataloader_idx_1 is val_dataloader
         )
         assert trainer.callback_metrics[
-            "val_top1/dataloader_idx_1"
+            "val_knn_top1/dataloader_idx_1"
         ].item() == pytest.approx(1 / 3)
         assert trainer.callback_metrics[
-            "val_top2/dataloader_idx_1"
+            "val_knn_top2/dataloader_idx_1"
         ].item() == pytest.approx(1 / 3)
         assert trainer.callback_metrics[
-            "val_top3/dataloader_idx_1"
+            "val_knn_top3/dataloader_idx_1"
         ].item() == pytest.approx(2 / 3)
         assert trainer.callback_metrics[
-            "val_top4/dataloader_idx_1"
+            "val_knn_top4/dataloader_idx_1"
         ].item() == pytest.approx(3 / 3)
 
     def test__cpu(self) -> None:
