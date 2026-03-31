@@ -155,8 +155,8 @@ class KNNClassifier(LightningModule):
             features = self(images)
 
         if dataloader_idx == self.train_dataloader_idx:
-            if batch_idx == 0:  
-                # Reset storage at beginning of new train dataloader.  
+            if batch_idx == 0:
+                # Reset storage at beginning of new train dataloader.
                 self.reset_storage()
             # The first dataloader is the training dataloader.
             self.append_train_features(features=features, targets=targets)

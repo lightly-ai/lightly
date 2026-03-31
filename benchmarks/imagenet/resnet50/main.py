@@ -11,6 +11,7 @@ def warn_with_traceback(message, category, filename, lineno, file=None, line=Non
 warnings.showwarning = warn_with_traceback
 
 
+import inspect
 from argparse import ArgumentParser
 from datetime import datetime
 from pathlib import Path
@@ -30,8 +31,6 @@ import swav
 import tico
 import torch
 import vicreg
-import inspect
-
 from pytorch_lightning import LightningModule, Trainer, seed_everything
 from pytorch_lightning.callbacks import (
     DeviceStatsMonitor,
@@ -273,7 +272,9 @@ def pretrain(
     )
 
     # Setup training knn data.
-    knn_train_dataset = LightlyDataset(input_dir=str(train_dir), transform=val_transform)
+    knn_train_dataset = LightlyDataset(
+        input_dir=str(train_dir), transform=val_transform
+    )
     knn_train_dataloader = DataLoader(
         knn_train_dataset,
         batch_size=batch_size_per_device,
@@ -287,7 +288,9 @@ def pretrain(
     if run_online_knn_eval:
         # For updated model that accepts multiple dataloaders
         val_loaders = [knn_train_dataloader, val_dataloader]
-        print_rank_zero("Model supports multiple dataloaders. Running kNN eval per epoch.")
+        print_rank_zero(
+            "Model supports multiple dataloaders. Running kNN eval per epoch."
+        )
     else:
         # For model that have not been updated yet
         val_loaders = val_dataloader
