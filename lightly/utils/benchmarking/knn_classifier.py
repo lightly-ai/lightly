@@ -13,6 +13,7 @@ from lightly.utils.benchmarking.topk import mean_topk_accuracy
 class KNNClassifier(LightningModule):
     def __init__(
         self,
+        model: Optional[Module],
         num_classes: int,
         knn_k: int,
         knn_t: float,
@@ -21,7 +22,6 @@ class KNNClassifier(LightningModule):
         topk: Tuple[int, ...] = (1, 5),
         feature_dtype: torch.dtype = torch.float32,
         normalize: bool = True,
-        model: Optional[Module] = None,
     ):
         """KNN classifier for benchmarking.
 
