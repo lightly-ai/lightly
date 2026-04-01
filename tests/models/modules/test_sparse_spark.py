@@ -122,7 +122,7 @@ class TestSparKMasker:
             feature_map_size=(4, 4),
             downsample_ratio=8,
         )
-        x = torch.arange(1, 65, dtype=torch.float32).view(1, 1, 8, 8)
+        x = torch.arange(1, 1025, dtype=torch.float32).view(1, 1, 32, 32)
         mask: SparKMaskingOutput = masker(x)
 
         # masked_bchw should be x * active_mask at full resolution
