@@ -290,7 +290,7 @@ class TestSparKDensifier:
         # Level 2: 4x4 -> 8x8
         assert to_dec[0].shape == (1, 256, 2, 2)  # First block output
         assert to_dec[1].shape == (1, 128, 4, 4)  # Second block output
-        assert to_dec[2].shape == (1, 64, 8, 8)   # Third block output
+        assert to_dec[2].shape == (1, 64, 8, 8)  # Third block output
 
     def test_forward_to_dec_contains_all_feature_maps(self) -> None:
         """Test that to_dec list contains all densified feature maps."""
@@ -324,9 +324,9 @@ class TestSparKDensifier:
         # Block 2: e_width=64 -> d_width=64 (128//2)
         expected_channels: list[int] = [256, 128, 64]
         for i, td in enumerate(to_dec):
-            assert td.shape[1] == expected_channels[i], (
-                f"Block {i}: expected {expected_channels[i]} channels, got {td.shape[1]}"
-            )
+            assert (
+                td.shape[1] == expected_channels[i]
+            ), f"Block {i}: expected {expected_channels[i]} channels, got {td.shape[1]}"
 
     def test_forward_reverses_fea_bcffs_order(self) -> None:
         """Test that fea_bcffs is reversed before processing (deepest first)."""
@@ -339,7 +339,7 @@ class TestSparKDensifier:
         )
         # Use distinct shapes to verify order
         fea_bcffs: list[Tensor] = [
-            torch.randn(1, 64, 8, 8),   # shallowest
+            torch.randn(1, 64, 8, 8),  # shallowest
             torch.randn(1, 128, 4, 4),
             torch.randn(1, 256, 2, 2),  # deepest
         ]
@@ -372,7 +372,9 @@ class TestSparKDensifier:
             torch.randn(batch_size, 256, 2, 2),
         ]
         # Active mask at deepest level (matches feature map size)
-        initial_mask: Tensor = torch.randint(0, 2, (batch_size, 1, 2, 2), dtype=torch.bool)
+        initial_mask: Tensor = torch.randint(
+            0, 2, (batch_size, 1, 2, 2), dtype=torch.bool
+        )
 
         with sparse_spark.sparse_layer_context(initial_mask):
             to_dec: list[Tensor] = densifier(fea_bcffs)
