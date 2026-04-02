@@ -6,7 +6,7 @@ from __future__ import annotations
 import math
 from contextlib import contextmanager
 from contextvars import ContextVar
-from typing import NamedTuple
+from typing import Generator, NamedTuple, cast
 
 import torch
 import torch.nn as nn
@@ -41,9 +41,9 @@ def coalesce_to_size_2_t(t: tuple[int, ...]) -> tuple[int, int]:
         ValueError: If tuple length is not 1 or 2.
     """
     if len(t) == 2:
-        return t
+        return (t[0], t[1])
     elif len(t) == 1:
-        return t[0], t[0]
+        return (t[0], t[0])
     else:
         raise ValueError(f"Invalid tuple length: {len(t)}; expected 1 or 2.")
 
@@ -52,7 +52,9 @@ _cur_active: ContextVar[Tensor | None] = ContextVar("_cur_active", default=None)
 
 
 @contextmanager
-def sparse_layer_context(active_mask: Tensor):
+def sparse_layer_context(
+    active_mask: Tensor,
+) -> Generator[None, None, None]:
     """Context manager to set the active mask for sparse layers.
 
     Args:
@@ -125,8 +127,11 @@ def sp_conv_forward(
         Masked output tensor of same shape as input, with inactive spatial positions zeroed.
     """
     x: Tensor = super(type(module), module).forward(input)  # type: ignore[arg-type]
-    x *= _get_active_ex_or_ii(
-        H=input.shape[2], W=input.shape[3], returning_active_ex=True
+    x *= cast(
+        Tensor,
+        _get_active_ex_or_ii(
+            H=input.shape[2], W=input.shape[3], returning_active_ex=True
+        ),
     )
     return x
 
@@ -312,7 +317,10 @@ class SparseConvNeXtBlock(nn.Module):
             x = self.gamma * x
         x = x.permute(0, 3, 1, 2)
 
-        x *= _get_active_ex_or_ii(H=x.shape[2], W=x.shape[3], returning_active_ex=True)
+        x *= cast(
+            Tensor,
+            _get_active_ex_or_ii(H=x.shape[2], W=x.shape[3], returning_active_ex=True),
+        )
 
         x = input + self.drop_path(x)
         return x
@@ -339,11 +347,11 @@ def dense_model_to_sparse(
     Raises:
         NotImplementedError: If Conv1d layers are encountered.
     """
-    oup = m
+    oup: nn.Module = m
     if isinstance(m, nn.Conv2d):
         bias = m.bias is not None
 
-        oup = SparseConv2d(
+        sparse_conv: SparseConv2d = SparseConv2d(
             m.in_channels,
             m.out_channels,
             kernel_size=coalesce_to_size_2_t(m.kernel_size),
@@ -356,10 +364,11 @@ def dense_model_to_sparse(
             bias=bias,
             padding_mode=m.padding_mode,
         )
-        oup.weight.data.copy_(m.weight.data)
+        sparse_conv.weight.data.copy_(m.weight.data)
 
-        if m.bias is not None and oup.bias is not None:
-            oup.bias.data.copy_(m.bias.data)
+        if m.bias is not None and sparse_conv.bias is not None:
+            sparse_conv.bias.data.copy_(m.bias.data)
+        oup = sparse_conv
 
     elif isinstance(m, nn.MaxPool2d):
         oup = SparseMaxPooling(
@@ -380,29 +389,50 @@ def dense_model_to_sparse(
             divisor_override=m.divisor_override,
         )
     elif isinstance(m, (nn.BatchNorm2d, nn.SyncBatchNorm)):
-        oup = (SparseSyncBatchNorm2d if sbn else SparseBatchNorm2d)(
-            m.weight.shape[0],
-            eps=m.eps,
-            momentum=m.momentum,
-            affine=m.affine,
-            track_running_stats=m.track_running_stats,
-        )
-        oup.weight.data.copy_(m.weight.data)
-        oup.bias.data.copy_(m.bias.data)
-        oup.running_mean.data.copy_(m.running_mean.data)
-        oup.running_var.data.copy_(m.running_var.data)
-        oup.num_batches_tracked.data.copy_(m.num_batches_tracked.data)
-        if hasattr(m, "qconfig"):
-            oup.qconfig = m.qconfig
+        if sbn:
+            sparse_bn: SparseSyncBatchNorm2d = SparseSyncBatchNorm2d(
+                m.weight.shape[0],
+                eps=m.eps,
+                momentum=m.momentum,
+                affine=m.affine,
+                track_running_stats=m.track_running_stats,
+            )
+            sparse_bn.weight.data.copy_(m.weight.data)
+            sparse_bn.bias.data.copy_(m.bias.data)  # type: ignore[union-attr]
+            sparse_bn.running_mean.data.copy_(m.running_mean.data)  # type: ignore[union-attr]
+            sparse_bn.running_var.data.copy_(m.running_var.data)  # type: ignore[union-attr]
+            sparse_bn.num_batches_tracked.data.copy_(m.num_batches_tracked.data)  # type: ignore[union-attr]
+            if hasattr(m, "qconfig"):
+                sparse_bn.qconfig = m.qconfig  # type: ignore[assignment]
+            oup = sparse_bn
+        else:
+            sparse_bn2: SparseBatchNorm2d = SparseBatchNorm2d(
+                m.weight.shape[0],
+                eps=m.eps,
+                momentum=m.momentum,
+                affine=m.affine,
+                track_running_stats=m.track_running_stats,
+            )
+            sparse_bn2.weight.data.copy_(m.weight.data)
+            sparse_bn2.bias.data.copy_(m.bias.data)  # type: ignore[union-attr]
+            sparse_bn2.running_mean.data.copy_(m.running_mean.data)  # type: ignore[union-attr]
+            sparse_bn2.running_var.data.copy_(m.running_var.data)  # type: ignore[union-attr]
+            sparse_bn2.num_batches_tracked.data.copy_(m.num_batches_tracked.data)  # type: ignore[union-attr]
+            if hasattr(m, "qconfig"):
+                sparse_bn2.qconfig = m.qconfig  # type: ignore[assignment]
+            oup = sparse_bn2
     elif isinstance(m, nn.LayerNorm) and not isinstance(m, SparseConvNeXtLayerNorm):
-        oup = SparseConvNeXtLayerNorm(m.weight.shape[0], eps=m.eps)
-        oup.weight.data.copy_(m.weight.data)
-        oup.bias.data.copy_(m.bias.data)
+        sparse_ln: SparseConvNeXtLayerNorm = SparseConvNeXtLayerNorm(
+            m.weight.shape[0], eps=m.eps
+        )
+        sparse_ln.weight.data.copy_(m.weight.data)
+        sparse_ln.bias.data.copy_(m.bias.data)
+        oup = sparse_ln
     elif isinstance(m, (nn.Conv1d,)):
         raise NotImplementedError
 
     for name, child in m.named_children():
-        oup.add_module(name, dense_model_to_sparse(child, verbose=verbose, sbn=sbn))
+        oup.add_module(name, dense_model_to_sparse(child, verbose=verbose, sbn=sbn))  # type: ignore[union-attr]
     del m
     return oup
 
@@ -444,7 +474,7 @@ class UNetBlock(nn.Module):
             Upsampled and refined feature tensor.
         """
         x = self.up_sample(x)
-        return self.conv(x)
+        return self.conv(x)  # type: ignore[no-any-return]
 
 
 class UNetDecoder(nn.Module):
@@ -495,7 +525,7 @@ class UNetDecoder(nn.Module):
             if i < len(to_dec) and to_dec[i] is not None:
                 x = x + to_dec[i]
             x = self.dec[i](x)
-        return self.proj(x)
+        return self.proj(x)  # type: ignore[no-any-return]
 
     def extra_repr(self) -> str:
         return f"width={self.width}"
