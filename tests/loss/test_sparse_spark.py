@@ -80,4 +80,4 @@ def _reference_loss_implementation(
         active_b1ff.logical_not().int().view(active_b1ff.shape[0], -1)
     )  # (B, 1, f, f) => (B, L)
     recon_loss = l2_loss.mul_(non_active).sum() / (non_active.sum() + eps)
-    return recon_loss
+    return recon_loss  # type: ignore[no-any-return]

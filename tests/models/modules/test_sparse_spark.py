@@ -1,6 +1,7 @@
 import pytest
 import torch
 from torch import Tensor
+from typing import List
 
 pytest.importorskip("timm.models.layers")
 
@@ -251,7 +252,7 @@ class TestSparKDensifier:
             sbn=False,
         )
         # Create dummy feature maps (shallow to deep)
-        fea_bcffs: list[Tensor] = [
+        fea_bcffs: List[Tensor] = [
             torch.randn(1, 64, 8, 8),
             torch.randn(1, 128, 4, 4),
             torch.randn(1, 256, 2, 2),
@@ -270,7 +271,7 @@ class TestSparKDensifier:
             sbn=False,
         )
         # Create dummy feature maps at different scales (shallow to deep)
-        fea_bcffs: list[Tensor] = [
+        fea_bcffs: List[Tensor] = [
             torch.randn(1, 64, 8, 8),
             torch.randn(1, 128, 4, 4),
             torch.randn(1, 256, 2, 2),
@@ -281,7 +282,7 @@ class TestSparKDensifier:
         )
 
         with sparse_spark.sparse_layer_context(initial_mask):
-            to_dec: list[Tensor] = densifier(fea_bcffs)
+            to_dec: List[Tensor] = densifier(fea_bcffs)
 
         # Check that we have 3 output feature maps (one per block)
         assert len(to_dec) == 3
@@ -296,7 +297,7 @@ class TestSparKDensifier:
 
     def test_forward_to_dec_contains_all_feature_maps(self) -> None:
         """Test that to_dec list contains all densified feature maps."""
-        encoder_in_channels: list[int] = [64, 128, 256]
+        encoder_in_channels: List[int] = [64, 128, 256]
         decoder_in_channel: int = 256
         densifier: sparse_spark.SparKDensifier = sparse_spark.SparKDensifier(
             encoder_in_channels=encoder_in_channels,
@@ -304,7 +305,7 @@ class TestSparKDensifier:
             densify_norm_str="bn",
             sbn=False,
         )
-        fea_bcffs: list[Tensor] = [
+        fea_bcffs: List[Tensor] = [
             torch.randn(1, 64, 8, 8),
             torch.randn(1, 128, 4, 4),
             torch.randn(1, 256, 2, 2),
@@ -312,7 +313,7 @@ class TestSparKDensifier:
         initial_mask: Tensor = torch.ones(1, 1, 2, 2, dtype=torch.bool)
 
         with sparse_spark.sparse_layer_context(initial_mask):
-            to_dec: list[Tensor] = densifier(fea_bcffs)
+            to_dec: List[Tensor] = densifier(fea_bcffs)
 
         # Should have one output per block
         assert len(to_dec) == len(densifier.blocks)
@@ -324,7 +325,7 @@ class TestSparKDensifier:
         # Block 0: e_width=256 -> d_width=256 (identity)
         # Block 1: e_width=128 -> d_width=128 (256//2)
         # Block 2: e_width=64 -> d_width=64 (128//2)
-        expected_channels: list[int] = [256, 128, 64]
+        expected_channels: List[int] = [256, 128, 64]
         for i, td in enumerate(to_dec):
             assert (
                 td.shape[1] == expected_channels[i]
@@ -332,7 +333,7 @@ class TestSparKDensifier:
 
     def test_forward_reverses_fea_bcffs_order(self) -> None:
         """Test that fea_bcffs is reversed before processing (deepest first)."""
-        encoder_in_channels: list[int] = [64, 128, 256]
+        encoder_in_channels: List[int] = [64, 128, 256]
         densifier: sparse_spark.SparKDensifier = sparse_spark.SparKDensifier(
             encoder_in_channels=encoder_in_channels,
             decoder_in_channel=256,
@@ -340,7 +341,7 @@ class TestSparKDensifier:
             sbn=False,
         )
         # Use distinct shapes to verify order
-        fea_bcffs: list[Tensor] = [
+        fea_bcffs: List[Tensor] = [
             torch.randn(1, 64, 8, 8),  # shallowest
             torch.randn(1, 128, 4, 4),
             torch.randn(1, 256, 2, 2),  # deepest
@@ -348,7 +349,7 @@ class TestSparKDensifier:
         initial_mask: Tensor = torch.ones(1, 1, 2, 2, dtype=torch.bool)
 
         with sparse_spark.sparse_layer_context(initial_mask):
-            to_dec: list[Tensor] = densifier(fea_bcffs)
+            to_dec: List[Tensor] = densifier(fea_bcffs)
 
         # First block should process deepest feature (2x2, 256 channels)
         assert to_dec[0].shape == (1, 256, 2, 2)
@@ -359,7 +360,7 @@ class TestSparKDensifier:
 
     def test_forward_complete_integration(self) -> None:
         """Integration test for complete forward pass with proper context."""
-        encoder_in_channels: list[int] = [64, 128, 256]
+        encoder_in_channels: List[int] = [64, 128, 256]
         decoder_in_channel: int = 256
         densifier: sparse_spark.SparKDensifier = sparse_spark.SparKDensifier(
             encoder_in_channels=encoder_in_channels,
@@ -368,7 +369,7 @@ class TestSparKDensifier:
             sbn=False,
         )
         batch_size: int = 2
-        fea_bcffs: list[Tensor] = [
+        fea_bcffs: List[Tensor] = [
             torch.randn(batch_size, 64, 8, 8),
             torch.randn(batch_size, 128, 4, 4),
             torch.randn(batch_size, 256, 2, 2),
@@ -379,7 +380,7 @@ class TestSparKDensifier:
         )
 
         with sparse_spark.sparse_layer_context(initial_mask):
-            to_dec: list[Tensor] = densifier(fea_bcffs)
+            to_dec: List[Tensor] = densifier(fea_bcffs)
 
         # Verify output structure
         assert len(to_dec) == 3
@@ -392,14 +393,14 @@ class TestSparKDensifier:
 
     def test_forward_with_identity_proj_first_block(self) -> None:
         """Test that first block uses identity projection when channels match."""
-        encoder_in_channels: list[int] = [256, 128, 64]  # Same as decoder
+        encoder_in_channels: List[int] = [256, 128, 64]  # Same as decoder
         densifier: sparse_spark.SparKDensifier = sparse_spark.SparKDensifier(
             encoder_in_channels=encoder_in_channels,
             decoder_in_channel=256,
             densify_norm_str="bn",
             sbn=False,
         )
-        fea_bcffs: list[Tensor] = [
+        fea_bcffs: List[Tensor] = [
             torch.randn(1, 256, 8, 8),
             torch.randn(1, 128, 4, 4),
             torch.randn(1, 64, 2, 2),
@@ -407,7 +408,7 @@ class TestSparKDensifier:
         initial_mask: Tensor = torch.ones(1, 1, 2, 2, dtype=torch.bool)
 
         with sparse_spark.sparse_layer_context(initial_mask):
-            to_dec: list[Tensor] = densifier(fea_bcffs)
+            to_dec: List[Tensor] = densifier(fea_bcffs)
 
         # First block should preserve channels (identity projection)
         assert to_dec[0].shape[1] == 256
