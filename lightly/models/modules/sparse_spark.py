@@ -587,6 +587,7 @@ class SparKDensifiyBlock(nn.Module):
         use_identity_proj: bool = False,
         kernel_size: int = 3,
     ) -> None:
+        from timm.models.layers import trunc_normal_
         super().__init__()
         # mask token
         p = nn.Parameter(torch.zeros(1, e_width, 1, 1))
