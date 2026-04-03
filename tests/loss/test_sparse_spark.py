@@ -3,6 +3,8 @@ import torch
 import torch.distributed as dist
 from pytest_mock import MockerFixture
 
+pytest.importorskip("timm.models.layers")
+
 from lightly.loss import SparKPatchReconLoss
 
 

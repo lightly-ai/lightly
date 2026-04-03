@@ -2,6 +2,8 @@ import pytest
 import torch
 from torch import Tensor
 
+pytest.importorskip("timm.models.layers")
+
 import lightly.models.modules.sparse_spark as sparse_spark
 from lightly.models.modules.sparse_spark import (
     SparKDensifiyBlock,

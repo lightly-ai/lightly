@@ -10,7 +10,6 @@ from typing import Generator, NamedTuple, cast
 
 import torch
 import torch.nn as nn
-from timm.models.layers import DropPath, trunc_normal_
 from torch import Tensor
 
 from lightly.models.utils import random_token_mask
@@ -290,6 +289,8 @@ class SparseConvNeXtBlock(nn.Module):
         layer_scale_init_value: float = 1e-6,
         ks: int = 7,
     ) -> None:
+        from timm.models.layers import DropPath
+
         super().__init__()
         self.dwconv = nn.Conv2d(dim, dim, kernel_size=ks, padding=ks // 2, groups=dim)
         self.norm = SparseConvNeXtLayerNorm(dim, eps=1e-6)
@@ -538,6 +539,8 @@ class UNetDecoder(nn.Module):
         - kaiming_normal_ for ConvTranspose2d layers
         - constant initialization for batch norm and layer norm (weight=1.0, bias=0.0)
         """
+        from timm.models.layers import trunc_normal_
+
         for m in self.modules():
             if isinstance(m, nn.Linear):
                 trunc_normal_(m.weight, std=0.02)
