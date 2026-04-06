@@ -64,7 +64,7 @@ def cosine_schedule(
             * (np.cos(np.pi * step / (max_steps - 1)) + 1)
             / 2
         )
-    return decay
+    return float(decay)
 
 
 def cosine_warmup_schedule(

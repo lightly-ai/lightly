@@ -76,6 +76,28 @@ def test_cosine_schedule__error(
         )
 
 
+@pytest.mark.parametrize(
+    "step, max_steps, period",
+    [
+        (1, 10, None),   # normal cosine branch (was returning np.float64)
+        (0, 10, 10),     # period branch (was returning np.float64)
+        (0, 1, None),    # max_steps <= 1 branch
+        (9, 10, None),   # step >= max_steps - 1 branch
+    ],
+)
+def test_cosine_schedule__returns_plain_float(
+    step: int, max_steps: int, period: Optional[int]
+) -> None:
+    result = scheduler.cosine_schedule(
+        step=step,
+        max_steps=max_steps,
+        start_value=1.0,
+        end_value=0.0,
+        period=period,
+    )
+    assert type(result) is float
+
+
 def test_cosine_schedule__warn_step_exceeds_max_steps() -> None:
     with pytest.warns(
         RuntimeWarning, match="Current step number 11 exceeds max_steps 10."
