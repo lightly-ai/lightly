@@ -1,6 +1,3 @@
-# Copyright (c) 2023 Keyu Tian
-# Copyright (c) ByteDance, Inc. and its affiliates.
-
 from __future__ import annotations
 
 import math
