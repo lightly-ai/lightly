@@ -43,12 +43,12 @@ guide you.
 A world-class feature request addresses the following points:
 
 1. Motivation first:
-  * Is it related to a problem/frustration with the library? If so, please explain
-    why. Providing a code snippet that demonstrates the problem is best.
-  * Is it related to something you would need for a project? We'd love to hear
-    about it!
-  * Is it something you worked on and think could benefit the community?
-    Awesome! Tell us what problem it solved for you.
+   * Is it related to a problem/frustration with the library? If so, please explain
+     why. Providing a code snippet that demonstrates the problem is best.
+   * Is it related to something you would need for a project? We'd love to hear
+     about it!
+   * Is it something you worked on and think could benefit the community?
+     Awesome! Tell us what problem it solved for you.
 2. Provide a **code snippet** that demonstrates its future use;
 3. Attach any additional information (drawings, screenshots, etc.) you think may help.
 
