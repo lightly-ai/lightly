@@ -132,11 +132,13 @@ Follow these steps to start contributing:
    git rebase upstream/master
    ```
 
-   Push the changes to your account using:
+   Push the changes to your fork. For the first push, set up tracking:
 
    ```bash
-   git push -u upstream a_descriptive_name_for_my_changes
+   git push -u origin a_descriptive_name_for_my_changes
    ```
+
+   After that, subsequent pushes only need `git push`.
 
 1. Once you are satisfied, go to the webpage of your fork on GitHub.
    Click on 'Pull request' to send your changes to the project maintainers for review. If there is a change in the docs, please make sure to print the changes made to the webpage as PDF and include them in the PR.
