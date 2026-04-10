@@ -241,7 +241,7 @@ def fetch_smalltable_rows(
 
   submodule.myfunction(arg1, arg2)
   ```
-```
+
 
 #### Classes
 
@@ -290,6 +290,5 @@ class SampleClass:
   ```python
   from module.submodule import MyClass
   ```
-```
 
 #### This guide was inspired by Transformers [transformers guide to contributing](https://github.com/huggingface/transformers/blob/master/CONTRIBUTING.md) which was influenced by Scikit-learn [scikit-learn guide to contributing](https://github.com/scikit-learn/scikit-learn/blob/master/CONTRIBUTING.md).
