@@ -1,6 +1,6 @@
 # How to contribute to lightly?
 
-Everyone is welcome to contribute, and we value everybody's contribution. Code is thus not the only way to help the community. Answering questions, helping others, reaching out and improving the documentations are immensely valuable to the community.
+Everyone is welcome to contribute, and we value everybody's contribution. Code is thus not the only way to help the community. Answering questions, helping others, reaching out and improving the documentation are all immensely valuable contributions to the community.
 
 It also helps us if you spread the word: reference the library from blog posts on the awesome projects it made possible, shout out on Twitter every time it has helped you, or simply star the repo to say "thank you".
 
@@ -22,7 +22,7 @@ feedback.
 
 ### Did you find a bug?
 
-First, **please make sure the bug was not already reported** (use the search bar on Github under Issues).
+First, **please make sure the bug was not already reported** (use the search bar on GitHub under Issues).
 
 * Include your **OS type and version**, the versions of **Python**, **PyTorch**, and **PyTorch Lightning**.
 * A code snippet that allows us to reproduce the bug in less than 30s.
@@ -55,7 +55,7 @@ A world-class feature request addresses the following points:
 
 ## Pull Requests
 
-Before writing code, we strongly advise you to search through the exising PRs or
+Before writing code, we strongly advise you to search through the existing PRs or
 issues to make sure that nobody is already working on the same thing. If you are
 unsure, it is always a good idea to open an issue to get some feedback.
 
@@ -148,7 +148,7 @@ Follow these steps to start contributing:
    branch and push the changes to your fork. They will automatically appear in
    the pull request.
 
-8. We have a extensive Continuous Integration system that runs tests on all Pull Requests. This
+8. We have an extensive Continuous Integration system that runs tests on all Pull Requests. This
    is to make sure that the changes introduced by the commits don’t introduce errors. When
    all CI tests in a workflow pass, it implies that the changes introduced by a commit do not introduce any errors.
    We have workflows that check unit tests, dependencies, and formatting.
@@ -291,4 +291,4 @@ class SampleClass:
   from module.submodule import MyClass
   ```
 
-#### This guide was inspired by Transformers [transformers guide to contributing](https://github.com/huggingface/transformers/blob/master/CONTRIBUTING.md) which was influenced by Scikit-learn [scikit-learn guide to contributing](https://github.com/scikit-learn/scikit-learn/blob/master/CONTRIBUTING.md).
+#### This guide was inspired by the [Transformers guide to contributing](https://github.com/huggingface/transformers/blob/master/CONTRIBUTING.md) which was influenced by the [Scikit-learn guide to contributing](https://github.com/scikit-learn/scikit-learn/blob/master/CONTRIBUTING.md).
