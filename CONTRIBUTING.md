@@ -25,7 +25,7 @@ feedback.
 First, **please make sure the bug was not already reported** (use the search bar on GitHub under Issues).
 
 * Include your **OS type and version**, the versions of **Python**, **PyTorch**, and **PyTorch Lightning**.
-* A code snippet that allows us to reproduce the bug in less than 30s.
+* Include a code snippet that allows us to reproduce the bug in less than 30s.
 * Provide the *full* traceback if an exception is raised.
 
 ### Do you want to implement a new self-supervised model?
