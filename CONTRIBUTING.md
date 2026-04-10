@@ -61,9 +61,9 @@ unsure, it is always a good idea to open an issue to get some feedback.
 
 Follow these steps to start contributing:
 
-1. Fork the [repository](https://github.com/lightly-ai/lightly/) by
+1. Fork the [project repository](https://github.com/lightly-ai/lightly/) by
    clicking on the 'Fork' button on the repository's page. This creates a copy of the code
-   under your GitHub user account.
+   under your GitHub user account. For more details on how to fork a repository see [this guide](https://help.github.com/articles/fork-a-repo/).
 
 2. Clone your fork to your local disk, and add the base repository as a remote:
 
@@ -71,6 +71,7 @@ Follow these steps to start contributing:
    git clone git@github.com:<username>/lightly.git
    cd lightly
    git remote add upstream https://github.com/lightly-ai/lightly.git
+   git fetch upstream
    ```
 
 3. Create a new branch to hold your development changes:
