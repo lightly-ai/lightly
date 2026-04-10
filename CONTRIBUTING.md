@@ -82,17 +82,12 @@ Follow these steps to start contributing:
 
    **do not** work on the `master` branch.
 
-4. Set up a development environment by running the following command in a virtual environment:
+4. Set up a development environment. We use [uv](https://github.com/astral-sh/uv) for
+   development. Create and activate a virtual environment, then install the dev dependencies:
 
    ```bash
-   pip install -e . --all-extras --requirement pyproject.toml
-   pre-commit install
-   ```
-
-   If you are using [uv](https://github.com/astral-sh/uv) instead of pip, you can use
-   the following command:
-
-   ```bash
+   uv venv
+   source .venv/bin/activate
    make install-dev
    ```
 
