@@ -122,7 +122,7 @@ Follow these steps to start contributing:
    git commit
    ```
 
-   Please write [good commit messages](https://chris.beams.io/posts/git-commit/).
+   Please write [good commit messages](https://chris.beams.io/git-commit).
 
    It is a good idea to sync your copy of the code with the original
    repository regularly. This way you can quickly account for changes:
@@ -291,4 +291,4 @@ class SampleClass:
   from module.submodule import MyClass
   ```
 
-#### This guide was inspired by the [Transformers guide to contributing](https://github.com/huggingface/transformers/blob/master/CONTRIBUTING.md) which was influenced by the [Scikit-learn guide to contributing](https://github.com/scikit-learn/scikit-learn/blob/master/CONTRIBUTING.md).
+#### This guide was inspired by the [Transformers guide to contributing](https://github.com/huggingface/transformers/blob/main/CONTRIBUTING.md) which was influenced by the [Scikit-learn guide to contributing](https://github.com/scikit-learn/scikit-learn/blob/main/CONTRIBUTING.md).
