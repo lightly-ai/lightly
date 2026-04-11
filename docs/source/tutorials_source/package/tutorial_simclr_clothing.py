@@ -5,7 +5,7 @@ Tutorial 3: Train SimCLR on Clothing
 ==============================================
 
 In this tutorial, we will train a SimCLR model using lightly. The model,
-augmentations and training procedure is from 
+augmentations and training procedure is from
 `A Simple Framework for Contrastive Learning of Visual Representations <https://arxiv.org/abs/2002.05709>`_.
 
 The paper explores a rather simple training procedure for contrastive learning.
@@ -14,8 +14,8 @@ greatly benefits from having larger batch sizes. In this example, we use a batch
 size of 256 and paired with the input resolution per image of 64x64 pixels and
 a resnet-18 model this example requires 16GB of GPU memory.
 
-We use the 
-`clothing dataset from Alex Grigorev <https://github.com/alexeygrigorev/clothing-dataset>`_ 
+We use the
+`clothing dataset from Alex Grigorev <https://github.com/alexeygrigorev/clothing-dataset>`_
 for this tutorial.
 
 In this tutorial you will learn:

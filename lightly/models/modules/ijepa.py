@@ -126,9 +126,9 @@ class IJEPAPredictor(vision_transformer.Encoder):
         Returns:
             The predicted output tensor.
         """
-        assert (masks is not None) and (
-            masks_x is not None
-        ), "Cannot run predictor without mask indices"
+        assert (masks is not None) and (masks_x is not None), (
+            "Cannot run predictor without mask indices"
+        )
 
         if not isinstance(masks_x, list):
             masks_x = [masks_x]

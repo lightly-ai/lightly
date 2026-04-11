@@ -11,9 +11,9 @@ class TestDirectCLRLoss:
 
     def test_set_parent_temperature(self) -> None:
         loss_function = DirectCLRLoss(loss_dim=32, temperature=self.temperature)
-        assert (
-            loss_function.temperature == self.temperature
-        ), f"Expected temperature to be {self.temperature}, but got {loss_function.temperature}"
+        assert loss_function.temperature == self.temperature, (
+            f"Expected temperature to be {self.temperature}, but got {loss_function.temperature}"
+        )
 
     @pytest.mark.parametrize("n_samples", [1, 2, 4])
     @pytest.mark.parametrize("dimension", [1, 2, 8])

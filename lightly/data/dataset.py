@@ -101,7 +101,7 @@ class LightlyDataset:
             )
         elif transform is not None:
             raise ValueError(
-                "transform must be None when input_dir is None but is " f"{transform}",
+                f"transform must be None when input_dir is None but is {transform}",
             )
 
         # initialize function to get filename of image

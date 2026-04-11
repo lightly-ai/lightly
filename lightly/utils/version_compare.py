@@ -1,4 +1,4 @@
-""" Utility method for comparing versions of libraries """
+"""Utility method for comparing versions of libraries"""
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved

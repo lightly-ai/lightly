@@ -1,4 +1,4 @@
-""" SimSiam Model """
+"""SimSiam Model"""
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved

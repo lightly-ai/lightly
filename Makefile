@@ -41,7 +41,7 @@ format:
 
 # check if code is formatted with ruff
 format-check:
-	@echo "⚫ Checking code format..."
+	@echo "Checking code format..."
 	ruff check --select I $(PYTHON_DIRS)
 	ruff format --check $(PYTHON_DIRS)
 

@@ -14,7 +14,7 @@ usually face one big problem. To get good results, we need
 many negative examples for the contrastive loss to work. Therefore,
 we need a large batch size. However, not everyone has access to a cluster
 full of GPUs or TPUs. To solve this problem, alternative approaches have been developed.
-Some of them use a memory bank to store old negative examples we can query 
+Some of them use a memory bank to store old negative examples we can query
 to compensate for the smaller batch size. MoCo takes this approach
 one step further by including a momentum encoder.
 
@@ -26,7 +26,7 @@ In this tutorial you will learn:
 
 - How to create a MoCo model with a memory bank
 
-- How to use the pre-trained model after self-supervised learning for a 
+- How to use the pre-trained model after self-supervised learning for a
   transfer learning task
 
 """

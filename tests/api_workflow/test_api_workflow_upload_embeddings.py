@@ -27,7 +27,7 @@ class TestApiWorkflowUploadEmbeddings(MockedApiWorkflowSetup):
             self.sample_names[0] = "bliblablub"
         if special_char_in_first_filename:
             self.sample_names[0] = (
-                f"_{special_char_in_first_filename}" f"{self.sample_names[0]}"
+                f"_{special_char_in_first_filename}{self.sample_names[0]}"
             )
         labels = [0] * len(self.sample_names)
         io_utils.save_embeddings(

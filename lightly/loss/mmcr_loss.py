@@ -55,9 +55,9 @@ class MMCRLoss(nn.Module):
         Returns:
             The computed loss value.
         """
-        assert (
-            online.shape == momentum.shape
-        ), "online and momentum need to have the same shape"
+        assert online.shape == momentum.shape, (
+            "online and momentum need to have the same shape"
+        )
 
         B = online.shape[0]
 

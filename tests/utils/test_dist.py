@@ -21,9 +21,7 @@ class TestDist(unittest.TestCase):
                     "torch.distributed.is_initialized", lambda: True
                 ), mock.patch(
                     "lightly.utils.dist.world_size", lambda: world_size
-                ), mock.patch(
-                    "lightly.utils.dist.rank", lambda: rank
-                ):
+                ), mock.patch("lightly.utils.dist.rank", lambda: rank):
                     expected = []
                     for _ in range(0, rank):
                         expected.append(zeros)

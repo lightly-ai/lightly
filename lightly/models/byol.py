@@ -1,4 +1,4 @@
-""" BYOL Model """
+"""BYOL Model"""
 
 # Copyright (c) 2021. Lightly AG and its affiliates.
 # All Rights Reserved
