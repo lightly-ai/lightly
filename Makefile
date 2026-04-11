@@ -34,27 +34,27 @@ clean-out:
 # Python directories to format and lint
 PYTHON_DIRS = benchmarks docs examples lightly tests
 
-# format code with isort and black
+# format code with ruff
 format:
-	isort $(PYTHON_DIRS)
-	black $(PYTHON_DIRS)
+	ruff check --fix --select I $(PYTHON_DIRS)
+	ruff format $(PYTHON_DIRS)
 
-# check if code is formatted with isort and black
+# check if code is formatted with ruff
 format-check:
 	@echo "⚫ Checking code format..."
-	isort --check-only --diff $(PYTHON_DIRS)
-	black --check $(PYTHON_DIRS)
+	ruff check --select I $(PYTHON_DIRS)
+	ruff format --check $(PYTHON_DIRS)
 
-# check style with flake8
+# lint code with ruff
 lint: lint-lightly lint-tests
 
-## check lightly style with flake8
+## lint lightly code with ruff
 lint-lightly:
-	pylint --rcfile=pylintrc lightly
+	ruff check lightly
 
-## check tests style with flake8
+## lint tests with ruff
 lint-tests:
-	pylint --rcfile=pylintrc tests
+	ruff check tests
 
 ## run tests
 test:
