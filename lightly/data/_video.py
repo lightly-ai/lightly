@@ -1,4 +1,4 @@
-""" Video Dataset """
+"""Video Dataset"""
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
@@ -282,7 +282,7 @@ class VideoLoader(threading.local):
                 warnings.warn(
                     f"Loaded wrong frame in {self.path}! Tried to load frame "
                     f"with index {index} and timestamp {float(timestamp)} but "
-                    f'could only find frame with timestamp {frame_info["pts"]}.'
+                    f"could only find frame with timestamp {frame_info['pts']}."
                 )
 
             # Make sure we have the tensor in correct shape (we want H x W x C)

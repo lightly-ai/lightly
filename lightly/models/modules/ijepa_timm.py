@@ -118,9 +118,9 @@ class IJEPAPredictorTIMM(nn.Module):  # type: ignore[misc]
             The predicted output tensor.
         """
 
-        assert (masks is not None) and (
-            masks_x is not None
-        ), "Cannot run predictor without mask indices"
+        assert (masks is not None) and (masks_x is not None), (
+            "Cannot run predictor without mask indices"
+        )
 
         len_masks_x = len(masks_x) if isinstance(masks_x, list) else 1
         len_masks = len(masks) if isinstance(masks, list) else 1

@@ -47,7 +47,7 @@ Updated: 27.03.2023 (42a6a924b1b6d5b6cc89a6b2a0a0942cc4af93ab)
 | SMoG          |        512 |    800 |              0.800 |  415.6 Min |      3.2 GByte |
 ------------------------------------------------------------------------------------------
 
-(*): Increased size of memory bank from 4096 to 8192 to avoid too quickly 
+(*): Increased size of memory bank from 4096 to 8192 to avoid too quickly
 changing memory bank due to larger batch size.
 
 The benchmarks were created on a single NVIDIA RTX A6000.
@@ -59,6 +59,7 @@ processes might continue the benchmark if one of the nodes is killed.
 If you know how to fix this don't hesitate to create an issue or PR :)
 
 """
+
 import copy
 import os
 import time

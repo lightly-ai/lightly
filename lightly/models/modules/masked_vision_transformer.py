@@ -22,8 +22,7 @@ class MaskedVisionTransformer(ABC, Module):
 
     @property
     @abstractmethod
-    def sequence_length(self) -> int:
-        ...
+    def sequence_length(self) -> int: ...
 
     @abstractmethod
     def forward(

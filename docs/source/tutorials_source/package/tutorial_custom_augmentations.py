@@ -16,18 +16,17 @@ We will show how to address these problems and how to train a ResNet-18 with MoC
 on a set of 16-bit X-ray images in TIFF format.
 
 The original dataset this tutorial is based on can be found `on Kaggle <https://www.kaggle.com/c/vinbigdata-chest-xray-abnormalities-detection/overview>`_.
-These images are in the DICOM format. For simplicity and efficiency reasons, 
+These images are in the DICOM format. For simplicity and efficiency reasons,
 we randomly selected ~4000 images from the above dataset, resized them such that the
 maximum of the width and height of each image is no larger than 512, and converted
 them to the 16-bit TIFF format. To do so, we used ImageMagick which is preinstalled
-on most Linux systems. 
+on most Linux systems.
 
 .. code::
 
-    mogrify -path path/to/new/dataset -resize 512x512 -format tiff "*.dicom" 
+    mogrify -path path/to/new/dataset -resize 512x512 -format tiff "*.dicom"
 
 """
-
 
 # %%
 # Imports

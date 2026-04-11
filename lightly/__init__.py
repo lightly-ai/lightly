@@ -4,18 +4,18 @@ With Lightly you can train deep learning models using
 self-supervision. This means, that you don't require
 any labels to train a model. Lightly has been built
 to help you understand and work with large unlabeled datasets.
-It is built on top of PyTorch and therefore fully compatible 
+It is built on top of PyTorch and therefore fully compatible
 with other frameworks such as Fast.ai.
 
 The framework is structured into the following modules:
 
-- **api**: 
+- **api**:
 
   The lightly.api module handles communication with the Lightly web-app.
 
 - **cli**:
 
-  The lightly.cli module provides a command-line interface for training 
+  The lightly.cli module provides a command-line interface for training
   self-supervised models and embedding images. Furthermore, the command-line
   tool can be used to upload and download images from/to the Lightly web-app.
 
@@ -42,15 +42,15 @@ The framework is structured into the following modules:
   - Barlow Twins
 
   - BYOL
-  
+
   - MoCo
-  
+
   - NNCLR
-  
+
   - SimCLR
-  
+
   - SimSiam
-  
+
   - SwaV
 
 - **transforms**:
