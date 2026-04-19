@@ -11,6 +11,7 @@ def warn_with_traceback(message, category, filename, lineno, file=None, line=Non
 warnings.showwarning = warn_with_traceback
 
 
+import inspect
 from argparse import ArgumentParser
 from datetime import datetime
 from pathlib import Path
@@ -109,7 +110,8 @@ def main(
     seed: int | None = None,
 ) -> None:
     print_rank_zero(f"Args: {locals()}")
-    seed_everything(seed, workers=True, verbose=True)
+    if seed is not None:
+        seed_everything(seed, workers=True, verbose=True)
 
     torch.set_float32_matmul_precision(float32_matmul_precision)
 
@@ -120,9 +122,23 @@ def main(
             log_dir / method / datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         ).resolve()
         print_rank_zero(f"Logging to {method_dir}")
-        model = METHODS[method]["model"](
-            batch_size_per_device=batch_size_per_device, num_classes=num_classes
-        )
+        # Initialise the base arguments for all models
+        model_kwargs = {
+            "batch_size_per_device": batch_size_per_device,
+            "num_classes": num_classes,
+        }
+
+        # Only add kNN args if the specific model class expects them
+        model_class = METHODS[method]["model"]
+        sig = inspect.signature(model_class.__init__)
+
+        run_online_knn_eval = {"knn_k", "knn_t"} <= sig.parameters.keys()
+        if run_online_knn_eval:
+            model_kwargs["knn_k"] = knn_k
+            model_kwargs["knn_t"] = knn_t
+
+        # Initialize with the unpacked dictionary
+        model = model_class(**model_kwargs)
 
         if compile_model and hasattr(torch, "compile"):
             # Compile model if PyTorch supports it.
@@ -148,6 +164,7 @@ def main(
                 precision=precision,
                 ckpt_path=ckpt_path,
                 strategy=strategy,
+                run_online_knn_eval=run_online_knn_eval,
             )
         eval_metrics: Dict[str, Dict[str, float]] = dict()
         if skip_knn_eval:
@@ -221,6 +238,7 @@ def pretrain(
     precision: str,
     ckpt_path: Union[Path, None],
     strategy: str,
+    run_online_knn_eval: bool,
 ) -> None:
     print_rank_zero(f"Running pretraining for {method}...")
 
@@ -254,6 +272,31 @@ def pretrain(
         persistent_workers=True,
     )
 
+    # Setup training knn data.
+    knn_train_dataset = LightlyDataset(
+        input_dir=str(train_dir), transform=val_transform
+    )
+    knn_train_dataloader = DataLoader(
+        knn_train_dataset,
+        batch_size=batch_size_per_device,
+        shuffle=False,
+        num_workers=num_workers,
+        drop_last=False,
+        persistent_workers=True,
+    )
+
+    # Decide which dataloaders to send to the trainer
+    if run_online_knn_eval:
+        # For updated model that accepts multiple dataloaders
+        val_loaders = [knn_train_dataloader, val_dataloader]
+        print_rank_zero(
+            "Model supports multiple dataloaders. Running kNN eval per epoch."
+        )
+    else:
+        # For model that have not been updated yet
+        val_loaders = val_dataloader
+        print_rank_zero("Model uses standard validation. Skipping per-epoch kNN.")
+
     # Train model.
     metric_callback = MetricCallback()
     trainer = Trainer(
@@ -276,7 +319,7 @@ def pretrain(
     trainer.fit(
         model=model,
         train_dataloaders=train_dataloader,
-        val_dataloaders=val_dataloader,
+        val_dataloaders=val_loaders,
         ckpt_path=ckpt_path,
     )
     for metric in ["val_online_cls_top1", "val_online_cls_top5"]:
