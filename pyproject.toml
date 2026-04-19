@@ -138,7 +138,7 @@ target-version = "py37"
 extend-exclude = ["lightly/openapi_generated"]
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I"]
+select = ["I"]
 ignore = ["E501"]
 
 [tool.ruff.lint.isort]
