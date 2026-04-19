@@ -169,9 +169,7 @@ class TestProjectionHeads(unittest.TestCase):
                 head = head.eval()
                 head = head.to(device)
                 for batch_size in [1, 2]:
-                    msg = (
-                        f"bottleneck_dim={bottleneck_dim}, " f"batch_norm={batch_norm}"
-                    )
+                    msg = f"bottleneck_dim={bottleneck_dim}, batch_norm={batch_norm}"
                     with self.subTest(msg=msg):
                         x = torch.torch.rand((batch_size, input_dim)).to(device)
                         with torch.no_grad():
@@ -244,9 +242,7 @@ class TestProjectionHeads(unittest.TestCase):
                 head = head.eval()
                 head = head.to(device)
                 for batch_size in [1, 2]:
-                    msg = (
-                        f"bottleneck_dim={bottleneck_dim}, " f"batch_norm={batch_norm}"
-                    )
+                    msg = f"bottleneck_dim={bottleneck_dim}, batch_norm={batch_norm}"
                     with self.subTest(msg=msg):
                         x = torch.torch.rand((batch_size, input_dim)).to(device)
                         with torch.no_grad():

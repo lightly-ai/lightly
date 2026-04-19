@@ -8,7 +8,6 @@ can be combined with any lightly model.
 # Copyright (c) 2021. Lightly AG and its affiliates.
 # All Rights Reserved
 
-
 from lightly.models.modules.heads import (
     BarlowTwinsProjectionHead,
     BYOLPredictionHead,

@@ -101,7 +101,7 @@ Follow these steps to start contributing:
    make all-checks
    ```
 
-   If you get an error from isort or black, please run `make format` again before
+   If you get a formatting error from ruff, please run `make format` again before
    running `make all-checks`.
 
    If you're modifying examples under `examples/`, make sure to update the corresponding notebooks by

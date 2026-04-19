@@ -1,8 +1,7 @@
-""" Contrastive Loss Functions """
+"""Contrastive Loss Functions"""
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
-
 
 from typing import Sequence, Union
 

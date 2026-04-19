@@ -5,20 +5,9 @@ repos:
   - id: detect-private-key      # check for private keys
   - id: check-added-large-files # prevent commit of files >500kB
     args: ['--maxkb=500']
-- repo: https://github.com/nbQA-dev/nbQA
-  rev: 1.8.7
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.12.7
   hooks:
-    - id: nbqa-black
-    - id: nbqa-isort
-      args: ["--profile=black"]
-- repo: https://github.com/psf/black
-  rev: 23.1.0
-  hooks:
-    - id: black
-      exclude: '^lightly/openapi_generated/'
-- repo: https://github.com/pycqa/isort
-  rev: 5.11.5
-  hooks:
-    - id: isort
-      args: [--profile=black]
-      exclude: '^lightly/openapi_generated/'
+    - id: ruff-check
+      args: [--fix, --select, I]
+    - id: ruff-format

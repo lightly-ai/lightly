@@ -1,6 +1,6 @@
 """The lightly.models package provides model implementations.
 
-Note that the high-level building blocks will be deprecated with 
+Note that the high-level building blocks will be deprecated with
 lightly version 1.3.0. Instead, use low-level building blocks to build the
 models yourself.
 

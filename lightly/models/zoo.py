@@ -1,4 +1,4 @@
-""" Lightly Model Zoo """
+"""Lightly Model Zoo"""
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved

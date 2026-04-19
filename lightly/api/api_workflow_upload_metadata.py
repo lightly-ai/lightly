@@ -24,8 +24,7 @@ def _assert_key_exists_in_custom_metadata(key: str, dictionary: Dict[str, Any]):
     """Raises a formatted KeyError if key is not a key of the dictionary."""
     if key not in dictionary.keys():
         raise KeyError(
-            f"Key {key} not found in custom metadata.\n"
-            f"Found keys: {dictionary.keys()}"
+            f"Key {key} not found in custom metadata.\nFound keys: {dictionary.keys()}"
         )
 
 

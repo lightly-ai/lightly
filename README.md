@@ -5,7 +5,7 @@
 [![Unit Tests](https://github.com/lightly-ai/lightly/workflows/Unit%20Tests/badge.svg)](https://github.com/lightly-ai/lightly/actions/workflows/test.yml)
 [![PyPI](https://img.shields.io/pypi/v/lightly)](https://pypi.org/project/lightly/)
 [![Downloads](https://static.pepy.tech/badge/lightly)](https://pepy.tech/project/lightly)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![Discord](https://img.shields.io/discord/752876370337726585?logo=discord&logoColor=white&label=discord&color=7289da)](https://discord.gg/xvNJW94)
 [![Twitter](https://img.shields.io/twitter/follow/LightlyAI)](https://x.com/LightlyAI)
 [![codecov.io](https://codecov.io/github/lightly-ai/lightly/coverage.svg?branch=master)](https://app.codecov.io/gh/lightly-ai/lightly)
@@ -370,7 +370,7 @@ pytest <path to file or directory>
 
 ### Code Formatting
 
-To format code with [black](https://black.readthedocs.io/en/stable/) and [isort](https://docs.pytest.org) run:
+To format code with [ruff](https://docs.astral.sh/ruff/) run:
 
 ```
 make format

@@ -59,7 +59,6 @@ all = [
 ]
 dev = [
   "sphinx",
-  "pylint",
   "pytest",
   "pytest-forked",
   "pytest-xdist",
@@ -79,9 +78,8 @@ dev = [
   "pandas",
   "toml",
   "torchmetrics",
-  # black, isort and mypy should be the same version as defined in .pre-commit-config.yaml
-  "black==23.1.0", # frozen version to avoid differences between CI and local dev machines
-  "isort==5.11.5", # frozen version to avoid differences between CI and local dev machines
+  # ruff and mypy should be the same version as defined in .pre-commit-config.yaml
+  "ruff==0.12.7", # frozen version to avoid differences between CI and local dev machines
   "mypy==1.4.1", # frozen version to avoid differences between CI and local dev machines
   "types-python-dateutil",
   "types-toml",
@@ -134,12 +132,19 @@ version = {attr = "lightly.__version__"}
 [tool.setuptools.package-data]
 lightly = ["lightly/cli/config/*.yaml"]
 
-[tool.black]
-extend-exclude = "lightly/openapi_generated/.*"
+[tool.ruff]
+line-length = 88
+target-version = "py37"
+extend-exclude = ["lightly/openapi_generated"]
 
-[tool.isort]
-profile = "black"
-extend_skip = "lightly/openapi_generated"
+[tool.ruff.lint]
+select = ["I"]
+ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["lightly"]
+
+[tool.ruff.format]
 
 [tool.coverage.run]
 omit = ["lightly/openapi_generated/*"]

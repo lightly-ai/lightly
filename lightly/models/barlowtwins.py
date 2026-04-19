@@ -1,4 +1,4 @@
-""" Barlow Twins resnet-based Model [0]
+"""Barlow Twins resnet-based Model [0]
 [0] Zbontar,J. et.al. 2021. Barlow Twins... https://arxiv.org/abs/2103.03230
 """
 

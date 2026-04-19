@@ -1,4 +1,4 @@
-""" Nearest Neighbour Memory Bank Module """
+"""Nearest Neighbour Memory Bank Module"""
 
 # Copyright (c) 2021. Lightly AG and its affiliates.
 # All Rights Reserved

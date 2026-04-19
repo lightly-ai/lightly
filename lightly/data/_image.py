@@ -1,4 +1,4 @@
-""" Image Dataset """
+"""Image Dataset"""
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
