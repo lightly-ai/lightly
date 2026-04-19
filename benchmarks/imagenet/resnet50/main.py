@@ -110,7 +110,8 @@ def main(
     seed: int | None = None,
 ) -> None:
     print_rank_zero(f"Args: {locals()}")
-    seed_everything(seed, workers=True, verbose=True)
+    if seed is not None:
+        seed_everything(seed, workers=True, verbose=True)
 
     torch.set_float32_matmul_precision(float32_matmul_precision)
 
@@ -300,6 +301,7 @@ def pretrain(
     metric_callback = MetricCallback()
     trainer = Trainer(
         max_epochs=epochs,
+        val_check_interval=50,
         accelerator=accelerator,
         devices=devices,
         callbacks=[

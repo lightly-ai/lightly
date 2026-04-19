@@ -1,4 +1,4 @@
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Dict
 
 import torch
 import torch.nn.functional as F
@@ -145,7 +145,14 @@ class KNNClassifier(LightningModule):
     def training_step(self, batch, batch_idx) -> None:
         pass
 
-    def validation_step(self, batch, batch_idx: int, dataloader_idx: int) -> None:
+    def validation_step(self, batch, batch_idx: int, dataloader_idx: int) -> Dict[str, Tensor] | None:
+        """Run a step for kNN validation.
+        
+        One dataloader contains training data and we use it to build the feature bank.
+        The other dataloader contains validation data and we use it for kNN evaluation.
+        In case of the step running on validation data, this function returns a dict
+        containing the kNN top-k accuracy metrics.
+        """
         if self.model is None:
             # We recieve the features directly
             features, targets = batch
@@ -179,9 +186,13 @@ class KNNClassifier(LightningModule):
                 predicted_classes=predicted_classes, targets=targets, k=self.topk
             )
             log_dict = {f"val_knn_top{k}": acc for k, acc in topk.items()}
-            self.log_dict(
-                log_dict, prog_bar=True, sync_dist=True, batch_size=len(targets)
-            )
+            
+            if self.trainer is not None:
+                self.log_dict(
+                    log_dict, prog_bar=True, sync_dist=True, batch_size=len(targets)
+                )
+
+            return log_dict
 
     def configure_optimizers(self) -> None:
         # configure_optimizers must be implemented for PyTorch Lightning. Returning None

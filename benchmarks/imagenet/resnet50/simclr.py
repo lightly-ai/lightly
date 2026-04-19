@@ -36,8 +36,8 @@ class SimCLR(LightningModule):
             num_classes=num_classes,
             knn_k=knn_k,
             knn_t=knn_t,
-            train_dataloader_idx=1,
-            val_dataloader_idx=2,
+            train_dataloader_idx=0,
+            val_dataloader_idx=1,
         )
 
     def forward(self, x: Tensor) -> Tensor:
@@ -78,15 +78,18 @@ class SimCLR(LightningModule):
             )
         elif dataloader_idx == 1:
             # Validation: Test both classifiers using the same features
-            self.knn_classifier.validation_step(
+            knn_log_dict = self.knn_classifier.validation_step(
                 (features.detach(), targets), batch_idx, dataloader_idx
             )
 
             cls_loss, cls_log = self.online_classifier.validation_step(
                 (features.detach(), targets), batch_idx
             )
+
+            log_dict = {**knn_log_dict, **cls_log}
+
             self.log_dict(
-                cls_log, prog_bar=True, sync_dist=True, batch_size=len(targets)
+                log_dict, prog_bar=True, sync_dist=True, batch_size=len(targets)
             )
             return cls_loss
 
