@@ -54,7 +54,7 @@ class TestEmbeddingsIO(unittest.TestCase):
         # should fail because there are empty rows in the embeddings file
         lines = [
             "filenames,embedding_0,embedding_1,labels\n",
-            "img_1.jpg,0.351,0.1231\n\n" "img_2.jpg,0.311,0.6231",
+            "img_1.jpg,0.351,0.1231\n\nimg_2.jpg,0.311,0.6231",
         ]
         with open(self.embeddings_path, "w") as f:
             f.writelines(lines)

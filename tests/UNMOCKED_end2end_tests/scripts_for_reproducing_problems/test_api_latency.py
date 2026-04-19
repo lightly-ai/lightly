@@ -22,7 +22,7 @@ if __name__ == "__main__":
         latencies[i] = duration
 
     def format_latency(latency: float):
-        return f"{latency*1000:.1f}ms"
+        return f"{latency * 1000:.1f}ms"
 
     values = [("min")]
     print(

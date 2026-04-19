@@ -103,12 +103,10 @@ class LARS(Optimizer):
 
     # Type ignore for overloads is required for Python 3.7.
     @overload  # type: ignore[override]
-    def step(self, closure: None = None) -> None:
-        ...
+    def step(self, closure: None = None) -> None: ...
 
     @overload  # type: ignore[override]
-    def step(self, closure: Callable[[], float]) -> float:
-        ...
+    def step(self, closure: Callable[[], float]) -> float: ...
 
     @torch.no_grad()
     def step(self, closure: Optional[Callable[[], float]] = None) -> Optional[float]:

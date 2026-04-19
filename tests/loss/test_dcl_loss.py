@@ -119,9 +119,9 @@ class TestDCLLoss:
         patched = loss_fn(out0, out1)
 
         ref = dcl_reference(out0, out1, temperature)
-        assert torch.allclose(
-            patched, ref
-        ), f"patch={patched.item():.6f} vs ref={ref.item():.6f}"
+        assert torch.allclose(patched, ref), (
+            f"patch={patched.item():.6f} vs ref={ref.item():.6f}"
+        )
 
 
 def dcl_reference(

@@ -160,9 +160,9 @@ for epoch in range(epochs):
 
         # Mask patches except class token.
         H, W = model.teacher_backbone.vit.patch_embed.grid_size
-        assert (
-            H * W == sequence_length - 1
-        ), f"Unexpected grid size: {H}x{W}, sequence_length {sequence_length}"
+        assert H * W == sequence_length - 1, (
+            f"Unexpected grid size: {H}x{W}, sequence_length {sequence_length}"
+        )
         block_mask = random_block_mask(size=(B, H, W), device=mask.device)
         mask[:, 1:] = block_mask.flatten(start_dim=1)
 

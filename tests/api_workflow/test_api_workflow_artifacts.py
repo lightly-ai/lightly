@@ -184,9 +184,7 @@ def test__get_compute_worker_run_checkpoint_url(
     )
     mocked_client._get_artifact_by_type.return_value = mocked_artifact
     mocked_client._compute_worker_api = mocker.MagicMock(spec_set=DockerApi)
-    mocked_client._compute_worker_api.get_docker_run_artifact_read_url_by_id.return_value = (
-        "some_read_url"
-    )
+    mocked_client._compute_worker_api.get_docker_run_artifact_read_url_by_id.return_value = "some_read_url"
 
     run = DockerRunData(
         id=utils.generate_id(),

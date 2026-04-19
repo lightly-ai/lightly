@@ -1,6 +1,6 @@
-""" The lightly.cli module provides a console interface
-    for training self-supervised models, embedding,
-    and filtering datasets
+"""The lightly.cli module provides a console interface
+for training self-supervised models, embedding,
+and filtering datasets
 """
 
 # Copyright (c) 2020. Lightly AG and its affiliates.

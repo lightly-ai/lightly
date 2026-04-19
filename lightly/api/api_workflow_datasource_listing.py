@@ -569,9 +569,9 @@ class _DatasourceListingMixin:
         relevant_filenames_kwargs = {}
         if run_id is not None and relevant_filenames_artifact_id is not None:
             relevant_filenames_kwargs["relevant_filenames_run_id"] = run_id
-            relevant_filenames_kwargs[
-                "relevant_filenames_artifact_id"
-            ] = relevant_filenames_artifact_id
+            relevant_filenames_kwargs["relevant_filenames_artifact_id"] = (
+                relevant_filenames_artifact_id
+            )
 
         cursors = self._get_divide_and_conquer_list_cursors(
             dnc_function=dnc_function,

@@ -33,7 +33,6 @@ In this tutorial you will learn:
 #
 # Import the Python frameworks we need for this tutorial.
 
-
 import math
 
 import numpy as np

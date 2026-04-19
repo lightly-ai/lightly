@@ -4,7 +4,7 @@ Note that the architecture we present here differs from the one used in
 torchvision. We replace the first 7x7 convolution by a 3x3 convolution to make
 the model faster and run better on smaller input image resolutions.
 
-Furthermore, we introduce a resnet-9 variant for extra small models. These can 
+Furthermore, we introduce a resnet-9 variant for extra small models. These can
 run for example on a microcontroller with 100kBytes of storage.
 """
 

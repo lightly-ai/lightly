@@ -1,4 +1,4 @@
-""" Utils for working with SSL models """
+"""Utils for working with SSL models"""
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved

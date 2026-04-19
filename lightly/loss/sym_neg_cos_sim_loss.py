@@ -1,4 +1,4 @@
-""" Symmetrized Negative Cosine Similarity Loss Functions """
+"""Symmetrized Negative Cosine Similarity Loss Functions"""
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
