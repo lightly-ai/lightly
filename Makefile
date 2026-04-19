@@ -36,13 +36,13 @@ PYTHON_DIRS = benchmarks docs examples lightly tests
 
 # format code with ruff
 format:
-	ruff check --fix $(PYTHON_DIRS)
+	ruff check --fix --select I $(PYTHON_DIRS)
 	ruff format $(PYTHON_DIRS)
 
 # check if code is formatted with ruff
 format-check:
 	@echo "Checking code format..."
-	ruff check $(PYTHON_DIRS)
+	ruff check --select I $(PYTHON_DIRS)
 	ruff format --check $(PYTHON_DIRS)
 
 # lint code with ruff
