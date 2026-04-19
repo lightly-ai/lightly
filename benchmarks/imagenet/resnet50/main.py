@@ -301,7 +301,6 @@ def pretrain(
     metric_callback = MetricCallback()
     trainer = Trainer(
         max_epochs=epochs,
-        val_check_interval=50,
         accelerator=accelerator,
         devices=devices,
         callbacks=[
