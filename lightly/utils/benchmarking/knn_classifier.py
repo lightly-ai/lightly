@@ -107,11 +107,16 @@ class KNNClassifier(LightningModule):
         self._train_features_tensor: Optional[Tensor] = None
         self._train_targets_tensor: Optional[Tensor] = None
 
-    def forward(self, images: Tensor) -> Tensor:
-        features = self.model.forward(images).flatten(start_dim=1)
+    def _prepare_features(self, features: Tensor) -> Tensor:
+        """Normalize and convert feature dtype for KNN scoring."""
         if self.normalize:
             features = F.normalize(features, dim=1)
         features = features.to(self.feature_dtype)
+        return features
+
+    def forward(self, images: Tensor) -> Tensor:
+        features = self.model.forward(images).flatten(start_dim=1)
+        features = self._prepare_features(features)
         return features
 
     def append_train_features(self, features: Tensor, targets: Tensor) -> None:
@@ -158,6 +163,7 @@ class KNNClassifier(LightningModule):
         if self.model is None:
             # We recieve the features directly
             features, targets = batch
+            features = self._prepare_features(features)
         else:
             # Extracting features
             images, targets = batch[0], batch[1]
