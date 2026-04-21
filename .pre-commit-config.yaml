@@ -11,3 +11,12 @@ repos:
     - id: ruff-check
       args: [--fix, --select, I]
     - id: ruff-format
+- repo: https://github.com/nbqa-dev/nbqa
+  rev: 1.9.1
+  hooks:
+    - id: nbqa-ruff
+      args: [--fix, --select, I]
+      additional_dependencies: [ruff]
+    - id: nbqa-ruff-format
+      entry: nbqa ruff format
+      additional_dependencies: [ruff]
