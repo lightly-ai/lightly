@@ -4,6 +4,7 @@ from pytest_mock import MockerFixture
 from torch import distributed as dist
 from torch import nn
 
+from lightly.loss.lejepa_loss import SIGReg
 from lightly.models.modules.heads import LeJEPAProjectionHead
 from lightly.models.modules.lejepa import (
     LeJEPAEncoder,
@@ -75,6 +76,33 @@ class TestLeJEPALoss:
     def test_lambda_must_be_in_unit_interval(self, lambda_param: float) -> None:
         with pytest.raises(ValueError):
             LeJEPALoss(lambda_param=lambda_param)
+
+    def test_lambda_zero_equals_pure_invariance(self) -> None:
+        # Wiring check: at lambda=0 the SIGReg term is zeroed out, so the loss
+        # must equal the standalone invariance loss on the same projections.
+        torch.manual_seed(0)
+        proj = torch.randn(8, 32, 128)
+
+        lejepa_loss = LeJEPALoss(lambda_param=0.0)(proj)
+        invariance_only = lejepa_invariance_loss(proj)
+
+        assert torch.allclose(lejepa_loss, invariance_only)
+
+    def test_lambda_one_equals_pure_sigreg(self) -> None:
+        # Wiring check: at lambda=1 the invariance term is zeroed out, so the
+        # loss must equal a standalone SIGReg call under the same RNG state.
+        lejepa_fn = LeJEPALoss(lambda_param=1.0)
+        sigreg_fn = SIGReg()
+        torch.manual_seed(0)
+        proj = torch.randn(8, 32, 128)
+
+        torch.manual_seed(42)
+        lejepa_loss = lejepa_fn(proj)
+
+        torch.manual_seed(42)
+        sigreg_loss = sigreg_fn(proj)
+
+        assert torch.allclose(lejepa_loss, sigreg_loss)
 
 
 class TestLeJEPAEncoder:
