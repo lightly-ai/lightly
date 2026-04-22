@@ -36,9 +36,9 @@ class LeJEPALoss(nn.Module):
     The loss is a convex combination of two terms:
 
     - ``SIGReg(proj)`` regularizes projections toward an isotropic Gaussian
-      distribution.
+    distribution.
     - ``lejepa_invariance_loss(proj)`` pulls each view toward the per-sample
-      mean across views.
+    mean across views.
 
     The total loss is
     ``lambda_param * SIGReg(proj) + (1 - lambda_param) * invariance(proj)``.
