@@ -10,6 +10,7 @@ from lightly.models.modules.heads import (
     DenseCLProjectionHead,
     DINOProjectionHead,
     DINOv2ProjectionHead,
+    LeJEPAProjectionHead,
     MMCRProjectionHead,
     MoCoProjectionHead,
     MSNProjectionHead,
@@ -42,6 +43,7 @@ class TestProjectionHeads(unittest.TestCase):
             BYOLPredictionHead,
             DenseCLProjectionHead,
             DINOProjectionHead,
+            LeJEPAProjectionHead,
             MoCoProjectionHead,
             MSNProjectionHead,
             MMCRProjectionHead,
@@ -313,3 +315,38 @@ class TestProjectionHeads(unittest.TestCase):
                                 y = head(x)
                             self.assertEqual(y.shape[0], batch_size)
                             self.assertEqual(y.shape[1], out_features)
+
+    def test_lejepa_projection_head_backward(
+        self, device: str = "cpu", seed: int = 0
+    ) -> None:
+        # batch_size must be at least 2
+        # because the head uses BatchNorm1d in training mode.
+        batch_size = 2
+        for in_features, hidden_features, out_features in self.n_features:
+            torch.manual_seed(seed)
+            head = LeJEPAProjectionHead(
+                input_dim=in_features,
+                hidden_dim=hidden_features,
+                output_dim=out_features,
+            ).to(device)
+            x = torch.randn(
+                (batch_size, in_features), requires_grad=True, device=device
+            )
+            y = head(x)
+            self.assertEqual(y.shape, (batch_size, out_features))
+
+            y.sum().backward()
+            x_grad = x.grad
+            assert x_grad is not None
+            self.assertEqual(x_grad.shape, x.shape)
+            for name, param in head.named_parameters():
+                with self.subTest(
+                    msg=(
+                        f"param: {name}, "
+                        f"d_in, d_h, d_out = "
+                        f"{in_features}x{hidden_features}x{out_features}"
+                    )
+                ):
+                    param_grad = param.grad
+                    assert param_grad is not None
+                    self.assertEqual(param_grad.shape, param.shape)
