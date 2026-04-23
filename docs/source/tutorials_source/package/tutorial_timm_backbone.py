@@ -23,7 +23,6 @@ as a backbone in a self-supervised learning workflow.
 #
 #   pip install lightly"[timm]"
 
-
 import timm
 import torch
 import torch.nn as nn

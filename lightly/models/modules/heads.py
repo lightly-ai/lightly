@@ -1,4 +1,4 @@
-""" Projection and Prediction Heads for Self-supervised Learning """
+"""Projection and Prediction Heads for Self-supervised Learning"""
 
 # Copyright (c) 2021. Lightly AG and its affiliates.
 # All Rights Reserved

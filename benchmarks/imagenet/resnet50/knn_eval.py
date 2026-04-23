@@ -73,6 +73,8 @@ def knn_eval(
         num_classes=num_classes,
         knn_k=knn_k,
         knn_t=knn_t,
+        train_dataloader_idx=0,  # We're only passing 2 dataloaders here
+        val_dataloader_idx=1,
     )
 
     # Run KNN evaluation.
@@ -96,7 +98,7 @@ def knn_eval(
     )
 
     metrics_dict: dict[str, float] = dict()
-    for metric in ["val_top1", "val_top5"]:
+    for metric in ["val_knn_top1", "val_knn_top5"]:
         for name, value in metric_callback.val_metrics.items():
             if name.startswith(metric):
                 print_rank_zero(f"knn {name}: {max(value)}")

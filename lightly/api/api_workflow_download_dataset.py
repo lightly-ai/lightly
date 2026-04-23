@@ -135,7 +135,7 @@ class _DownloadDatasetMixin:
                 img = _get_image_from_read_url(read_url)
                 _make_dir_and_save_image(output_dir, filename, img)
                 success = True
-            except Exception as e:  # pylint: disable=broad-except
+            except Exception as e:
                 warnings.warn(f"Downloading of image {filename} failed with error {e}")
                 success = False
 

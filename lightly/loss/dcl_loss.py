@@ -2,9 +2,8 @@ from functools import partial
 from typing import Callable, Optional
 
 import torch
-from torch import Tensor
+from torch import Tensor, nn
 from torch import distributed as torch_dist
-from torch import nn
 
 from lightly.utils import dist
 

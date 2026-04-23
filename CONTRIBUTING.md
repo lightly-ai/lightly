@@ -1,6 +1,6 @@
 # How to contribute to lightly?
 
-Everyone is welcome to contribute, and we value everybody's contribution. Code is thus not the only way to help the community. Answering questions, helping others, reaching out and improving the documentations are immensely valuable to the community.
+Everyone is welcome to contribute, and we value everybody's contribution. Code is thus not the only way to help the community. Answering questions, helping others, reaching out and improving the documentation are all immensely valuable contributions to the community.
 
 It also helps us if you spread the word: reference the library from blog posts on the awesome projects it made possible, shout out on Twitter every time it has helped you, or simply star the repo to say "thank you".
 
@@ -22,10 +22,10 @@ feedback.
 
 ### Did you find a bug?
 
-First, **please make sure the bug was not already reported** (use the search bar on Github under Issues).
+First, **please make sure the bug was not already reported** (use the search bar on GitHub under Issues).
 
 * Include your **OS type and version**, the versions of **Python**, **PyTorch**, and **PyTorch Lightning**.
-* A code snippet that allows us to reproduce the bug in less than 30s.
+* Include a code snippet that allows us to reproduce the bug in less than 30s.
 * Provide the *full* traceback if an exception is raised.
 
 ### Do you want to implement a new self-supervised model?
@@ -43,34 +43,35 @@ guide you.
 A world-class feature request addresses the following points:
 
 1. Motivation first:
-  * Is it related to a problem/frustration with the library? If so, please explain
-    why. Providing a code snippet that demonstrates the problem is best.
-  * Is it related to something you would need for a project? We'd love to hear
-    about it!
-  * Is it something you worked on and think could benefit the community?
-    Awesome! Tell us what problem it solved for you.
+   * Is it related to a problem/frustration with the library? If so, please explain
+     why. Providing a code snippet that demonstrates the problem is best.
+   * Is it related to something you would need for a project? We'd love to hear
+     about it!
+   * Is it something you worked on and think could benefit the community?
+     Awesome! Tell us what problem it solved for you.
 2. Provide a **code snippet** that demonstrates its future use;
 3. Attach any additional information (drawings, screenshots, etc.) you think may help.
 
 
 ## Pull Requests
 
-Before writing code, we strongly advise you to search through the exising PRs or
+Before writing code, we strongly advise you to search through the existing PRs or
 issues to make sure that nobody is already working on the same thing. If you are
 unsure, it is always a good idea to open an issue to get some feedback.
 
 Follow these steps to start contributing:
 
-1. Fork the [repository](https://github.com/lightly-ai/lightly/) by
+1. Fork the [project repository](https://github.com/lightly-ai/lightly/) by
    clicking on the 'Fork' button on the repository's page. This creates a copy of the code
-   under your GitHub user account.
+   under your GitHub user account. For more details on how to fork a repository see [this guide](https://help.github.com/articles/fork-a-repo/).
 
 2. Clone your fork to your local disk, and add the base repository as a remote:
 
    ```bash
-   git clone git@github.com:lightly-ai/lightly.git
+   git clone git@github.com:<username>/lightly.git
    cd lightly
    git remote add upstream https://github.com/lightly-ai/lightly.git
+   git fetch upstream
    ```
 
 3. Create a new branch to hold your development changes:
@@ -81,17 +82,12 @@ Follow these steps to start contributing:
 
    **do not** work on the `master` branch.
 
-4. Set up a development environment by running the following command in a virtual environment:
+4. Set up a development environment. We use [uv](https://github.com/astral-sh/uv) for
+   development. Create and activate a virtual environment, then install the dev dependencies:
 
    ```bash
-   pip install -e . --all-extras --requirement pyproject.toml
-   pre-commit install
-   ```
-
-   If you are using [uv](https://github.com/astral-sh/uv) instead of pip, you can use
-   the following command:
-
-   ```bash
+   uv venv
+   source .venv/bin/activate
    make install-dev
    ```
 
@@ -105,7 +101,7 @@ Follow these steps to start contributing:
    make all-checks
    ```
 
-   If you get an error from isort or black, please run `make format` again before
+   If you get a formatting error from ruff, please run `make format` again before
    running `make all-checks`.
 
    If you're modifying examples under `examples/`, make sure to update the corresponding notebooks by
@@ -126,31 +122,33 @@ Follow these steps to start contributing:
    git commit
    ```
 
-   Please write [good commit messages](https://chris.beams.io/posts/git-commit/).
+   Please write [good commit messages](https://chris.beams.io/git-commit).
 
    It is a good idea to sync your copy of the code with the original
    repository regularly. This way you can quickly account for changes:
 
    ```bash
    git fetch upstream
-   git rebase upstream/develop
+   git rebase upstream/master
    ```
 
-   Push the changes to your account using:
+   Push the changes to your fork. For the first push, set up tracking:
 
    ```bash
-   git push -u upstream a_descriptive_name_for_my_changes
+   git push -u origin a_descriptive_name_for_my_changes
    ```
 
-1. Once you are satisfied, go to the webpage of your fork on GitHub.
+   After that, subsequent pushes only need `git push`.
+
+6. Once you are satisfied, go to the webpage of your fork on GitHub.
    Click on 'Pull request' to send your changes to the project maintainers for review. If there is a change in the docs, please make sure to print the changes made to the webpage as PDF and include them in the PR.
 
-2. It's ok if maintainers ask you for changes. It happens to core contributors
+7. It's ok if maintainers ask you for changes. It happens to core contributors
    too! So everyone can see the changes in the Pull request, work in your local
    branch and push the changes to your fork. They will automatically appear in
    the pull request.
 
-3. We have a extensive Continuous Integration system that runs tests on all Pull Requests. This
+8. We have an extensive Continuous Integration system that runs tests on all Pull Requests. This
    is to make sure that the changes introduced by the commits don’t introduce errors. When
    all CI tests in a workflow pass, it implies that the changes introduced by a commit do not introduce any errors.
    We have workflows that check unit tests, dependencies, and formatting.
@@ -243,7 +241,7 @@ def fetch_smalltable_rows(
 
   submodule.myfunction(arg1, arg2)
   ```
-```
+
 
 #### Classes
 
@@ -292,6 +290,5 @@ class SampleClass:
   ```python
   from module.submodule import MyClass
   ```
-```
 
-#### This guide was inspired by Transformers [transformers guide to contributing](https://github.com/huggingface/transformers/blob/master/CONTRIBUTING.md) which was influenced by Scikit-learn [scikit-learn guide to contributing](https://github.com/scikit-learn/scikit-learn/blob/master/CONTRIBUTING.md).
+#### This guide was inspired by the [Transformers guide to contributing](https://github.com/huggingface/transformers/blob/main/CONTRIBUTING.md) which was influenced by the [Scikit-learn guide to contributing](https://github.com/scikit-learn/scikit-learn/blob/main/CONTRIBUTING.md).

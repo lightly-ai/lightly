@@ -1,4 +1,4 @@
-""" Momentum Encoder """
+"""Momentum Encoder"""
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved

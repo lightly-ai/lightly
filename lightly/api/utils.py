@@ -1,4 +1,4 @@
-""" Communication Utility """
+"""Communication Utility"""
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved

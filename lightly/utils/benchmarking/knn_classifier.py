@@ -1,4 +1,6 @@
-from typing import Optional, Tuple
+from __future__ import annotations
+
+from typing import Dict, Optional, Tuple
 
 import torch
 import torch.nn.functional as F
@@ -13,10 +15,12 @@ from lightly.utils.benchmarking.topk import mean_topk_accuracy
 class KNNClassifier(LightningModule):
     def __init__(
         self,
-        model: Module,
+        model: Optional[Module],
         num_classes: int,
         knn_k: int,
         knn_t: float,
+        train_dataloader_idx: int,
+        val_dataloader_idx: int,
         topk: Tuple[int, ...] = (1, 5),
         feature_dtype: torch.dtype = torch.float32,
         normalize: bool = True,
@@ -31,7 +35,8 @@ class KNNClassifier(LightningModule):
         Args:
             model:
                 Model used for feature extraction. Must define a forward(images) method
-                that returns a feature tensor.
+                that returns a feature tensor. If not defined, hands over the features
+                directly.
             num_classes:
                 Number of classes in the dataset.
             knn_k:
@@ -89,6 +94,8 @@ class KNNClassifier(LightningModule):
                 "feature_dtype": str(feature_dtype),
             }
         )
+        self.train_dataloader_idx = train_dataloader_idx
+        self.val_dataloader_idx = val_dataloader_idx
         self.model = model
         self.num_classes = num_classes
         self.knn_k = knn_k
@@ -102,11 +109,16 @@ class KNNClassifier(LightningModule):
         self._train_features_tensor: Optional[Tensor] = None
         self._train_targets_tensor: Optional[Tensor] = None
 
-    def forward(self, images: Tensor) -> Tensor:
-        features = self.model.forward(images).flatten(start_dim=1)
+    def _prepare_features(self, features: Tensor) -> Tensor:
+        """Normalize and convert feature dtype for KNN scoring."""
         if self.normalize:
             features = F.normalize(features, dim=1)
         features = features.to(self.feature_dtype)
+        return features
+
+    def forward(self, images: Tensor) -> Tensor:
+        features = self.model.forward(images).flatten(start_dim=1)
+        features = self._prepare_features(features)
         return features
 
     def append_train_features(self, features: Tensor, targets: Tensor) -> None:
@@ -129,19 +141,44 @@ class KNNClassifier(LightningModule):
             targets = targets.flatten().t().contiguous()
             self._train_targets_tensor = targets.to(self.device)
 
+    def reset_storage(self) -> None:
+        """Clears the feature bank to prepare for a new validation epoch."""
+        self._train_features = []
+        self._train_targets = []
+        self._train_features_tensor = None
+        self._train_targets_tensor = None
+
     @torch.no_grad()
     def training_step(self, batch, batch_idx) -> None:
         pass
 
-    def validation_step(self, batch, batch_idx: int, dataloader_idx: int) -> None:
-        images, targets = batch[0], batch[1]
-        features = self(images)
+    def validation_step(
+        self, batch, batch_idx: int, dataloader_idx: int
+    ) -> Dict[str, Tensor] | None:
+        """Run a step for kNN validation.
 
-        if dataloader_idx == 0:
+        One dataloader contains training data and we use it to build the feature bank.
+        The other dataloader contains validation data and we use it for kNN evaluation.
+        In case of the step running on validation data, this function returns a dict
+        containing the kNN top-k accuracy metrics.
+        """
+        if self.model is None:
+            # We recieve the features directly
+            features, targets = batch
+            features = self._prepare_features(features)
+        else:
+            # Extracting features
+            images, targets = batch[0], batch[1]
+            features = self(images)
+
+        if dataloader_idx == self.train_dataloader_idx:
+            if batch_idx == 0:
+                # Reset storage at beginning of new train dataloader.
+                self.reset_storage()
             # The first dataloader is the training dataloader.
             self.append_train_features(features=features, targets=targets)
-        else:
-            if batch_idx == 0 and dataloader_idx == 1:
+        elif dataloader_idx == self.val_dataloader_idx:
+            if batch_idx == 0:
                 # Concatenate train features when starting the validation dataloader.
                 self.concat_train_features()
 
@@ -158,10 +195,14 @@ class KNNClassifier(LightningModule):
             topk = mean_topk_accuracy(
                 predicted_classes=predicted_classes, targets=targets, k=self.topk
             )
-            log_dict = {f"val_top{k}": acc for k, acc in topk.items()}
-            self.log_dict(
-                log_dict, prog_bar=True, sync_dist=True, batch_size=len(targets)
-            )
+            log_dict = {f"val_knn_top{k}": acc for k, acc in topk.items()}
+
+            if self.trainer is not None:
+                self.log_dict(
+                    log_dict, prog_bar=True, sync_dist=True, batch_size=len(targets)
+                )
+
+            return log_dict
 
     def configure_optimizers(self) -> None:
         # configure_optimizers must be implemented for PyTorch Lightning. Returning None

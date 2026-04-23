@@ -103,12 +103,12 @@ class TiCoLoss(torch.nn.Module):
             AssertionError: If z_a and z_b do not have the same shape.
         """
 
-        assert (
-            z_a.shape[0] > 1 and z_b.shape[0] > 1
-        ), f"z_a and z_b must have batch size > 1 but found {z_a.shape[0]} and {z_b.shape[0]}"
-        assert (
-            z_a.shape == z_b.shape
-        ), f"z_a and z_b must have same shape but found {z_a.shape} and {z_b.shape}."
+        assert z_a.shape[0] > 1 and z_b.shape[0] > 1, (
+            f"z_a and z_b must have batch size > 1 but found {z_a.shape[0]} and {z_b.shape[0]}"
+        )
+        assert z_a.shape == z_b.shape, (
+            f"z_a and z_b must have same shape but found {z_a.shape} and {z_b.shape}."
+        )
 
         # gather all batches
         if self.gather_distributed and dist.is_initialized():

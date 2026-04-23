@@ -35,10 +35,10 @@ class _UploadEmbeddingsMixin:
 
         :meta private:  # Skip docstring generation
         """
-        embeddings_on_server: List[
-            DatasetEmbeddingData
-        ] = self._embeddings_api.get_embeddings_by_dataset_id(
-            dataset_id=self.dataset_id
+        embeddings_on_server: List[DatasetEmbeddingData] = (
+            self._embeddings_api.get_embeddings_by_dataset_id(
+                dataset_id=self.dataset_id
+            )
         )
         if len(embeddings_on_server) == 0:
             raise RuntimeError(
@@ -68,10 +68,10 @@ class _UploadEmbeddingsMixin:
                 on the server.
 
         """
-        embeddings_on_server: List[
-            DatasetEmbeddingData
-        ] = self._embeddings_api.get_embeddings_by_dataset_id(
-            dataset_id=self.dataset_id
+        embeddings_on_server: List[DatasetEmbeddingData] = (
+            self._embeddings_api.get_embeddings_by_dataset_id(
+                dataset_id=self.dataset_id
+            )
         )
         try:
             if ignore_suffix:
