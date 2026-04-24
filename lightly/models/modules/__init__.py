@@ -29,6 +29,12 @@ from lightly.models.modules.heads import (
     SwaVPrototypes,
 )
 from lightly.models.modules.nn_memory_bank import NNMemoryBankModule
+from lightly.models.modules.sparse_spark import (
+    SparKDensifier,
+    SparKMasker,
+    SparKOutputDecoder,
+    dense_model_to_sparse,
+)
 from lightly.utils import dependency as _dependency
 
 if _dependency.torchvision_vit_available():
