@@ -614,6 +614,121 @@ def random_token_mask(
     return idx_keep, idx_mask
 
 
+def random_block_wise_mask(
+    size: Tuple[int, int],
+    mask_ratio: float = 0.75,
+    block_size: int = 2,
+    mask_class_token: bool = False,
+    device: Optional[Union[torch.device, str]] = None,
+) -> Tuple[Tensor, Tensor]:
+    """Creates random block-wise masks for tokens.
+
+    This function masks patches in groups (blocks) rather than individually.
+    It is particularly useful for image patch masking where spatial coherence
+    is desired. The sequence is reshaped into a 2D grid, patches are grouped
+    into blocks, and entire blocks are randomly selected for masking.
+
+    Based on the block-wise masking approach from Pixio's MAE implementation
+    (https://github.com/pixiu-ai/pixiu).
+
+    Args:
+        size:
+            Size of the token batch for which to generate masks.
+            Should be (batch_size, sequence_length).
+        mask_ratio:
+            Proportion of tokens to mask.
+        block_size:
+            Size of the blocks. The sequence is reshaped into a square grid,
+            and this parameter determines the block dimensions. For example,
+            block_size=2 groups patches into 2x2 blocks. Must divide the
+            grid size evenly.
+        mask_class_token:
+            If False the class token (index 0) is never masked. If True the
+            class token might be masked.
+        device:
+            Device on which to create the index masks.
+
+    Returns:
+        A (index_keep, index_mask) tuple where each index is a tensor.
+        index_keep contains the indices of the unmasked tokens and has shape
+        (batch_size, num_keep). index_mask contains the indices of the masked
+        tokens and has shape (batch_size, sequence_length - num_keep).
+
+    Raises:
+        ValueError: If the sequence length (minus prefix tokens) cannot form
+            a square grid or if the block_size does not divide the grid evenly.
+    """
+    batch_size, sequence_length = size
+    num_prefix_tokens = 0 if mask_class_token else 1
+    num_patches = sequence_length - num_prefix_tokens
+
+    if num_patches <= 0:
+        raise ValueError(
+            "Sequence length must be greater than prefix tokens (1 if not masking class token)."
+        )
+
+    grid_size = int(math.sqrt(num_patches))
+
+    if grid_size * grid_size != num_patches:
+        raise ValueError(
+            f"Sequence length minus prefix tokens ({num_patches}) must be a perfect square "
+            f"to form a square grid. Got sequence_length={sequence_length}."
+        )
+
+    if grid_size % block_size != 0:
+        raise ValueError(
+            f"Block size ({block_size}) must divide the grid size ({grid_size}) evenly."
+        )
+
+    num_blocks_per_dim = grid_size // block_size
+    num_blocks = num_blocks_per_dim * num_blocks_per_dim
+    num_blocks_keep = int(num_blocks * (1 - mask_ratio))
+
+    noise = torch.rand(batch_size, num_blocks, device=device)
+
+    if not mask_class_token:
+        noise[:, 0] = -1
+
+    block_indices = torch.argsort(noise, dim=1)
+    blocks_keep = block_indices[:, :num_blocks_keep]
+
+    block_rows = blocks_keep // num_blocks_per_dim
+    block_cols = blocks_keep % num_blocks_per_dim
+
+    patch_offsets = torch.arange(block_size * block_size, device=device)
+    patch_offset_rows = patch_offsets // block_size
+    patch_offset_cols = patch_offsets % block_size
+
+    block_rows_expanded = block_rows.unsqueeze(-1).expand(
+        -1, -1, block_size * block_size
+    ) * block_size + patch_offset_rows.unsqueeze(0).unsqueeze(0)
+    block_cols_expanded = block_cols.unsqueeze(-1).expand(
+        -1, -1, block_size * block_size
+    ) * block_size + patch_offset_cols.unsqueeze(0).unsqueeze(0)
+
+    patch_rows_flat = block_rows_expanded.flatten(1)
+    patch_cols_flat = block_cols_expanded.flatten(1)
+
+    patch_indices = patch_rows_flat * grid_size + patch_cols_flat
+
+    if not mask_class_token:
+        patch_indices = patch_indices + 1
+        prefix_token = torch.zeros(batch_size, 1, dtype=torch.long, device=device)
+        idx_keep = torch.cat([prefix_token, patch_indices], dim=1)
+        idx_keep = torch.sort(torch.unique(idx_keep, dim=1), dim=1)[0]
+    else:
+        idx_keep = patch_indices
+
+    all_indices = torch.arange(sequence_length, device=device).expand(
+        batch_size, sequence_length
+    )
+    mask_mask = torch.ones(batch_size, sequence_length, dtype=torch.bool, device=device)
+    mask_mask.scatter_(1, idx_keep, False)
+    idx_mask = all_indices[mask_mask].reshape(batch_size, -1)
+
+    return idx_keep, idx_mask
+
+
 def random_prefix_mask(
     size: Tuple[int, int],
     max_prefix_length: int,
