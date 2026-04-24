@@ -629,7 +629,7 @@ def random_block_wise_mask(
     into blocks, and entire blocks are randomly selected for masking.
 
     Based on the block-wise masking approach from Pixio's MAE implementation
-    (https://github.com/pixiu-ai/pixiu).
+    (https://github.com/facebookresearch/pixio).
 
     Args:
         size:
