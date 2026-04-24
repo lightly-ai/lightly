@@ -618,7 +618,7 @@ def random_block_wise_mask(
     size: Tuple[int, int],
     mask_ratio: float = 0.75,
     block_size: int = 2,
-    mask_class_token: bool = False,
+    num_prefix_tokens: int = 1,
     device: Optional[Union[torch.device, str]] = None,
 ) -> Tuple[Tensor, Tensor]:
     """Creates random block-wise masks for tokens.
@@ -642,9 +642,9 @@ def random_block_wise_mask(
             and this parameter determines the block dimensions. For example,
             block_size=2 groups patches into 2x2 blocks. Must divide the
             grid size evenly.
-        mask_class_token:
-            If False the class token (index 0) is never masked. If True the
-            class token might be masked.
+        num_prefix_tokens:
+            Number of prefix tokens (CLS/REG) at sequence start protected from
+            masking. These tokens are prepended to the sequence after masking.
         device:
             Device on which to create the index masks.
 
@@ -659,7 +659,6 @@ def random_block_wise_mask(
             a square grid or if the block_size does not divide the grid evenly.
     """
     batch_size, sequence_length = size
-    num_prefix_tokens = 0 if mask_class_token else 1
     num_patches = sequence_length - num_prefix_tokens
 
     if num_patches <= 0:
@@ -686,7 +685,7 @@ def random_block_wise_mask(
 
     noise = torch.rand(batch_size, num_blocks, device=device)
 
-    if not mask_class_token:
+    if num_prefix_tokens > 0:
         noise[:, 0] = -1
 
     block_indices = torch.argsort(noise, dim=1)
@@ -711,10 +710,14 @@ def random_block_wise_mask(
 
     patch_indices = patch_rows_flat * grid_size + patch_cols_flat
 
-    if not mask_class_token:
-        patch_indices = patch_indices + 1
-        prefix_token = torch.zeros(batch_size, 1, dtype=torch.long, device=device)
-        idx_keep = torch.cat([prefix_token, patch_indices], dim=1)
+    if num_prefix_tokens > 0:
+        patch_indices = patch_indices + num_prefix_tokens
+        prefix_indices = (
+            torch.arange(num_prefix_tokens, device=device)
+            .unsqueeze(0)
+            .expand(batch_size, -1)
+        )
+        idx_keep = torch.cat([prefix_indices, patch_indices], dim=1)
         idx_keep = torch.sort(torch.unique(idx_keep, dim=1), dim=1)[0]
     else:
         idx_keep = patch_indices

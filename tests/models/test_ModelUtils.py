@@ -987,7 +987,8 @@ class TestRandomBlockWiseMask:
         expected = torch.arange(seq_length).unsqueeze(0).expand(batch_size, -1)
         assert torch.equal(sorted_combined, expected)
 
-    def test_mask_class_token_false(self) -> None:
+    def test_num_prefix_tokens_one(self) -> None:
+        """Test with default num_prefix_tokens=1 (CLS token protected)."""
         torch.manual_seed(42)
         batch_size, seq_length = 4, 65
 
@@ -995,24 +996,43 @@ class TestRandomBlockWiseMask:
             idx_keep, idx_mask = random_block_wise_mask(
                 size=(batch_size, seq_length),
                 mask_ratio=0.75,
-                mask_class_token=False,
+                num_prefix_tokens=1,
             )
             assert torch.all(idx_keep[:, 0] == 0)
             assert not torch.any(idx_mask == 0)
 
-    def test_mask_class_token_true(self) -> None:
+    def test_num_prefix_tokens_zero(self) -> None:
+        """Test with num_prefix_tokens=0 (no prefix token protected)."""
         torch.manual_seed(42)
         batch_size, seq_length = 4, 64
         idx_keep, idx_mask = random_block_wise_mask(
             size=(batch_size, seq_length),
             mask_ratio=0.5,
-            mask_class_token=True,
+            num_prefix_tokens=0,
         )
 
         combined = torch.cat([idx_keep, idx_mask], dim=1)
         sorted_combined = torch.sort(combined, dim=1)[0]
         expected = torch.arange(seq_length).unsqueeze(0).expand(batch_size, -1)
         assert torch.equal(sorted_combined, expected)
+
+    def test_num_prefix_tokens_four(self) -> None:
+        """Test with num_prefix_tokens=4 (multiple regtokens protected)."""
+        torch.manual_seed(42)
+        batch_size, seq_length = 4, 68  # 4 prefix tokens + 64 patches
+
+        idx_keep, idx_mask = random_block_wise_mask(
+            size=(batch_size, seq_length),
+            mask_ratio=0.75,
+            num_prefix_tokens=4,
+        )
+
+        # First 4 indices should always be in keep
+        assert torch.all(idx_keep[:, :4] == torch.arange(4, device=idx_keep.device))
+        # These indices should never be masked
+        assert not torch.any(idx_mask < 4)
+        # Total length should match
+        assert idx_keep.shape[1] + idx_mask.shape[1] == seq_length
 
     def test_block_alignment(self) -> None:
         torch.manual_seed(42)
@@ -1022,7 +1042,7 @@ class TestRandomBlockWiseMask:
             size=(batch_size, seq_length),
             mask_ratio=0.75,
             block_size=2,
-            mask_class_token=False,
+            num_prefix_tokens=1,
         )
 
         # 16 blocks (8x8 / 2x2), keep 4 blocks = 16 patches + 1 cls = 17
@@ -1037,7 +1057,7 @@ class TestRandomBlockWiseMask:
                 size=(batch_size, seq_length),
                 mask_ratio=mask_ratio,
                 block_size=2,
-                mask_class_token=False,
+                num_prefix_tokens=1,
             )
 
             assert idx_keep.shape[1] + idx_mask.shape[1] == seq_length
@@ -1052,7 +1072,7 @@ class TestRandomBlockWiseMask:
                 size=(batch_size, seq_length),
                 mask_ratio=0.75,
                 block_size=block_size,
-                mask_class_token=False,
+                num_prefix_tokens=1,
             )
 
             assert idx_keep.shape[1] + idx_mask.shape[1] == seq_length
@@ -1087,11 +1107,11 @@ class TestRandomBlockWiseMask:
 
     def test_non_square_sequence_error(self) -> None:
         with pytest.raises(ValueError, match="must be a perfect square"):
-            random_block_wise_mask(size=(2, 51), mask_class_token=False)
+            random_block_wise_mask(size=(2, 51), num_prefix_tokens=1)
 
     def test_invalid_block_size_error(self) -> None:
         with pytest.raises(ValueError, match="must divide the grid size"):
-            random_block_wise_mask(size=(2, 257), block_size=3, mask_class_token=False)
+            random_block_wise_mask(size=(2, 257), block_size=3, num_prefix_tokens=1)
 
     def test_single_batch_element(self) -> None:
         torch.manual_seed(42)
@@ -1113,7 +1133,7 @@ class TestRandomBlockWiseMask:
             size=(batch_size, seq_length),
             mask_ratio=0.75,
             block_size=4,
-            mask_class_token=False,
+            num_prefix_tokens=1,
         )
 
         # 16x16 grid / 4x4 blocks = 4x4=16 blocks, keep 4 blocks = 64 patches + 1 cls
@@ -1128,7 +1148,7 @@ class TestRandomBlockWiseMask:
             size=(batch_size, seq_length),
             mask_ratio=0.75,
             block_size=2,
-            mask_class_token=True,
+            num_prefix_tokens=0,
         )
 
         # 16 blocks, keep 4 blocks = 16 patches
