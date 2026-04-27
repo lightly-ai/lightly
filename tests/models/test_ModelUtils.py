@@ -24,6 +24,7 @@ from lightly.models.utils import (
     nearest_neighbors,
     normalize_weight,
     pool_masked,
+    random_block_wise_mask,
     update_momentum,
 )
 
@@ -967,3 +968,217 @@ def test_update_drop_path_rate__unknown_mode() -> None:
     model = VisionTransformer(drop_path_rate=0, depth=4)
     with pytest.raises(ValueError, match="Unknown mode"):
         utils.update_drop_path_rate(model=model, drop_path_rate=0.1, mode="unknown")
+
+
+class TestRandomBlockWiseMask:
+    def test_basic_functionality(self) -> None:
+        torch.manual_seed(42)
+        batch_size, seq_length = 2, 65
+        idx_keep, idx_mask = random_block_wise_mask(
+            size=(batch_size, seq_length), mask_ratio=0.75
+        )
+
+        assert idx_keep.shape[0] == batch_size
+        assert idx_mask.shape[0] == batch_size
+        assert idx_keep.shape[1] + idx_mask.shape[1] == seq_length
+
+        combined = torch.cat([idx_keep, idx_mask], dim=1)
+        sorted_combined = torch.sort(combined, dim=1)[0]
+        expected = torch.arange(seq_length).unsqueeze(0).expand(batch_size, -1)
+        assert torch.equal(sorted_combined, expected)
+
+    def test_num_prefix_tokens_one(self) -> None:
+        """Test with default num_prefix_tokens=1 (CLS token protected)."""
+        torch.manual_seed(42)
+        batch_size, seq_length = 4, 65
+
+        for _ in range(10):
+            idx_keep, idx_mask = random_block_wise_mask(
+                size=(batch_size, seq_length),
+                mask_ratio=0.75,
+                num_prefix_tokens=1,
+            )
+            assert torch.all(idx_keep[:, 0] == 0)
+            assert not torch.any(idx_mask == 0)
+
+    def test_num_prefix_tokens_zero(self) -> None:
+        """Test with num_prefix_tokens=0 (no prefix token protected)."""
+        torch.manual_seed(42)
+        batch_size, seq_length = 4, 64
+        idx_keep, idx_mask = random_block_wise_mask(
+            size=(batch_size, seq_length),
+            mask_ratio=0.5,
+            num_prefix_tokens=0,
+        )
+
+        combined = torch.cat([idx_keep, idx_mask], dim=1)
+        sorted_combined = torch.sort(combined, dim=1)[0]
+        expected = torch.arange(seq_length).unsqueeze(0).expand(batch_size, -1)
+        assert torch.equal(sorted_combined, expected)
+
+    def test_num_prefix_tokens_four(self) -> None:
+        """Test with num_prefix_tokens=4 (multiple regtokens protected)."""
+        torch.manual_seed(42)
+        batch_size, seq_length = 4, 68  # 4 prefix tokens + 64 patches
+
+        idx_keep, idx_mask = random_block_wise_mask(
+            size=(batch_size, seq_length),
+            mask_ratio=0.75,
+            num_prefix_tokens=4,
+        )
+
+        # First 4 indices should always be in keep
+        assert torch.all(idx_keep[:, :4] == torch.arange(4, device=idx_keep.device))
+        # These indices should never be masked
+        assert not torch.any(idx_mask < 4)
+        # Total length should match
+        assert idx_keep.shape[1] + idx_mask.shape[1] == seq_length
+
+    def test_block_alignment(self) -> None:
+        torch.manual_seed(42)
+        batch_size, seq_length = 2, 65
+
+        idx_keep, idx_mask = random_block_wise_mask(
+            size=(batch_size, seq_length),
+            mask_ratio=0.75,
+            block_size=2,
+            num_prefix_tokens=1,
+        )
+
+        # 16 blocks (8x8 / 2x2), keep 4 blocks = 16 patches + 1 cls = 17
+        assert idx_keep.shape[1] == 17
+
+    def test_different_mask_ratios(self) -> None:
+        torch.manual_seed(42)
+        batch_size, seq_length = 2, 65
+
+        for mask_ratio in [0.0, 0.25, 0.5, 0.75, 1.0]:
+            idx_keep, idx_mask = random_block_wise_mask(
+                size=(batch_size, seq_length),
+                mask_ratio=mask_ratio,
+                block_size=2,
+                num_prefix_tokens=1,
+            )
+
+            assert idx_keep.shape[1] + idx_mask.shape[1] == seq_length
+            assert idx_keep.shape[1] >= 1
+
+    def test_different_block_sizes(self) -> None:
+        torch.manual_seed(42)
+        batch_size, seq_length = 2, 257
+
+        for block_size in [2, 4, 8]:
+            idx_keep, idx_mask = random_block_wise_mask(
+                size=(batch_size, seq_length),
+                mask_ratio=0.75,
+                block_size=block_size,
+                num_prefix_tokens=1,
+            )
+
+            assert idx_keep.shape[1] + idx_mask.shape[1] == seq_length
+            assert torch.all(idx_keep[:, 0] == 0)
+
+    def test_device_handling(self) -> None:
+        torch.manual_seed(42)
+        batch_size, seq_length = 2, 65
+
+        idx_keep, idx_mask = random_block_wise_mask(
+            size=(batch_size, seq_length),
+            mask_ratio=0.75,
+            device="cpu",
+        )
+
+        assert idx_keep.device.type == "cpu"
+        assert idx_mask.device.type == "cpu"
+
+    @unittest.skipUnless(torch.cuda.is_available(), "CUDA not available")
+    def test_cuda_device(self) -> None:
+        torch.manual_seed(42)
+        batch_size, seq_length = 2, 65
+
+        idx_keep, idx_mask = random_block_wise_mask(
+            size=(batch_size, seq_length),
+            mask_ratio=0.75,
+            device="cuda",
+        )
+
+        assert idx_keep.device.type == "cuda"
+        assert idx_mask.device.type == "cuda"
+
+    def test_non_square_sequence_error(self) -> None:
+        with pytest.raises(ValueError, match="must be a perfect square"):
+            random_block_wise_mask(size=(2, 51), num_prefix_tokens=1)
+
+    def test_invalid_block_size_error(self) -> None:
+        with pytest.raises(ValueError, match="must divide the grid size"):
+            random_block_wise_mask(size=(2, 257), block_size=3, num_prefix_tokens=1)
+
+    def test_single_batch_element(self) -> None:
+        torch.manual_seed(42)
+        idx_keep, idx_mask = random_block_wise_mask(
+            size=(1, 65),
+            mask_ratio=0.75,
+            block_size=2,
+        )
+
+        assert idx_keep.shape == (1, idx_keep.shape[1])
+        assert idx_mask.shape == (1, idx_mask.shape[1])
+        assert idx_keep.shape[1] + idx_mask.shape[1] == 65
+
+    def test_16x16_grid(self) -> None:
+        torch.manual_seed(42)
+        batch_size, seq_length = 2, 257
+
+        idx_keep, idx_mask = random_block_wise_mask(
+            size=(batch_size, seq_length),
+            mask_ratio=0.75,
+            block_size=4,
+            num_prefix_tokens=1,
+        )
+
+        # 16x16 grid / 4x4 blocks = 4x4=16 blocks, keep 4 blocks = 64 patches + 1 cls
+        assert idx_keep.shape[1] == 65
+        assert idx_mask.shape[1] == 192
+
+    def test_no_prefix_token_masking(self) -> None:
+        torch.manual_seed(42)
+        batch_size, seq_length = 2, 64
+
+        idx_keep, idx_mask = random_block_wise_mask(
+            size=(batch_size, seq_length),
+            mask_ratio=0.75,
+            block_size=2,
+            num_prefix_tokens=0,
+        )
+
+        # 16 blocks, keep 4 blocks = 16 patches
+        assert idx_keep.shape[1] == 16
+        assert idx_mask.shape[1] == 48
+
+        combined = torch.cat([idx_keep, idx_mask], dim=1)
+        sorted_combined = torch.sort(combined, dim=1)[0]
+        expected = torch.arange(seq_length).unsqueeze(0).expand(batch_size, -1)
+        assert torch.equal(sorted_combined, expected)
+
+    def test_determinism(self) -> None:
+        torch.manual_seed(123)
+        idx_keep1, idx_mask1 = random_block_wise_mask(
+            size=(2, 65), mask_ratio=0.75, block_size=2
+        )
+        torch.manual_seed(123)
+        idx_keep2, idx_mask2 = random_block_wise_mask(
+            size=(2, 65), mask_ratio=0.75, block_size=2
+        )
+        assert torch.equal(idx_keep1, idx_keep2)
+        assert torch.equal(idx_mask1, idx_mask2)
+
+    def test_batch_consistency(self) -> None:
+        torch.manual_seed(42)
+        batch_size, seq_length = 8, 65
+        idx_keep, idx_mask = random_block_wise_mask(
+            size=(batch_size, seq_length),
+            mask_ratio=0.75,
+            block_size=2,
+        )
+        assert idx_keep.shape[1] == idx_keep[0].shape[0]
+        assert idx_mask.shape[1] == idx_mask[0].shape[0]
