@@ -635,6 +635,7 @@ def random_block_wise_mask(
         size:
             Size of the token batch for which to generate masks.
             Should be (batch_size, sequence_length).
+            sequence_length should be a perfect square.
         mask_ratio:
             Proportion of tokens to mask.
         block_size:
