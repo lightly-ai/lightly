@@ -26,6 +26,5 @@ class RFFT2DTransform:
         Returns:
             Tensor: The image in the frequency domain after applying RFFT2D, of shape (C, H, W).
         """
-
         rfft_image: Tensor = torch.fft.rfft2(image)
         return rfft_image

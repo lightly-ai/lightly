@@ -15,7 +15,9 @@ class MultiViewCollate:
     Example:
         >>> transform = SimCLRTransform()
         >>> dataset = LightlyDataset(input_dir, transform=transform)
-        >>> dataloader = DataLoader(dataset, batch_size=4, collate_fn=MultiViewCollate())
+        >>> dataloader = DataLoader(
+        ...     dataset, batch_size=4, collate_fn=MultiViewCollate()
+        ... )
         >>> for views, targets, filenames in dataloader:
         >>>     view0, view1 = views  # each view is a tensor of shape (batch_size, channels, height, width)
     """
@@ -33,7 +35,7 @@ class MultiViewCollate:
                 representing a transformed version of the original image. `label` and
                 `filename` are the class label and filename for the corresponding image.
 
-                Example:
+        Example:
                     >>> batch = [
                     >>>     ([img_0_view_0, ..., img_0_view_N], label_0, filename_0),   # image 0
                     >>>     ([img_1_view_0, ..., img_1_view_N], label_1, filename_1),   # image 1
@@ -51,7 +53,7 @@ class MultiViewCollate:
                 - **filenames**: A list of strings containing filenames for all images
                   in the batch.
 
-            Example:
+        Example:
                 >>> output = (
                 >>>     [
                 >>>         Tensor([img_0_view_0, ..., img_B_view_0]),    # view 0

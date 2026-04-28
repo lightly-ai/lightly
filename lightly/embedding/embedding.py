@@ -60,9 +60,9 @@ class SelfSupervisedEmbedding(BaseEmbedding):
         >>>     optimizer,
         >>>     dataloader,
         >>> )
-        >>> # train the self-supervised embedding with default settings
+        >>> # train the self-supervised embedding with default settings
         >>> encoder.train_embedding()
-        >>> # pass pytorch-lightning trainer arguments as kwargs
+        >>> # pass pytorch-lightning trainer arguments as kwargs
         >>> encoder.train_embedding(max_epochs=10)
 
     """
@@ -108,7 +108,6 @@ class SelfSupervisedEmbedding(BaseEmbedding):
             >>> embeddings, labels, fnames = encoder.embed(dataloader)
 
         """
-
         self.model.eval()
         filenames = []
 

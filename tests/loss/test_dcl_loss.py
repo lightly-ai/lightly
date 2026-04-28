@@ -108,9 +108,7 @@ class TestDCLLoss:
     def test_dclloss_matches_reference(
         self, batch_size: int, dim: int, temperature: float, seed: int = 0
     ) -> None:
-        """
-        Ensure patched DCLLoss matches loop-based reference for multiple configs.
-        """
+        """Ensure patched DCLLoss matches loop-based reference for multiple configs."""
         torch.manual_seed(seed)
         out0 = torch.randn(batch_size, dim)
         out1 = torch.randn(batch_size, dim)
@@ -127,9 +125,8 @@ class TestDCLLoss:
 def dcl_reference(
     x1: torch.Tensor, x2: torch.Tensor, temperature: float
 ) -> torch.Tensor:
-    """
-    Loop-based reference:
-      L = avg_i[ -sim_pos(i) + log(sum_j exp(sim_neg(i,j))) ]
+    """Loop-based reference:
+    L = avg_i[ -sim_pos(i) + log(sum_j exp(sim_neg(i,j))) ]
     """
     z1 = torch.nn.functional.normalize(x1, dim=1)
     z2 = torch.nn.functional.normalize(x2, dim=1)

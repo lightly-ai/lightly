@@ -73,7 +73,6 @@ class BasicBlock(nn.Module):
         Returns:
             Tensor of shape bsz x channels x W x H
         """
-
         out: Tensor = self.conv1(x)
         out = self.bn1(out)
         out = F.relu(out)
@@ -143,7 +142,6 @@ class Bottleneck(nn.Module):
         Returns:
             Tensor of shape bsz x channels x W x H
         """
-
         out: Tensor = self.conv1(x)
         out = self.bn1(out)
         out = F.relu(out)
@@ -273,10 +271,9 @@ def ResNetGenerator(
     Examples:
         >>> # binary classifier with ResNet-34
         >>> from lightly.models import ResNetGenerator
-        >>> resnet = ResNetGenerator('resnet-34', num_classes=2)
+        >>> resnet = ResNetGenerator("resnet-34", num_classes=2)
 
     """
-
     model_params = {
         "resnet-9": {"block": BasicBlock, "layers": [1, 1, 1, 1]},
         "resnet-18": {"block": BasicBlock, "layers": [2, 2, 2, 2]},

@@ -117,7 +117,6 @@ class NTXentLoss(nn.Module):
         Returns:
             Contrastive Cross Entropy Loss value.
         """
-
         device = out0.device
         batch_size, _ = out0.shape
 

@@ -41,7 +41,6 @@ class BaseClassifier(LightningModule, ABC):
                 Tuple of integers defining the top-k accuracy metrics to compute.
 
         Examples:
-
             >>> from pytorch_lightning import Trainer
             >>> from torch import nn
             >>> import torchvision
@@ -56,7 +55,7 @@ class BaseClassifier(LightningModule, ABC):
             >>>         self.projection_head = SimCLRProjectionHead(512, 512, 128)
             >>>
             >>>     def forward(self, x):
-            >>>         # Forward must return image features.
+            >>> # Forward must return image features.
             >>>         features = self.backbone(x).flatten(start_dim=1)
             >>>         return features
             >>>

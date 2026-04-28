@@ -39,7 +39,6 @@ def fix_hydra_arguments(config_path: str = "config", config_name: str = "config"
     Hydra introduced the `version_base` argument in version 1.2.0
     We use this helper to provide backwards compatibility to older hydra verisons.
     """
-
     hydra_args = {"config_path": config_path, "config_name": config_name}
 
     try:
@@ -123,7 +122,6 @@ def _filter_state_dict(state_dict, remove_model_prefix_offset: int = 1):
     Allows backwards compatability to checkpoints before v1.0.6.
 
     """
-
     prev_backbone = "features"
     curr_backbone = "backbone"
 
@@ -150,7 +148,6 @@ def _fix_projection_head_keys(state_dict):
     Prevents unexpected key error when loading old checkpoints.
 
     """
-
     projection_head_identifier = "projection_head"
     prediction_head_identifier = "prediction_head"
     projection_head_insert = "layers"
@@ -180,7 +177,6 @@ def load_from_state_dict(
     num_splits: int = 0,
 ):
     """Loads the model weights from the state dictionary."""
-
     # step 1: filter state dict
     if apply_filter:
         state_dict = _filter_state_dict(state_dict)

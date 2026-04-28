@@ -31,7 +31,9 @@ class AddGridTransform(Transform):  # type: ignore[misc]
         .. code-block:: python
 
             img = torch.randn((3, 16, 16))
-            bboxes = BoundingBoxes(torch.randn((1, 4)), format="XYXY", canvas_size=img.shape[-2:])
+            bboxes = BoundingBoxes(
+                torch.randn((1, 4)), format="XYXY", canvas_size=img.shape[-2:]
+            )
             mask = Mask(torch.randn((16, 16)).to(torch.int64))
             tr = AddGridTransform(num_rows=4, num_cols=4)
             # the image will be untouched the bounding boxes will be a regular grid

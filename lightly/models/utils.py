@@ -283,7 +283,6 @@ def update_momentum(model: nn.Module, model_ema: nn.Module, m: float):
         >>> update_momentum(moco, moco_momentum, m=0.999)
         >>> update_momentum(projection_head, projection_head_momentum, m=0.999)
     """
-
     model_params = list(model.parameters())
     model_ema_params = list(model_ema.parameters())
 
@@ -542,10 +541,9 @@ def patchify(images: torch.Tensor, patch_size: int) -> torch.Tensor:
 def unpatchify(
     patches: torch.Tensor, patch_size: int, channels: int = 3
 ) -> torch.Tensor:
-    """
-    Reconstructs images from their patches.
+    """Reconstructs images from their patches.
 
-     Args:
+    Args:
          patches:
              Patches tensor with shape (batch_size, num_patches, channels * patch_size ** 2).
          patch_size:
@@ -553,7 +551,7 @@ def unpatchify(
          channels:
              The number of channels the image must have
 
-     Returns:
+    Returns:
          Reconstructed images tensor with shape (batch_size, channels, height, width).
     """
     N, C = patches.shape[0], channels
@@ -708,6 +706,7 @@ def random_block_mask(
             Maximum number of attempts to find a valid block mask for an image.
         device:
             Device on which to create the mask.
+
     Returns:
         A boolean tensor with shape (batch_size, height, width) where each entry
         is True if the patch should be masked and False otherwise.
@@ -715,7 +714,6 @@ def random_block_mask(
     Raises:
         ValueError: If 'max_image_mask_ratio' is less than 'min_image_mask_ratio'.
     """
-
     if max_image_mask_ratio < min_image_mask_ratio:
         raise ValueError(
             "max_image_mask_ratio must be greater or equal to min_image_mask_ratio."
@@ -781,6 +779,7 @@ def random_block_mask_image(
             Maximum number of attempts to find a valid block mask.
         device:
             Device on which to create the mask.
+
     Returns:
         A boolean tensor with shape (height, width) where each entry is True if the
         patch should be masked and False otherwise.
@@ -789,7 +788,6 @@ def random_block_mask_image(
         ValueError: If 'max_num_masks_per_block' is less than 'min_num_masks_per_block' or
             if 'max_block_aspect_ratio' is less than 'min_block_aspect_ratio'
     """
-
     if max_block_aspect_ratio is None:
         max_block_aspect_ratio = 1 / min_block_aspect_ratio
     if max_num_masks_per_block is None:
@@ -862,7 +860,6 @@ def nearest_neighbors(
         A tuple of tensors, containing the nearest neighbors in input_maps and candidate_maps.
         They both have shape: [batch_size, input_map_size, feature_dimension]
     """
-
     if num_matches is None or num_matches == -1 or num_matches > input_maps.size(1):
         num_matches = input_maps.size(1)
 
@@ -908,6 +905,7 @@ def most_similar_index(
             Tensor with shape (B, N, C) containing the features to compare.
         y:
             Tensor with shape (B, N, C) containing the features to search for similarity.
+
     Returns:
         Index with shape (B, N) such that y[i, index[i, j]] is most similar to x[i, j]
         over all y[i, ...].
@@ -936,6 +934,7 @@ def select_most_similar(
             Tensor with shape (B, N, C).
         y_values:
             Tensor with shape (B, N, D).
+
     Returns:
         Values with shape (B, N, D) where values[i, j] is the entry in y_values[i, ...]
         such that x[i, j] is the most similar to y[i, ...].
@@ -1043,6 +1042,7 @@ def initialize_positional_embedding(
         num_prefix_tokens:
             Number of prefix tokens in the positional embedding. This includes the class
             token.
+
     Raises:
         ValueError: If an invalid strategy is provided.
     """
@@ -1113,6 +1113,7 @@ def get_2d_sine_cosine_positional_embedding(
             Height and width of the grid.
         cls_token:
             If True, a positional embedding for the class token is generated.
+
     Returns:
         Positional embedding with shape (grid_size * grid_size, embed_dim) or
         (1 + grid_size * grid_size, embed_dim) if cls_token is True.
@@ -1147,6 +1148,7 @@ def get_2d_sine_cosine_positional_embedding_from_grid(
             Embedding dimension.
         grid:
             Grid of shape (2, grid_size, grid_size) with x and y coordinates.
+
     Returns:
         Positional embedding with shape (grid_size * grid_size, embed_dim).
     """
@@ -1180,6 +1182,7 @@ def get_1d_sine_cosine_positional_embedding_from_positions(
             Embedding dimension.
         pos:
             Positions to be encoded with shape (N, M).
+
     Returns:
         Positional embedding with shape (N * M, embed_dim).
     """
@@ -1234,6 +1237,7 @@ def update_drop_path_rate(
             Drop path rate update mode. Can be "linear" or "uniform". Linear increases
             the drop path rate from 0 to drop_path_rate over the depth of the model.
             Uniform sets the drop path rate to drop_path_rate for all blocks.
+
     Raises:
         ValueError: If an unknown mode is provided.
     """
@@ -1304,7 +1308,6 @@ def apply_masks(x: Tensor, masks: Tensor | list[Tensor]) -> Tensor:
     Returns:
         Tensor of shape (B * num_masks, K, D) where K is the number of patches to keep.
     """
-
     if not isinstance(masks, list):
         masks = [masks]
 

@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-
-.. _lightly-moco-tutorial-2:
+""".. _lightly-moco-tutorial-2:
 
 Tutorial 2: Train MoCo on CIFAR-10
 ==============================================

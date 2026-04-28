@@ -66,7 +66,7 @@ class KNNClassifier(LightningModule):
             >>>         self.projection_head = SimCLRProjectionHead(512, 512, 128)
             >>>
             >>>     def forward(self, x):
-            >>>         # Forward must return image features.
+            >>> # Forward must return image features.
             >>>         features = self.backbone(x).flatten(start_dim=1)
             >>>         return features
             >>>

@@ -320,7 +320,7 @@ class _DatasourcesMixin:
 
         >>> from lightly.api import ApiWorkflowClient
         >>> client = ApiWorkflowClient(
-        ...    token="MY_LIGHTLY_TOKEN", dataset_id="MY_DATASET_ID"
+        ...     token="MY_LIGHTLY_TOKEN", dataset_id="MY_DATASET_ID"
         ... )
         >>> client.list_datasource_permissions()
         {

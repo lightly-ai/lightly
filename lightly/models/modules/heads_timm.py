@@ -38,7 +38,6 @@ class AIMPredictionHeadBlock(Module):
         mlp_layer: Type[Module] = Mlp,
     ) -> None:
         """Initializes the AIMPredictionHeadBlock module with the specified parameters."""
-
         super().__init__()
         self.norm = norm_layer(input_dim)  # type: ignore[call-arg]
         self.mlp = mlp_layer(  # type: ignore[call-arg]
@@ -106,7 +105,6 @@ class AIMPredictionHead(Module):
         block_fn: Type[Module] = AIMPredictionHeadBlock,
     ) -> None:
         """Initializes the AIMPredictionHead module with the specified parameters."""
-
         super().__init__()
         self.blocks = Sequential(
             # Linear layer to project the input dimension to the hidden dimension.

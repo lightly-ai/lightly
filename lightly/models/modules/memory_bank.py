@@ -49,9 +49,9 @@ class MemoryBankModule(Module):
         >>>         output, negatives = super().forward(output)
         >>>
         >>>         if negatives is not None:
-        >>>             # evaluate loss with negative samples
+        >>> # evaluate loss with negative samples
         >>>         else:
-        >>>             # evaluate loss without negative samples
+        >>> # evaluate loss without negative samples
 
     """
 
@@ -121,7 +121,6 @@ class MemoryBankModule(Module):
             (num_features, dim) otherwise.
 
         """
-
         # no memory bank, return the output
         if self.size[0] == 0:
             return output, None

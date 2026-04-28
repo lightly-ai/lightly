@@ -489,7 +489,6 @@ class SMoGPredictionHead(ProjectionHead):
             output_dim:
                 Dimensionality of the output features.
         """
-
         super(SMoGPredictionHead, self).__init__(
             [
                 (input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),

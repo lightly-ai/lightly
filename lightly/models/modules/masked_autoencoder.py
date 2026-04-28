@@ -52,7 +52,6 @@ class MAEEncoder(vision_transformer.Encoder):
         norm_layer: Callable[..., torch.nn.Module] = partial(nn.LayerNorm, eps=1e-6),
     ):
         """Initializes the MAEEncoder with the specified dimensions."""
-
         super().__init__(
             seq_length=seq_length,
             num_layers=num_layers,
@@ -81,7 +80,6 @@ class MAEEncoder(vision_transformer.Encoder):
         Returns:
             A MAEEncoder with the same architecture as vit_encoder.
         """
-
         # Create a new instance with dummy values as they will be overwritten
         # by the copied vit_encoder attributes
         encoder = cls(
@@ -226,7 +224,6 @@ class MAEBackbone(vision_transformer.VisionTransformer):
         conv_stem_configs: Optional[List[ConvStemConfig]] = None,
     ):
         """Initializes the MAEBackbone with the specified dimensions."""
-
         super().__init__(
             image_size=image_size,
             patch_size=patch_size,
@@ -355,7 +352,6 @@ class MAEBackbone(vision_transformer.VisionTransformer):
             Tensor with shape (batch_size, sequence_length - 1, hidden_dim)
             containing the patch tokens.
         """
-
         x = self.conv_proj(images)
         tokens = x.flatten(2).transpose(1, 2)
         if prepend_class_token:
@@ -364,7 +360,6 @@ class MAEBackbone(vision_transformer.VisionTransformer):
 
     def _initialize_weights(self) -> None:
         """Initializes weights for the backbone components."""
-
         # Initialize the patch embedding layer like a linear layer instead of conv
         # layer.
         w = self.conv_proj.weight.data
@@ -424,7 +419,6 @@ class MAEDecoder(vision_transformer.Encoder):
         norm_layer: Callable[..., nn.Module] = partial(nn.LayerNorm, eps=1e-6),
     ):
         """Initializes the MAEDecoder with the specified dimensions."""
-
         super().__init__(
             seq_length=seq_length,
             num_layers=num_layers,
@@ -449,7 +443,6 @@ class MAEDecoder(vision_transformer.Encoder):
         Returns:
             Tensor with shape (batch_size, seq_length, out_dim).
         """
-
         out = self.embed(input)
         out = self.decode(out)
         return self.predict(out)
@@ -509,7 +502,6 @@ class MAEDecoder(vision_transformer.Encoder):
 
 def _initialize_2d_sine_cosine_positional_embedding(pos_embedding: Parameter) -> None:
     """Initializes a 2D sine-cosine positional embedding."""
-
     _, seq_length, hidden_dim = pos_embedding.shape
     grid_size = int((seq_length - 1) ** 0.5)
     sine_cosine_embedding = utils.get_2d_sine_cosine_positional_embedding(
