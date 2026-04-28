@@ -3,7 +3,7 @@
 
 Example:
     >>> # show the version of the installed package
-    >>> lightly-version
+    >>> lightly - version
 """
 
 # Copyright (c) 2021. Lightly AG and its affiliates.

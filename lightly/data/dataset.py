@@ -53,7 +53,7 @@ class LightlyDataset:
         >>> # `- img2.png
         >>> # `- ...
         >>> import lightly.data as data
-        >>> dataset = data.LightlyDataset(input_dir='path/to/mydata/')
+        >>> dataset = data.LightlyDataset(input_dir="path/to/mydata/")
         >>> sample, target, fname = dataset[0]
         >>>
         >>> # also works with subfolders
@@ -129,7 +129,7 @@ class LightlyDataset:
             >>> # load cifar10 from torchvision
             >>> import torchvision
             >>> import lightly.data as data
-            >>> base = torchvision.datasets.CIFAR10(root='./')
+            >>> base = torchvision.datasets.CIFAR10(root="./")
             >>> dataset = data.LightlyDataset.from_torch_dataset(base)
 
         """
@@ -209,7 +209,6 @@ class LightlyDataset:
                 as a png image to prevent compression artifacts.
 
         """
-
         if self.dataset.transform is not None:
             raise RuntimeError("Cannot dump dataset which applies transforms!")
 
@@ -259,7 +258,6 @@ class LightlyDataset:
             newly created jpg (case 2, 3)
 
         """
-
         has_input_dir = hasattr(self, "input_dir") and isinstance(self.input_dir, str)
         if has_input_dir:
             path_to_image = os.path.join(self.input_dir, filename)
@@ -347,7 +345,6 @@ def _dump_image(dataset, output_dir, filename, index, fmt):
     then save it to the output directory with the specified format.
 
     """
-
     if isinstance(dataset, datasets.ImageFolder):
         # can safely copy the image from the input to the output directory
         _copy_image(dataset.root, output_dir, filename)

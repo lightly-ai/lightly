@@ -1,5 +1,4 @@
-"""
-.. _lightly-simsiam-tutorial-4:
+""".. _lightly-simsiam-tutorial-4:
 
 Tutorial 4: Train SimSiam on Satellite Images
 ==============================================

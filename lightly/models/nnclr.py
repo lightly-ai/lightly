@@ -110,7 +110,7 @@ class NNCLR(nn.Module):
         >>> model = NNCLR(backbone)
         >>> criterion = NTXentLoss(temperature=0.1)
         >>>
-        >>> nn_replacer = NNmemoryBankModule(size=2 ** 16)
+        >>> nn_replacer = NNmemoryBankModule(size=2**16)
         >>>
         >>> # forward pass
         >>> (z0, p0), (z1, p1) = model(x0, x1)

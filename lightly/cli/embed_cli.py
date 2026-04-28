@@ -111,7 +111,7 @@ def embed_cli(cfg) -> str:
         The path to the created embeddings file.
 
     Examples:
-        >>> # embed images with default settings and a lightly model
+        >>> # embed images with default settings and a lightly model
         >>> lightly-embed input_dir=data/
         >>>
         >>> # embed images with default settings and a custom checkpoint

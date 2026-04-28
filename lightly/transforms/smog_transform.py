@@ -164,8 +164,7 @@ class SmoGViewTransform:
         self.transform = T.Compose(transform)
 
     def __call__(self, image: Union[Tensor, Image]) -> Tensor:
-        """
-        Applies the transforms to the input image.
+        """Applies the transforms to the input image.
 
         Args:
             image:

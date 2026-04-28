@@ -35,7 +35,6 @@ class KoLeoLoss(Module):
             eps:
                 Small value to avoid division by zero.
         """
-
         super().__init__()
         self.p = p
         self.eps = eps

@@ -59,11 +59,11 @@ class BaseCollateFunction(nn.Module):
 
         Examples:
             >>> # define a random transformation and the collate function
-            >>> transform = ... # some random augmentations
+            >>> transform = ...  # some random augmentations
             >>> collate_fn = BaseCollateFunction(transform)
             >>>
             >>> # input is a batch of tuples (here, batch_size = 1)
-            >>> input = [(img, 0, 'my-image.png')]
+            >>> input = [(img, 0, "my-image.png")]
             >>> output = collate_fn(input)
             >>>
             >>> # output consists of two random transforms of the images,
@@ -264,7 +264,6 @@ class SimCLRCollateFunction(ImageCollateFunction):
             Dictionary with 'mean' and 'std' for torchvision.transforms.Normalize.
 
     Examples:
-
         >>> # SimCLR for ImageNet
         >>> collate_fn = SimCLRCollateFunction()
         >>>
@@ -352,7 +351,6 @@ class MoCoCollateFunction(ImageCollateFunction):
             Dictionary with 'mean' and 'std' for torchvision.transforms.Normalize.
 
     Examples:
-
         >>> # MoCo v1 for ImageNet
         >>> collate_fn = MoCoCollateFunction()
         >>>
@@ -502,7 +500,6 @@ class SwaVCollateFunction(MultiCropCollateFunction):
             Dictionary with 'mean' and 'std' for torchvision.transforms.Normalize.
 
     Examples:
-
         >>> # SwaV for Imagenet
         >>> collate_fn = SwaVCollateFunction()
         >>>
@@ -807,7 +804,6 @@ class PIRLCollateFunction(nn.Module):
             Dictionary with 'mean' and 'std' for torchvision.transforms.Normalize.
 
     Examples:
-
         >>> # PIRL for ImageNet
         >>> collate_fn = PIRLCollateFunction()
         >>>
@@ -871,7 +867,8 @@ class PIRLCollateFunction(nn.Module):
     def forward(self, batch: List[tuple]):
         """Overriding the BaseCollateFunction class's forward method because
         for PIRL we need only one augmented batch, as opposed to both, which the
-        BaseCollateFunction creates."""
+        BaseCollateFunction creates.
+        """
         batch_size = len(batch)
 
         # list of transformed images
@@ -1308,8 +1305,7 @@ class VICRegLCollateFunction(nn.Module):
         torch.Tensor,
         torch.Tensor,
     ]:
-        """
-        Applies transforms to images in the input batch.
+        """Applies transforms to images in the input batch.
 
         Args:
             batch:
@@ -1321,7 +1317,6 @@ class VICRegLCollateFunction(nn.Module):
             labels (as torch.Tensor), and filenames (as torch.Tensor).
 
         """
-
         views_global = []
         views_local = []
         grids_global = []
@@ -1454,8 +1449,7 @@ class IJEPAMaskCollator:
         return mask, mask_complement
 
     def __call__(self, batch):
-        """
-        Create encoder and predictor masks when collating imgs into a batch
+        """Create encoder and predictor masks when collating imgs into a batch
         # 1. sample enc block (size + location) using seed
         # 2. sample pred block (size) using seed
         # 3. sample several enc block locations for each image (w/o seed)

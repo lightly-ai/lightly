@@ -219,8 +219,7 @@ class Retry:
         return f"{exception.__class__.__name__}. Details: {error_details}"
 
     def should_retry(self, ex: BaseException) -> bool:
-        """
-        Takes an exception as input and returns True
+        """Takes an exception as input and returns True
         if the failed call should be retried and False otherwise.
         If False is returned then the original exception is raised.
         """

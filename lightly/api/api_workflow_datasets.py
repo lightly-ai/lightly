@@ -34,7 +34,9 @@ class _DatasetsMixin:
 
         Examples:
             >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
-            >>> client.create_dataset("your-dataset-name", dataset_type=DatasetType.IMAGES)
+            >>> client.create_dataset(
+            ...     "your-dataset-name", dataset_type=DatasetType.IMAGES
+            ... )
             >>> dataset_id = client.dataset_id
             >>> client.dataset_exists(dataset_id=dataset_id)
             True
@@ -72,7 +74,9 @@ class _DatasetsMixin:
 
         Examples:
             >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
-            >>> client.create_dataset("your-dataset-name", dataset_type=DatasetType.IMAGES)
+            >>> client.create_dataset(
+            ...     "your-dataset-name", dataset_type=DatasetType.IMAGES
+            ... )
             >>> client.dataset_name_exists(dataset_name="your-dataset-name")
             True
         """
@@ -89,7 +93,9 @@ class _DatasetsMixin:
 
         Examples:
             >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
-            >>> client.create_dataset("your-dataset-name", dataset_type=DatasetType.IMAGES)
+            >>> client.create_dataset(
+            ...     "your-dataset-name", dataset_type=DatasetType.IMAGES
+            ... )
             >>> dataset_id = client.dataset_id
             >>> client.get_dataset_by_id(dataset_id=dataset_id)
             {'created_at': 1685009504596,
@@ -134,7 +140,9 @@ class _DatasetsMixin:
 
         Examples:
             >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
-            >>> client.create_dataset("your-dataset-name", dataset_type=DatasetType.IMAGES)
+            >>> client.create_dataset(
+            ...     "your-dataset-name", dataset_type=DatasetType.IMAGES
+            ... )
             >>> client.get_datasets_by_name(dataset_name="your-dataset-name")
             [{'created_at': 1685009504596,
              'datasource_processed_until_timestamp': 1685009513,
@@ -271,7 +279,9 @@ class _DatasetsMixin:
 
         Examples:
             >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
-            >>> client.create_dataset("your-dataset-name", dataset_type=DatasetType.IMAGES)
+            >>> client.create_dataset(
+            ...     "your-dataset-name", dataset_type=DatasetType.IMAGES
+            ... )
             >>> client.get_datasets()
             [{'created_at': 1685009504596,
              'datasource_processed_until_timestamp': 1685009513,
@@ -377,10 +387,14 @@ class _DatasetsMixin:
             >>> from lightly.openapi_generated.swagger_client.models import DatasetType
             >>>
             >>> client = ApiWorkflowClient(token="YOUR_TOKEN")
-            >>> client.create_dataset('your-dataset-name', dataset_type=DatasetType.IMAGES)
+            >>> client.create_dataset(
+            ...     "your-dataset-name", dataset_type=DatasetType.IMAGES
+            ... )
             >>>
             >>> # or to work with videos
-            >>> client.create_dataset('your-dataset-name', dataset_type=DatasetType.VIDEOS)
+            >>> client.create_dataset(
+            ...     "your-dataset-name", dataset_type=DatasetType.VIDEOS
+            ... )
             >>>
             >>> # retrieving dataset_id of the created dataset
             >>> dataset_id = client.dataset_id
@@ -389,7 +403,6 @@ class _DatasetsMixin:
             >>> client.dataset_type
             'Videos'
         """
-
         if self.dataset_name_exists(dataset_name=dataset_name):
             raise ValueError(
                 f"A dataset with the name '{dataset_name}' already exists! Please use "
@@ -494,7 +507,9 @@ class _DatasetsMixin:
 
         Examples:
             >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
-            >>> client.create_dataset("your-dataset-name", dataset_type=DatasetType.IMAGES)
+            >>> client.create_dataset(
+            ...     "your-dataset-name", dataset_type=DatasetType.IMAGES
+            ... )
             >>> dataset_id = client.dataset_id
             >>> client.dataset_exists(dataset_id=dataset_id)
             True

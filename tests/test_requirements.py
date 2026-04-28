@@ -6,14 +6,16 @@ import toml
 
 def test_requirements_base__pyproject() -> None:
     """Check that all dependencies in requirements/base.txt are also in
-    pyproject.toml."""
+    pyproject.toml.
+    """
     missing_deps = _requirements("base") - _pyproject("dependencies")
     assert not missing_deps
 
 
 def test_requirements_base__openapi() -> None:
     """Check that all dependencies in requirements/openapi.txt are also in
-    requirements/base.txt."""
+    requirements/base.txt.
+    """
     openapi = {
         dep for dep in _requirements("openapi") if not dep.startswith("setuptools")
     }

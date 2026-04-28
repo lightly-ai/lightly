@@ -63,7 +63,6 @@ class BarlowTwinsLoss(torch.nn.Module):
         Returns:
             Computed Barlow Twins Loss.
         """
-
         # Normalize repr. along the batch dimension
         z_a_norm, z_b_norm = _normalize(z_a), _normalize(z_b)
 
@@ -101,7 +100,6 @@ def _normalize(z: torch.Tensor) -> torch.Tensor:
 
 def _off_diagonal(x: Tensor) -> Tensor:
     """Returns a flattened view of the off-diagonal elements of a square matrix."""
-
     # Ensure the input is a square matrix
     n, m = x.shape
     assert n == m

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Benchmark Results
+"""Benchmark Results
 
 Updated: 27.03.2023 (42a6a924b1b6d5b6cc89a6b2a0a0942cc4af93ab)
 

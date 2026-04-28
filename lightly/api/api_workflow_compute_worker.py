@@ -103,7 +103,9 @@ class _ComputeWorkerMixin:
 
         Examples:
             >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
-            >>> worker_id = client.register_compute_worker(name="my-worker", labels=["worker-label"])
+            >>> worker_id = client.register_compute_worker(
+            ...     name="my-worker", labels=["worker-label"]
+            ... )
             >>> worker_id
             '64709eac61e9ce68180a6529'
         """
@@ -420,7 +422,9 @@ class _ComputeWorkerMixin:
 
         Examples:
             >>> client = ApiWorkflowClient(token="MY_AWESOME_TOKEN")
-            >>> client.get_compute_worker_run_from_scheduled_run(scheduled_run_id="646f338a8a5613b57d8b73a1")
+            >>> client.get_compute_worker_run_from_scheduled_run(
+            ...     scheduled_run_id="646f338a8a5613b57d8b73a1"
+            ... )
             {'artifacts': [...],
              'config_id': '6470a16461e9ce68180a6530',
              'created_at': 1679479418110,
@@ -475,6 +479,7 @@ class _ComputeWorkerMixin:
         """Returns the schedule run data given the id of the scheduled run.
 
         TODO (MALTE, 09/2022): Have a proper API endpoint for doing this.
+
         Args:
             scheduled_run_id:
                 The ID with which the run was scheduled.
@@ -710,7 +715,6 @@ def _validate_config(
         InvalidConfigurationError: If obj is not a valid config.
 
     """
-
     if cfg is None:
         return
 

@@ -54,9 +54,7 @@ class OriginalDINOLoss(nn.Module):
 
     @typing.no_type_check
     def forward(self, student_output, teacher_output, epoch):
-        """
-        Cross-entropy between softmax outputs of the teacher and student networks.
-        """
+        """Cross-entropy between softmax outputs of the teacher and student networks."""
         student_out = student_output / self.student_temp
         student_out = student_out.chunk(self.ncrops)
 
@@ -83,9 +81,7 @@ class OriginalDINOLoss(nn.Module):
     @typing.no_type_check
     @torch.no_grad()
     def update_center(self, teacher_output):
-        """
-        Update center used for teacher output.
-        """
+        """Update center used for teacher output."""
         batch_center = torch.sum(teacher_output, dim=0, keepdim=True)
         batch_center = batch_center / len(teacher_output)
         # ema update

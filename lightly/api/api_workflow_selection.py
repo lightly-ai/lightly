@@ -87,7 +87,6 @@ class _SelectionMixin:
 
         :meta private:  # Skip docstring generation
         """
-
         warnings.warn(
             DeprecationWarning(
                 "ApiWorkflowClient.selection() is deprecated "
@@ -179,7 +178,6 @@ class _SelectionMixin:
         Last the SamplingCreateRequest is created with the necessary nested class instances.
 
         """
-
         sampling_config = SamplingConfig(
             stopping_condition=SamplingConfigStoppingCondition(
                 n_samples=selection_config.n_samples,

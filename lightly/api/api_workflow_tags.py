@@ -127,7 +127,6 @@ class _TagsMixin:
 
         :meta private:  # Skip docstring generation
         """
-
         if exclude_parent_tag:
             parent_tag_id = tag_data.prev_tag_id
             tag_arithmetics_request = TagArithmeticsRequest(
@@ -181,11 +180,12 @@ class _TagsMixin:
             >>>
             >>> # Already created some Lightly Worker runs with this dataset
             >>> client.set_dataset_id_by_name("my-dataset")
-            >>> filenames = ['image-1.png', 'image-2.png']
-            >>> client.create_tag_from_filenames(fnames_new_tag=filenames, new_tag_name='new-tag')
+            >>> filenames = ["image-1.png", "image-2.png"]
+            >>> client.create_tag_from_filenames(
+            ...     fnames_new_tag=filenames, new_tag_name="new-tag"
+            ... )
             {'id': '6470c4c1060894655c5a8ed5'}
         """
-
         # make sure the tag name does not exist yet
         tags = self.get_all_tags()
         if new_tag_name in [tag.name for tag in tags]:
@@ -250,8 +250,10 @@ class _TagsMixin:
             >>>
             >>> # Already created some Lightly Worker runs with this dataset
             >>> client.set_dataset_id_by_name("my-dataset")
-            >>> filenames = ['image-1.png', 'image-2.png']
-            >>> tag_id = client.create_tag_from_filenames(fnames_new_tag=filenames, new_tag_name='new-tag')["id"]
+            >>> filenames = ["image-1.png", "image-2.png"]
+            >>> tag_id = client.create_tag_from_filenames(
+            ...     fnames_new_tag=filenames, new_tag_name="new-tag"
+            ... )["id"]
             >>> client.delete_tag_by_id(tag_id=tag_id)
         """
         self._tags_api.delete_tag_by_tag_id(dataset_id=self.dataset_id, tag_id=tag_id)
@@ -268,8 +270,10 @@ class _TagsMixin:
             >>>
             >>> # Already created some Lightly Worker runs with this dataset
             >>> client.set_dataset_id_by_name("my-dataset")
-            >>> filenames = ['image-1.png', 'image-2.png']
-            >>> client.create_tag_from_filenames(fnames_new_tag=filenames, new_tag_name='new-tag')
+            >>> filenames = ["image-1.png", "image-2.png"]
+            >>> client.create_tag_from_filenames(
+            ...     fnames_new_tag=filenames, new_tag_name="new-tag"
+            ... )
             >>> client.delete_tag_by_name(tag_name="new-tag")
         """
         tag_data = self.get_tag_by_name(tag_name=tag_name)

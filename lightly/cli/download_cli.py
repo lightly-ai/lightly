@@ -113,7 +113,7 @@ def download_cli(cfg):
             output_dir.
 
     Examples:
-        >>> # download list of all files in the dataset from the Lightly platform
+        >>> # download list of all files in the dataset from the Lightly platform
         >>> lightly-download token='123' dataset_id='XYZ'
         >>>
         >>> # download list of all files in tag 'my-tag' from the Lightly platform

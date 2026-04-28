@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Benchmark Results
+"""Benchmark Results
 
 Updated: 13.02.2023
 

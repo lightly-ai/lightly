@@ -27,7 +27,6 @@ class _SimCLR(nn.Module):
 
     def forward(self, x0: torch.Tensor, x1: torch.Tensor = None):
         """Embeds and projects the input images."""
-
         # forward pass of first input x0
         f0 = self.backbone(x0).flatten(start_dim=1)
         out0 = self.projection_head(f0)

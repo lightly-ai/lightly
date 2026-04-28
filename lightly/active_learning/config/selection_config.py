@@ -30,10 +30,14 @@ class SelectionConfig:
         >>> config = SelectionConfig(method=SamplingMethod.CORESET, n_samples=100)
         >>>
         >>> # give your selection a name
-        >>> config = SelectionConfig(method=SamplingMethod.CORESET, n_samples=100, name='my-selection')
+        >>> config = SelectionConfig(
+        ...     method=SamplingMethod.CORESET, n_samples=100, name="my-selection"
+        ... )
         >>>
         >>> # use minimum distance between samples as stopping criterion
-        >>> config = SelectionConfig(method=SamplingMethod.CORESET, n_samples=-1, min_distance=0.1)
+        >>> config = SelectionConfig(
+        ...     method=SamplingMethod.CORESET, n_samples=-1, min_distance=0.1
+        ... )
 
     """
 

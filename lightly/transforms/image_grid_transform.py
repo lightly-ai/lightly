@@ -41,7 +41,7 @@ class ImageGridTransform:
                     [3, global_crop_size, global_crop_size],
                     [3, local_crop_size, local_crop_size],
                     [global_grid_size, global_grid_size, 2],
-                    [local_grid_size, local_grid_size, 2]
+                    [local_grid_size, local_grid_size, 2],
                 ]
 
         """

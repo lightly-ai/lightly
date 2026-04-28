@@ -30,15 +30,12 @@ class Location:
 
 
 class RandomResizedCropWithLocation(T.RandomResizedCrop):  # type: ignore[misc] # Class cannot subclass "RandomResizedCrop" (has type "Any")
-    """
-    Do a random resized crop and return both the resulting image and the location. See base class.
-
-    """
+    """Do a random resized crop and return both the resulting image and the location. See base class."""
 
     def forward(self, img: Image.Image) -> Tuple[Image.Image, Location]:
-        """
-        Args:
+        """Args:
             img (PIL Image or Tensor): Image to be cropped.
+
         Returns:
             PIL Image or Tensor: Randomly cropped image
             Location: Location object containing crop parameters
@@ -78,7 +75,6 @@ class RandomHorizontalFlipWithLocation(T.RandomHorizontalFlip):  # type: ignore[
             PIL Image or Tensor: Randomly flipped image
             Location: Location object with updated location.horizontal_flip parameter
         """
-
         if torch.rand(1) < self.p:
             img = F.hflip(img)
             location.horizontal_flip = True
@@ -103,7 +99,6 @@ class RandomVerticalFlipWithLocation(T.RandomVerticalFlip):  # type: ignore[misc
             PIL Image or Tensor: Randomly flipped image
             Location: Location object with updated location.vertical_flip parameter
         """
-
         if torch.rand(1) < self.p:
             img = F.vflip(img)
             location.vertical_flip = True
@@ -165,7 +160,6 @@ class RandomResizedCropAndFlip(nn.Module):  # type: ignore[misc] # Class cannot 
         Returns:
             A tuple containing the transformed PIL image and the grid tensor.
         """
-
         img, location = self.resized_crop.forward(img=img)
         img, location = self.horizontal_flip.forward(img, location)
         img, location = self.vertical_flip.forward(img, location)
@@ -188,7 +182,6 @@ class RandomResizedCropAndFlip(nn.Module):  # type: ignore[misc] # Class cannot 
             A grid tensor of shape (grid_size, grid_size, 2), where the last dimension represents the (x, y) coordinate
             of the center of each cell in the original image space.
         """
-
         cell_width = location.width / self.grid_size
         cell_height = location.height / self.grid_size
         x = torch.linspace(

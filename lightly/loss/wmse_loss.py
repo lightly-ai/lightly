@@ -58,7 +58,6 @@ class Whitening2d(nn.Module):
         Raises:
             RuntimeError: If torch.linalg.solve_triangular is not available in the PyTorch installation.
         """
-
         super(Whitening2d, self).__init__()
 
         if not _SOLVE_TRIANGULAR_AVAILABLE:
