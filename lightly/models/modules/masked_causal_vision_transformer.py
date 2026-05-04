@@ -18,7 +18,9 @@ class MaskedCausalAttention(Attention):  # type: ignore[misc]
     - [0]: AIM, 2024, https://arxiv.org/abs/2401.08541
     """
 
-    def forward(self, x: Tensor, mask: Optional[Tensor] = None) -> Tensor:
+    def forward(
+        self, x: Tensor, mask: Optional[Tensor] = None, is_causal: bool = True
+    ) -> Tensor:
         """Forward pass of the attention layer.
 
         Args:
@@ -123,7 +125,9 @@ class MaskedCausalBlock(Block):  # type: ignore[misc]
             **kwargs,
         )
 
-    def forward(self, x: Tensor, mask: Optional[Tensor] = None) -> Tensor:
+    def forward(
+        self, x: Tensor, mask: Optional[Tensor] = None, is_causal: bool = True
+    ) -> Tensor:
         """Forward pass of the attention block.
 
         Args:
@@ -167,7 +171,9 @@ class MaskedCausalVisionTransformer(VisionTransformer):  # type: ignore[misc]
             **kwargs,
         )
 
-    def forward_features(self, x: Tensor, mask: Optional[Tensor] = None) -> Tensor:
+    def forward_features(
+        self, x: Tensor, mask: Optional[Tensor] = None, is_causal: bool = True
+    ) -> Tensor:
         """Forward pass of the model without the classification head.
 
         Args:
