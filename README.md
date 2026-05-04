@@ -421,6 +421,11 @@ make format
 - [DPCL: Contrastive representation learning with differential privacy, 2022](https://assets.researchsquare.com/files/rs-1516950/v1_covered.pdf?c=1654486158)
 - [Decoupled Contrastive Learning, 2021](https://arxiv.org/abs/2110.06848)
 - [solo-learn: A Library of Self-supervised Methods for Visual Representation Learning, 2021](https://www.jmlr.org/papers/volume23/21-1155/21-1155.pdf)
+- [EdgeCrafter: Compact ViTs for Edge Dense Prediction via Task-Specialized Distillation](https://arxiv.org/pdf/2603.18739)
+- [Unlabeled to Accurate: Self-Supervised Learning for Land Use Classification in Sentinel-2 Imagery](https://ieeexplore.ieee.org/abstract/document/11087068)
+- [Self-supervised Representation Learning for AI-Based Musculoskeletal Radiograph Registry Construction](https://link.springer.com/chapter/10.1007/978-3-032-14492-8_29)
+- [Real-Time Object Detection Meets DINOv3](https://intellindust-ai-lab.github.io/projects/DEIMv2/)
+- [Vision Foundry: A System for Training Foundational Vision AI Models](https://arxiv.org/pdf/2512.11837)
 
 ## Company behind this Open Source Framework
 
