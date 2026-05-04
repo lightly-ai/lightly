@@ -425,7 +425,11 @@ make format
 - [Unlabeled to Accurate: Self-Supervised Learning for Land Use Classification in Sentinel-2 Imagery](https://ieeexplore.ieee.org/abstract/document/11087068)
 - [Self-supervised Representation Learning for AI-Based Musculoskeletal Radiograph Registry Construction](https://link.springer.com/chapter/10.1007/978-3-032-14492-8_29)
 - [Real-Time Object Detection Meets DINOv3](https://intellindust-ai-lab.github.io/projects/DEIMv2/)
-- [Vision Foundry: A System for Training Foundational Vision AI Models](https://arxiv.org/pdf/2512.11837)
+- [Vision Foundry: A System for Training Foundational Vision AI Models, 2025](https://arxiv.org/pdf/2512.11837)
+- [Self-supervised learning outperforms supervised learning for crop classification by annotating only 5% of images, 2025](https://link.springer.com/article/10.1007/s11119-025-10302-9)
+- [Self-Supervised Learning Powered by Synthetic Data From Diffusion Models: Application to X-Ray Images, 2025](https://doi.org/10.1109/ACCESS.2025.3555619)
+- [Wildlife Target Re-Identification Using Self-supervised Learning in Non-Urban Settings, 2025](https://arxiv.org/abs/2507.02403)
+- [SSL-MAE: Adaptive Semisupervised Learning Framework for Multilabel Classification of Remote Sensing Images Using Masked Autoencoders, 2025](https://ieeexplore.ieee.org/document/11029124/)
 
 ## Company behind this Open Source Framework
 
