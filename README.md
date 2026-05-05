@@ -419,7 +419,7 @@ make format
 - [Learning Visual Representations via Language-Guided Sampling, 2023](https://arxiv.org/pdf/2302.12248.pdf)
 - [Self-Supervised Learning Methods for Label-Efficient Dental Caries Classification, 2022](https://www.mdpi.com/2075-4418/12/5/1237)
 - [DPCL: Contrastive representation learning with differential privacy, 2022](https://assets.researchsquare.com/files/rs-1516950/v1_covered.pdf?c=1654486158)
-- [Decoupled Contrastive Learning, 2021](https://arxiv.org/abs/2110.06848)
+- [Decoupled Contrastive Learning, 2021](https://arxiv.org/pdf/2110.06848)
 - [solo-learn: A Library of Self-supervised Methods for Visual Representation Learning, 2021](https://www.jmlr.org/papers/volume23/21-1155/21-1155.pdf)
 - [EdgeCrafter: Compact ViTs for Edge Dense Prediction via Task-Specialized Distillation](https://arxiv.org/pdf/2603.18739)
 - [Unlabeled to Accurate: Self-Supervised Learning for Land Use Classification in Sentinel-2 Imagery](https://ieeexplore.ieee.org/abstract/document/11087068)
@@ -428,7 +428,7 @@ make format
 - [Vision Foundry: A System for Training Foundational Vision AI Models, 2025](https://arxiv.org/pdf/2512.11837)
 - [Self-supervised learning outperforms supervised learning for crop classification by annotating only 5% of images, 2025](https://link.springer.com/article/10.1007/s11119-025-10302-9)
 - [Self-Supervised Learning Powered by Synthetic Data From Diffusion Models: Application to X-Ray Images, 2025](https://doi.org/10.1109/ACCESS.2025.3555619)
-- [Wildlife Target Re-Identification Using Self-supervised Learning in Non-Urban Settings, 2025](https://arxiv.org/abs/2507.02403)
+- [Wildlife Target Re-Identification Using Self-supervised Learning in Non-Urban Settings, 2025](https://arxiv.org/pdf/2507.02403)
 - [SSL-MAE: Adaptive Semisupervised Learning Framework for Multilabel Classification of Remote Sensing Images Using Masked Autoencoders, 2025](https://ieeexplore.ieee.org/document/11029124/)
 
 ## Company behind this Open Source Framework
