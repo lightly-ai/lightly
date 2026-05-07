@@ -49,9 +49,9 @@ class MemoryBankModule(Module):
         >>>         output, negatives = super().forward(output)
         >>>
         >>>         if negatives is not None:
-        >>> # evaluate loss with negative samples
+        >>>             pass  # evaluate loss with negative samples
         >>>         else:
-        >>> # evaluate loss without negative samples
+        >>>             pass  # evaluate loss without negative samples
 
     """
 

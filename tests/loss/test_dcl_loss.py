@@ -125,8 +125,10 @@ class TestDCLLoss:
 def dcl_reference(
     x1: torch.Tensor, x2: torch.Tensor, temperature: float
 ) -> torch.Tensor:
-    """Loop-based reference:
-    L = avg_i[ -sim_pos(i) + log(sum_j exp(sim_neg(i,j))) ]
+    """Compute DCL loss with a Python loop as a reference implementation.
+
+    Loop-based reference:
+      L = avg_i[ -sim_pos(i) + log(sum_j exp(sim_neg(i,j))) ]
     """
     z1 = torch.nn.functional.normalize(x1, dim=1)
     z2 = torch.nn.functional.normalize(x2, dim=1)

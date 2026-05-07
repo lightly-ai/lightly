@@ -33,7 +33,9 @@ class RandomResizedCropWithLocation(T.RandomResizedCrop):  # type: ignore[misc] 
     """Do a random resized crop and return both the resulting image and the location. See base class."""
 
     def forward(self, img: Image.Image) -> Tuple[Image.Image, Location]:
-        """Args:
+        """Apply a random resized crop and return the cropped image with its location.
+
+        Args:
             img (PIL Image or Tensor): Image to be cropped.
 
         Returns:

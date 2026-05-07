@@ -44,16 +44,12 @@ class _MomentumEncoderMixin:
     >>>         self.backbone = backbone
     >>>         self.projection_head = get_projection_head()
     >>>
-    >>> # initialize momentum_backbone and momentum_projection_head
-    >>>         self._init_momentum_encoder()
+    >>>         self._init_momentum_encoder()  # initialize momentum_backbone and momentum_projection_head
     >>>
     >>>     def forward(self, x: Tensor):
+    >>>         self._momentum_update(0.999)  # do the momentum update
     >>>
-    >>> # do the momentum update
-    >>>         self._momentum_update(0.999)
-    >>>
-    >>> # use momentum backbone
-    >>>         y = self.momentum_backbone(x)
+    >>>         y = self.momentum_backbone(x)  # use momentum backbone
     >>>         y = self.momentum_projection_head(y)
 
     """

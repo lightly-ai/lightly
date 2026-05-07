@@ -55,8 +55,7 @@ class BaseClassifier(LightningModule, ABC):
             >>>         self.projection_head = SimCLRProjectionHead(512, 512, 128)
             >>>
             >>>     def forward(self, x):
-            >>> # Forward must return image features.
-            >>>         features = self.backbone(x).flatten(start_dim=1)
+            >>>         features = self.backbone(x).flatten(start_dim=1)  # Forward must return image features.
             >>>         return features
             >>>
             >>> # Initialize a model.

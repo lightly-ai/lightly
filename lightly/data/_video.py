@@ -501,10 +501,8 @@ class VideoDataset(datasets.VisionDataset):
         The filename is created from the video filename, the frame number, and
         the video format. The frame number will be zero padded to make sure
         all filenames have the same length and can easily be sorted.
-        E.g. when retrieving a sample from the video
-        `my_video.mp4` at frame 153, the filename will be:
-
-        >>> my_video - 153 - mp4.png
+        For example, when retrieving a sample from the video ``my_video.mp4``
+        at frame 153, the filename will be ``my_video-153-mp4.png``.
 
         Args:
             index:
