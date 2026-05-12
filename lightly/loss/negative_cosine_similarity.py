@@ -17,7 +17,7 @@ class NegativeCosineSimilarity(torch.nn.Module):
         >>> loss_fn = NegativeCosineSimilarity()
         >>>
         >>> # generate two representation tensors
-        >>> # with batch size 10 and dimension 128
+        >>> # with batch size 10 and dimension 128
         >>> x0 = torch.randn(10, 128)
         >>> x1 = torch.randn(10, 128)
         >>>

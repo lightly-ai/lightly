@@ -63,7 +63,6 @@ class IJEPAPredictorTIMM(nn.Module):  # type: ignore[misc]
         norm_layer: Callable[..., nn.Module] = partial(nn.LayerNorm, eps=1e-6),
     ):
         """Initializes the IJEPAPredictorTIMM with the specified dimensions."""
-
         super().__init__()
 
         self.predictor_embed = nn.Linear(mlp_dim, predictor_embed_dim, bias=True)
@@ -117,7 +116,6 @@ class IJEPAPredictorTIMM(nn.Module):  # type: ignore[misc]
         Returns:
             The predicted output tensor.
         """
-
         assert (masks is not None) and (masks_x is not None), (
             "Cannot run predictor without mask indices"
         )

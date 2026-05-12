@@ -30,7 +30,6 @@ def _cal_macl_loss_original(
     Returns:
         The loss value.
     """
-
     A = torch.mean(pos.detach())
     tau = tau_0 * (1.0 + alpha * (A - A0))
 

@@ -50,11 +50,13 @@ class PatchRESTClientObjectMixin:
     Should only used in combination with RESTClientObject and must come before the
     RESTClientObject in the inheritance order. So this is ok:
 
-        >>> class MyRESTClientObject(PatchRESTClientObjectMixin, RESTClientObject): pass
+        >>> class MyRESTClientObject(PatchRESTClientObjectMixin, RESTClientObject):
+        ...     pass
 
     while this doesn't work:
 
-        >>> class MyRESTClientObject(RESTClientObject, PatchRESTClientObjectMixin): pass
+        >>> class MyRESTClientObject(RESTClientObject, PatchRESTClientObjectMixin):
+        ...     pass
 
     A wrong inheritance order will result in the super() calls no calling the correct
     parent classes.

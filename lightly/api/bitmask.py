@@ -76,20 +76,22 @@ def _unset_kth_bit(x: int, k: int) -> int:
 
 class BitMask:
     """Utility class to represent and manipulate tags.
+
     Attributes:
         x:
             An integer representation of the binary mask.
+
     Examples:
         >>> # the following are equivalent
         >>> mask = BitMask(6)
-        >>> mask = BitMask.from_hex('0x6')
-        >>> mask = Bitmask.from_bin('0b0110')
+        >>> mask = BitMask.from_hex("0x6")
+        >>> mask = Bitmask.from_bin("0b0110")
         >>> # for a dataset with 10 images, assume the following tag
         >>> # 0001011001 where the 1st, 4th, 5th and 7th image are selected
         >>> # this tag would be stored as 0x59.
-        >>> hexstring = '0x59'                    # what you receive from the api
+        >>> hexstring = "0x59"  # what you receive from the api
         >>> mask = BitMask.from_hex(hexstring)  # create a bitmask from it
-        >>> indices = mask.to_indices()         # get list of indices which are one
+        >>> indices = mask.to_indices()  # get list of indices which are one
         >>> # indices is [0, 3, 4, 6]
     """
 
@@ -122,8 +124,9 @@ class BitMask:
 
     def to_indices(self) -> List[int]:
         """Returns the list of indices bits which are set to 1 from the right.
+
         Examples:
-            >>> mask = BitMask('0b0101')
+            >>> mask = BitMask("0b0101")
             >>> indices = mask.to_indices()
             >>> # indices is [0, 2]
         """
@@ -145,9 +148,10 @@ class BitMask:
 
     def union(self, other):
         """Calculates the union of two bit masks.
+
         Examples:
-            >>> mask1 = BitMask.from_bin('0b0011')
-            >>> mask2 = BitMask.from_bin('0b1100')
+            >>> mask1 = BitMask.from_bin("0b0011")
+            >>> mask2 = BitMask.from_bin("0b1100")
             >>> mask1.union(mask2)
             >>> # mask1.binstring is '0b1111'
         """
@@ -155,9 +159,10 @@ class BitMask:
 
     def intersection(self, other):
         """Calculates the intersection of two bit masks.
+
         Examples:
-            >>> mask1 = BitMask.from_bin('0b0011')
-            >>> mask2 = BitMask.from_bin('0b1100')
+            >>> mask1 = BitMask.from_bin("0b0011")
+            >>> mask2 = BitMask.from_bin("0b1100")
             >>> mask1.intersection(mask2)
             >>> # mask1.binstring is '0b0000'
         """
@@ -165,9 +170,10 @@ class BitMask:
 
     def difference(self, other):
         """Calculates the difference of two bit masks.
+
         Examples:
-            >>> mask1 = BitMask.from_bin('0b0111')
-            >>> mask2 = BitMask.from_bin('0b1100')
+            >>> mask1 = BitMask.from_bin("0b0111")
+            >>> mask2 = BitMask.from_bin("0b1100")
             >>> mask1.difference(mask2)
             >>> # mask1.binstring is '0b0011'
         """
@@ -204,8 +210,9 @@ class BitMask:
 
     def set_kth_bit(self, k: int):
         """Sets the kth bit from the right to '1'.
+
         Examples:
-            >>> mask = BitMask('0b0000')
+            >>> mask = BitMask("0b0000")
             >>> mask.set_kth_bit(2)
             >>> # mask.binstring is '0b0100'
         """
@@ -213,8 +220,9 @@ class BitMask:
 
     def unset_kth_bit(self, k: int):
         """Unsets the kth bit from the right to '0'.
+
         Examples:
-            >>> mask = BitMask('0b1111')
+            >>> mask = BitMask("0b1111")
             >>> mask.unset_kth_bit(2)
             >>> # mask.binstring is '0b1011'
         """

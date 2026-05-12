@@ -41,7 +41,6 @@ class BaseEmbedding(LightningModule):
             dataloader: (torch.utils.data.DataLoader)
 
         """
-
         super(BaseEmbedding, self).__init__()
         self.model = model
         self.criterion = criterion

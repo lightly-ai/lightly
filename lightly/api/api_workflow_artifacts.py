@@ -39,8 +39,12 @@ class _ArtifactsMixin:
             >>>     pass
             >>>
             >>> # download artifacts
-            >>> run = client.get_compute_worker_run_from_scheduled_run(scheduled_run_id=scheduled_run_id)
-            >>> client.download_compute_worker_run_artifacts(run=run, output_dir="my_run/artifacts")
+            >>> run = client.get_compute_worker_run_from_scheduled_run(
+            ...     scheduled_run_id=scheduled_run_id
+            ... )
+            >>> client.download_compute_worker_run_artifacts(
+            ...     run=run, output_dir="my_run/artifacts"
+            ... )
 
         """
         if run.artifacts is None:
@@ -86,8 +90,12 @@ class _ArtifactsMixin:
             >>>     pass
             >>>
             >>> # download checkpoint
-            >>> run = client.get_compute_worker_run_from_scheduled_run(scheduled_run_id=scheduled_run_id)
-            >>> client.download_compute_worker_run_checkpoint(run=run, output_path="my_checkpoint.ckpt")
+            >>> run = client.get_compute_worker_run_from_scheduled_run(
+            ...     scheduled_run_id=scheduled_run_id
+            ... )
+            >>> client.download_compute_worker_run_checkpoint(
+            ...     run=run, output_path="my_checkpoint.ckpt"
+            ... )
 
         """
         self._download_compute_worker_run_artifact_by_type(
@@ -127,8 +135,12 @@ class _ArtifactsMixin:
             >>>     pass
             >>>
             >>> # download report
-            >>> run = client.get_compute_worker_run_from_scheduled_run(scheduled_run_id=scheduled_run_id)
-            >>> client.download_compute_worker_run_report_pdf(run=run, output_path="report.pdf")
+            >>> run = client.get_compute_worker_run_from_scheduled_run(
+            ...     scheduled_run_id=scheduled_run_id
+            ... )
+            >>> client.download_compute_worker_run_report_pdf(
+            ...     run=run, output_path="report.pdf"
+            ... )
 
         """
         self._download_compute_worker_run_artifact_by_type(
@@ -172,8 +184,12 @@ class _ArtifactsMixin:
             >>>     pass
             >>>
             >>> # download checkpoint
-            >>> run = client.get_compute_worker_run_from_scheduled_run(scheduled_run_id=scheduled_run_id)
-            >>> client.download_compute_worker_run_report_json(run=run, output_path="report.json")
+            >>> run = client.get_compute_worker_run_from_scheduled_run(
+            ...     scheduled_run_id=scheduled_run_id
+            ... )
+            >>> client.download_compute_worker_run_report_json(
+            ...     run=run, output_path="report.json"
+            ... )
 
         """
         warnings.warn(
@@ -220,8 +236,12 @@ class _ArtifactsMixin:
             >>>     pass
             >>>
             >>> # download checkpoint
-            >>> run = client.get_compute_worker_run_from_scheduled_run(scheduled_run_id=scheduled_run_id)
-            >>> client.download_compute_worker_run_report_v2_json(run=run, output_path="report_v2.json")
+            >>> run = client.get_compute_worker_run_from_scheduled_run(
+            ...     scheduled_run_id=scheduled_run_id
+            ... )
+            >>> client.download_compute_worker_run_report_v2_json(
+            ...     run=run, output_path="report_v2.json"
+            ... )
 
         """
         self._download_compute_worker_run_artifact_by_type(
@@ -261,7 +281,9 @@ class _ArtifactsMixin:
             >>>     pass
             >>>
             >>> # download log file
-            >>> run = client.get_compute_worker_run_from_scheduled_run(scheduled_run_id=scheduled_run_id)
+            >>> run = client.get_compute_worker_run_from_scheduled_run(
+            ...     scheduled_run_id=scheduled_run_id
+            ... )
             >>> client.download_compute_worker_run_log(run=run, output_path="log.txt")
 
         """
@@ -302,8 +324,12 @@ class _ArtifactsMixin:
             >>>     pass
             >>>
             >>> # download memory log file
-            >>> run = client.get_compute_worker_run_from_scheduled_run(scheduled_run_id=scheduled_run_id)
-            >>> client.download_compute_worker_run_memory_log(run=run, output_path="memlog.txt")
+            >>> run = client.get_compute_worker_run_from_scheduled_run(
+            ...     scheduled_run_id=scheduled_run_id
+            ... )
+            >>> client.download_compute_worker_run_memory_log(
+            ...     run=run, output_path="memlog.txt"
+            ... )
 
         """
         self._download_compute_worker_run_artifact_by_type(
@@ -343,8 +369,12 @@ class _ArtifactsMixin:
             >>>     pass
             >>>
             >>> # download corruptness check information file
-            >>> run = client.get_compute_worker_run_from_scheduled_run(scheduled_run_id=scheduled_run_id)
-            >>> client.download_compute_worker_run_corruptness_check_information(run=run, output_path="corruptness_check_information.json")
+            >>> run = client.get_compute_worker_run_from_scheduled_run(
+            ...     scheduled_run_id=scheduled_run_id
+            ... )
+            >>> client.download_compute_worker_run_corruptness_check_information(
+            ...     run=run, output_path="corruptness_check_information.json"
+            ... )
             >>>
             >>> # print all corrupt samples and corruptions
             >>> with open("corruptness_check_information.json", 'r') as f:
@@ -390,8 +420,12 @@ class _ArtifactsMixin:
             >>>     pass
             >>>
             >>> # download sequence information file
-            >>> run = client.get_compute_worker_run_from_scheduled_run(scheduled_run_id=scheduled_run_id)
-            >>> client.download_compute_worker_run_sequence_information(run=run, output_path="sequence_information.json")
+            >>> run = client.get_compute_worker_run_from_scheduled_run(
+            ...     scheduled_run_id=scheduled_run_id
+            ... )
+            >>> client.download_compute_worker_run_sequence_information(
+            ...     run=run, output_path="sequence_information.json"
+            ... )
 
         """
         self._download_compute_worker_run_artifact_by_type(
@@ -476,8 +510,12 @@ class _ArtifactsMixin:
             >>>     pass
             >>>
             >>> # get checkpoint read_url
-            >>> run = client.get_compute_worker_run_from_scheduled_run(scheduled_run_id=scheduled_run_id)
-            >>> checkpoint_read_url = client.get_compute_worker_run_checkpoint_url(run=run)
+            >>> run = client.get_compute_worker_run_from_scheduled_run(
+            ...     scheduled_run_id=scheduled_run_id
+            ... )
+            >>> checkpoint_read_url = client.get_compute_worker_run_checkpoint_url(
+            ...     run=run
+            ... )
 
         """
         artifact = self._get_artifact_by_type(

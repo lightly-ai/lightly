@@ -163,6 +163,7 @@ Important notes:
 - Make your functions checkable through static typecheckers (`mypy`). This means that it must have proper [type hints](https://docs.python.org/3/library/typing.html) everywhere. We use Python 3.10-style type-hints for Union-types, i.e. `str | Path` instead of `Union[str, Path]`. For backwards-compatibility, this requires that every module using such type-hints imports `from __future__ import annotations` at the very top of the module.
 - Don't overlook the `Raises`.
 - Use punctuation.
+- Docstrings follow the Google convention. The selected `pydocstyle` rules in `pyproject.toml` are checked by `ruff` and run as part of `make format-check` and `make lint`.
 - **Please look carefully at the examples provided below (from the styleguide)**.
 
 #### Packages and Modules

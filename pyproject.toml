@@ -138,13 +138,32 @@ target-version = "py37"
 extend-exclude = ["lightly/openapi_generated"]
 
 [tool.ruff.lint]
-select = ["I"]
+select = ["I", "D202", "D209", "D212", "D214", "D410", "D411", "D412"]
 ignore = ["E501"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["lightly"]
 
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+# Deprecated paths (mirrors pyproject.toml's mypy excludes for deprecated code).
+"lightly/active_learning/**" = ["D"]
+"lightly/models/simclr.py" = ["D"]
+"lightly/models/moco.py" = ["D"]
+"lightly/models/barlowtwins.py" = ["D"]
+"lightly/models/nnclr.py" = ["D"]
+"lightly/models/simsiam.py" = ["D"]
+"lightly/models/byol.py" = ["D"]
+"tests/models/test_ModelsSimSiam.py" = ["D"]
+"tests/models/test_ModelsSimCLR.py" = ["D"]
+"tests/models/test_ModelsNNCLR.py" = ["D"]
+"tests/models/test_ModelsMoCo.py" = ["D"]
+"tests/models/test_ModelsBYOL.py" = ["D"]
+
 [tool.ruff.format]
+docstring-code-format = true
 
 [tool.coverage.run]
 omit = ["lightly/openapi_generated/*"]
