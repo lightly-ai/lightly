@@ -180,7 +180,6 @@ def _update_queue(
     queues: ModuleList,
 ):
     """Adds the high resolution projections to the queues and returns the queues."""
-
     if len(projections) != len(queues):
         raise ValueError(
             f"The number of queues ({len(queues)}) should be equal to the number of high "

@@ -109,13 +109,11 @@ class SIGReg(nn.Module):
         return statistic.mean()
 
     def forward(self, proj: torch.Tensor) -> torch.Tensor:
-        """
-        Compute the SIGReg loss for a batch of projections.
+        """Compute the SIGReg loss for a batch of projections.
 
         Args:
             proj: Projected embeddings of shape (..., N, C).
         """
-
         num_features = proj.size(-1)
         num_samples = proj.size(-2)
         if self.gather_distributed and lightly_dist.world_size() > 1:

@@ -1,2 +1,5 @@
 # Ruff formatting normalization (lightly-ai/lightly#1564)
 e7047dec9ef72f1d2d718e4915328021be661865
+
+# Ruff docstring normalization (lightly-ai/lightly#1217)
+926eadbaaed579b464303152792f02e763563279

@@ -100,6 +100,7 @@ def cosine_warmup_schedule(
             The number of steps over which the cosine function completes a full cycle.
             If no period is provided, the scheduler will complete a half cycle over
             max_steps - warmup_steps.
+
     Returns:
         Cosine decay value.
     """

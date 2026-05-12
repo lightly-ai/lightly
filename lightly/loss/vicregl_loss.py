@@ -48,7 +48,7 @@ class VICRegLLoss(Module):
         >>>
         >>> # generate two random transforms of images
         >>> views_and_grids = transform(images)
-        >>> views = views_and_grids[:6] # 2 global views + 4 local views
+        >>> views = views_and_grids[:6]  # 2 global views + 4 local views
         >>> grids = views_and_grids[6:]
         >>>
         >>> # feed through model images

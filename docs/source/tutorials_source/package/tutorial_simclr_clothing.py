@@ -1,5 +1,4 @@
-"""
-.. _lightly-simclr-tutorial-3:
+""".. _lightly-simclr-tutorial-3:
 
 Tutorial 3: Train SimCLR on Clothing
 ==============================================
@@ -189,7 +188,6 @@ def generate_embeddings(model, dataloader):
     """Generates representations for all images in the dataloader with
     the given model
     """
-
     embeddings = []
     filenames = []
     with torch.no_grad():

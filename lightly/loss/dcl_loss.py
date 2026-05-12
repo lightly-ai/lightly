@@ -27,6 +27,7 @@ def negative_mises_fisher_weights(
             Shape: (batch_size, embedding_size)
         sigma:
             Similarities are scaled by inverse sigma.
+
     Returns:
         A tensor with shape (batch_size,) where each entry is the weight for one
         of the input images.

@@ -22,7 +22,7 @@ def sort_items_by_keys(
 
     Examples:
         >>> keys = [3, 2, 1]
-        >>> items = ['!', 'world', 'hello']
+        >>> items = ["!", "world", "hello"]
         >>> sorted_keys = [1, 2, 3]
         >>> sorted_items = sort_items_by_keys(
         >>>     keys,

@@ -1,5 +1,4 @@
-"""
-.. _lightly-custom-augmentation-5:
+""".. _lightly-custom-augmentation-5:
 
 Tutorial 5: Custom Augmentations
 ==============================================
@@ -354,7 +353,6 @@ dataloader_test = torch.utils.data.DataLoader(
 # Next, we add a small helper function to generate embeddings of our images
 def generate_embeddings(model, dataloader):
     """Generates representations for all images in the dataloader"""
-
     embeddings = []
     filenames = []
     with torch.no_grad():

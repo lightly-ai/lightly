@@ -1,5 +1,4 @@
-"""
-.. _lightly-timm-backbone-tutorial-8:
+""".. _lightly-timm-backbone-tutorial-8:
 
 Tutorial 8: Using timm Models as Backbones
 ===========================================

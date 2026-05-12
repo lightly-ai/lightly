@@ -11,9 +11,8 @@ def version_compare(v0: str, v1: str) -> int:
     newer.
 
     Examples:
-
         >>> # compare two versions
-        >>> version_compare('1.2.0', '1.1.2')
+        >>> version_compare("1.2.0", "1.1.2")
         >>> 1
     """
     v0_parsed = [int(n) for n in v0.split(".")][::-1]
