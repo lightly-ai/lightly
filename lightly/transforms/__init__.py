@@ -28,6 +28,7 @@ from lightly.transforms.gaussian_mixture_masks_transform import GaussianMixtureM
 from lightly.transforms.ibot_transform import IBOTTransform, IBOTViewTransform
 from lightly.transforms.irfft2d_transform import IRFFT2DTransform
 from lightly.transforms.jigsaw import Jigsaw
+from lightly.transforms.lejepa_transform import LeJEPATransform
 from lightly.transforms.mae_transform import MAETransform
 from lightly.transforms.mmcr_transform import MMCRTransform
 from lightly.transforms.moco_transform import MoCoV1Transform, MoCoV2Transform
