@@ -635,7 +635,9 @@ def random_block_wise_mask(
         size:
             Size of the token batch for which to generate masks.
             Should be (batch_size, sequence_length).
-            sequence_length should be a perfect square.
+            The non-prefix portion of the sequence,
+            (sequence_length - num_prefix_tokens), should be a perfect
+            square. Prefix tokens are excluded from the square grid.
         mask_ratio:
             Proportion of tokens to mask.
         block_size:
