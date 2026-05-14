@@ -8,6 +8,11 @@ from lightly.loss.lejepa_loss import SIGReg
 
 
 class TestSIGReg:
+    # TODO: the distributed-primitive mocks in the gather_distributed tests
+    # below approximate (but don't fully match) the real c10d/torch.distributed.nn APIs.
+    # Replace them with real Gloo-backed DDP tests once that infrastructure
+    # is available (see PR #1923 review).
+
     def test_backward_pass(self) -> None:
         torch.manual_seed(0)
         loss_fn = SIGReg()
@@ -33,6 +38,7 @@ class TestSIGReg:
     def test_forward_gather_distributed_world_size_gt_one(
         self, mocker: MockerFixture
     ) -> None:
+        # TODO: replace with Gloo DDP testing (see class-level note).
         mocker.patch("lightly.loss.lejepa_loss.lightly_dist.world_size", return_value=2)
         mock_broadcast = mocker.patch.object(dist, "broadcast")
         mock_all_reduce = mocker.patch.object(dist, "all_reduce")
@@ -83,6 +89,7 @@ class TestSIGReg:
         loss_truth = loss_fn_truth(proj_global)
 
         # Distributed: simulate world_size=2 with identical data on each rank.
+        # TODO: replace with Gloo DDP testing (see class-level note).
         mocker.patch(
             "lightly.loss.lejepa_loss.lightly_dist.world_size",
             return_value=world_size,
@@ -139,6 +146,7 @@ class TestSIGReg:
         assert theta_truth.grad is not None
 
         # Distributed: gradient on the local batch with simulated world_size=2.
+        # TODO: replace with Gloo DDP testing (see class-level note).
         mocker.patch(
             "lightly.loss.lejepa_loss.lightly_dist.world_size",
             return_value=world_size,
