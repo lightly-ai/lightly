@@ -804,11 +804,15 @@ class LeJEPAProjectionHead(ProjectionHead):
             output_dim:
                 Dimensionality of the output features.
             num_layers:
-                Number of layers in the projection head.
+                Number of linear layers in the projection head. Must be at
+                least 2.
         """
+        if num_layers < 2:
+            raise ValueError("num_layers must be greater than or equal to 2.")
+
         hidden_layers = [
             (hidden_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU())
-            for _ in range(num_layers - 2)  # Exclude first and last layer.
+            for _ in range(num_layers - 2)
         ]
         super().__init__(
             [

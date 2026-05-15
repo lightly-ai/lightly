@@ -337,7 +337,7 @@ class TestProjectionHeads(unittest.TestCase):
 
             y.sum().backward()
             x_grad = x.grad
-            assert x_grad is not None
+            self.assertIsNotNone(x_grad)
             self.assertEqual(x_grad.shape, x.shape)
             for name, param in head.named_parameters():
                 with self.subTest(
@@ -348,5 +348,21 @@ class TestProjectionHeads(unittest.TestCase):
                     )
                 ):
                     param_grad = param.grad
-                    assert param_grad is not None
+                    self.assertIsNotNone(param_grad)
                     self.assertEqual(param_grad.shape, param.shape)
+
+    def test_lejepa_projection_head_requires_at_least_two_layers(self) -> None:
+        with self.assertRaises(ValueError):
+            LeJEPAProjectionHead(
+                input_dim=8,
+                hidden_dim=16,
+                output_dim=4,
+                num_layers=1,
+            )
+        with self.assertRaises(ValueError):
+            LeJEPAProjectionHead(
+                input_dim=8,
+                hidden_dim=16,
+                output_dim=4,
+                num_layers=0,
+            )
