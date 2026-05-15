@@ -1,6 +1,7 @@
 import torch
 from torch import distributed as torch_dist
 from torch import nn
+from torch.distributed import nn as torch_dist_nn
 
 from lightly.utils import dist as lightly_dist
 
@@ -90,8 +91,9 @@ class SIGReg(nn.Module):
         cos_sum = x_t.cos().sum(-3)
         sin_sum = x_t.sin().sum(-3)
         if self.gather_distributed and lightly_dist.world_size() > 1:
-            torch_dist.all_reduce(cos_sum)
-            torch_dist.all_reduce(sin_sum)
+            # Using the autograd-aware torch.distributed.nn.all_reduce, ref #1920
+            cos_sum = torch_dist_nn.all_reduce(cos_sum)
+            sin_sum = torch_dist_nn.all_reduce(sin_sum)
 
         cos_mean = cos_sum / num_samples
         sin_mean = sin_sum / num_samples
