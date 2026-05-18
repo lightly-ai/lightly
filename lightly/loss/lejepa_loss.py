@@ -8,31 +8,49 @@ from torch.distributed import nn as torch_dist_nn
 from lightly.utils import dist as lightly_dist
 
 
-def lejepa_invariance_loss(local_proj: Tensor, global_proj: Tensor) -> Tensor:
+def lejepa_invariance_loss(*, local_proj: Tensor, global_proj: Tensor) -> Tensor:
     """LeJEPA invariance loss across multiple views.
 
     Pulls each local view's projection toward the global mean across views.
-    Given projections of shape ``(V, N, D)``, this is the mean-squared
-    distance between every local view and the centroid of the global views.
+    Given local projections of shape ``(Vl, N, D)`` and global projections of
+    shape ``(Vg, N, D)``, this is the mean-squared distance between every local
+    view and the centroid of the global views.
 
     Reference:
         LeJEPA, 2025, https://arxiv.org/abs/2511.08544
 
     Args:
         local_proj:
-            Projected embeddings of shape ``(Vg, N, D)`` where ``Vg`` is the
-            number of global views, ``N`` is the batch size, and ``D`` is the
-            projection dimensionality.
-        global_proj:
             Projected embeddings of shape ``(Vl, N, D)`` where ``Vl`` is the
             number of local views, ``N`` is the batch size, and ``D`` is the
+            projection dimensionality.
+        global_proj:
+            Projected embeddings of shape ``(Vg, N, D)`` where ``Vg`` is the
+            number of global views, ``N`` is the batch size, and ``D`` is the
             projection dimensionality.
 
     Returns:
         Scalar invariance loss.
     """
+    _validate_projection_shapes(local_proj=local_proj, global_proj=global_proj)
     centers = global_proj.mean(0)
     return (centers - local_proj).square().mean()
+
+
+def _validate_projection_shapes(*, local_proj: Tensor, global_proj: Tensor) -> None:
+    if local_proj.ndim != 3:
+        raise ValueError(
+            f"local_proj must have shape (V_local, N, D), got {local_proj.shape}."
+        )
+    if global_proj.ndim != 3:
+        raise ValueError(
+            f"global_proj must have shape (V_global, N, D), got {global_proj.shape}."
+        )
+    if local_proj.shape[1:] != global_proj.shape[1:]:
+        raise ValueError(
+            "local_proj and global_proj must have matching batch and feature "
+            f"dimensions, got {local_proj.shape} and {global_proj.shape}."
+        )
 
 
 class SIGReg(nn.Module):
@@ -168,8 +186,8 @@ class LeJEPALoss(nn.Module):
 
     - ``SIGReg(local_proj)`` regularizes local projections toward an
       isotropic Gaussian distribution.
-    - ``lejepa_invariance_loss(local_proj, global_proj)`` pulls each local
-      view toward the mean of the global views.
+    - ``lejepa_invariance_loss(local_proj=local_proj, global_proj=global_proj)``
+      pulls each local view toward the mean of the global views.
 
     The total loss is
     ``lambda_param * SIGReg(local_proj) + (1 - lambda_param) * invariance(local_proj, global_proj)``.
@@ -201,7 +219,7 @@ class LeJEPALoss(nn.Module):
         >>> global_proj = torch.stack([model(v) for v in global_views])
         >>>
         >>> # calculate loss
-        >>> loss = loss_fn(local_proj, global_proj)
+        >>> loss = loss_fn(local_proj=local_proj, global_proj=global_proj)
     """
 
     def __init__(
@@ -242,15 +260,18 @@ class LeJEPALoss(nn.Module):
             gather_distributed=gather_distributed,
         )
 
-    def forward(self, local_proj: Tensor, global_proj: Tensor) -> Tensor:
+    def forward(self, *, local_proj: Tensor, global_proj: Tensor) -> Tensor:
         """Compute the LeJEPA loss for a batch of multi-view projections.
 
         Args:
-            local_proj: Projected embeddings of shape ``(V, N, D)``.
-            global_proj: Projected embeddings of shape ``(V, N, D)``.
+            local_proj: Local-view projected embeddings of shape ``(Vl, N, D)``.
+            global_proj: Global-view projected embeddings of shape ``(Vg, N, D)``.
         """
+        _validate_projection_shapes(local_proj=local_proj, global_proj=global_proj)
         sigreg_loss = self.sigreg(local_proj)
-        inv_loss = lejepa_invariance_loss(local_proj, global_proj)
+        inv_loss = lejepa_invariance_loss(
+            local_proj=local_proj, global_proj=global_proj
+        )
         loss: Tensor = (
             self.lambda_param * sigreg_loss + (1.0 - self.lambda_param) * inv_loss
         )
