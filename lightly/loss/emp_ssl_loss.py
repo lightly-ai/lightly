@@ -38,6 +38,7 @@ def invariance_loss(z: Tensor) -> Tensor:
     Args:
         z:
             Patch embeddings.
+
     Returns:
         Similarity loss.
     """
@@ -66,8 +67,10 @@ class EMPSSLLoss(Module):
     Examples:
         >>> # initialize loss function
         >>> loss_fn = EMP_SSLLoss()
-        >>> base_transform = VICRegViewTransform() # As discussed in paper
-        >>> transform_fn = MultiCropTransform(transforms=base_transform, crop_counts=100)
+        >>> base_transform = VICRegViewTransform()  # As discussed in paper
+        >>> transform_fn = MultiCropTransform(
+        ...     transforms=base_transform, crop_counts=100
+        ... )
         >>>
         >>> # generate the transformed samples
         >>> samples = transform_fn(image)
@@ -106,7 +109,6 @@ class EMPSSLLoss(Module):
         Returns:
             The computed EMP-SSL loss.
         """
-
         # z has shape (num_views, batch_size, dim)
         z = torch.stack(z_views)
 

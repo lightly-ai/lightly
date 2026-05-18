@@ -1,8 +1,34 @@
+"""LeJEPA loss functions and regularizers."""
+
 import torch
+from torch import Tensor, nn
 from torch import distributed as torch_dist
-from torch import nn
+from torch.distributed import nn as torch_dist_nn
 
 from lightly.utils import dist as lightly_dist
+
+
+def lejepa_invariance_loss(proj: Tensor) -> Tensor:
+    """LeJEPA invariance loss across multiple views.
+
+    Pulls each view's projection toward the per-sample mean across views.
+    Given projections of shape ``(V, N, D)``, this is the mean-squared
+    distance between every view and the per-sample centroid computed over
+    the view dimension.
+
+    Reference:
+        LeJEPA, 2025, https://arxiv.org/abs/2511.08544
+
+    Args:
+        proj:
+            Projected embeddings of shape ``(V, N, D)`` where ``V`` is the
+            number of views, ``N`` is the batch size, and ``D`` is the
+            projection dimensionality.
+
+    Returns:
+        Scalar invariance loss.
+    """
+    return (proj.mean(0) - proj).square().mean()
 
 
 class SIGReg(nn.Module):
@@ -90,8 +116,9 @@ class SIGReg(nn.Module):
         cos_sum = x_t.cos().sum(-3)
         sin_sum = x_t.sin().sum(-3)
         if self.gather_distributed and lightly_dist.world_size() > 1:
-            torch_dist.all_reduce(cos_sum)
-            torch_dist.all_reduce(sin_sum)
+            # Using the autograd-aware torch.distributed.nn.all_reduce, ref #1920
+            cos_sum = torch_dist_nn.all_reduce(cos_sum)
+            sin_sum = torch_dist_nn.all_reduce(sin_sum)
 
         cos_mean = cos_sum / num_samples
         sin_mean = sin_sum / num_samples
@@ -109,13 +136,11 @@ class SIGReg(nn.Module):
         return statistic.mean()
 
     def forward(self, proj: torch.Tensor) -> torch.Tensor:
-        """
-        Compute the SIGReg loss for a batch of projections.
+        """Compute the SIGReg loss for a batch of projections.
 
         Args:
             proj: Projected embeddings of shape (..., N, C).
         """
-
         num_features = proj.size(-1)
         num_samples = proj.size(-2)
         if self.gather_distributed and lightly_dist.world_size() > 1:
@@ -130,3 +155,96 @@ class SIGReg(nn.Module):
         x_t = x_projected.unsqueeze(-1) * self.t  # type: ignore[operator]
         err_per_frequency = self._compute_cf_error_at_each_frequency(x_t, num_samples)
         return self._integrate_via_trapezoidal_rule(err_per_frequency, num_samples)
+
+
+class LeJEPALoss(nn.Module):
+    """LeJEPA loss combining SIGReg regularization with view invariance.
+
+    The loss is a convex combination of two terms:
+
+    - ``SIGReg(proj)`` regularizes projections toward an isotropic Gaussian
+      distribution.
+    - ``lejepa_invariance_loss(proj)`` pulls each view toward the per-sample
+      mean across views.
+
+    The total loss is
+    ``lambda_param * SIGReg(proj) + (1 - lambda_param) * invariance(proj)``.
+
+    The default ``lambda_param=0.02`` matches the reference implementation
+    [1]. The paper [0] explores values between 0.01 and 0.1.
+
+    - [0]: LeJEPA, 2025, https://arxiv.org/abs/2511.08544
+    - [1]: https://github.com/galilai-group/lejepa
+
+    Attributes:
+        lambda_param:
+            Weight for the SIGReg term in [0, 1]. The invariance term is
+            weighted by (1 - lambda_param).
+        sigreg:
+            The SIGReg regularization module instantiated with the supplied
+            sigreg_* parameters.
+
+    Examples:
+        >>> # initialize loss function
+        >>> loss_fn = LeJEPALoss()
+        >>>
+        >>> # generate multiple views of the same images
+        >>> views = [transform(images) for _ in range(n_views)]
+        >>>
+        >>> # project each view and stack to shape (V, N, D)
+        >>> proj = torch.stack([model(v) for v in views])
+        >>>
+        >>> # calculate loss
+        >>> loss = loss_fn(proj)
+    """
+
+    def __init__(
+        self,
+        lambda_param: float = 0.02,
+        gather_distributed: bool = False,
+        sigreg_knots: int = 17,
+        sigreg_t_max: float = 3.0,
+        sigreg_num_vectors: int = 256,
+    ):
+        """Initialize the combined LeJEPA loss.
+
+        Args:
+            lambda_param:
+                Weight for the SIGReg term in ``[0, 1]``. The invariance
+                term is weighted by ``1 - lambda_param``.
+            gather_distributed:
+                If True, aggregate SIGReg statistics across distributed
+                ranks so the loss uses the global batch.
+            sigreg_knots:
+                Number of frequency samples used for the SIGReg integration
+                grid.
+            sigreg_t_max:
+                Maximum frequency for the SIGReg integration grid.
+            sigreg_num_vectors:
+                Number of random unit projection vectors (slices) used by
+                SIGReg per forward pass.
+        """
+        super().__init__()
+        if not 0.0 <= lambda_param <= 1.0:
+            raise ValueError("lambda_param must be in the unit interval [0, 1].")
+
+        self.lambda_param = lambda_param
+        self.sigreg = SIGReg(
+            knots=sigreg_knots,
+            t_max=sigreg_t_max,
+            num_vectors=sigreg_num_vectors,
+            gather_distributed=gather_distributed,
+        )
+
+    def forward(self, proj: torch.Tensor) -> torch.Tensor:
+        """Compute the LeJEPA loss for a batch of multi-view projections.
+
+        Args:
+            proj: Projected embeddings of shape ``(V, N, D)``.
+        """
+        sigreg_loss = self.sigreg(proj)
+        inv_loss = lejepa_invariance_loss(proj)
+        loss: torch.Tensor = (
+            self.lambda_param * sigreg_loss + (1.0 - self.lambda_param) * inv_loss
+        )
+        return loss

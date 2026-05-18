@@ -33,7 +33,7 @@ class NNMemoryBankModule(MemoryBankModule):
         >>> model = NNCLR(backbone)
         >>> criterion = NTXentLoss(temperature=0.1)
         >>>
-        >>> nn_replacer = NNmemoryBankModule(size=(2 ** 16, 128))
+        >>> nn_replacer = NNmemoryBankModule(size=(2**16, 128))
         >>>
         >>> # forward pass
         >>> (z0, p0), (z1, p1) = model(x0, x1)
@@ -59,7 +59,6 @@ class NNMemoryBankModule(MemoryBankModule):
             update: If `True` updated the memory bank by adding output to it
 
         """
-
         output, bank = super(NNMemoryBankModule, self).forward(output, update=update)
         assert bank is not None
         bank = bank.to(output.device).t()

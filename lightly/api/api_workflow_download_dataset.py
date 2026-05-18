@@ -74,7 +74,6 @@ class _DownloadDatasetMixin:
             Downloading 3 images (with 3 workers):
             100%|██████████████████████████████████| 3/3 [00:01<00:00,  1.99imgs/s]
         """
-
         # check if images are available
         dataset = self._datasets_api.get_dataset_by_id(self.dataset_id)
         if dataset.img_type != ImageType.FULL:
@@ -228,7 +227,7 @@ class _DownloadDatasetMixin:
             >>> client.set_dataset_id_by_name("my-dataset")
             >>> client.download_embeddings_csv_by_id(
             ...     embedding_id="646f346004d77b4e1424e67e",
-            ...     output_path="/tmp/embeddings.csv"
+            ...     output_path="/tmp/embeddings.csv",
             ... )
             >>>
             >>> # File content:
@@ -294,7 +293,9 @@ class _DownloadDatasetMixin:
             >>>
             >>> # Already created some Lightly Worker runs with this dataset
             >>> client.set_dataset_id_by_name("my-dataset")
-            >>> client.export_label_studio_tasks_by_tag_id(tag_id="646f34608a5613b57d8b73cc")
+            >>> client.export_label_studio_tasks_by_tag_id(
+            ...     tag_id="646f34608a5613b57d8b73cc"
+            ... )
             [{'id': 0, 'data': {'image': '...', ...}}]
         """
         label_studio_tasks = list(

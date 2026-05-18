@@ -71,8 +71,7 @@ def close_torch_distributed() -> Generator[None, None, None]:
     ),
 )
 class TestGatherLayer_Losses:
-    """
-    Tests that the gather layer works as expected.
+    """Tests that the gather layer works as expected.
 
     Because using a DDPStrategy causes the whole script to be executed multiple
     times, running a proper test is difficult. The approach used here:

@@ -127,7 +127,6 @@ def save_embeddings(
         >>>     labels,
         >>>     filenames)
     """
-
     n_embeddings = len(embeddings)
     n_filenames = len(filenames)
     n_labels = len(labels)

@@ -1,6 +1,5 @@
-"""
-FIXME: hypersphere is perhaps bad naming as I am not sure it is the essence;
- alignment-and-uniformity loss perhaps? Does not sound as nice.
+"""FIXME: hypersphere is perhaps bad naming as I am not sure it is the essence;
+alignment-and-uniformity loss perhaps? Does not sound as nice.
 """
 
 import torch

@@ -167,8 +167,7 @@ class SwaVViewTransform:
         self.transform = T.Compose(transforms)
 
     def __call__(self, image: Union[Tensor, Image]) -> Tensor:
-        """
-        Applies the transforms to the input image.
+        """Applies the transforms to the input image.
 
         Args:
             image:

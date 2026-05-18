@@ -108,9 +108,7 @@ class TestDCLLoss:
     def test_dclloss_matches_reference(
         self, batch_size: int, dim: int, temperature: float, seed: int = 0
     ) -> None:
-        """
-        Ensure patched DCLLoss matches loop-based reference for multiple configs.
-        """
+        """Ensure patched DCLLoss matches loop-based reference for multiple configs."""
         torch.manual_seed(seed)
         out0 = torch.randn(batch_size, dim)
         out1 = torch.randn(batch_size, dim)
@@ -127,7 +125,8 @@ class TestDCLLoss:
 def dcl_reference(
     x1: torch.Tensor, x2: torch.Tensor, temperature: float
 ) -> torch.Tensor:
-    """
+    """Compute DCL loss with a Python loop as a reference implementation.
+
     Loop-based reference:
       L = avg_i[ -sim_pos(i) + log(sum_j exp(sim_neg(i,j))) ]
     """

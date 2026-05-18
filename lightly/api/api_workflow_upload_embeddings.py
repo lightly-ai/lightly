@@ -191,7 +191,6 @@ class _UploadEmbeddingsMixin:
 
         :meta private:  # Skip docstring generation
         """
-
         # read embedding from API
         embedding_read_url = self._embeddings_api.get_embeddings_csv_read_url_by_id(
             self.dataset_id, embedding_id

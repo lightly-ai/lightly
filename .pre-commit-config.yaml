@@ -9,5 +9,5 @@ repos:
   rev: v0.12.7
   hooks:
     - id: ruff-check
-      args: [--fix, --select, I]
+      args: [--fix]
     - id: ruff-format

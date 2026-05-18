@@ -35,7 +35,9 @@ class Jigsaw(object):
     Examples:
         >>> from lightly.transforms import Jigsaw
         >>>
-        >>> jigsaw_crop = Jigsaw(n_grid=3, img_size=255, crop_size=64, transform=T.ToTensor())
+        >>> jigsaw_crop = Jigsaw(
+        ...     n_grid=3, img_size=255, crop_size=64, transform=T.ToTensor()
+        ... )
         >>>
         >>> # img is a PIL image
         >>> crops = jigsaw_crops(img)

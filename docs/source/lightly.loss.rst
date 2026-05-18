@@ -32,6 +32,9 @@ lightly.loss
 .. autoclass:: lightly.loss.lejepa_loss.SIGReg
    :members:
 
+.. autoclass:: lightly.loss.lejepa_loss.LeJEPALoss
+   :members:
+
 .. autoclass:: lightly.loss.koleo_loss.KoLeoLoss
    :members:
 
