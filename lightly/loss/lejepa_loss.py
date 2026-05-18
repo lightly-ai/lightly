@@ -32,7 +32,47 @@ def lejepa_invariance_loss(proj: Tensor) -> Tensor:
 
 
 class SIGReg(nn.Module):
-    """Sketched Isotropic Gaussian Regularization for projected embeddings."""
+    """Sketched Isotropic Gaussian Regularization for projected embeddings.
+
+    SIGReg is the LeJEPA regularizer [0] that drives the empirical
+    distribution of the projected embeddings toward an isotropic Gaussian.
+    It draws random unit projection vectors (slices) and compares the
+    empirical characteristic function of the sliced projections against
+    the ideal Gaussian characteristic function via an Epps-Pulley integral
+    over a frequency grid.
+
+    - [0]: LeJEPA, 2025, https://arxiv.org/abs/2511.08544
+    - [1]: https://github.com/galilai-group/lejepa
+
+    Attributes:
+        num_vectors:
+            Number of random unit projection vectors (slices) drawn per
+            forward pass.
+        gather_distributed:
+            If True, statistics are aggregated across distributed ranks so
+            the regularization uses the global batch.
+        t:
+            Buffer of shape ``(knots,)`` containing the frequency grid
+            (``linspace(0, t_max, knots)``).
+        phi:
+            Buffer of shape ``(knots,)`` containing the target Gaussian
+            characteristic function evaluated on the frequency grid
+            (``exp(-t**2 / 2)``).
+        weights:
+            Buffer of shape ``(knots,)`` containing the trapezoidal
+            integration weights pre-multiplied by ``phi``.
+
+    Examples:
+        >>> # initialize the regularizer
+        >>> sigreg = SIGReg()
+        >>>
+        >>> # apply a transform and feed through model
+        >>> view = transform(images)
+        >>> proj = model(view)  # shape (N, D)
+        >>>
+        >>> # compute the regularization loss
+        >>> loss = sigreg(proj)
+    """
 
     def __init__(
         self,
