@@ -118,6 +118,12 @@ class SIGReg(nn.Module):
         t = torch.linspace(0, t_max, knots, dtype=torch.float32)
         # t are frequencies
         dt = t_max / (knots - 1)
+        # Trapezoidal weights for integrating the error over [-t_max, t_max].
+        # The integrand (cos_mean - phi)^2 + sin_mean^2 is even in t,
+        # so its symmetric integral equals twice the integral over [0, t_max].
+        # We exploit this by evaluating at only the non-negative knots and
+        # using twice the standard trapezoidal weights:
+        # the standard [dt/2, dt, ..., dt, dt/2] becomes [dt, 2*dt, ..., 2*dt, dt].
         weights = torch.full((knots,), 2 * dt, dtype=torch.float32)
         weights[[0, -1]] = dt
         window = torch.exp(-t.square() / 2.0)
