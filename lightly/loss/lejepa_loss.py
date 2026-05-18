@@ -20,12 +20,12 @@ def lejepa_invariance_loss(local_proj: Tensor, global_proj: Tensor) -> Tensor:
 
     Args:
         local_proj:
-            Projected embeddings of shape ``(V, N, D)`` where ``V`` is the
-            number of views, ``N`` is the batch size, and ``D`` is the
+            Projected embeddings of shape ``(Vg, N, D)`` where ``Vg`` is the
+            number of global views, ``N`` is the batch size, and ``D`` is the
             projection dimensionality.
         global_proj:
-            Projected embeddings of shape ``(V, N, D)`` where ``V`` is the
-            number of views, ``N`` is the batch size, and ``D`` is the
+            Projected embeddings of shape ``(Vl, N, D)`` where ``Vl`` is the
+            number of local views, ``N`` is the batch size, and ``D`` is the
             projection dimensionality.
 
     Returns:
