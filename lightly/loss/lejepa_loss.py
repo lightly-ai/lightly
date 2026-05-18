@@ -59,6 +59,12 @@ def _validate_projection_shapes(*, local_proj: Tensor, global_proj: Tensor) -> N
         raise ValueError(
             f"global_proj must have at least one global view, got {global_proj.shape}."
         )
+||||||| parent of d5556612 (feat: new example for lejepa)
+    return (proj.mean(0) - proj).square().mean()
+=======
+    centers = global_proj.mean(0)
+    return (centers - local_proj).square().mean()
+>>>>>>> d5556612 (feat: new example for lejepa)
 
 
 class SIGReg(nn.Module):
