@@ -791,7 +791,7 @@ class LeJEPAProjectionHead(ProjectionHead):
         self,
         input_dim: int,
         hidden_dim: int = 2048,
-        proj_dim: int = 64,
+        output_dim: int = 64,
         num_layers: int = 3,
     ):
         """Initializes the LeJEPAProjectionHead with the specified dimensions.
@@ -801,7 +801,7 @@ class LeJEPAProjectionHead(ProjectionHead):
                 Required dimensionality of the input features.
             hidden_dim:
                 Dimensionality of the hidden layers.
-            proj_dim:
+            output_dim:
                 Dimensionality of the output features.
             num_layers:
                 Number of linear layers in the projection head. Must be at
@@ -818,7 +818,7 @@ class LeJEPAProjectionHead(ProjectionHead):
             [
                 (input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),
                 *hidden_layers,
-                (hidden_dim, proj_dim, None, None),
+                (hidden_dim, output_dim, None, None),
             ]
         )
 
