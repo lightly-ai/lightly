@@ -789,7 +789,7 @@ class LeJEPAProjectionHead(ProjectionHead):
 
     def __init__(
         self,
-        input_dim: int = 512,
+        input_dim: int,
         hidden_dim: int = 2048,
         proj_dim: int = 64,
         num_layers: int = 3,
@@ -798,7 +798,7 @@ class LeJEPAProjectionHead(ProjectionHead):
 
         Args:
             input_dim:
-                Dimensionality of the input features.
+                Required dimensionality of the input features.
             hidden_dim:
                 Dimensionality of the hidden layers.
             proj_dim:
