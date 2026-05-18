@@ -42,7 +42,7 @@ class SIGReg(nn.Module):
         self,
         knots: int = 17,
         t_max: float = 3.0,
-        num_vectors: int = 256,
+        num_vectors: int = 1024,
         gather_distributed: bool = False,
     ):
         """Initialize the frequency grid and trapezoidal weights.
@@ -52,7 +52,7 @@ class SIGReg(nn.Module):
         distribution, but can also increase noise. `num_vectors` sets how many
         random projection directions are averaged per forward pass. More vectors
         usually improve stability at the cost of extra compute. The defaults
-        (`t_max=3.0`, `num_vectors=256`) follow LeJEPA settings.
+        (`t_max=3.0`, `num_vectors=1024`) follow LeJEPA settings.
 
         Args:
             knots: Number of frequency samples used for the integration grid.
@@ -210,7 +210,7 @@ class LeJEPALoss(nn.Module):
         gather_distributed: bool = False,
         sigreg_knots: int = 17,
         sigreg_t_max: float = 3.0,
-        sigreg_num_vectors: int = 256,
+        sigreg_num_vectors: int = 1024,
     ):
         """Initialize the combined LeJEPA loss.
 
