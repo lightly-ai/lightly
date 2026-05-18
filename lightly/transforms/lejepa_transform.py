@@ -78,7 +78,7 @@ class LeJEPATransform(MultiViewTransform):
         sigmas:
             Tuple of min and max value from which the std of the gaussian kernel is sampled.
             Is ignored if `kernel_size` is set.
-        solarization:
+        solarization_prob:
             Probability to apply solarization on the second global view.
         normalize:
             Dictionary with 'mean' and 'std' for torchvision.transforms.Normalize.
@@ -88,9 +88,9 @@ class LeJEPATransform(MultiViewTransform):
     def __init__(
         self,
         global_crop_size: int = 224,
-        global_crop_scale: Tuple[float, float] = (0.4, 1.0),
+        global_crop_scale: Tuple[float, float] = (0.3, 1.0),
         local_crop_size: int = 96,
-        local_crop_scale: Tuple[float, float] = (0.05, 0.4),
+        local_crop_scale: Tuple[float, float] = (0.05, 0.3),
         n_local_views: int = 6,
         hf_prob: float = 0.5,
         vf_prob: float = 0,
@@ -103,7 +103,7 @@ class LeJEPATransform(MultiViewTransform):
         cj_sat: float = 0.4,
         cj_hue: float = 0.2,
         random_gray_scale: float = 0.2,
-        gaussian_blur: Tuple[float, float, float] = (1.0, 0.1, 0.5),
+        gaussian_blur: Tuple[float, float, float] = (0.5, 0.5, 0.5),
         kernel_size: Optional[float] = None,
         kernel_scale: Optional[float] = None,
         sigmas: Tuple[float, float] = (0.1, 2),
@@ -188,7 +188,7 @@ class LeJEPAViewTransform:
     def __init__(
         self,
         crop_size: int = 224,
-        crop_scale: Tuple[float, float] = (0.4, 1.0),
+        crop_scale: Tuple[float, float] = (0.3, 1.0),
         hf_prob: float = 0.5,
         vf_prob: float = 0,
         rr_prob: float = 0,
