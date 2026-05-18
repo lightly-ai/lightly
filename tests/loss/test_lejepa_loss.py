@@ -226,9 +226,15 @@ class TestLeJEPALoss:
     def test_forward_gather_distributed_world_size_gt_one(
         self, mocker: MockerFixture
     ) -> None:
+        # TODO: replace with Gloo DDP testing (see class-level note on TestSIGReg).
         mocker.patch("lightly.loss.lejepa_loss.lightly_dist.world_size", return_value=2)
         mock_broadcast = mocker.patch.object(dist, "broadcast")
         mock_all_reduce = mocker.patch.object(dist, "all_reduce")
+        mock_dist_nn_all_reduce = mocker.patch.object(
+            dist_nn,
+            "all_reduce",
+            side_effect=lambda tensor, *args, **kwargs: tensor,
+        )
 
         torch.manual_seed(0)
         loss_fn = LeJEPALoss(gather_distributed=True)
@@ -237,7 +243,10 @@ class TestLeJEPALoss:
 
         assert loss.isfinite()
         mock_broadcast.assert_called_once()
-        assert mock_all_reduce.call_count == 3
+        # c10d all_reduce is used only for num_samples_tensor in SIGReg.forward;
+        # cos_sum/sin_sum use the autograd-aware variant from torch.distributed.nn.
+        assert mock_all_reduce.call_count == 1
+        assert mock_dist_nn_all_reduce.call_count == 2
 
     @pytest.mark.parametrize("lambda_param", [-0.1, 1.1])
     def test_lambda_must_be_in_unit_interval(self, lambda_param: float) -> None:
