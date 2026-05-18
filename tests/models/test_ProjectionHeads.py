@@ -327,7 +327,7 @@ class TestProjectionHeads(unittest.TestCase):
             head = LeJEPAProjectionHead(
                 input_dim=in_features,
                 hidden_dim=hidden_features,
-                proj_dim=out_features,
+                output_dim=out_features,
             ).to(device)
             x = torch.randn(
                 (batch_size, in_features), requires_grad=True, device=device
@@ -358,13 +358,13 @@ class TestProjectionHeads(unittest.TestCase):
             LeJEPAProjectionHead(
                 input_dim=8,
                 hidden_dim=16,
-                proj_dim=4,
+                output_dim=4,
                 num_layers=1,
             )
         with self.assertRaises(ValueError):
             LeJEPAProjectionHead(
                 input_dim=8,
                 hidden_dim=16,
-                proj_dim=4,
+                output_dim=4,
                 num_layers=0,
             )
