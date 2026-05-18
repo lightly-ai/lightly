@@ -29,11 +29,13 @@ class LeJEPATransform(MultiViewTransform):
         global_crop_size:
             Crop size of the global views.
         global_crop_scale:
-            Tuple of min and max scales relative to global_crop_size.
+            Tuple of min and max crop area fractions relative to the input image
+            area for the global views.
         local_crop_size:
             Crop size of the local views.
         local_crop_scale:
-            Tuple of min and max scales relative to local_crop_size.
+            Tuple of min and max crop area fractions relative to the input image
+            area for the local views.
         n_local_views:
             Number of generated local views.
         hf_prob:
