@@ -51,6 +51,14 @@ def _validate_projection_shapes(*, local_proj: Tensor, global_proj: Tensor) -> N
             "local_proj and global_proj must have matching batch and feature "
             f"dimensions, got {local_proj.shape} and {global_proj.shape}."
         )
+    if local_proj.shape[0] < 1:
+        raise ValueError(
+            f"local_proj must have at least one local view, got {local_proj.shape}."
+        )
+    if global_proj.shape[0] < 1:
+        raise ValueError(
+            f"global_proj must have at least one global view, got {global_proj.shape}."
+        )
 
 
 class SIGReg(nn.Module):
