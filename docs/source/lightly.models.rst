@@ -24,3 +24,8 @@ lightly.models
 --------
 .. automodule:: lightly.models.modules.heads
    :members:
+
+.lejepa
+--------
+.. automodule:: lightly.models.modules.lejepa
+   :members:
