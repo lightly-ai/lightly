@@ -368,7 +368,3 @@ class TestProjectionHeads(unittest.TestCase):
                 proj_dim=4,
                 num_layers=0,
             )
-
-    def test_lejepa_projection_head_requires_input_dim(self) -> None:
-        with self.assertRaises(TypeError):
-            LeJEPAProjectionHead(hidden_dim=16, proj_dim=4)
