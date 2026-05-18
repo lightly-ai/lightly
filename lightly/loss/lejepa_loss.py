@@ -8,19 +8,22 @@ from torch.distributed import nn as torch_dist_nn
 from lightly.utils import dist as lightly_dist
 
 
-def lejepa_invariance_loss(proj: Tensor) -> Tensor:
+def lejepa_invariance_loss(local_proj: Tensor, global_proj: Tensor) -> Tensor:
     """LeJEPA invariance loss across multiple views.
 
-    Pulls each view's projection toward the per-sample mean across views.
+    Pulls each local view's projection toward the global mean across views.
     Given projections of shape ``(V, N, D)``, this is the mean-squared
-    distance between every view and the per-sample centroid computed over
-    the view dimension.
+    distance between every local view and the centroid of the global views.
 
     Reference:
         LeJEPA, 2025, https://arxiv.org/abs/2511.08544
 
     Args:
-        proj:
+        local_proj:
+            Projected embeddings of shape ``(V, N, D)`` where ``V`` is the
+            number of views, ``N`` is the batch size, and ``D`` is the
+            projection dimensionality.
+        global_proj:
             Projected embeddings of shape ``(V, N, D)`` where ``V`` is the
             number of views, ``N`` is the batch size, and ``D`` is the
             projection dimensionality.
@@ -28,7 +31,8 @@ def lejepa_invariance_loss(proj: Tensor) -> Tensor:
     Returns:
         Scalar invariance loss.
     """
-    return (proj.mean(0) - proj).square().mean()
+    centers = global_proj.mean(0)
+    return (centers - local_proj).square().mean()
 
 
 class SIGReg(nn.Module):
@@ -38,7 +42,7 @@ class SIGReg(nn.Module):
         self,
         knots: int = 17,
         t_max: float = 3.0,
-        num_vectors: int = 256,
+        num_vectors: int = 1024,
         gather_distributed: bool = False,
     ):
         """Initialize the frequency grid and trapezoidal weights.
@@ -91,7 +95,7 @@ class SIGReg(nn.Module):
         device: torch.device,
         dtype: torch.dtype,
         num_features: int,
-    ) -> torch.Tensor:
+    ) -> Tensor:
         """Sample unit vectors to project embeddings onto random directions."""
         A = torch.randn(num_features, self.num_vectors, device=device, dtype=dtype)
         if self.gather_distributed and lightly_dist.world_size() > 1:
@@ -101,17 +105,17 @@ class SIGReg(nn.Module):
 
     def _project_embeddings_to_unit_vector(
         self,
-        proj: torch.Tensor,
-        A: torch.Tensor,
-    ) -> torch.Tensor:
+        proj: Tensor,
+        A: Tensor,
+    ) -> Tensor:
         """Project embeddings onto the sampled unit vectors."""
         return proj @ A
 
     def _compute_cf_error_at_each_frequency(
         self,
-        x_t: torch.Tensor,
+        x_t: Tensor,
         num_samples: int,
-    ) -> torch.Tensor:
+    ) -> Tensor:
         """Compute characteristic function error per frequency."""
         cos_sum = x_t.cos().sum(-3)
         sin_sum = x_t.sin().sum(-3)
@@ -127,15 +131,15 @@ class SIGReg(nn.Module):
 
     def _integrate_via_trapezoidal_rule(
         self,
-        err_per_frequency: torch.Tensor,
+        err_per_frequency: Tensor,
         num_samples: int,
-    ) -> torch.Tensor:
+    ) -> Tensor:
         """Integrate the error over frequency using trapezoidal weights."""
         weights = self.weights.to(dtype=err_per_frequency.dtype)
         statistic = (err_per_frequency @ weights) * num_samples  # type: ignore[operator]
         return statistic.mean()
 
-    def forward(self, proj: torch.Tensor) -> torch.Tensor:
+    def forward(self, proj: Tensor) -> Tensor:
         """Compute the SIGReg loss for a batch of projections.
 
         Args:
@@ -200,7 +204,7 @@ class LeJEPALoss(nn.Module):
 
     def __init__(
         self,
-        lambda_param: float = 0.02,
+        lambda_param: float = 0.05,
         gather_distributed: bool = False,
         sigreg_knots: int = 17,
         sigreg_t_max: float = 3.0,
@@ -236,15 +240,15 @@ class LeJEPALoss(nn.Module):
             gather_distributed=gather_distributed,
         )
 
-    def forward(self, proj: torch.Tensor) -> torch.Tensor:
+    def forward(self, local_proj: Tensor, global_proj: Tensor) -> Tensor:
         """Compute the LeJEPA loss for a batch of multi-view projections.
 
         Args:
             proj: Projected embeddings of shape ``(V, N, D)``.
         """
-        sigreg_loss = self.sigreg(proj)
-        inv_loss = lejepa_invariance_loss(proj)
-        loss: torch.Tensor = (
+        sigreg_loss = self.sigreg(local_proj)
+        inv_loss = lejepa_invariance_loss(local_proj, global_proj)
+        loss: Tensor = (
             self.lambda_param * sigreg_loss + (1.0 - self.lambda_param) * inv_loss
         )
         return loss
