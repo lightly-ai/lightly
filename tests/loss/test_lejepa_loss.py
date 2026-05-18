@@ -104,8 +104,8 @@ class TestLeJEPALoss:
     def test_backward_pass(self) -> None:
         torch.manual_seed(0)
         loss_fn = LeJEPALoss()
-        local_proj = torch.randn(8, 32, 128, requires_grad=True)
-        global_proj = torch.randn(8, 32, 128, requires_grad=True)
+        local_proj = torch.randn(6, 32, 128, requires_grad=True)
+        global_proj = torch.randn(2, 32, 128, requires_grad=True)
         loss = loss_fn(local_proj=local_proj, global_proj=global_proj)
         loss.backward()
         assert local_proj.grad is not None
@@ -116,8 +116,8 @@ class TestLeJEPALoss:
     def test_forward(self) -> None:
         torch.manual_seed(0)
         loss_fn = LeJEPALoss()
-        local_proj = torch.randn(8, 32, 128)
-        global_proj = torch.randn(8, 32, 128)
+        local_proj = torch.randn(6, 32, 128)
+        global_proj = torch.randn(2, 32, 128)
         loss = loss_fn(local_proj=local_proj, global_proj=global_proj)
         assert loss.isfinite()
 
