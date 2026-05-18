@@ -42,7 +42,7 @@ class SIGReg(nn.Module):
         self,
         knots: int = 17,
         t_max: float = 3.0,
-        num_vectors: int = 1024,
+        num_vectors: int = 256,
         gather_distributed: bool = False,
     ):
         """Initialize the frequency grid and trapezoidal weights.
@@ -166,15 +166,15 @@ class LeJEPALoss(nn.Module):
 
     The loss is a convex combination of two terms:
 
-    - ``SIGReg(proj)`` regularizes projections toward an isotropic Gaussian
-      distribution.
-    - ``lejepa_invariance_loss(proj)`` pulls each view toward the per-sample
-      mean across views.
+    - ``SIGReg(local_proj)`` regularizes local projections toward an
+      isotropic Gaussian distribution.
+    - ``lejepa_invariance_loss(local_proj, global_proj)`` pulls each local
+      view toward the mean of the global views.
 
     The total loss is
-    ``lambda_param * SIGReg(proj) + (1 - lambda_param) * invariance(proj)``.
+    ``lambda_param * SIGReg(local_proj) + (1 - lambda_param) * invariance(local_proj, global_proj)``.
 
-    The default ``lambda_param=0.02`` matches the reference implementation
+    The default ``lambda_param=0.05`` matches the reference implementation
     [1]. The paper [0] explores values between 0.01 and 0.1.
 
     - [0]: LeJEPA, 2025, https://arxiv.org/abs/2511.08544
@@ -192,14 +192,16 @@ class LeJEPALoss(nn.Module):
         >>> # initialize loss function
         >>> loss_fn = LeJEPALoss()
         >>>
-        >>> # generate multiple views of the same images
-        >>> views = [transform(images) for _ in range(n_views)]
+        >>> # generate local and global views
+        >>> local_views = [transform(images) for _ in range(n_local)]
+        >>> global_views = [transform(images) for _ in range(n_global)]
         >>>
         >>> # project each view and stack to shape (V, N, D)
-        >>> proj = torch.stack([model(v) for v in views])
+        >>> local_proj = torch.stack([model(v) for v in local_views])
+        >>> global_proj = torch.stack([model(v) for v in global_views])
         >>>
         >>> # calculate loss
-        >>> loss = loss_fn(proj)
+        >>> loss = loss_fn(local_proj, global_proj)
     """
 
     def __init__(
@@ -244,7 +246,8 @@ class LeJEPALoss(nn.Module):
         """Compute the LeJEPA loss for a batch of multi-view projections.
 
         Args:
-            proj: Projected embeddings of shape ``(V, N, D)``.
+            local_proj: Projected embeddings of shape ``(V, N, D)``.
+            global_proj: Projected embeddings of shape ``(V, N, D)``.
         """
         sigreg_loss = self.sigreg(local_proj)
         inv_loss = lejepa_invariance_loss(local_proj, global_proj)
