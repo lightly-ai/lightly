@@ -29,7 +29,6 @@ from lightly.models.modules.heads import (
     SwaVProjectionHead,
     SwaVPrototypes,
 )
-from lightly.models.modules.lejepa import LeJEPAEncoder
 from lightly.models.modules.nn_memory_bank import NNMemoryBankModule
 from lightly.utils import dependency as _dependency
 
