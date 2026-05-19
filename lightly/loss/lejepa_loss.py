@@ -32,7 +32,6 @@ def lejepa_invariance_loss(*, local_proj: Tensor, global_proj: Tensor) -> Tensor
     Returns:
         Scalar invariance loss.
     """
-    _validate_projection_shapes(local_proj=local_proj, global_proj=global_proj)
     centers = global_proj.mean(0)
     return (centers - local_proj).square().mean()
 
