@@ -32,6 +32,7 @@ def lejepa_invariance_loss(*, local_proj: Tensor, global_proj: Tensor) -> Tensor
     Returns:
         Scalar invariance loss.
     """
+    _validate_projection_shapes(local_proj=local_proj, global_proj=global_proj)
     centers = global_proj.mean(0)
     return (centers - local_proj).square().mean()
 
@@ -277,7 +278,6 @@ class LeJEPALoss(nn.Module):
             local_proj: Local-view projected embeddings of shape ``(Vl, N, D)``.
             global_proj: Global-view projected embeddings of shape ``(Vg, N, D)``.
         """
-        _validate_projection_shapes(local_proj=local_proj, global_proj=global_proj)
         sigreg_loss = self.sigreg(local_proj)
         inv_loss = lejepa_invariance_loss(
             local_proj=local_proj, global_proj=global_proj
