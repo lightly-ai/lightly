@@ -1,4 +1,4 @@
-from typing import Tuple
+from __future__ import annotations
 
 import pytest
 import torch
