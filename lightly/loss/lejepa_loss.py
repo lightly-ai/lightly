@@ -66,12 +66,15 @@ class SIGReg(nn.Module):
 
     def __init__(
         self,
+        *,
         knots: int = 17,
         t_max: float = 3.0,
         num_vectors: int = 1024,
         gather_distributed: bool = False,
     ):
         """Initialize the frequency grid and trapezoidal weights.
+
+        All arguments are keyword-only.
 
         `t_max` sets how far the frequency grid extends. Higher values make the
         loss more sensitive to fine-scale differences in the projected
