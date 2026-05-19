@@ -91,7 +91,7 @@ class TestLeJEPAInvarianceLoss:
         ],
     )
     def test_validates_projection_shapes(
-        self, local_shape: Tuple[int, ...], global_shape: Tuple[int, ...]
+        self, local_shape: tuple[int, ...], global_shape: tuple[int, ...]
     ) -> None:
         local_proj = torch.randn(*local_shape)
         global_proj = torch.randn(*global_shape)
