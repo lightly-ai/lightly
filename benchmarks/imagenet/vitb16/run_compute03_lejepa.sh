@@ -16,7 +16,7 @@ cd "$SCRIPT_DIR"
 
 TRAIN_DIR="${TRAIN_DIR:-/datasets/imagenet1k/train}"
 VAL_DIR="${VAL_DIR:-/datasets/imagenet1k/val}"
-BATCH_SIZE="${BATCH_SIZE:-256}"
+BATCH_SIZE="${BATCH_SIZE:-128}"
 EPOCHS="${EPOCHS:-100}"
 NUM_WORKERS="${NUM_WORKERS:-8}"
 LOG_DIR="${LOG_DIR:-$HOME/gabriel/lightly-ssl/logs/lejepa}"
