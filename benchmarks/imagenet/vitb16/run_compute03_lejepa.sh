@@ -10,8 +10,8 @@
 
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+REPO_ROOT="${SLURM_SUBMIT_DIR:-$(pwd)}"
+SCRIPT_DIR="$REPO_ROOT/benchmarks/imagenet/vitb16"
 cd "$SCRIPT_DIR"
 
 BATCH_SIZE="${BATCH_SIZE:-256}"
