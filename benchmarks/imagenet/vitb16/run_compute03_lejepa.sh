@@ -45,8 +45,10 @@ if [[ "$SMOKE_TEST" == "1" ]]; then
   cmd+=(--smoke-test)
 fi
 
-if command -v uv >/dev/null 2>&1; then
-  exec srun uv run --no-sync python "${cmd[@]}"
+UV_BIN="${UV_BIN:-$HOME/.local/bin/uv}"
+
+if [[ -x "$UV_BIN" ]]; then
+  exec srun "$UV_BIN" run --no-sync python "${cmd[@]}"
 fi
 
-exec srun python "${cmd[@]}"
+exec srun python3 "${cmd[@]}"
