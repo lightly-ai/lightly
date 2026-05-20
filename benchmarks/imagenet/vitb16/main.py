@@ -21,7 +21,7 @@ from pytorch_lightning.callbacks import (
     LearningRateMonitor,
     ModelCheckpoint,
 )
-from pytorch_lightning.loggers import TensorBoardLogger
+from pytorch_lightning.loggers import CSVLogger
 from torch.utils.data import DataLoader
 
 from lightly.data import LightlyDataset
@@ -254,7 +254,7 @@ def pretrain(
 
     # Train model.
     metric_callback = MetricCallback()
-    logger = TensorBoardLogger(save_dir=str(log_dir), name="pretrain")
+    logger = CSVLogger(save_dir=str(log_dir), name="pretrain")
     checkpoint_callback = ModelCheckpoint(
         dirpath=os.path.join(logger.log_dir, "checkpoints"),
         filename="{epoch:03d}-{val_online_cls_top1:.4f}",
@@ -263,7 +263,7 @@ def pretrain(
         save_last=True,
         save_top_k=1,
     )
-    print_rank_zero(f"TensorBoard logs: {logger.log_dir}")
+    print_rank_zero(f"CSV logs: {logger.log_dir}")
     print_rank_zero(f"Checkpoints: {checkpoint_callback.dirpath}")
     trainer = Trainer(
         max_epochs=epochs,
