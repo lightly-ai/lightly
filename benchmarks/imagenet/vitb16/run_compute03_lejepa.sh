@@ -3,7 +3,7 @@
 #SBATCH --nodes=1
 #SBATCH --gres=gpu:4
 #SBATCH --ntasks-per-node=4
-#SBATCH --cpus-per-task=16
+#SBATCH --cpus-per-task=12
 #SBATCH --mem=0
 #SBATCH --output=/home/lightly/gabriel/lightly-ssl/logs/%x-%j.out
 #SBATCH --error=/home/lightly/gabriel/lightly-ssl/logs/%x-%j.err
