@@ -47,8 +47,17 @@ if [[ "$SMOKE_TEST" == "1" ]]; then
 fi
 
 UV_BIN="${UV_BIN:-$HOME/.local/bin/uv}"
+UV_PYTHON="${UV_PYTHON:-$HOME/.local/share/uv/python/cpython-3.13.0-linux-x86_64-gnu/bin/python3.13}"
+
+if [[ ! -x "$UV_PYTHON" ]]; then
+  UV_PYTHON="$(command -v python3)"
+fi
 
 if [[ -x "$UV_BIN" ]]; then
+  if [[ ! -x "$REPO_ROOT/.venv/bin/python" ]]; then
+    rm -rf "$REPO_ROOT/.venv"
+    "$UV_BIN" sync --project "$REPO_ROOT" --python "$UV_PYTHON"
+  fi
   exec srun "$UV_BIN" run --project "$REPO_ROOT" --no-sync python "${cmd[@]}"
 fi
 
