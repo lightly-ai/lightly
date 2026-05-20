@@ -46,15 +46,10 @@ if [[ "$SMOKE_TEST" == "1" ]]; then
   cmd+=(--smoke-test)
 fi
 
-UV_BIN="${UV_BIN:-$HOME/.local/bin/uv}"
-UV_PYTHON="${UV_PYTHON:-$(command -v python3)}"
+PYTHON_BIN="${PYTHON_BIN:-$HOME/gabriel/lightly-ssl/worktrees/macos-test-fast/.venv/bin/python}"
 
-if [[ -x "$UV_BIN" ]]; then
-  if [[ ! -x "$REPO_ROOT/.venv/bin/python" ]] || ! "$REPO_ROOT/.venv/bin/python" -c 'import torch' >/dev/null 2>&1; then
-    rm -rf "$REPO_ROOT/.venv"
-    "$UV_BIN" sync --project "$REPO_ROOT" --python "$UV_PYTHON"
-  fi
-  exec srun "$UV_BIN" run --project "$REPO_ROOT" --no-sync python "${cmd[@]}"
+if [[ ! -x "$PYTHON_BIN" ]]; then
+  PYTHON_BIN="$(command -v python3)"
 fi
 
-exec srun python3 "${cmd[@]}"
+exec env PYTHONPATH="$REPO_ROOT" srun "$PYTHON_BIN" "${cmd[@]}"
