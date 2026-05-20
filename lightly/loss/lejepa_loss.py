@@ -62,7 +62,47 @@ def _validate_projection_shapes(*, local_proj: Tensor, global_proj: Tensor) -> N
 
 
 class SIGReg(nn.Module):
-    """Sketched Isotropic Gaussian Regularization for projected embeddings."""
+    """Sketched Isotropic Gaussian Regularization for projected embeddings.
+
+    SIGReg is the LeJEPA regularizer [0] that drives the empirical
+    distribution of the projected embeddings toward an isotropic Gaussian.
+    It draws random unit projection vectors (slices) and compares the
+    empirical characteristic function of the sliced projections against
+    the ideal Gaussian characteristic function via an Epps-Pulley integral
+    over a frequency grid.
+
+    - [0]: LeJEPA, 2025, https://arxiv.org/abs/2511.08544
+    - [1]: https://github.com/galilai-group/lejepa
+
+    Attributes:
+        num_vectors:
+            Number of random unit projection vectors (slices) drawn per
+            forward pass.
+        gather_distributed:
+            If True, statistics are aggregated across distributed ranks so
+            the regularization uses the global batch.
+        t:
+            Buffer of shape ``(knots,)`` containing the frequency grid
+            (``linspace(0, t_max, knots)``).
+        phi:
+            Buffer of shape ``(knots,)`` containing the target Gaussian
+            characteristic function evaluated on the frequency grid
+            (``exp(-t**2 / 2)``).
+        weights:
+            Buffer of shape ``(knots,)`` containing the trapezoidal
+            integration weights pre-multiplied by ``phi``.
+
+    Examples:
+        >>> # initialize the regularizer
+        >>> sigreg = SIGReg()
+        >>>
+        >>> # apply a transform and feed through model
+        >>> view = transform(images)
+        >>> proj = model(view)  # shape (N, D)
+        >>>
+        >>> # compute the regularization loss
+        >>> loss = sigreg(proj)
+    """
 
     def __init__(
         self,
@@ -111,6 +151,12 @@ class SIGReg(nn.Module):
         t = torch.linspace(0, t_max, knots, dtype=torch.float32)
         # t are frequencies
         dt = t_max / (knots - 1)
+        # Trapezoidal weights for integrating the error over [-t_max, t_max].
+        # The integrand (cos_mean - phi)^2 + sin_mean^2 is even in t,
+        # so its symmetric integral equals twice the integral over [0, t_max].
+        # We exploit this by evaluating at only the non-negative knots and
+        # using twice the standard trapezoidal weights:
+        # the standard [dt/2, dt, ..., dt, dt/2] becomes [dt, 2*dt, ..., 2*dt, dt].
         weights = torch.full((knots,), 2 * dt, dtype=torch.float32)
         weights[[0, -1]] = dt
         window = torch.exp(-t.square() / 2.0)
