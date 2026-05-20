@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pytest
 import torch
 from pytest_mock import MockerFixture
@@ -192,35 +194,61 @@ class TestSIGReg:
 class TestLeJEPAInvarianceLoss:
     def test_forward(self) -> None:
         torch.manual_seed(0)
-        proj = torch.randn(8, 32, 128)
-        loss = lejepa_invariance_loss(proj)
+        local_proj = torch.randn(6, 32, 128)
+        global_proj = torch.randn(2, 32, 128)
+        loss = lejepa_invariance_loss(local_proj=local_proj, global_proj=global_proj)
         assert loss.isfinite()
         assert loss.ndim == 0
 
     def test_backward(self) -> None:
         torch.manual_seed(0)
-        proj = torch.randn(8, 32, 128, requires_grad=True)
-        loss = lejepa_invariance_loss(proj)
+        local_proj = torch.randn(8, 32, 128, requires_grad=True)
+        global_proj = torch.randn(8, 32, 128, requires_grad=True)
+        loss = lejepa_invariance_loss(local_proj=local_proj, global_proj=global_proj)
         loss.backward()
-        assert proj.grad is not None
-        assert proj.grad.shape == proj.shape
+        assert local_proj.grad is not None
+        assert local_proj.grad.shape == local_proj.shape
+        assert global_proj.grad is not None
+        assert global_proj.grad.shape == global_proj.shape
+
+    @pytest.mark.parametrize(
+        ("local_shape", "global_shape"),
+        [
+            ((32, 128), (8, 32, 128)),
+            ((8, 32, 128), (32, 128)),
+            ((8, 16, 128), (8, 32, 128)),
+            ((8, 32, 64), (8, 32, 128)),
+        ],
+    )
+    def test_validates_projection_shapes(
+        self, local_shape: tuple[int, ...], global_shape: tuple[int, ...]
+    ) -> None:
+        local_proj = torch.randn(*local_shape)
+        global_proj = torch.randn(*global_shape)
+
+        with pytest.raises(ValueError):
+            lejepa_invariance_loss(local_proj=local_proj, global_proj=global_proj)
 
 
 class TestLeJEPALoss:
     def test_backward_pass(self) -> None:
         torch.manual_seed(0)
         loss_fn = LeJEPALoss()
-        proj = torch.randn(8, 32, 128, requires_grad=True)
-        loss = loss_fn(proj)
+        local_proj = torch.randn(6, 32, 128, requires_grad=True)
+        global_proj = torch.randn(2, 32, 128, requires_grad=True)
+        loss = loss_fn(local_proj=local_proj, global_proj=global_proj)
         loss.backward()
-        assert proj.grad is not None
-        assert proj.grad.shape == proj.shape
+        assert local_proj.grad is not None
+        assert local_proj.grad.shape == local_proj.shape
+        assert global_proj.grad is not None
+        assert global_proj.grad.shape == global_proj.shape
 
     def test_forward(self) -> None:
         torch.manual_seed(0)
         loss_fn = LeJEPALoss()
-        proj = torch.randn(8, 32, 128)
-        loss = loss_fn(proj)
+        local_proj = torch.randn(6, 32, 128)
+        global_proj = torch.randn(2, 32, 128)
+        loss = loss_fn(local_proj=local_proj, global_proj=global_proj)
         assert loss.isfinite()
 
     def test_forward_gather_distributed_world_size_gt_one(
@@ -238,8 +266,9 @@ class TestLeJEPALoss:
 
         torch.manual_seed(0)
         loss_fn = LeJEPALoss(gather_distributed=True)
-        proj = torch.randn(8, 32, 128)
-        loss = loss_fn(proj)
+        local_proj = torch.randn(8, 32, 128)
+        global_proj = torch.randn(8, 32, 128)
+        loss = loss_fn(local_proj=local_proj, global_proj=global_proj)
 
         assert loss.isfinite()
         mock_broadcast.assert_called_once()
@@ -257,10 +286,15 @@ class TestLeJEPALoss:
         # Wiring check: at lambda=0 the SIGReg term is zeroed out, so the loss
         # must equal the standalone invariance loss on the same projections.
         torch.manual_seed(0)
-        proj = torch.randn(8, 32, 128)
+        local_proj = torch.randn(8, 32, 128)
+        global_proj = torch.randn(8, 32, 128)
 
-        lejepa_loss = LeJEPALoss(lambda_param=0.0)(proj)
-        invariance_only = lejepa_invariance_loss(proj)
+        lejepa_loss = LeJEPALoss(lambda_param=0.0)(
+            local_proj=local_proj, global_proj=global_proj
+        )
+        invariance_only = lejepa_invariance_loss(
+            local_proj=local_proj, global_proj=global_proj
+        )
 
         assert torch.allclose(lejepa_loss, invariance_only)
 
@@ -270,12 +304,13 @@ class TestLeJEPALoss:
         lejepa_fn = LeJEPALoss(lambda_param=1.0)
         sigreg_fn = SIGReg()
         torch.manual_seed(0)
-        proj = torch.randn(8, 32, 128)
+        local_proj = torch.randn(8, 32, 128)
+        global_proj = torch.randn(8, 32, 128)
 
         torch.manual_seed(42)
-        lejepa_loss = lejepa_fn(proj)
+        lejepa_loss = lejepa_fn(local_proj=local_proj, global_proj=global_proj)
 
         torch.manual_seed(42)
-        sigreg_loss = sigreg_fn(proj)
+        sigreg_loss = sigreg_fn(local_proj)
 
         assert torch.allclose(lejepa_loss, sigreg_loss)
