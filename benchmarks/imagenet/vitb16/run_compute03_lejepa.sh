@@ -11,6 +11,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 cd "$SCRIPT_DIR"
 
 BATCH_SIZE="${BATCH_SIZE:-256}"
@@ -23,7 +24,7 @@ SKIP_POST_EVALS="${SKIP_POST_EVALS:-1}"
 mkdir -p "$LOG_DIR"
 
 cmd=(
-  main.py
+  "$SCRIPT_DIR/main.py"
   --methods lejepa
   --train-dir /datasets/imagenet/train
   --val-dir /datasets/imagenet/val
@@ -48,7 +49,7 @@ fi
 UV_BIN="${UV_BIN:-$HOME/.local/bin/uv}"
 
 if [[ -x "$UV_BIN" ]]; then
-  exec srun "$UV_BIN" run --no-sync python "${cmd[@]}"
+  exec srun "$UV_BIN" run --project "$REPO_ROOT" --no-sync python "${cmd[@]}"
 fi
 
 exec srun python3 "${cmd[@]}"
