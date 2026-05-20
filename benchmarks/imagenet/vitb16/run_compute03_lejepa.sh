@@ -14,6 +14,8 @@ REPO_ROOT="${SLURM_SUBMIT_DIR:-$(pwd)}"
 SCRIPT_DIR="$REPO_ROOT/benchmarks/imagenet/vitb16"
 cd "$SCRIPT_DIR"
 
+TRAIN_DIR="${TRAIN_DIR:-/datasets/imagenet1k/train}"
+VAL_DIR="${VAL_DIR:-/datasets/imagenet1k/val}"
 BATCH_SIZE="${BATCH_SIZE:-256}"
 EPOCHS="${EPOCHS:-100}"
 NUM_WORKERS="${NUM_WORKERS:-8}"
@@ -26,8 +28,8 @@ mkdir -p "$LOG_DIR"
 cmd=(
   "$SCRIPT_DIR/main.py"
   --methods lejepa
-  --train-dir /datasets/imagenet/train
-  --val-dir /datasets/imagenet/val
+  --train-dir "$TRAIN_DIR"
+  --val-dir "$VAL_DIR"
   --log-dir "$LOG_DIR"
   --batch-size-per-device "$BATCH_SIZE"
   --epochs "$EPOCHS"
