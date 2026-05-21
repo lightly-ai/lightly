@@ -59,11 +59,6 @@ transform = DINOTransform(
 )
 
 
-# We ignore object detection annotations by setting target_transform to return 0.
-def target_transform(t):
-    return 0
-
-
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 
@@ -71,7 +66,6 @@ dataset = torchvision.datasets.VOCDetection(
     "datasets/pascal_voc",
     download=True,
     transform=transform,
-    target_transform=target_transform,
 )
 # Or create a dataset from a folder containing images or videos.
 # dataset = LightlyDataset("path/to/folder")
