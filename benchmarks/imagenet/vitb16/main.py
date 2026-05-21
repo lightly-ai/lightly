@@ -1,4 +1,3 @@
-import os
 from argparse import ArgumentParser
 from datetime import datetime
 from pathlib import Path
@@ -19,9 +18,8 @@ from pytorch_lightning.callbacks import (
     DeviceStatsMonitor,
     EarlyStopping,
     LearningRateMonitor,
-    ModelCheckpoint,
 )
-from pytorch_lightning.loggers import CSVLogger
+from pytorch_lightning.loggers import TensorBoardLogger
 from torch.utils.data import DataLoader
 
 from lightly.data import LightlyDataset
@@ -40,7 +38,7 @@ parser.add_argument("--epochs", type=int, default=100)
 parser.add_argument("--num-workers", type=int, default=8)
 parser.add_argument("--accelerator", type=str, default="gpu")
 parser.add_argument("--devices", type=int, default=1)
-parser.add_argument("--precision", type=str, default="bf16-mixed")
+parser.add_argument("--precision", type=str, default="16-mixed")
 parser.add_argument("--ckpt-path", type=Path, default=None)
 parser.add_argument("--compile-model", action="store_true")
 parser.add_argument("--methods", type=str, nargs="+")
@@ -54,7 +52,6 @@ parser.add_argument("--skip-finetune-eval", action="store_true")
 parser.add_argument("--float32-matmul-precision", type=str, default="high")
 parser.add_argument("--strategy", default="ddp_find_unused_parameters_true")
 parser.add_argument("--seed", type=int, default=None)
-parser.add_argument("--smoke-test", action="store_true")
 METHODS = {
     "dino": {"model": dino.DINO, "transform": dino.transform},
     "dinov2": {"model": dinov2.DINOv2, "transform": dinov2.transform},
@@ -88,20 +85,10 @@ def main(
     float32_matmul_precision: str,
     strategy: str,
     seed: int | None = None,
-    smoke_test: bool = False,
 ) -> None:
     print_rank_zero(f"Args: {locals()}")
     seed_everything(seed, workers=True, verbose=True)
     torch.set_float32_matmul_precision(float32_matmul_precision)
-
-    if smoke_test:
-        print_rank_zero(
-            "Smoke test enabled: limiting pretraining to one epoch with one train/val batch and skipping downstream evals."
-        )
-        epochs = min(epochs, 1)
-        skip_knn_eval = True
-        skip_linear_eval = True
-        skip_finetune_eval = True
 
     method_names = methods or METHODS.keys()
 
@@ -140,7 +127,6 @@ def main(
                 precision=precision,
                 ckpt_path=ckpt_path,
                 strategy=strategy,
-                smoke_test=smoke_test,
             )
 
         eval_metrics: Dict[str, Dict[str, float]] = dict()
@@ -217,7 +203,6 @@ def pretrain(
     precision: str,
     ckpt_path: Union[Path, None],
     strategy: str,
-    smoke_test: bool = False,
 ) -> None:
     print_rank_zero(f"Running pretraining for {method}...")
 
@@ -254,17 +239,6 @@ def pretrain(
 
     # Train model.
     metric_callback = MetricCallback()
-    logger = CSVLogger(save_dir=str(log_dir), name="pretrain")
-    checkpoint_callback = ModelCheckpoint(
-        dirpath=os.path.join(logger.log_dir, "checkpoints"),
-        filename="{epoch:03d}-{val_online_cls_top1:.4f}",
-        monitor="val_online_cls_top1",
-        mode="max",
-        save_last=True,
-        save_top_k=1,
-    )
-    print_rank_zero(f"CSV logs: {logger.log_dir}")
-    print_rank_zero(f"Checkpoints: {checkpoint_callback.dirpath}")
     trainer = Trainer(
         max_epochs=epochs,
         accelerator=accelerator,
@@ -275,15 +249,11 @@ def pretrain(
             EarlyStopping(monitor="train_loss", patience=int(1e12), check_finite=True),
             DeviceStatsMonitor(),
             metric_callback,
-            checkpoint_callback,
         ],
-        logger=logger,
-        default_root_dir=str(log_dir),
+        logger=TensorBoardLogger(save_dir=str(log_dir), name="pretrain"),
         precision=precision,
         strategy=strategy,
         sync_batchnorm=accelerator != "cpu",  # Sync batchnorm is not supported on CPU
-        limit_train_batches=1 if smoke_test else 1.0,
-        limit_val_batches=1 if smoke_test else 1.0,
         num_sanity_val_steps=0,  # NOTE: save shared memory usage
     )
     trainer.fit(

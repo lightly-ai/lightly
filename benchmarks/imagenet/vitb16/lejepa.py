@@ -19,7 +19,7 @@ class LeJEPA(LightningModule):
         batch_size_per_device: int,
         num_classes: int,
         lr: float = 5e-4,
-        weight_decay: float = 5e-2,
+        weight_decay: float = 1e-2,
     ) -> None:
         super().__init__()
         self.save_hyperparameters()
@@ -109,7 +109,7 @@ class LeJEPA(LightningModule):
                 warmup_epochs=warmup_epochs,
                 max_epochs=int(self.trainer.estimated_stepping_batches),
                 warmup_start_value=0.01,
-                end_value=0.001,
+                end_value=1e-6 / self.lr,
             ),
             "interval": "step",
         }
