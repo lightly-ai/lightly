@@ -29,7 +29,7 @@ from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils.benchmarking import MetricCallback
 from lightly.utils.dist import print_rank_zero
 
-parser = ArgumentParser("ImageNet ViT-B/16 Benchmarks")
+parser = ArgumentParser("ImageNet Benchmarks")
 parser.add_argument("--train-dir", type=Path, default="/datasets/imagenet/train")
 parser.add_argument("--val-dir", type=Path, default="/datasets/imagenet/val")
 parser.add_argument("--log-dir", type=Path, default="benchmark_logs")

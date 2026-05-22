@@ -2,7 +2,7 @@ from typing import List, Tuple
 
 import torch
 from pytorch_lightning import LightningModule
-from timm.models.vision_transformer import vit_small_patch16_224
+from timm.models.vision_transformer import vit_large_patch14_224
 from torch import Tensor
 from torch.optim import AdamW
 
@@ -27,13 +27,15 @@ class LeJEPA(LightningModule):
         self.lr = lr
         self.weight_decay = weight_decay
 
-        self.backbone = vit_small_patch16_224(
+        self.backbone = vit_large_patch14_224(
             pretrained=False,
             pos_embed="learn",
             num_classes=0,
             dynamic_img_size=True,
             drop_path_rate=0.1,
         )
+        if hasattr(self.backbone, "set_grad_checkpointing"):
+            self.backbone.set_grad_checkpointing(True)
         self.projection_head = LeJEPAProjectionHead(input_dim=self.backbone.embed_dim)
         self.criterion = LeJEPALoss(gather_distributed=True)
         self.online_classifier = OnlineLinearClassifier(
@@ -117,6 +119,8 @@ class LeJEPA(LightningModule):
 
 
 transform = DINOTransform(
+    global_crop_size=224,
+    local_crop_size=98,
     global_crop_scale=(0.3, 1),
     local_crop_scale=(0.05, 0.3),
     gaussian_blur=(0.5, 0.5, 0.5),
