@@ -106,7 +106,7 @@ class TestDSERegularizer:
     )
     def test_invalid_init_args_raise(self, kwargs: Dict[str, object]) -> None:
         with pytest.raises(ValueError):
-            DSERegularizer(**kwargs)
+            DSERegularizer(**kwargs)  # type: ignore[arg-type]
 
     def test_effective_dimensionality_matches_reference(self) -> None:
         # Verifies _effective_dimensionality against the formula from

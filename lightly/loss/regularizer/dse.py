@@ -203,7 +203,7 @@ class DSERegularizer(Module):
 
     def _centered_singular_sum(self, representations: Tensor) -> Tensor:
         centered = representations - representations.mean(dim=0, keepdim=True)
-        singular_values = torch.linalg.svdvals(centered)
+        singular_values: Tensor = torch.linalg.svdvals(centered)
         denominator = math.sqrt(
             max(representations.shape[0] - 1, representations.shape[1])
         )
