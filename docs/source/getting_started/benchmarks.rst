@@ -15,7 +15,7 @@ ImageNet1k
 ----------
 
 - `ImageNet1k Dataset <https://image-net.org/download.php>`_
-- `Code <https://github.com/lightly-ai/lightly/tree/master/benchmarks/imagenet>`_
+- `Code <https://github.com/lightly-ai/lightly/tree/master/benchmarks/imagenet/README.md>`_
 
 The following experiments have been conducted on a system with 2x4090 GPUs.
 Training a model takes around four days for 100 epochs (35 min per epoch), including kNN, linear probing, and fine-tuning evaluation.
