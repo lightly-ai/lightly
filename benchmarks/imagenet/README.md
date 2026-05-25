@@ -12,8 +12,7 @@ to read, run, and adapt.
 * Provide easy to use/adapt reference implementations of SSL methods.
 * Keep methods self-contained while using Lightly building blocks. See
   [resnet50/simclr.py](resnet50/simclr.py) for a compact example.
-* Remain as framework agnostic as possible. The benchmarks currently only rely
-  on PyTorch and PyTorch Lightning.
+* Remain as framework agnostic as possible. The benchmarks mainly rely on PyTorch and PyTorch Lightning; some ViT methods require `timm` (install via `pip install lightly[timm]`).
 
 **Non-Goals**
 * Lightly doesn't strive to be an end-to-end SSL framework with vast
