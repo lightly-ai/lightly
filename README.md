@@ -293,7 +293,7 @@ tuned for maximum accuracy. For detailed results and more information about the 
   - ViT: [MAE](https://arxiv.org/abs/2111.06377)
 - KNN: [InstDisc](https://arxiv.org/abs/1805.01978)
 
-See the [benchmarking scripts](./benchmarks/imagenet/README.md) for details.
+See the [benchmarking scripts](./benchmarks/imagenet/) for details.
 
 | Model           | Backbone | Batch Size | Epochs | Linear Top1 | Finetune Top1 | kNN Top1 | Tensorboard                                                                                                                                                                    | Checkpoint                                                                                                                                                              |
 | --------------- | -------- | ---------- | ------ | ----------- | ------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
