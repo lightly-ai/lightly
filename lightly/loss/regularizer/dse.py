@@ -243,6 +243,8 @@ class DSERegularizer(Module):
 
         for _ in range(num_clusters - 1):
             distances = torch.cdist(x, centroids).min(dim=1).values
+            # Standard k-means++ uses D^2 sampling for the squared Euclidean
+            # k-means objective. This differs from the paper (maybe a bug!?).
             probabilities = distances.square()
             probabilities = probabilities / (probabilities.sum() + 1e-12)
             if torch.sum(probabilities) == 0:
