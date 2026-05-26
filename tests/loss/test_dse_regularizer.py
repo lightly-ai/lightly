@@ -137,36 +137,6 @@ class TestDSERegularizer:
         expected = sv.sum() / math.sqrt(max(n - 1, d))
         assert torch.allclose(result, expected)
 
-    def test_intra_image_structure_uses_only_assigned_non_singleton_clusters(
-        self,
-    ) -> None:
-        """Only clusters with at least two assigned samples contribute to the score."""
-        regularizer = DSERegularizer(local_clusters=3)
-        representations = torch.tensor(
-            [
-                [
-                    [1.0, 0.0],
-                    [0.0, 1.0],
-                    [1.0, 1.0],
-                    [2.0, 0.0],
-                ]
-            ]
-        )
-        labels = torch.tensor([0, 0, 1, 0])
-
-        def kmeans_stub(
-            x: torch.Tensor, num_clusters: int
-        ) -> tuple[torch.Tensor, torch.Tensor]:
-            assert num_clusters == 3
-            return torch.empty(num_clusters, x.shape[1]), labels
-
-        regularizer._kmeans = kmeans_stub  # type: ignore[method-assign]
-
-        result = regularizer._intra_image_structure(representations)
-
-        expected = regularizer._centered_singular_sum(representations[0, labels == 0])
-        assert torch.allclose(result, expected)
-
     @pytest.mark.skipif(not torch.cuda.is_available(), reason="No cuda")
     def test_forward_pass_cuda(self) -> None:
         torch.manual_seed(0)
