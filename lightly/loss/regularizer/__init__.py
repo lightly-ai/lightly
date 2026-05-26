@@ -4,3 +4,4 @@
 # All Rights Reserved
 
 from lightly.loss.regularizer.co2 import CO2Regularizer
+from lightly.loss.regularizer.dse import DSERegularizer
