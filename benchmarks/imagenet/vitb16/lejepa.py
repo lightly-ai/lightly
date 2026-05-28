@@ -2,7 +2,7 @@ from typing import List, Tuple
 
 import torch
 from pytorch_lightning import LightningModule
-from timm.models.vision_transformer import vit_large_patch14_224
+from timm.models.vision_transformer import vit_small_patch16_224
 from torch import Tensor
 from torch.optim import AdamW
 
@@ -27,7 +27,7 @@ class LeJEPA(LightningModule):
         self.lr = lr
         self.weight_decay = weight_decay
 
-        self.backbone = vit_large_patch14_224(
+        self.backbone = vit_small_patch16_224(
             pretrained=False,
             pos_embed="learn",
             num_classes=0,
@@ -120,7 +120,7 @@ class LeJEPA(LightningModule):
 
 transform = DINOTransform(
     global_crop_size=224,
-    local_crop_size=98,
+    local_crop_size=96,
     global_crop_scale=(0.3, 1),
     local_crop_scale=(0.05, 0.3),
     gaussian_blur=(0.5, 0.5, 0.5),
