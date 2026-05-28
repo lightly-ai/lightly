@@ -29,6 +29,9 @@ lightly.loss
 .. autoclass:: lightly.loss.ibot_loss.IBOTPatchLoss
    :members:
 
+.. autoclass:: lightly.loss.ibot_loss.IBOTPlusPlusPatchLoss
+   :members:
+
 .. autoclass:: lightly.loss.lejepa_loss.SIGReg
    :members:
 
