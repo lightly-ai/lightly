@@ -9,6 +9,7 @@ import dinov2
 import finetune_eval
 import ibot
 import knn_eval
+import lejepa
 import linear_eval
 import mae
 import torch
@@ -28,7 +29,7 @@ from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils.benchmarking import MetricCallback
 from lightly.utils.dist import print_rank_zero
 
-parser = ArgumentParser("ImageNet ViT-B/16 Benchmarks")
+parser = ArgumentParser("ImageNet Benchmarks")
 parser.add_argument("--train-dir", type=Path, default="/datasets/imagenet/train")
 parser.add_argument("--val-dir", type=Path, default="/datasets/imagenet/val")
 parser.add_argument("--log-dir", type=Path, default="benchmark_logs")
@@ -55,6 +56,7 @@ METHODS = {
     "dino": {"model": dino.DINO, "transform": dino.transform},
     "dinov2": {"model": dinov2.DINOv2, "transform": dinov2.transform},
     "ibot": {"model": ibot.IBOT, "transform": ibot.transform},
+    "lejepa": {"model": lejepa.LeJEPA, "transform": lejepa.transform},
     "mae": {"model": mae.MAE, "transform": mae.transform},
     "aim": {"model": aim.AIM, "transform": aim.transform},
 }
