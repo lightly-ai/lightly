@@ -19,7 +19,7 @@ class LeJEPA(LightningModule):
         batch_size_per_device: int,
         num_classes: int,
         lr: float = 5e-4,
-        weight_decay: float = 1e-2,
+        weight_decay: float = 5e-2,
     ) -> None:
         super().__init__()
         self.save_hyperparameters()
@@ -34,8 +34,6 @@ class LeJEPA(LightningModule):
             dynamic_img_size=True,
             drop_path_rate=0.1,
         )
-        if hasattr(self.backbone, "set_grad_checkpointing"):
-            self.backbone.set_grad_checkpointing(True)
         self.projection_head = LeJEPAProjectionHead(input_dim=self.backbone.embed_dim)
         self.criterion = LeJEPALoss(gather_distributed=True)
         self.online_classifier = OnlineLinearClassifier(
@@ -111,7 +109,7 @@ class LeJEPA(LightningModule):
                 warmup_epochs=warmup_epochs,
                 max_epochs=int(self.trainer.estimated_stepping_batches),
                 warmup_start_value=0.01,
-                end_value=1e-6 / self.lr,
+                end_value=0.001,
             ),
             "interval": "step",
         }
