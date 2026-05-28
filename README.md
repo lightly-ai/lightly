@@ -28,6 +28,7 @@ on your data, check out [lightly.ai](https://www.lightly.ai). It's free to get s
 
 ## News 🚀
 
+* May 28, 2026 - We now have [LeJEPA](https://arxiv.org/pdf/2511.08544) support for self-supervised learnign! 
 * March 23, 2026 - Check out our latest open-source project [LightlyStudio](https://github.com/lightly-ai/lightly-studio) to visualize, annotate, and manage your data with ease! 🔍
 * April 15, 2025 - We are excited to announce that you can now leverage SSL and distillation pretraining in just a few lines of code! We've worked hard to make self-supervised learning even more accessible with our new project [LightlyTrain](https://github.com/lightly-ai/lightly-train). Head over there to get started and supercharge your models! ⚡️
 
