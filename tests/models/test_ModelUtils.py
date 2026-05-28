@@ -606,7 +606,8 @@ def test_random_block_mask_image__aspect_ratio(
 
 def test_random_block_mask_image__aspect_ratio_one() -> None:
     """With aspect ratio 1.0 and num_mask=min_num_masks_per_block we expect a single,
-    square masked block."""
+    square masked block.
+    """
     mask = utils.random_block_mask_image(
         size=(14, 14),
         num_masks=9,

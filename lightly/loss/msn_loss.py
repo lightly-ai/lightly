@@ -40,6 +40,7 @@ def sharpen(probabilities: Tensor, temperature: float) -> Tensor:
         temperature:
             Temperature in (0, 1]. Lower temperature results in stronger sharpening (
             output probabilities are less uniform).
+
     Returns:
         Probabilities tensor with shape (batch_size, dim).
     """
@@ -68,6 +69,7 @@ def sinkhorn(
             Number of iterations of the sinkhorn algorithms. Set to 0 to disable.
         gather_distributed:
             If True, features from all GPUs are gathered during normalization.
+
     Returns:
         A normalized probabilities tensor.
     """

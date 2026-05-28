@@ -29,7 +29,13 @@ lightly.loss
 .. autoclass:: lightly.loss.ibot_loss.IBOTPatchLoss
    :members:
 
+.. autoclass:: lightly.loss.ibot_loss.IBOTPlusPlusPatchLoss
+   :members:
+
 .. autoclass:: lightly.loss.lejepa_loss.SIGReg
+   :members:
+
+.. autoclass:: lightly.loss.lejepa_loss.LeJEPALoss
    :members:
 
 .. autoclass:: lightly.loss.koleo_loss.KoLeoLoss
@@ -57,6 +63,9 @@ lightly.loss
    :members:
 
 .. autoclass:: lightly.loss.regularizer.co2.CO2Regularizer
+   :members:
+
+.. autoclass:: lightly.loss.regularizer.dse.DSERegularizer
    :members:
 
 .. autoclass:: lightly.loss.swav_loss.SwaVLoss

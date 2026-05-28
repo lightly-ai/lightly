@@ -102,7 +102,6 @@ class TiCoLoss(torch.nn.Module):
             AssertionError: If z_a or z_b have a batch size <= 1.
             AssertionError: If z_a and z_b do not have the same shape.
         """
-
         assert z_a.shape[0] > 1 and z_b.shape[0] > 1, (
             f"z_a and z_b must have batch size > 1 but found {z_a.shape[0]} and {z_b.shape[0]}"
         )

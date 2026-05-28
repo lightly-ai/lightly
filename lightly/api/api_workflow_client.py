@@ -260,7 +260,6 @@ class ApiWorkflowClient(
 
         :meta private:  # Skip docstring generation
         """
-
         # check to see if server side encryption for S3 is desired
         # see https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingServerSideEncryption.html
         # see https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html

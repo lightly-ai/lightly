@@ -100,7 +100,6 @@ class DirectCLRLoss(NTXentLoss):
         Returns:
             DirectCLR Loss value.
         """
-
         out0 = out0.flatten(start_dim=1)[:, : self.loss_dim]
         out1 = out1.flatten(start_dim=1)[:, : self.loss_dim]
 

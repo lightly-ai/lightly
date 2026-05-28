@@ -127,7 +127,6 @@ class DINOLoss(Module):
         Returns:
             The average cross-entropy loss.
         """
-
         # Get teacher temperature
         if teacher_temp is not None:
             teacher_temperature = torch.tensor(teacher_temp)
@@ -172,7 +171,6 @@ class DINOLoss(Module):
                 Tensor with shape (num_views, batch_size, output_dim) containing
                 features from the teacher model.
         """
-
         # Calculate the batch center using the specified center function
         batch_center = self._center_fn(x=teacher_out, dim=(0, 1))
 

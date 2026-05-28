@@ -489,7 +489,6 @@ class SMoGPredictionHead(ProjectionHead):
             output_dim:
                 Dimensionality of the output features.
         """
-
         super(SMoGPredictionHead, self).__init__(
             [
                 (input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),
@@ -774,6 +773,54 @@ class DINOv2ProjectionHead(ProjectionHead):
         x = nn.functional.normalize(x, dim=-1, p=2, eps=eps)
         x = self.last_layer(x)
         return x
+
+
+class LeJEPAProjectionHead(ProjectionHead):
+    """Projection head used for LeJEPA.
+
+    LeJEPA applies a projector (a multi-layer perceptron) on top of the
+    backbone and computes the SIGReg and invariance losses on the
+    projected embeddings. [0] The default is a 3-layer MLP with
+    BatchNorm and ReLU, matching the reference implementation. [1]
+
+    - [0]: LeJEPA, 2025, https://arxiv.org/abs/2511.08544
+    - [1]: https://github.com/galilai-group/lejepa
+    """
+
+    def __init__(
+        self,
+        input_dim: int,
+        hidden_dim: int = 2048,
+        output_dim: int = 64,
+        num_layers: int = 3,
+    ):
+        """Initializes the LeJEPAProjectionHead with the specified dimensions.
+
+        Args:
+            input_dim:
+                Required dimensionality of the input features.
+            hidden_dim:
+                Dimensionality of the hidden layers.
+            output_dim:
+                Dimensionality of the output features.
+            num_layers:
+                Number of linear layers in the projection head. Must be at
+                least 2.
+        """
+        if num_layers < 2:
+            raise ValueError("num_layers must be greater than or equal to 2.")
+
+        hidden_layers = [
+            (hidden_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU())
+            for _ in range(num_layers - 2)
+        ]
+        super().__init__(
+            [
+                (input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),
+                *hidden_layers,
+                (hidden_dim, output_dim, None, None),
+            ]
+        )
 
 
 class MMCRProjectionHead(ProjectionHead):

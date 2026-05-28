@@ -1,5 +1,4 @@
-"""
-.. _lightly-checkpoint-finetuning-tutorial-7:
+""".. _lightly-checkpoint-finetuning-tutorial-7:
 
 Tutorial 7: Finetuning Lightly Checkpoints
 ===========================================
