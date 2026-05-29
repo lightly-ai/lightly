@@ -1,24 +1,12 @@
 from __future__ import annotations
 
-import os
-
 import torch
+import torch.utils.checkpoint
 from torch import Tensor
 from torch.nn import Module
 from torch.nn import functional as F
 
 from lightly.models.modules.center import Center
-
-_XFORMERS_ENABLED = os.environ.get("XFORMERS_DISABLED") is None
-try:
-    if _XFORMERS_ENABLED:
-        from xformers.ops import cross_entropy as _xformers_cross_entropy
-
-        XFORMERS_AVAILABLE = True
-    else:
-        raise ImportError
-except ImportError:
-    XFORMERS_AVAILABLE = False
 
 
 class IBOTPatchLoss(Module):
@@ -149,6 +137,56 @@ class IBOTPlusPlusPatchLoss(IBOTPatchLoss):
         iBOT, 2021, https://arxiv.org/abs/2111.07832
     """
 
+    def __init__(
+        self,
+        output_dim: int = 65536,
+        teacher_temp: float = 0.04,
+        student_temp: float = 0.1,
+        center_mode: str = "mean",
+        center_momentum: float = 0.9,
+        chunk_size: int = 4096,
+    ) -> None:
+        """Initializes the iBOT++ patch loss.
+
+        Args:
+            chunk_size:
+                Number of patch tokens processed at once when computing the
+                cross-entropy. Each chunk is wrapped in gradient checkpointing so
+                that the large ``(chunk_size, output_dim)`` log-softmax activation
+                is recomputed during the backward pass instead of being kept in
+                memory. Smaller values lower peak memory at the cost of extra
+                recompute. Must be positive. See the parent class for the
+                remaining arguments.
+        """
+        super().__init__(
+            output_dim=output_dim,
+            teacher_temp=teacher_temp,
+            student_temp=student_temp,
+            center_mode=center_mode,
+            center_momentum=center_momentum,
+        )
+        if chunk_size <= 0:
+            raise ValueError(f"chunk_size must be positive but got {chunk_size}.")
+        self.chunk_size = chunk_size
+
+    def _chunk_loss(
+        self,
+        teacher_chunk: Tensor,
+        student_chunk: Tensor,
+        teacher_temperature: Tensor,
+    ) -> Tensor:
+        """Summed cross-entropy over a chunk of patch tokens.
+
+        Returns the sum (not the mean) over the chunk so that summing the
+        per-chunk results and dividing by the total token count reproduces the
+        mean over all tokens exactly.
+        """
+        teacher_softmax = F.softmax(
+            (teacher_chunk - self.center.value) / teacher_temperature, dim=-1
+        )
+        student_log_softmax = F.log_softmax(student_chunk / self.student_temp, dim=-1)
+        return -(teacher_softmax * student_log_softmax).sum()
+
     def forward(
         self,
         teacher_out: Tensor,
@@ -194,7 +232,6 @@ class IBOTPlusPlusPatchLoss(IBOTPatchLoss):
 
         if teacher_out.dim() == 3:
             # (B, N, K)
-            B = teacher_out.shape[0]
             teacher_flat = teacher_out.flatten(0, 1)
             student_flat = student_out.flatten(0, 1)
         else:
@@ -218,25 +255,36 @@ class IBOTPlusPlusPatchLoss(IBOTPatchLoss):
             teacher_temp if teacher_temp is not None else self.teacher_temp
         )
 
-        # (B * N, K)
-        teacher_softmax = F.softmax(
-            (teacher_flat - self.center.value) / teacher_temperature, dim=-1
-        )
+        # Process the patch tokens in chunks to bound peak memory. Computing the
+        # cross-entropy over all tokens at once materialises the full (B * N, K)
+        # log-softmax activation in fp32 and keeps it for the backward pass,
+        # which is the dominant memory cost for large output dimensions. Each
+        # chunk is gradient checkpointed so its activation is recomputed during
+        # backward instead of being stored, leaving only one chunk-sized
+        # intermediate live at a time.
+        num_tokens = teacher_flat.shape[0]
+        chunk_losses = []
+        for start in range(0, num_tokens, self.chunk_size):
+            end = start + self.chunk_size
+            teacher_chunk = teacher_flat[start:end]
+            student_chunk = student_flat[start:end]
+            if student_chunk.requires_grad:
+                chunk_loss = torch.utils.checkpoint.checkpoint(
+                    self._chunk_loss,
+                    teacher_chunk,
+                    student_chunk,
+                    teacher_temperature,
+                    use_reentrant=False,
+                )
+            else:
+                chunk_loss = self._chunk_loss(
+                    teacher_chunk, student_chunk, teacher_temperature
+                )
+            chunk_losses.append(chunk_loss)
 
-        if XFORMERS_AVAILABLE:
-            # Fused kernel avoids materialising the (B*N, K) student log-softmax tensor.
-            per_token_loss = _xformers_cross_entropy(
-                student_flat.unsqueeze(0).float(),
-                teacher_softmax.unsqueeze(0).float(),
-                self.student_temp,
-                bw_inplace=True,
-            ).squeeze(0)
-        else:
-            per_token_loss = -(
-                teacher_softmax * F.log_softmax(student_flat / self.student_temp, dim=-1)
-            ).sum(dim=-1)
-
-        loss = per_token_loss.mean()
+        # Summing the per-chunk sums and dividing by the token count gives the
+        # mean cross-entropy over all tokens.
+        loss = torch.stack(chunk_losses).sum() / num_tokens
 
         self.center.update(teacher_flat)
 
