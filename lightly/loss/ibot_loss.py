@@ -1,11 +1,24 @@
 from __future__ import annotations
 
+import os
+
 import torch
 from torch import Tensor
 from torch.nn import Module
 from torch.nn import functional as F
 
 from lightly.models.modules.center import Center
+
+_XFORMERS_ENABLED = os.environ.get("XFORMERS_DISABLED") is None
+try:
+    if _XFORMERS_ENABLED:
+        from xformers.ops import cross_entropy as _xformers_cross_entropy
+
+        XFORMERS_AVAILABLE = True
+    else:
+        raise ImportError
+except ImportError:
+    XFORMERS_AVAILABLE = False
 
 
 class IBOTPatchLoss(Module):
@@ -201,8 +214,6 @@ class IBOTPlusPlusPatchLoss(IBOTPatchLoss):
             teacher_flat = teacher_out
             student_flat = student_out
 
-        N = teacher_flat.shape[0] // B
-
         teacher_temperature = torch.tensor(
             teacher_temp if teacher_temp is not None else self.teacher_temp
         )
@@ -211,11 +222,21 @@ class IBOTPlusPlusPatchLoss(IBOTPatchLoss):
         teacher_softmax = F.softmax(
             (teacher_flat - self.center.value) / teacher_temperature, dim=-1
         )
-        student_log_softmax = F.log_softmax(student_flat / self.student_temp, dim=-1)
 
-        # (B * N,) -> (B, N) -> scalar
-        loss = -torch.sum(teacher_softmax * student_log_softmax, dim=-1)
-        loss = loss.view(B, N).mean(dim=1).mean()
+        if XFORMERS_AVAILABLE:
+            # Fused kernel avoids materialising the (B*N, K) student log-softmax tensor.
+            per_token_loss = _xformers_cross_entropy(
+                student_flat.unsqueeze(0).float(),
+                teacher_softmax.unsqueeze(0).float(),
+                self.student_temp,
+                bw_inplace=True,
+            ).squeeze(0)
+        else:
+            per_token_loss = -(
+                teacher_softmax * F.log_softmax(student_flat / self.student_temp, dim=-1)
+            ).sum(dim=-1)
+
+        loss = per_token_loss.mean()
 
         self.center.update(teacher_flat)
 
