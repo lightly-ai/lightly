@@ -148,7 +148,9 @@ class TestIBOTPlusPlusPatchLoss:
         assert student_out.grad is not None
         # Visible tokens get no gradient when their weight is zero.
         assert torch.allclose(
-            student_out.grad[:, 3:], torch.zeros_like(student_out.grad[:, 3:]), atol=1e-7
+            student_out.grad[:, 3:],
+            torch.zeros_like(student_out.grad[:, 3:]),
+            atol=1e-7,
         )
         # Masked tokens do receive gradient.
         assert student_out.grad[:, :3].abs().sum() > 0

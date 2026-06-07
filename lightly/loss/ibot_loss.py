@@ -152,7 +152,7 @@ class IBOTPlusPlusPatchLoss(IBOTPatchLoss):
         image modeling signal), and the visible term is normalized by the number
         of visible tokens per image and scaled by ``visible_loss_weight``::
 
-            loss = mean_b ( masked_b + visible_loss_weight * visible_b )
+            loss = mean_b(masked_b + visible_loss_weight * visible_b)
 
         Setting ``visible_loss_weight=0`` recovers the exact iBOT behavior, while
         ``visible_loss_weight>0`` adds the iBOT++ supervision on visible tokens
