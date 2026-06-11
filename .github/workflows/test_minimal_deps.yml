@@ -50,5 +50,4 @@ jobs:
       - name: Run Tests
         run: |
           source .venv/bin/activate
-          export LIGHTLY_SERVER_LOCATION="localhost:-1"
           python -m pytest -s -v --runslow
