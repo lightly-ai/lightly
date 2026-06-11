@@ -23,7 +23,7 @@ a single command, please contact sales@lightly.ai.
 
 We've also built a whole platform on top, with additional features for active learning
 and [data curation](https://docs.lightly.ai/docs/what-is-lightly). If you're interested in the
-Lightly Worker Solution to easily process millions of samples and run [powerful algorithms](https://docs.lightly.ai/docs/customize-a-selection)
+Lightly Platform to easily process millions of samples and run [powerful algorithms](https://docs.lightly.ai/docs/customize-a-selection)
 on your data, check out [lightly.ai](https://www.lightly.ai). It's free to get started!
 
 ## News 🚀
@@ -443,7 +443,7 @@ You can find out more about the company and it's services by following the links
 - [Homepage](https://www.lightly.ai)
 - [LightlyTrain](https://docs.lightly.ai/train/stable/index.html)
 - [Web-App](https://app.lightly.ai)
-- [Lightly Solution Documentation (Lightly Worker & API)](https://docs.lightly.ai/)
+- [Lightly Platform Documentation](https://docs.lightly.ai/)
 - [Lightly's AwesomeSSL](https://github.com/lightly-ai/awesome-self-supervised-learning) (collection of SSL papers)
 
 [Back to top🚀](#top)
