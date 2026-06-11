@@ -29,7 +29,6 @@ class TestLightlyDataset(unittest.TestCase):
             self.cfg = compose(
                 config_name="config",
                 overrides=[
-                    'token="123"',
                     f"input_dir={self.folder_path}",
                     "trainer.max_epochs=0",
                 ],
