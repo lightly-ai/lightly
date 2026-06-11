@@ -97,6 +97,23 @@ with the normalized temperature-scaled cross entropy loss and simple stochastic 
     optimizer = torch.optim.SGD(model.parameters(), lr=1e-0, weight_decay=1e-5)
 
 
+LeJEPA [0]_ is another first-class method in LightlySSL. It combines a
+multi-view projection head with the SIGReg regularizer and requires no
+negative samples, momentum encoder, or stop-gradient:
+
+.. code-block:: python
+
+    from lightly.loss import LeJEPALoss
+    from lightly.models.modules import LeJEPAProjectionHead
+
+    projection_head = LeJEPAProjectionHead(input_dim=512)
+    criterion = LeJEPALoss()
+
+See the :ref:`lejepa` example for a full, runnable training script.
+
+.. [0] `LeJEPA, 2025 <https://arxiv.org/abs/2511.08544>`_
+
+
 .. note:: You can also use custom backbones and use lightly to train them using
           self-supervised learning. Learn more about how to use custom backbones
           in our 
