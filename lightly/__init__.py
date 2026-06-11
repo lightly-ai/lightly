@@ -9,15 +9,10 @@ with other frameworks such as Fast.ai.
 
 The framework is structured into the following modules:
 
-- **api**:
-
-  The lightly.api module handles communication with the Lightly web-app.
-
 - **cli**:
 
   The lightly.cli module provides a command-line interface for training
-  self-supervised models and embedding images. Furthermore, the command-line
-  tool can be used to upload and download images from/to the Lightly web-app.
+  self-supervised models and creating embeddings.
 
 - **core**:
 
@@ -76,17 +71,3 @@ The framework is structured into the following modules:
 
 __name__ = "lightly"
 __version__ = "1.5.24"
-
-
-import os
-
-if os.getenv("LIGHTLY_DID_VERSION_CHECK", "False") == "False":
-    os.environ["LIGHTLY_DID_VERSION_CHECK"] = "True"
-    import multiprocessing
-
-    if multiprocessing.current_process().name == "MainProcess":
-        from lightly.api import _version_checking
-
-        _version_checking.check_is_latest_version_in_background(
-            current_version=__version__
-        )
