@@ -1,7 +1,7 @@
 import os
 import re
-import sys
 import tempfile
+import unittest
 
 import hydra
 import torchvision
@@ -13,16 +13,10 @@ except ImportError:
     from hydra.experimental import initialize
 
 from lightly import cli
-from tests.api_workflow.mocked_api_workflow_client import (
-    N_FILES_ON_SERVER,
-    MockedApiWorkflowClient,
-    MockedApiWorkflowSetup,
-)
 
 
-class TestCLIMagic(MockedApiWorkflowSetup):
+class TestCLIMagic(unittest.TestCase):
     def setUp(self):
-        MockedApiWorkflowSetup.setUp(self)
         self.create_fake_dataset()
         with initialize(config_path="../../lightly/cli/config", job_name="test_app"):
             self.cfg = compose(
@@ -34,7 +28,7 @@ class TestCLIMagic(MockedApiWorkflowSetup):
             )
 
     def create_fake_dataset(self, filename_appendix: str = ""):
-        n_data = len(self.api_workflow_client.get_filenames())
+        n_data = 5
         self.dataset = torchvision.datasets.FakeData(
             size=n_data, image_size=(3, 32, 32)
         )
@@ -78,7 +72,6 @@ class TestCLIMagic(MockedApiWorkflowSetup):
         self.assertEqual(self.cfg["trainer"]["max_epochs"], 3)
 
     def test_magic_with_trainer(self):
-        MockedApiWorkflowClient.n_dims_embeddings_on_server = 32
         cli_string = "lightly-magic trainer.max_epochs=1"
         self.parse_cli_string(cli_string)
         cli.lightly_cli(self.cfg)
