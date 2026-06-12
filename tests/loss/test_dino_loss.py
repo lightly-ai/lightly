@@ -131,6 +131,16 @@ class TestDINOLoss:
             center_momentum=center_momentum,
         )
 
+    def test_single_view_raises(self) -> None:
+        # A single teacher view and a single student view leave no cross-view
+        # terms (the diagonal is excluded), which previously produced a silent
+        # NaN from a 0 / 0 division.
+        loss_fn = DINOLoss(output_dim=8)
+        teacher_out = torch.randn(4, 8)
+        student_out = torch.randn(4, 8)
+        with pytest.raises(ValueError, match="at least two views"):
+            loss_fn([teacher_out], [student_out])
+
 
 def test_center__equivalence() -> None:
     """Check that DINOLoss.update_center is equivalent to Center.update.
