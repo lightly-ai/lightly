@@ -76,6 +76,42 @@ def test_cosine_schedule__error(
         )
 
 
+@pytest.mark.parametrize(
+    "step, max_steps, start_value, end_value, period",
+    [
+        # Cosine decay branch (step < max_steps - 1)
+        (1, 10, 1.0, 0.0, None),
+        # End value branches
+        (1, 1, 1.0, 0.0, None),
+        (10, 10, 1.0, 0.0, None),
+        # End value branch with int end_value
+        (10, 10, 0.996, 1, None),
+        # Period branch
+        (1, 20, 1.0, 0.0, 10),
+    ],
+)
+def test_cosine_schedule__returns_python_float(
+    step: int,
+    max_steps: int,
+    start_value: float,
+    end_value: float,
+    period: Optional[int],
+) -> None:
+    # Must be a plain Python float and not np.float64, otherwise loading
+    # checkpoints containing the value fails with torch.load(weights_only=True).
+    # See https://github.com/lightly-ai/lightly/issues/1902
+    # type(...) is used instead of isinstance(...) because np.float64 is a
+    # subclass of float and would pass the isinstance check.
+    decay = scheduler.cosine_schedule(
+        step=step,
+        max_steps=max_steps,
+        start_value=start_value,
+        end_value=end_value,
+        period=period,
+    )
+    assert type(decay) is float
+
+
 def test_cosine_schedule__warn_step_exceeds_max_steps() -> None:
     with pytest.warns(
         RuntimeWarning, match="Current step number 11 exceeds max_steps 10."
