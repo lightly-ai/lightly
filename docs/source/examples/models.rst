@@ -19,6 +19,7 @@ for PyTorch and PyTorch Lightning to give you a headstart when implementing your
     dinov2.rst
     fastsiam.rst
     ibot.rst
+    lejepa.rst
     mae.rst
     mmcr.rst
     msn.rst
