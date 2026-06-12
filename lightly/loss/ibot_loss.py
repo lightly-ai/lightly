@@ -142,8 +142,22 @@ class IBOTPlusPlusPatchLoss(IBOTPatchLoss):
         student_out: Tensor,
         mask: Tensor | None = None,
         teacher_temp: float | None = None,
+        visible_loss_weight: float = 1.0,
     ) -> Tensor:
         """Forward pass through the iBOT++ patch loss.
+
+        When ``mask`` is provided, the per-token cross-entropy is split into a
+        masked term and a visible term. The masked term is normalized by the
+        number of masked tokens per image (matching the original iBOT masked
+        image modeling signal), and the visible term is normalized by the number
+        of visible tokens per image and scaled by ``visible_loss_weight``::
+
+            loss = mean_b(masked_b + visible_loss_weight * visible_b)
+
+        Setting ``visible_loss_weight=0`` recovers the exact iBOT behavior, while
+        ``visible_loss_weight>0`` adds the iBOT++ supervision on visible tokens
+        without diluting the masked-token signal. When ``mask`` is ``None`` the
+        loss falls back to a plain mean over all patch tokens.
 
         Args:
             teacher_out:
@@ -153,12 +167,17 @@ class IBOTPlusPlusPatchLoss(IBOTPatchLoss):
                 Tensor with the same shape as ``teacher_out`` containing full
                 patch logits from the student model.
             mask:
-                Optional boolean tensor with shape ``(B, H, W)`` or ``(B, N)``.
-                Required when ``teacher_out`` has rank 2 so that the batch size
-                ``B`` can be inferred.
+                Optional boolean tensor with shape ``(B, H, W)`` or ``(B, N)``
+                where ``True`` marks masked tokens. Used to weight masked vs.
+                visible tokens, and required when ``teacher_out`` has rank 2 so
+                that the batch size ``B`` can be inferred.
             teacher_temp:
                 The temperature used for the teacher output. If None, the default
                 temperature defined in ``__init__`` is used.
+            visible_loss_weight:
+                Weight applied to the visible-token (unmasked) loss term. Only
+                used when ``mask`` is provided. Defaults to ``1.0``. Use ``0.0``
+                to recover the original iBOT masked-only behavior.
 
         Returns:
             The loss value as a scalar tensor.
@@ -213,9 +232,22 @@ class IBOTPlusPlusPatchLoss(IBOTPatchLoss):
         )
         student_log_softmax = F.log_softmax(student_flat / self.student_temp, dim=-1)
 
-        # (B * N,) -> (B, N) -> scalar
-        loss = -torch.sum(teacher_softmax * student_log_softmax, dim=-1)
-        loss = loss.view(B, N).mean(dim=1).mean()
+        # Per-token cross-entropy: (B * N,) -> (B, N)
+        ce = -torch.sum(teacher_softmax * student_log_softmax, dim=-1).view(B, N)
+
+        if mask is None:
+            # No mask: average equally over all patch tokens.
+            loss = ce.mean()
+        else:
+            # Split into masked and visible terms. The masked term keeps the
+            # original iBOT normalization (per-image mean over masked tokens) so
+            # the masked-token signal is not diluted by the visible tokens.
+            mask_flat = mask.reshape(B, N).to(dtype=ce.dtype)  # 1.0 = masked
+            n_masked = mask_flat.sum(dim=1).clamp(min=1.0)
+            n_visible = (1.0 - mask_flat).sum(dim=1).clamp(min=1.0)
+            masked_loss = (ce * mask_flat).sum(dim=1) / n_masked
+            visible_loss = (ce * (1.0 - mask_flat)).sum(dim=1) / n_visible
+            loss = (masked_loss + visible_loss_weight * visible_loss).mean()
 
         self.center.update(teacher_flat)
 
