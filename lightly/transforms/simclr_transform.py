@@ -132,8 +132,7 @@ class SimCLRViewTransform:
     Used by SimCLRTransform to create the views of an image.
 
     Input to this transform:
-        PIL Image or Tensor.
-
+        PIL Image. (Tensor inputs are supported when torchvision transforms v2 are available.)
     Output of this transform:
         Tensor.
 
