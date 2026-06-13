@@ -97,11 +97,10 @@ def test_cosine_schedule__returns_python_float(
     end_value: float,
     period: Optional[int],
 ) -> None:
-    # Must be a plain Python float and not np.float64, otherwise loading
-    # checkpoints containing the value fails with torch.load(weights_only=True).
+    # Must be a plain Python float (not a NumPy scalar such as np.float64), otherwise
+    # loading checkpoints containing the value fails with torch.load(weights_only=True).
     # See https://github.com/lightly-ai/lightly/issues/1902
-    # type(...) is used instead of isinstance(...) because np.float64 is a
-    # subclass of float and would pass the isinstance check.
+    # type(...) is used to assert the exact return type is the built-in `float`. 
     decay = scheduler.cosine_schedule(
         step=step,
         max_steps=max_steps,
