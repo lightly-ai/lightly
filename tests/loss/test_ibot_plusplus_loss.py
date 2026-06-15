@@ -91,6 +91,70 @@ class TestIBOTPlusPlusPatchLoss:
 
         assert loss_2d == pytest.approx(loss_3d.item(), rel=1e-5)
 
+    def test_visible_loss_weight_zero_matches_masked_only(self) -> None:
+        # With visible_loss_weight=0 and a mask, iBOT++ must reduce to the
+        # original iBOT masked-only loss (per-image mean over masked tokens).
+        torch.manual_seed(7)
+        B, N, K = 3, 8, 6
+        teacher_temp, student_temp = 0.04, 0.1
+        criterion = IBOTPlusPlusPatchLoss(
+            output_dim=K, teacher_temp=teacher_temp, student_temp=student_temp
+        )
+        # Zero out the center so it has no effect.
+        criterion.center.center.zero_()
+
+        teacher_out = torch.randn(B, N, K)
+        student_out = torch.randn(B, N, K)
+        mask = torch.rand(B, N) < 0.4
+        mask[:, 0] = True  # ensure at least one masked token per image
+
+        loss = criterion(
+            teacher_out=teacher_out,
+            student_out=student_out,
+            mask=mask,
+            visible_loss_weight=0.0,
+        )
+
+        # Manual masked-only reference.
+        q = F.softmax(teacher_out / teacher_temp, dim=-1)
+        log_p = F.log_softmax(student_out / student_temp, dim=-1)
+        ce = -(q * log_p).sum(dim=-1)  # (B, N)
+        m = mask.float()
+        expected = ((ce * m).sum(dim=1) / m.sum(dim=1).clamp(min=1.0)).mean()
+
+        assert loss == pytest.approx(expected.item(), rel=1e-5)
+
+    def test_visible_loss_weight_decouples_masked_and_visible(self) -> None:
+        # With visible_loss_weight=0 the visible tokens must not contribute to
+        # the gradient, while masked tokens do.
+        torch.manual_seed(3)
+        B, N, K = 2, 6, 5
+        teacher_out = torch.randn(B, N, K)
+        mask = torch.zeros(B, N, dtype=torch.bool)
+        mask[:, :3] = True  # first half masked, second half visible
+
+        criterion = IBOTPlusPlusPatchLoss(output_dim=K)
+        criterion.center.center.zero_()
+
+        student_out = torch.randn(B, N, K, requires_grad=True)
+        loss = criterion(
+            teacher_out=teacher_out,
+            student_out=student_out,
+            mask=mask,
+            visible_loss_weight=0.0,
+        )
+        loss.backward()
+
+        assert student_out.grad is not None
+        # Visible tokens get no gradient when their weight is zero.
+        assert torch.allclose(
+            student_out.grad[:, 3:],
+            torch.zeros_like(student_out.grad[:, 3:]),
+            atol=1e-7,
+        )
+        # Masked tokens do receive gradient.
+        assert student_out.grad[:, :3].abs().sum() > 0
+
     def test_invalid_shapes_raise(self) -> None:
         criterion = IBOTPlusPlusPatchLoss(output_dim=4)
 
