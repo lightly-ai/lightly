@@ -44,15 +44,15 @@ class DINOLoss(Module):
         >>> # initialize loss function
         >>> loss_fn = DINOLoss(128)
         >>>
-        >>> # generate a view of the images with a random transform
-        >>> view = transform(images)
+        >>> # generate two views of the images with a random transform
+        >>> view0, view1 = transform(images), transform(images)
         >>>
-        >>> # embed the view with a student and teacher model
-        >>> teacher_out = teacher(view)
-        >>> student_out = student(view)
+        >>> # embed the views with a student and teacher model
+        >>> teacher_out = [teacher(view0), teacher(view1)]
+        >>> student_out = [student(view0), student(view1)]
         >>>
         >>> # calculate loss
-        >>> loss = loss_fn([teacher_out], [student_out])
+        >>> loss = loss_fn(teacher_out, student_out)
     """
 
     def __init__(
@@ -154,6 +154,15 @@ class DINOLoss(Module):
         # Number of loss terms, ignoring the diagonal
         n_terms = loss.numel() - loss.diagonal().numel()
         batch_size = teacher_out_stacked.shape[1]
+
+        if n_terms == 0:
+            raise ValueError(
+                "DINOLoss requires at least two views in total (the diagonal "
+                "matching the same view index is excluded), but got "
+                f"{len(teacher_out)} teacher view(s) and {len(student_out)} "
+                "student view(s), which leaves no cross-view terms to compute "
+                "the loss from."
+            )
 
         loss = loss.sum() / (n_terms * batch_size)
 
