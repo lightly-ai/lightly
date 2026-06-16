@@ -49,17 +49,14 @@ jobs:
       - name: Test CLI
         run: |
           source .venv/bin/activate
-          LIGHTLY_SERVER_LOCATION="localhost:-1"
           lightly-crop --help
           lightly-ssl-train --help
           lightly-embed --help
           lightly-magic --help
-          lightly-download --help
           lightly-version
       - name: Test CLI on Dataset
         run: |
           source .venv/bin/activate
-          LIGHTLY_SERVER_LOCATION="localhost:-1"
           git clone https://github.com/alexeygrigorev/clothing-dataset-small clothing_dataset_small
           INPUT_DIR_1="clothing_dataset_small/test/dress"
           lightly-ssl-train input_dir=$INPUT_DIR_1 trainer.max_epochs=1 loader.num_workers=6

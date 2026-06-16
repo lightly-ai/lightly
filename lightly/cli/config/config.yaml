@@ -1,92 +1,75 @@
 ### i/o
-# The following arguments specify input and output locations
-# of images, embeddings, and checkpoints.
+# The following arguments specify input and output locations
+# of images, embeddings, and checkpoints.
 input_dir: ''                 # Path to input directory which holds images.
-output_dir: ''                # Path to directory which should store downloads.
-embeddings: ''                # Path to csv file which holds embeddings.
-checkpoint: ''                # Path to a model checkpoint. If left empty, a pre-trained model
+output_dir: ''                # Path to directory which should store cropped images.
+embeddings: ''                # Path to csv file which holds embeddings.
+checkpoint: ''                # Path to a model checkpoint. If left empty, a pre-trained model
                               # will be used.
 label_dir: ''                 # Path to the input directory which holds the labels.
 label_names_file: ''          # Path to a yaml file having the label names under the value 'names'
-custom_metadata: ''           # Path to a json file in COCO format containing additional metadata
 
-### Lightly platform
-# The following arguments are required for requests to the
-# Lightly platform.
-token: ''                     # User access token to the Lightly platform.
-dataset_id: ''                # Identifier of the dataset on the Lightly platform.
-new_dataset_name: ''          # Name of the new dataset to be created on the Lightly platform
-upload: 'full'                # Whether to upload full images, thumbnails only, or metadata only.
-                              # Must be one of ['full', 'thumbnails', 'none']
-append: False                 # Must be True if you want to append samples to an existing dataset.
-resize: -1                    # Allow resizing of the images before uploading, usage =-1, =x, =[x,y]
-embedding_name: 'default'     # Name of the embedding to be used on the Lightly platform.
-emb_upload_bsz: 32            # Number of embeddings which are uploaded in a single batch.
-tag_name: 'initial-tag'       # Name of the requested tag on the Lightly platform.
-exclude_parent_tag: False     # If true, only the samples in the defined tag, but without the parent tag, are taken.
-
-### training and embeddings
-pre_trained: True             # Whether to use a pre-trained model or not
+### training and embeddings
+pre_trained: True             # Whether to use a pre-trained model or not
 crop_padding: 0.1             # The padding to use when cropping
 
-# model namespace: Passed to lightly.models.ResNetGenerator.
+# model namespace: Passed to lightly.models.ResNetGenerator.
 model:
   name: 'resnet-18'           # Name of the model, currently supports popular variants:
-                              # resnet-18, resnet-34, resnet-50, resnet-101, resnet-152.
+                              # resnet-18, resnet-34, resnet-50, resnet-101, resnet-152.
   out_dim: 128                # Dimensionality of output on which self-supervised loss is calculated.
   num_ftrs: 32                # Dimensionality of feature vectors (embedding size).
   width: 1                    # Width of the resnet.
 
-# criterion namespace: Passed to lightly.loss.NTXentLoss.
-criterion:            
-  temperature: 0.5            # Number by which logits are divided.
+# criterion namespace: Passed to lightly.loss.NTXentLoss.
+criterion:
+  temperature: 0.5            # Number by which logits are divided.
   memory_bank_size: 0         # Size of the memory bank to use (e.g. for MoCo). 0 means no memory bank.
                               # ^ slight abuse of notation, MoCo paper calls it momentum encoder
 
 # optimizer namespace: Passed to torch.optim.SGD.
 optimizer:
   lr: 1.                      # Learning rate of the optimizer.
-  weight_decay: 0.00001       # L2 penalty.
+  weight_decay: 0.00001       # L2 penalty.
 
 # collate namespace: Passed to lightly.data.ImageCollateFunction.
 collate:
-  input_size: 64              # Size of the input images in pixels.
+  input_size: 64              # Size of the input images in pixels.
   cj_prob: 0.8                # Probability that color jitter is applied.
   cj_bright: 0.7              # Color_jitter intensity for brightness,
   cj_contrast: 0.7            # contrast,
   cj_sat: 0.7                 # saturation,
-  cj_hue: 0.2                 # and hue.
-  min_scale: 0.15             # Minimum size of random crop relative to input_size.
-  random_gray_scale: 0.2      # Probability of converting image to gray scale.
+  cj_hue: 0.2                 # and hue.
+  min_scale: 0.15             # Minimum size of random crop relative to input_size.
+  random_gray_scale: 0.2      # Probability of converting image to gray scale.
   gaussian_blur: 0.5          # Probability of Gaussian blur.
-  sigmas: [0.2, 2]            # Sigmas of Gaussian blur 
+  sigmas: [0.2, 2]            # Sigmas of Gaussian blur
   kernel_size: null           # Will be deprecated in favor of `sigmas` argument. If set, the old behavior
-                              # applies and `sigmas` is ignored. Used to calculate sigma of gaussian blur 
+                              # applies and `sigmas` is ignored. Used to calculate sigma of gaussian blur
                               # with kernel_size * input_size.
   vf_prob: 0.0                # Probability that vertical flip is applied.
   hf_prob: 0.5                # Probability that horizontal flip is applied.
   rr_prob: 0.0                # Probability that random rotation is applied.
   rr_degrees: null            # Range of degrees to select from for random rotation.
                               # If rr_degrees is null, images are rotated by 90 degrees.
-                              # If rr_degrees is a [min, max] list, images are rotated
-                              # by a random angle in [min, max]. If rr_degrees is a
-                              # single number, images are rotated by a random angle in
-                              # [-rr_degrees, +rr_degrees]. All rotations are counter-clockwise.
+                              # If rr_degrees is a [min, max] list, images are rotated
+                              # by a random angle in [min, max]. If rr_degrees is a
+                              # single number, images are rotated by a random angle in
+                              # [-rr_degrees, +rr_degrees]. All rotations are counter-clockwise.
 
-# loader namespace: Passed to torch.utils.data.DataLoader.
+# loader namespace: Passed to torch.utils.data.DataLoader.
 loader:
-  batch_size: 16              # Batch size for training / inference.
-  shuffle: True               # Whether to reshuffle data each epoch.
+  batch_size: 16              # Batch size for training / inference.
+  shuffle: True               # Whether to reshuffle data each epoch.
   num_workers: -1             # Number of workers pre-fetching batches.
-                              # -1 == number of available cores,
-                              # if -1, minimum of 8, maximum of 32 workers for upload.
-  drop_last: True             # Whether to drop the last batch during training.
+                              # -1 == number of available cores.
+  drop_last: True             # Whether to drop the last batch during training.
 
-# trainer namespace: Passed to pytorch_lightning.Trainer.
+# trainer namespace: Passed to pytorch_lightning.Trainer.
 trainer:
   gpus: 1                     # Number of gpus to use for training.
   max_epochs: 100             # Number of epochs to train for.
-  precision: 32               # If set to 16, will use half-precision.
+  precision: 32               # If set to 16, will use half-precision.
   enable_model_summary: True  # Whether to enable model summarisation.
   weights_summary:            # [deprecated] Use enable_model_summary
                               # and summary_callback.max_depth.
@@ -106,13 +89,12 @@ summary_callback:
 environment_variable_names:
   lightly_last_checkpoint_path: LIGHTLY_LAST_CHECKPOINT_PATH
   lightly_last_embedding_path: LIGHTLY_LAST_EMBEDDING_PATH
-  lightly_last_dataset_id: LIGHTLY_LAST_DATASET_ID
 
 # seed
 seed: 1
 
 ### hydra
-# The arguments below are built-ins from the hydra-core Python package.
+# The arguments below are built-ins from the hydra-core Python package.
 hydra:
   run:
     dir: lightly_outputs/${now:%Y-%m-%d}/${now:%H-%M-%S}
@@ -141,15 +123,6 @@ hydra:
 
       Train using half-precision
       > lightly-ssl-train input_dir='path/to/image/folder' trainer.precision=16
-      
-      Download a list of files in a given tag from the Lightly Platform
-      > lightly-download tag_name='my-tag' dataset_id='your_dataset_id' token='your_access_token'
-
-      Download a list of files in a given tag without filenames from the parent tag from the Lightly Platform
-      > lightly-download tag_name='my-tag' dataset_id='your_dataset_id' token='your_access_token' exclude_parent_tag=True
-
-      Copy all files in a given tag from a source directory to a target directory
-      > lightly-download tag_name='my-tag' dataset_id='your_dataset_id' token='your_access_token' input_dir='data/' output_dir='new_data/'
 
       == Additional Information ==
 

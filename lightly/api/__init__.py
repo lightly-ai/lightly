@@ -1,15 +1,13 @@
-"""The lightly.api module provides access to the Lightly API."""
+"""Deprecated compatibility module for the removed Lightly API client."""
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
-from lightly.api import patch as _patch
-from lightly.api.api_workflow_artifacts import ArtifactNotExist
-from lightly.api.api_workflow_client import ApiWorkflowClient
-from lightly.openapi_generated.swagger_client.api_client import (
-    Configuration as _Configuration,
+
+_ERROR_MESSAGE = (
+    "lightly.api and ApiWorkflowClient have been removed from the lightly package. "
+    "The API workflow client is deprecated. If you need ApiWorkflowClient, use "
+    "Lightly SSL version v1.15.x or older, for example with "
+    '`pip install "lightly<1.16"`.'
 )
 
-# Make ApiWorkflowClient and swagger classes picklable.
-_patch.make_swagger_configuration_picklable(
-    configuration_cls=_Configuration,
-)
+raise ImportError(_ERROR_MESSAGE)

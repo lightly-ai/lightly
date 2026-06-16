@@ -130,14 +130,6 @@ install-dev:
 	pre-commit install
 
 
-# Install package with API dependencies only.
-# Should be same command as in the docs with some extra flags for CI:
-# https://docs.lightly.ai/docs/install-lightly#install-the-lightly-python-client
-.PHONY: install-api-only
-install-api-only:
-	uv pip install --exclude-newer ${EXCLUDE_NEWER_DATE} --requirement requirements/base.txt
-	uv pip install --exclude-newer ${EXCLUDE_NEWER_DATE} . --no-deps
-
 # Install package with minimal dependencies.
 # 
 # This command is split into multiple steps:
