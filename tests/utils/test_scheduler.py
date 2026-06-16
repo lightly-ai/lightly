@@ -112,26 +112,16 @@ def test_cosine_schedule__returns_python_float(
     assert type(decay) is float
 
 
+@pytest.mark.skipif(
+    tuple(int(x) for x in torch.__version__.split(".")[:2]) < (2, 6),
+    reason="torch.load(weights_only=True) does not support plain floats before PyTorch 2.6",
+)
 def test_cosine_schedule__checkpoint_roundtrip() -> None:
     # Regression test for https://github.com/lightly-ai/lightly/issues/1902:
     # a cosine_schedule value saved in a checkpoint must be loadable with
     # torch.load(weights_only=True), the default since PyTorch 2.6. This
     # fails for np.float64 values unless numpy types are explicitly
     # allowlisted via torch.serialization.add_safe_globals.
-    #
-    # Probe: plain Python floats are only supported by weights_only=True from
-    # PyTorch 2.6. Skip on older versions where neither float nor np.float64
-    # can be loaded this way.
-    probe = io.BytesIO()
-    torch.save(1.0, probe)
-    probe.seek(0)
-    try:
-        torch.load(probe, weights_only=True)
-    except Exception:
-        pytest.skip(
-            "torch.load(weights_only=True) does not support plain floats in this PyTorch version"
-        )
-
     decay = scheduler.cosine_schedule(
         step=1, max_steps=10, start_value=1.0, end_value=0.0
     )
