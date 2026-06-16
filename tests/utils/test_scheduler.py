@@ -1,6 +1,5 @@
-import inspect
+import io
 import unittest
-from pathlib import Path
 from typing import Optional
 
 import pytest
@@ -113,11 +112,7 @@ def test_cosine_schedule__returns_python_float(
     assert type(decay) is float
 
 
-@pytest.mark.skipif(
-    "weights_only" not in inspect.signature(torch.load).parameters,
-    reason="torch.load does not support the weights_only argument",
-)
-def test_cosine_schedule__checkpoint_roundtrip(tmp_path: Path) -> None:
+def test_cosine_schedule__checkpoint_roundtrip() -> None:
     # Regression test for https://github.com/lightly-ai/lightly/issues/1902:
     # a cosine_schedule value saved in a checkpoint must be loadable with
     # torch.load(weights_only=True), the default since PyTorch 2.6. This
@@ -126,11 +121,10 @@ def test_cosine_schedule__checkpoint_roundtrip(tmp_path: Path) -> None:
     decay = scheduler.cosine_schedule(
         step=1, max_steps=10, start_value=1.0, end_value=0.0
     )
-    checkpoint_path = tmp_path / "checkpoint.pt"
-    torch.save({"decay": decay}, checkpoint_path)
-
-    loaded = torch.load(checkpoint_path, weights_only=True)
-
+    buf = io.BytesIO()
+    torch.save({"decay": decay}, buf)
+    buf.seek(0)
+    loaded = torch.load(buf, weights_only=True)
     assert loaded["decay"] == pytest.approx(decay)
 
 
