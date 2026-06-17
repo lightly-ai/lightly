@@ -11,3 +11,12 @@ repos:
     - id: ruff-check
       args: [--fix]
     - id: ruff-format
+- repo: local
+  hooks:
+  - id: mypy
+    name: mypy
+    entry: mypy
+    language: system
+    types: [python]
+    pass_filenames: false
+    args: [lightly, tests]

@@ -1,7 +1,8 @@
 from pathlib import Path
-from typing import List, Set
+from typing import Any, Dict, List, Optional, Set, cast
 
 import toml
+import yaml
 
 
 def test_requirements_base__pyproject() -> None:
@@ -21,6 +22,38 @@ def test_requirements_base__openapi() -> None:
     }
     missing_deps = openapi - _requirements("base")
     assert not missing_deps
+
+
+def test_pre_commit_config__mypy_hook_config() -> None:
+    """Check mypy hook uses the project's installed environment and runs on
+    the full project rather than individual staged files.
+    """
+    hook = _pre_commit_mypy_hook()
+    assert hook is not None, "mypy hook not found in .pre-commit-config.yaml"
+    assert hook.get("language") == "system", (
+        "mypy hook must use language: system so it runs with the project's "
+        "installed torch and type stubs, not an isolated environment"
+    )
+    assert hook.get("pass_filenames") is False, (
+        "mypy hook must set pass_filenames: false — mypy needs to analyse the "
+        "whole project at once, not individual staged files"
+    )
+    args = hook.get("args", [])
+    assert "lightly" in args and "tests" in args, (
+        "mypy hook must pass 'lightly' and 'tests' as args — without them mypy "
+        "runs with no targets and checks nothing"
+    )
+
+
+def _pre_commit_mypy_hook() -> Optional[Dict[str, Any]]:
+    """Returns the mypy hook dict from .pre-commit-config.yaml."""
+    with open(".pre-commit-config.yaml") as f:
+        config = yaml.safe_load(f)
+    for repo in config["repos"]:
+        for hook in repo.get("hooks", []):
+            if hook["id"] == "mypy":
+                return cast(Dict[str, Any], hook)
+    return None
 
 
 def _pyproject(name: str) -> Set[str]:
