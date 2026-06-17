@@ -1,3 +1,4 @@
+import io
 import unittest
 from typing import Optional
 
@@ -74,6 +75,61 @@ def test_cosine_schedule__error(
             end_value=end_value,
             period=period,
         )
+
+
+@pytest.mark.parametrize(
+    "step, max_steps, start_value, end_value, period",
+    [
+        # Cosine decay branch (step < max_steps - 1)
+        (1, 10, 1.0, 0.0, None),
+        # End value branches
+        (1, 1, 1.0, 0.0, None),
+        (10, 10, 1.0, 0.0, None),
+        # End value branch with int end_value
+        (10, 10, 0.996, 1, None),
+        # Period branch
+        (1, 20, 1.0, 0.0, 10),
+    ],
+)
+def test_cosine_schedule__returns_python_float(
+    step: int,
+    max_steps: int,
+    start_value: float,
+    end_value: float,
+    period: Optional[int],
+) -> None:
+    # Must be a plain Python float (not a NumPy scalar such as np.float64), otherwise
+    # loading checkpoints containing the value fails with torch.load(weights_only=True).
+    # See https://github.com/lightly-ai/lightly/issues/1902
+    # type(...) is used to assert the exact return type is the built-in `float`.
+    decay = scheduler.cosine_schedule(
+        step=step,
+        max_steps=max_steps,
+        start_value=start_value,
+        end_value=end_value,
+        period=period,
+    )
+    assert type(decay) is float
+
+
+@pytest.mark.skipif(
+    tuple(int(x) for x in torch.__version__.split(".")[:2]) < (2, 6),
+    reason="torch.load(weights_only=True) does not support plain floats before PyTorch 2.6",
+)
+def test_cosine_schedule__checkpoint_roundtrip() -> None:
+    # Regression test for https://github.com/lightly-ai/lightly/issues/1902:
+    # a cosine_schedule value saved in a checkpoint must be loadable with
+    # torch.load(weights_only=True), the default since PyTorch 2.6. This
+    # fails for np.float64 values unless numpy types are explicitly
+    # allowlisted via torch.serialization.add_safe_globals.
+    decay = scheduler.cosine_schedule(
+        step=1, max_steps=10, start_value=1.0, end_value=0.0
+    )
+    buf = io.BytesIO()
+    torch.save({"decay": decay}, buf)
+    buf.seek(0)
+    loaded = torch.load(buf, weights_only=True)
+    assert loaded["decay"] == pytest.approx(decay)
 
 
 def test_cosine_schedule__warn_step_exceeds_max_steps() -> None:
