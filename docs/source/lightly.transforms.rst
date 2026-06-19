@@ -81,7 +81,7 @@ lightly.transforms
 
 .. automodule:: lightly.transforms.simclr_transform
    :members:
-   :special-members: __call__
+   :special-members: __call__, __init__
 
 .. automodule:: lightly.transforms.simsiam_transform
    :members:
