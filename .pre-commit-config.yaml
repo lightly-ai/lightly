@@ -1,3 +1,4 @@
+default_install_hook_types: [pre-commit, pre-push] # install both git hooks (mypy runs on pre-push)
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v4.6.0
@@ -19,4 +20,5 @@ repos:
     language: system
     types: [python]
     pass_filenames: false
+    stages: [pre-push] # a full mypy run is too slow for every commit
     args: [lightly, tests]

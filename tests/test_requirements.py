@@ -25,8 +25,9 @@ def test_requirements_base__openapi() -> None:
 
 
 def test_pre_commit_config__mypy_hook_config() -> None:
-    """Check mypy hook uses the project's installed environment and runs on
-    the full project rather than individual staged files.
+    """Check mypy hook uses the project's installed environment, runs on the
+    full project rather than individual staged files, and is scoped to the
+    pre-push stage (a full mypy run is too slow for every commit).
     """
     hook = _pre_commit_mypy_hook()
     assert hook is not None, "mypy hook not found in .pre-commit-config.yaml"
@@ -42,6 +43,10 @@ def test_pre_commit_config__mypy_hook_config() -> None:
     assert "lightly" in args and "tests" in args, (
         "mypy hook must pass 'lightly' and 'tests' as args — without them mypy "
         "runs with no targets and checks nothing"
+    )
+    assert "pre-push" in hook.get("stages", []), (
+        "mypy hook must be scoped to the pre-push stage so a full mypy run "
+        "does not slow down every commit"
     )
 
 
