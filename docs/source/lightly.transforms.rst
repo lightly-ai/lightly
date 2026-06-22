@@ -17,7 +17,7 @@ lightly.transforms
 
 .. automodule:: lightly.transforms.dino_transform
    :members:
-   :special-members: __call__
+   :special-members: __call__, __init__
 
 .. automodule:: lightly.transforms.fast_siam_transform
    :members:
@@ -26,6 +26,10 @@ lightly.transforms
 .. automodule:: lightly.transforms.gaussian_blur
    :members:
    :special-members: __call__
+
+.. automodule:: lightly.transforms.ibot_transform
+   :members:
+   :special-members: __call__, __init__
 
 .. automodule:: lightly.transforms.image_grid_transform
    :members:
