@@ -7,6 +7,10 @@ lightly.transforms
    :members:
    :special-members: __call__
 
+.. automodule:: lightly.transforms.byol_transform
+   :members:
+   :special-members: __call__, __init__
+
 .. automodule:: lightly.transforms.densecl_transform
    :members:
    :special-members: __call__
