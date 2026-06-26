@@ -56,7 +56,7 @@ class KNNClassifier(LightningModule):
             >>> from torch import nn
             >>> import torchvision
             >>> from lightly.models import LinearClassifier
-            >>> from lightly.modles.modules import SimCLRProjectionHead
+            >>> from lightly.models.modules import SimCLRProjectionHead
             >>>
             >>> class SimCLR(nn.Module):
             >>>     def __init__(self):
@@ -162,7 +162,7 @@ class KNNClassifier(LightningModule):
         containing the kNN top-k accuracy metrics.
         """
         if self.model is None:
-            # We recieve the features directly
+            # We receive the features directly
             features, targets = batch
             features = self._prepare_features(features)
         else:

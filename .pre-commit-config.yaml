@@ -5,6 +5,11 @@ repos:
   - id: detect-private-key      # check for private keys
   - id: check-added-large-files # prevent commit of files >500kB
     args: ['--maxkb=500']
+- repo: https://github.com/codespell-project/codespell
+  rev: v2.4.2
+  hooks:
+  - id: codespell
+    additional_dependencies: [tomli]
 - repo: https://github.com/astral-sh/ruff-pre-commit
   rev: v0.12.7
   hooks:

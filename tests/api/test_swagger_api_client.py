@@ -32,6 +32,6 @@ def test_pickle(mocker: MockerFixture) -> None:
     assert isinstance(
         new_client.__dict__["rest_client"], LightlySwaggerRESTClientObject
     )
-    # Last reponse is completely removed from client object and is only dynamically
+    # Last response is completely removed from client object and is only dynamically
     # reassigned in the ApiClient.__call_api method.
     assert not hasattr(new_client, "last_response")
