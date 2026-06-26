@@ -1316,3 +1316,66 @@ def apply_masks(x: Tensor, masks: Tensor | list[Tensor]) -> Tensor:
         mask_keep = m.unsqueeze(-1).repeat(1, 1, x.size(-1))
         all_x += [torch.gather(x, dim=1, index=mask_keep)]
     return torch.cat(all_x, dim=0)
+
+
+def _init_weights(
+    module: nn.Module,
+    layer_idx: int = 0,
+) -> None:
+    """Initialises weights.
+
+    All parameters are initialised in [-0.02, 0.02]; output projections of
+    each Transformer sub-layer are additionally rescaled by 1/sqrt(2*layer).
+
+    Args:
+      module:
+        The module whose weights will be initialised.
+      layer_idx:
+        The layer index used for rescaling output projections. Defaults to 0.
+    """
+    if isinstance(module, nn.Linear):
+        nn.init.trunc_normal_(module.weight, std=0.02)
+        if module.bias is not None:
+            nn.init.zeros_(module.bias)
+    elif isinstance(module, nn.Embedding):
+        nn.init.trunc_normal_(module.weight, std=0.02)
+    elif isinstance(module, (nn.LayerNorm, nn.GroupNorm)):
+        nn.init.ones_(module.weight)
+        nn.init.zeros_(module.bias)
+
+    # Rescale output projections by 1/sqrt(2*l) as described in the paper.
+    if (
+        layer_idx > 0
+        and isinstance(module, nn.Linear)
+        and hasattr(module, "_is_output_proj")
+    ):
+        with torch.no_grad():
+            module.weight.data.mul_(1.0 / math.sqrt(2.0 * layer_idx))
+
+
+def drop_path(
+    x: torch.Tensor,
+    drop_prob: float = 0.0,
+    training: bool = False,
+) -> torch.Tensor:
+    """Applies stochastic depth (per sample).
+
+    Args:
+      x:
+        Input tensor.
+      drop_prob:
+        Probability of dropping a sample. Defaults to 0.0.
+      training:
+        Whether in training mode. Defaults to False.
+
+    Returns:
+      The input tensor with stochastic depth applied during training,
+      or the unchanged tensor during evaluation or when drop_prob is 0.
+    """
+    if drop_prob == 0.0 or not training:
+        return x
+    keep_prob = 1.0 - drop_prob
+    shape = (x.shape[0],) + (1,) * (x.ndim - 1)
+    random_tensor = torch.rand(shape, dtype=x.dtype, device=x.device)
+    random_tensor = torch.floor(random_tensor + keep_prob)
+    return x.div(keep_prob) * random_tensor
