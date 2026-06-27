@@ -1034,21 +1034,43 @@ class DenseCLProjectionHead(ProjectionHead):
 
 
 class MIMHead(nn.Module):
-    """Masked Image Modelling prediction head .
+    """Masked Image Modelling prediction head.
 
-    A single linear layer that maps each masked patch encoding to a
-    distribution over the visual vocabulary (softmax classifier).
+    A single linear layer that maps each patch encoding to a
+    distribution over the visual vocabulary.
+
+    Attributes:
+        head:
+            Linear projection from embedding dimension to vocabulary size.
     """
 
-    def __init__(self, embed_dim: int = 768, vocab_size: int = 8192) -> None:
+    def __init__(
+        self,
+        embed_dim: int = 768,
+        vocab_size: int = 8192,
+    ) -> None:
+        """Initializes MIMHead.
+
+        Args:
+            embed_dim:
+                Dimension of the input patch representations.
+            vocab_size:
+                Size of the visual vocabulary (number of discrete tokens).
+        """
         super().__init__()
-        self.norm = nn.LayerNorm(embed_dim)
-        self.head = nn.Linear(embed_dim, vocab_size)
+        self.head = nn.Linear(
+            in_features=embed_dim,
+            out_features=vocab_size,
+        )
 
     def forward(self, patch_features: torch.Tensor) -> torch.Tensor:
-        """Args:
-            patch_features: (B, N, D)  all patch representations
+        """Projects patch features to vocabulary logits.
+
+        Args:
+            patch_features:
+                Patch representations of shape (B, N, D).
+
         Returns:
-            logits: (B, N, vocab_size)
+            Logits of shape (B, N, vocab_size).
         """
-        return self.head(self.norm(patch_features))
+        return self.head(patch_features)
