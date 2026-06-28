@@ -56,6 +56,9 @@ lightly.loss
 .. autoclass:: lightly.loss.ntx_ent_loss.NTXentLoss
    :members:
 
+.. autoclass:: lightly.loss.patch_kernel_alignment_loss.PatchKernelAlignmentLoss
+   :members:
+
 .. autoclass:: lightly.loss.pmsn_loss.PMSNLoss
    :members:
 
