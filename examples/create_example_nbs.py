@@ -32,7 +32,7 @@ def covert_to_nbs(scripts_dir: Path, notebooks_dir: Path) -> None:
         print(f"Converting {py_file_path} to notebook...")
         notebook = jupytext.read(py_file_path)
         notebook = add_installation_cell(notebook, py_file_path)
-        # Make cell ids deterministic to avoid changing ids everytime a notebook is (re)generated.
+        # Make cell ids deterministic to avoid changing ids every time a notebook is (re)generated.
         for i, cell in enumerate(notebook.cells):
             cell.id = str(i)
         jupytext.write(notebook, notebook_path)

@@ -66,7 +66,7 @@ class ComputeWorkerRunInfo:
         ]
 
     def ended_successfully(self) -> bool:
-        """Checkes whether the Lightly Worker run ended successfully or failed.
+        """Checks whether the Lightly Worker run ended successfully or failed.
 
         Returns:
             A boolean value indicating if the Lightly Worker run was successful.
@@ -279,7 +279,7 @@ class _ComputeWorkerMixin:
                 Selection configuration.
             runs_on:
                 The required labels the Lightly Worker must have to take the job.
-                See our docs for more information regarding the runs_on paramter:
+                See our docs for more information regarding the runs_on parameter:
                 https://docs.lightly.ai/docs/assign-scheduled-runs-to-specific-workers
 
         Returns:
@@ -485,7 +485,7 @@ class _ComputeWorkerMixin:
                 The ID with which the run was scheduled.
 
         Returns:
-            Defails of the scheduled run.
+            Details of the scheduled run.
 
         """
         try:
