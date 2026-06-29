@@ -57,7 +57,7 @@ lightly.transforms
 
 .. automodule:: lightly.transforms.msn_transform
    :members:
-   :special-members: __call__
+   :special-members: __call__, __init__
 
 .. automodule:: lightly.transforms.multi_crop_transform
    :members:
@@ -89,7 +89,7 @@ lightly.transforms
 
 .. automodule:: lightly.transforms.simsiam_transform
    :members:
-   :special-members: __call__
+   :special-members: __call__, __init__
 
 .. automodule:: lightly.transforms.smog_transform
    :members:
@@ -109,8 +109,8 @@ lightly.transforms
 
 .. automodule:: lightly.transforms.vicreg_transform
    :members:
-   :special-members: __call__
+   :special-members: __call__, __init__
 
 .. automodule:: lightly.transforms.vicregl_transform
    :members:
-   :special-members: __call__
+   :special-members: __call__, __init__
