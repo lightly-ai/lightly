@@ -89,7 +89,7 @@ lightly.transforms
 
 .. automodule:: lightly.transforms.smog_transform
    :members:
-   :special-members: __call__
+   :special-members: __call__, __init__
 
 .. automodule:: lightly.transforms.solarize
    :members:
@@ -97,7 +97,7 @@ lightly.transforms
 
 .. automodule:: lightly.transforms.swav_transform
    :members:
-   :special-members: __call__
+   :special-members: __call__, __init__
 
 .. automodule:: lightly.transforms.utils
    :members:
