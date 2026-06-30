@@ -202,7 +202,7 @@ class MAEBackbone(vision_transformer.VisionTransformer):
         norm_layer:
             Callable that creates a normalization layer.
         conv_stem_configs:
-            If specified, a convolutional stem is added at the beggining of the
+            If specified, a convolutional stem is added at the beginning of the
             network following [2]. Not used in the original Masked Autoencoder
             paper [0].
 

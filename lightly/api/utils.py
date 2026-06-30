@@ -50,7 +50,7 @@ class Paginated(Iterator):
             self.offset += 1
             self.last_chunk_size = len(chunk)
             # Handle the case where the chunk is a string. In this case we want
-            # to return the whole page as a single string instead of an interable
+            # to return the whole page as a single string instead of an iterable
             # of characters.
             chunk = chunk if not isinstance(chunk, str) else [chunk]
             self.entries.extend(chunk)

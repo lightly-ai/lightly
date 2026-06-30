@@ -31,7 +31,7 @@ class MoCoV1Transform(SimCLRTransform):
         cj_bright:
             How much to jitter brightness.
         cj_contrast:
-            How much to jitter constrast.
+            How much to jitter contrast.
         cj_sat:
             How much to jitter saturation.
         cj_hue:
@@ -140,7 +140,7 @@ class MoCoV2Transform(SimCLRTransform):
         cj_bright:
             How much to jitter brightness.
         cj_contrast:
-            How much to jitter constrast.
+            How much to jitter contrast.
         cj_sat:
             How much to jitter saturation.
         cj_hue:

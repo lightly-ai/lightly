@@ -55,7 +55,7 @@ class SMoGTransform(MultiViewTransform):
         cj_bright:
             How much to jitter brightness.
         cj_contrast:
-            How much to jitter constrast.
+            How much to jitter contrast.
         cj_sat:
             How much to jitter saturation.
         cj_hue:
@@ -120,6 +120,26 @@ class SMoGTransform(MultiViewTransform):
 
 
 class SmoGViewTransform:
+    """Transforms an image into a view for SMoG.
+
+    Used by SMoGTransform to create the views of an image.
+
+    Input to this transform:
+        PIL Image. (Tensor inputs are supported when torchvision transforms v2 are available.)
+    Output of this transform:
+        Tensor.
+
+    Applies the following augmentations by default:
+        - Random resized crop
+        - Random horizontal flip
+        - Color jitter
+        - Random gray scale
+        - Gaussian blur
+        - Random solarization
+        - ImageNet normalization
+
+    """
+
     def __init__(
         self,
         crop_size: int = 224,
@@ -139,6 +159,32 @@ class SmoGViewTransform:
         random_gray_scale: float = 0.2,
         normalize: Union[None, Dict[str, List[float]]] = IMAGENET_NORMALIZE,
     ):
+        """Initializes SmoGViewTransform.
+
+        Args:
+            crop_size: Size of the input image in pixels.
+            crop_min_scale: Minimum size of the randomized crop relative to the input_size.
+            crop_max_scale: Maximum size of the randomized crop relative to the input_size.
+            gaussian_blur_prob: Probability of Gaussian blur.
+            kernel_size: Will be deprecated in favor of `sigmas` argument. If set,
+                the old behavior applies and `sigmas` is ignored. Used to calculate
+                sigma of gaussian blur with kernel_size * input_size.
+            sigmas: Tuple of min and max value from which the std of the gaussian
+                kernel is sampled. Is ignored if `kernel_size` is set.
+            solarize_prob: Probability of solarization.
+            hf_prob: Probability that horizontal flip is applied.
+            cj_prob: Probability that color jitter is applied.
+            cj_strength: Strength of the color jitter. `cj_bright`, `cj_contrast`,
+                `cj_sat`, and `cj_hue` are multiplied by this value.
+            cj_bright: How much to jitter brightness.
+            cj_contrast: How much to jitter contrast.
+            cj_sat: How much to jitter saturation.
+            cj_hue: How much to jitter hue.
+            random_gray_scale: Probability of conversion to grayscale.
+            normalize: Dictionary with 'mean' and 'std' for
+                torchvision.transforms.Normalize.
+
+        """
         color_jitter = T.ColorJitter(
             brightness=cj_strength * cj_bright,
             contrast=cj_strength * cj_contrast,
