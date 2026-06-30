@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import torch
 from torch import Tensor
+from torchvision.ops import roi_align
 
 
 def _validate_dense_inputs(
@@ -91,7 +92,7 @@ def _prepare_features(
         valid = student.new_ones(batch_size, n_tokens)
     else:
         # mask=True marks tokens to ignore, so valid tokens are ~mask.
-        valid = (~mask).to(student.dtype)
+        valid = (~mask).to(device=student.device, dtype=student.dtype)
 
     if max_tokens is not None and n_tokens > max_tokens:
         # Sample max_tokens columns per image, preferring valid rows: invalid
@@ -119,14 +120,31 @@ def roi_resample_to_grid(
 ) -> Tensor:
     """Resamples a per-sample ROI of a dense feature map onto a common grid.
 
-    Used by the cross-view variant of the loss: two views of the same image
-    (e.g. a teacher and a student crop) are each resampled over their shared
-    region onto an identical ``out_h x out_w`` grid so that token ``i`` describes
-    the same spatial location in both views, as required for a meaningful CKA
-    comparison. Thin, model-agnostic wrapper around
-    :func:`torchvision.ops.roi_align` (``aligned=True``, the pixel-center
-    convention for a continuous box mapping); differentiable w.r.t.
-    ``feature_map``.
+    This helper is only needed for the **cross-view** variant of
+    :class:`~lightly.loss.PatchKernelAlignmentLoss`. When the student and teacher
+    see different (but overlapping) crops of the same image, token ``i`` of one
+    view does not describe the same spatial location as token ``i`` of the other,
+    so the kernels are not comparable. Resampling each view over its shared region
+    onto an identical ``out_h x out_w`` grid restores that correspondence, after
+    which the resampled features are passed to the loss as ``(B, N, D)`` with
+    ``N = out_h * out_w``. For the **same-view** case (both views already aligned,
+    e.g. iBOT-style masking) you call the loss directly and do not need this
+    helper.
+
+    Thin, model-agnostic wrapper around :func:`torchvision.ops.roi_align`
+    (``aligned=True``, the pixel-center convention for a continuous box mapping);
+    differentiable w.r.t. ``feature_map``.
+
+    Example (cross-view):
+        >>> import torch
+        >>> from lightly.loss import PatchKernelAlignmentLoss, roi_resample_to_grid
+        >>> # Patch tokens reshaped back to the (B, C, H, W) patch grid per view.
+        >>> student_map = student_tokens.transpose(1, 2).reshape(B, C, H, W)
+        >>> teacher_map = teacher_tokens.transpose(1, 2).reshape(B, C, H, W)
+        >>> # Shared region of both crops, in feature-grid coordinates (B, 4).
+        >>> student = roi_resample_to_grid(student_map, student_boxes, 7, 7)
+        >>> teacher = roi_resample_to_grid(teacher_map, teacher_boxes, 7, 7)
+        >>> loss = PatchKernelAlignmentLoss()(student, teacher)  # (B, 49, C)
 
     Args:
         feature_map: Dense features with shape ``(B, C, H, W)`` (e.g. ViT patch
@@ -143,8 +161,6 @@ def roi_resample_to_grid(
     Raises:
         ValueError: If shapes are invalid.
     """
-    from torchvision.ops import roi_align
-
     if feature_map.dim() != 4:
         raise ValueError(
             f"feature_map must have shape (B, C, H, W) but has shape "

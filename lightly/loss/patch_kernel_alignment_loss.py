@@ -41,18 +41,33 @@ class PatchKernelAlignmentLoss(Module):
     internally. Geometry/ROI alignment for a cross-view variant is the caller's
     responsibility; the loss receives already aligned dense features.
 
+    Reference:
+        - [0]: Patch-Level Kernel Alignment for Dense Self-Supervised Learning
+          (PaKa), 2025, https://arxiv.org/abs/2509.05606
+
     Args:
         max_tokens:
             If not None and ``N > max_tokens``, randomly subsample
             ``max_tokens`` tokens per image (preferring valid ones) before
             forming the kernel, to bound the ``O(B N^2 D)`` cost.
 
-    Example:
+    Example (same view, e.g. iBOT-style masking):
         >>> criterion = PatchKernelAlignmentLoss(max_tokens=512)
         >>> loss = criterion(
         ...     student_features=student_features,  # (B, N, D)
         ...     teacher_features=teacher_features,  # (B, N, D)
         ... )
+
+    Example (cross view, student and teacher see different crops):
+        >>> from lightly.loss import roi_resample_to_grid
+        >>> # Reshape patch tokens back to the (B, C, H, W) patch grid per view.
+        >>> student_map = student_tokens.transpose(1, 2).reshape(B, C, H, W)
+        >>> teacher_map = teacher_tokens.transpose(1, 2).reshape(B, C, H, W)
+        >>> # Resample the shared region of both crops onto a common 7x7 grid so
+        >>> # token i refers to the same location in both views.
+        >>> student = roi_resample_to_grid(student_map, student_boxes, 7, 7)
+        >>> teacher = roi_resample_to_grid(teacher_map, teacher_boxes, 7, 7)
+        >>> loss = PatchKernelAlignmentLoss()(student, teacher)  # (B, 49, C)
     """
 
     def __init__(self, max_tokens: int | None = None) -> None:
