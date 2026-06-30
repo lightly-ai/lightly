@@ -22,7 +22,7 @@ class MultiViewTransformV2:
 
         Args:
             *args:
-                Arbitary positional arguments consisting of arbitrary data structures
+                Arbitrary positional arguments consisting of arbitrary data structures
                 containing images, bounding boxes and masks.
 
         Returns:

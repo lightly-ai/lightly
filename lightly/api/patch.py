@@ -40,7 +40,7 @@ def _Configuration__setstate__(self: Type, state: Dict[str, Any]) -> None:
     )
     self.logger["urllib3_logger"] = logging.getLogger("urllib3")
 
-    # Set logger_format and logger_file explicitly because they have setter decoraters
+    # Set logger_format and logger_file explicitly because they have setter decorators
     # defined on the Configuration class. These decorates have side effects and create
     # self.__logger_format, self.logger_formatter, self.__logger_file,
     # self.logger_file_handler, and self.logger_stream_handler under the hood.

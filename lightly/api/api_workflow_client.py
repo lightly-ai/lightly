@@ -79,7 +79,7 @@ class ApiWorkflowClient(
             see: https://docs.lightly.ai/docs/install-lightly#api-token
         dataset_id:
             The id of the dataset. If it is not set, but used by a workflow, the last
-            modfied dataset is taken by default.
+            modified dataset is taken by default.
         embedding_id:
             The id of the embedding to use. If it is not set, but used by a workflow,
             the newest embedding is taken by default

@@ -406,7 +406,7 @@ class VideoDataset(datasets.VisionDataset):
         self._video_index = None
 
         # Keep unique reference of dataloader worker. We need this to avoid
-        # accidentaly sharing VideoLoader instances between workers.
+        # accidentally sharing VideoLoader instances between workers.
         self._worker_ref = None
 
         # Lock to prevent multiple threads creating a new VideoLoader at the

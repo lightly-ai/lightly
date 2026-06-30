@@ -92,7 +92,7 @@ def crop_cli(cfg):
         output_dir:
             Path to the directory where the cropped images are stored. They are stored in one directory per input image.
         crop_padding: Optional
-            The additonal padding about the bounding box. This makes the crops include the context of the object.
+            The additional padding about the bounding box. This makes the crops include the context of the object.
             The padding is relative and added to the width and height.
         label_names_file: Optional
             A yaml file including the names of the classes. If it is given, the filenames of the cropped images include

@@ -91,7 +91,7 @@ def test_create_tag_from_filenames__file_not_found(mocker: MockerFixture) -> Non
             fnames_new_tag=["some-file"], new_tag_name="some-tag"
         )
         assert str(exception.value) == (
-            "An error occured when creating the new subset! "
+            "An error occurred when creating the new subset! "
             "Out of the 1 filenames you provided "
             "to create a new tag, only 0 have been found on the server. "
             "Make sure you use the correct filenames. "
