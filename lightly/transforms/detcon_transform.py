@@ -165,6 +165,29 @@ class DetConSTransform(MultiViewTransformV2):
 
 
 class DetConSViewTransform:
+    """Transforms an image into a view for DetConS [0, 1].
+
+    Used by DetConSTransform to create the views of an image.
+
+    Input to this transform:
+        Arbitrary data structure containing images and masks compatible with
+        torchvision transforms v2.
+    Output of this transform:
+        Transformed data structure of the same type as the input.
+
+    Applies the following augmentations by default:
+        - Random resized crop
+        - Random horizontal flip
+        - Color jitter
+        - Random gray scale
+        - Gaussian blur
+        - ImageNet normalization
+
+    - [0]: DetCon, 2021, https://arxiv.org/abs/2103.10957
+    - [1]: SimCLR, 2020, https://arxiv.org/abs/2002.05709
+
+    """
+
     def __init__(
         self,
         input_size: Union[Tuple[int, int], int] = 224,
@@ -185,6 +208,37 @@ class DetConSViewTransform:
         rr_degrees: Union[float, Tuple[float, float]] = 0.0,
         normalize: Union[None, Dict[str, List[float]]] = IMAGENET_NORMALIZE,
     ) -> None:
+        """Initializes DetConSViewTransform.
+
+        Args:
+            input_size: Size of the desired model input in pixels.
+            cj_prob: Probability that color jitter is applied.
+            cj_strength: Strength of the color jitter. `cj_bright`, `cj_contrast`,
+                `cj_sat`, and `cj_hue` are multiplied by this value. For datasets
+                with small images, such as CIFAR, it is recommended to set
+                `cj_strength` to 0.5.
+            cj_bright: How much to jitter brightness.
+            cj_contrast: How much to jitter contrast.
+            cj_sat: How much to jitter saturation.
+            cj_hue: How much to jitter hue.
+            min_scale: Minimum size of the randomized crop relative to the input_size.
+            random_gray_scale: Probability of conversion to grayscale.
+            gaussian_blur: Probability of Gaussian blur.
+            kernel_size: Size of the Gaussian kernel for Gaussian blur.
+            sigmas: Tuple of min and max value from which the std of the gaussian
+                kernel is sampled.
+            vf_prob: Probability that vertical flip is applied.
+            hf_prob: Probability that horizontal flip is applied.
+            rr_prob: Probability that random rotation is applied.
+            rr_degrees: Range of degrees to select from for random rotation. If
+                rr_degrees is a (min, max) tuple, images are rotated by a random
+                angle in [min, max]. If rr_degrees is a single number, images are
+                rotated by a random angle in [-rr_degrees, +rr_degrees]. All
+                rotations are counter-clockwise.
+            normalize: Dictionary with 'mean' and 'std' for
+                torchvision.transforms.Normalize.
+
+        """
         color_jitter = T.ColorJitter(
             brightness=cj_strength * cj_bright,
             contrast=cj_strength * cj_contrast,
