@@ -84,6 +84,7 @@ dev = [
   "types-python-dateutil",
   "types-toml",
   "types-requests",
+  "types-PyYAML",
   "nbformat",
   "jupytext"
 ]
