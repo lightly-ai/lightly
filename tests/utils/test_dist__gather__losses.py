@@ -1,4 +1,5 @@
 import os
+import sys
 from typing import Any, Generator, Tuple, Type
 
 import pytest
@@ -63,8 +64,11 @@ def close_torch_distributed() -> Generator[None, None, None]:
 
 
 @pytest.mark.skipif(
-    os.getenv("GITHUB_ACTIONS") is not None,
-    reason="This test is running in parallel and breaks codecov",
+    os.getenv("GITHUB_ACTIONS") is not None or sys.platform == "darwin",
+    reason=(
+        "Skipped on GitHub Actions due to codecov interaction and "
+        "on macOS due to DDPStrategy spawn deadlock."
+    ),
 )
 class TestGatherLayer_Losses:
     """Tests that the gather layer works as expected.
