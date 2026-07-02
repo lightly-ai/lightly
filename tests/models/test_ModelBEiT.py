@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import math
 import unittest
+from typing import Any
 
 import torch
 
@@ -19,7 +20,7 @@ class TestBEITEncoder(unittest.TestCase):
     _IMG_SIZE = 32
     _PATCH_SIZE = 8
 
-    def _make_encoder(self, **kwargs) -> BEITEncoder:
+    def _make_encoder(self, **kwargs: Any) -> BEITEncoder:
         """Creates a BEITEncoder with default test parameters.
 
         Args:
@@ -38,7 +39,7 @@ class TestBEITEncoder(unittest.TestCase):
             **kwargs,
         )
 
-    def _make_mask(self, batch_size: int, mask_ratio: float = 0.4) -> torch.BoolTensor:
+    def _make_mask(self, batch_size: int, mask_ratio: float = 0.4) -> torch.Tensor:
         """Creates a deterministic boolean mask for testing.
 
         Args:
@@ -291,7 +292,7 @@ class TestBEIT(unittest.TestCase):
     _PATCH_SIZE = 8
     _VOCAB_SIZE = 512
 
-    def _make_model(self, **kwargs) -> BEIT:
+    def _make_model(self, **kwargs: Any) -> BEIT:
         """Creates a BEIT model with default test parameters.
 
         Args:
@@ -311,7 +312,7 @@ class TestBEIT(unittest.TestCase):
             **kwargs,
         )
 
-    def _make_mask(self, batch_size: int, mask_ratio: float = 0.4) -> torch.BoolTensor:
+    def _make_mask(self, batch_size: int, mask_ratio: float = 0.4) -> torch.Tensor:
         """Creates a deterministic boolean mask for testing.
 
         Args:

@@ -67,6 +67,9 @@ class TestMaskedImageModelingLoss(unittest.TestCase):
         loss = loss_fn(logits, targets)
         loss.backward()
         self.assertIsNotNone(logits.grad)
+        assert (
+            logits.grad is not None
+        )  # mypy narrowing; assertIsNotNone above doesn't do this
         self.assertEqual(logits.grad.shape, logits.shape)
 
     def test_perfect_prediction_gives_low_loss(self) -> None:

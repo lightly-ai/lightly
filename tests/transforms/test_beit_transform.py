@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from typing import Any
 
 import torch
 from PIL import Image
@@ -15,7 +16,7 @@ class TestBEITTransform(unittest.TestCase):
     _N = 14 * 14
     _MASK_RATIO = 0.4
 
-    def _make_transform(self, **kwargs) -> BEITTransform:
+    def _make_transform(self, **kwargs: Any) -> BEITTransform:
         """Creates a BEITTransform with optional overrides.
 
         Args:

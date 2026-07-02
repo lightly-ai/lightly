@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 import math
-from typing import Optional, Tuple
+from typing import Optional, Tuple, cast
 
 import torch
 import torch.nn as nn
@@ -42,7 +42,8 @@ class DropPath(nn.Module):
         Returns:
             The input tensor, possibly with some samples zeroed out.
         """
-        return drop_path(x, self.drop_prob, self.training)
+        result: torch.Tensor = drop_path(x, self.drop_prob, self.training)
+        return result
 
 
 class PatchEmbed(nn.Module):
@@ -66,8 +67,8 @@ class PatchEmbed(nn.Module):
 
     def __init__(
         self,
-        img_size: int = 224,
-        patch_size: int = 16,
+        img_size: int | Tuple[int, int] = 224,
+        patch_size: int | Tuple[int, int] = 16,
         in_channels: int = 3,
         embed_dim: int = 768,
     ) -> None:
@@ -85,23 +86,25 @@ class PatchEmbed(nn.Module):
                 Dimension of the output embedding vectors.
         """
         super().__init__()
-        img_size = (img_size, img_size) if isinstance(img_size, int) else img_size
-        patch_size = (
+        img_size_tuple: Tuple[int, int] = (
+            (img_size, img_size) if isinstance(img_size, int) else img_size
+        )
+        patch_size_tuple: Tuple[int, int] = (
             (patch_size, patch_size) if isinstance(patch_size, int) else patch_size
         )
-        self.img_size: Tuple[int, int] = img_size
-        self.patch_size: Tuple[int, int] = patch_size
+        self.img_size: Tuple[int, int] = img_size_tuple
+        self.patch_size: Tuple[int, int] = patch_size_tuple
         self.patch_shape: Tuple[int, int] = (
-            img_size[0] // patch_size[0],
-            img_size[1] // patch_size[1],
+            img_size_tuple[0] // patch_size_tuple[0],
+            img_size_tuple[1] // patch_size_tuple[1],
         )
         self.num_patches: int = self.patch_shape[0] * self.patch_shape[1]
 
         self.proj = nn.Conv2d(
             in_channels=in_channels,
             out_channels=embed_dim,
-            kernel_size=patch_size,
-            stride=patch_size,
+            kernel_size=patch_size_tuple,
+            stride=patch_size_tuple,
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -203,6 +206,8 @@ class Attention(nn.Module):
             out_features=all_head_dim * 3,
             bias=False,
         )
+        self.q_bias: Optional[nn.Parameter]
+        self.v_bias: Optional[nn.Parameter]
         if qkv_bias:
             self.q_bias = nn.Parameter(torch.zeros(all_head_dim))
             self.v_bias = nn.Parameter(torch.zeros(all_head_dim))
@@ -210,6 +215,9 @@ class Attention(nn.Module):
             self.q_bias = None
             self.v_bias = None
 
+        self.window_size: Optional[Tuple[int, int]]
+        self.relative_position_bias_table: Optional[nn.Parameter]
+        self.relative_position_index: Optional[torch.Tensor]
         if window_size is not None:
             self.window_size = window_size
             self.num_relative_distance = (2 * window_size[0] - 1) * (
@@ -269,6 +277,7 @@ class Attention(nn.Module):
 
         qkv_bias = None
         if self.q_bias is not None:
+            assert self.v_bias is not None
             qkv_bias = torch.cat(
                 (
                     self.q_bias,
@@ -285,6 +294,8 @@ class Attention(nn.Module):
         attn = q @ k.transpose(dim0=-2, dim1=-1)
 
         if self.relative_position_bias_table is not None:
+            assert self.relative_position_index is not None
+            assert self.window_size is not None
             relative_position_bias = self.relative_position_bias_table[
                 self.relative_position_index.view(-1)
             ].view(
@@ -473,6 +484,8 @@ class TransformerBlock(nn.Module):
         )
         self.layer_idx = layer_idx
 
+        self.gamma_1: Optional[nn.Parameter]
+        self.gamma_2: Optional[nn.Parameter]
         if init_values is not None and init_values > 0.0:
             self.gamma_1 = nn.Parameter(
                 init_values * torch.ones(dim),
@@ -551,7 +564,7 @@ class RelativePositionBias(nn.Module):
         self.num_relative_distance = (2 * window_size[0] - 1) * (
             2 * window_size[1] - 1
         ) + 3
-        self.relative_position_bias_table = nn.Parameter(
+        self.relative_position_bias_table: nn.Parameter = nn.Parameter(
             torch.zeros(self.num_relative_distance, num_heads)
         )
 
@@ -572,6 +585,7 @@ class RelativePositionBias(nn.Module):
         relative_position_index[0, 0:] = self.num_relative_distance - 3
         relative_position_index[0:, 0] = self.num_relative_distance - 2
         relative_position_index[0, 0] = self.num_relative_distance - 1
+        self.relative_position_index: torch.Tensor
         self.register_buffer(
             name="relative_position_index",
             tensor=relative_position_index,
@@ -709,6 +723,7 @@ class BEITEncoder(nn.Module):
 
         self.cls_token = nn.Parameter(torch.zeros(1, 1, embed_dim))
         self.mask_token = nn.Parameter(torch.zeros(1, 1, embed_dim))
+        self.pos_embed: Optional[nn.Parameter]
         if use_abs_pos_emb:
             self.pos_embed = nn.Parameter(
                 torch.zeros(1, self.num_patches + 1, embed_dim)
@@ -717,6 +732,7 @@ class BEITEncoder(nn.Module):
             self.pos_embed = None
         self.pos_drop = nn.Dropout(p=drop_rate)
 
+        self.rel_pos_bias: Optional[RelativePositionBias]
         if use_shared_rel_pos_bias:
             self.rel_pos_bias = RelativePositionBias(
                 window_size=self.patch_shape,
@@ -796,13 +812,14 @@ class BEITEncoder(nn.Module):
             param.div_(math.sqrt(2.0 * layer_id))
 
         for layer_id, layer in enumerate(self.blocks, start=1):
-            rescale(param=layer.attn.proj.weight.data, layer_id=layer_id)
-            rescale(param=layer.mlp.fc2.weight.data, layer_id=layer_id)
+            block = cast(TransformerBlock, layer)
+            rescale(param=block.attn.proj.weight.data, layer_id=layer_id)
+            rescale(param=block.mlp.fc2.weight.data, layer_id=layer_id)
 
     def apply_mask(
         self,
         x: torch.Tensor,
-        bool_masked_pos: torch.BoolTensor,
+        bool_masked_pos: torch.Tensor,
     ) -> torch.Tensor:
         """Replaces masked patch positions with the learnable mask token.
 
@@ -824,7 +841,7 @@ class BEITEncoder(nn.Module):
     def forward(
         self,
         x: torch.Tensor,
-        bool_masked_pos: Optional[torch.BoolTensor] = None,
+        bool_masked_pos: Optional[torch.Tensor] = None,
     ) -> dict[str, torch.Tensor]:
         """Forward pass through the encoder.
 

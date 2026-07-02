@@ -78,7 +78,7 @@ class BlockwiseMaskingGenerator:
         """Return the spatial shape of the mask grid."""
         return self.h, self.w
 
-    def _mask(self, mask: torch.BoolTensor, max_mask_patches: int) -> int:
+    def _mask(self, mask: torch.Tensor, max_mask_patches: int) -> int:
         """Attempt to add one masked block to the current mask.
 
         Tries up to 10 times to find a block that adds between 1 and
@@ -110,10 +110,10 @@ class BlockwiseMaskingGenerator:
             b = max(1, int(round(math.sqrt(target_area / ar))))
             if a >= self.h or b >= self.w:
                 continue
-            t = torch.randint(0, self.h - a + 1, (1,)).item()
-            l = torch.randint(0, self.w - b + 1, (1,)).item()
+            t = int(torch.randint(0, self.h - a + 1, (1,)).item())
+            l = int(torch.randint(0, self.w - b + 1, (1,)).item())
 
-            num_masked = mask[t : t + a, l : l + b].sum().item()
+            num_masked = int(mask[t : t + a, l : l + b].sum().item())
             new_patches = a * b - num_masked
             if 0 < new_patches <= max_mask_patches:
                 mask[t : t + a, l : l + b] = True
@@ -121,7 +121,7 @@ class BlockwiseMaskingGenerator:
                 break
         return delta
 
-    def __call__(self, batch_size: int = 1) -> torch.BoolTensor:
+    def __call__(self, batch_size: int = 1) -> torch.Tensor:
         """Generate a batch of block-shaped boolean masks.
 
         Args:
@@ -270,4 +270,5 @@ class BEITTransform:
         Returns:
             Augmented image tensor of shape ``(C, H, W)``.
         """
-        return self.transform(image)
+        result: torch.Tensor = self.transform(image)
+        return result

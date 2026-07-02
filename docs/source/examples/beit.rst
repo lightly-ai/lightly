@@ -1,14 +1,14 @@
 .. _beit:
 
-BEIT
+BEiT
 ====
 
-implementation of the BEIT (BERT Pre-Training of Image Transformers) 
+implementation of the BEiT (BERT Pre-Training of Image Transformers) 
 architecture for masked image modeling (MIM).
 
-BEIT pre-trains a Vision Transformer by masking random patches of the input 
+BEiT pre-trains a Vision Transformer by masking random patches of the input 
 image and predicting the discrete visual tokens of the masked patches. Unlike 
-MAE which predicts raw pixels, BEIT uses a pre-trained discrete VAE tokenizer 
+MAE which predicts raw pixels, BEiT uses a pre-trained discrete VAE tokenizer 
 to convert images into a vocabulary of visual tokens, and the transformer learns 
 to predict these token indices.
 

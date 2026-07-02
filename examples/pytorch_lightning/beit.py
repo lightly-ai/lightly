@@ -9,6 +9,7 @@ import pytorch_lightning as pl
 import torch
 import torchvision
 from torch import nn
+from torch.utils.data import Subset
 
 from lightly.loss import MaskedImageModelingLoss
 from lightly.models.modules import BEITEncoder, ImageTokenizer, MIMHead
@@ -139,21 +140,19 @@ def target_transform(t):
     return 0
 
 
-dataset = torchvision.datasets.VOCDetection(
-    "datasets/pascal_voc",
-    download=True,
+dataset = torchvision.datasets.FakeData(
+    size=200,  # number of fake samples
+    image_size=(3, 224, 224),
+    num_classes=10,
     transform=transform,
-    target_transform=target_transform,
 )
-# or create a dataset from a folder containing images or videos:
-# dataset = LightlyDataset("path/to/folder")
 
 dataloader = torch.utils.data.DataLoader(
-    dataset,
-    batch_size=256,
+    dataset=dataset,
+    batch_size=16,
     shuffle=True,
     drop_last=True,
-    num_workers=8,
+    num_workers=2,
 )
 
 accelerator = "gpu" if torch.cuda.is_available() else "cpu"

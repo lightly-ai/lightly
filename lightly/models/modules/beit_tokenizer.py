@@ -46,7 +46,8 @@ class _EncoderBlock(nn.Module):
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return self.id_path(x) + self.post_gain * self.res_path(x)
+        result: torch.Tensor = self.id_path(x) + self.post_gain * self.res_path(x)
+        return result
 
 
 class _DecoderBlock(nn.Module):
@@ -77,7 +78,8 @@ class _DecoderBlock(nn.Module):
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return self.id_path(x) + self.post_gain * self.res_path(x)
+        result: torch.Tensor = self.id_path(x) + self.post_gain * self.res_path(x)
+        return result
 
 
 class _DALLEEncoder(nn.Module):
@@ -225,7 +227,8 @@ class _DALLEEncoder(nn.Module):
             raise ValueError(f"input shape {x.shape} is not 4d")
         if x.dtype != torch.float32:
             raise ValueError("input must have dtype torch.float32")
-        return self.blocks(x)
+        result: torch.Tensor = self.blocks(x)
+        return result
 
 
 class _DALLEDecoder(nn.Module):
@@ -400,7 +403,7 @@ class _DALLEDecoder(nn.Module):
             )
         if x.dtype != torch.float32:
             raise ValueError("input must have dtype torch.float32")
-        out = self.blocks(x)
+        out: torch.Tensor = self.blocks(x)
         return out[:, : self.output_channels]
 
 
@@ -480,10 +483,11 @@ class ImageTokenizer(nn.Module):
             Token indices of shape ``(B, h*w)`` as a ``torch.long`` tensor,
             where ``h = H / 8`` and ``w = W / 8``.
         """
-        logits = self.encoder(x)
+        logits: torch.Tensor = self.encoder(x)
         token_ids = logits.argmax(dim=1)
         B, h, w = token_ids.shape
-        return token_ids.view(B, h * w)
+        result: torch.Tensor = token_ids.view(B, h * w)
+        return result
 
     def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
         """Encodes and decodes an image for tokenizer training.
@@ -503,7 +507,7 @@ class ImageTokenizer(nn.Module):
                 - **recon** ``(B, C, H, W)`` — pixel-space reconstruction
                   from the decoder.
         """
-        logits = self.encoder(x)
+        logits: torch.Tensor = self.encoder(x)
         soft_one_hot = F.gumbel_softmax(logits, tau=self.temperature, dim=1, hard=False)
-        recon = self.decoder(soft_one_hot)
+        recon: torch.Tensor = self.decoder(soft_one_hot)
         return logits, recon

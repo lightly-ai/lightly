@@ -1035,7 +1035,6 @@ class DenseCLProjectionHead(ProjectionHead):
 
 class MIMHead(nn.Module):
     """Masked Image Modelling prediction head.
-
     A single linear layer that maps each patch encoding to a
     distribution over the visual vocabulary.
 
@@ -1073,4 +1072,5 @@ class MIMHead(nn.Module):
         Returns:
             Logits of shape (B, N, vocab_size).
         """
-        return self.head(patch_features)
+        result: torch.Tensor = self.head(patch_features)
+        return result
