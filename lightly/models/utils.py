@@ -1316,3 +1316,31 @@ def apply_masks(x: Tensor, masks: Tensor | list[Tensor]) -> Tensor:
         mask_keep = m.unsqueeze(-1).repeat(1, 1, x.size(-1))
         all_x += [torch.gather(x, dim=1, index=mask_keep)]
     return torch.cat(all_x, dim=0)
+
+
+def drop_path(
+    x: torch.Tensor,
+    drop_prob: float = 0.0,
+    training: bool = False,
+) -> torch.Tensor:
+    """Applies stochastic depth (per sample).
+
+    Args:
+      x:
+        Input tensor.
+      drop_prob:
+        Probability of dropping a sample. Defaults to 0.0.
+      training:
+        Whether in training mode. Defaults to False.
+
+    Returns:
+      The input tensor with stochastic depth applied during training,
+      or the unchanged tensor during evaluation or when drop_prob is 0.
+    """
+    if drop_prob == 0.0 or not training:
+        return x
+    keep_prob = 1.0 - drop_prob
+    shape = (x.shape[0],) + (1,) * (x.ndim - 1)
+    random_tensor = torch.rand(shape, dtype=x.dtype, device=x.device)
+    random_tensor = torch.floor(random_tensor + keep_prob)
+    return x.div(keep_prob) * random_tensor
