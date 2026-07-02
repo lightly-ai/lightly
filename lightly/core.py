@@ -80,7 +80,7 @@ def train_model_and_embed_images(
 ) -> Tuple[np.ndarray, List[int], List[str]]:
     """Train a self-supervised model and use it to embed images.
 
-    First trains a modle using the _train_cli(),
+    First trains a model using the _train_cli(),
     then embeds with the _embed_cli().
     All arguments passed to the CLI functions
     can also be passed to this function (see below for an example).
@@ -153,7 +153,7 @@ def train_embedding_model(config_path: str = None, **kwargs):
         >>>     input_dir='path/to/data', config_path=my_config_path)
         >>>
         >>> # train a model with default settings and overwrites: large batch
-        >>> # sizes are benefitial for self-supervised training and more
+        >>> # sizes are beneficial for self-supervised training and more
         >>> # workers speed up the dataloading process.
         >>> my_loader = {
         >>>     batch_size: 100,

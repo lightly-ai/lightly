@@ -578,7 +578,7 @@ class SwaVPrototypes(nn.Module):
         n_prototypes: Union[List[int], int] = 3000,
         n_steps_frozen_prototypes: int = 0,
     ):
-        """Intializes the SwaVPrototypes module with the specified parameters"""
+        """Initializes the SwaVPrototypes module with the specified parameters"""
         super(SwaVPrototypes, self).__init__()
 
         # Default to a list of 1 if n_prototypes is an int.

@@ -67,7 +67,7 @@ class DINOTransform(MultiViewTransform):
         cj_bright:
             How much to jitter brightness.
         cj_contrast:
-            How much to jitter constrast.
+            How much to jitter contrast.
         cj_sat:
             How much to jitter saturation.
         cj_hue:
@@ -193,6 +193,30 @@ class DINOTransform(MultiViewTransform):
 
 
 class DINOViewTransform:
+    """Transforms an image into a single view for DINO [0].
+
+    Used by DINOTransform to create the global and local views of an image.
+
+    Input to this transform:
+        PIL Image. (Tensor inputs are supported when torchvision transforms v2 are available.)
+    Output of this transform:
+        Tensor.
+
+    Applies the following augmentations by default:
+        - Random resized crop
+        - Random horizontal flip
+        - Random vertical flip
+        - Random rotation
+        - Color jitter
+        - Random gray scale
+        - Gaussian blur
+        - Random solarization
+        - ImageNet normalization
+
+    - [0]: DINO, 2021, https://arxiv.org/abs/2104.14294
+
+    """
+
     def __init__(
         self,
         crop_size: int = 224,
@@ -215,6 +239,42 @@ class DINOViewTransform:
         solarization_prob: float = 0.2,
         normalize: Union[None, Dict[str, List[float]]] = IMAGENET_NORMALIZE,
     ):
+        """Initializes DINOViewTransform.
+
+        Args:
+            crop_size: Size of the cropped image in pixels.
+            crop_scale: Tuple of min and max scales relative to crop_size.
+            hf_prob: Probability that horizontal flip is applied.
+            vf_prob: Probability that vertical flip is applied.
+            rr_prob: Probability that random rotation is applied.
+            rr_degrees: Range of degrees to select from for random rotation. If
+                rr_degrees is None, images are rotated by 90 degrees. If rr_degrees
+                is a (min, max) tuple, images are rotated by a random angle in
+                [min, max]. If rr_degrees is a single number, images are rotated by
+                a random angle in [-rr_degrees, +rr_degrees]. All rotations are
+                counter-clockwise.
+            cj_prob: Probability that color jitter is applied.
+            cj_strength: Strength of the color jitter. `cj_bright`, `cj_contrast`,
+                `cj_sat`, and `cj_hue` are multiplied by this value.
+            cj_bright: How much to jitter brightness.
+            cj_contrast: How much to jitter contrast.
+            cj_sat: How much to jitter saturation.
+            cj_hue: How much to jitter hue.
+            random_gray_scale: Probability of conversion to grayscale.
+            gaussian_blur: Probability of Gaussian blur.
+            kernel_size: Will be deprecated in favor of `sigmas` argument. If set,
+                the old behavior applies and `sigmas` is ignored. Used to calculate
+                sigma of gaussian blur with kernel_size * input_size.
+            kernel_scale: Old argument. Will be deprecated in favor of `sigmas`
+                argument. If set, the old behavior applies and `sigmas` is ignored.
+                Used to scale the `kernel_size` of a factor of `kernel_scale`.
+            sigmas: Tuple of min and max value from which the std of the gaussian
+                kernel is sampled. Is ignored if `kernel_size` is set.
+            solarization_prob: Probability to apply solarization.
+            normalize: Dictionary with 'mean' and 'std' for
+                torchvision.transforms.Normalize.
+
+        """
         transform = [
             T.RandomResizedCrop(
                 size=crop_size,

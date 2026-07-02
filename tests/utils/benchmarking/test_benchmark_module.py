@@ -68,7 +68,7 @@ class TestBenchmarkModule:
         )  # accuracy is <1.0 because train val are different
 
 
-# Type ignore becaue of "Class cannot subclass "BenchmarkModule" (has type "Any")"
+# Type ignore because of "Class cannot subclass "BenchmarkModule" (has type "Any")"
 class _DummyModel(BenchmarkModule):  # type: ignore[misc]
     def __init__(
         self,

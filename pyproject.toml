@@ -84,6 +84,7 @@ dev = [
   "types-python-dateutil",
   "types-toml",
   "types-requests",
+  "types-PyYAML",
   "nbformat",
   "jupytext"
 ]
@@ -342,3 +343,7 @@ ignore_errors = true
 [tool.jupytext]
 notebook_metadata_filter="-all"
 cell_metadata_filter="-all"
+
+[tool.codespell]
+skip = "*.ipynb,*/openapi_generated/*"
+ignore-words-list = "nce,inpt,nd,wirth"

@@ -401,7 +401,7 @@ class MockedTagsApi(TagsApi):
         return [
             FilenameAndReadUrl(
                 file_name="export-basic-test-sample-0.png",
-                read_url="https://storage.googleapis.com/somwhere/export-basic-test-sample-0.png?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=CENSORED",
+                read_url="https://storage.googleapis.com/somewhere/export-basic-test-sample-0.png?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=CENSORED",
             ).to_dict()  # temporary until we have a proper openapi generator
         ]
 

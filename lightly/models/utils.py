@@ -1055,7 +1055,7 @@ def initialize_positional_embedding(
             f"{strategies}."
         )
 
-    # Initialize the positional embedding based on the startegy
+    # Initialize the positional embedding based on the strategy
     if strategy == "learn":
         initialize_learnable_positional_embedding(pos_embedding)
     elif strategy == "sincos":

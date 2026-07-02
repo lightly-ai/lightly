@@ -322,7 +322,7 @@ trainer.fit(model, dataloader_train)
 # Evaluate the results
 # ------------------------
 # It's always a good idea to evaluate how good the learned representations really
-# are. How to do this depends on the available data and metdata. Luckily, in our case,
+# are. How to do this depends on the available data and metadata. Luckily, in our case,
 # we have annotations of critical findings on the X-ray images. We can use this information
 # to see, whether images with similar annotations are grouped together.
 #

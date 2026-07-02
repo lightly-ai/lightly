@@ -45,7 +45,7 @@ def pytest_collection_modifyitems(config, items):
 def mock_versioning_api():
     """Fixture that is applied to all tests and mocks the versioning API.
 
-    This is necessary because everytime an ApiWorkflowClient instance is created, a call
+    This is necessary because every time an ApiWorkflowClient instance is created, a call
     to the versioning API is made. This fixture makes sure that these calls succeed
     while not actually sending any requests to the API.
 

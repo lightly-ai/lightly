@@ -86,7 +86,7 @@ class DCLLoss(nn.Module):
         weight_fn: Optional[Callable[[Tensor, Tensor], Tensor]] = None,
         gather_distributed: bool = False,
     ):
-        """Initialzes the DCLoss module.
+        """Initializes the DCLoss module.
 
         Args:
             temperature:
