@@ -47,6 +47,10 @@ lightly.transforms
    :members:
    :special-members: __call__
 
+.. automodule:: lightly.transforms.lejepa_transform
+   :members:
+   :special-members: __call__
+
 .. automodule:: lightly.transforms.mae_transform
    :members:
    :special-members: __call__
