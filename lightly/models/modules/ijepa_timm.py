@@ -123,6 +123,7 @@ class IJEPAPredictorTIMM(nn.Module):  # type: ignore[misc]
         len_masks_x = len(masks_x) if isinstance(masks_x, list) else 1
         len_masks = len(masks) if isinstance(masks, list) else 1
 
+        noise_dim = x.shape[-1]
         B = len(x) // len_masks_x
         x = self.predictor_embed(x)
         x_pos_embed = self.predictor_pos_embed.repeat(B, 1, 1)
@@ -136,6 +137,17 @@ class IJEPAPredictorTIMM(nn.Module):  # type: ignore[misc]
         pred_tokens = self.mask_token.repeat(pos_embs.size(0), pos_embs.size(1), 1)
 
         pred_tokens += pos_embs
+
+        # we add the stochastic positional embedding here:
+        # use self.predictor_embed as the projector
+        pred_tokens = utils.add_stochastic_positional_noise(
+            pred_tokens,
+            self.predictor_embed,
+            noise_dim,
+            noise_std=self.noise_std,
+            enabled=self.use_stop,
+        )
+
         x = x.repeat(len_masks, 1, 1)
         x = torch.cat([x, pred_tokens], dim=1)
 

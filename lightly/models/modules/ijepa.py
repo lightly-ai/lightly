@@ -79,6 +79,11 @@ class IJEPAPredictor(vision_transformer.Encoder):
             torch.from_numpy(predictor_pos_embed).float().unsqueeze(0)
         )
 
+        self.use_stop = kwargs.get(
+            "use_stop", False
+        )  # pass use stop embeddings as additional args, default to False
+        self.noise_std = kwargs.get("noise_std", 0.25)  # default 0.25
+
     @classmethod
     def from_vit_encoder(cls, vit_encoder, num_patches):
         """Creates an I-JEPA predictor backbone (multi-head attention and layernorm) from a torchvision ViT encoder.
@@ -134,6 +139,7 @@ class IJEPAPredictor(vision_transformer.Encoder):
         if not isinstance(masks, list):
             masks = [masks]
 
+        noise_dim = x.shape[-1]
         B = len(x) // len(masks_x)
         x = self.predictor_embed(x)
         x_pos_embed = self.predictor_pos_embed.repeat(B, 1, 1)
@@ -144,9 +150,21 @@ class IJEPAPredictor(vision_transformer.Encoder):
         pos_embs = self.predictor_pos_embed.repeat(B, 1, 1)
         pos_embs = utils.apply_masks(pos_embs, masks)
         pos_embs = utils.repeat_interleave_batch(pos_embs, B, repeat=len(masks_x))
+
+        # we add the stochastic positional embedding here:
+        # use self.predictor_embed as the projector
+        pos_embs = utils.add_stochastic_positional_noise(
+            pos_embs,
+            self.predictor_embed,
+            noise_dim,
+            noise_std=self.noise_std,
+            enabled=self.use_stop,
+        )
+
         pred_tokens = self.mask_token.repeat(pos_embs.size(0), pos_embs.size(1), 1)
 
         pred_tokens += pos_embs
+
         x = x.repeat(len(masks), 1, 1)
         x = torch.cat([x, pred_tokens], dim=1)
 
