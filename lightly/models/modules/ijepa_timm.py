@@ -61,6 +61,8 @@ class IJEPAPredictorTIMM(nn.Module):  # type: ignore[misc]
         proj_drop_rate: float = 0.0,
         attn_drop_rate: float = 0.0,
         norm_layer: Callable[..., nn.Module] = partial(nn.LayerNorm, eps=1e-6),
+        use_stop: bool = False,
+        noise_std: float = 0.25,
     ):
         """Initializes the IJEPAPredictorTIMM with the specified dimensions."""
         super().__init__()
@@ -96,6 +98,9 @@ class IJEPAPredictorTIMM(nn.Module):  # type: ignore[misc]
                 for _ in range(depth)
             ]
         )
+
+        self.use_stop = use_stop
+        self.noise_std = noise_std
 
     def forward(
         self,
