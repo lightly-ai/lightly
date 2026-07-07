@@ -898,6 +898,20 @@ def test_initialize_positional_embedding(
         mock_fn.assert_called_once()
 
 
+def test_initialize_positional_embedding__sincos_multiple_prefix_tokens() -> None:
+    num_prefix_tokens, grid_size, embed_dim = 8, 4, 16
+    seq_length = num_prefix_tokens + grid_size * grid_size
+    pos_embedding = Parameter(torch.rand(1, seq_length, embed_dim))
+    utils.initialize_positional_embedding(
+        pos_embedding=pos_embedding,
+        strategy="sincos",
+        num_prefix_tokens=num_prefix_tokens,
+    )
+    # prefix rows are zeroed by the sincos init
+    assert (pos_embedding[0, :num_prefix_tokens] == 0).all()
+    assert not (pos_embedding[0, num_prefix_tokens:] == 0).all()
+
+
 def test_initialize_learnable_positional_embedding() -> None:
     pos_embedding = Parameter(torch.ones(1, 1, 64))
     orig_pos_embedding = pos_embedding.clone()

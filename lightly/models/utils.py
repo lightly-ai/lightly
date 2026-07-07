@@ -1154,7 +1154,7 @@ def initialize_positional_embedding(
     elif strategy == "sincos":
         initialize_2d_sine_cosine_positional_embedding(
             pos_embedding=pos_embedding,
-            has_class_token=num_prefix_tokens > 0,
+            num_prefix_tokens=num_prefix_tokens,
         )
     elif strategy == "skip":
         return
