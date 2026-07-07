@@ -35,6 +35,9 @@ class MAEDecoderTIMM(Module):
             Depth of transformer.
         decoder_num_heads:
             Number of attention heads.
+        num_prefix_tokens:
+            Number of prefix tokens (e.g. class or register tokens) preceding the
+            patch tokens. Determines the length of the decoder positional embedding.
         mlp_ratio:
             Ratio of mlp hidden dim to embedding dim.
         proj_drop_rate:
@@ -59,6 +62,7 @@ class MAEDecoderTIMM(Module):
         decoder_embed_dim: int = 512,
         decoder_depth: int = 8,
         decoder_num_heads: int = 16,
+        num_prefix_tokens: int = 1,
         mlp_ratio: float = 4.0,
         proj_drop_rate: float = 0.0,
         attn_drop_rate: float = 0.0,
@@ -69,6 +73,7 @@ class MAEDecoderTIMM(Module):
         """Initializes the MAEDecoderTIMM with the specified parameters."""
         super().__init__()
 
+        self.num_prefix_tokens = num_prefix_tokens
         self.decoder_embed = nn.Linear(embed_dim, decoder_embed_dim, bias=True)
         self.mask_token = (
             nn.Parameter(torch.zeros(1, 1, decoder_embed_dim))
@@ -78,7 +83,8 @@ class MAEDecoderTIMM(Module):
 
         # Positional encoding of the decoder
         self.decoder_pos_embed = nn.Parameter(
-            torch.zeros(1, num_patches + 1, decoder_embed_dim), requires_grad=False
+            torch.zeros(1, num_patches + num_prefix_tokens, decoder_embed_dim),
+            requires_grad=False,
         )  # fixed sin-cos embedding
 
         self.decoder_blocks = Sequential(
@@ -176,6 +182,7 @@ class MAEDecoderTIMM(Module):
         """Initializes weights for the decoder components."""
         torch.nn.init.normal_(self.mask_token, std=0.02)
         utils.initialize_2d_sine_cosine_positional_embedding(
-            pos_embedding=self.decoder_pos_embed, has_class_token=True
+            pos_embedding=self.decoder_pos_embed,
+            num_prefix_tokens=self.num_prefix_tokens,
         )
         self.apply(init_weights)

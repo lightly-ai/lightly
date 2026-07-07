@@ -63,3 +63,38 @@ class TestMAEDecoderTIMM(unittest.TestCase):
     @unittest.skipUnless(torch.cuda.is_available(), "Cuda not available.")
     def test_forward_cuda(self) -> None:
         self._test_forward(torch.device("cuda"))
+
+    def test_init__num_prefix_tokens(self) -> None:
+        num_patches, num_prefix_tokens, decoder_embed_dim = 49, 8, 256
+        decoder = MAEDecoderTIMM(
+            num_patches=num_patches,
+            patch_size=32,
+            embed_dim=128,
+            decoder_embed_dim=decoder_embed_dim,
+            decoder_depth=2,
+            decoder_num_heads=4,
+            num_prefix_tokens=num_prefix_tokens,
+        )
+        self.assertEqual(
+            list(decoder.decoder_pos_embed.shape),
+            [1, num_patches + num_prefix_tokens, decoder_embed_dim],
+        )
+
+    def test_forward__num_prefix_tokens(self) -> None:
+        torch.manual_seed(0)
+        num_patches, num_prefix_tokens, embed_input_dim, patch_size = 49, 8, 128, 32
+        seq_length = num_patches + num_prefix_tokens
+        decoder = MAEDecoderTIMM(
+            num_patches=num_patches,
+            patch_size=patch_size,
+            embed_dim=embed_input_dim,
+            decoder_embed_dim=256,
+            decoder_depth=2,
+            decoder_num_heads=4,
+            num_prefix_tokens=num_prefix_tokens,
+        )
+        tokens = torch.rand(2, seq_length, embed_input_dim)
+        predictions = decoder(tokens)
+        self.assertListEqual(
+            list(predictions.shape), [2, seq_length, 3 * patch_size**2]
+        )
