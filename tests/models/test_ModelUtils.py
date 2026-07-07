@@ -923,20 +923,18 @@ def test_initialize_learnable_positional_embedding() -> None:
 
 
 def test_normalize_mean_var() -> None:
-    # Seed for determinism: the variance check below is sensitive to the random draw
-    # because normalize_mean_var regularizes with eps, so the output variance is
-    # 1 - eps / var(x) rather than exactly 1.
-    torch.manual_seed(0)
     x = torch.tensor([1.0, 2.0, 3.0])
     norm = utils.normalize_mean_var(x).tolist()
     assert norm[0] == pytest.approx(-1)
     assert norm[1] == pytest.approx(0.0)
     assert norm[2] == pytest.approx(1)
 
+    # seed for determinism; atol is loosened because normalize_mean_var regularizes
+    # with eps, so the output variance is 1 - eps / var(x) rather than exactly 1.
+    torch.manual_seed(0)
     x = torch.rand(2, 3, 4)
     norm = utils.normalize_mean_var(x)
     assert torch.allclose(norm.mean(dim=-1), torch.tensor(0.0), rtol=0.0001, atol=1e-5)
-    # atol accounts for the eps regularization in normalize_mean_var.
     assert torch.allclose(norm.var(dim=-1), torch.tensor(1.0), rtol=0.0001, atol=1e-4)
 
 
@@ -1061,6 +1059,48 @@ def test_random_grid_token_mask__not_square_raises() -> None:
         utils.random_grid_token_mask(
             size=(1, 1 + 15), mask_ratio=0.5, grid_size=2, num_prefix_tokens=1
         )
+
+
+def test_random_grid_token_mask__mask_ratio_extremes() -> None:
+    num_prefix_tokens = 1
+    sequence_length = num_prefix_tokens + 16  # 4 cells of 4 patches (grid=2)
+    # mask_ratio=0.0 keeps all patches and masks none.
+    idx_keep, idx_mask = utils.random_grid_token_mask(
+        size=(2, sequence_length),
+        mask_ratio=0.0,
+        grid_size=2,
+        num_prefix_tokens=num_prefix_tokens,
+    )
+    assert idx_keep.shape == (2, sequence_length)
+    assert idx_mask.shape == (2, 0)
+    # mask_ratio=1.0 keeps only the prefix tokens and masks all patches.
+    idx_keep, idx_mask = utils.random_grid_token_mask(
+        size=(2, sequence_length),
+        mask_ratio=1.0,
+        grid_size=2,
+        num_prefix_tokens=num_prefix_tokens,
+    )
+    assert idx_keep.shape == (2, num_prefix_tokens)
+    assert idx_mask.shape == (2, 16)
+
+
+def test_random_grid_token_mask__grid_size_4() -> None:
+    torch.manual_seed(0)
+    num_prefix_tokens = 8
+    # 16x16 patch grid -> 4x4 = 16 cells of 4x4 patches (PIXIO's headline config).
+    sequence_length = num_prefix_tokens + 256
+    idx_keep, idx_mask = utils.random_grid_token_mask(
+        size=(2, sequence_length),
+        mask_ratio=0.75,
+        grid_size=4,
+        num_prefix_tokens=num_prefix_tokens,
+    )
+    # keep int(16 * 0.25) = 4 cells -> 64 patches (+ 8 prefix); mask 12 cells -> 192.
+    assert idx_keep.shape == (2, num_prefix_tokens + 64)
+    assert idx_mask.shape == (2, 192)
+    idx, _ = torch.cat([idx_keep, idx_mask], dim=1).sort(dim=1)
+    expected = torch.arange(sequence_length).expand(2, sequence_length)
+    assert torch.equal(idx, expected)
 
 
 @pytest.mark.parametrize("device", ["cpu", "cuda"])  # type: ignore[misc]

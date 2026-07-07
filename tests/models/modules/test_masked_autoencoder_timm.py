@@ -80,7 +80,7 @@ class TestMAEDecoderTIMM(unittest.TestCase):
             [1, num_patches + num_prefix_tokens, decoder_embed_dim],
         )
 
-    def test_forward__num_prefix_tokens(self) -> None:
+    def _test_forward__num_prefix_tokens(self, device: torch.device) -> None:
         torch.manual_seed(0)
         num_patches, num_prefix_tokens, embed_input_dim, patch_size = 49, 8, 128, 32
         seq_length = num_patches + num_prefix_tokens
@@ -92,12 +92,20 @@ class TestMAEDecoderTIMM(unittest.TestCase):
             decoder_depth=2,
             decoder_num_heads=4,
             num_prefix_tokens=num_prefix_tokens,
-        )
-        tokens = torch.rand(2, seq_length, embed_input_dim)
+        ).to(device)
+        tokens = torch.rand(2, seq_length, embed_input_dim).to(device)
         predictions = decoder(tokens)
         self.assertListEqual(
             list(predictions.shape), [2, seq_length, 3 * patch_size**2]
         )
+        self.assertTrue(torch.all(torch.not_equal(predictions, torch.inf)))
+
+    def test_forward__num_prefix_tokens(self) -> None:
+        self._test_forward__num_prefix_tokens(torch.device("cpu"))
+
+    @unittest.skipUnless(torch.cuda.is_available(), "Cuda not available.")
+    def test_forward__num_prefix_tokens_cuda(self) -> None:
+        self._test_forward__num_prefix_tokens(torch.device("cuda"))
 
 
 class TestPixioDecoderTIMM(unittest.TestCase):
@@ -113,7 +121,7 @@ class TestPixioDecoderTIMM(unittest.TestCase):
         self.assertEqual(len(decoder.decoder_blocks), 32)
         self.assertEqual(list(decoder.decoder_pos_embed.shape), [1, 256 + 8, 512])
 
-    def test_forward(self) -> None:
+    def _test_forward(self, device: torch.device) -> None:
         torch.manual_seed(0)
         num_patches, num_prefix_tokens, patch_size = 64, 8, 16
         seq_length = num_patches + num_prefix_tokens
@@ -125,9 +133,17 @@ class TestPixioDecoderTIMM(unittest.TestCase):
             decoder_depth=2,  # keep the test cheap
             decoder_num_heads=4,
             num_prefix_tokens=num_prefix_tokens,
-        )
-        tokens = torch.rand(2, seq_length, 128)
+        ).to(device)
+        tokens = torch.rand(2, seq_length, 128).to(device)
         predictions = decoder(tokens)
         self.assertListEqual(
             list(predictions.shape), [2, seq_length, 3 * patch_size**2]
         )
+        self.assertTrue(torch.all(torch.not_equal(predictions, torch.inf)))
+
+    def test_forward(self) -> None:
+        self._test_forward(torch.device("cpu"))
+
+    @unittest.skipUnless(torch.cuda.is_available(), "Cuda not available.")
+    def test_forward_cuda(self) -> None:
+        self._test_forward(torch.device("cuda"))

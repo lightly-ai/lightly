@@ -679,9 +679,7 @@ def random_grid_token_mask(
     patch_indices = patch_indices.unfold(1, grid_size, grid_size).unfold(
         2, grid_size, grid_size
     )
-    patch_indices = patch_indices.contiguous().reshape(
-        1, num_cells, grid_size * grid_size
-    )
+    patch_indices = patch_indices.reshape(1, num_cells, grid_size * grid_size)
     patch_indices = patch_indices.expand(batch_size, -1, -1)
 
     # Randomly order cells per sample and split into kept and masked cells.
@@ -690,13 +688,11 @@ def random_grid_token_mask(
     keep_cells = cell_order[:, :num_keep_cells]
     mask_cells = cell_order[:, num_keep_cells:]
 
-    def _cells_to_patches(cells: Tensor) -> Tensor:
-        index = cells.unsqueeze(-1).expand(-1, -1, grid_size * grid_size)
-        patches = torch.gather(patch_indices, dim=1, index=index)
-        return patches.reshape(batch_size, -1)
-
-    keep_patches = _cells_to_patches(keep_cells) + num_prefix_tokens
-    idx_mask = _cells_to_patches(mask_cells) + num_prefix_tokens
+    # Expand each kept/masked cell to the patch indices it covers.
+    keep_patches = get_at_index(patch_indices, keep_cells).reshape(batch_size, -1)
+    idx_mask = get_at_index(patch_indices, mask_cells).reshape(batch_size, -1)
+    keep_patches = keep_patches + num_prefix_tokens
+    idx_mask = idx_mask + num_prefix_tokens
 
     prefix = torch.arange(num_prefix_tokens, device=device)
     prefix = prefix.unsqueeze(0).expand(batch_size, -1)
@@ -1180,14 +1176,27 @@ def initialize_2d_sine_cosine_positional_embedding(
     has_class_token: bool = True,
     num_prefix_tokens: Optional[int] = None,
 ) -> None:
+    """Initializes a positional embedding in-place with a fixed 2D sine-cosine embedding.
+
+    The positional embedding is frozen (requires_grad set to False) afterwards.
+
+    Args:
+        pos_embedding:
+            Positional embedding parameter to initialize in-place.
+        has_class_token:
+            Whether the embedding has a single prefix (class) token. Ignored if
+            num_prefix_tokens is set.
+        num_prefix_tokens:
+            Number of prefix tokens (e.g. class or register tokens). Overrides
+            has_class_token when set.
+    """
     n_prefix = int(has_class_token) if num_prefix_tokens is None else num_prefix_tokens
     _, seq_length, hidden_dim = pos_embedding.shape
     grid_size = int((seq_length - n_prefix) ** 0.5)
     sine_cosine_embedding = get_2d_sine_cosine_positional_embedding(
         embed_dim=hidden_dim,
         grid_size=grid_size,
-        cls_token=has_class_token,
-        num_prefix_tokens=num_prefix_tokens,
+        num_prefix_tokens=n_prefix,
     )
     pos_embedding.data.copy_(
         torch.from_numpy(sine_cosine_embedding).float().unsqueeze(0)

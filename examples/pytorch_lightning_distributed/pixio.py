@@ -32,7 +32,7 @@ class PIXIO(pl.LightningModule):
             patch_size=self.patch_size,
             embed_dim=vit.embed_dim,
             decoder_embed_dim=decoder_dim,
-            decoder_depth=2,  # PIXIO uses 32; kept small so the example runs quickly.
+            decoder_depth=2,  # kept small so the example runs quickly; PIXIO uses 32
             decoder_num_heads=16,
             num_prefix_tokens=self.num_prefix_tokens,
             mlp_ratio=4.0,

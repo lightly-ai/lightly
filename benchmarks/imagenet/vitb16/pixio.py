@@ -15,20 +15,6 @@ from lightly.utils.scheduler import CosineWarmupScheduler
 
 
 class PIXIO(LightningModule):
-    """PIXIO pre-training [0].
-
-    PIXIO is MAE with three changes: a deeper decoder, larger (grid/block) masking
-    granularity, and multiple class tokens whose mean is used as the global
-    representation. Implemented from the paper, not the reference code.
-
-    The paper's headline config is used here (256px input, patch 16, 4x4 grid mask,
-    8 class tokens, 512x32 decoder). The dense-prediction-optimal ablation uses a 2x2
-    grid and 4 class tokens.
-
-    - [0]: In Pursuit of Pixel Supervision for Visual Pre-training, 2025,
-      https://arxiv.org/abs/2512.15715
-    """
-
     def __init__(self, batch_size_per_device: int, num_classes: int) -> None:
         super().__init__()
         self.save_hyperparameters()
@@ -66,7 +52,7 @@ class PIXIO(LightningModule):
         )
 
     def forward(self, x: Tensor) -> Tensor:
-        # Global representation = mean over the prefix (class) tokens.
+        # global representation = mean over the prefix (class) tokens
         features = self.backbone.encode(images=x)
         return features[:, : self.num_prefix_tokens].mean(dim=1)
 
@@ -110,7 +96,7 @@ class PIXIO(LightningModule):
             x_encoded=x_encoded, idx_keep=idx_keep, idx_mask=idx_mask
         )
 
-        # Reconstruction target: normalized pixel values of the masked patches.
+        # reconstruction target: normalized pixel values of the masked patches
         patches = utils.patchify(images, self.patch_size)
         target = utils.get_at_index(patches, idx_mask - self.num_prefix_tokens)
         target = utils.normalize_mean_var(target)

@@ -14,7 +14,7 @@ Key Components
 --------------
 
 - **Data Augmentations**: Like MAE, PIXIO relies only on random resized cropping.
-- **Masking**: PIXIO masks 75% of the patches, but at a coarser granularity — whole
+- **Masking**: PIXIO masks 75% of the patches, but at a coarser granularity: whole
   ``grid_size`` x ``grid_size`` blocks of patches are masked together (4x4 by default),
   which prevents trivial reconstruction from neighboring patches.
 - **Backbone**: A standard ViT with multiple class tokens (8 by default, realized via
