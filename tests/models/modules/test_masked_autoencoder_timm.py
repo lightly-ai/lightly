@@ -11,7 +11,7 @@ if not dependency.timm_vit_available():
     pytest.skip("TIMM vision transformer is not available", allow_module_level=True)
 
 
-from lightly.models.modules import MAEDecoderTIMM
+from lightly.models.modules import MAEDecoderTIMM, PixioDecoderTIMM
 
 
 class TestMAEDecoderTIMM(unittest.TestCase):
@@ -94,6 +94,39 @@ class TestMAEDecoderTIMM(unittest.TestCase):
             num_prefix_tokens=num_prefix_tokens,
         )
         tokens = torch.rand(2, seq_length, embed_input_dim)
+        predictions = decoder(tokens)
+        self.assertListEqual(
+            list(predictions.shape), [2, seq_length, 3 * patch_size**2]
+        )
+
+
+class TestPixioDecoderTIMM(unittest.TestCase):
+    def test_init__default_depth_is_32(self) -> None:
+        decoder = PixioDecoderTIMM(
+            num_patches=256,
+            patch_size=16,
+            embed_dim=768,
+            decoder_embed_dim=512,
+            decoder_num_heads=16,
+            num_prefix_tokens=8,
+        )
+        self.assertEqual(len(decoder.decoder_blocks), 32)
+        self.assertEqual(list(decoder.decoder_pos_embed.shape), [1, 256 + 8, 512])
+
+    def test_forward(self) -> None:
+        torch.manual_seed(0)
+        num_patches, num_prefix_tokens, patch_size = 64, 8, 16
+        seq_length = num_patches + num_prefix_tokens
+        decoder = PixioDecoderTIMM(
+            num_patches=num_patches,
+            patch_size=patch_size,
+            embed_dim=128,
+            decoder_embed_dim=64,
+            decoder_depth=2,  # keep the test cheap
+            decoder_num_heads=4,
+            num_prefix_tokens=num_prefix_tokens,
+        )
+        tokens = torch.rand(2, seq_length, 128)
         predictions = decoder(tokens)
         self.assertListEqual(
             list(predictions.shape), [2, seq_length, 3 * patch_size**2]
