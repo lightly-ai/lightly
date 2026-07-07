@@ -1083,14 +1083,18 @@ def initialize_learnable_positional_embedding(pos_embedding: Parameter) -> None:
 
 
 def initialize_2d_sine_cosine_positional_embedding(
-    pos_embedding: Parameter, has_class_token: bool
+    pos_embedding: Parameter,
+    has_class_token: bool = True,
+    num_prefix_tokens: Optional[int] = None,
 ) -> None:
+    n_prefix = int(has_class_token) if num_prefix_tokens is None else num_prefix_tokens
     _, seq_length, hidden_dim = pos_embedding.shape
-    grid_size = int((seq_length - int(has_class_token)) ** 0.5)
+    grid_size = int((seq_length - n_prefix) ** 0.5)
     sine_cosine_embedding = get_2d_sine_cosine_positional_embedding(
         embed_dim=hidden_dim,
         grid_size=grid_size,
         cls_token=has_class_token,
+        num_prefix_tokens=num_prefix_tokens,
     )
     pos_embedding.data.copy_(
         torch.from_numpy(sine_cosine_embedding).float().unsqueeze(0)
@@ -1100,7 +1104,10 @@ def initialize_2d_sine_cosine_positional_embedding(
 
 
 def get_2d_sine_cosine_positional_embedding(
-    embed_dim: int, grid_size: int, cls_token: bool
+    embed_dim: int,
+    grid_size: int,
+    cls_token: bool = True,
+    num_prefix_tokens: Optional[int] = None,
 ) -> NDArray[np.float32]:
     """Generates 2D sine-cosine positional embedding.
 
@@ -1112,12 +1119,17 @@ def get_2d_sine_cosine_positional_embedding(
         grid_size:
             Height and width of the grid.
         cls_token:
-            If True, a positional embedding for the class token is generated.
+            If True, a single zero positional embedding for the class token is
+            prepended. Ignored if num_prefix_tokens is set.
+        num_prefix_tokens:
+            If set, this many zero positional embeddings are prepended, for models
+            with multiple class or register tokens. Overrides cls_token.
 
     Returns:
-        Positional embedding with shape (grid_size * grid_size, embed_dim) or
-        (1 + grid_size * grid_size, embed_dim) if cls_token is True.
+        Positional embedding with shape (num_prefix + grid_size * grid_size, embed_dim)
+        where num_prefix is num_prefix_tokens if set, else int(cls_token).
     """
+    n_prefix = int(cls_token) if num_prefix_tokens is None else num_prefix_tokens
     grid_h = np.arange(grid_size, dtype=np.float32)
     grid_w = np.arange(grid_size, dtype=np.float32)
     grid = np.meshgrid(grid_w, grid_h)  # here w goes first
@@ -1125,8 +1137,8 @@ def get_2d_sine_cosine_positional_embedding(
 
     grid = grid.reshape([2, 1, grid_size, grid_size])
     pos_embed = get_2d_sine_cosine_positional_embedding_from_grid(embed_dim, grid)
-    if cls_token:
-        pos_embed = np.concatenate([np.zeros([1, embed_dim]), pos_embed], axis=0)
+    if n_prefix > 0:
+        pos_embed = np.concatenate([np.zeros([n_prefix, embed_dim]), pos_embed], axis=0)
     return pos_embed
 
 

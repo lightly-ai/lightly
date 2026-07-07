@@ -968,3 +968,28 @@ def test_update_drop_path_rate__unknown_mode() -> None:
     model = VisionTransformer(drop_path_rate=0, depth=4)
     with pytest.raises(ValueError, match="Unknown mode"):
         utils.update_drop_path_rate(model=model, drop_path_rate=0.1, mode="unknown")
+
+
+def test_get_2d_sine_cosine_positional_embedding__num_prefix_tokens() -> None:
+    embed_dim, grid_size = 16, 4
+    emb = utils.get_2d_sine_cosine_positional_embedding(
+        embed_dim=embed_dim, grid_size=grid_size, num_prefix_tokens=8
+    )
+    # 8 prefix rows + grid_size**2 patch rows
+    assert emb.shape == (8 + grid_size * grid_size, embed_dim)
+    # prefix rows are zeros
+    assert (emb[:8] == 0).all()
+    # patch rows are not all zero
+    assert not (emb[8:] == 0).all()
+
+
+def test_get_2d_sine_cosine_positional_embedding__backwards_compatible() -> None:
+    embed_dim, grid_size = 16, 4
+    with_cls = utils.get_2d_sine_cosine_positional_embedding(
+        embed_dim=embed_dim, grid_size=grid_size, cls_token=True
+    )
+    one_prefix = utils.get_2d_sine_cosine_positional_embedding(
+        embed_dim=embed_dim, grid_size=grid_size, num_prefix_tokens=1
+    )
+    assert with_cls.shape == one_prefix.shape == (1 + grid_size * grid_size, embed_dim)
+    assert (with_cls == one_prefix).all()
