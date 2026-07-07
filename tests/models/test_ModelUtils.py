@@ -970,6 +970,96 @@ def test_update_drop_path_rate__unknown_mode() -> None:
         utils.update_drop_path_rate(model=model, drop_path_rate=0.1, mode="unknown")
 
 
+def test_random_grid_token_mask__partition() -> None:
+    torch.manual_seed(0)
+    batch_size, num_prefix_tokens = 2, 1
+    sequence_length = num_prefix_tokens + 16  # 4x4 patch grid
+    idx_keep, idx_mask = utils.random_grid_token_mask(
+        size=(batch_size, sequence_length),
+        mask_ratio=0.5,
+        grid_size=2,
+        num_prefix_tokens=num_prefix_tokens,
+    )
+    idx, _ = torch.cat([idx_keep, idx_mask], dim=1).sort(dim=1)
+    expected = torch.arange(sequence_length).expand(batch_size, sequence_length)
+    assert torch.equal(idx, expected)
+
+
+def test_random_grid_token_mask__prefix_tokens_kept() -> None:
+    torch.manual_seed(0)
+    batch_size, num_prefix_tokens = 3, 8
+    sequence_length = num_prefix_tokens + 16
+    idx_keep, idx_mask = utils.random_grid_token_mask(
+        size=(batch_size, sequence_length),
+        mask_ratio=0.75,
+        grid_size=2,
+        num_prefix_tokens=num_prefix_tokens,
+    )
+    prefix = torch.arange(num_prefix_tokens).expand(batch_size, num_prefix_tokens)
+    assert torch.equal(idx_keep[:, :num_prefix_tokens], prefix)
+    assert idx_mask.min().item() >= num_prefix_tokens
+
+
+def test_random_grid_token_mask__whole_cell_granularity() -> None:
+    torch.manual_seed(0)
+    num_prefix_tokens = 1
+    sequence_length = num_prefix_tokens + 16
+    cells = [{0, 1, 4, 5}, {2, 3, 6, 7}, {8, 9, 12, 13}, {10, 11, 14, 15}]
+    idx_keep, idx_mask = utils.random_grid_token_mask(
+        size=(1, sequence_length),
+        mask_ratio=0.5,
+        grid_size=2,
+        num_prefix_tokens=num_prefix_tokens,
+    )
+    masked = {int(i) - num_prefix_tokens for i in idx_mask[0]}
+    for cell in cells:
+        assert masked.issuperset(cell) or masked.isdisjoint(cell)
+
+
+def test_random_grid_token_mask__keep_count() -> None:
+    num_prefix_tokens = 1
+    sequence_length = num_prefix_tokens + 16  # 4 cells of 4 patches (grid=2)
+    idx_keep, idx_mask = utils.random_grid_token_mask(
+        size=(2, sequence_length),
+        mask_ratio=0.75,
+        grid_size=2,
+        num_prefix_tokens=num_prefix_tokens,
+    )
+    # keep int(4 * 0.25) = 1 cell -> 4 patches, + 1 prefix
+    assert idx_keep.shape == (2, num_prefix_tokens + 4)
+    assert idx_mask.shape == (2, 12)
+
+
+def test_random_grid_token_mask__not_divisible_raises() -> None:
+    with pytest.raises(ValueError):
+        utils.random_grid_token_mask(
+            size=(1, 1 + 16), mask_ratio=0.5, grid_size=3, num_prefix_tokens=1
+        )
+
+
+def test_random_grid_token_mask__not_square_raises() -> None:
+    with pytest.raises(ValueError):
+        utils.random_grid_token_mask(
+            size=(1, 1 + 15), mask_ratio=0.5, grid_size=2, num_prefix_tokens=1
+        )
+
+
+@pytest.mark.parametrize("device", ["cpu", "cuda"])  # type: ignore[misc]
+def test_random_grid_token_mask__device(device: str) -> None:
+    if device == "cuda" and not torch.cuda.is_available():
+        pytest.skip("CUDA not available")
+
+    idx_keep, idx_mask = utils.random_grid_token_mask(
+        size=(2, 1 + 16),
+        mask_ratio=0.5,
+        grid_size=2,
+        num_prefix_tokens=1,
+        device=device,
+    )
+    assert idx_keep.device.type == device
+    assert idx_mask.device.type == device
+
+
 def test_get_2d_sine_cosine_positional_embedding__num_prefix_tokens() -> None:
     embed_dim, grid_size = 16, 4
     emb = utils.get_2d_sine_cosine_positional_embedding(

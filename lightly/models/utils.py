@@ -612,6 +612,99 @@ def random_token_mask(
     return idx_keep, idx_mask
 
 
+def random_grid_token_mask(
+    size: Tuple[int, int],
+    mask_ratio: float = 0.75,
+    grid_size: int = 4,
+    num_prefix_tokens: int = 1,
+    device: Optional[Union[torch.device, str]] = None,
+) -> Tuple[Tensor, Tensor]:
+    """Creates random token masks at a coarse grid granularity.
+
+    Instead of masking individual patches (as in :func:`random_token_mask`), whole
+    ``grid_size`` x ``grid_size`` blocks of patches on a regular grid are kept or
+    masked together. This is the larger masking granularity used by PIXIO [0] to
+    avoid trivial pixel-reconstruction shortcuts between neighboring patches.
+
+    - [0]: In Pursuit of Pixel Supervision for Visual Pre-training, 2025,
+      https://arxiv.org/abs/2512.15715
+
+    Args:
+        size:
+            Size of the token batch, (batch_size, sequence_length). The sequence
+            length must equal num_prefix_tokens + num_patches where num_patches is a
+            perfect square.
+        mask_ratio:
+            Proportion of grid cells to mask.
+        grid_size:
+            Side length of a grid cell measured in patches. The patch grid height
+            (and width) must be divisible by grid_size.
+        num_prefix_tokens:
+            Number of prefix tokens (e.g. class or register tokens) that precede the
+            patch tokens. They are never masked and are always returned first in
+            idx_keep.
+        device:
+            Device on which to create the index masks.
+
+    Returns:
+        An (idx_keep, idx_mask) tuple. idx_keep contains the prefix token indices
+        followed by the indices of the patches in kept cells; idx_mask contains the
+        indices of the patches in masked cells. Patch index p maps to token index
+        p + num_prefix_tokens.
+
+    Raises:
+        ValueError: If the number of patches is not a perfect square, or if the patch
+            grid is not divisible by grid_size.
+    """
+    batch_size, sequence_length = size
+    num_patches = sequence_length - num_prefix_tokens
+    height = width = int(num_patches**0.5)
+    if height * width != num_patches:
+        raise ValueError(
+            f"Number of patches ({num_patches}) must be a perfect square. Got "
+            f"sequence_length={sequence_length} and "
+            f"num_prefix_tokens={num_prefix_tokens}."
+        )
+    if height % grid_size != 0:
+        raise ValueError(
+            f"Patch grid side length ({height}) must be divisible by "
+            f"grid_size ({grid_size})."
+        )
+
+    num_cells = (height // grid_size) * (width // grid_size)
+    num_keep_cells = int(num_cells * (1 - mask_ratio))
+
+    # Map every grid cell to the patch indices it covers: (1, num_cells, grid_size**2).
+    patch_indices = torch.arange(num_patches, device=device).reshape(1, height, width)
+    patch_indices = patch_indices.unfold(1, grid_size, grid_size).unfold(
+        2, grid_size, grid_size
+    )
+    patch_indices = patch_indices.contiguous().reshape(
+        1, num_cells, grid_size * grid_size
+    )
+    patch_indices = patch_indices.expand(batch_size, -1, -1)
+
+    # Randomly order cells per sample and split into kept and masked cells.
+    noise = torch.rand(batch_size, num_cells, device=device)
+    cell_order = torch.argsort(noise, dim=1)
+    keep_cells = cell_order[:, :num_keep_cells]
+    mask_cells = cell_order[:, num_keep_cells:]
+
+    def _cells_to_patches(cells: Tensor) -> Tensor:
+        index = cells.unsqueeze(-1).expand(-1, -1, grid_size * grid_size)
+        patches = torch.gather(patch_indices, dim=1, index=index)
+        return patches.reshape(batch_size, -1)
+
+    keep_patches = _cells_to_patches(keep_cells) + num_prefix_tokens
+    idx_mask = _cells_to_patches(mask_cells) + num_prefix_tokens
+
+    prefix = torch.arange(num_prefix_tokens, device=device)
+    prefix = prefix.unsqueeze(0).expand(batch_size, -1)
+    idx_keep = torch.cat([prefix, keep_patches], dim=1)
+
+    return idx_keep, idx_mask
+
+
 def random_prefix_mask(
     size: Tuple[int, int],
     max_prefix_length: int,
