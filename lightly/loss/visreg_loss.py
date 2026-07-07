@@ -118,7 +118,8 @@ def visreg_shape_loss(z: Tensor, num_slices: int, eps: float = 1e-4) -> Tensor:
     quantiles = quantiles.to(dtype=z.dtype).unsqueeze(-1)
 
     projections_sorted = projections.sort(dim=-2).values
-    return (projections_sorted - quantiles).square().mean()
+    loss: Tensor = (projections_sorted - quantiles).square().mean()
+    return loss
 
 
 class VISRegLossComponents(NamedTuple):
