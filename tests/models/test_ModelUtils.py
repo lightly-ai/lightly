@@ -1061,6 +1061,14 @@ def test_random_grid_token_mask__not_square_raises() -> None:
         )
 
 
+def test_random_grid_token_mask__prefix_ge_sequence_raises() -> None:
+    with pytest.raises(ValueError):
+        # num_prefix_tokens >= sequence_length -> non-positive patch count.
+        utils.random_grid_token_mask(
+            size=(1, 3), mask_ratio=0.5, grid_size=2, num_prefix_tokens=5
+        )
+
+
 def test_random_grid_token_mask__mask_ratio_extremes() -> None:
     num_prefix_tokens = 1
     sequence_length = num_prefix_tokens + 16  # 4 cells of 4 patches (grid=2)

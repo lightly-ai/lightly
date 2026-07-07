@@ -653,11 +653,17 @@ def random_grid_token_mask(
         p + num_prefix_tokens.
 
     Raises:
-        ValueError: If the number of patches is not a perfect square, or if the patch
-            grid is not divisible by grid_size.
+        ValueError: If sequence_length is not greater than num_prefix_tokens, if the
+            number of patches is not a perfect square, or if the patch grid is not
+            divisible by grid_size.
     """
     batch_size, sequence_length = size
     num_patches = sequence_length - num_prefix_tokens
+    if num_patches <= 0:
+        raise ValueError(
+            f"sequence_length ({sequence_length}) must be greater than "
+            f"num_prefix_tokens ({num_prefix_tokens})."
+        )
     height = width = int(num_patches**0.5)
     if height * width != num_patches:
         raise ValueError(
