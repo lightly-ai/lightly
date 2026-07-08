@@ -623,7 +623,7 @@ def random_grid_token_mask(
 
     Instead of masking individual patches (as in :func:`random_token_mask`), whole
     ``grid_size`` x ``grid_size`` blocks of patches on a regular grid are kept or
-    masked together. This is the larger masking granularity used by PIXIO [0] to
+    masked together. This is the larger masking granularity used by Pixio [0] to
     avoid trivial pixel-reconstruction shortcuts between neighboring patches.
 
     - [0]: In Pursuit of Pixel Supervision for Visual Pre-training, 2025,
@@ -647,10 +647,16 @@ def random_grid_token_mask(
             Device on which to create the index masks.
 
     Returns:
-        An (idx_keep, idx_mask) tuple. idx_keep contains the prefix token indices
-        followed by the indices of the patches in kept cells; idx_mask contains the
-        indices of the patches in masked cells. Patch index p maps to token index
-        p + num_prefix_tokens.
+        An (idx_keep, idx_mask) tuple of int64 index tensors, where
+        num_cells = (height // grid_size) ** 2 and
+        num_keep = int(num_cells * (1 - mask_ratio)) * grid_size ** 2:
+
+        - idx_keep, shape (batch_size, num_prefix_tokens + num_keep): the prefix
+          token indices followed by the indices of the patches in the kept cells.
+        - idx_mask, shape (batch_size, num_patches - num_keep): the indices of the
+          patches in the masked cells.
+
+        Patch index p maps to token index p + num_prefix_tokens.
 
     Raises:
         ValueError: If sequence_length is not greater than num_prefix_tokens, if the
@@ -689,19 +695,26 @@ def random_grid_token_mask(
     patch_indices = patch_indices.expand(batch_size, -1, -1)
 
     # Randomly order cells per sample and split into kept and masked cells.
-    noise = torch.rand(batch_size, num_cells, device=device)
-    cell_order = torch.argsort(noise, dim=1)
-    keep_cells = cell_order[:, :num_keep_cells]
-    mask_cells = cell_order[:, num_keep_cells:]
+    noise = torch.rand(batch_size, num_cells, device=device)  # (batch_size, num_cells)
+    cell_order = torch.argsort(noise, dim=1)  # (batch_size, num_cells)
+    keep_cells = cell_order[:, :num_keep_cells]  # (batch_size, num_keep_cells)
+    mask_cells = cell_order[
+        :, num_keep_cells:
+    ]  # (batch_size, num_cells - num_keep_cells)
 
-    # Expand each kept/masked cell to the patch indices it covers.
+    # Expand each kept/masked cell to the patch indices it covers, then offset by the
+    # prefix tokens. keep_patches: (batch_size, num_keep_cells * grid_size**2).
     keep_patches = get_at_index(patch_indices, keep_cells).reshape(batch_size, -1)
     idx_mask = get_at_index(patch_indices, mask_cells).reshape(batch_size, -1)
     keep_patches = keep_patches + num_prefix_tokens
     idx_mask = idx_mask + num_prefix_tokens
 
-    prefix = torch.arange(num_prefix_tokens, device=device)
-    prefix = prefix.unsqueeze(0).expand(batch_size, -1)
+    # Prefix tokens are always kept and come first:
+    # idx_keep is (batch_size, num_prefix_tokens + num_keep_cells * grid_size**2).
+    prefix = torch.arange(num_prefix_tokens, device=device)  # (num_prefix_tokens,)
+    prefix = prefix.unsqueeze(0).expand(
+        batch_size, -1
+    )  # (batch_size, num_prefix_tokens)
     idx_keep = torch.cat([prefix, keep_patches], dim=1)
 
     return idx_keep, idx_mask
