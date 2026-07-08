@@ -10,16 +10,16 @@ import torch
 import torchvision
 
 from lightly.loss import MaskedImageModelingLoss
-from lightly.models.modules import BEITEncoder, ImageTokenizer, MIMHead
-from lightly.transforms import BEITTransform
+from lightly.models.modules import BEITEncoder, BEiTImageTokenizer, BEiTMIMHead
+from lightly.transforms import BEiTTransform
 
 
-class BEIT(pl.LightningModule):
-    """BEIT pre-training module for masked image modeling with DDP support.
+class BEiT(pl.LightningModule):
+    """BEiT pre-training module for masked image modeling with DDP support.
 
     Attributes:
         backbone:
-            BEIT Vision Transformer encoder.
+            BEiT Vision Transformer encoder.
         projection_head:
             MIM head mapping patch features to vocabulary logits.
         tokenizer:
@@ -46,11 +46,13 @@ class BEIT(pl.LightningModule):
             num_heads=num_heads,
         )
         self.num_patches = self.backbone.num_patches
-        self.projection_head = MIMHead(
+        self.projection_head = BEiTMIMHead(
             embed_dim=embed_dim,
             vocab_size=vocab_size,
         )
-        self.tokenizer = ImageTokenizer(vocab_size=vocab_size)
+        self.tokenizer = BEiTImageTokenizer(vocab_size=vocab_size)
+        self.tokenizer.requires_grad_(False)
+        self.tokenizer.eval()
         self.criterion = MaskedImageModelingLoss()
 
     def training_step(
@@ -90,9 +92,9 @@ class BEIT(pl.LightningModule):
         return optim
 
 
-model = BEIT()
+model = BEiT()
 
-transform = BEITTransform(input_size=224, patch_size=8)
+transform = BEiTTransform(input_size=224, patch_size=8)
 model.transform = transform  # Store transform for access in training_step
 
 # Fast
@@ -119,7 +121,6 @@ trainer = pl.Trainer(
     max_epochs=10,
     devices="auto",
     accelerator="gpu",
-    strategy="ddp",
     sync_batchnorm=True,
     use_distributed_sampler=True,  # or replace_sampler_ddp=True for PyTorch Lightning <2.0
 )

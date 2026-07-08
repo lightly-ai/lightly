@@ -6,9 +6,8 @@ from typing import Any
 
 import torch
 
-from lightly.models import BEIT
 from lightly.models.modules import BEITEncoder
-from lightly.models.modules.heads import MIMHead
+from lightly.models.modules.heads import BEiTMIMHead
 
 
 class TestBEITEncoder(unittest.TestCase):
@@ -230,18 +229,18 @@ class TestBEITEncoder(unittest.TestCase):
 
 
 class TestMIMHead(unittest.TestCase):
-    """Tests for the MIMHead module."""
+    """Tests for the BEiTMIMHead module."""
 
     _EMBED_DIM = 64
     _VOCAB_SIZE = 512
 
-    def _make_head(self) -> MIMHead:
-        """Creates a MIMHead with default test parameters.
+    def _make_head(self) -> BEiTMIMHead:
+        """Creates a BEiTMIMHead with default test parameters.
 
         Returns:
-            A MIMHead instance configured for testing.
+            A BEiTMIMHead instance configured for testing.
         """
-        return MIMHead(
+        return BEiTMIMHead(
             embed_dim=self._EMBED_DIM,
             vocab_size=self._VOCAB_SIZE,
         )
@@ -280,145 +279,3 @@ class TestMIMHead(unittest.TestCase):
 
         self.assertTrue(logits.is_cuda)
         self.assertEqual(logits.shape, (2, 16, self._VOCAB_SIZE))
-
-
-class TestBEIT(unittest.TestCase):
-    """Tests for the full BEIT model."""
-
-    _EMBED_DIM = 64
-    _DEPTH = 2
-    _NUM_HEADS = 4
-    _IMG_SIZE = 32
-    _PATCH_SIZE = 8
-    _VOCAB_SIZE = 512
-
-    def _make_model(self, **kwargs: Any) -> BEIT:
-        """Creates a BEIT model with default test parameters.
-
-        Args:
-            **kwargs:
-                Additional keyword arguments passed to BEIT.
-
-        Returns:
-            A BEIT instance configured for testing.
-        """
-        return BEIT(
-            img_size=self._IMG_SIZE,
-            patch_size=self._PATCH_SIZE,
-            embed_dim=self._EMBED_DIM,
-            depth=self._DEPTH,
-            num_heads=self._NUM_HEADS,
-            vocab_size=self._VOCAB_SIZE,
-            **kwargs,
-        )
-
-    def _make_mask(self, batch_size: int, mask_ratio: float = 0.4) -> torch.Tensor:
-        """Creates a deterministic boolean mask for testing.
-
-        Args:
-            batch_size:
-                Number of samples in the batch.
-            mask_ratio:
-                Fraction of patches to mask.
-
-        Returns:
-            Boolean tensor of shape (batch_size, n_patches) with the
-            first n_masked positions set to True.
-        """
-        n_patches = (self._IMG_SIZE // self._PATCH_SIZE) ** 2
-        n_masked = int(n_patches * mask_ratio)
-        mask = torch.zeros(batch_size, n_patches, dtype=torch.bool)
-        mask[:, :n_masked] = True
-        return mask
-
-    def test_output_shapes_default(self) -> None:
-        """Tests output shapes with default return_all_tokens=False."""
-        model = self._make_model()
-        x = torch.randn(2, 3, self._IMG_SIZE, self._IMG_SIZE)
-        mask = self._make_mask(batch_size=2)
-        out = model(x=x, bool_masked_pos=mask)
-
-        n_masked = mask.sum(dim=1)[0].item()
-        self.assertEqual(
-            out["mim_logits"].shape,
-            (2, int(n_masked), self._VOCAB_SIZE),
-        )
-        self.assertEqual(
-            out["patch_features"].shape,
-            (2, (self._IMG_SIZE // self._PATCH_SIZE) ** 2, self._EMBED_DIM),
-        )
-
-    def test_output_shapes_all_tokens(self) -> None:
-        """Tests output shapes with return_all_tokens=True."""
-        model = self._make_model()
-        x = torch.randn(2, 3, self._IMG_SIZE, self._IMG_SIZE)
-        mask = self._make_mask(batch_size=2)
-        out = model(x=x, bool_masked_pos=mask, return_all_tokens=True)
-
-        n_patches = (self._IMG_SIZE // self._PATCH_SIZE) ** 2
-        self.assertEqual(
-            out["mim_logits"].shape,
-            (2, n_patches, self._VOCAB_SIZE),
-        )
-        self.assertEqual(
-            out["patch_features"].shape,
-            (2, n_patches, self._EMBED_DIM),
-        )
-
-    def test_return_type_is_dict(self) -> None:
-        """Tests that forward returns a dictionary."""
-        model = self._make_model()
-        x = torch.randn(1, 3, self._IMG_SIZE, self._IMG_SIZE)
-        mask = self._make_mask(batch_size=1)
-        out = model(x=x, bool_masked_pos=mask)
-
-        self.assertIsInstance(out, dict)
-        self.assertIn("mim_logits", out)
-        self.assertIn("patch_features", out)
-
-    def test_gradient_flows(self) -> None:
-        """Tests that gradients propagate through the full model."""
-        model = self._make_model()
-        x = torch.randn(1, 3, self._IMG_SIZE, self._IMG_SIZE, requires_grad=True)
-        mask = self._make_mask(batch_size=1)
-        out = model(x=x, bool_masked_pos=mask)
-        out["mim_logits"].sum().backward()
-
-        self.assertIsNotNone(x.grad)
-
-    def test_different_mask_ratios(self) -> None:
-        """Tests that varying mask ratios produce valid outputs."""
-        model = self._make_model()
-        x = torch.randn(2, 3, self._IMG_SIZE, self._IMG_SIZE)
-
-        for mask_ratio in [0.0, 0.25, 0.5, 0.75]:
-            mask = self._make_mask(batch_size=2, mask_ratio=mask_ratio)
-            out = model(x=x, bool_masked_pos=mask)
-
-            self.assertTrue(torch.isfinite(out["mim_logits"]).all())
-            self.assertTrue(torch.isfinite(out["patch_features"]).all())
-
-    def test_encoder_parameters_exist(self) -> None:
-        """Tests that the encoder has learnable parameters."""
-        model = self._make_model()
-
-        self.assertIsInstance(model.encoder, BEITEncoder)
-        self.assertGreater(len(list(model.encoder.parameters())), 0)
-
-    def test_mim_head_parameters_exist(self) -> None:
-        """Tests that the MIM head has learnable parameters."""
-        model = self._make_model()
-
-        self.assertIsInstance(model.mim_head, MIMHead)
-        self.assertGreater(len(list(model.mim_head.parameters())), 0)
-
-    @unittest.skipUnless(torch.cuda.is_available(), "CUDA not available")
-    def test_forward_pass_cuda(self) -> None:
-        """Tests forward pass on CUDA if available."""
-        model = self._make_model().cuda()
-        x = torch.randn(2, 3, self._IMG_SIZE, self._IMG_SIZE).cuda()
-        mask = self._make_mask(batch_size=2).cuda()
-        out = model(x=x, bool_masked_pos=mask)
-
-        self.assertTrue(out["mim_logits"].is_cuda)
-        self.assertTrue(out["patch_features"].is_cuda)

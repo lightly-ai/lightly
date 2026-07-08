@@ -1,28 +1,9 @@
 # Example: BEIT pre-training on CIFAR-10.
 # This script demonstrates how to use the BEIT model for masked image
 # modeling (MIM) pre-training on a small subset of CIFAR-10.
-
-# NOTE: The ImageTokenizer must be pre-trained before BEIT pre-training.
-# The tokenizer follows the DALL-E discrete VAE architecture and can be
-# trained as follows:
-#
-#     tokenizer = ImageTokenizer(vocab_size=8192)
-#     optimizer = torch.optim.Adam(tokenizer.parameters(), lr=1e-3)
-#
-#     for images in dataloader:
-#         logits, recon = tokenizer(images)
-#         loss = F.mse_loss(recon, images)  # Reconstruction loss
-#         loss.backward()
-#         optimizer.step()
-#         optimizer.zero_grad()
-#
-#     torch.save(tokenizer.state_dict(), "tokenizer.pth")
-#
-# During BEIT pre-training, load and freeze the tokenizer:
-#     tokenizer.load_state_dict(torch.load("tokenizer.pth"))
-#     tokenizer.eval()
-#     for param in tokenizer.parameters():
-#         param.requires_grad = False
+# NOTE:
+# The tokenizer must be pretrained before running BEiT pretraining.
+# A pretrained tokenizer should be loaded from a checkpoint.
 
 
 from __future__ import annotations
@@ -33,11 +14,11 @@ from torch import nn
 from torch.utils.data import Subset
 
 from lightly.loss import MaskedImageModelingLoss
-from lightly.models.modules import BEITEncoder, ImageTokenizer, MIMHead
-from lightly.transforms import BEITTransform
+from lightly.models.modules import BEITEncoder, BEiTImageTokenizer, BEiTMIMHead
+from lightly.transforms import BEiTTransform
 
 
-class BEIT(nn.Module):
+class BEiT(nn.Module):
     """Simple BEIT pre-training wrapper.
 
     Attributes:
@@ -53,7 +34,7 @@ class BEIT(nn.Module):
     def __init__(
         self,
         encoder: BEITEncoder,
-        tokenizer: ImageTokenizer,
+        tokenizer: BEiTImageTokenizer,
     ) -> None:
         """Initializes the BEIT model.
 
@@ -66,7 +47,7 @@ class BEIT(nn.Module):
         super().__init__()
         self.encoder = encoder
         self.tokenizer = tokenizer
-        self.head = MIMHead(
+        self.head = BEiTMIMHead(
             embed_dim=encoder.embed_dim,
             vocab_size=tokenizer.vocab_size,
         )
@@ -113,13 +94,16 @@ encoder = BEITEncoder(
     depth=2,
     num_heads=4,
 )
-tokenizer = ImageTokenizer(vocab_size=512)
-model = BEIT(encoder=encoder, tokenizer=tokenizer)
+tokenizer = BEiTImageTokenizer(vocab_size=512)
+# disables gradients for every parameter in the tokenizer
+tokenizer.requires_grad_(False)
+tokenizer.eval()
+model = BEiT(encoder=encoder, tokenizer=tokenizer)
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device=device)
 
-transform = BEITTransform(input_size=224, patch_size=8)
+transform = BEiTTransform(input_size=224, patch_size=8)
 
 # CIFAR-10: downloads fast, small images
 dataset = torchvision.datasets.CIFAR10(

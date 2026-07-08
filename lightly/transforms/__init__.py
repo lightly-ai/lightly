@@ -10,7 +10,7 @@ transforms.
 
 from lightly.transforms.aim_transform import AIMTransform
 from lightly.transforms.amplitude_rescale_transform import AmplitudeRescaleTransform
-from lightly.transforms.beit_transform import BEITTransform, BlockwiseMaskingGenerator
+from lightly.transforms.beit_transform import BEiTTransform, BlockwiseMaskingGenerator
 from lightly.transforms.byol_transform import (
     BYOLTransform,
     BYOLView1Transform,

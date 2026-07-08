@@ -2,7 +2,7 @@
 # All Rights Reserved
 
 # Implements the data augmentation and blockwise masking strategy described in
-# BEIT: BERT Pre-Training of Image Transformers, 2021
+# BEiT: BERT Pre-Training of Image Transformers, 2021
 # https://arxiv.org/abs/2106.08254
 
 from __future__ import annotations
@@ -148,10 +148,10 @@ class BlockwiseMaskingGenerator:
         return torch.stack(masks, dim=0)
 
 
-class BEITTransform:
-    """Image transform for BEIT pre-training.
+class BEiTTransform:
+    """Image transform for BEiT pre-training.
 
-    Applies the standard BEIT augmentation pipeline (random resized crop,
+    Applies the standard BEiT augmentation pipeline (random resized crop,
     horizontal flip, colour jitter, normalisation) and exposes a
     :attr:`mask_generator` for producing blockwise boolean masks.
 
@@ -182,7 +182,7 @@ class BEITTransform:
             and hue (default 0.4, matching §2.5 of the paper).
         scale:
             Range of size of the origin size cropped (default ``(0.2, 1.0)``).
-            The original BEIT paper uses ``(0.08, 1.0)``.
+            The original BEiT paper uses ``(0.08, 1.0)``.
         ratio:
             Range of aspect ratio of the origin aspect ratio cropped
             (default ``(3.0 / 4.0, 4.0 / 3.0)``).
@@ -195,8 +195,8 @@ class BEITTransform:
             Channel-wise normalisation std (default ImageNet std).
 
     Examples:
-        >>> from lightly.transforms import BEITTransform
-        >>> transform = BEITTransform()
+        >>> from lightly.transforms import BEiTTransform
+        >>> transform = BEiTTransform()
         >>>
         >>> # applied per image in the dataset
         >>> image = transform(pil_image)  # (3, 224, 224)

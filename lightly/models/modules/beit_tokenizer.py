@@ -407,7 +407,7 @@ class _DALLEDecoder(nn.Module):
         return out[:, : self.output_channels]
 
 
-class ImageTokenizer(nn.Module):
+class BEiTImageTokenizer(nn.Module):
     """Discrete VAE image tokenizer following the DALL-E architecture .
 
     Used in BEIT  to convert images into discrete visual tokens that serve
@@ -428,9 +428,9 @@ class ImageTokenizer(nn.Module):
 
     Examples:
         >>> import torch
-        >>> from lightly.models.modules import ImageTokenizer
+        >>> from lightly.models.modules import BEiTImageTokenizer
         >>>
-        >>> tokenizer = ImageTokenizer()
+        >>> tokenizer = BEiTImageTokenizer()
         >>> images = torch.randn(2, 3, 224, 224)
         >>>
         >>> # During BEIT pre-training: get hard token ids (frozen tokenizer)

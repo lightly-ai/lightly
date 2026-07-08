@@ -3,7 +3,7 @@
 BEiT
 ====
 
-implementation of the BEiT (BERT Pre-Training of Image Transformers) 
+Implementation of the BEiT (BERT Pre-Training of Image Transformers) 
 architecture for masked image modeling (MIM).
 
 BEiT pre-trains a Vision Transformer by masking random patches of the input 

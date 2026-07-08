@@ -12,8 +12,8 @@ from torch import nn
 from torch.utils.data import Subset
 
 from lightly.loss import MaskedImageModelingLoss
-from lightly.models.modules import BEITEncoder, ImageTokenizer, MIMHead
-from lightly.transforms import BEITTransform
+from lightly.models.modules import BEITEncoder, BEiTImageTokenizer, BEiTMIMHead
+from lightly.transforms import BEiTTransform
 
 
 class BEIT(pl.LightningModule):
@@ -64,11 +64,13 @@ class BEIT(pl.LightningModule):
             num_heads=num_heads,
         )
         self.num_patches = self.backbone.num_patches
-        self.projection_head = MIMHead(
+        self.projection_head = BEiTMIMHead(
             embed_dim=embed_dim,
             vocab_size=vocab_size,
         )
-        self.tokenizer = ImageTokenizer(vocab_size=vocab_size)
+        self.tokenizer = BEiTImageTokenizer(vocab_size=vocab_size)
+        self.tokenizer.requires_grad_(False)
+        self.tokenizer.eval()
         self.criterion = MaskedImageModelingLoss()
 
     def training_step(
@@ -131,7 +133,7 @@ class BEIT(pl.LightningModule):
 
 model = BEIT()
 
-transform = BEITTransform(input_size=224, patch_size=8)
+transform = BEiTTransform(input_size=224, patch_size=8)
 model.transform = transform  # Store transform for access in training_step
 
 

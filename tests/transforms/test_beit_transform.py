@@ -6,27 +6,27 @@ from typing import Any
 import torch
 from PIL import Image
 
-from lightly.transforms import BEITTransform
+from lightly.transforms import BEiTTransform
 
 
 class TestBEITTransform(unittest.TestCase):
-    """Tests for the BEITTransform data augmentation and masking."""
+    """Tests for the BEiTTransform data augmentation and masking."""
 
     _GRID = 14
     _N = 14 * 14
     _MASK_RATIO = 0.4
 
-    def _make_transform(self, **kwargs: Any) -> BEITTransform:
-        """Creates a BEITTransform with optional overrides.
+    def _make_transform(self, **kwargs: Any) -> BEiTTransform:
+        """Creates a BEiTTransform with optional overrides.
 
         Args:
             **kwargs:
-                Keyword arguments passed to BEITTransform.
+                Keyword arguments passed to BEiTTransform.
 
         Returns:
-            A BEITTransform instance configured for testing.
+            A BEiTTransform instance configured for testing.
         """
-        return BEITTransform(**kwargs)
+        return BEiTTransform(**kwargs)
 
     def test_mask_shape(self) -> None:
         """Tests that generated masks have the expected shape."""

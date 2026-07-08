@@ -8,16 +8,16 @@ can be combined with any lightly model.
 # Copyright (c) 2021. Lightly AG and its affiliates.
 # All Rights Reserved
 
-from lightly.models.modules.beit_tokenizer import ImageTokenizer
+from lightly.models.modules.beit_tokenizer import BEiTImageTokenizer
 from lightly.models.modules.heads import (
     BarlowTwinsProjectionHead,
+    BEiTMIMHead,
     BYOLPredictionHead,
     BYOLProjectionHead,
     DenseCLProjectionHead,
     DINOProjectionHead,
     DINOv2ProjectionHead,
     LeJEPAProjectionHead,
-    MIMHead,
     MMCRProjectionHead,
     MoCoProjectionHead,
     NNCLRPredictionHead,

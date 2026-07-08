@@ -1033,7 +1033,7 @@ class DenseCLProjectionHead(ProjectionHead):
         )
 
 
-class MIMHead(nn.Module):
+class BEiTMIMHead(nn.Module):
     """Masked Image Modelling prediction head.
     A single linear layer that maps each patch encoding to a
     distribution over the visual vocabulary.
@@ -1048,7 +1048,7 @@ class MIMHead(nn.Module):
         embed_dim: int = 768,
         vocab_size: int = 8192,
     ) -> None:
-        """Initializes MIMHead.
+        """Initializes BEiTMIMHead.
 
         Args:
             embed_dim:

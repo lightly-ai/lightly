@@ -20,7 +20,6 @@ checkpoints.
 
 from lightly.models import utils
 from lightly.models.barlowtwins import BarlowTwins
-from lightly.models.beit import BEIT
 from lightly.models.byol import BYOL
 from lightly.models.moco import MoCo
 from lightly.models.nnclr import NNCLR
