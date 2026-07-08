@@ -76,6 +76,7 @@ from lightly.loss import (
     DCLLoss,
     DCLWLoss,
     DINOLoss,
+    FroSSLLoss,
     NegativeCosineSimilarity,
     NTXentLoss,
     SwaVLoss,
@@ -243,6 +244,7 @@ def create_dataset_train_ssl(model):
         DCLW: simclr_transform,
         DINOModel: dino_transform,
         FastSiamModel: fast_siam_transform,
+        FroSSLModel: byol_transform,
         MocoModel: simclr_transform,
         NNCLRModel: simclr_transform,
         SimCLRModel: simclr_transform,
@@ -478,6 +480,46 @@ class BarlowTwinsModel(BenchmarkModule):
         z0 = self.forward(x0)
         z1 = self.forward(x1)
         loss = self.criterion(z0, z1)
+        self.log("train_loss_ssl", loss)
+        return loss
+
+    def configure_optimizers(self):
+        optim = torch.optim.SGD(
+            self.parameters(), lr=6e-2 * lr_factor, momentum=0.9, weight_decay=5e-4
+        )
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
+        return [optim], [scheduler]
+
+
+class FroSSLModel(BenchmarkModule):
+    def __init__(self, dataloader_kNN, num_classes):
+        super().__init__(dataloader_kNN, num_classes)
+        # create a ResNet backbone and remove the classification head
+        resnet = ResNetGenerator("resnet-18")
+        self.backbone = nn.Sequential(
+            *list(resnet.children())[:-1], nn.AdaptiveAvgPool2d(1)
+        )
+        # use the same 2-layer projection head as BarlowTwins for cifar10
+        self.projection_head = heads.ProjectionHead(
+            [
+                (512, 2048, nn.BatchNorm1d(2048), nn.ReLU(inplace=True)),
+                (2048, 2048, None, None),
+            ]
+        )
+
+        self.criterion = FroSSLLoss()
+
+    def forward(self, x):
+        x = self.backbone(x).flatten(start_dim=1)
+        z = self.projection_head(x)
+        return z
+
+    def training_step(self, batch, batch_index):
+        (x0, x1), _, _ = batch
+        z0 = self.forward(x0)
+        z1 = self.forward(x1)
+        # FroSSL supports any number of views; here we use the standard two.
+        loss = self.criterion([z0, z1])
         self.log("train_loss_ssl", loss)
         return loss
 
@@ -886,6 +928,7 @@ models = [
     DCL,
     DCLW,
     DINOModel,
+    FroSSLModel,
     MocoModel,
     NNCLRModel,
     SimCLRModel,
