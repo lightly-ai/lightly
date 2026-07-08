@@ -7,7 +7,7 @@
 import pytorch_lightning as pl
 import torch
 import torchvision
-from timm.models.vision_transformer import vit_base_patch16_224
+from timm.models.vision_transformer import vit_small_patch16_224
 from torch import nn
 
 from lightly.models import utils
@@ -15,12 +15,12 @@ from lightly.models.modules import MaskedVisionTransformerTIMM, PixioDecoderTIMM
 from lightly.transforms import MAETransform
 
 
-class PIXIO(pl.LightningModule):
+class Pixio(pl.LightningModule):
     def __init__(self):
         super().__init__()
 
         decoder_dim = 512
-        vit = vit_base_patch16_224(img_size=256, reg_tokens=7)
+        vit = vit_small_patch16_224(img_size=256, reg_tokens=7)
         self.mask_ratio = 0.75
         self.grid_size = 4
         self.patch_size = vit.patch_embed.patch_size[0]
@@ -32,7 +32,7 @@ class PIXIO(pl.LightningModule):
             patch_size=self.patch_size,
             embed_dim=vit.embed_dim,
             decoder_embed_dim=decoder_dim,
-            decoder_depth=2,  # kept small so the example runs quickly; PIXIO uses 32
+            decoder_depth=32,
             decoder_num_heads=16,
             num_prefix_tokens=self.num_prefix_tokens,
             mlp_ratio=4.0,
@@ -91,7 +91,7 @@ class PIXIO(pl.LightningModule):
         return optim
 
 
-model = PIXIO()
+model = Pixio()
 
 transform = MAETransform(input_size=256)
 
