@@ -59,7 +59,7 @@ METHODS = {
     "ibot": {"model": ibot.IBOT, "transform": ibot.transform},
     "lejepa": {"model": lejepa.LeJEPA, "transform": lejepa.transform},
     "mae": {"model": mae.MAE, "transform": mae.transform},
-    "pixio": {"model": pixio.PIXIO, "transform": pixio.transform},
+    "pixio": {"model": pixio.Pixio, "transform": pixio.transform},
     "aim": {"model": aim.AIM, "transform": aim.transform},
 }
 

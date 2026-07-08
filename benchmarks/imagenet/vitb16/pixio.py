@@ -1,10 +1,9 @@
 from typing import List, Tuple
 
-import torch
 from pytorch_lightning import LightningModule
 from timm.models.vision_transformer import vit_base_patch16_224
 from torch import Tensor
-from torch.nn import MSELoss, Parameter
+from torch.nn import MSELoss
 from torch.optim import AdamW
 
 from lightly.models import utils
@@ -14,7 +13,7 @@ from lightly.utils.benchmarking import OnlineLinearClassifier
 from lightly.utils.scheduler import CosineWarmupScheduler
 
 
-class PIXIO(LightningModule):
+class Pixio(LightningModule):
     def __init__(self, batch_size_per_device: int, num_classes: int) -> None:
         super().__init__()
         self.save_hyperparameters()
@@ -29,8 +28,6 @@ class PIXIO(LightningModule):
         self.num_prefix_tokens = vit.num_prefix_tokens
         self.patch_size = vit.patch_embed.patch_size[0]
         self.sequence_length = vit.patch_embed.num_patches + vit.num_prefix_tokens
-        mask_token = Parameter(torch.zeros(1, 1, decoder_dim))
-        torch.nn.init.normal_(mask_token, std=0.02)
         self.backbone = MaskedVisionTransformerTIMM(vit=vit)
         self.decoder = PixioDecoderTIMM(
             num_patches=vit.patch_embed.num_patches,
@@ -43,7 +40,6 @@ class PIXIO(LightningModule):
             mlp_ratio=4.0,
             proj_drop_rate=0.0,
             attn_drop_rate=0.0,
-            mask_token=mask_token,
         )
         self.criterion = MSELoss()
 
