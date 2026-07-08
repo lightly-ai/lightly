@@ -1095,7 +1095,7 @@ def test_random_grid_token_mask__mask_ratio_extremes() -> None:
 def test_random_grid_token_mask__grid_size_4() -> None:
     torch.manual_seed(0)
     num_prefix_tokens = 8
-    # 16x16 patch grid -> 4x4 = 16 cells of 4x4 patches (PIXIO's headline config).
+    # 16x16 patch grid -> 4x4 = 16 cells of 4x4 patches (Pixio's headline config).
     sequence_length = num_prefix_tokens + 256
     idx_keep, idx_mask = utils.random_grid_token_mask(
         size=(2, sequence_length),

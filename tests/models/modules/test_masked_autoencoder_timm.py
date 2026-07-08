@@ -108,7 +108,7 @@ class TestMAEDecoderTIMM(unittest.TestCase):
         self._test_forward__num_prefix_tokens(torch.device("cuda"))
 
 
-class TestPixioDecoderTIMM(unittest.TestCase):
+class TestPixioDecoderTIMM:
     def test_init__default_depth_is_32(self) -> None:
         decoder = PixioDecoderTIMM(
             num_patches=256,
@@ -118,8 +118,8 @@ class TestPixioDecoderTIMM(unittest.TestCase):
             decoder_num_heads=16,
             num_prefix_tokens=8,
         )
-        self.assertEqual(len(decoder.decoder_blocks), 32)
-        self.assertEqual(list(decoder.decoder_pos_embed.shape), [1, 256 + 8, 512])
+        assert len(decoder.decoder_blocks) == 32
+        assert list(decoder.decoder_pos_embed.shape) == [1, 256 + 8, 512]
 
     def _test_forward(self, device: torch.device) -> None:
         torch.manual_seed(0)
@@ -136,14 +136,12 @@ class TestPixioDecoderTIMM(unittest.TestCase):
         ).to(device)
         tokens = torch.rand(2, seq_length, 128).to(device)
         predictions = decoder(tokens)
-        self.assertListEqual(
-            list(predictions.shape), [2, seq_length, 3 * patch_size**2]
-        )
-        self.assertTrue(torch.all(torch.not_equal(predictions, torch.inf)))
+        assert list(predictions.shape) == [2, seq_length, 3 * patch_size**2]
+        assert torch.all(torch.not_equal(predictions, torch.inf))
 
     def test_forward(self) -> None:
         self._test_forward(torch.device("cpu"))
 
-    @unittest.skipUnless(torch.cuda.is_available(), "Cuda not available.")
+    @pytest.mark.skipif(not torch.cuda.is_available(), reason="Cuda not available.")
     def test_forward_cuda(self) -> None:
         self._test_forward(torch.device("cuda"))
