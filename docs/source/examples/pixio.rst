@@ -1,9 +1,9 @@
 .. _pixio:
 
-PIXIO
+Pixio
 =====
 
-Example implementation of the PIXIO method. PIXIO builds on the `Masked Autoencoder
+Example implementation of the Pixio method. Pixio builds on the `Masked Autoencoder
 (MAE) <https://arxiv.org/abs/2111.06377>`_ and adapts it for dense prediction through
 three changes: a much deeper decoder (32 blocks) that takes over pixel-level detail
 modeling, a larger masking granularity that masks whole blocks of patches on a regular
@@ -13,8 +13,8 @@ global image representation.
 Key Components
 --------------
 
-- **Data Augmentations**: Like MAE, PIXIO relies only on random resized cropping.
-- **Masking**: PIXIO masks 75% of the patches, but at a coarser granularity: whole
+- **Data Augmentations**: Like MAE, Pixio relies only on random resized cropping.
+- **Masking**: Pixio masks 75% of the patches, but at a coarser granularity: whole
   ``grid_size`` x ``grid_size`` blocks of patches are masked together (4x4 by default),
   which prevents trivial reconstruction from neighboring patches.
 - **Backbone**: A standard ViT with multiple class tokens (8 by default, realized via
@@ -37,7 +37,7 @@ Reference:
 
 .. note::
 
-    PIXIO requires `TIMM <https://github.com/huggingface/pytorch-image-models>`_ to be
+    Pixio requires `TIMM <https://github.com/huggingface/pytorch-image-models>`_ to be
     installed
 
     .. code-block:: bash
