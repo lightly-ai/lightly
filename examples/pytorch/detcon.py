@@ -1,11 +1,14 @@
 # This example requires the following dependencies to be installed:
 # pip install lightly
 # Note: This example requires torchvision >= 0.17 for tv_tensors support.
+# To run with unsupervised segmentation masks instead of a grid:
+# pip install lightly scikit-image
 
 # Note: The model and training settings do not follow the reference settings
 # from the paper. The settings are chosen such that the example can easily be
 # run on a small dataset with a single GPU.
 
+import numpy as np
 import torch
 import torch.nn.functional as F
 import torchvision
@@ -18,11 +21,20 @@ from lightly.models import utils
 from lightly.models.modules import SimCLRProjectionHead
 from lightly.transforms import DetConSTransform
 
+try:
+    from skimage.segmentation import felzenszwalb
+
+    SCIKIT_IMAGE_INSTALLED = True
+except ImportError:
+    print("scikit-image is not installed, running with grid masks.")
+    SCIKIT_IMAGE_INSTALLED = False
+
 
 class DetConS(nn.Module):
-    def __init__(self, backbone):
+    def __init__(self, backbone, num_cls):
         super().__init__()
         self.backbone = backbone
+        self.num_cls = num_cls
         self.projection_head = SimCLRProjectionHead(512, 512, 128)
 
     def forward(self, x, mask):
@@ -31,7 +43,7 @@ class DetConS(nn.Module):
         mask_down = (
             F.interpolate(mask.float(), size=(h, w), mode="nearest").long().squeeze(1)
         )
-        pooled = utils.pool_masked(features, mask_down, num_cls=25)
+        pooled = utils.pool_masked(features, mask_down, num_cls=self.num_cls)
         pooled = pooled.permute(0, 2, 1)
         b, m, d = pooled.shape
         z = self.projection_head(pooled.reshape(b * m, d))
@@ -40,19 +52,32 @@ class DetConS(nn.Module):
 
 resnet = torchvision.models.resnet18()
 backbone = nn.Sequential(*list(resnet.children())[:-2])
-model = DetConS(backbone)
+
+num_cls = 25
+if SCIKIT_IMAGE_INSTALLED:
+    _detcons_transform = DetConSTransform(input_size=96)
+else:
+    _detcons_transform = DetConSTransform(grid_size=(5, 5), input_size=96)
+
+model = DetConS(backbone, num_cls=num_cls)
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
 
-_detcons_transform = DetConSTransform(grid_size=(5, 5), input_size=96)
 _to_image = ToImage()
 
 
 def transform(pil_img):
     tv_img = _to_image(pil_img)
-    dummy_mask = Mask(torch.zeros(1, *tv_img.shape[-2:], dtype=torch.int64))
-    return _detcons_transform(tv_img, dummy_mask)
+    if SCIKIT_IMAGE_INSTALLED:
+        segments = felzenszwalb(
+            np.array(pil_img), scale=100, sigma=0.5, min_size=20
+        ).astype(np.int64)
+        segments = np.clip(segments, 0, num_cls - 1)
+        mask = Mask(torch.from_numpy(segments).unsqueeze(0))
+    else:
+        mask = Mask(torch.zeros(1, *tv_img.shape[-2:], dtype=torch.int64))
+    return _detcons_transform(tv_img, mask)
 
 
 dataset = torchvision.datasets.CIFAR10(
@@ -73,7 +98,7 @@ criterion = DetConSLoss(gather_distributed=False)
 optimizer = torch.optim.SGD(model.parameters(), lr=0.06)
 
 epochs = 10
-mask_indices = torch.arange(25, device=device)
+mask_indices = torch.arange(num_cls, device=device)
 
 print("Starting Training")
 for epoch in range(epochs):
