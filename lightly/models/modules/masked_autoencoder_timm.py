@@ -189,19 +189,80 @@ class MAEDecoderTIMM(Module):
 
 
 class PixioDecoderTIMM(MAEDecoderTIMM):
-    """Decoder for the PIXIO model [0].
+    """Decoder for the Pixio model [0].
 
-    PIXIO is a masked autoencoder variant that uses a much deeper decoder than MAE
+    Pixio is a masked autoencoder variant that uses a much deeper decoder than MAE
     (32 blocks vs. 8) to move pixel-level detail modeling from the encoder into the
-    decoder. This is an :class:`MAEDecoderTIMM` with a deeper default decoder;
-    ``decoder_depth`` defaults to 32 following PIXIO. See :class:`MAEDecoderTIMM` for
-    all parameters. Implemented from the paper; not derived from the reference code.
+    decoder. This is an :class:`MAEDecoderTIMM` with a deeper default decoder
+    (``decoder_depth`` defaults to 32 following Pixio). Implemented from the paper;
+    not derived from the reference code.
 
     - [0]: In Pursuit of Pixel Supervision for Visual Pre-training, 2025,
       https://arxiv.org/abs/2512.15715
 
+    Attributes:
+        num_patches:
+            Number of patches.
+        patch_size:
+            Patch size.
+        in_chans:
+            Number of image input channels.
+        embed_dim:
+            Embedding dimension of the encoder.
+        decoder_embed_dim:
+            Embedding dimension of the decoder.
+        decoder_depth:
+            Depth of the decoder transformer. Defaults to 32 following Pixio.
+        decoder_num_heads:
+            Number of attention heads.
+        num_prefix_tokens:
+            Number of prefix (class or register) tokens preceding the patch tokens.
+        mlp_ratio:
+            Ratio of mlp hidden dim to embedding dim.
+        proj_drop_rate:
+            Percentage of elements set to zero after the MLP in the transformer.
+        attn_drop_rate:
+            Percentage of elements set to zero after the attention head.
+        norm_layer:
+            Normalization layer.
+        initialize_weights:
+            Flag that determines if weights should be initialized.
+        mask_token:
+            The mask token.
+
     """
 
-    def __init__(self, *, decoder_depth: int = 32, **kwargs: Any):
+    def __init__(
+        self,
+        num_patches: int,
+        patch_size: int,
+        in_chans: int = 3,
+        embed_dim: int = 1024,
+        decoder_embed_dim: int = 512,
+        decoder_depth: int = 32,
+        decoder_num_heads: int = 16,
+        num_prefix_tokens: int = 1,
+        mlp_ratio: float = 4.0,
+        proj_drop_rate: float = 0.0,
+        attn_drop_rate: float = 0.0,
+        norm_layer: Callable[..., nn.Module] = partial(LayerNorm, eps=1e-6),
+        initialize_weights: bool = True,
+        mask_token: Optional[Parameter] = None,
+    ):
         """Initializes the PixioDecoderTIMM with a deep (default 32-block) decoder."""
-        super().__init__(decoder_depth=decoder_depth, **kwargs)
+        super().__init__(
+            num_patches=num_patches,
+            patch_size=patch_size,
+            in_chans=in_chans,
+            embed_dim=embed_dim,
+            decoder_embed_dim=decoder_embed_dim,
+            decoder_depth=decoder_depth,
+            decoder_num_heads=decoder_num_heads,
+            num_prefix_tokens=num_prefix_tokens,
+            mlp_ratio=mlp_ratio,
+            proj_drop_rate=proj_drop_rate,
+            attn_drop_rate=attn_drop_rate,
+            norm_layer=norm_layer,
+            initialize_weights=initialize_weights,
+            mask_token=mask_token,
+        )
