@@ -184,7 +184,7 @@ class IJEPAEncoder(vision_transformer.Encoder):
 
     Encodes patch embeddings. Code inspired by [1].
 
-    - [`0]: Joint-Embedding Predictive Architecture, 2023, https://arxiv.org/abs/2301.08243
+    - [0]: Joint-Embedding Predictive Architecture, 2023, https://arxiv.org/abs/2301.08243
     - [1]: https://github.com/facebookresearch/ijepa
 
     Attributes:
