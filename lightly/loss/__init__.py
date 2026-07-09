@@ -4,10 +4,12 @@
 # All Rights Reserved
 from lightly.loss.barlow_twins_loss import BarlowTwinsLoss
 from lightly.loss.dcl_loss import DCLLoss, DCLWLoss
+from lightly.loss.dense_relational_utils import roi_resample_to_grid
 from lightly.loss.detcon_loss import DetConBLoss, DetConSLoss
 from lightly.loss.dino_loss import DINOLoss
 from lightly.loss.directclr_loss import DirectCLRLoss
 from lightly.loss.emp_ssl_loss import EMPSSLLoss
+from lightly.loss.frossl_loss import FroSSLLoss
 from lightly.loss.ibot_loss import IBOTPatchLoss, IBOTPlusPlusPatchLoss
 from lightly.loss.koleo_loss import KoLeoLoss
 from lightly.loss.lejepa_loss import LeJEPALoss, SIGReg
@@ -17,6 +19,7 @@ from lightly.loss.mmcr_loss import MMCRLoss
 from lightly.loss.msn_loss import MSNLoss
 from lightly.loss.negative_cosine_similarity import NegativeCosineSimilarity
 from lightly.loss.ntx_ent_loss import NTXentLoss
+from lightly.loss.patch_kernel_alignment_loss import PatchKernelAlignmentLoss
 from lightly.loss.pmsn_loss import PMSNCustomLoss, PMSNLoss
 from lightly.loss.swav_loss import SwaVLoss
 from lightly.loss.sym_neg_cos_sim_loss import SymNegCosineSimilarityLoss

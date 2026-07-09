@@ -23,6 +23,9 @@ lightly.loss
 .. autoclass:: lightly.loss.dino_loss.DINOLoss
    :members:
 
+.. autoclass:: lightly.loss.frossl_loss.FroSSLLoss
+   :members:
+
 .. autoclass:: lightly.loss.hypersphere_loss.HypersphereLoss
    :members:
 
@@ -54,6 +57,9 @@ lightly.loss
    :members:
 
 .. autoclass:: lightly.loss.ntx_ent_loss.NTXentLoss
+   :members:
+
+.. autoclass:: lightly.loss.patch_kernel_alignment_loss.PatchKernelAlignmentLoss
    :members:
 
 .. autoclass:: lightly.loss.pmsn_loss.PMSNLoss
