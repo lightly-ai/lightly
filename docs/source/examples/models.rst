@@ -14,6 +14,7 @@ for PyTorch and PyTorch Lightning to give you a headstart when implementing your
     barlowtwins.rst
     byol.rst
     dcl.rst
+    detcon.rst
     densecl.rst
     dino.rst
     dinov2.rst
