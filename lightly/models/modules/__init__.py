@@ -8,8 +8,10 @@ can be combined with any lightly model.
 # Copyright (c) 2021. Lightly AG and its affiliates.
 # All Rights Reserved
 
+from lightly.models.modules.beit_tokenizer import BEiTImageTokenizer
 from lightly.models.modules.heads import (
     BarlowTwinsProjectionHead,
+    BEiTMIMHead,
     BYOLPredictionHead,
     BYOLProjectionHead,
     DenseCLProjectionHead,
@@ -29,6 +31,7 @@ from lightly.models.modules.heads import (
     SwaVProjectionHead,
     SwaVPrototypes,
 )
+from lightly.models.modules.masked_image_modeling import BEITEncoder
 from lightly.models.modules.nn_memory_bank import NNMemoryBankModule
 from lightly.utils import dependency as _dependency
 

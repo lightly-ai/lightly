@@ -35,3 +35,4 @@ for PyTorch and PyTorch Lightning to give you a headstart when implementing your
     tico.rst
     vicreg.rst
     vicregl.rst
+    beit.rst
