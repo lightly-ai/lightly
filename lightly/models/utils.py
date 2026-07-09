@@ -1322,32 +1322,26 @@ def add_stochastic_positional_noise(
     pos_embeddings: Tensor,
     projection: Module,
     noise_dim: int,
-    noise_std: float = 0.25,
-    enabled: bool = False,
+    noise_std: float = 0.0,
 ) -> Tensor:
     """Adds stochastic noise to positional embeddings.
 
-    [0]. https://arxiv.org/pdf/2308.00566
-    [1]. https://github.com/amirbar/StoP/blob/main/src/deit.py
+    - [0]: https://arxiv.org/pdf/2308.00566
+    - [1]: https://github.com/amirbar/StoP/blob/main/src/deit.py
 
     Args:
-        pos_embeddings:
-            Positional embeddings of shape
+        pos_embeddings: Positional embeddings of shape
             ``(batch_size, num_tokens, predictor_embed_dim)``.
-        projection:
-            Matrix A used to project gaussian noise to the pos_embedding
-            dimension.
-        noise_dim:
-            Dimension of the sampled gaussian noise before projection.
-        noise_std:
-            Standard deviation of the gaussian noise.
-        enabled:
-            If False, returns ``pos_embeddings`` unchanged.
+        projection: Matrix A used to project Gaussian noise to the positional
+            embedding dimension.
+        noise_dim: Dimension of the sampled Gaussian noise before projection.
+        noise_std: Standard deviation of the Gaussian noise. If ``0.0``,
+            returns ``pos_embeddings`` unchanged.
 
     Returns:
-        Positional embeddings with optional gaussian noise added.
+        Positional embeddings with optional Gaussian noise added.
     """
-    if not enabled or noise_std == 0.0:
+    if noise_std == 0.0:
         return pos_embeddings
 
     noise = torch.normal(

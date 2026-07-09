@@ -1,9 +1,6 @@
-import unittest
-
 import pytest
 import torch
 
-from lightly.models import utils
 from lightly.utils import dependency
 
 if not dependency.timm_vit_available():
@@ -15,9 +12,8 @@ from lightly.models.modules import IJEPAPredictorTIMM
 
 
 class TestIJEPAPredictorTIMM:
-    @pytest.mark.parametrize("use_stop", [True, False])
     @pytest.mark.parametrize("noise_std", [0.0, 0.1])
-    def test_init(self, use_stop: bool, noise_std: float) -> None:
+    def test_init(self, noise_std: float) -> None:
         IJEPAPredictorTIMM(
             num_patches=196,
             depth=2,
@@ -28,14 +24,12 @@ class TestIJEPAPredictorTIMM:
             mlp_ratio=4.0,
             proj_drop_rate=0.0,
             attn_drop_rate=0.0,
-            use_stop=use_stop,
             noise_std=noise_std,
         )
 
     def _test_forward(
         self,
         device: torch.device,
-        use_stop: bool,
         noise_std: float,
         batch_size: int = 4,
         seed: int = 0,
@@ -57,7 +51,6 @@ class TestIJEPAPredictorTIMM:
             mlp_ratio=4.0,
             proj_drop_rate=0.0,
             attn_drop_rate=0.0,
-            use_stop=use_stop,
             noise_std=noise_std,
         ).to(device)
 
@@ -70,13 +63,11 @@ class TestIJEPAPredictorTIMM:
         assert list(predictions.shape) == [batch_size, num_patches, mlp_dim]
         assert torch.all(torch.isfinite(predictions))
 
-    @pytest.mark.parametrize("use_stop", [True, False])
     @pytest.mark.parametrize("noise_std", [0.0, 0.1])
-    def test_forward(self, use_stop: bool, noise_std: float) -> None:
-        self._test_forward(torch.device("cpu"), use_stop, noise_std)
+    def test_forward(self, noise_std: float) -> None:
+        self._test_forward(torch.device("cpu"), noise_std)
 
     @pytest.mark.skipif(not torch.cuda.is_available(), reason="CUDA not available.")
-    @pytest.mark.parametrize("use_stop", [True, False])
     @pytest.mark.parametrize("noise_std", [0.0, 0.1])
-    def test_forward_cuda(self, use_stop: bool, noise_std: float) -> None:
-        self._test_forward(torch.device("cuda"), use_stop, noise_std)
+    def test_forward_cuda(self, noise_std: float) -> None:
+        self._test_forward(torch.device("cuda"), noise_std)

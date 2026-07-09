@@ -39,6 +39,9 @@ class IJEPAPredictor(vision_transformer.Encoder):
             Percentage of elements set to zero after the MLP in the transformer.
         attention_dropout:
             Percentage of elements set to zero after the attention head.
+        noise_std:
+            Standard deviation of the Gaussian noise added to positional embeddings.
+            Default ``0.0`` to disable stochastic positional embeddings.
     """
 
     def __init__(
@@ -53,6 +56,7 @@ class IJEPAPredictor(vision_transformer.Encoder):
         dropout: float,
         attention_dropout: float,
         norm_layer: Callable[..., torch.nn.Module] = partial(nn.LayerNorm, eps=1e-6),
+        noise_std: float = 0.0,
         **kwargs,
     ):
         """Initializes the IJEPAPredictor with the specified dimensions."""
@@ -79,10 +83,7 @@ class IJEPAPredictor(vision_transformer.Encoder):
             torch.from_numpy(predictor_pos_embed).float().unsqueeze(0)
         )
 
-        self.use_stop = kwargs.get(
-            "use_stop", False
-        )  # pass use stop embeddings as additional args, default to False
-        self.noise_std = kwargs.get("noise_std", 0.25)  # default 0.25
+        self.noise_std = noise_std
 
     @classmethod
     def from_vit_encoder(cls, vit_encoder, num_patches):
@@ -158,7 +159,6 @@ class IJEPAPredictor(vision_transformer.Encoder):
             self.predictor_embed,
             noise_dim,
             noise_std=self.noise_std,
-            enabled=self.use_stop,
         )
 
         pred_tokens = self.mask_token.repeat(pos_embs.size(0), pos_embs.size(1), 1)
@@ -184,7 +184,7 @@ class IJEPAEncoder(vision_transformer.Encoder):
 
     Encodes patch embeddings. Code inspired by [1].
 
-    - [0]: Joint-Embedding Predictive Architecture, 2023, https://arxiv.org/abs/2301.08243
+    - [`0]: Joint-Embedding Predictive Architecture, 2023, https://arxiv.org/abs/2301.08243
     - [1]: https://github.com/facebookresearch/ijepa
 
     Attributes:
