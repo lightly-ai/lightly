@@ -175,6 +175,16 @@ class TestVISRegLoss:
         assert loss.isfinite()
         assert loss.ndim == 0
 
+    @pytest.mark.skipif(not torch.cuda.is_available(), reason="No cuda")
+    def test_forward__cuda(self) -> None:
+        torch.manual_seed(0)
+        loss_fn = VISRegLoss(num_slices=32)
+        local_proj = torch.randn(6, 32, 16).cuda()
+        global_proj = torch.randn(2, 32, 16).cuda()
+        loss = loss_fn(local_proj=local_proj, global_proj=global_proj)
+        assert loss.isfinite()
+        assert loss.ndim == 0
+
     def test_backward_pass(self) -> None:
         torch.manual_seed(0)
         loss_fn = VISRegLoss(num_slices=32)
