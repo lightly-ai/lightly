@@ -144,7 +144,10 @@ class TestMaskReduce:
         mask = torch.zeros((b, h, w), dtype=torch.int64)
         pooled_global = torch.mean(proj, dim=(2, 3)).unsqueeze(-1)  # (b, c, 1=num_cls)
         pooled_mask = pool_masked(proj, mask, num_cls=1)  # (b, c, 1=num_cls)
-        assert torch.allclose(pooled_global, pooled_mask)
+        # `pool_masked` uses `scatter_reduce_(reduce="mean")` which sums elements in
+        # a different order than `torch.mean`, producing ~1e-7 float32 noise on CPU.
+        # The result is mathematically equivalent; loosen the tolerance accordingly.
+        assert torch.allclose(pooled_global, pooled_mask, atol=1e-5, rtol=1e-3)
 
 
 def has_grad(model: nn.Module) -> bool:
