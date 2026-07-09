@@ -901,6 +901,20 @@ def test_initialize_positional_embedding(
         mock_fn.assert_called_once()
 
 
+def test_initialize_positional_embedding__sincos_multiple_prefix_tokens() -> None:
+    num_prefix_tokens, grid_size, embed_dim = 8, 4, 16
+    seq_length = num_prefix_tokens + grid_size * grid_size
+    pos_embedding = Parameter(torch.rand(1, seq_length, embed_dim))
+    utils.initialize_positional_embedding(
+        pos_embedding=pos_embedding,
+        strategy="sincos",
+        num_prefix_tokens=num_prefix_tokens,
+    )
+    # prefix rows are zeroed by the sincos init
+    assert (pos_embedding[0, :num_prefix_tokens] == 0).all()
+    assert not (pos_embedding[0, num_prefix_tokens:] == 0).all()
+
+
 def test_initialize_learnable_positional_embedding() -> None:
     pos_embedding = Parameter(torch.ones(1, 1, 64))
     orig_pos_embedding = pos_embedding.clone()
@@ -918,10 +932,13 @@ def test_normalize_mean_var() -> None:
     assert norm[1] == pytest.approx(0.0)
     assert norm[2] == pytest.approx(1)
 
+    # seed for determinism; atol is loosened because normalize_mean_var regularizes
+    # with eps, so the output variance is 1 - eps / var(x) rather than exactly 1.
+    torch.manual_seed(0)
     x = torch.rand(2, 3, 4)
     norm = utils.normalize_mean_var(x)
     assert torch.allclose(norm.mean(dim=-1), torch.tensor(0.0), rtol=0.0001, atol=1e-5)
-    assert torch.allclose(norm.var(dim=-1), torch.tensor(1.0), rtol=0.0001, atol=1e-5)
+    assert torch.allclose(norm.var(dim=-1), torch.tensor(1.0), rtol=0.0001, atol=1e-4)
 
 
 def test_update_drop_path_rate__uniform() -> None:
@@ -971,3 +988,168 @@ def test_update_drop_path_rate__unknown_mode() -> None:
     model = VisionTransformer(drop_path_rate=0, depth=4)
     with pytest.raises(ValueError, match="Unknown mode"):
         utils.update_drop_path_rate(model=model, drop_path_rate=0.1, mode="unknown")
+
+
+def test_random_grid_token_mask__partition() -> None:
+    torch.manual_seed(0)
+    batch_size, num_prefix_tokens = 2, 1
+    sequence_length = num_prefix_tokens + 16  # 4x4 patch grid
+    idx_keep, idx_mask = utils.random_grid_token_mask(
+        size=(batch_size, sequence_length),
+        mask_ratio=0.5,
+        grid_size=2,
+        num_prefix_tokens=num_prefix_tokens,
+    )
+    idx, _ = torch.cat([idx_keep, idx_mask], dim=1).sort(dim=1)
+    expected = torch.arange(sequence_length).expand(batch_size, sequence_length)
+    assert torch.equal(idx, expected)
+
+
+def test_random_grid_token_mask__prefix_tokens_kept() -> None:
+    torch.manual_seed(0)
+    batch_size, num_prefix_tokens = 3, 8
+    sequence_length = num_prefix_tokens + 16
+    idx_keep, idx_mask = utils.random_grid_token_mask(
+        size=(batch_size, sequence_length),
+        mask_ratio=0.75,
+        grid_size=2,
+        num_prefix_tokens=num_prefix_tokens,
+    )
+    prefix = torch.arange(num_prefix_tokens).expand(batch_size, num_prefix_tokens)
+    assert torch.equal(idx_keep[:, :num_prefix_tokens], prefix)
+    assert idx_mask.min().item() >= num_prefix_tokens
+
+
+def test_random_grid_token_mask__whole_cell_granularity() -> None:
+    torch.manual_seed(0)
+    num_prefix_tokens = 1
+    sequence_length = num_prefix_tokens + 16
+    cells = [{0, 1, 4, 5}, {2, 3, 6, 7}, {8, 9, 12, 13}, {10, 11, 14, 15}]
+    idx_keep, idx_mask = utils.random_grid_token_mask(
+        size=(1, sequence_length),
+        mask_ratio=0.5,
+        grid_size=2,
+        num_prefix_tokens=num_prefix_tokens,
+    )
+    masked = {int(i) - num_prefix_tokens for i in idx_mask[0]}
+    for cell in cells:
+        assert masked.issuperset(cell) or masked.isdisjoint(cell)
+
+
+def test_random_grid_token_mask__keep_count() -> None:
+    num_prefix_tokens = 1
+    sequence_length = num_prefix_tokens + 16  # 4 cells of 4 patches (grid=2)
+    idx_keep, idx_mask = utils.random_grid_token_mask(
+        size=(2, sequence_length),
+        mask_ratio=0.75,
+        grid_size=2,
+        num_prefix_tokens=num_prefix_tokens,
+    )
+    # keep int(4 * 0.25) = 1 cell -> 4 patches, + 1 prefix
+    assert idx_keep.shape == (2, num_prefix_tokens + 4)
+    assert idx_mask.shape == (2, 12)
+
+
+def test_random_grid_token_mask__not_divisible_raises() -> None:
+    with pytest.raises(ValueError):
+        utils.random_grid_token_mask(
+            size=(1, 1 + 16), mask_ratio=0.5, grid_size=3, num_prefix_tokens=1
+        )
+
+
+def test_random_grid_token_mask__not_square_raises() -> None:
+    with pytest.raises(ValueError):
+        utils.random_grid_token_mask(
+            size=(1, 1 + 15), mask_ratio=0.5, grid_size=2, num_prefix_tokens=1
+        )
+
+
+def test_random_grid_token_mask__prefix_ge_sequence_raises() -> None:
+    with pytest.raises(ValueError):
+        # num_prefix_tokens >= sequence_length -> non-positive patch count.
+        utils.random_grid_token_mask(
+            size=(1, 3), mask_ratio=0.5, grid_size=2, num_prefix_tokens=5
+        )
+
+
+def test_random_grid_token_mask__mask_ratio_extremes() -> None:
+    num_prefix_tokens = 1
+    sequence_length = num_prefix_tokens + 16  # 4 cells of 4 patches (grid=2)
+    # mask_ratio=0.0 keeps all patches and masks none.
+    idx_keep, idx_mask = utils.random_grid_token_mask(
+        size=(2, sequence_length),
+        mask_ratio=0.0,
+        grid_size=2,
+        num_prefix_tokens=num_prefix_tokens,
+    )
+    assert idx_keep.shape == (2, sequence_length)
+    assert idx_mask.shape == (2, 0)
+    # mask_ratio=1.0 keeps only the prefix tokens and masks all patches.
+    idx_keep, idx_mask = utils.random_grid_token_mask(
+        size=(2, sequence_length),
+        mask_ratio=1.0,
+        grid_size=2,
+        num_prefix_tokens=num_prefix_tokens,
+    )
+    assert idx_keep.shape == (2, num_prefix_tokens)
+    assert idx_mask.shape == (2, 16)
+
+
+def test_random_grid_token_mask__grid_size_4() -> None:
+    torch.manual_seed(0)
+    num_prefix_tokens = 8
+    # 16x16 patch grid -> 4x4 = 16 cells of 4x4 patches (Pixio's headline config).
+    sequence_length = num_prefix_tokens + 256
+    idx_keep, idx_mask = utils.random_grid_token_mask(
+        size=(2, sequence_length),
+        mask_ratio=0.75,
+        grid_size=4,
+        num_prefix_tokens=num_prefix_tokens,
+    )
+    # keep int(16 * 0.25) = 4 cells -> 64 patches (+ 8 prefix); mask 12 cells -> 192.
+    assert idx_keep.shape == (2, num_prefix_tokens + 64)
+    assert idx_mask.shape == (2, 192)
+    idx, _ = torch.cat([idx_keep, idx_mask], dim=1).sort(dim=1)
+    expected = torch.arange(sequence_length).expand(2, sequence_length)
+    assert torch.equal(idx, expected)
+
+
+@pytest.mark.parametrize("device", ["cpu", "cuda"])  # type: ignore[misc]
+def test_random_grid_token_mask__device(device: str) -> None:
+    if device == "cuda" and not torch.cuda.is_available():
+        pytest.skip("CUDA not available")
+
+    idx_keep, idx_mask = utils.random_grid_token_mask(
+        size=(2, 1 + 16),
+        mask_ratio=0.5,
+        grid_size=2,
+        num_prefix_tokens=1,
+        device=device,
+    )
+    assert idx_keep.device.type == device
+    assert idx_mask.device.type == device
+
+
+def test_get_2d_sine_cosine_positional_embedding__num_prefix_tokens() -> None:
+    embed_dim, grid_size = 16, 4
+    emb = utils.get_2d_sine_cosine_positional_embedding(
+        embed_dim=embed_dim, grid_size=grid_size, num_prefix_tokens=8
+    )
+    # 8 prefix rows + grid_size**2 patch rows
+    assert emb.shape == (8 + grid_size * grid_size, embed_dim)
+    # prefix rows are zeros
+    assert (emb[:8] == 0).all()
+    # patch rows are not all zero
+    assert not (emb[8:] == 0).all()
+
+
+def test_get_2d_sine_cosine_positional_embedding__backwards_compatible() -> None:
+    embed_dim, grid_size = 16, 4
+    with_cls = utils.get_2d_sine_cosine_positional_embedding(
+        embed_dim=embed_dim, grid_size=grid_size, cls_token=True
+    )
+    one_prefix = utils.get_2d_sine_cosine_positional_embedding(
+        embed_dim=embed_dim, grid_size=grid_size, num_prefix_tokens=1
+    )
+    assert with_cls.shape == one_prefix.shape == (1 + grid_size * grid_size, embed_dim)
+    assert (with_cls == one_prefix).all()
