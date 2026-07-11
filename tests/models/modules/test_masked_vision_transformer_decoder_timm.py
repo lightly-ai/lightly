@@ -2,7 +2,9 @@ import unittest
 
 import pytest
 import torch
+from torch.nn import Linear
 
+from lightly.models import utils
 from lightly.utils import dependency
 
 if not dependency.timm_vit_available():
@@ -194,3 +196,62 @@ class TestMaskedVisionTransformerDecoderTIMM(unittest.TestCase):
         out_mae = mae_decoder.decode(tokens)
         out_decoder = decoder(tokens)
         self.assertTrue(torch.allclose(out_mae, out_decoder, atol=1e-6))
+
+    def test_matches_mae_decoder_full_flow(self) -> None:
+        # The full MAE flow (embed -> scatter kept tokens -> place mask tokens ->
+        # decode -> predict) must be identical to MAEDecoderTIMM given the same
+        # weights. This locks in that the benchmark/example migration to the new
+        # decoder is behaviour-preserving.
+        torch.manual_seed(0)
+        num_patches, num_prefix_tokens, patch_size = 49, 1, 16
+        embed_dim, decoder_embed_dim, depth, num_heads = 128, 256, 3, 4
+        seq_length = num_patches + num_prefix_tokens
+        out_dim = patch_size**2 * 3
+        batch_size = 4
+
+        mae_decoder = MAEDecoderTIMM(
+            num_patches=num_patches,
+            patch_size=patch_size,
+            embed_dim=embed_dim,
+            decoder_embed_dim=decoder_embed_dim,
+            decoder_depth=depth,
+            decoder_num_heads=num_heads,
+            num_prefix_tokens=num_prefix_tokens,
+        ).eval()
+        decoder = MaskedVisionTransformerDecoderTIMM(
+            num_patches=num_patches,
+            embed_dim=decoder_embed_dim,
+            depth=depth,
+            num_heads=num_heads,
+            num_prefix_tokens=num_prefix_tokens,
+        ).eval()
+        # embed and prediction head live outside the decoder in the new pattern
+        decoder_embed = Linear(embed_dim, decoder_embed_dim)
+        prediction_head = Linear(decoder_embed_dim, out_dim)
+        decoder_embed.load_state_dict(mae_decoder.decoder_embed.state_dict())
+        prediction_head.load_state_dict(mae_decoder.decoder_pred.state_dict())
+        decoder.blocks.load_state_dict(mae_decoder.decoder_blocks.state_dict())
+        decoder.norm.load_state_dict(mae_decoder.decoder_norm.state_dict())
+        decoder.pos_embed.data.copy_(mae_decoder.decoder_pos_embed.data)
+        decoder.mask_token.data.copy_(mae_decoder.mask_token.data)
+
+        idx_keep, idx_mask = utils.random_token_mask(
+            size=(batch_size, seq_length), mask_ratio=0.75
+        )
+        x_encoded = torch.rand(batch_size, idx_keep.shape[1], embed_dim)
+
+        # old flow (pre-migration): fill with mask tokens, then scatter kept tokens
+        x = mae_decoder.embed(x_encoded)
+        x_masked = utils.repeat_token(mae_decoder.mask_token, (batch_size, seq_length))
+        x_masked = utils.set_at_index(x_masked, idx_keep, x.type_as(x_masked))
+        x_decoded = mae_decoder.decode(x_masked)
+        expected = mae_decoder.predict(utils.get_at_index(x_decoded, idx_mask))
+
+        # new flow: scatter kept tokens into zeros, the decoder places the mask tokens
+        x = decoder_embed(x_encoded)
+        x_masked = x.new_zeros(batch_size, seq_length, decoder_embed_dim)
+        x_masked = utils.set_at_index(x_masked, idx_keep, x)
+        x_decoded = decoder(x_masked, idx_mask=idx_mask)
+        predictions = prediction_head(utils.get_at_index(x_decoded, idx_mask))
+
+        self.assertTrue(torch.allclose(expected, predictions, atol=1e-6))
