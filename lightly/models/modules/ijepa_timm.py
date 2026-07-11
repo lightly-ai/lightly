@@ -5,33 +5,37 @@ from typing import Callable
 
 import torch
 import torch.nn as nn
-from timm.models.vision_transformer import Block
 from torch import Tensor
 
 from lightly.models import utils
+from lightly.models.modules.masked_vision_transformer_decoder_timm import (
+    MaskedVisionTransformerDecoderTIMM,
+)
 
 
-# Type ignore because superclass has Any types.
-class IJEPAPredictorTIMM(nn.Module):  # type: ignore[misc]
+class IJEPAPredictorTIMM(MaskedVisionTransformerDecoderTIMM):
     """Predictor for the I-JEPA model [0].
 
     Experimental: Support for I-JEPA is experimental, there might be breaking changes
     in the future.
 
-    Predict patch embeddings. Code inspired by [1].
+    Predict patch embeddings. Code inspired by [1]. Reuses the shared
+    :class:`MaskedVisionTransformerDecoderTIMM` building blocks (positional embedding,
+    transformer blocks, and norm) and adds the I-JEPA specific input embedding,
+    prediction projection, and multi-mask logic.
 
     - [0]: Joint-Embedding Predictive Architecture, 2023, https://arxiv.org/abs/2301.08243
     - [1]: https://github.com/facebookresearch/ijepa
 
     Attributes:
         num_patches:
-            Number of patches (tokens), including the class token.
+            Number of patches (tokens).
         depth:
             Number of transformer blocks.
         mlp_dim:
-            Dimension of the MLP in the transformer block.
+            Dimension of the input and output tokens.
         predictor_embed_dim:
-            Dimension of inner predicted patches(tokens).
+            Dimension of inner predicted patches (tokens).
         num_heads:
             Number of attention heads.
         qkv_bias:
@@ -63,41 +67,31 @@ class IJEPAPredictorTIMM(nn.Module):  # type: ignore[misc]
         norm_layer: Callable[..., nn.Module] = partial(nn.LayerNorm, eps=1e-6),
     ):
         """Initializes the IJEPAPredictorTIMM with the specified dimensions."""
-        super().__init__()
-
+        super().__init__(
+            num_patches=num_patches,
+            embed_dim=predictor_embed_dim,
+            depth=depth,
+            num_heads=num_heads,
+            # I-JEPA uses a positional embedding without prefix tokens.
+            num_prefix_tokens=0,
+            mlp_ratio=mlp_ratio,
+            qkv_bias=qkv_bias,
+            proj_drop_rate=proj_drop_rate,
+            attn_drop_rate=attn_drop_rate,
+            drop_path_rate=drop_path_rate,
+            norm_layer=norm_layer,
+            # I-JEPA keeps a zero-initialized mask token and relies on the default
+            # timm initialization for the remaining layers. Only the positional
+            # embedding is initialized below.
+            initialize_weights=False,
+        )
         self.predictor_embed = nn.Linear(mlp_dim, predictor_embed_dim, bias=True)
-        self.mask_token = nn.Parameter(torch.zeros(1, 1, predictor_embed_dim))
         self.predictor_proj = nn.Linear(predictor_embed_dim, mlp_dim, bias=True)
-        self.predictor_norm = norm_layer(predictor_embed_dim)
-        self.predictor_pos_embed = nn.Parameter(
-            torch.zeros(1, num_patches, predictor_embed_dim), requires_grad=False
-        )
-        predictor_pos_embed = utils.get_2d_sincos_pos_embed(
-            self.predictor_pos_embed.shape[-1], int(num_patches**0.5), cls_token=False
-        )
-        self.predictor_pos_embed.data.copy_(
-            torch.from_numpy(predictor_pos_embed).float().unsqueeze(0)
+        utils.initialize_2d_sine_cosine_positional_embedding(
+            pos_embedding=self.pos_embed, num_prefix_tokens=0
         )
 
-        # original implementation also has drop path rate
-        self.predictor_blocks = nn.ModuleList(
-            [
-                Block(
-                    dim=predictor_embed_dim,
-                    num_heads=num_heads,
-                    mlp_ratio=mlp_ratio,
-                    qkv_bias=qkv_bias,
-                    drop_path=drop_path_rate,
-                    proj_drop=proj_drop_rate,
-                    attn_drop=attn_drop_rate,
-                    # timm's type hints for norm_layer vary between versions.
-                    norm_layer=norm_layer,  # type: ignore[arg-type]
-                )
-                for _ in range(depth)
-            ]
-        )
-
-    def forward(
+    def forward(  # type: ignore[override]
         self,
         x: Tensor,
         masks_x: list[Tensor] | Tensor,
@@ -125,12 +119,12 @@ class IJEPAPredictorTIMM(nn.Module):  # type: ignore[misc]
 
         B = len(x) // len_masks_x
         x = self.predictor_embed(x)
-        x_pos_embed = self.predictor_pos_embed.repeat(B, 1, 1)
+        x_pos_embed = self.pos_embed.repeat(B, 1, 1)
 
         x += utils.apply_masks(x_pos_embed, masks_x)
         _, N_ctxt, _ = x.shape
 
-        pos_embs = self.predictor_pos_embed.repeat(B, 1, 1)
+        pos_embs = self.pos_embed.repeat(B, 1, 1)
         pos_embs = utils.apply_masks(pos_embs, masks)
         pos_embs = utils.repeat_interleave_batch(pos_embs, B, repeat=len_masks_x)
         pred_tokens = self.mask_token.repeat(pos_embs.size(0), pos_embs.size(1), 1)
@@ -139,9 +133,7 @@ class IJEPAPredictorTIMM(nn.Module):  # type: ignore[misc]
         x = x.repeat(len_masks, 1, 1)
         x = torch.cat([x, pred_tokens], dim=1)
 
-        for blk in self.predictor_blocks:
-            x = blk(x)
-        x = self.predictor_norm(x)
+        x = self.decode(x)
 
         x = x[:, N_ctxt:]
         x = self.predictor_proj(x)
