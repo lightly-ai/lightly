@@ -21,8 +21,8 @@ class MaskedVisionTransformerDecoder(ABC, Module):
     pass, the positional embedding, and the transformer blocks.
     """
 
-    # This is not defined as a property for backwards compatibility.
-    # New models should define this as a property.
+    # Set by subclasses. Declared here so the shared preprocess method can
+    # reference it.
     mask_token: Parameter
 
     @property
