@@ -51,25 +51,15 @@ jobs:
           make install-uv reset-venv
           source .venv/bin/activate
           make install-pinned-extras-${{ matrix.python }}
-      - name: Clean Previous Coverage Data
-        run: rm -f .coverage
       - name: Run Pytest (Python 3.7)
         if: matrix.python == '3.7'
         run: |
           source .venv/bin/activate
           export LIGHTLY_SERVER_LOCATION="localhost:-1"
           python -m pytest -s -v --runslow --ignore=./lightly/openapi_generated/
-      - name: Run Pytest with Coverage (Python 3.12)
+      - name: Run Pytest (Python 3.12)
         if: matrix.python == '3.12'
         run: |
           source .venv/bin/activate
           export LIGHTLY_SERVER_LOCATION="localhost:-1"
-          uv pip install pytest-cov==5.0.0
-          python -m pytest -s -v --runslow --cov=./lightly --cov-report=xml --ignore=./lightly/openapi_generated/
-      - name: Upload Coverage to Codecov
-        if: matrix.python == '3.12'
-        uses: codecov/codecov-action@v4
-        with:
-          fail_ci_if_error: false
-          files: ./coverage.xml
-          token: ${{ secrets.CODECOV_TOKEN }}
+          python -m pytest -s -v --runslow --ignore=./lightly/openapi_generated/

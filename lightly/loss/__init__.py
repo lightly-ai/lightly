@@ -9,6 +9,7 @@ from lightly.loss.detcon_loss import DetConBLoss, DetConSLoss
 from lightly.loss.dino_loss import DINOLoss
 from lightly.loss.directclr_loss import DirectCLRLoss
 from lightly.loss.emp_ssl_loss import EMPSSLLoss
+from lightly.loss.frossl_loss import FroSSLLoss
 from lightly.loss.ibot_loss import IBOTPatchLoss, IBOTPlusPlusPatchLoss
 from lightly.loss.koleo_loss import KoLeoLoss
 from lightly.loss.lejepa_loss import LeJEPALoss, SIGReg
@@ -24,4 +25,5 @@ from lightly.loss.sym_neg_cos_sim_loss import SymNegCosineSimilarityLoss
 from lightly.loss.tico_loss import TiCoLoss
 from lightly.loss.vicreg_loss import VICRegLoss
 from lightly.loss.vicregl_loss import VICRegLLoss
+from lightly.loss.visreg_loss import VISRegLoss, VISRegLossComponents
 from lightly.loss.wmse_loss import Whitening2d, WMSELoss

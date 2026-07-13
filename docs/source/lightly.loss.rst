@@ -23,6 +23,9 @@ lightly.loss
 .. autoclass:: lightly.loss.dino_loss.DINOLoss
    :members:
 
+.. autoclass:: lightly.loss.frossl_loss.FroSSLLoss
+   :members:
+
 .. autoclass:: lightly.loss.hypersphere_loss.HypersphereLoss
    :members:
 
@@ -85,3 +88,7 @@ lightly.loss
 
 .. autoclass:: lightly.loss.vicregl_loss.VICRegLLoss
    :members:
+
+.. autoclass:: lightly.loss.visreg_loss.VISRegLoss
+   :members:
+   :special-members: __init__
