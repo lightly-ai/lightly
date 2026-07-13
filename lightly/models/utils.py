@@ -1453,7 +1453,7 @@ def apply_masks(x: Tensor, masks: Tensor | list[Tensor]) -> Tensor:
 
 def add_stochastic_positional_noise(
     pos_embeddings: Tensor,
-    projection: Module,
+    projection_weight: Tensor,
     noise_dim: int,
     noise_std: float = 0.0,
 ) -> Tensor:
@@ -1465,8 +1465,8 @@ def add_stochastic_positional_noise(
     Args:
         pos_embeddings: Positional embeddings of shape
             ``(batch_size, num_tokens, predictor_embed_dim)``.
-        projection: Matrix A used to project Gaussian noise to the positional
-            embedding dimension.
+        projection_weight: Matrix A used to project Gaussian noise to the positional
+            embedding dimension. Must have shape ``(predictor_embed_dim, noise_dim)``.
         noise_dim: Dimension of the sampled Gaussian noise before projection.
         noise_std: Standard deviation of the Gaussian noise. If ``0.0``,
             returns ``pos_embeddings`` unchanged.
@@ -1485,4 +1485,4 @@ def add_stochastic_positional_noise(
         dtype=pos_embeddings.dtype,
     )
 
-    return pos_embeddings + projection(noise)
+    return pos_embeddings + nn.functional.linear(noise, projection_weight, bias=None)

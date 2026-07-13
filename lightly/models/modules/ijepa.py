@@ -153,10 +153,10 @@ class IJEPAPredictor(vision_transformer.Encoder):
         pos_embs = utils.repeat_interleave_batch(pos_embs, B, repeat=len(masks_x))
 
         # we add the stochastic positional embedding here:
-        # use self.predictor_embed as the projector
+        # use self.predictor_embed.weight as the projection matrix
         pos_embs = utils.add_stochastic_positional_noise(
             pos_embs,
-            self.predictor_embed,
+            self.predictor_embed.weight,
             noise_dim,
             noise_std=self.noise_std,
         )
