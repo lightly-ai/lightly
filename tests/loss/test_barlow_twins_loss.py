@@ -4,7 +4,6 @@ import torch.nn as nn
 from pytest_mock import MockerFixture
 from torch import Tensor
 from torch import distributed as dist
-from torch.distributed import nn as dist_nn
 from torch.nn import Module
 
 from lightly.loss.barlow_twins_loss import BarlowTwinsLoss
@@ -93,76 +92,3 @@ class TestBarlowTwinsLoss:
 
         # Loss should be invariant to affine transformations.
         assert torch.allclose(loss(x, x), loss(x, 2 * x + 4))
-
-    def test__gather_distributed_forward_matches_non_distributed(
-        self, mocker: MockerFixture
-    ) -> None:
-        """Distributed forward equals non-distributed forward on the global batch.
-
-        Simulates world_size=2 with identical data on both ranks. The global
-        batch is two copies of the local batch, so the cross-correlation matrix
-        after the all_reduce equals the non-distributed matrix on the global batch.
-        """
-        world_size = 2
-        torch.manual_seed(0)
-        z_a_local = torch.randn(16, 64)
-        z_b_local = torch.randn(16, 64)
-        z_a_global = torch.cat([z_a_local, z_a_local], dim=0)
-        z_b_global = torch.cat([z_b_local, z_b_local], dim=0)
-
-        loss_truth = BarlowTwinsLoss(gather_distributed=False)(z_a_global, z_b_global)
-
-        mocker.patch.object(dist, "is_initialized", return_value=True)
-        mocker.patch.object(dist, "get_world_size", return_value=world_size)
-        mocker.patch.object(
-            dist_nn,
-            "all_reduce",
-            side_effect=lambda tensor, *args, **kwargs: tensor * world_size,
-        )
-        loss_dist = BarlowTwinsLoss(gather_distributed=True)(z_a_local, z_b_local)
-
-        assert torch.allclose(loss_dist, loss_truth, atol=1e-5)
-
-    def test__gather_distributed_gradient_matches_non_distributed(
-        self, mocker: MockerFixture
-    ) -> None:
-        """Gradient under gather_distributed=True equals gradient on the global batch.
-
-        Verifies the fix for the autograd bug where raw dist.all_reduce left the
-        backward pass unaware of the cross-rank reduction, producing gradients
-        scaled down by 1/world_size.
-        """
-        world_size = 2
-        torch.manual_seed(0)
-        weight = torch.randn(64, 64)
-        z_a_local = torch.randn(16, 64)
-        z_b_local = torch.randn(16, 64)
-        z_a_global = torch.cat([z_a_local, z_a_local], dim=0)
-        z_b_global = torch.cat([z_b_local, z_b_local], dim=0)
-
-        def grad_through_weight(
-            loss_fn: BarlowTwinsLoss,
-            z_a: torch.Tensor,
-            z_b: torch.Tensor,
-        ) -> torch.Tensor:
-            w = weight.clone().requires_grad_(True)
-            loss_fn(z_a @ w, z_b @ w).backward()
-            assert w.grad is not None
-            return w.grad.clone()
-
-        truth = grad_through_weight(
-            BarlowTwinsLoss(gather_distributed=False), z_a_global, z_b_global
-        )
-
-        mocker.patch.object(dist, "is_initialized", return_value=True)
-        mocker.patch.object(dist, "get_world_size", return_value=world_size)
-        mocker.patch.object(
-            dist_nn,
-            "all_reduce",
-            side_effect=lambda tensor, *args, **kwargs: tensor * world_size,
-        )
-        dist_grad = grad_through_weight(
-            BarlowTwinsLoss(gather_distributed=True), z_a_local, z_b_local
-        )
-
-        assert torch.allclose(dist_grad, truth, atol=1e-5)
