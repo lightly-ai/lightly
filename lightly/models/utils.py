@@ -1449,3 +1449,40 @@ def apply_masks(x: Tensor, masks: Tensor | list[Tensor]) -> Tensor:
         mask_keep = m.unsqueeze(-1).repeat(1, 1, x.size(-1))
         all_x += [torch.gather(x, dim=1, index=mask_keep)]
     return torch.cat(all_x, dim=0)
+
+
+def add_stochastic_positional_noise(
+    pos_embeddings: Tensor,
+    projection_weight: Tensor,
+    noise_dim: int,
+    noise_std: float = 0.0,
+) -> Tensor:
+    """Adds stochastic noise to positional embeddings.
+
+    - [0]: https://arxiv.org/pdf/2308.00566
+    - [1]: https://github.com/amirbar/StoP/blob/main/src/deit.py
+
+    Args:
+        pos_embeddings: Positional embeddings of shape
+            ``(batch_size, num_tokens, predictor_embed_dim)``.
+        projection_weight: Matrix A used to project Gaussian noise to the positional
+            embedding dimension. Must have shape ``(predictor_embed_dim, noise_dim)``.
+        noise_dim: Dimension of the sampled Gaussian noise before projection.
+        noise_std: Standard deviation of the Gaussian noise. If ``0.0``,
+            returns ``pos_embeddings`` unchanged.
+
+    Returns:
+        Positional embeddings with optional Gaussian noise added.
+    """
+    if noise_std == 0.0:
+        return pos_embeddings
+
+    noise = torch.normal(
+        mean=0.0,
+        std=noise_std,
+        size=(pos_embeddings.shape[0], pos_embeddings.shape[1], noise_dim),
+        device=pos_embeddings.device,
+        dtype=pos_embeddings.dtype,
+    )
+
+    return pos_embeddings + nn.functional.linear(noise, projection_weight, bias=None)

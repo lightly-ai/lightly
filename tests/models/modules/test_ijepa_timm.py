@@ -1,9 +1,6 @@
-import unittest
-
 import pytest
 import torch
 
-from lightly.models import utils
 from lightly.utils import dependency
 
 if not dependency.timm_vit_available():
@@ -14,8 +11,9 @@ if not dependency.timm_vit_available():
 from lightly.models.modules import IJEPAPredictorTIMM
 
 
-class TestIJEPAPredictorTIMM(unittest.TestCase):
-    def test_init(self) -> None:
+class TestIJEPAPredictorTIMM:
+    @pytest.mark.parametrize("noise_std", [0.0, 0.1])
+    def test_init(self, noise_std: float) -> None:
         IJEPAPredictorTIMM(
             num_patches=196,
             depth=2,
@@ -26,10 +24,15 @@ class TestIJEPAPredictorTIMM(unittest.TestCase):
             mlp_ratio=4.0,
             proj_drop_rate=0.0,
             attn_drop_rate=0.0,
+            noise_std=noise_std,
         )
 
     def _test_forward(
-        self, device: torch.device, batch_size: int = 4, seed: int = 0
+        self,
+        device: torch.device,
+        noise_std: float,
+        batch_size: int = 4,
+        seed: int = 0,
     ) -> None:
         torch.manual_seed(seed)
         num_patches = 196  # 14x14 patches
@@ -48,6 +51,7 @@ class TestIJEPAPredictorTIMM(unittest.TestCase):
             mlp_ratio=4.0,
             proj_drop_rate=0.0,
             attn_drop_rate=0.0,
+            noise_std=noise_std,
         ).to(device)
 
         x = torch.randn(batch_size, num_patches, mlp_dim, device=device)
@@ -56,16 +60,14 @@ class TestIJEPAPredictorTIMM(unittest.TestCase):
 
         predictions = predictor(x, masks_x, masks)
 
-        # output shape must be correct
-        expected_shape = [batch_size, num_patches, mlp_dim]
-        self.assertListEqual(list(predictions.shape), expected_shape)
+        assert list(predictions.shape) == [batch_size, num_patches, mlp_dim]
+        assert torch.all(torch.isfinite(predictions))
 
-        # output must have reasonable numbers
-        self.assertTrue(torch.all(torch.isfinite(predictions)))
+    @pytest.mark.parametrize("noise_std", [0.0, 0.1])
+    def test_forward(self, noise_std: float) -> None:
+        self._test_forward(torch.device("cpu"), noise_std)
 
-    def test_forward(self) -> None:
-        self._test_forward(torch.device("cpu"))
-
-    @unittest.skipUnless(torch.cuda.is_available(), "CUDA not available.")
-    def test_forward_cuda(self) -> None:
-        self._test_forward(torch.device("cuda"))
+    @pytest.mark.skipif(not torch.cuda.is_available(), reason="CUDA not available.")
+    @pytest.mark.parametrize("noise_std", [0.0, 0.1])
+    def test_forward_cuda(self, noise_std: float) -> None:
+        self._test_forward(torch.device("cuda"), noise_std)

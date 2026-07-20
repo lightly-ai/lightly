@@ -46,6 +46,9 @@ class IJEPAPredictorTIMM(nn.Module):  # type: ignore[misc]
             Percentage of elements set to zero after the attention head.
         norm_layer:
             Normalization layer.
+        noise_std:
+            Standard deviation of the Gaussian noise added to positional embeddings.
+            Default ``0.0`` to disable stochastic positional embeddings.
     """
 
     def __init__(
@@ -61,6 +64,7 @@ class IJEPAPredictorTIMM(nn.Module):  # type: ignore[misc]
         proj_drop_rate: float = 0.0,
         attn_drop_rate: float = 0.0,
         norm_layer: Callable[..., nn.Module] = partial(nn.LayerNorm, eps=1e-6),
+        noise_std: float = 0.0,
     ):
         """Initializes the IJEPAPredictorTIMM with the specified dimensions."""
         super().__init__()
@@ -97,6 +101,8 @@ class IJEPAPredictorTIMM(nn.Module):  # type: ignore[misc]
             ]
         )
 
+        self.noise_std = noise_std
+
     def forward(
         self,
         x: Tensor,
@@ -123,6 +129,7 @@ class IJEPAPredictorTIMM(nn.Module):  # type: ignore[misc]
         len_masks_x = len(masks_x) if isinstance(masks_x, list) else 1
         len_masks = len(masks) if isinstance(masks, list) else 1
 
+        noise_dim = x.shape[-1]
         B = len(x) // len_masks_x
         x = self.predictor_embed(x)
         x_pos_embed = self.predictor_pos_embed.repeat(B, 1, 1)
@@ -133,9 +140,20 @@ class IJEPAPredictorTIMM(nn.Module):  # type: ignore[misc]
         pos_embs = self.predictor_pos_embed.repeat(B, 1, 1)
         pos_embs = utils.apply_masks(pos_embs, masks)
         pos_embs = utils.repeat_interleave_batch(pos_embs, B, repeat=len_masks_x)
+
+        # we add the stochastic positional embedding here:
+        # use self.predictor_embed.weight as the projection matrix
+        pos_embs = utils.add_stochastic_positional_noise(
+            pos_embs,
+            self.predictor_embed.weight,
+            noise_dim,
+            noise_std=self.noise_std,
+        )
+
         pred_tokens = self.mask_token.repeat(pos_embs.size(0), pos_embs.size(1), 1)
 
         pred_tokens += pos_embs
+
         x = x.repeat(len_masks, 1, 1)
         x = torch.cat([x, pred_tokens], dim=1)
 
