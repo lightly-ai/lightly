@@ -7,7 +7,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name="lightly"
-requires-python = ">=3.6"
+requires-python = ">=3.8"
 authors = [
     {name = "Lightly Team", email = "team@lightly.ai"},
 ]
@@ -26,8 +26,6 @@ classifiers = [
     "Topic :: Software Development :: Libraries",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.6",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
@@ -135,7 +133,7 @@ lightly = ["lightly/cli/config/*.yaml"]
 
 [tool.ruff]
 line-length = 88
-target-version = "py37"
+target-version = "py38"
 extend-exclude = ["lightly/openapi_generated"]
 
 [tool.ruff.lint]
