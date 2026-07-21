@@ -33,3 +33,11 @@ def setup_ddp(rank: int, world_size: int) -> None:
     os.environ["MASTER_ADDR"] = "localhost"
     os.environ["MASTER_PORT"] = MASTER_PORT
     torch.distributed.init_process_group("gloo", rank=rank, world_size=world_size)
+
+
+def teardown_ddp(rank: int, world_size: int) -> None:
+    """Destroy the gloo process group inside a pool worker. See #1982."""
+    # Unlike setup_ddp, this does not block on a rendezvous, so the pool may
+    # schedule both calls onto the same worker; guard against a double destroy.
+    if torch.distributed.is_initialized():
+        torch.distributed.destroy_process_group()

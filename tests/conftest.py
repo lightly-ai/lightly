@@ -9,7 +9,7 @@ import torch.multiprocessing as mp
 # Distributed (DDP) test pool, see #1982. The flag and gloo setup live in
 # tests/ddp_helpers.py so they can be typed and shared with the test modules;
 # the session hooks below only start/stop the pool.
-from tests.ddp_helpers import NUM_PROCESSES, USE_PYTEST_POOL, setup_ddp
+from tests.ddp_helpers import NUM_PROCESSES, USE_PYTEST_POOL, setup_ddp, teardown_ddp
 
 
 def pytest_addoption(parser):
@@ -99,5 +99,8 @@ def pytest_sessionfinish():
     """Tear down the gloo pool at the end of the session. See #1982."""
     if not USE_PYTEST_POOL:
         return
+    pytest.pool.starmap(
+        teardown_ddp, [(rank, NUM_PROCESSES) for rank in range(NUM_PROCESSES)]
+    )
     pytest.pool.close()
     pytest.pool.join()
