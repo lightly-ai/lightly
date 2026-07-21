@@ -1,5 +1,7 @@
 """LeJEPA loss functions and regularizers."""
 
+from typing import cast
+
 import torch
 from torch import Tensor, nn
 from torch import distributed as torch_dist
@@ -202,7 +204,10 @@ class SIGReg(nn.Module):
         cos_mean = cos_sum / num_samples
         sin_mean = sin_sum / num_samples
         phi = self.phi.to(dtype=x_t.dtype)
-        return (cos_mean - phi).square() + sin_mean.square()  # type: ignore[operator]
+        return cast(
+            Tensor,
+            (cos_mean - phi).square() + sin_mean.square(),  # type: ignore[operator]
+        )
 
     def _integrate_via_trapezoidal_rule(
         self,
@@ -212,7 +217,7 @@ class SIGReg(nn.Module):
         """Integrate the error over frequency using trapezoidal weights."""
         weights = self.weights.to(dtype=err_per_frequency.dtype)
         statistic = (err_per_frequency @ weights) * num_samples  # type: ignore[operator]
-        return statistic.mean()
+        return cast(Tensor, statistic.mean())
 
     def forward(self, proj: Tensor) -> Tensor:
         """Compute the SIGReg loss for a batch of projections.
