@@ -123,7 +123,7 @@ class TestBarlowTwinsLoss:
         )
         loss_truth = BarlowTwinsLoss(gather_distributed=False)(z_a, z_b)
 
-        assert torch.allclose(losses[0], loss_truth, atol=1e-5)
+        assert all(torch.allclose(loss, loss_truth, atol=1e-5) for loss in losses)
 
     @pytest.mark.DDP
     @pytest.mark.skipif(not USE_PYTEST_POOL, reason="DDP pool is not available")
@@ -143,4 +143,4 @@ class TestBarlowTwinsLoss:
         BarlowTwinsLoss(gather_distributed=False)(z_a_ref, z_b).backward()
         assert z_a_ref.grad is not None
 
-        assert torch.allclose(grads[0], z_a_ref.grad, atol=1e-5)
+        assert all(torch.allclose(grad, z_a_ref.grad, atol=1e-5) for grad in grads)
