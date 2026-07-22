@@ -1,10 +1,10 @@
 import os
 import tempfile
-import unittest
 from typing import List, Tuple
 
 import hydra
 import numpy as np
+import pytest
 import torch
 import torchvision
 from hydra.experimental import compose
@@ -22,8 +22,9 @@ from lightly.data import LightlyDataset
 from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 
 
-class TestLightlyDataset(unittest.TestCase):
-    def setUp(self):
+class TestLightlyDataset:
+    @pytest.fixture(autouse=True)
+    def setup(self):
         self.folder_path, self.sample_names = self.create_dataset_no_subdir(10)
         with initialize(config_path="../../lightly/cli/config", job_name="test_app"):
             self.cfg = compose(
@@ -77,5 +78,5 @@ class TestLightlyDataset(unittest.TestCase):
         np.testing.assert_allclose(embeddings_1_worker, embeddings_4_worker, atol=5e-4)
         np.testing.assert_allclose(labels_1_worker, labels_4_worker, atol=1e-5)
 
-        self.assertListEqual(filenames_1_worker, filenames_4_worker)
-        self.assertListEqual(filenames_1_worker, dataset.get_filenames())
+        assert filenames_1_worker == filenames_4_worker
+        assert filenames_1_worker == dataset.get_filenames()
