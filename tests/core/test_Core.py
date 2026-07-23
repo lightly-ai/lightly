@@ -2,7 +2,7 @@ import os
 import re
 import shutil
 import tempfile
-import unittest
+from typing import Iterator, List, Tuple
 
 import numpy as np
 import pytest
@@ -11,12 +11,25 @@ import torchvision
 from lightly.core import train_model_and_embed_images
 
 
-class TestCore(unittest.TestCase):
-    def ensure_dir(self, path_to_folder: str):
+class TestCore:
+    dataset_dir: str
+
+    @pytest.fixture(autouse=True)
+    def _cleanup(self) -> Iterator[None]:
+        yield
+        shutil.rmtree(self.dataset_dir)
+        pattern = "(.*)?.ckpt$"
+        for root, dirs, files in os.walk(os.getcwd()):
+            for file in filter(lambda x: re.match(pattern, x), files):
+                os.remove(os.path.join(root, file))
+
+    def ensure_dir(self, path_to_folder: str) -> None:
         if not os.path.exists(path_to_folder):
             os.makedirs(path_to_folder)
 
-    def create_dataset(self, n_subfolders=5, n_samples_per_subfolder=20):
+    def create_dataset(
+        self, n_subfolders: int = 5, n_samples_per_subfolder: int = 20
+    ) -> Tuple[str, List[str], List[str]]:
         n_tot = n_subfolders * n_samples_per_subfolder
         dataset = torchvision.datasets.FakeData(size=n_tot, image_size=(3, 32, 32))
 
@@ -41,7 +54,7 @@ class TestCore(unittest.TestCase):
         return tmp_dir, folder_names, sample_names
 
     # @pytest.mark.slow
-    def test_train_and_embed(self):
+    def test_train_and_embed(self) -> None:
         n_subfolders = 3
         n_samples_per_subfolder = 3
         n_samples = n_subfolders * n_samples_per_subfolder
@@ -55,16 +68,9 @@ class TestCore(unittest.TestCase):
             trainer={"max_epochs": 1},
             loader={"num_workers": 0},
         )
-        self.assertEqual(len(embeddings), n_samples)
-        self.assertEqual(len(labels), n_samples)
-        self.assertEqual(len(filenames), n_samples)
-        self.assertIsInstance(embeddings[0], np.ndarray)
-        self.assertIsInstance(int(labels[0]), int)  # see if casting to int works
-        self.assertIsInstance(filenames[0], str)
-
-    def tearDown(self) -> None:
-        shutil.rmtree(self.dataset_dir)
-        pattern = "(.*)?.ckpt$"
-        for root, dirs, files in os.walk(os.getcwd()):
-            for file in filter(lambda x: re.match(pattern, x), files):
-                os.remove(os.path.join(root, file))
+        assert len(embeddings) == n_samples
+        assert len(labels) == n_samples
+        assert len(filenames) == n_samples
+        assert isinstance(embeddings[0], np.ndarray)
+        assert isinstance(int(labels[0]), int)  # see if casting to int works
+        assert isinstance(filenames[0], str)
