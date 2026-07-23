@@ -1,10 +1,10 @@
 import csv
 import json
 import tempfile
-import unittest
 from pathlib import Path
 
 import numpy as np
+import pytest
 
 from lightly.utils import io
 from tests.api_workflow.mocked_api_workflow_client import MockedApiWorkflowSetup
@@ -17,8 +17,9 @@ class TestCLICrop(MockedApiWorkflowSetup):  # type: ignore[misc]
         io.save_custom_metadata(metadata_filepath, metadata)
 
 
-class TestEmbeddingsIO(unittest.TestCase):
-    def setUp(self) -> None:
+class TestEmbeddingsIO:
+    @pytest.fixture(autouse=True)
+    def setup(self) -> None:
         # correct embedding file as created through lightly
         self.embeddings_path = tempfile.mktemp(".csv", "embeddings")
         embeddings = np.random.rand(32, 2)
@@ -37,18 +38,18 @@ class TestEmbeddingsIO(unittest.TestCase):
         ]
         with open(self.embeddings_path, "w") as f:
             f.writelines(lines)
-        with self.assertRaises(RuntimeError) as context:
+        with pytest.raises(RuntimeError) as excinfo:
             io.check_embeddings(self.embeddings_path)
-        self.assertTrue("must not contain whitespaces" in str(context.exception))
+        assert "must not contain whitespaces" in str(excinfo.value)
 
     def test_no_labels_in_embeddings(self) -> None:
         # should fail because there is no `labels` column in the header
         lines = ["filenames,embedding_0,embedding_1\n", "img_1.jpg,0.351,0.1231"]
         with open(self.embeddings_path, "w") as f:
             f.writelines(lines)
-        with self.assertRaises(RuntimeError) as context:
+        with pytest.raises(RuntimeError) as excinfo:
             io.check_embeddings(self.embeddings_path)
-        self.assertTrue("has no `labels` column" in str(context.exception))
+        assert "has no `labels` column" in str(excinfo.value)
 
     def test_no_empty_rows_in_embeddings(self) -> None:
         # should fail because there are empty rows in the embeddings file
@@ -58,9 +59,9 @@ class TestEmbeddingsIO(unittest.TestCase):
         ]
         with open(self.embeddings_path, "w") as f:
             f.writelines(lines)
-        with self.assertRaises(RuntimeError) as context:
+        with pytest.raises(RuntimeError) as excinfo:
             io.check_embeddings(self.embeddings_path)
-        self.assertTrue("must not have empty rows" in str(context.exception))
+        assert "must not have empty rows" in str(excinfo.value)
 
     def test_embeddings_extra_rows(self) -> None:
         rows = [
@@ -77,7 +78,7 @@ class TestEmbeddingsIO(unittest.TestCase):
         with open(self.embeddings_path) as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=",")
             for row_read, row_original in zip(csv_reader, rows):
-                self.assertListEqual(row_read, row_original[:-2])
+                assert row_read == row_original[:-2]
 
     def test_embeddings_extra_rows_special_order(self) -> None:
         input_rows = [
@@ -99,7 +100,7 @@ class TestEmbeddingsIO(unittest.TestCase):
         with open(self.embeddings_path) as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=",")
             for row_read, row_original in zip(csv_reader, correct_output_rows):
-                self.assertListEqual(row_read, row_original)
+                assert row_read == row_original
 
     def test_save_tasks(self) -> None:
         tasks = [
@@ -111,7 +112,7 @@ class TestEmbeddingsIO(unittest.TestCase):
             io.save_tasks(file.name, tasks)
             with open(file.name, "r") as f:
                 loaded = json.load(f)
-        self.assertListEqual(tasks, loaded)
+        assert tasks == loaded
 
     def test_save_schema(self) -> None:
         description = "classification"
@@ -130,10 +131,10 @@ class TestEmbeddingsIO(unittest.TestCase):
             io.save_schema(file.name, description, ids, names)
             with open(file.name, "r") as f:
                 loaded = json.load(f)
-        self.assertListEqual(sorted(expected_format), sorted(loaded))
+        assert sorted(expected_format) == sorted(loaded)
 
     def test_save_schema_different(self) -> None:
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             io.save_schema(
                 "name_doesnt_matter",
                 "description_doesnt_matter",
