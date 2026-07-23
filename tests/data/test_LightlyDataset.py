@@ -1,10 +1,10 @@
 import os
 import shutil
 import tempfile
-import unittest
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 import numpy as np
+import pytest
 import torchvision
 from PIL.Image import Image
 
@@ -23,7 +23,7 @@ except ModuleNotFoundError:
     VIDEO_DATASET_AVAILABLE = False
 
 
-class TestLightlyDataset(unittest.TestCase):
+class TestLightlyDataset:
     def ensure_dir(self, path_to_folder: str):
         os.makedirs(path_to_folder, exist_ok=True)
 
@@ -82,7 +82,7 @@ class TestLightlyDataset(unittest.TestCase):
                 out.write(frame)
             out.release()
 
-    def test_create_lightly_dataset_from_folder(self):
+    def test_create_lightly_dataset_from_folder(self) -> None:
         n_subfolders = 5
         n_samples_per_subfolder = 10
         n_tot_files = n_subfolders * n_samples_per_subfolder
@@ -99,24 +99,21 @@ class TestLightlyDataset(unittest.TestCase):
             for fname in sample_names:
                 fnames.append(os.path.join(dir_name, fname))
 
-        self.assertEqual(len(filenames), n_tot_files)
-        self.assertEqual(len(dataset), n_tot_files)
-        self.assertListEqual(sorted(fnames), sorted(filenames))
+        assert len(filenames) == n_tot_files
+        assert len(dataset) == n_tot_files
+        assert sorted(fnames) == sorted(filenames)
 
         out_dir = tempfile.mkdtemp()
         dataset.dump(out_dir)
-        self.assertEqual(
-            sum(
-                len(os.listdir(os.path.join(out_dir, subdir)))
-                for subdir in os.listdir(out_dir)
-            ),
-            len(dataset),
-        )
+        assert sum(
+            len(os.listdir(os.path.join(out_dir, subdir)))
+            for subdir in os.listdir(out_dir)
+        ) == len(dataset)
 
         shutil.rmtree(dataset_dir)
         shutil.rmtree(out_dir)
 
-    def test_create_lightly_dataset_from_folder_nosubdir(self):
+    def test_create_lightly_dataset_from_folder_nosubdir(self) -> None:
         # create a dataset
         n_tot = 100
         tmp_dir, sample_names = self.create_dataset_no_subdir(n_tot)
@@ -126,14 +123,14 @@ class TestLightlyDataset(unittest.TestCase):
         filenames = dataset.get_filenames()
 
         # tests
-        self.assertEqual(len(filenames), n_tot)
-        self.assertEqual(len(dataset), n_tot)
-        self.assertListEqual(sorted(sample_names), sorted(filenames))
+        assert len(filenames) == n_tot
+        assert len(dataset) == n_tot
+        assert sorted(sample_names) == sorted(filenames)
 
         for i in range(n_tot):
             sample, target, fname = dataset[i]
 
-    def test_check_images(self):
+    def test_check_images(self) -> None:
         # create a dataset
         tmp_dir = tempfile.mkdtemp()
         n_healthy = 100
@@ -158,29 +155,29 @@ class TestLightlyDataset(unittest.TestCase):
         assert len(healthy_images) == n_healthy
         assert len(corrupt_images) == n_corrupt
 
-    def test_not_existing_folder_dataset(self):
-        with self.assertRaises(ValueError):
+    def test_not_existing_folder_dataset(self) -> None:
+        with pytest.raises(ValueError):
             LightlyDataset("/a-random-hopefully-non/existing-path-to-nowhere/")
 
-    def test_from_torch_dataset(self):
+    def test_from_torch_dataset(self) -> None:
         _dataset = torchvision.datasets.FakeData(size=1, image_size=(3, 32, 32))
         dataset = LightlyDataset.from_torch_dataset(_dataset)
-        self.assertEqual(len(_dataset), len(dataset))
-        self.assertEqual(len(dataset.get_filenames()), len(dataset))
+        assert len(_dataset) == len(dataset)
+        assert len(dataset.get_filenames()) == len(dataset)
 
-    def test_from_torch_dataset_with_transform(self):
+    def test_from_torch_dataset_with_transform(self) -> None:
         dataset_ = torchvision.datasets.FakeData(size=1, image_size=(3, 32, 32))
         dataset = LightlyDataset.from_torch_dataset(dataset_, transform=T.ToTensor())
-        self.assertIsNotNone(dataset.transform)
-        self.assertIsNotNone(dataset.dataset.transform)
+        assert dataset.transform is not None
+        assert dataset.dataset.transform is not None
 
-    def test_filenames_dataset_no_samples(self):
+    def test_filenames_dataset_no_samples(self) -> None:
         tmp_dir, folder_names, sample_names = self.create_dataset()
-        with self.assertRaises((RuntimeError, FileNotFoundError)):
+        with pytest.raises((RuntimeError, FileNotFoundError)):
             dataset = LightlyDataset(input_dir=tmp_dir, filenames=[])
 
-    @unittest.skip("https://github.com/lightly-ai/lightly/issues/535")
-    def test_filenames_dataset_with_subdir(self):
+    @pytest.mark.skip(reason="https://github.com/lightly-ai/lightly/issues/535")
+    def test_filenames_dataset_with_subdir(self) -> None:
         tmp_dir, folder_names, sample_names = self.create_dataset()
         folder_name_to_target = {
             folder_name: i for i, folder_name in enumerate(folder_names)
@@ -197,18 +194,18 @@ class TestLightlyDataset(unittest.TestCase):
 
             dataset = LightlyDataset(input_dir=tmp_dir, filenames=filenames)
             filenames_dataset = dataset.get_filenames()
-            self.assertEqual(len(filenames_dataset), len(dataset))
-            self.assertEqual(len(filenames_dataset), len(filenames))
-            self.assertEqual(set(filenames_dataset), set(filenames))
+            assert len(filenames_dataset) == len(dataset)
+            assert len(filenames_dataset) == len(filenames)
+            assert set(filenames_dataset) == set(filenames)
             filenames_dataset = set(filenames_dataset)
             for image, target, filename in dataset:
-                self.assertIsInstance(image, Image)
+                assert isinstance(image, Image)
                 folder_name = filename.split(sep=os.sep)[0]
-                self.assertEqual(target, folder_name_to_target[folder_name])
-                self.assertIsInstance(filename, str)
+                assert target == folder_name_to_target[folder_name]
+                assert isinstance(filename, str)
                 assert filename in filenames_dataset
 
-    def test_filenames_dataset_no_subdir(self):
+    def test_filenames_dataset_no_subdir(self) -> None:
         # create a dataset
         n_tot = 100
         dataset = torchvision.datasets.FakeData(size=n_tot, image_size=(3, 32, 32))
@@ -227,33 +224,34 @@ class TestLightlyDataset(unittest.TestCase):
 
             dataset = LightlyDataset(input_dir=tmp_dir, filenames=filenames)
             filenames_dataset = dataset.get_filenames()
-            self.assertEqual(len(filenames_dataset), len(dataset))
-            self.assertEqual(len(filenames_dataset), len(filenames))
-            self.assertEqual(set(filenames_dataset), set(filenames))
+            assert len(filenames_dataset) == len(dataset)
+            assert len(filenames_dataset) == len(filenames)
+            assert set(filenames_dataset) == set(filenames)
             filenames_dataset = set(filenames_dataset)
             for image, target, filename in dataset:
-                self.assertIsInstance(image, Image)
-                self.assertEqual(target, 0)
-                self.assertIsInstance(filename, str)
-                self.assertIn(filename, filenames_dataset)
+                assert isinstance(image, Image)
+                assert target == 0
+                assert isinstance(filename, str)
+                assert filename in filenames_dataset
 
-    @unittest.skipUnless(
-        VIDEO_DATASET_AVAILABLE, "torchvision<=0.25, PyAV, and CV2 are installed"
+    @pytest.mark.skipif(
+        not VIDEO_DATASET_AVAILABLE,
+        reason="torchvision<=0.25, PyAV, and CV2 are installed",
     )
-    def test_video_dataset_available(self):
+    def test_video_dataset_available(self) -> None:
         self.create_video_dataset()
         dataset = LightlyDataset(input_dir=self.input_dir)
 
         out_dir = tempfile.mkdtemp()
         dataset.dump(out_dir, dataset.get_filenames()[(len(dataset) // 2) :])
-        self.assertEqual(len(os.listdir(out_dir)), len(dataset) // 2)
+        assert len(os.listdir(out_dir)) == len(dataset) // 2
         for filename in os.listdir(out_dir):
-            self.assertIn(filename, dataset.get_filenames()[(len(dataset) // 2) :])
+            assert filename in dataset.get_filenames()[(len(dataset) // 2) :]
 
-    @unittest.skipIf(
-        VIDEO_DATASET_AVAILABLE, "torchvision<=0.25, PyAV, and CV2 are installed"
+    @pytest.mark.skipif(
+        VIDEO_DATASET_AVAILABLE, reason="torchvision<=0.25, PyAV, and CV2 are installed"
     )
-    def test_video_dataset_unavailable(self):
+    def test_video_dataset_unavailable(self) -> None:
         tmp_dir = tempfile.mkdtemp()
         # simulate a video
         # the video dataset will check to see whether there exists a file
@@ -263,16 +261,17 @@ class TestLightlyDataset(unittest.TestCase):
         image, _ = dataset[0]
         image.save(path)
         os.rename(path, os.path.join(tmp_dir, "my_file.avi"))
-        with self.assertRaises(RuntimeError, msg="Video loading is not available"):
+        with pytest.raises(RuntimeError):
             dataset = LightlyDataset(input_dir=tmp_dir)
 
         shutil.rmtree(tmp_dir)
         return
 
-    @unittest.skipUnless(
-        VIDEO_DATASET_AVAILABLE, "torchvision<=0.25, PyAV, and CV2 are installed"
+    @pytest.mark.skipif(
+        not VIDEO_DATASET_AVAILABLE,
+        reason="torchvision<=0.25, PyAV, and CV2 are installed",
     )
-    def test_video_dataset_filenames(self):
+    def test_video_dataset_filenames(self) -> None:
         self.create_video_dataset()
         all_filenames = self.filenames
 
@@ -291,33 +290,34 @@ class TestLightlyDataset(unittest.TestCase):
 
         filenames_dataset = dataset.get_filenames()
         for image, target, filename in dataset:
-            self.assertIsInstance(image, Image)
-            self.assertTrue(filename_img_fits_video(filename))
+            assert isinstance(image, Image)
+            assert filename_img_fits_video(filename)
 
-            self.assertIsInstance(filename, str)
-            self.assertIn(filename, filenames_dataset)
+            assert isinstance(filename, str)
+            assert filename in filenames_dataset
 
-    def test_transform_setter(self, dataset: LightlyDataset = None):
+    def test_transform_setter(self, dataset: Optional[LightlyDataset] = None) -> None:
         if dataset is None:
             tmp_dir, _, _ = self.create_dataset()
             dataset = LightlyDataset(input_dir=tmp_dir)
         # the transform of both datasets should be None
-        self.assertIsNone(dataset.transform)
-        self.assertIsNone(dataset.dataset.transform)
+        assert dataset.transform is None
+        assert dataset.dataset.transform is None
         # use the setter
         dataset.transform = T.ToTensor()
         # assert that the transform is set in the nested dataset
-        self.assertIsNotNone(dataset.transform)
-        self.assertIsNotNone(dataset.dataset.transform)
+        assert dataset.transform is not None
+        assert dataset.dataset.transform is not None
 
-    def test_no_dir_no_transform_fails(self):
-        with self.assertRaises(ValueError):
+    def test_no_dir_no_transform_fails(self) -> None:
+        with pytest.raises(ValueError):
             LightlyDataset(None, transform=T.ToTensor())
 
-    @unittest.skipUnless(
-        VIDEO_DATASET_AVAILABLE, "torchvision<=0.25, PyAV, and CV2 are installed"
+    @pytest.mark.skipif(
+        not VIDEO_DATASET_AVAILABLE,
+        reason="torchvision<=0.25, PyAV, and CV2 are installed",
     )
-    def test_dataset_get_filenames(self):
+    def test_dataset_get_filenames(self) -> None:
         self.create_video_dataset()
         dataset = LightlyDataset(input_dir=self.input_dir)
         video_dataset = dataset.dataset
@@ -335,46 +335,46 @@ class TestLightlyDataset(unittest.TestCase):
 
         assert video_dataset_filenames == lightly_dataset_filenames
 
-    def test_dataset_with_subdirs(self):
+    def test_dataset_with_subdirs(self) -> None:
         tmp_dir, _, _ = self.create_dataset()
 
-        with self.subTest("no read rights files"):
-            for subdir, dirs, files in os.walk(tmp_dir):
-                for filename in files:
-                    filepath = os.path.join(subdir, filename)
-                    os.chmod(filepath, 0o000)
+        # no read rights files
+        for subdir, dirs, files in os.walk(tmp_dir):
+            for filename in files:
+                filepath = os.path.join(subdir, filename)
+                os.chmod(filepath, 0o000)
+        dataset = LightlyDataset(input_dir=tmp_dir)
+        assert len(dataset.get_filenames()) > 0
+        with pytest.raises(PermissionError):
+            for _ in dataset:
+                pass
+
+        # no read rights subfolders
+        for subdir, dirs, files in os.walk(tmp_dir):
+            os.chmod(subdir, 0o000)
+        with pytest.raises(PermissionError):
             dataset = LightlyDataset(input_dir=tmp_dir)
-            self.assertGreater(len(dataset.get_filenames()), 0)
-            with self.assertRaises(PermissionError):
-                for _ in dataset:
-                    pass
 
-        with self.subTest("no read rights subfolders"):
-            for subdir, dirs, files in os.walk(tmp_dir):
-                os.chmod(subdir, 0o000)
-            with self.assertRaises(PermissionError):
-                dataset = LightlyDataset(input_dir=tmp_dir)
+        # no read rights root
+        os.chmod(tmp_dir, 0o000)
+        with pytest.raises(PermissionError):
+            dataset = LightlyDataset(input_dir=tmp_dir)
 
-        with self.subTest("no read rights root"):
-            os.chmod(tmp_dir, 0o000)
-            with self.assertRaises(PermissionError):
-                dataset = LightlyDataset(input_dir=tmp_dir)
-
-    def test_dataset_plain(self):
+    def test_dataset_plain(self) -> None:
         tmp_dir, _ = self.create_dataset_no_subdir(100)
 
-        with self.subTest("no read rights files"):
-            for subdir, dirs, files in os.walk(tmp_dir):
-                for filename in files:
-                    filepath = os.path.join(tmp_dir, filename)
-                    os.chmod(filepath, 0o000)
-            dataset = LightlyDataset(input_dir=tmp_dir)
-            self.assertGreater(len(dataset.get_filenames()), 0)
-            with self.assertRaises(PermissionError):
-                for _ in dataset:
-                    pass
+        # no read rights files
+        for subdir, dirs, files in os.walk(tmp_dir):
+            for filename in files:
+                filepath = os.path.join(tmp_dir, filename)
+                os.chmod(filepath, 0o000)
+        dataset = LightlyDataset(input_dir=tmp_dir)
+        assert len(dataset.get_filenames()) > 0
+        with pytest.raises(PermissionError):
+            for _ in dataset:
+                pass
 
-        with self.subTest("no read rights root"):
-            os.chmod(tmp_dir, 0o000)
-            with self.assertRaises(PermissionError):
-                dataset = LightlyDataset(input_dir=tmp_dir)
+        # no read rights root
+        os.chmod(tmp_dir, 0o000)
+        with pytest.raises(PermissionError):
+            dataset = LightlyDataset(input_dir=tmp_dir)
