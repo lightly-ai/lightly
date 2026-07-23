@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Dict, Sequence, Union
 
 import aim
+import capi
 import dino
 import dinov2
 import finetune_eval
@@ -54,6 +55,7 @@ parser.add_argument("--float32-matmul-precision", type=str, default="high")
 parser.add_argument("--strategy", default="ddp_find_unused_parameters_true")
 parser.add_argument("--seed", type=int, default=None)
 METHODS = {
+    "capi": {"model": capi.CAPI, "transform": capi.transform},
     "dino": {"model": dino.DINO, "transform": dino.transform},
     "dinov2": {"model": dinov2.DINOv2, "transform": dinov2.transform},
     "ibot": {"model": ibot.IBOT, "transform": ibot.transform},
