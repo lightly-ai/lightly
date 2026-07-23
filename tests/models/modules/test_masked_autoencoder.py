@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-import unittest
-
+import pytest
 import torch
 import torchvision
 
@@ -14,10 +13,11 @@ if dependency.torchvision_vit_available():
     from lightly.models.modules import MAEBackbone, MAEDecoder, MAEEncoder
 
 
-@unittest.skipUnless(
-    dependency.torchvision_vit_available(), "Torchvision ViT not available"
+@pytest.mark.skipif(
+    not dependency.torchvision_vit_available(),
+    reason="Torchvision ViT not available",
 )
-class TestMAEEncoder(unittest.TestCase):
+class TestMAEEncoder:
     def _vit(self) -> VisionTransformer:
         return torchvision.models.vision_transformer.vit_b_32(progress=False)
 
@@ -25,41 +25,48 @@ class TestMAEEncoder(unittest.TestCase):
         MAEEncoder.from_vit_encoder(self._vit().encoder)
 
     def _test_forward(
-        self, device: torch.device, batch_size: int = 8, seed: int = 0
+        self,
+        device: torch.device,
+        use_mask: bool,
+        batch_size: int = 8,
+        seed: int = 0,
     ) -> None:
         torch.manual_seed(seed)
         vit = self._vit()
         encoder = MAEEncoder.from_vit_encoder(vit.encoder).to(device)
         tokens = torch.rand(batch_size, vit.seq_length, vit.hidden_dim).to(device)
-        _idx_keep, _ = utils.random_token_mask(
+        idx_keep, _ = utils.random_token_mask(
             size=(batch_size, vit.seq_length),
             device=device,
         )
-        for idx_keep in [None, _idx_keep]:
-            with self.subTest(idx_keep=idx_keep):
-                out = encoder(tokens, idx_keep)
+        if not use_mask:
+            idx_keep = None
+        out = encoder(tokens, idx_keep)
 
-                # output shape must be correct
-                expected_shape = list(tokens.shape)
-                if idx_keep is not None:
-                    expected_shape[1] = idx_keep.shape[1]
-                self.assertListEqual(list(out.shape), expected_shape)
+        # output shape must be correct
+        expected_shape = list(tokens.shape)
+        if idx_keep is not None:
+            expected_shape[1] = idx_keep.shape[1]
+        assert list(out.shape) == expected_shape
 
-                # output must have reasonable numbers
-                self.assertTrue(torch.all(torch.not_equal(out, torch.inf)))
+        # output must have reasonable numbers
+        assert torch.all(torch.not_equal(out, torch.inf))
 
-    def test_forward(self) -> None:
-        self._test_forward(device=torch.device("cpu"))
+    @pytest.mark.parametrize("use_mask", [False, True])
+    def test_forward(self, use_mask: bool) -> None:
+        self._test_forward(device=torch.device("cpu"), use_mask=use_mask)
 
-    @unittest.skipUnless(torch.cuda.is_available(), "Cuda not available.")
-    def test_forward_cuda(self) -> None:
-        self._test_forward(torch.device("cuda"))
+    @pytest.mark.parametrize("use_mask", [False, True])
+    @pytest.mark.skipif(not torch.cuda.is_available(), reason="Cuda not available.")
+    def test_forward_cuda(self, use_mask: bool) -> None:
+        self._test_forward(torch.device("cuda"), use_mask=use_mask)
 
 
-@unittest.skipUnless(
-    dependency.torchvision_vit_available(), "Torchvision ViT not available"
+@pytest.mark.skipif(
+    not dependency.torchvision_vit_available(),
+    reason="Torchvision ViT not available",
 )
-class TestMAEBackbone(unittest.TestCase):
+class TestMAEBackbone:
     def _vit(self) -> torchvision.models.vision_transformer.VisionTransformer:
         return torchvision.models.vision_transformer.vit_b_32(progress=False)
 
@@ -67,33 +74,39 @@ class TestMAEBackbone(unittest.TestCase):
         MAEBackbone.from_vit(self._vit())
 
     def _test_forward(
-        self, device: torch.device, batch_size: int = 8, seed: int = 0
+        self,
+        device: torch.device,
+        use_mask: bool,
+        batch_size: int = 8,
+        seed: int = 0,
     ) -> None:
         torch.manual_seed(seed)
         vit = self._vit()
         backbone = MAEBackbone.from_vit(vit).to(device)
         images = torch.rand(batch_size, 3, vit.image_size, vit.image_size).to(device)
-        _idx_keep, _ = utils.random_token_mask(
+        idx_keep, _ = utils.random_token_mask(
             size=(batch_size, vit.seq_length),
             device=device,
         )
-        for idx_keep in [None, _idx_keep]:
-            with self.subTest(idx_keep=idx_keep):
-                class_tokens = backbone(images, idx_keep)
+        if not use_mask:
+            idx_keep = None
+        class_tokens = backbone(images, idx_keep)
 
-                # output shape must be correct
-                expected_shape = [batch_size, vit.hidden_dim]
-                self.assertListEqual(list(class_tokens.shape), expected_shape)
+        # output shape must be correct
+        expected_shape = [batch_size, vit.hidden_dim]
+        assert list(class_tokens.shape) == expected_shape
 
-                # output must have reasonable numbers
-                self.assertTrue(torch.all(torch.not_equal(class_tokens, torch.inf)))
+        # output must have reasonable numbers
+        assert torch.all(torch.not_equal(class_tokens, torch.inf))
 
-    def test_forward(self) -> None:
-        self._test_forward(torch.device("cpu"))
+    @pytest.mark.parametrize("use_mask", [False, True])
+    def test_forward(self, use_mask: bool) -> None:
+        self._test_forward(torch.device("cpu"), use_mask=use_mask)
 
-    @unittest.skipUnless(torch.cuda.is_available(), "Cuda not available.")
-    def test_forward_cuda(self) -> None:
-        self._test_forward(torch.device("cuda"))
+    @pytest.mark.parametrize("use_mask", [False, True])
+    @pytest.mark.skipif(not torch.cuda.is_available(), reason="Cuda not available.")
+    def test_forward_cuda(self, use_mask: bool) -> None:
+        self._test_forward(torch.device("cuda"), use_mask=use_mask)
 
     def test_images_to_tokens(self) -> None:
         torch.manual_seed(0)
@@ -106,10 +119,11 @@ class TestMAEBackbone(unittest.TestCase):
         )
 
 
-@unittest.skipUnless(
-    dependency.torchvision_vit_available(), "Torchvision ViT not available"
+@pytest.mark.skipif(
+    not dependency.torchvision_vit_available(),
+    reason="Torchvision ViT not available",
 )
-class TestMAEDecoder(unittest.TestCase):
+class TestMAEDecoder:
     def test_init(self) -> None:
         MAEDecoder(
             seq_length=50,
@@ -142,14 +156,14 @@ class TestMAEDecoder(unittest.TestCase):
 
         # output shape must be correct
         expected_shape = [batch_size, seq_length, out_dim]
-        self.assertListEqual(list(predictions.shape), expected_shape)
+        assert list(predictions.shape) == expected_shape
 
         # output must have reasonable numbers
-        self.assertTrue(torch.all(torch.not_equal(predictions, torch.inf)))
+        assert torch.all(torch.not_equal(predictions, torch.inf))
 
     def test_forward(self) -> None:
         self._test_forward(torch.device("cpu"))
 
-    @unittest.skipUnless(torch.cuda.is_available(), "Cuda not available.")
+    @pytest.mark.skipif(not torch.cuda.is_available(), reason="Cuda not available.")
     def test_forward_cuda(self) -> None:
         self._test_forward(torch.device("cuda"))

@@ -1,5 +1,3 @@
-import unittest
-
 import pytest
 import torch
 
@@ -14,7 +12,7 @@ if not dependency.timm_vit_available():
 from lightly.models.modules import IJEPAPredictorTIMM
 
 
-class TestIJEPAPredictorTIMM(unittest.TestCase):
+class TestIJEPAPredictorTIMM:
     def test_init(self) -> None:
         IJEPAPredictorTIMM(
             num_patches=196,
@@ -58,14 +56,14 @@ class TestIJEPAPredictorTIMM(unittest.TestCase):
 
         # output shape must be correct
         expected_shape = [batch_size, num_patches, mlp_dim]
-        self.assertListEqual(list(predictions.shape), expected_shape)
+        assert list(predictions.shape) == expected_shape
 
         # output must have reasonable numbers
-        self.assertTrue(torch.all(torch.isfinite(predictions)))
+        assert torch.all(torch.isfinite(predictions))
 
     def test_forward(self) -> None:
         self._test_forward(torch.device("cpu"))
 
-    @unittest.skipUnless(torch.cuda.is_available(), "CUDA not available.")
+    @pytest.mark.skipif(not torch.cuda.is_available(), reason="CUDA not available.")
     def test_forward_cuda(self) -> None:
         self._test_forward(torch.device("cuda"))

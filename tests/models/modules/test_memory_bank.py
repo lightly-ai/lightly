@@ -1,5 +1,4 @@
 import re
-import unittest
 
 import pytest
 import torch
@@ -7,9 +6,9 @@ import torch
 from lightly.models.modules.memory_bank import MemoryBankModule
 
 
-class TestNTXentLoss(unittest.TestCase):
+class TestNTXentLoss:
     def test_init__negative_size(self) -> None:
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             MemoryBankModule(size=-1)
 
     def test_forward_easy(self) -> None:
@@ -31,9 +30,9 @@ class TestNTXentLoss(unittest.TestCase):
             next_diff = out1.T - next_memory_bank[:, ptr : ptr + bsz]
 
             # the current memory bank should not hold the batch yet
-            self.assertGreater(curr_diff.norm(), 1e-5)
+            assert curr_diff.norm() > 1e-5
             # the "next" memory bank should hold the batch
-            self.assertGreater(1e-5, next_diff.norm())
+            assert next_diff.norm() < 1e-5
 
             ptr = (ptr + bsz) % size
 
@@ -49,7 +48,7 @@ class TestNTXentLoss(unittest.TestCase):
             output = torch.randn(bsz, dim)
             _, _ = memory_bank(output)
 
-    @unittest.skipUnless(torch.cuda.is_available(), "cuda not available")
+    @pytest.mark.skipif(not torch.cuda.is_available(), reason="cuda not available")
     def test_forward__cuda(self) -> None:
         bsz = 3
         dim, size = 2, 10
