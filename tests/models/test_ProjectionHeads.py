@@ -7,6 +7,7 @@ from lightly.models.modules.heads import (
     BarlowTwinsProjectionHead,
     BYOLPredictionHead,
     BYOLProjectionHead,
+    CAPIProjectionHead,
     DenseCLProjectionHead,
     DINOProjectionHead,
     DINOv2ProjectionHead,
@@ -368,3 +369,28 @@ class TestProjectionHeads(unittest.TestCase):
                 output_dim=4,
                 num_layers=0,
             )
+
+
+def test_capi_projection_head() -> None:
+    head = CAPIProjectionHead(input_dim=16, num_clusters=32)
+    features = torch.randn(2, 5, 16)
+    logits = head(features)
+    assert logits.shape == (2, 5, 32)
+    # The input is L2-normalized, so the head is invariant to input scaling.
+    assert torch.allclose(logits, head(features * 3.0), atol=1e-5)
+    logits.sum().backward()
+    assert head.layer.weight.grad is not None
+
+
+def test_capi_projection_head__weight_norm() -> None:
+    head = CAPIProjectionHead(input_dim=16, num_clusters=32, weight_norm=True)
+    features = torch.randn(2, 5, 16)
+    logits = head(features)
+    assert logits.shape == (2, 5, 32)
+    # The prototypes are weight-normalized to unit norm.
+    prototype_norms = head.layer.weight.norm(dim=1)
+    assert torch.allclose(prototype_norms, torch.ones_like(prototype_norms), atol=1e-5)
+    # Still invariant to input scaling and differentiable.
+    assert torch.allclose(logits, head(features * 3.0), atol=1e-5)
+    logits.sum().backward()
+    assert any(p.grad is not None for p in head.parameters())

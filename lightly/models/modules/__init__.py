@@ -12,6 +12,7 @@ from lightly.models.modules.heads import (
     BarlowTwinsProjectionHead,
     BYOLPredictionHead,
     BYOLProjectionHead,
+    CAPIProjectionHead,
     DenseCLProjectionHead,
     DINOProjectionHead,
     DINOv2ProjectionHead,
@@ -45,6 +46,7 @@ if _dependency.torchvision_vit_available():
 
 if _dependency.timm_vit_available():
     # Requires timm >= 0.9.9
+    from lightly.models.modules.capi_predictor_timm import CAPIPredictorTIMM
     from lightly.models.modules.heads_timm import AIMPredictionHead
     from lightly.models.modules.ijepa_timm import IJEPAPredictorTIMM
     from lightly.models.modules.masked_autoencoder_timm import (

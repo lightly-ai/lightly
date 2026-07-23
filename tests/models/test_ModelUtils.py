@@ -1072,6 +1072,54 @@ def test_random_grid_token_mask__prefix_ge_sequence_raises() -> None:
         )
 
 
+def test_random_inverse_block_mask__partition() -> None:
+    torch.manual_seed(0)
+    batch_size, num_prefix_tokens = 2, 1
+    sequence_length = num_prefix_tokens + 16  # 4x4 patch grid
+    idx_keep, idx_mask = utils.random_inverse_block_mask(
+        size=(batch_size, sequence_length),
+        mask_ratio=0.5,
+        num_prefix_tokens=num_prefix_tokens,
+    )
+    idx, _ = torch.cat([idx_keep, idx_mask], dim=1).sort(dim=1)
+    expected = torch.arange(sequence_length).expand(batch_size, sequence_length)
+    assert torch.equal(idx, expected)
+
+
+def test_random_inverse_block_mask__prefix_tokens_kept() -> None:
+    torch.manual_seed(0)
+    batch_size, num_prefix_tokens = 3, 8
+    sequence_length = num_prefix_tokens + 16
+    idx_keep, idx_mask = utils.random_inverse_block_mask(
+        size=(batch_size, sequence_length),
+        mask_ratio=0.75,
+        num_prefix_tokens=num_prefix_tokens,
+    )
+    prefix = torch.arange(num_prefix_tokens).expand(batch_size, num_prefix_tokens)
+    assert torch.equal(idx_keep[:, :num_prefix_tokens], prefix)
+    assert idx_mask.min().item() >= num_prefix_tokens
+
+
+def test_random_inverse_block_mask__fixed_count() -> None:
+    num_prefix_tokens = 1
+    sequence_length = num_prefix_tokens + 16  # 4x4 patch grid
+    idx_keep, idx_mask = utils.random_inverse_block_mask(
+        size=(4, sequence_length),
+        mask_ratio=0.75,
+        num_prefix_tokens=num_prefix_tokens,
+    )
+    # int(16 * 0.75) = 12 masked, 4 visible, + 1 prefix
+    assert idx_mask.shape == (4, 12)
+    assert idx_keep.shape == (4, num_prefix_tokens + 4)
+
+
+def test_random_inverse_block_mask__not_square_raises() -> None:
+    with pytest.raises(ValueError):
+        utils.random_inverse_block_mask(
+            size=(1, 1 + 15), mask_ratio=0.5, num_prefix_tokens=1
+        )
+
+
 def test_random_grid_token_mask__mask_ratio_extremes() -> None:
     num_prefix_tokens = 1
     sequence_length = num_prefix_tokens + 16  # 4 cells of 4 patches (grid=2)
