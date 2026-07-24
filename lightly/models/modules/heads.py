@@ -1031,3 +1031,65 @@ class DenseCLProjectionHead(ProjectionHead):
                 (hidden_dim, output_dim, None, None),
             ]
         )
+
+
+class CAPIProjectionHead(nn.Module):
+    """Projection head for CAPI [0].
+
+    L2-normalizes the input features and projects them with a single linear layer
+    to cluster logits. The linear layer weights are the cluster prototypes. The
+    same head is used for the student and, with its own weights, for the teacher's
+    online clustering.
+
+    - [0]: CAPI: Cluster and Predict Latent Patches for Improved Masked Image Modeling, 2025, https://arxiv.org/abs/2502.08769
+
+    Attributes:
+        input_dim:
+            The input dimension of the head.
+        num_clusters:
+            Number of clusters, i.e. the number of output prototypes.
+        bias:
+            If True, the linear layer uses a bias term.
+        weight_norm:
+            If True, the prototypes are weight-normalized to unit norm with a
+            fixed scale, as used for the student head in the reference. The
+            teacher's clustering head leaves this disabled.
+
+    Examples:
+        >>> # project 384-dimensional features to 16384 cluster logits
+        >>> head = CAPIProjectionHead(input_dim=384, num_clusters=16384)
+        >>>
+        >>> # features has shape (batch_size, sequence_length, 384)
+        >>> logits = head(features)  # (batch_size, sequence_length, 16384)
+    """
+
+    def __init__(
+        self,
+        input_dim: int = 384,
+        num_clusters: int = 16384,
+        bias: bool = False,
+        weight_norm: bool = False,
+    ):
+        """Initializes the CAPIProjectionHead with the specified parameters."""
+        super().__init__()
+        self.layer = nn.Linear(input_dim, num_clusters, bias=bias)
+        if weight_norm:
+            # Weight-normalize the prototypes to unit norm with a fixed scale, as
+            # the reference uses for the student head.
+            self.layer = nn.utils.weight_norm(self.layer)
+            self.layer.weight_g.data.fill_(1)  # type: ignore[operator]
+            self.layer.weight_g.requires_grad = False  # type: ignore[operator]
+
+    def forward(self, x: Tensor) -> Tensor:
+        """Projects L2-normalized features to cluster logits.
+
+        Args:
+            x:
+                Input features of shape (..., input_dim).
+
+        Returns:
+            Cluster logits of shape (..., num_clusters).
+        """
+        x = nn.functional.normalize(x, dim=-1, p=2)
+        logits: Tensor = self.layer(x)
+        return logits
