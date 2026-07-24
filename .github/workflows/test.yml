@@ -32,7 +32,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        python: ["3.7", "3.12"]
+        python: ["3.8", "3.12"]
 
     steps:
       - name: Checkout Code
@@ -51,8 +51,8 @@ jobs:
           make install-uv reset-venv
           source .venv/bin/activate
           make install-pinned-extras-${{ matrix.python }}
-      - name: Run Pytest (Python 3.7)
-        if: matrix.python == '3.7'
+      - name: Run Pytest (Python 3.8)
+        if: matrix.python == '3.8'
         run: |
           source .venv/bin/activate
           export LIGHTLY_SERVER_LOCATION="localhost:-1"

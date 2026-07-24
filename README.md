@@ -97,7 +97,7 @@ Community and partner projects:
 
 ## Quick Start
 
-Lightly requires **Python 3.7+**. We recommend installing Lightly in a **Linux** or **OSX** environment. Python 3.13 is not yet supported, as PyTorch itself lacks Python 3.13 compatibility.
+Lightly requires **Python 3.8+**. We recommend installing Lightly in a **Linux** or **OSX** environment. Python 3.13 is not yet supported, as PyTorch itself lacks Python 3.13 compatibility.
 
 ### Dependencies
 

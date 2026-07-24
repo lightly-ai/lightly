@@ -206,8 +206,8 @@ else
 endif
 
 # Install package with pinned extras for specific Python versions used in CI.
-.PHONY: install-pinned-extras-3.7 install-pinned-extras-3.12
-install-pinned-extras-3.7: install-pinned-extras-no-video
+.PHONY: install-pinned-extras-3.8 install-pinned-extras-3.12
+install-pinned-extras-3.8: install-pinned-extras-no-video
 install-pinned-extras-3.12: install-av-system-deps install-pinned-extras
 
 # Install package with the latest dependencies.
