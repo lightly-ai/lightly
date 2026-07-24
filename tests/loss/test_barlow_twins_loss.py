@@ -7,6 +7,7 @@ from torch import distributed as dist
 from torch.nn import Module
 
 from lightly.loss.barlow_twins_loss import BarlowTwinsLoss
+from tests.ddp_helpers import NUM_PROCESSES, USE_PYTEST_POOL
 
 
 class BarlowTwinsLossReference(Module):
@@ -46,6 +47,20 @@ def off_diagonal(x: Tensor) -> Tensor:
     n, m = x.shape
     assert n == m
     return x.flatten()[:-1].view(n - 1, n + 1)[:, 1:].flatten()
+
+
+def _forward_worker(rank: int, world_size: int, z_a: Tensor, z_b: Tensor) -> Tensor:
+    # Pool worker: distributed forward on one rank. See #1982.
+    loss: Tensor = BarlowTwinsLoss(gather_distributed=True)(z_a, z_b)
+    return loss.detach()
+
+
+def _gradient_worker(rank: int, world_size: int, z_a: Tensor, z_b: Tensor) -> Tensor:
+    # Pool worker: distributed backward on one rank, returns the input gradient.
+    z_a = z_a.clone().requires_grad_(True)
+    BarlowTwinsLoss(gather_distributed=True)(z_a, z_b).backward()
+    assert z_a.grad is not None
+    return z_a.grad
 
 
 class TestBarlowTwinsLoss:
@@ -92,3 +107,40 @@ class TestBarlowTwinsLoss:
 
         # Loss should be invariant to affine transformations.
         assert torch.allclose(loss(x, x), loss(x, 2 * x + 4))
+
+    @pytest.mark.DDP
+    @pytest.mark.skipif(not USE_PYTEST_POOL, reason="DDP pool is not available")
+    def test__gather_distributed_forward_matches_non_distributed(self) -> None:
+        # With identical data on every rank, the all_reduced cross-correlation
+        # matrix equals the non-distributed one, so the forward value matches.
+        torch.manual_seed(0)
+        z_a = torch.randn(16, 64)
+        z_b = torch.randn(16, 64)
+
+        losses = pytest.pool.starmap(  # type: ignore[attr-defined]
+            _forward_worker,
+            [(rank, NUM_PROCESSES, z_a, z_b) for rank in range(NUM_PROCESSES)],
+        )
+        loss_truth = BarlowTwinsLoss(gather_distributed=False)(z_a, z_b)
+
+        assert all(torch.allclose(loss, loss_truth, atol=1e-5) for loss in losses)
+
+    @pytest.mark.DDP
+    @pytest.mark.skipif(not USE_PYTEST_POOL, reason="DDP pool is not available")
+    def test__gather_distributed_gradient_matches_non_distributed(self) -> None:
+        # Regression test for the autograd-aware all_reduce fix (#1977): the raw
+        # dist.all_reduce left the backward pass unaware of the cross-rank
+        # reduction, scaling gradients down by 1/world_size.
+        torch.manual_seed(0)
+        z_a = torch.randn(16, 64)
+        z_b = torch.randn(16, 64)
+
+        grads = pytest.pool.starmap(  # type: ignore[attr-defined]
+            _gradient_worker,
+            [(rank, NUM_PROCESSES, z_a, z_b) for rank in range(NUM_PROCESSES)],
+        )
+        z_a_ref = z_a.clone().requires_grad_(True)
+        BarlowTwinsLoss(gather_distributed=False)(z_a_ref, z_b).backward()
+        assert z_a_ref.grad is not None
+
+        assert all(torch.allclose(grad, z_a_ref.grad, atol=1e-5) for grad in grads)
