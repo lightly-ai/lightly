@@ -59,3 +59,31 @@ class TestDetConTransform:
         assert mask_tr2.shape == (1, 256, 256)
 
         assert (mask_tr1.unique() == torch.arange(4 * 4)).all()
+
+    def test_mask_fn(self, img: Image) -> None:
+        # mask_fn receives the image and returns raw integer labels, mirroring an
+        # unsupervised segmenter such as skimage.segmentation.felzenszwalb.
+        def segment(image: Image) -> torch.Tensor:
+            h, w = image.shape[-2:]
+            labels = torch.zeros((h, w), dtype=torch.int64)
+            labels[:, w // 2 :] = 1
+            return labels
+
+        # deactivate anything that could change the mask
+        tr = DetConSTransform(
+            mask_fn=segment, input_size=(256, 256), min_scale=1.0, rr_prob=0.0
+        )
+
+        # the transform is called with the image only; the mask is generated internally
+        (img_tr1, mask_tr1), (img_tr2, mask_tr2) = tr(img)
+
+        assert img_tr1.shape == (3, 256, 256)
+        assert mask_tr1.shape == (1, 256, 256)
+        assert img_tr2.shape == (3, 256, 256)
+        assert mask_tr2.shape == (1, 256, 256)
+
+        assert (mask_tr1.unique() == torch.tensor([0, 1])).all()
+
+    def test_grid_size_and_mask_fn_are_mutually_exclusive(self) -> None:
+        with pytest.raises(ValueError):
+            DetConSTransform(grid_size=(4, 4), mask_fn=lambda image: image)
