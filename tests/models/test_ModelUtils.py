@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import copy
 import random
-import unittest
 from typing import Optional
 
 import pytest
@@ -160,7 +159,7 @@ def has_grad(model: nn.Module) -> bool:
     return has_grad_
 
 
-class TestModelUtils(unittest.TestCase):
+class TestModelUtils:
     def _assert_tensor_equal(self, x: Tensor, y: Tensor) -> None:
         # If the assertion fails then only an "assertion is not True" error is
         # shown without showing the contents of x and y. To help debugging, x
@@ -168,26 +167,27 @@ class TestModelUtils(unittest.TestCase):
         # fails.
         print(x)
         print(y)
-        self.assertTrue(torch.equal(x, y))
+        assert torch.equal(x, y)
 
-    def test_batch_shuffle(self, seed: int = 0) -> None:
+    def test_batch_shuffle(self) -> None:
+        seed = 0
         torch.manual_seed(seed)
         x1 = torch.rand((4, 3, 64, 64))
         x1_shuffled, shuffle = batch_shuffle(x1)
         out1 = batch_unshuffle(x1_shuffled, shuffle)
-        self.assertTrue(torch.equal(x1, out1))
-        self.assertFalse(torch.equal(x1, x1_shuffled))
+        assert torch.equal(x1, out1)
+        assert not torch.equal(x1, x1_shuffled)
 
     def test_activate_requires_grad(self) -> None:
         model = nn.Sequential(
             nn.Linear(32, 32),
             nn.ReLU(),
         )
-        self.assertTrue(has_grad(model))
+        assert has_grad(model)
         deactivate_requires_grad(model)
-        self.assertFalse(has_grad(model))
+        assert not has_grad(model)
         activate_requires_grad(model)
-        self.assertTrue(has_grad(model))
+        assert has_grad(model)
 
     def test_momentum_works(self) -> None:
         model = nn.Sequential(
@@ -202,30 +202,31 @@ class TestModelUtils(unittest.TestCase):
         output_dim = 64
         linear = nn.Linear(input_dim, output_dim, bias=False)
         normalize_weight(linear.weight, dim=0)
-        self.assertEqual(linear.weight.norm(dim=0).sum(), input_dim)
+        assert linear.weight.norm(dim=0).sum() == input_dim
         normalize_weight(linear.weight, dim=1)
-        self.assertEqual(linear.weight.norm(dim=1).sum(), output_dim)
+        assert linear.weight.norm(dim=1).sum() == output_dim
 
-    def test_no_grad_trunc_normal(self, device: str = "cpu", seed: int = 0) -> None:
+    @pytest.mark.parametrize("device", ["cpu", "cuda"])
+    def test_no_grad_trunc_normal(self, device: str) -> None:
+        if device == "cuda" and not torch.cuda.is_available():
+            pytest.skip("CUDA not available")
+        seed = 0
         torch.manual_seed(seed)
         tensor = torch.rand((8, 16)).to(device)
         a = -2
         b = 2
         _no_grad_trunc_normal(tensor, mean=0, std=1, a=-2, b=2)
-        self.assertTrue(tensor.min() >= a)
-        self.assertTrue(tensor.max() <= b)
-
-    @unittest.skipUnless(torch.cuda.is_available(), "No cuda available")
-    def test_no_grad_trunc_normal_cuda(self) -> None:
-        self.test_no_grad_trunc_normal(device="cuda")
+        assert tensor.min() >= a
+        assert tensor.max() <= b
 
     def test_repeat_token(self) -> None:
         token = torch.Tensor([[[1, 2, 3, 4]]])
         out = utils.repeat_token(token, size=(2, 3))
-        self.assertEqual(tuple(out.shape), (2, 3, 4))
-        self.assertListEqual(out[-1][-1].tolist(), [1, 2, 3, 4])
+        assert tuple(out.shape) == (2, 3, 4)
+        assert out[-1][-1].tolist() == [1, 2, 3, 4]
 
-    def test_expand_index_like(self, seed: int = 0) -> None:
+    def test_expand_index_like(self) -> None:
+        seed = 0
         torch.manual_seed(seed)
         index = torch.Tensor(
             [
@@ -236,9 +237,10 @@ class TestModelUtils(unittest.TestCase):
         tokens = torch.rand(2, 4, 5)
         expanded_index = utils.expand_index_like(index, tokens)
 
-        self.assertEqual(tuple(expanded_index.shape), (2, 3, 5))
+        assert tuple(expanded_index.shape) == (2, 3, 5)
 
-    def test_get_at_index(self, seed: int = 0) -> None:
+    def test_get_at_index(self) -> None:
+        seed = 0
         torch.manual_seed(seed)
         index = torch.Tensor(
             [
@@ -249,14 +251,15 @@ class TestModelUtils(unittest.TestCase):
         tokens = torch.rand(2, 4, 5)
         selected = utils.get_at_index(tokens, index)
 
-        self.assertEqual(tuple(selected.shape), (2, 3, 5))
+        assert tuple(selected.shape) == (2, 3, 5)
 
         # make sure that correct tokens were selected
         for i in range(index.shape[0]):
             for j in range(index.shape[1]):
                 self._assert_tensor_equal(tokens[i, index[i, j]], selected[i, j])
 
-    def test_set_at_index(self, seed: int = 0) -> None:
+    def test_set_at_index(self) -> None:
+        seed = 0
         torch.manual_seed(seed)
         index = torch.Tensor(
             [
@@ -273,7 +276,8 @@ class TestModelUtils(unittest.TestCase):
             for j in range(index.shape[1]):
                 self._assert_tensor_equal(new_tokens[i, index[i, j]], values[i, j])
 
-    def test_mask_at_index(self, seed: int = 0) -> None:
+    def test_mask_at_index(self) -> None:
+        seed = 0
         torch.manual_seed(seed)
         index = torch.Tensor(
             [
@@ -288,18 +292,20 @@ class TestModelUtils(unittest.TestCase):
             for j in range(index.shape[1]):
                 self._assert_tensor_equal(new_tokens[i, index[i, j]], mask_token[0, 0])
 
-    def test_prepend_class_token(self, seed: int = 0) -> None:
+    def test_prepend_class_token(self) -> None:
+        seed = 0
         torch.manual_seed(seed)
         tokens = torch.rand(2, 3, 5)
         class_token = torch.rand(1, 1, 5)
         new_tokens = utils.prepend_class_token(tokens, class_token)
-        self.assertListEqual(list(new_tokens.shape), [2, 4, 5])
+        assert list(new_tokens.shape) == [2, 4, 5]
 
         # make sure that class token is inserted in correct place
         for i in range(new_tokens.shape[0]):
             self._assert_tensor_equal(new_tokens[i][0], class_token[0, 0])
 
-    def test_patchify(self, seed: int = 0) -> None:
+    def test_patchify(self) -> None:
+        seed = 0
         torch.manual_seed(seed)
         batch_size, channels, height, width = (2, 3, 8, 8)
         patch_size = 4
@@ -311,9 +317,7 @@ class TestModelUtils(unittest.TestCase):
         num_patches = height_patches * width_patches
         patch_dim = channels * patch_size**2
 
-        self.assertListEqual(
-            list(batch_patches.shape), [batch_size, num_patches, patch_dim]
-        )
+        assert list(batch_patches.shape) == [batch_size, num_patches, patch_dim]
 
         # make sure that patches are correctly formed
         for image, img_patches in zip(images, batch_patches):
@@ -330,7 +334,8 @@ class TestModelUtils(unittest.TestCase):
                     img_patch = img_patches[i * width_patches + j]
                     self._assert_tensor_equal(img_patch, expected_patch)
 
-    def test_unpatchify(self, seed: int = 0) -> None:
+    def test_unpatchify(self) -> None:
+        seed = 0
         torch.manual_seed(seed)
         batch_size, channels, height, width = (2, 3, 8, 8)
         patch_size = 4
@@ -367,7 +372,7 @@ class TestModelUtils(unittest.TestCase):
 
         if not mask_class_token:
             # class token should be first in index
-            self.assertTrue(torch.all(idx_keep[:, 0] == 0))
+            assert torch.all(idx_keep[:, 0] == 0)
 
     def _test_random_token_mask_parameters(self, device: str) -> None:
         for mask_ratio in [0, 0.6, 1.0]:
@@ -430,7 +435,7 @@ class TestModelUtils(unittest.TestCase):
             torch.tensor([[[1, 1]], [[3, 3]], [[1, 1]]])
         )
 
-    @unittest.skipUnless(torch.cuda.is_available(), "No cuda available")
+    @pytest.mark.skipif(not torch.cuda.is_available(), reason="No cuda available")
     def test_random_token_mask_cuda(self) -> None:
         self._test_random_token_mask_parameters(device="cuda")
 

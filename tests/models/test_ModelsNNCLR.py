@@ -1,5 +1,4 @@
-import unittest
-
+import pytest
 import torch
 import torch.nn as nn
 import torchvision
@@ -21,8 +20,9 @@ def get_backbone(model: nn.Module):
     return backbone
 
 
-class TestNNCLR(unittest.TestCase):
-    def setUp(self):
+class TestNNCLR:
+    @pytest.fixture(autouse=True)
+    def setup(self):
         self.resnet_variants = dict(
             resnet18=dict(
                 num_ftrs=512,
@@ -44,7 +44,7 @@ class TestNNCLR(unittest.TestCase):
         for model_name, config in self.resnet_variants.items():
             resnet = resnet_generator(model_name)
             model = NNCLR(get_backbone(resnet), **config)
-            self.assertIsNotNone(model)
+            assert model is not None
 
     def test_create_variations_gpu(self):
         if not torch.cuda.is_available():
@@ -53,7 +53,7 @@ class TestNNCLR(unittest.TestCase):
         for model_name, config in self.resnet_variants.items():
             resnet = resnet_generator(model_name)
             model = NNCLR(get_backbone(resnet), **config).to("cuda")
-            self.assertIsNotNone(model)
+            assert model is not None
 
     def test_feature_dim_configurable(self):
         device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -64,17 +64,17 @@ class TestNNCLR(unittest.TestCase):
             # check that feature vector has correct dimension
             with torch.no_grad():
                 out_features = model.backbone(self.input_tensor.to(device))
-            self.assertEqual(out_features.shape[1], config["num_ftrs"])
+            assert out_features.shape[1] == config["num_ftrs"]
 
             # check that projection head output has right dimension
             with torch.no_grad():
                 out_projection = model.projection_mlp(out_features.squeeze())
-            self.assertEqual(out_projection.shape[1], config["out_dim"])
+            assert out_projection.shape[1] == config["out_dim"]
 
             # check that prediction head output has right dimension
             with torch.no_grad():
                 out_prediction = model.prediction_mlp(out_projection.squeeze())
-            self.assertEqual(out_prediction.shape[1], config["out_dim"])
+            assert out_prediction.shape[1] == config["out_dim"]
 
     def test_tuple_input(self):
         device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -86,27 +86,27 @@ class TestNNCLR(unittest.TestCase):
             x1 = torch.rand((self.batch_size, 3, 64, 64)).to(device)
 
             out = model(x0)
-            self.assertEqual(out[0].shape, (self.batch_size, config["out_dim"]))
-            self.assertEqual(out[1].shape, (self.batch_size, config["out_dim"]))
+            assert out[0].shape == (self.batch_size, config["out_dim"])
+            assert out[1].shape == (self.batch_size, config["out_dim"])
 
             out, features = model(x0, return_features=True)
-            self.assertEqual(out[0].shape, (self.batch_size, config["out_dim"]))
-            self.assertEqual(out[1].shape, (self.batch_size, config["out_dim"]))
-            self.assertEqual(features.shape, (self.batch_size, config["num_ftrs"]))
+            assert out[0].shape == (self.batch_size, config["out_dim"])
+            assert out[1].shape == (self.batch_size, config["out_dim"])
+            assert features.shape == (self.batch_size, config["num_ftrs"])
 
             out0, out1 = model(x0, x1)
-            self.assertEqual(out0[0].shape, (self.batch_size, config["out_dim"]))
-            self.assertEqual(out0[1].shape, (self.batch_size, config["out_dim"]))
-            self.assertEqual(out1[0].shape, (self.batch_size, config["out_dim"]))
-            self.assertEqual(out1[1].shape, (self.batch_size, config["out_dim"]))
+            assert out0[0].shape == (self.batch_size, config["out_dim"])
+            assert out0[1].shape == (self.batch_size, config["out_dim"])
+            assert out1[0].shape == (self.batch_size, config["out_dim"])
+            assert out1[1].shape == (self.batch_size, config["out_dim"])
 
             (out0, f0), (out1, f1) = model(x0, x1, return_features=True)
-            self.assertEqual(out0[0].shape, (self.batch_size, config["out_dim"]))
-            self.assertEqual(out0[1].shape, (self.batch_size, config["out_dim"]))
-            self.assertEqual(out1[0].shape, (self.batch_size, config["out_dim"]))
-            self.assertEqual(out1[1].shape, (self.batch_size, config["out_dim"]))
-            self.assertEqual(f0.shape, (self.batch_size, config["num_ftrs"]))
-            self.assertEqual(f1.shape, (self.batch_size, config["num_ftrs"]))
+            assert out0[0].shape == (self.batch_size, config["out_dim"])
+            assert out0[1].shape == (self.batch_size, config["out_dim"])
+            assert out1[0].shape == (self.batch_size, config["out_dim"])
+            assert out1[1].shape == (self.batch_size, config["out_dim"])
+            assert f0.shape == (self.batch_size, config["num_ftrs"])
+            assert f1.shape == (self.batch_size, config["num_ftrs"])
 
     def test_memory_bank(self):
         device = "cuda" if torch.cuda.is_available() else "cpu"
