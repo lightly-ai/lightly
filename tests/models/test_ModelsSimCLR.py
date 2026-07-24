@@ -1,5 +1,4 @@
-import unittest
-
+import pytest
 import torch
 import torch.nn as nn
 import torchvision
@@ -19,8 +18,9 @@ def get_backbone(resnet, num_ftrs=64):
     return backbone
 
 
-class TestModelsSimCLR(unittest.TestCase):
-    def setUp(self):
+class TestModelsSimCLR:
+    @pytest.fixture(autouse=True)
+    def setup(self):
         self.resnet_variants = ["resnet-18", "resnet-50"]
         self.batch_size = 2
         self.input_tensor = torch.rand((self.batch_size, 3, 32, 32))
@@ -29,7 +29,7 @@ class TestModelsSimCLR(unittest.TestCase):
         for model_name in self.resnet_variants:
             resnet = ResNetGenerator(model_name)
             model = SimCLR(get_backbone(resnet))
-            self.assertIsNotNone(model)
+            assert model is not None
 
     def test_create_variations_gpu(self):
         device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -37,7 +37,7 @@ class TestModelsSimCLR(unittest.TestCase):
             for model_name in self.resnet_variants:
                 resnet = ResNetGenerator(model_name)
                 model = SimCLR(get_backbone(resnet)).to(device)
-                self.assertIsNotNone(model)
+                assert model is not None
         else:
             pass
 
@@ -55,13 +55,13 @@ class TestModelsSimCLR(unittest.TestCase):
                 # check that feature vector has correct dimension
                 with torch.no_grad():
                     out_features = model.backbone(self.input_tensor.to(device))
-                self.assertEqual(out_features.shape[1], num_ftrs)
+                assert out_features.shape[1] == num_ftrs
 
                 # check that projection head output has right dimension
                 with torch.no_grad():
                     out_projection = model.projection_head(out_features.squeeze())
-                self.assertEqual(out_projection.shape[1], out_dim)
-                self.assertIsNotNone(model)
+                assert out_projection.shape[1] == out_dim
+                assert model is not None
 
     def test_variations_input_dimension(self):
         device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -76,8 +76,8 @@ class TestModelsSimCLR(unittest.TestCase):
                 with torch.no_grad():
                     out = model(input_tensor.to(device))
 
-                self.assertIsNotNone(model)
-                self.assertIsNotNone(out)
+                assert model is not None
+                assert out is not None
 
     def test_tuple_input(self):
         device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -88,22 +88,18 @@ class TestModelsSimCLR(unittest.TestCase):
         x1 = torch.rand((self.batch_size, 3, 64, 64)).to(device)
 
         out = model(x0)
-        self.assertEqual(out.shape, (self.batch_size, 128))
+        assert out.shape == (self.batch_size, 128)
 
         out, features = model(x0, return_features=True)
-        self.assertEqual(out.shape, (self.batch_size, 128))
-        self.assertEqual(features.shape, (self.batch_size, 32))
+        assert out.shape == (self.batch_size, 128)
+        assert features.shape == (self.batch_size, 32)
 
         out0, out1 = model(x0, x1)
-        self.assertEqual(out0.shape, (self.batch_size, 128))
-        self.assertEqual(out1.shape, (self.batch_size, 128))
+        assert out0.shape == (self.batch_size, 128)
+        assert out1.shape == (self.batch_size, 128)
 
         (out0, f0), (out1, f1) = model(x0, x1, return_features=True)
-        self.assertEqual(out0.shape, (self.batch_size, 128))
-        self.assertEqual(out1.shape, (self.batch_size, 128))
-        self.assertEqual(f0.shape, (self.batch_size, 32))
-        self.assertEqual(f1.shape, (self.batch_size, 32))
-
-
-if __name__ == "__main__":
-    unittest.main()
+        assert out0.shape == (self.batch_size, 128)
+        assert out1.shape == (self.batch_size, 128)
+        assert f0.shape == (self.batch_size, 32)
+        assert f1.shape == (self.batch_size, 32)
