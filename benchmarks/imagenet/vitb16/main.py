@@ -13,6 +13,7 @@ import lejepa
 import linear_eval
 import mae
 import pixio
+import simmim
 import torch
 from pytorch_lightning import LightningModule, Trainer, seed_everything
 from pytorch_lightning.callbacks import (
@@ -60,6 +61,7 @@ METHODS = {
     "lejepa": {"model": lejepa.LeJEPA, "transform": lejepa.transform},
     "mae": {"model": mae.MAE, "transform": mae.transform},
     "pixio": {"model": pixio.Pixio, "transform": pixio.transform},
+    "simmim": {"model": simmim.SimMIM, "transform": simmim.transform},
     "aim": {"model": aim.AIM, "transform": aim.transform},
 }
 
