@@ -9,10 +9,13 @@
 # run on a small dataset with a single GPU.
 
 import numpy as np
+import pytorch_lightning as pl
 import torch
 import torch.nn.functional as F
 import torchvision
 from torch import nn
+from torchvision.transforms.v2 import ToImage
+from torchvision.tv_tensors import Mask
 
 from lightly.loss import DetConSLoss
 from lightly.models import utils
@@ -28,12 +31,14 @@ except ImportError:
     SCIKIT_IMAGE_INSTALLED = False
 
 
-class DetConS(nn.Module):
-    def __init__(self, backbone, num_cls):
+class DetConS(pl.LightningModule):
+    def __init__(self):
         super().__init__()
-        self.backbone = backbone
-        self.num_cls = num_cls
+        resnet = torchvision.models.resnet18()
+        self.backbone = nn.Sequential(*list(resnet.children())[:-2])
         self.projection_head = SimCLRProjectionHead(512, 512, 128)
+        self.num_cls = 25
+        self.criterion = DetConSLoss(gather_distributed=False)
 
     def forward(self, x, mask):
         features = self.backbone(x)
@@ -47,28 +52,45 @@ class DetConS(nn.Module):
         z = self.projection_head(pooled.reshape(b * m, d))
         return z.reshape(b, m, -1)
 
+    def training_step(self, batch, batch_idx):
+        (x0, mask0), (x1, mask1) = batch[0]
+        z0 = self.forward(x0, mask0)
+        z1 = self.forward(x1, mask1)
+        idx = (
+            torch.arange(self.num_cls, device=self.device)
+            .unsqueeze(0)
+            .expand(x0.shape[0], -1)
+        )
+        loss = self.criterion(z0, z1, idx, idx)
+        return loss
 
-resnet = torchvision.models.resnet18()
-backbone = nn.Sequential(*list(resnet.children())[:-2])
+    def configure_optimizers(self):
+        optim = torch.optim.SGD(self.parameters(), lr=0.06)
+        return optim
 
-num_cls = 25
+
+model = DetConS()
 
 if SCIKIT_IMAGE_INSTALLED:
-
-    def felzenszwalb_mask(image):
-        # Return the integer labels as a tensor; DetConSTransform wraps them into a mask.
-        segments = felzenszwalb(np.asarray(image), scale=100, sigma=0.5, min_size=20)
-        segments = np.clip(segments, 0, num_cls - 1)
-        return torch.from_numpy(segments.astype(np.int64))
-
-    transform = DetConSTransform(mask_fn=felzenszwalb_mask, input_size=96)
+    _detcons_transform = DetConSTransform(input_size=96)
 else:
-    transform = DetConSTransform(grid_size=(5, 5), input_size=96)
+    _detcons_transform = DetConSTransform(grid_size=(5, 5), input_size=96)
 
-model = DetConS(backbone, num_cls=num_cls)
+_to_image = ToImage()
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
-model.to(device)
+
+def transform(pil_img):
+    tv_img = _to_image(pil_img)
+    if SCIKIT_IMAGE_INSTALLED:
+        segments = felzenszwalb(
+            np.array(pil_img), scale=100, sigma=0.5, min_size=20
+        ).astype(np.int64)
+        segments = np.clip(segments, 0, model.num_cls - 1)
+        mask = Mask(torch.from_numpy(segments).unsqueeze(0))
+    else:
+        mask = Mask(torch.zeros(1, *tv_img.shape[-2:], dtype=torch.int64))
+    return _detcons_transform(tv_img, mask)
+
 
 dataset = torchvision.datasets.CIFAR10(
     "datasets/cifar10", download=True, transform=transform
@@ -84,28 +106,7 @@ dataloader = torch.utils.data.DataLoader(
     num_workers=8,
 )
 
-criterion = DetConSLoss(gather_distributed=False)
-optimizer = torch.optim.SGD(model.parameters(), lr=0.06)
+accelerator = "gpu" if torch.cuda.is_available() else "cpu"
 
-epochs = 10
-mask_indices = torch.arange(num_cls, device=device)
-
-print("Starting Training")
-for epoch in range(epochs):
-    total_loss = 0
-    for batch in dataloader:
-        (x0, mask0), (x1, mask1) = batch[0]
-        x0 = x0.to(device)
-        mask0 = mask0.to(device)
-        x1 = x1.to(device)
-        mask1 = mask1.to(device)
-        z0 = model(x0, mask0)
-        z1 = model(x1, mask1)
-        idx = mask_indices.unsqueeze(0).expand(x0.shape[0], -1)
-        loss = criterion(z0, z1, idx, idx)
-        total_loss += loss.detach()
-        loss.backward()
-        optimizer.step()
-        optimizer.zero_grad()
-    avg_loss = total_loss / len(dataloader)
-    print(f"epoch: {epoch:>02}, loss: {avg_loss:.5f}")
+trainer = pl.Trainer(max_epochs=10, devices=1, accelerator=accelerator)
+trainer.fit(model=model, train_dataloaders=dataloader)

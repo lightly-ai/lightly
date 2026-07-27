@@ -166,9 +166,6 @@ convention = "google"
 [tool.ruff.format]
 docstring-code-format = true
 
-[tool.coverage.run]
-omit = ["lightly/openapi_generated/*"]
-
 [tool.mypy]
 ignore_missing_imports = true
 warn_unused_configs = true
