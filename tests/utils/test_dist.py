@@ -1,4 +1,3 @@
-import unittest
 from unittest import mock
 
 import torch
@@ -7,9 +6,9 @@ from pytest import CaptureFixture
 from lightly.utils import dist
 
 
-class TestDist(unittest.TestCase):
+class TestDist:
     def test_eye_rank_undist(self):
-        self.assertTrue(torch.all(dist.eye_rank(3) == torch.eye(3)))
+        assert torch.all(dist.eye_rank(3) == torch.eye(3))
 
     def test_eye_rank_dist(self):
         n = 3
@@ -29,7 +28,7 @@ class TestDist(unittest.TestCase):
                     for _ in range(rank, world_size - 1):
                         expected.append(zeros)
                     expected = torch.cat(expected, dim=1)
-                    self.assertTrue(torch.all(dist.eye_rank(n) == expected))
+                    assert torch.all(dist.eye_rank(n) == expected)
 
 
 def test_rank_zero_only__rank_0() -> None:

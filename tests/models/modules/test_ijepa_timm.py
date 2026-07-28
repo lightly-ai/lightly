@@ -1,4 +1,3 @@
-import unittest
 import warnings
 from functools import partial
 
@@ -86,7 +85,7 @@ class _LegacyIJEPAPredictorTIMM(nn.Module):
         return x
 
 
-class TestIJEPAPredictorTIMM(unittest.TestCase):
+class TestIJEPAPredictorTIMM:
     def test_init(self) -> None:
         IJEPAPredictorTIMM(
             num_patches=196,
@@ -130,15 +129,15 @@ class TestIJEPAPredictorTIMM(unittest.TestCase):
 
         # output shape must be correct
         expected_shape = [batch_size, num_patches, mlp_dim]
-        self.assertListEqual(list(predictions.shape), expected_shape)
+        assert list(predictions.shape) == expected_shape
 
         # output must have reasonable numbers
-        self.assertTrue(torch.all(torch.isfinite(predictions)))
+        assert torch.all(torch.isfinite(predictions))
 
     def test_forward(self) -> None:
         self._test_forward(torch.device("cpu"))
 
-    @unittest.skipUnless(torch.cuda.is_available(), "CUDA not available.")
+    @pytest.mark.skipif(not torch.cuda.is_available(), reason="CUDA not available.")
     def test_forward_cuda(self) -> None:
         self._test_forward(torch.device("cuda"))
 
@@ -154,16 +153,14 @@ class TestIJEPAPredictorTIMM(unittest.TestCase):
         ).eval()
 
         # Loading the old-named keys triggers the migration hook and warns.
-        with self.assertWarns(DeprecationWarning):
+        with pytest.warns(DeprecationWarning):
             predictor.load_state_dict(legacy.state_dict())
 
         x = torch.randn(4, 196, 128)
         masks_x = torch.randint(0, 2, (4, 196))
         masks = torch.randint(0, 2, (4, 196))
-        self.assertTrue(
-            torch.allclose(
-                legacy(x, masks_x, masks), predictor(x, masks_x, masks), atol=1e-6
-            )
+        assert torch.allclose(
+            legacy(x, masks_x, masks), predictor(x, masks_x, masks), atol=1e-6
         )
 
     def test_current_checkpoint_loads_without_migration_warning(self) -> None:
@@ -174,6 +171,6 @@ class TestIJEPAPredictorTIMM(unittest.TestCase):
         with warnings.catch_warnings(record=True) as caught:
             warnings.simplefilter("always")
             predictor.load_state_dict(predictor.state_dict())
-        self.assertFalse(
-            any("predictor_pos_embed" in str(warning.message) for warning in caught)
+        assert not any(
+            "predictor_pos_embed" in str(warning.message) for warning in caught
         )
