@@ -112,6 +112,7 @@ class MaskedVisionTransformerDecoderTIMM(MaskedVisionTransformerDecoder):
 
     @property
     def sequence_length(self) -> int:
+        """Number of tokens (patches plus prefix tokens) in the decoder input."""
         return self.num_patches + self.num_prefix_tokens
 
     def forward(
@@ -121,15 +122,22 @@ class MaskedVisionTransformerDecoderTIMM(MaskedVisionTransformerDecoder):
         idx_keep: Optional[Tensor] = None,
         mask: Optional[Tensor] = None,
     ) -> Tensor:
+        """Preprocesses and decodes a batch of token sequences.
+
+        See :meth:`MaskedVisionTransformerDecoder.forward` for the arguments and
+        return value.
+        """
         x = self.preprocess(x, idx_mask=idx_mask, idx_keep=idx_keep, mask=mask)
         x = self.decode(x)
         return x
 
     def add_pos_embed(self, x: Tensor) -> Tensor:
+        """Adds the fixed 2D sine-cosine positional embedding to the input tokens."""
         out: Tensor = x + self.pos_embed
         return out
 
     def decode(self, x: Tensor) -> Tensor:
+        """Applies the transformer blocks and the final norm layer to the tokens."""
         out: Tensor = self.blocks(x)
         out = self.norm(out)
         return out
