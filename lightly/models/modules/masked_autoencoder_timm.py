@@ -1,3 +1,4 @@
+import warnings
 from functools import partial
 from typing import Any, Callable, Optional, cast
 
@@ -16,6 +17,9 @@ class MAEDecoderTIMM(Module):
 
     Decodes encoded patches and predicts pixel values for every patch.
     Code inspired by [1].
+
+    Deprecated in favor of :class:`MaskedVisionTransformerDecoderTIMM`. See the MAE
+    and Pixio examples under ``examples/`` for the migration pattern.
 
     - [0]: Masked Autoencoder, 2021, https://arxiv.org/abs/2111.06377
     - [1]: https://github.com/facebookresearch/mae
@@ -72,6 +76,13 @@ class MAEDecoderTIMM(Module):
     ):
         """Initializes the MAEDecoderTIMM with the specified parameters."""
         super().__init__()
+        warnings.warn(
+            f"{type(self).__name__} is deprecated in favor of "
+            "MaskedVisionTransformerDecoderTIMM; see the MAE and Pixio examples "
+            "under examples/ for the migration pattern.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
 
         self.num_prefix_tokens = num_prefix_tokens
         self.decoder_embed = nn.Linear(embed_dim, decoder_embed_dim, bias=True)
@@ -196,6 +207,9 @@ class PixioDecoderTIMM(MAEDecoderTIMM):
     decoder. This is an :class:`MAEDecoderTIMM` with a deeper default decoder
     (``decoder_depth`` defaults to 32 following Pixio). Implemented from the paper;
     not derived from the reference code.
+
+    Deprecated in favor of :class:`MaskedVisionTransformerDecoderTIMM`. See the MAE
+    and Pixio examples under ``examples/`` for the migration pattern.
 
     - [0]: In Pursuit of Pixel Supervision for Visual Pre-training, 2025,
       https://arxiv.org/abs/2512.15715
