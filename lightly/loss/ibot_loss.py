@@ -5,7 +5,13 @@ from torch import Tensor
 from torch.nn import Module
 from torch.nn import functional as F
 
-from lightly.models.modules.center import Center
+from lightly.models.modules import center as center_module
+from lightly.models.modules.center import (
+    CENTER_MODE_SINKHORN_KNOPP,
+    CENTER_MODE_TO_FUNCTION,
+    VALID_CENTER_MODES,
+    Center,
+)
 
 
 class IBOTPatchLoss(Module):
@@ -25,9 +31,14 @@ class IBOTPatchLoss(Module):
         student_temp:
             Temperature for the student output.
         center_mode:
-            Mode for center calculation. Only 'mean' is supported.
+            Mode used to normalize the teacher output. Either 'mean' for the mean
+            centering from DINO or 'sinkhorn_knopp' for the Sinkhorn-Knopp centering
+            used by DINOv2 and DINOv3.
         center_momentum:
             Momentum term for the center update.
+        sinkhorn_iterations:
+            Number of Sinkhorn-Knopp iterations. Only used if center_mode is
+            'sinkhorn_knopp'.
     """
 
     def __init__(
@@ -37,18 +48,76 @@ class IBOTPatchLoss(Module):
         student_temp: float = 0.1,
         center_mode: str = "mean",
         center_momentum: float = 0.9,
+        sinkhorn_iterations: int = 3,
     ) -> None:
-        """Initializes the iBOTPatchLoss module with the specified parameters."""
+        """Initializes the iBOTPatchLoss module with the specified parameters.
+
+        Raises:
+            ValueError: If an unknown center mode is provided.
+        """
         super().__init__()
 
         self.teacher_temp = teacher_temp
         self.student_temp = student_temp
 
+        if center_mode not in VALID_CENTER_MODES:
+            raise ValueError(
+                f"Unknown mode '{center_mode}'. Valid modes are "
+                f"{sorted(VALID_CENTER_MODES)}."
+            )
+        self.center_mode = center_mode
+        self.sinkhorn_iterations = sinkhorn_iterations
+
+        # Sinkhorn-Knopp centering does not track a center. The Center module is still
+        # created to keep the state dict independent of the center mode.
         self.center = Center(
             size=(1, output_dim),
-            mode=center_mode,
+            mode=center_mode if center_mode in CENTER_MODE_TO_FUNCTION else "mean",
             momentum=center_momentum,
         )
+
+    def _teacher_probabilities(
+        self, teacher_out: Tensor, teacher_temp: Tensor
+    ) -> Tensor:
+        """Returns the sharpened teacher probabilities for the given teacher output.
+
+        Applies either mean centering followed by a softmax, or Sinkhorn-Knopp
+        centering, depending on center_mode.
+
+        Args:
+            teacher_out:
+                Tensor with shape (num_tokens, output_dim) containing the teacher
+                output.
+            teacher_temp:
+                The temperature used for the teacher output.
+
+        Returns:
+            Tensor with the same shape as teacher_out containing probabilities that
+            sum to one along the last dimension.
+        """
+        if self.center_mode == CENTER_MODE_SINKHORN_KNOPP:
+            probabilities = center_module.sinkhorn_knopp(
+                x=teacher_out,
+                temperature=teacher_temp,
+                num_iterations=self.sinkhorn_iterations,
+            )
+            return probabilities.to(teacher_out.dtype)
+        return F.softmax((teacher_out - self.center.value) / teacher_temp, dim=-1)
+
+    def _update_center(self, teacher_out: Tensor) -> None:
+        """Updates the center with the given teacher output.
+
+        Does nothing if no center is tracked, which is the case for Sinkhorn-Knopp
+        centering.
+
+        Args:
+            teacher_out:
+                Tensor with shape (num_tokens, output_dim) containing the teacher
+                output.
+        """
+        if self.center_mode not in CENTER_MODE_TO_FUNCTION:
+            return
+        self.center.update(teacher_out)
 
     def forward(
         self,
@@ -85,8 +154,8 @@ class IBOTPatchLoss(Module):
         )
 
         # Calculate cross-entropy loss.
-        teacher_softmax = F.softmax(
-            (teacher_out - self.center.value) / teacher_temperature, dim=-1
+        teacher_softmax = self._teacher_probabilities(
+            teacher_out=teacher_out, teacher_temp=teacher_temperature
         )
         student_log_softmax = F.log_softmax(student_out / self.student_temp, dim=-1)
 
@@ -103,7 +172,7 @@ class IBOTPatchLoss(Module):
         B = mask.shape[0]
         loss = (loss * weight).sum() / B
 
-        self.center.update(teacher_out)
+        self._update_center(teacher_out)
 
         return loss
 
@@ -227,8 +296,8 @@ class IBOTPlusPlusPatchLoss(IBOTPatchLoss):
         )
 
         # (B * N, K)
-        teacher_softmax = F.softmax(
-            (teacher_flat - self.center.value) / teacher_temperature, dim=-1
+        teacher_softmax = self._teacher_probabilities(
+            teacher_out=teacher_flat, teacher_temp=teacher_temperature
         )
         student_log_softmax = F.log_softmax(student_flat / self.student_temp, dim=-1)
 
@@ -249,6 +318,6 @@ class IBOTPlusPlusPatchLoss(IBOTPatchLoss):
             visible_loss = (ce * (1.0 - mask_flat)).sum(dim=1) / n_visible
             loss = (masked_loss + visible_loss_weight * visible_loss).mean()
 
-        self.center.update(teacher_flat)
+        self._update_center(teacher_flat)
 
         return loss
