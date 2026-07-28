@@ -39,6 +39,9 @@ class MaskedVisionTransformerDecoder(ABC, Module):
     ) -> Tensor:
         """Decodes a batch of token sequences.
 
+        In the masked-autoencoder setting idx_mask and idx_keep partition the sequence,
+        so sequence_length == num_tokens_to_mask + num_tokens_to_keep.
+
         Args:
             x:
                 Tensor with shape (batch_size, sequence_length, embed_dim) containing
