@@ -3,11 +3,14 @@ from typing import List, Tuple
 from pytorch_lightning import LightningModule
 from timm.models.vision_transformer import vit_base_patch16_224
 from torch import Tensor
-from torch.nn import MSELoss
+from torch.nn import Linear, MSELoss
 from torch.optim import AdamW
 
 from lightly.models import utils
-from lightly.models.modules import MaskedVisionTransformerTIMM, PixioDecoderTIMM
+from lightly.models.modules import (
+    MaskedVisionTransformerDecoderTIMM,
+    MaskedVisionTransformerTIMM,
+)
 from lightly.transforms import MAETransform
 from lightly.utils.benchmarking import OnlineLinearClassifier
 from lightly.utils.scheduler import CosineWarmupScheduler
@@ -29,18 +32,19 @@ class Pixio(LightningModule):
         self.patch_size = vit.patch_embed.patch_size[0]
         self.sequence_length = vit.patch_embed.num_patches + vit.num_prefix_tokens
         self.backbone = MaskedVisionTransformerTIMM(vit=vit)
-        self.decoder = PixioDecoderTIMM(
+        self.decoder_embed = Linear(vit.embed_dim, decoder_dim)
+        # deep (32-block) decoder following Pixio
+        self.decoder = MaskedVisionTransformerDecoderTIMM(
             num_patches=vit.patch_embed.num_patches,
-            patch_size=self.patch_size,
-            embed_dim=vit.embed_dim,
-            decoder_embed_dim=decoder_dim,
-            decoder_depth=32,
-            decoder_num_heads=16,
+            embed_dim=decoder_dim,
+            depth=32,
+            num_heads=16,
             num_prefix_tokens=self.num_prefix_tokens,
             mlp_ratio=4.0,
             proj_drop_rate=0.0,
             attn_drop_rate=0.0,
         )
+        self.prediction_head = Linear(decoder_dim, self.patch_size**2 * 3)
         self.criterion = MSELoss()
 
         self.online_classifier = OnlineLinearClassifier(
@@ -58,20 +62,23 @@ class Pixio(LightningModule):
     def forward_decoder(
         self, x_encoded: Tensor, idx_keep: Tensor, idx_mask: Tensor
     ) -> Tensor:
-        # build decoder input
+        # embed encoded tokens into the decoder dimension
         batch_size = x_encoded.shape[0]
-        x_decode = self.decoder.embed(x_encoded)
-        x_masked = utils.repeat_token(
-            self.decoder.mask_token, (batch_size, self.sequence_length)
+        x_decode = self.decoder_embed(x_encoded)
+
+        # scatter the encoded tokens into a full-length sequence; the decoder fills the
+        # masked positions with the mask token
+        x_masked = x_decode.new_zeros(
+            batch_size, self.sequence_length, x_decode.shape[-1]
         )
         x_masked = utils.set_at_index(x_masked, idx_keep, x_decode.type_as(x_masked))
 
         # decoder forward pass
-        x_decoded = self.decoder.decode(x_masked)
+        x_decoded = self.decoder(x_masked, idx_mask=idx_mask)
 
         # predict pixel values for masked tokens
         x_pred = utils.get_at_index(x_decoded, idx_mask)
-        x_pred = self.decoder.predict(x_pred)
+        x_pred = self.prediction_head(x_pred)
         return x_pred
 
     def training_step(
@@ -124,7 +131,7 @@ class Pixio(LightningModule):
         # Don't use weight decay for batch norm, bias parameters, and classification
         # head to improve performance.
         params, params_no_weight_decay = utils.get_weight_decay_parameters(
-            [self.backbone, self.decoder]
+            [self.backbone, self.decoder_embed, self.decoder, self.prediction_head]
         )
         optimizer = AdamW(
             [
