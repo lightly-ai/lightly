@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, Union
 
 import torch
 import torch.distributed as dist
@@ -106,6 +106,90 @@ def center_momentum(center: Tensor, batch_center: Tensor, momentum: float) -> Te
     return center * momentum + batch_center * (1 - momentum)
 
 
+@torch.no_grad()
+def sinkhorn_knopp(
+    x: Tensor,
+    temperature: Union[float, Tensor] = 0.04,
+    num_iterations: int = 3,
+) -> Tensor:
+    """Returns teacher probabilities with Sinkhorn-Knopp centering as used in DINOv2 [0]
+    and DINOv3 [1].
+
+    Sinkhorn-Knopp centering originates from SwAV [2] and replaces the mean centering
+    followed by a softmax used in DINO [3]. Instead of subtracting a running center, the
+    sharpened teacher logits are normalized such that every prototype receives the same
+    total weight across the batch, which avoids collapse without tracking any state.
+
+    Implementation is based on [4]. In distributed settings the normalization is computed
+    over the batches of all processes.
+
+    This differs from lightly.loss.swav_loss.sinkhorn, which normalizes by
+    local_batch_size * world_size and only reduces across processes if requested. Here
+    the number of samples is reduced across processes, which is required for the iBOT
+    loss where the number of masked tokens differs between processes.
+
+    - [0]: DINOv2, 2023, https://arxiv.org/abs/2304.07193
+    - [1]: DINOv3, 2025, https://arxiv.org/abs/2508.10104
+    - [2]: SwAV, 2020, https://arxiv.org/abs/2006.09882
+    - [3]: DINO, 2021, https://arxiv.org/abs/2104.14294
+    - [4]: https://github.com/facebookresearch/dinov3/blob/main/dinov3/loss/dino_clstoken_loss.py
+
+    Args:
+        x:
+            Tensor with shape (batch_size, num_prototypes) containing the teacher
+            logits.
+        temperature:
+            Temperature used to sharpen the teacher logits.
+        num_iterations:
+            Number of Sinkhorn-Knopp iterations.
+
+    Returns:
+        Tensor with shape (batch_size, num_prototypes) containing the teacher
+        probabilities in float32. Every row sums to one. The probabilities are detached
+        from the computation graph, following the reference implementation.
+    """
+    # (batch_size, num_prototypes) -> (num_prototypes, batch_size) following the
+    # notation of the reference implementation.
+    Q = torch.exp(x.float() / temperature).t()
+    num_prototypes = Q.shape[0]
+
+    # The number of samples is reduced together with the sum over Q to save a
+    # synchronization point. The actual number of samples is reduced instead of
+    # multiplying the local batch size with the world size because processes can have
+    # different batch sizes. This happens for example in the iBOT loss where the number
+    # of masked tokens differs between processes.
+    local_num_samples = torch.tensor(Q.shape[1], device=Q.device, dtype=Q.dtype)
+    sums = torch.stack([Q.sum(), local_num_samples])
+    if dist.is_available() and dist.is_initialized():
+        dist.all_reduce(sums)
+    sum_Q, num_samples = sums[0], sums[1]
+
+    # Make the matrix sum to 1.
+    Q /= sum_Q
+
+    for _ in range(num_iterations):
+        # Normalize rows: the total weight per prototype must be 1 / num_prototypes.
+        sum_of_rows = torch.sum(Q, dim=1, keepdim=True)
+        if dist.is_available() and dist.is_initialized():
+            dist.all_reduce(sum_of_rows)
+        Q /= sum_of_rows
+        Q /= num_prototypes
+
+        # Normalize columns: the total weight per sample must be 1 / num_samples.
+        Q /= torch.sum(Q, dim=0, keepdim=True)
+        Q /= num_samples
+
+    # Scale the columns to sum to one, such that Q is an assignment.
+    Q *= num_samples
+    return Q.t()
+
+
+CENTER_MODE_SINKHORN_KNOPP = "sinkhorn_knopp"
+
 CENTER_MODE_TO_FUNCTION = {
     "mean": center_mean,
 }
+
+# Modes accepted by the losses. The Center module only supports the modes in
+# CENTER_MODE_TO_FUNCTION, as Sinkhorn-Knopp does not track a center.
+VALID_CENTER_MODES = [*CENTER_MODE_TO_FUNCTION, CENTER_MODE_SINKHORN_KNOPP]
