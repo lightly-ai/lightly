@@ -13,16 +13,16 @@ from lightly.models.modules.masked_vision_transformer_decoder_timm import (
 )
 
 
-class IJEPAPredictorTIMM(MaskedVisionTransformerDecoderTIMM):
+class IJEPAPredictorTIMM(nn.Module):
     """Predictor for the I-JEPA model [0].
 
     Experimental: Support for I-JEPA is experimental, there might be breaking changes
     in the future.
 
-    Predict patch embeddings. Code inspired by [1]. Reuses the shared
-    :class:`MaskedVisionTransformerDecoderTIMM` building blocks (positional embedding,
-    transformer blocks, and norm) and adds the I-JEPA specific input embedding,
-    prediction projection, and multi-mask logic.
+    Predict patch embeddings. Code inspired by [1]. Holds a shared
+    :class:`MaskedVisionTransformerDecoderTIMM` (positional embedding, transformer
+    blocks, and norm) as the decoder submodule and adds the I-JEPA specific input
+    embedding, prediction projection, and multi-mask logic.
 
     - [0]: Joint-Embedding Predictive Architecture, 2023, https://arxiv.org/abs/2301.08243
     - [1]: https://github.com/facebookresearch/ijepa
@@ -67,7 +67,8 @@ class IJEPAPredictorTIMM(MaskedVisionTransformerDecoderTIMM):
         norm_layer: Callable[..., nn.Module] = partial(nn.LayerNorm, eps=1e-6),
     ):
         """Initializes the IJEPAPredictorTIMM with the specified dimensions."""
-        super().__init__(
+        super().__init__()
+        self.decoder = MaskedVisionTransformerDecoderTIMM(
             num_patches=num_patches,
             embed_dim=predictor_embed_dim,
             depth=depth,
@@ -87,11 +88,13 @@ class IJEPAPredictorTIMM(MaskedVisionTransformerDecoderTIMM):
         )
         self.predictor_embed = nn.Linear(mlp_dim, predictor_embed_dim, bias=True)
         self.predictor_proj = nn.Linear(predictor_embed_dim, mlp_dim, bias=True)
+        with torch.no_grad():
+            self.decoder.mask_token.zero_()
         utils.initialize_2d_sine_cosine_positional_embedding(
-            pos_embedding=self.pos_embed, num_prefix_tokens=0
+            pos_embedding=self.decoder.pos_embed, num_prefix_tokens=0
         )
 
-    def forward(  # type: ignore[override]
+    def forward(
         self,
         x: Tensor,
         masks_x: list[Tensor] | Tensor,
@@ -119,21 +122,23 @@ class IJEPAPredictorTIMM(MaskedVisionTransformerDecoderTIMM):
 
         B = len(x) // len_masks_x
         x = self.predictor_embed(x)
-        x_pos_embed = self.pos_embed.repeat(B, 1, 1)
+        x_pos_embed = self.decoder.pos_embed.repeat(B, 1, 1)
 
         x += utils.apply_masks(x_pos_embed, masks_x)
         _, N_ctxt, _ = x.shape
 
-        pos_embs = self.pos_embed.repeat(B, 1, 1)
+        pos_embs = self.decoder.pos_embed.repeat(B, 1, 1)
         pos_embs = utils.apply_masks(pos_embs, masks)
         pos_embs = utils.repeat_interleave_batch(pos_embs, B, repeat=len_masks_x)
-        pred_tokens = self.mask_token.repeat(pos_embs.size(0), pos_embs.size(1), 1)
+        pred_tokens = self.decoder.mask_token.repeat(
+            pos_embs.size(0), pos_embs.size(1), 1
+        )
 
         pred_tokens += pos_embs
         x = x.repeat(len_masks, 1, 1)
         x = torch.cat([x, pred_tokens], dim=1)
 
-        x = self.decode(x)
+        x = self.decoder.decode(x)
 
         x = x[:, N_ctxt:]
         x = self.predictor_proj(x)
