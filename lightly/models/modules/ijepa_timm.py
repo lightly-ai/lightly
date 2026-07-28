@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+import warnings
 from functools import partial
-from typing import Callable
+from typing import Any, Callable
 
 import torch
 import torch.nn as nn
@@ -26,6 +27,12 @@ class IJEPAPredictorTIMM(nn.Module):
 
     - [0]: Joint-Embedding Predictive Architecture, 2023, https://arxiv.org/abs/2301.08243
     - [1]: https://github.com/facebookresearch/ijepa
+
+    The transformer core lives in the decoder submodule. Compared to earlier versions
+    the parameters predictor_pos_embed, predictor_blocks, and predictor_norm are now
+    decoder.pos_embed, decoder.blocks, and decoder.norm, and mask_token is now
+    decoder.mask_token. Checkpoints saved with the previous names must rename these
+    keys before loading.
 
     Attributes:
         num_patches:
@@ -93,6 +100,9 @@ class IJEPAPredictorTIMM(nn.Module):
         utils.initialize_2d_sine_cosine_positional_embedding(
             pos_embedding=self.decoder.pos_embed, num_prefix_tokens=0
         )
+        # Keep loading checkpoints saved with the pre-refactor parameter names by
+        # remapping their keys on load (see the note in the class docstring).
+        self._register_load_state_dict_pre_hook(self._migrate_legacy_state_dict)
 
     def forward(
         self,
@@ -144,3 +154,46 @@ class IJEPAPredictorTIMM(nn.Module):
         x = self.predictor_proj(x)
 
         return x
+
+    def _migrate_legacy_state_dict(
+        self, state_dict: dict[str, Tensor], prefix: str, *args: Any
+    ) -> None:
+        """Remaps pre-refactor parameter names in a checkpoint before loading.
+
+        The transformer core moved into the decoder submodule, so checkpoints saved
+        with the old names use different keys. This load hook renames the affected
+        keys in place and warns, so old checkpoints keep loading.
+        """
+        renames = {
+            "predictor_pos_embed": "decoder.pos_embed",
+            "mask_token": "decoder.mask_token",
+            "predictor_norm.": "decoder.norm.",
+            "predictor_blocks.": "decoder.blocks.",
+        }
+
+        def remap(local: str) -> str | None:
+            for old, new in renames.items():
+                if old.endswith("."):
+                    if local.startswith(old):
+                        return new + local[len(old) :]
+                elif local == old:
+                    return new
+            return None
+
+        migrated = False
+        for key in list(state_dict.keys()):
+            new_local = remap(key[len(prefix) :])
+            if new_local is not None:
+                state_dict[prefix + new_local] = state_dict.pop(key)
+                migrated = True
+
+        if migrated:
+            warnings.warn(
+                "Loading an I-JEPA checkpoint saved with the old parameter names "
+                "(predictor_pos_embed, predictor_blocks, predictor_norm, mask_token). "
+                "They were renamed to decoder.pos_embed, decoder.blocks, decoder.norm, "
+                "and decoder.mask_token and remapped automatically. Re-save the "
+                "checkpoint to silence this warning.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
