@@ -54,6 +54,9 @@ if _dependency.timm_vit_available():
     from lightly.models.modules.masked_causal_vision_transformer import (
         MaskedCausalVisionTransformer,
     )
+    from lightly.models.modules.masked_vision_transformer_decoder_timm import (
+        MaskedVisionTransformerDecoderTIMM,
+    )
     from lightly.models.modules.masked_vision_transformer_timm import (
         MaskedVisionTransformerTIMM,
     )
