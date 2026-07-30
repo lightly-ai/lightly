@@ -15,6 +15,7 @@ from lightly.transforms.byol_transform import (
     BYOLView1Transform,
     BYOLView2Transform,
 )
+from lightly.transforms.capi_transform import CAPITransform
 from lightly.transforms.densecl_transform import DenseCLTransform
 from lightly.transforms.dino_transform import DINOTransform, DINOViewTransform
 from lightly.transforms.fast_siam_transform import FastSiamTransform
