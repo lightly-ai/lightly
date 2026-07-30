@@ -430,3 +430,20 @@ def plot_knn_multilabels(
 # the three example images at indices 4111, 3340, and 1796.
 k = 20
 plot_knn_multilabels(embeddings, multilabels, [4111, 3340, 1796], fnames, n_neighbors=k)
+
+# %%
+# The dark blue bars show the findings of the example image, while the light
+# blue bars show how often each finding occurs among its nearest neighbors. A
+# useful embedding should give high light blue bars at the same findings as the
+# example and low bars elsewhere.
+#
+# The first two examples have no critical finding, and ``No finding`` also
+# dominates their neighborhoods. The embeddings therefore group these normal
+# X-rays well. The third example has several findings, but most of its neighbors
+# have no finding and only small fractions share its annotated findings. This
+# neighborhood is a poor match. Overall, the embeddings capture the broad
+# distinction between the normal examples and the rest of the dataset, but this
+# qualitative check does not show reliable separation of individual
+# abnormalities. A downstream evaluation should therefore measure performance
+# on all samples rather than treating these three neighborhoods as a diagnostic
+# accuracy result.
