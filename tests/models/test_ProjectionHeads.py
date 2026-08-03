@@ -1,5 +1,4 @@
-import unittest
-
+import pytest
 import torch
 
 from lightly.loss import DINOLoss
@@ -26,8 +25,9 @@ from lightly.models.modules.heads import (
 )
 
 
-class TestProjectionHeads(unittest.TestCase):
-    def setUp(self) -> None:
+class TestProjectionHeads:
+    @pytest.fixture(autouse=True)
+    def setup(self) -> None:
         self.n_features = [
             (8, 16, 32),
             (8, 32, 16),
@@ -57,7 +57,11 @@ class TestProjectionHeads(unittest.TestCase):
             VicRegLLocalProjectionHead,
         ]
 
-    def test_single_projection_head(self, device: str = "cpu", seed: int = 0) -> None:
+    @pytest.mark.parametrize("device", ["cpu", "cuda"])
+    def test_single_projection_head(self, device: str) -> None:
+        if device == "cuda" and not torch.cuda.is_available():
+            pytest.skip("CUDA not available")
+        seed = 0
         for head_cls in self.heads:
             for in_features, hidden_features, out_features in self.n_features:
                 torch.manual_seed(seed)
@@ -75,41 +79,31 @@ class TestProjectionHeads(unittest.TestCase):
                 head = head.eval()
                 head = head.to(device)
                 for batch_size in [1, 2]:
-                    msg = (
-                        f"head: {head_cls}"
-                        + f"d_in, d_h, d_out = "
-                        + f"{in_features}x{hidden_features}x{out_features}"
-                    )
-                    with self.subTest(msg=msg):
-                        x = torch.torch.rand((batch_size, in_features)).to(device)
-                        with torch.no_grad():
-                            y = head(x)
-                        self.assertEqual(y.shape[0], batch_size)
-                        self.assertEqual(y.shape[1], out_features)
+                    x = torch.torch.rand((batch_size, in_features)).to(device)
+                    with torch.no_grad():
+                        y = head(x)
+                    assert y.shape[0] == batch_size
+                    assert y.shape[1] == out_features
 
-    @unittest.skipUnless(torch.cuda.is_available(), "skip")
-    def test_single_projection_head_cuda(self, seed: int = 0) -> None:
-        self.test_single_projection_head(device="cuda", seed=seed)
-
-    def test_swav_prototypes(self, device: str = "cpu", seed: int = 0) -> None:
+    @pytest.mark.parametrize("device", ["cpu", "cuda"])
+    def test_swav_prototypes(self, device: str) -> None:
+        if device == "cuda" and not torch.cuda.is_available():
+            pytest.skip("CUDA not available")
+        seed = 0
         for in_features, _, n_prototypes in self.n_features:
             torch.manual_seed(seed)
             prototypes = SwaVPrototypes(in_features, n_prototypes)
             prototypes = prototypes.eval()
             prototypes = prototypes.to(device)
             for batch_size in [1, 2]:
-                msg = (
-                    "prototypes d_in, n_prototypes = "
-                    + f"{in_features} x {n_prototypes}"
-                )
-                with self.subTest(msg=msg):
-                    x = torch.torch.rand((batch_size, in_features)).to(device)
-                    with torch.no_grad():
-                        y = prototypes(x)
-                    self.assertEqual(y.shape[0], batch_size)
-                    self.assertEqual(y.shape[1], n_prototypes)
+                x = torch.torch.rand((batch_size, in_features)).to(device)
+                with torch.no_grad():
+                    y = prototypes(x)
+                assert y.shape[0] == batch_size
+                assert y.shape[1] == n_prototypes
 
-    def test_swav_frozen_prototypes(self, seed: int = 0) -> None:
+    def test_swav_frozen_prototypes(self) -> None:
+        seed = 0
         criterion = torch.nn.L1Loss()
         linear_layer = torch.nn.Linear(8, 8, bias=False)
         prototypes = SwaVPrototypes(
@@ -129,34 +123,31 @@ class TestProjectionHeads(unittest.TestCase):
             if step == 0:
                 loss0 = loss
             if step <= 2:
-                self.assertEqual(loss, loss0)
+                assert loss == loss0
             if step > 2:
-                self.assertNotEqual(loss, loss0)
+                assert loss != loss0
 
-    def test_swav_multi_prototypes(self, device: str = "cpu", seed: int = 0) -> None:
+    def test_swav_multi_prototypes(self) -> None:
+        device = "cpu"
+        seed = 0
         for in_features, _, n_prototypes in self.swavProtoypes:
             torch.manual_seed(seed)
             prototypes = SwaVPrototypes(in_features, n_prototypes)
             prototypes = prototypes.eval()
             prototypes = prototypes.to(device)
             for batch_size in [1, 2]:
-                msg = (
-                    "prototypes d_in, n_prototypes = "
-                    + f"{in_features} x {n_prototypes}"
-                )
-                with self.subTest(msg=msg):
-                    x = torch.torch.rand((batch_size, in_features)).to(device)
-                    with torch.no_grad():
-                        y = prototypes(x)
-                    for layerNum, prototypeSize in enumerate(n_prototypes):
-                        self.assertEqual(y[layerNum].shape[0], batch_size)
-                        self.assertEqual(y[layerNum].shape[1], prototypeSize)
+                x = torch.torch.rand((batch_size, in_features)).to(device)
+                with torch.no_grad():
+                    y = prototypes(x)
+                for layerNum, prototypeSize in enumerate(n_prototypes):
+                    assert y[layerNum].shape[0] == batch_size
+                    assert y[layerNum].shape[1] == prototypeSize
 
-    @unittest.skipUnless(torch.cuda.is_available(), "skip")
-    def test_swav_prototypes_cuda(self, device: str = "cuda", seed: int = 0) -> None:
-        self.test_swav_prototypes(device=device, seed=seed)
-
-    def test_dino_projection_head(self, device: str = "cpu", seed: int = 0) -> None:
+    @pytest.mark.parametrize("device", ["cpu", "cuda"])
+    def test_dino_projection_head(self, device: str) -> None:
+        if device == "cuda" and not torch.cuda.is_available():
+            pytest.skip("CUDA not available")
+        seed = 0
         input_dim, hidden_dim, output_dim = self.n_features[0]
         for bottleneck_dim in [8, 16, 32]:
             for batch_norm in [False, True]:
@@ -171,22 +162,15 @@ class TestProjectionHeads(unittest.TestCase):
                 head = head.eval()
                 head = head.to(device)
                 for batch_size in [1, 2]:
-                    msg = f"bottleneck_dim={bottleneck_dim}, batch_norm={batch_norm}"
-                    with self.subTest(msg=msg):
-                        x = torch.torch.rand((batch_size, input_dim)).to(device)
-                        with torch.no_grad():
-                            y = head(x)
-                        self.assertEqual(y.shape[0], batch_size)
-                        self.assertEqual(y.shape[1], output_dim)
+                    x = torch.torch.rand((batch_size, input_dim)).to(device)
+                    with torch.no_grad():
+                        y = head(x)
+                    assert y.shape[0] == batch_size
+                    assert y.shape[1] == output_dim
 
-    @unittest.skipUnless(torch.cuda.is_available(), "skip")
-    def test_dino_projection_head_cuda(
-        self, device: str = "cuda", seed: int = 0
-    ) -> None:
-        self.test_dino_projection_head(device=device, seed=seed)
-
-    def test_dino_projection_head_freeze_last_layer(self, seed: int = 0) -> None:
+    def test_dino_projection_head_freeze_last_layer(self) -> None:
         """Test if freeze last layer cancels backprop."""
+        seed = 0
         torch.manual_seed(seed)
         for norm_last_layer in [False, True]:
             for freeze_last_layer in range(-1, 3):
@@ -206,30 +190,29 @@ class TestProjectionHeads(unittest.TestCase):
                     for param in head.last_layer.parameters()
                 ]
                 for epoch in range(5):
-                    with self.subTest(
-                        f"norm_last_layer={norm_last_layer}, "
-                        f"freeze_last_layer={freeze_last_layer}, "
-                        f"epoch={epoch}"
-                    ):
-                        views = [torch.rand((3, 4)) for _ in range(2)]
-                        teacher_out = [head(view) for view in views]
-                        student_out = [head(view) for view in views]
-                        loss = criterion(teacher_out, student_out)
-                        optimizer.zero_grad()
-                        loss.backward()
-                        head.cancel_last_layer_gradients(current_epoch=epoch)
-                        optimizer.step()
-                        params = head.last_layer.parameters()
-                        # Verify that weights have (not) changed depending on epoch.
-                        for param, init_data in zip(params, initial_data):
-                            if param.requires_grad:
-                                are_same = torch.allclose(param.data, init_data)
-                                if epoch >= freeze_last_layer:
-                                    self.assertFalse(are_same)
-                                else:
-                                    self.assertTrue(are_same)
+                    views = [torch.rand((3, 4)) for _ in range(2)]
+                    teacher_out = [head(view) for view in views]
+                    student_out = [head(view) for view in views]
+                    loss = criterion(teacher_out, student_out)
+                    optimizer.zero_grad()
+                    loss.backward()
+                    head.cancel_last_layer_gradients(current_epoch=epoch)
+                    optimizer.step()
+                    params = head.last_layer.parameters()
+                    # Verify that weights have (not) changed depending on epoch.
+                    for param, init_data in zip(params, initial_data):
+                        if param.requires_grad:
+                            are_same = torch.allclose(param.data, init_data)
+                            if epoch >= freeze_last_layer:
+                                assert not are_same
+                            else:
+                                assert are_same
 
-    def test_dinov2_projection_head(self, device: str = "cpu", seed: int = 0) -> None:
+    @pytest.mark.parametrize("device", ["cpu", "cuda"])
+    def test_dinov2_projection_head(self, device: str) -> None:
+        if device == "cuda" and not torch.cuda.is_available():
+            pytest.skip("CUDA not available")
+        seed = 0
         input_dim, hidden_dim, output_dim = self.n_features[0]
         for bottleneck_dim in [8, 16, 32]:
             for batch_norm in [False, True]:
@@ -244,23 +227,15 @@ class TestProjectionHeads(unittest.TestCase):
                 head = head.eval()
                 head = head.to(device)
                 for batch_size in [1, 2]:
-                    msg = f"bottleneck_dim={bottleneck_dim}, batch_norm={batch_norm}"
-                    with self.subTest(msg=msg):
-                        x = torch.torch.rand((batch_size, input_dim)).to(device)
-                        with torch.no_grad():
-                            y = head(x)
-                        self.assertEqual(y.shape[0], batch_size)
-                        self.assertEqual(y.shape[1], output_dim)
+                    x = torch.torch.rand((batch_size, input_dim)).to(device)
+                    with torch.no_grad():
+                        y = head(x)
+                    assert y.shape[0] == batch_size
+                    assert y.shape[1] == output_dim
 
-    @unittest.skipUnless(torch.cuda.is_available(), "skip")
-    def test_dinov2_projection_head_cuda(
-        self, device: str = "cuda", seed: int = 0
-    ) -> None:
-        self.test_dinov2_projection_head(device=device, seed=seed)
-
-    def test_simclr_projection_head_multiple_layers(
-        self, device: str = "cpu", seed: int = 0
-    ) -> None:
+    def test_simclr_projection_head_multiple_layers(self) -> None:
+        device = "cpu"
+        seed = 0
         for in_features, hidden_features, out_features in self.n_features:
             for num_layers in range(2, 5):
                 for batch_norm in [True, False]:
@@ -275,21 +250,15 @@ class TestProjectionHeads(unittest.TestCase):
                     head = head.eval()
                     head = head.to(device)
                     for batch_size in [1, 2]:
-                        msg = (
-                            f"head: SimCLRProjectionHead"
-                            + f"d_in, d_h, d_out = "
-                            + f"{in_features}x{hidden_features}x{out_features}"
-                        )
-                        with self.subTest(msg=msg):
-                            x = torch.torch.rand((batch_size, in_features)).to(device)
-                            with torch.no_grad():
-                                y = head(x)
-                            self.assertEqual(y.shape[0], batch_size)
-                            self.assertEqual(y.shape[1], out_features)
+                        x = torch.torch.rand((batch_size, in_features)).to(device)
+                        with torch.no_grad():
+                            y = head(x)
+                        assert y.shape[0] == batch_size
+                        assert y.shape[1] == out_features
 
-    def test_moco_projection_head_multiple_layers(
-        self, device: str = "cpu", seed: int = 0
-    ) -> None:
+    def test_moco_projection_head_multiple_layers(self) -> None:
+        device = "cpu"
+        seed = 0
         for in_features, hidden_features, out_features in self.n_features:
             for num_layers in range(2, 5):
                 for batch_norm in [True, False]:
@@ -304,21 +273,15 @@ class TestProjectionHeads(unittest.TestCase):
                     head = head.eval()
                     head = head.to(device)
                     for batch_size in [1, 2]:
-                        msg = (
-                            f"head: MoCoProjectionHead"
-                            + f"d_in, d_h, d_out = "
-                            + f"{in_features}x{hidden_features}x{out_features}"
-                        )
-                        with self.subTest(msg=msg):
-                            x = torch.torch.rand((batch_size, in_features)).to(device)
-                            with torch.no_grad():
-                                y = head(x)
-                            self.assertEqual(y.shape[0], batch_size)
-                            self.assertEqual(y.shape[1], out_features)
+                        x = torch.torch.rand((batch_size, in_features)).to(device)
+                        with torch.no_grad():
+                            y = head(x)
+                        assert y.shape[0] == batch_size
+                        assert y.shape[1] == out_features
 
-    def test_lejepa_projection_head_backward(
-        self, device: str = "cpu", seed: int = 0
-    ) -> None:
+    def test_lejepa_projection_head_backward(self) -> None:
+        device = "cpu"
+        seed = 0
         # batch_size must be at least 2
         # because the head uses BatchNorm1d in training mode.
         batch_size = 2
@@ -333,35 +296,26 @@ class TestProjectionHeads(unittest.TestCase):
                 (batch_size, in_features), requires_grad=True, device=device
             )
             y = head(x)
-            self.assertEqual(y.shape, (batch_size, out_features))
+            assert y.shape == (batch_size, out_features)
 
             y.sum().backward()
             x_grad = x.grad
             assert x_grad is not None
-            self.assertIsNotNone(x_grad)
-            self.assertEqual(x_grad.shape, x.shape)
+            assert x_grad.shape == x.shape
             for name, param in head.named_parameters():
-                with self.subTest(
-                    msg=(
-                        f"param: {name}, "
-                        f"d_in, d_h, d_out = "
-                        f"{in_features}x{hidden_features}x{out_features}"
-                    )
-                ):
-                    param_grad = param.grad
-                    assert param_grad is not None
-                    self.assertIsNotNone(param_grad)
-                    self.assertEqual(param_grad.shape, param.shape)
+                param_grad = param.grad
+                assert param_grad is not None
+                assert param_grad.shape == param.shape
 
     def test_lejepa_projection_head_requires_at_least_two_layers(self) -> None:
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             LeJEPAProjectionHead(
                 input_dim=8,
                 hidden_dim=16,
                 output_dim=4,
                 num_layers=1,
             )
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             LeJEPAProjectionHead(
                 input_dim=8,
                 hidden_dim=16,
