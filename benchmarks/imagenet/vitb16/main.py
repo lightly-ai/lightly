@@ -14,6 +14,7 @@ import linear_eval
 import mae
 import pixio
 import torch
+import visreg
 from pytorch_lightning import LightningModule, Trainer, seed_everything
 from pytorch_lightning.callbacks import (
     DeviceStatsMonitor,
@@ -61,6 +62,7 @@ METHODS = {
     "mae": {"model": mae.MAE, "transform": mae.transform},
     "pixio": {"model": pixio.Pixio, "transform": pixio.transform},
     "aim": {"model": aim.AIM, "transform": aim.transform},
+    "visreg": {"model": visreg.VISReg, "transform": visreg.transform},
 }
 
 
