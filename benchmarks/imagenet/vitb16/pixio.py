@@ -1,7 +1,7 @@
 from typing import List, Tuple
 
 from pytorch_lightning import LightningModule
-from timm.models.vision_transformer import vit_base_patch16_224
+from timm.models.vision_transformer import vit_small_patch16_224
 from torch import Tensor
 from torch.nn import Linear, MSELoss
 from torch.optim import AdamW
@@ -25,9 +25,9 @@ class Pixio(LightningModule):
         decoder_dim = 512
         self.mask_ratio = 0.75
         self.grid_size = 4
-        # vit-b/16 at 256px with 8 prefix tokens (1 cls + 7 reg). dynamic_img_size
+        # vit-s/16 at 256px with 8 prefix tokens (1 cls + 7 reg). dynamic_img_size
         # lets downstream evaluation run at other resolutions via pos-embed resampling.
-        vit = vit_base_patch16_224(img_size=256, reg_tokens=7, dynamic_img_size=True)
+        vit = vit_small_patch16_224(img_size=256, reg_tokens=7, dynamic_img_size=True)
         self.num_prefix_tokens = vit.num_prefix_tokens
         self.patch_size = vit.patch_embed.patch_size[0]
         self.sequence_length = vit.patch_embed.num_patches + vit.num_prefix_tokens
