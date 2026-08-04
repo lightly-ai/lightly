@@ -13,6 +13,7 @@ import lejepa
 import linear_eval
 import mae
 import pixio
+import simmim
 import torch
 import visreg
 from pytorch_lightning import LightningModule, Trainer, seed_everything
@@ -61,6 +62,7 @@ METHODS = {
     "lejepa": {"model": lejepa.LeJEPA, "transform": lejepa.transform},
     "mae": {"model": mae.MAE, "transform": mae.transform},
     "pixio": {"model": pixio.Pixio, "transform": pixio.transform},
+    "simmim": {"model": simmim.SimMIM, "transform": simmim.transform},
     "aim": {"model": aim.AIM, "transform": aim.transform},
     "visreg": {"model": visreg.VISReg, "transform": visreg.transform},
 }
