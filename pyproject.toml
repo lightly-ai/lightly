@@ -337,6 +337,12 @@ module = [
 ]
 ignore_errors = true
 
+[tool.pytest.ini_options]
+# importlib mode is required for the spawn-based DDP test pool (#1982): spawn
+# workers re-import the test module, which deadlocks under the default prepend
+# import mode. It is a no-op for the rest of the suite.
+addopts = "--import-mode=importlib"
+
 [tool.jupytext]
 notebook_metadata_filter="-all"
 cell_metadata_filter="-all"

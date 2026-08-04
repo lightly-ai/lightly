@@ -1,4 +1,8 @@
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+
+from PIL.Image import Image
+from torch import Tensor
+from torchvision.tv_tensors import Mask
 
 from lightly.transforms.add_grid_transform import AddGridTransform
 from lightly.transforms.multi_view_transform_v2 import MultiViewTransformV2
@@ -28,8 +32,16 @@ class DetConSTransform(MultiViewTransformV2):
         - RandomGrayscale
         - GaussianBlur (only for the first view)
 
-    Can additionally apply a segmentation of the image into a regular grid if not provided
-    with a pre-segmented image.
+    The segmentation mask can be provided in one of three ways:
+        - Passing ``grid_size`` segments the image into a regular grid.
+        - Passing ``mask_fn`` derives the mask from each image on the fly, for example
+          with an unsupervised segmentation algorithm such as
+          ``skimage.segmentation.felzenszwalb``. The mask is generated once per image
+          and shared by both views, so their region correspondence is preserved.
+        - Passing neither expects the caller to supply a pre-segmented mask alongside
+          the image.
+
+    ``grid_size`` and ``mask_fn`` are mutually exclusive.
 
     References:
         - [0] DetCon, 2021, https://arxiv.org/abs/2103.10957
@@ -38,7 +50,15 @@ class DetConSTransform(MultiViewTransformV2):
 
     Attributes:
         grid_size: Size of the grid segmentation as a tuple (num_rows, num_cols), or None
-            if the segmentation mask is to be provided by the user.
+            if the segmentation mask is provided by the user or by ``mask_fn``.
+        mask_fn: Optional callable that maps an image to a segmentation mask. It receives
+            the image passed to the transform and returns the integer segmentation labels
+            as a ``Tensor`` or PIL image, for example the output of an unsupervised
+            segmenter such as ``skimage.segmentation.felzenszwalb`` wrapped as a tensor.
+            The transform wraps the result into a ``torchvision.tv_tensors.Mask``
+            internally. It must be picklable to run in ``DataLoader`` worker processes,
+            so use a module-level function or ``functools.partial`` rather than a lambda.
+            Mutually exclusive with ``grid_size``.
         gaussian_blur_t1:
             Probability of applying Gaussian blur to the first view.
         gaussian_blur_t2:
@@ -84,6 +104,9 @@ class DetConSTransform(MultiViewTransformV2):
     def __init__(
         self,
         grid_size: Optional[Tuple[int, int]] = None,
+        mask_fn: Optional[
+            Callable[[Union[Image, Tensor]], Union[Image, Tensor]]
+        ] = None,
         gaussian_blur_t1: float = 1.0,
         gaussian_blur_t2: float = 0.0,
         input_size: Union[Tuple[int, int], int] = 224,
@@ -103,7 +126,12 @@ class DetConSTransform(MultiViewTransformV2):
         rr_degrees: Union[float, Tuple[float, float]] = 0.0,
         normalize: Union[None, Dict[str, List[float]]] = IMAGENET_NORMALIZE,
     ) -> None:
+        if grid_size is not None and mask_fn is not None:
+            raise ValueError(
+                "`grid_size` and `mask_fn` are mutually exclusive; provide at most one."
+            )
         self.grid_size = grid_size
+        self.mask_fn = mask_fn
 
         tr1: List[Union[AddGridTransform, DetConSViewTransform]] = []
         tr2: List[Union[AddGridTransform, DetConSViewTransform]] = []
@@ -162,6 +190,33 @@ class DetConSTransform(MultiViewTransformV2):
         ]
 
         super().__init__(transforms=[T.Compose(tr1), T.Compose(tr2)])
+
+    def __call__(self, *args: Any) -> List[Any]:
+        """Creates two views of the input, generating the mask via ``mask_fn`` if set.
+
+        When ``mask_fn`` is provided, the transform is called with the image only. The
+        mask is generated once from that image and wrapped into a
+        ``torchvision.tv_tensors.Mask``, then passed through both view pipelines
+        together with the image, so both views share the same segmentation. Otherwise
+        the arguments are forwarded unchanged (image plus an optional pre-segmented or
+        grid-placeholder mask).
+
+        Args:
+            *args: Either a single image (when ``mask_fn`` is set) or an image together
+                with a mask, compatible with torchvision transforms v2.
+
+        Returns:
+            A list of two views, where each view is a transformed version of the input.
+        """
+        if self.mask_fn is not None:
+            image = args[0]
+            mask = Mask(self.mask_fn(image))
+            # Segmenters such as skimage.felzenszwalb return (H, W) labels; add a
+            # channel dimension so the mask matches the (1, H, W) grid-path convention.
+            if mask.ndim == 2:
+                mask = Mask(mask.unsqueeze(0))
+            return super().__call__(image, mask)
+        return super().__call__(*args)
 
 
 class DetConSViewTransform:
