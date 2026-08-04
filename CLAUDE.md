@@ -32,9 +32,10 @@ Main entry points:
 Package manager is `uv`.
 
 ```bash
-uv venv && source .venv/bin/activate
-make install-dev   # installs all extras + pre-commit hooks
+make install-dev
 ```
+
+This synchronizes the project environment from the lockfile and installs the pre-commit hooks. Commands should be run through the Makefile or `uv run --frozen`; manual virtual environment activation is not required.
 
 | Command | Purpose |
 |---|---|
@@ -49,6 +50,9 @@ make install-dev   # installs all extras + pre-commit hooks
 | `make generate-example-notebooks` | Regenerate `examples/notebooks/*` from `examples/{pytorch,pytorch_lightning,pytorch_lightning_distributed}` |
 
 If `make format` reports changes, re-run it before `make all-checks`.
+
+Development commands should be executed through the Makefile or `uv run --frozen`
+to ensure they use the locked dependency versions.
 
 ## Code style (see `CONTRIBUTING.md` for full detail)
 

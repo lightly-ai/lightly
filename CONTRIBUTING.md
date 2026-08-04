@@ -82,19 +82,21 @@ Follow these steps to start contributing:
 
    **do not** work on the `master` branch.
 
-4. Set up a development environment. We use [uv](https://github.com/astral-sh/uv) for
-   development. Create and activate a virtual environment, then install the dev dependencies:
+4. Set up the development environment. We use [uv](https://github.com/astral-sh/uv)
+   to manage dependencies and run project commands:
 
    ```bash
-   uv venv
-   source .venv/bin/activate
    make install-dev
    ```
 
+   This synchronizes the project environment from the lockfile and installs the
+   pre-commit hooks. You do not need to activate the virtual environment manually.
+
 5. Develop the features on your branch.
 
-   As you work on the features, you should make sure that the code is formatted and the
-   test suite passes:
+   As you work on the features, you should make sure that the code is formatted and
+   the test suite passes. The Makefile runs development tools through the locked `uv`
+   environment, so manual virtual environment activation is not required:
 
    ```bash
    make format

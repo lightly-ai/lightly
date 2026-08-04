@@ -49,14 +49,35 @@ dependencies = [
   "pydantic>=1.10.5",
   "pytorch_lightning>=1.0.4",
   "urllib3>=1.25.3",
-  "aenum>=3.1.11"
+  "aenum>=3.1.11",
 ]
 dynamic = ["version", "readme"]
 
 [project.optional-dependencies]
 all = [
-  "lightly[dev,matplotlib,minimal,timm,video]"
+  "lightly[matplotlib,minimal,timm,video]"
 ]
+
+# Minimal dependencies against which we test. Older versions might work depending on the
+# functionality used.
+minimal = [
+  "torch>=1.10.0",
+  "torchvision>=0.11.0",
+  "pytorch_lightning>=1.6",
+]
+openapi = [
+  "python_dateutil>=2.5.3",
+  "setuptools>=21.0.0",
+  "urllib3>=1.25.3",
+  "pydantic>=1.10.5",
+  "aenum>=3.1.11"
+]
+timm = ["timm>=0.9.9"]
+video = ["av>=8.0.3; python_version>='3.8'"]
+matplotlib = ["matplotlib>=3"]
+
+
+[dependency-groups]
 dev = [
   "sphinx",
   "pytest",
@@ -78,34 +99,22 @@ dev = [
   "pandas",
   "toml",
   "torchmetrics",
-  # ruff and mypy should be the same version as defined in .pre-commit-config.yaml
-  "ruff==0.12.7", # frozen version to avoid differences between CI and local dev machines
-  "mypy==1.4.1", # frozen version to avoid differences between CI and local dev machines
+  # Ruff should match the version defined in .pre-commit-config.yaml.
+  "ruff==0.12.7",
+  "mypy>=1.4.1",
   "types-python-dateutil",
   "types-toml",
   "types-requests",
   "types-PyYAML",
   "nbformat",
-  "jupytext"
+  "jupytext",
 ]
-# Minimal dependencies against which we test. Older versions might work depending on the
-# functionality used.
-minimal = [
-  "torch>=1.10.0",
-  "torchvision>=0.11.0",
-  "pytorch_lightning>=1.6",
-]
-openapi = [
-  "python_dateutil>=2.5.3",
-  "setuptools>=21.0.0",
-  "urllib3>=1.25.3",
-  "pydantic>=1.10.5",
-  "aenum>=3.1.11"
-]
-timm = ["timm>=0.9.9"]
-video = ["av>=8.0.3; python_version>='3.8'"]
-matplotlib = ["matplotlib>=3"]
 
+[tool.uv]
+environments = ["python_full_version >= '3.8'"]
+
+[tool.uv.dependency-groups]
+dev = { requires-python = ">=3.8" }
 
 [project.urls]
 "Homepage" = "https://www.lightly.ai"
