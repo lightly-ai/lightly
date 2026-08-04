@@ -439,11 +439,6 @@ plot_knn_multilabels(embeddings, multilabels, [4111, 3340, 1796], fnames, n_neig
 #
 # The first two examples have no critical finding, and ``No finding`` also
 # dominates their neighborhoods. The embeddings therefore group these normal
-# X-rays well. The third example has several findings, but most of its neighbors
-# have no finding and only small fractions share its annotated findings. This
-# neighborhood is a poor match. Overall, the embeddings capture the broad
-# distinction between the normal examples and the rest of the dataset, but this
-# qualitative check does not show reliable separation of individual
-# abnormalities. A downstream evaluation should therefore measure performance
-# on all samples rather than treating these three neighborhoods as a diagnostic
-# accuracy result.
+# X-rays well. The third example has several findings. Each of its annotated
+# findings does show up among its neighbors to some degree, but the fractions
+# are small and the neighborhood is dominated by a ``No finding`` majority.
