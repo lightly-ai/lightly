@@ -44,7 +44,7 @@ Reference:
 .. note::
 
     CAPI requires `TIMM <https://github.com/huggingface/pytorch-image-models>`_ to be
-    installed
+    installed.
 
     .. code-block:: bash
 
