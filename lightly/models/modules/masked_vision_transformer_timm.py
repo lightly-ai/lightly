@@ -80,7 +80,7 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
         attn_pool = getattr(self.vit, "attn_pool", None)
         if attn_pool is not None:
             x = attn_pool(x)
-            return x
+            return cast(Tensor, x)
 
         global_pool = cast(str, getattr(self.vit, "global_pool", ""))
         if global_pool == "avg":

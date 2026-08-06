@@ -106,6 +106,16 @@ Follow these steps to start contributing:
    If you get a formatting error from ruff, please run `make format` again before
    running `make all-checks`.
 
+   Run the full test suite with `make test`. To run a specific test directory,
+   module, class, or individual test through the locked environment, pass it to
+   `uv run --frozen pytest`, for example:
+
+   ```bash
+   uv run --frozen pytest tests/models
+   uv run --frozen pytest tests/models/test_resnet.py
+   uv run --frozen pytest tests/models/test_resnet.py::TestClass::test_name
+   ```
+
    If you're modifying examples under `examples/`, make sure to update the corresponding notebooks by
    running the following command:
 
