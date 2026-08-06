@@ -13,6 +13,7 @@ for PyTorch and PyTorch Lightning to give you a headstart when implementing your
     aim.rst
     barlowtwins.rst
     byol.rst
+    capi.rst
     dcl.rst
     detcon.rst
     densecl.rst
