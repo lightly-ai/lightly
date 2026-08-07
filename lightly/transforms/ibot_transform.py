@@ -1,6 +1,5 @@
 from typing import Dict, List, Optional, Tuple, Union
 
-import PIL
 from PIL.Image import Image
 from torch import Tensor
 
@@ -243,8 +242,7 @@ class IBOTViewTransform:
             T.RandomResizedCrop(
                 size=crop_size,
                 scale=crop_scale,
-                # Type ignore needed because BICUBIC is not recognized as an attribute.
-                interpolation=PIL.Image.BICUBIC,  # type: ignore[attr-defined]
+                interpolation=T.InterpolationMode.BICUBIC,
             ),
             T.RandomHorizontalFlip(p=hf_prob),
             T.RandomApply(
