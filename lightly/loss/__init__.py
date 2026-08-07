@@ -3,6 +3,7 @@
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 from lightly.loss.barlow_twins_loss import BarlowTwinsLoss
+from lightly.loss.capi_loss import CAPILoss
 from lightly.loss.dcl_loss import DCLLoss, DCLWLoss
 from lightly.loss.dense_relational_utils import roi_resample_to_grid
 from lightly.loss.detcon_loss import DetConBLoss, DetConSLoss

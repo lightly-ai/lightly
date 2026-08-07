@@ -1,5 +1,3 @@
-import unittest
-
 import pytest
 import torch
 
@@ -14,7 +12,7 @@ if not dependency.timm_vit_available():
 from lightly.models.modules import MAEDecoderTIMM, PixioDecoderTIMM
 
 
-class TestMAEDecoderTIMM(unittest.TestCase):
+class TestMAEDecoderTIMM:
     def test_init(self) -> None:
         MAEDecoderTIMM(
             num_patches=49,
@@ -52,15 +50,15 @@ class TestMAEDecoderTIMM(unittest.TestCase):
 
         # output shape must be correct
         expected_shape = [batch_size, seq_length, out_dim]
-        self.assertListEqual(list(predictions.shape), expected_shape)
+        assert list(predictions.shape) == expected_shape
 
         # output must have reasonable numbers
-        self.assertTrue(torch.all(torch.not_equal(predictions, torch.inf)))
+        assert torch.all(torch.not_equal(predictions, torch.inf))
 
     def test_forward(self) -> None:
         self._test_forward(torch.device("cpu"))
 
-    @unittest.skipUnless(torch.cuda.is_available(), "Cuda not available.")
+    @pytest.mark.skipif(not torch.cuda.is_available(), reason="Cuda not available.")
     def test_forward_cuda(self) -> None:
         self._test_forward(torch.device("cuda"))
 
@@ -75,10 +73,11 @@ class TestMAEDecoderTIMM(unittest.TestCase):
             decoder_num_heads=4,
             num_prefix_tokens=num_prefix_tokens,
         )
-        self.assertEqual(
-            list(decoder.decoder_pos_embed.shape),
-            [1, num_patches + num_prefix_tokens, decoder_embed_dim],
-        )
+        assert list(decoder.decoder_pos_embed.shape) == [
+            1,
+            num_patches + num_prefix_tokens,
+            decoder_embed_dim,
+        ]
 
     def _test_forward__num_prefix_tokens(self, device: torch.device) -> None:
         torch.manual_seed(0)
@@ -95,15 +94,13 @@ class TestMAEDecoderTIMM(unittest.TestCase):
         ).to(device)
         tokens = torch.rand(2, seq_length, embed_input_dim).to(device)
         predictions = decoder(tokens)
-        self.assertListEqual(
-            list(predictions.shape), [2, seq_length, 3 * patch_size**2]
-        )
-        self.assertTrue(torch.all(torch.not_equal(predictions, torch.inf)))
+        assert list(predictions.shape) == [2, seq_length, 3 * patch_size**2]
+        assert torch.all(torch.not_equal(predictions, torch.inf))
 
     def test_forward__num_prefix_tokens(self) -> None:
         self._test_forward__num_prefix_tokens(torch.device("cpu"))
 
-    @unittest.skipUnless(torch.cuda.is_available(), "Cuda not available.")
+    @pytest.mark.skipif(not torch.cuda.is_available(), reason="Cuda not available.")
     def test_forward__num_prefix_tokens_cuda(self) -> None:
         self._test_forward__num_prefix_tokens(torch.device("cuda"))
 

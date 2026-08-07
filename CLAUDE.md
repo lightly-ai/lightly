@@ -58,7 +58,7 @@ If `make format` reports changes, re-run it before `make all-checks`.
 - Full type hints everywhere (mypy-clean). Use Python 3.10-style unions (`str |
   Path`, not `Union[str, Path]`); this requires `from __future__ import
   annotations` at the top of the module (package still declares
-  `requires-python = ">=3.6"` and CI tests old Python versions).
+  `requires-python = ">=3.8"` and CI tests old Python versions).
 - Prefer keyword arguments when calling functions with more than one argument.
 - Import functions via their module (`from module import submodule;
   submodule.fn(...)`); import classes directly (`from module.submodule import
