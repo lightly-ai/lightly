@@ -36,36 +36,36 @@ PYTHON_DIRS = benchmarks docs examples lightly tests
 
 # format code with ruff
 format:
-	ruff check --fix --select I $(PYTHON_DIRS)
-	ruff format $(PYTHON_DIRS)
+	uv run --frozen ruff check --fix --select I $(PYTHON_DIRS)
+	uv run --frozen ruff format $(PYTHON_DIRS)
 
 # check if code is formatted with ruff
 format-check:
 	@echo "Checking code format..."
-	ruff check --select I $(PYTHON_DIRS)
-	ruff format --check $(PYTHON_DIRS)
+	uv run --frozen ruff check --select I $(PYTHON_DIRS)
+	uv run --frozen ruff format --check $(PYTHON_DIRS)
 
 # lint code with ruff
 lint: lint-lightly lint-tests
 
 ## lint lightly code with ruff
 lint-lightly:
-	ruff check lightly
+	uv run --frozen ruff check lightly
 
 ## lint tests with ruff
 lint-tests:
-	ruff check tests
+	uv run --frozen ruff check tests
 
 ## run tests
 test:
-	pytest tests --runslow
+	uv run --frozen pytest tests --runslow
 
 test-fast:
-	pytest tests
+	uv run --frozen pytest tests
 
 ## check typing
 type-check:
-	mypy lightly tests
+	uv run --frozen mypy lightly tests
 
 ## run format checks
 static-checks: format-check type-check
@@ -75,7 +75,7 @@ all-checks: static-checks test
 
 ## build source and wheel package
 dist: clean
-	python -m build
+	uv build
 	ls -l dist
 
 
@@ -100,34 +100,41 @@ install-uv:
 
 .PHONY: reset-venv
 reset-venv:
-	deactivate || true
 	rm -rf .venv
-	uv venv .venv
+	uv venv
 
 
 ### Dependencies
 
-# When running these commands locally, it is recommended to first reset the environment
-# with: `make reset-venv && source .venv/bin/activate`
-# Otherwise old dependencies might linger around.
+# Project commands use uv and do not require manually activating the virtual environment.
 
-# Set EDITABLE to -e to install the package in editable mode outside of CI. This is
-# useful for local development.
+# Install the package in non-editable mode in CI.
 ifdef CI
 EDITABLE=
+NO_EDITABLE=--no-editable
 else
 EDITABLE=-e
+NO_EDITABLE=
 endif
 
 # Date until which dependencies installed with --exclude-newer must have been released.
 # Dependencies released after this date are ignored.
 EXCLUDE_NEWER_DATE="2025-08-07"
 
+# Min and max Python versions for dependency testing.
+MINIMAL_PYTHON_VERSION=3.8
+MAXIMAL_PYTHON_VERSION=3.12
+
+# Update the lockfile using dependencies released before the cutoff date.
+.PHONY: lock
+lock:
+	uv lock --exclude-newer ${EXCLUDE_NEWER_DATE}
+
 # Install package for local development.
 .PHONY: install-dev
 install-dev:
-	uv pip install ${EDITABLE} . --all-extras --requirement pyproject.toml
-	pre-commit install
+	uv sync --frozen --all-extras
+	uv run --frozen pre-commit install
 
 
 # Install package with API dependencies only.
@@ -140,12 +147,9 @@ install-api-only:
 
 # Install package with minimal dependencies.
 # 
-# This command is split into multiple steps:
-# 1. Install the dev dependencies to be able to run tests. We don't want to use
-#    the minimal versions for these dependencies.
-# 2. Then we reinstall the package with minimal dependencies.
-# 3. Finally we install setuptools<50. This is necessary for compatibility with old
-#    PyTorch Lightning versions that do not include the correct setuptools dependencies.
+# The dev dependencies are installed together with the package's minimal dependencies.
+# setuptools<50 is then installed for compatibility with old PyTorch Lightning versions
+# that do not include the correct setuptools dependencies.
 #
 # Explanation of flags:
 # --exclude-newer: We don't want to install dependencies released after that date to
@@ -155,21 +159,17 @@ install-api-only:
 # 	Using --resolution=lowest would also download the latest versions for transitive
 #   dependencies which is not a realistic scenario and results in some extremely old
 #   dependencies being installed.
-# --reinstall: Reinstall dependencies to make sure they satisfy the constraints.
 .PHONY: install-minimal
 install-minimal:
-	uv pip install --exclude-newer ${EXCLUDE_NEWER_DATE} ${EDITABLE} ".[dev]"
-	uv pip install --resolution=lowest-direct --exclude-newer ${EXCLUDE_NEWER_DATE} --reinstall ${EDITABLE} ".[minimal]"
-	uv pip install --exclude-newer ${EXCLUDE_NEWER_DATE} --reinstall "setuptools<50"
+	uv sync --python=${MINIMAL_PYTHON_VERSION} --resolution=lowest-direct --exclude-newer ${EXCLUDE_NEWER_DATE} ${NO_EDITABLE} --group dev --extra minimal --upgrade-group dev
 
 # Install package with minimal dependencies including extras.
 # See install-minimal for explanation of flags.
-# We do not use --all-extras because it includes the dev dependencies for which we don't
-# want to install the minimal versions.
+# Install selected extras separately so their minimal versions can be tested.
+# Development dependencies are installed from the dev dependency group.
 .PHONY: install-minimal-extras
 install-minimal-extras:
-	uv pip install --exclude-newer ${EXCLUDE_NEWER_DATE} ${EDITABLE} ".[dev]"
-	uv pip install --resolution=lowest-direct --exclude-newer ${EXCLUDE_NEWER_DATE} --reinstall ${EDITABLE} ".[matplotlib,minimal,timm,video]" --requirement pyproject.toml
+	uv sync --python=${MINIMAL_PYTHON_VERSION} --resolution=lowest-direct --exclude-newer ${EXCLUDE_NEWER_DATE} ${NO_EDITABLE} --group dev --extra matplotlib --extra minimal --extra timm --extra video --upgrade-group dev
 	uv pip install --exclude-newer ${EXCLUDE_NEWER_DATE} --reinstall "setuptools<50"
 
 # Install package with dependencies pinned to the latest compatible version available at
@@ -189,7 +189,7 @@ install-pinned-extras:
 # available at EXCLUDE_NEWER_DATE. This excludes video dependencies.
 .PHONY: install-pinned-extras-no-video
 install-pinned-extras-no-video:
-	uv pip install --exclude-newer ${EXCLUDE_NEWER_DATE} --reinstall ${EDITABLE} ".[dev,matplotlib,minimal,timm]" --requirement pyproject.toml
+	uv sync --python ${MAXIMAL_PYTHON_VERSION} --exclude-newer ${EXCLUDE_NEWER_DATE} ${NO_EDITABLE} --group dev --extra matplotlib --extra minimal --extra timm --upgrade-group dev
 
 # Install package with pinned extras for notebook CI checks.
 .PHONY: install-pinned-notebook
@@ -213,12 +213,12 @@ install-pinned-extras-3.12: install-av-system-deps install-pinned-extras
 # Install package with the latest dependencies.
 .PHONY: install-latest
 install-latest:
-	uv pip install --upgrade --reinstall ${EDITABLE} . --all-extras --requirement pyproject.toml
+	uv sync --python=${MAXIMAL_PYTHON_VERSION} --upgrade --reinstall ${NO_EDITABLE} --group dev --all-extras
 
 
 # Generate Notebooks from examples
 .PHONY: generate-example-notebooks
 generate-example-notebooks:
-	python examples/create_example_nbs.py examples/pytorch examples/notebooks/pytorch
-	python examples/create_example_nbs.py examples/pytorch_lightning examples/notebooks/pytorch_lightning
-	python examples/create_example_nbs.py examples/pytorch_lightning_distributed examples/notebooks/pytorch_lightning_distributed
+	uv run --frozen python examples/create_example_nbs.py examples/pytorch examples/notebooks/pytorch
+	uv run --frozen python examples/create_example_nbs.py examples/pytorch_lightning examples/notebooks/pytorch_lightning
+	uv run --frozen python examples/create_example_nbs.py examples/pytorch_lightning_distributed examples/notebooks/pytorch_lightning_distributed
