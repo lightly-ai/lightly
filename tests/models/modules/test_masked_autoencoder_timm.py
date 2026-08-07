@@ -9,13 +9,35 @@ if not dependency.timm_vit_available():
     pytest.skip("TIMM vision transformer is not available", allow_module_level=True)
 
 
-from lightly.models.modules import MAEDecoderTIMM, PixioDecoderTIMM
+from lightly.models.modules.masked_autoencoder_timm import (
+    MAEDecoderTIMM,
+    PixioDecoderTIMM,
+)
 
 
-@pytest.mark.filterwarnings("ignore::DeprecationWarning")
+def test_package_getattr__is_deprecated() -> None:
+    """The deprecated decoders resolve via the package __getattr__ with a warning."""
+    import lightly.models.modules as modules
+    from lightly.models.modules import masked_autoencoder_timm
+
+    for name in ("MAEDecoderTIMM", "PixioDecoderTIMM"):
+        with pytest.warns(FutureWarning):
+            cls = getattr(modules, name)
+        assert cls is getattr(masked_autoencoder_timm, name)
+
+
+def test_package_getattr__unknown_name_raises() -> None:
+    """Unknown attributes still raise AttributeError, not a deprecation warning."""
+    import lightly.models.modules as modules
+
+    with pytest.raises(AttributeError):
+        getattr(modules, "DoesNotExist")
+
+
+@pytest.mark.filterwarnings("ignore::FutureWarning")
 class TestMAEDecoderTIMM:
     def test_init__is_deprecated(self) -> None:
-        with pytest.warns(DeprecationWarning):
+        with pytest.warns(FutureWarning):
             MAEDecoderTIMM(
                 num_patches=49,
                 patch_size=32,
@@ -117,10 +139,10 @@ class TestMAEDecoderTIMM:
         self._test_forward__num_prefix_tokens(torch.device("cuda"))
 
 
-@pytest.mark.filterwarnings("ignore::DeprecationWarning")
+@pytest.mark.filterwarnings("ignore::FutureWarning")
 class TestPixioDecoderTIMM:
     def test_init__is_deprecated(self) -> None:
-        with pytest.warns(DeprecationWarning):
+        with pytest.warns(FutureWarning):
             PixioDecoderTIMM(
                 num_patches=64,
                 patch_size=16,

@@ -96,6 +96,7 @@ from lightly.models.modules import (
     heads,
     memory_bank,
 )
+from lightly.models.modules.masked_vision_transformer_timm import init_weights
 from lightly.transforms import (
     BYOLTransform,
     BYOLView1Transform,
@@ -783,8 +784,8 @@ class MAEModel(BenchmarkModule):
         self.warmup_epochs = 40 if max_epochs >= 800 else 20
         self.mask_ratio = 0.75
         self.patch_size = vit.patch_embed.patch_size[0]
-        self.sequence_length = vit.patch_embed.num_patches + 1
         self.backbone = MaskedVisionTransformerTIMM(vit=vit)
+        self.sequence_length = self.backbone.sequence_length
         self.decoder_embed = nn.Linear(vit.embed_dim, decoder_dim)
         self.decoder = MaskedVisionTransformerDecoderTIMM(
             num_patches=vit.patch_embed.num_patches,
@@ -797,6 +798,9 @@ class MAEModel(BenchmarkModule):
             attn_drop_rate=0.0,
         )
         self.prediction_head = nn.Linear(decoder_dim, self.patch_size**2 * 3)
+        # decoder_embed and prediction_head sit outside the decoder, so init them here.
+        self.decoder_embed.apply(init_weights)
+        self.prediction_head.apply(init_weights)
         self.criterion = nn.MSELoss()
 
     def forward_encoder(self, images, idx_keep=None):

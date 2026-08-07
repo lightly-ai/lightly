@@ -12,13 +12,11 @@ if not dependency.timm_vit_available():
     pytest.skip("TIMM vision transformer is not available", allow_module_level=True)
 
 
-from lightly.models.modules import (
-    MAEDecoderTIMM,
-    MaskedVisionTransformerDecoderTIMM,
-)
+from lightly.models.modules import MaskedVisionTransformerDecoderTIMM
+from lightly.models.modules.masked_autoencoder_timm import MAEDecoderTIMM
 
 
-@pytest.mark.filterwarnings("ignore::DeprecationWarning")
+@pytest.mark.filterwarnings("ignore::FutureWarning")
 class TestMaskedVisionTransformerDecoderTIMM(unittest.TestCase):
     def test_init(self) -> None:
         MaskedVisionTransformerDecoderTIMM(

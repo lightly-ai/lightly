@@ -8,6 +8,8 @@ can be combined with any lightly model.
 # Copyright (c) 2021. Lightly AG and its affiliates.
 # All Rights Reserved
 
+from typing import Any
+
 from lightly.models.modules.heads import (
     BarlowTwinsProjectionHead,
     BYOLPredictionHead,
@@ -49,10 +51,6 @@ if _dependency.timm_vit_available():
     from lightly.models.modules.capi_predictor_timm import CAPIPredictorTIMM
     from lightly.models.modules.heads_timm import AIMPredictionHead
     from lightly.models.modules.ijepa_timm import IJEPAPredictorTIMM
-    from lightly.models.modules.masked_autoencoder_timm import (
-        MAEDecoderTIMM,
-        PixioDecoderTIMM,
-    )
     from lightly.models.modules.masked_causal_vision_transformer import (
         MaskedCausalVisionTransformer,
     )
@@ -62,3 +60,17 @@ if _dependency.timm_vit_available():
     from lightly.models.modules.masked_vision_transformer_timm import (
         MaskedVisionTransformerTIMM,
     )
+
+
+def __getattr__(name: str) -> Any:
+    # Resolve the deprecated names lazily (PEP 562) so importing them warns and, once
+    # removed, raises AttributeError instead of a hintless ImportError.
+    if name in ("MAEDecoderTIMM", "PixioDecoderTIMM"):
+        if not _dependency.timm_vit_available():
+            raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+        from lightly.models.modules import masked_autoencoder_timm
+        from lightly.utils.deprecation import warn_deprecated
+
+        warn_deprecated(name, "MaskedVisionTransformerDecoderTIMM", removed_in="1.7.0")
+        return getattr(masked_autoencoder_timm, name)
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
