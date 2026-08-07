@@ -1,4 +1,4 @@
-from typing import Dict, List, Tuple, Union
+from __future__ import annotations
 
 from PIL.Image import Image
 from torch import Tensor
@@ -7,8 +7,8 @@ from lightly.transforms.torchvision_v2_compatibility import torchvision_transfor
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 
 
-class MAETransform:
-    """Implements the view augmentation for MAE [0].
+class CAPITransform:
+    """Implements the view augmentation for CAPI [0].
 
     Input to this transform:
         PIL Image or Tensor.
@@ -20,7 +20,7 @@ class MAETransform:
         - Random resized crop
         - Random horizontal flip
 
-    - [0]: Masked Autoencoder, 2021, https://arxiv.org/abs/2111.06377
+    - [0]: CAPI: Cluster and Predict Latent Patches for Improved Masked Image Modeling, 2025, https://arxiv.org/abs/2502.08769
 
     Attributes:
         input_size:
@@ -29,14 +29,15 @@ class MAETransform:
             Minimum size of the randomized crop relative to the input_size.
         normalize:
             Dictionary with 'mean' and 'std' for torchvision.transforms.Normalize.
+            If None, no normalization is applied.
 
     """
 
     def __init__(
         self,
-        input_size: Union[int, Tuple[int, int]] = 224,
-        min_scale: float = 0.2,
-        normalize: Dict[str, List[float]] = IMAGENET_NORMALIZE,
+        input_size: int | tuple[int, int] = 224,
+        min_scale: float = 0.6,
+        normalize: dict[str, list[float]] | None = IMAGENET_NORMALIZE,
     ):
         transforms = [
             T.RandomResizedCrop(
@@ -52,7 +53,7 @@ class MAETransform:
 
         self.transform = T.Compose(transforms)
 
-    def __call__(self, image: Union[Tensor, Image]) -> List[Tensor]:
+    def __call__(self, image: Tensor | Image) -> list[Tensor]:
         """Applies the transforms to the input image.
 
         Args:
@@ -60,7 +61,7 @@ class MAETransform:
                 The input image to apply the transforms to.
 
         Returns:
-            The transformed image.
+            A list containing the transformed image.
 
         """
         return [self.transform(image)]

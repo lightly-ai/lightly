@@ -34,8 +34,10 @@ class IJEPATransform:
     ):
         transforms = [
             T.RandomResizedCrop(
-                input_size, scale=(min_scale, 1.0), interpolation=3
-            ),  # 3 is bicubic
+                input_size,
+                scale=(min_scale, 1.0),
+                interpolation=T.InterpolationMode.BICUBIC,
+            ),
             T.RandomHorizontalFlip(),
             T.ToTensor(),
         ]
