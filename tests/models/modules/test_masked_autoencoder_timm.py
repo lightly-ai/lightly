@@ -12,7 +12,19 @@ if not dependency.timm_vit_available():
 from lightly.models.modules import MAEDecoderTIMM, PixioDecoderTIMM
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 class TestMAEDecoderTIMM:
+    def test_init__is_deprecated(self) -> None:
+        with pytest.warns(DeprecationWarning):
+            MAEDecoderTIMM(
+                num_patches=49,
+                patch_size=32,
+                embed_dim=128,
+                decoder_embed_dim=256,
+                decoder_depth=2,
+                decoder_num_heads=4,
+            )
+
     def test_init(self) -> None:
         MAEDecoderTIMM(
             num_patches=49,
@@ -105,7 +117,20 @@ class TestMAEDecoderTIMM:
         self._test_forward__num_prefix_tokens(torch.device("cuda"))
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 class TestPixioDecoderTIMM:
+    def test_init__is_deprecated(self) -> None:
+        with pytest.warns(DeprecationWarning):
+            PixioDecoderTIMM(
+                num_patches=64,
+                patch_size=16,
+                embed_dim=128,
+                decoder_embed_dim=64,
+                decoder_depth=2,
+                decoder_num_heads=4,
+                num_prefix_tokens=8,
+            )
+
     def test_init__default_depth_is_32(self) -> None:
         decoder = PixioDecoderTIMM(
             num_patches=256,
