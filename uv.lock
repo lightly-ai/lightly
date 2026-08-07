@@ -2262,7 +2262,7 @@ requires-dist = [
     { name = "urllib3", specifier = ">=1.25.3" },
     { name = "urllib3", marker = "extra == 'openapi'", specifier = ">=1.25.3" },
 ]
-provides-extras = ["all", "minimal", "openapi", "timm", "video", "matplotlib"]
+provides-extras = ["all", "matplotlib", "minimal", "openapi", "timm", "video"]
 
 [package.metadata.requires-dev]
 dev = [

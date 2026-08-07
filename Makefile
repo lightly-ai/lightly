@@ -162,7 +162,6 @@ install-api-only:
 .PHONY: install-minimal
 install-minimal:
 	uv sync --python=${MINIMAL_PYTHON_VERSION} --resolution=lowest-direct --exclude-newer ${EXCLUDE_NEWER_DATE} ${NO_EDITABLE} --group dev --extra minimal --upgrade-group dev
-	uv pip install --exclude-newer ${EXCLUDE_NEWER_DATE} --reinstall "setuptools<50"
 
 # Install package with minimal dependencies including extras.
 # See install-minimal for explanation of flags.
@@ -190,7 +189,7 @@ install-pinned-extras:
 # available at EXCLUDE_NEWER_DATE. This excludes video dependencies.
 .PHONY: install-pinned-extras-no-video
 install-pinned-extras-no-video:
-	uv sync --exclude-newer ${EXCLUDE_NEWER_DATE} ${NO_EDITABLE} --group dev --extra matplotlib --extra minimal --extra timm --upgrade-group dev
+	uv sync --python ${MAXIMAL_PYTHON_VERSION} --exclude-newer ${EXCLUDE_NEWER_DATE} ${NO_EDITABLE} --group dev --extra matplotlib --extra minimal --extra timm --upgrade-group dev
 
 # Install package with pinned extras for notebook CI checks.
 .PHONY: install-pinned-notebook
