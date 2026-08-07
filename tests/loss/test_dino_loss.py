@@ -9,7 +9,7 @@ import torch.nn.functional as F
 from torch import Tensor, nn
 
 from lightly.loss import DINOLoss
-from lightly.models.modules.center import Center
+from lightly.models.modules.center import Center, sinkhorn_knopp
 from lightly.models.utils import deactivate_requires_grad
 
 
@@ -130,6 +130,70 @@ class TestDINOLoss:
             student_temp=student_temp,
             center_momentum=center_momentum,
         )
+
+    def test__init__invalid_center_mode(self) -> None:
+        with pytest.raises(ValueError, match="Unknown mode"):
+            DINOLoss(output_dim=4, center_mode="invalid")
+
+    def test_sinkhorn_knopp(self) -> None:
+        """Sinkhorn-Knopp centering is applied jointly over all teacher views.
+
+        The reference implementation centers the teacher output of all views at once
+        and then averages the cross-entropy over all view pairs with a different view
+        index:
+        https://github.com/facebookresearch/dinov3/blob/main/dinov3/loss/dino_clstoken_loss.py
+        """
+        batch_size, output_dim = 3, 4
+        teacher_temp, student_temp = 0.04, 0.1
+        n_global, n_local = 2, 6
+        teacher_out = _generate_output(
+            batch_size=batch_size, n_views=n_global, output_dim=output_dim, seed=0
+        )
+        student_out = _generate_output(
+            batch_size=batch_size,
+            n_views=n_global + n_local,
+            output_dim=output_dim,
+            seed=1,
+        )
+
+        loss_fn = DINOLoss(
+            output_dim=output_dim,
+            teacher_temp=teacher_temp,
+            student_temp=student_temp,
+            center_mode="sinkhorn_knopp",
+        )
+        loss = loss_fn(teacher_out=teacher_out, student_out=student_out)
+
+        teacher_probs = sinkhorn_knopp(
+            x=torch.cat(teacher_out), temperature=teacher_temp
+        ).reshape(n_global, batch_size, output_dim)
+        student_log_probs = F.log_softmax(
+            torch.stack(student_out) / student_temp, dim=-1
+        )
+        expected = torch.tensor(0.0)
+        n_terms = 0
+        for t, teacher_view in enumerate(teacher_probs):
+            for s, student_view in enumerate(student_log_probs):
+                if s == t:
+                    continue
+                expected = expected - (teacher_view * student_view).sum()
+                n_terms += batch_size
+        expected = expected / n_terms
+
+        assert torch.allclose(loss, expected)
+
+    def test_sinkhorn_knopp__center_not_updated(self) -> None:
+        """Sinkhorn-Knopp does not track a center, but keeps the buffer registered."""
+        loss_fn = DINOLoss(output_dim=4, center_mode="sinkhorn_knopp")
+        teacher_out = _generate_output(n_views=2, output_dim=4, seed=0)
+        student_out = _generate_output(n_views=4, output_dim=4, seed=1)
+
+        loss_fn(teacher_out=teacher_out, student_out=student_out)
+        assert "center" in loss_fn.state_dict()
+        assert torch.all(loss_fn.center == 0)
+
+        loss_fn.update_center(teacher_out=torch.stack(teacher_out))
+        assert torch.all(loss_fn.center == 0)
 
     def test_single_view_raises(self) -> None:
         # A single teacher view and a single student view leave no cross-view
