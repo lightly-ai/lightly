@@ -23,7 +23,7 @@ supported-markers = [
 ]
 
 [options]
-exclude-newer = "2025-08-08T03:00:00Z"
+exclude-newer = "2025-08-07T22:00:00Z"
 
 [[package]]
 name = "aenum"
