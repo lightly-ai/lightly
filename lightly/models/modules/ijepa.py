@@ -158,7 +158,7 @@ class IJEPAPredictor(vision_transformer.Encoder):
             pos_embs,
             self.predictor_embed.weight,
             noise_dim,
-            noise_std=self.noise_std if self.training else 0.0
+            noise_std=self.noise_std if self.training else 0.0,
         )
 
         pred_tokens = self.mask_token.repeat(pos_embs.size(0), pos_embs.size(1), 1)

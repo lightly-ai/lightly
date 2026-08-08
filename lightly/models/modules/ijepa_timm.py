@@ -153,7 +153,7 @@ class IJEPAPredictorTIMM(nn.Module):
             pos_embs,
             self.predictor_embed.weight,
             noise_dim,
-            noise_std=self.noise_std if self.training else 0.0
+            noise_std=self.noise_std if self.training else 0.0,
         )
 
         pred_tokens = self.decoder.mask_token.repeat(
