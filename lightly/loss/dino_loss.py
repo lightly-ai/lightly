@@ -36,16 +36,16 @@ class DINOLoss(Module):
             Temperature parameter for the student network.
         center:
             Center used for the teacher output. It is updated with a moving average
-            during training. Unused if 'sinkhorn_knopp' centering is selected.
+            during training. Unused if `center_mode="sinkhorn_knopp"` is selected.
         center_momentum:
             Momentum term for the center calculation.
         center_mode:
             Mode used to normalize the teacher output. Either 'mean' for the mean
             centering from DINO or 'sinkhorn_knopp' for the Sinkhorn-Knopp centering
-            used by DINOv2 and DINOv3.
+            that is optional in DINOv2 and used by DINOv3.
         sinkhorn_iterations:
-            Number of Sinkhorn-Knopp iterations. Only used if center_mode is
-            'sinkhorn_knopp'.
+            Number of Sinkhorn-Knopp iterations. Only used if
+            `center_mode="sinkhorn_knopp"`.
         warmup_teacher_temp_epochs:
                 Number of epochs for the warmup phase of the teacher temperature (for backward compatibility).
         teacher_temp_schedule:
@@ -83,10 +83,10 @@ class DINOLoss(Module):
             center_mode:
                 Mode used to normalize the teacher output. Either 'mean' for the mean
                 centering from DINO or 'sinkhorn_knopp' for the Sinkhorn-Knopp
-                centering used by DINOv2 and DINOv3.
+                centering that is optional in DINOv2 and used by DINOv3.
             sinkhorn_iterations:
-                Number of Sinkhorn-Knopp iterations. Only used if center_mode is
-                'sinkhorn_knopp'.
+                Number of Sinkhorn-Knopp iterations. Only used if
+                `center_mode="sinkhorn_knopp"`.
             warmup_teacher_temp:
                 Initial temperature for the teacher network (for backward compatibility).
             warmup_teacher_temp_epochs:
@@ -94,6 +94,7 @@ class DINOLoss(Module):
 
         Raises:
             ValueError: If an unknown center mode is provided.
+            ValueError: If sinkhorn_iterations is negative.
         """
         super().__init__()
 
@@ -106,6 +107,11 @@ class DINOLoss(Module):
             raise ValueError(
                 f"Unknown mode '{center_mode}'. Valid modes are "
                 f"{sorted(VALID_CENTER_MODES)}."
+            )
+        if sinkhorn_iterations < 0:
+            raise ValueError(
+                f"sinkhorn_iterations must not be negative but is "
+                f"{sinkhorn_iterations}."
             )
         self.center_mode = center_mode
         self.sinkhorn_iterations = sinkhorn_iterations
@@ -212,7 +218,9 @@ class DINOLoss(Module):
 
         Returns:
             Tensor with the same shape as teacher_out containing probabilities that
-            sum to one along the last dimension.
+            sum to one along the last dimension. Sinkhorn-Knopp probabilities are
+            detached from the computation graph, following the reference
+            implementation.
         """
         if self.center_mode == CENTER_MODE_SINKHORN_KNOPP:
             # Sinkhorn-Knopp is applied jointly over all views, following the reference
@@ -223,6 +231,8 @@ class DINOLoss(Module):
                 temperature=teacher_temp,
                 num_iterations=self.sinkhorn_iterations,
             )
+            # Sinkhorn-Knopp calculates in float32. The probabilities are cast back
+            # because the einsum with the student output does not promote dtypes.
             return probabilities.reshape(teacher_out.shape).to(teacher_out.dtype)
         return F.softmax((teacher_out - self.center) / teacher_temp, dim=-1)
 

@@ -6,6 +6,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from pytest_mock import MockerFixture
 from torch import Tensor
+from torch import distributed as torch_dist
 
 from lightly.loss.koleo_loss import KoLeoLoss
 
@@ -46,7 +47,7 @@ class TestKoLeoLoss:
     def test_forward__group_size_none_is_full_batch(self) -> None:
         torch.manual_seed(0)
         x = torch.randn(8, 4)
-        assert KoLeoLoss(group_size=8)(x) == pytest.approx(KoLeoLoss()(x).item())
+        assert KoLeoLoss(group_size=8)(x).item() == pytest.approx(KoLeoLoss()(x).item())
 
     def test_forward__group_size(self) -> None:
         """Groups are consecutive chunks of the batch and are averaged over."""
@@ -57,7 +58,7 @@ class TestKoLeoLoss:
 
         loss_fn = KoLeoLoss()
         expected = 0.5 * (loss_fn(x[:4]) + loss_fn(x[4:]))
-        assert loss == pytest.approx(expected.item(), rel=1e-5)
+        assert loss.item() == pytest.approx(expected.item(), rel=1e-5)
 
     def test_forward__group_size_finds_neighbors_within_group(self) -> None:
         """A neighbor in another group is ignored.
@@ -67,8 +68,10 @@ class TestKoLeoLoss:
         gives a much larger loss than the within-group neighbor.
         """
         x = torch.tensor([[1.0, 0.0], [0.0, 1.0], [1.0, 0.0], [0.0, 1.0]])
-        assert KoLeoLoss(group_size=2)(x) == pytest.approx(-math.log(2**0.5), rel=1e-4)
-        assert KoLeoLoss()(x) > 10.0
+        assert KoLeoLoss(group_size=2)(x).item() == pytest.approx(
+            -math.log(2**0.5), rel=1e-4
+        )
+        assert KoLeoLoss()(x).item() > 10.0
 
     @pytest.mark.parametrize("topk", [1, 2, 3])
     def test_forward__topk(self, topk: int) -> None:
@@ -85,7 +88,7 @@ class TestKoLeoLoss:
             [(x - x[idx]).norm(dim=-1) for idx in nn_idx.unbind(dim=-1)]
         )
         expected = -(distances + 1e-8).log().mean()
-        assert loss == pytest.approx(expected.item(), rel=1e-4)
+        assert loss.item() == pytest.approx(expected.item(), rel=1e-4)
 
     def test_forward__empty_batch(self) -> None:
         with pytest.raises(ValueError, match="non-empty batch"):
@@ -95,14 +98,27 @@ class TestKoLeoLoss:
         with pytest.raises(ValueError, match="must be divisible by group size"):
             KoLeoLoss(group_size=3)(torch.randn(8, 4))
 
-    def test_forward__topk_not_smaller_than_group_size(self) -> None:
-        with pytest.raises(ValueError, match="must be larger than topk"):
-            KoLeoLoss(topk=4, group_size=4)(torch.randn(8, 4))
+    @pytest.mark.parametrize("topk, group_size", [(4, 4), (5, 4), (2, 1)])
+    def test_forward__topk_too_large_for_group(
+        self, topk: int, group_size: int
+    ) -> None:
+        with pytest.raises(ValueError, match="must not be larger than"):
+            KoLeoLoss(topk=topk, group_size=group_size)(torch.randn(8, 4))
 
     @pytest.mark.parametrize("topk, group_size", [(0, None), (1, 0)])
     def test__init__invalid_parameters(self, topk: int, group_size: int) -> None:
         with pytest.raises(ValueError, match="must be positive"):
             KoLeoLoss(topk=topk, group_size=group_size)
+
+    def test__init__gather_distributed_dist_not_available(
+        self, mocker: MockerFixture
+    ) -> None:
+        mock_is_available = mocker.patch.object(
+            torch_dist, "is_available", return_value=False
+        )
+        with pytest.raises(ValueError, match="torch.distributed is not available"):
+            KoLeoLoss(gather_distributed=True)
+        mock_is_available.assert_called_once()
 
     def test_gather_distributed_world_size_one_does_not_gather(
         self, mocker: MockerFixture
@@ -140,7 +156,7 @@ class TestKoLeoLoss:
         )
         loss = KoLeoLoss(group_size=4, gather_distributed=True)(rank_0)
 
-        assert loss == pytest.approx(expected.item(), rel=1e-5)
+        assert loss.item() == pytest.approx(expected.item(), rel=1e-5)
 
     def test_gather_distributed_gradient_matches_non_distributed(
         self, mocker: MockerFixture

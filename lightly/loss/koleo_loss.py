@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import torch
+import torch.distributed as torch_dist
 from torch import Tensor
 from torch.nn import Module, PairwiseDistance, functional
 
@@ -72,11 +73,14 @@ class KoLeoLoss(Module):
             used as a single group. DINOv3 uses a group size of 16.
         gather_distributed:
             If True, features from all GPUs are gathered before the batch is split into
-            groups. Requires that the distributed process group is initialized.
+            groups. Has no effect if the distributed process group is not initialized.
 
     Examples:
         >>> # initialize loss function
         >>> loss_fn = KoLeoLoss()
+        >>>
+        >>> # or with the settings used by DINOv3
+        >>> loss_fn = KoLeoLoss(group_size=16, gather_distributed=True)
         >>>
         >>> # generate the features of a batch of images
         >>> features = model(images)
@@ -108,16 +112,25 @@ class KoLeoLoss(Module):
                 batch is used as a single group. DINOv3 uses a group size of 16.
             gather_distributed:
                 If True, features from all GPUs are gathered before the batch is split
-                into groups. Requires that the distributed process group is initialized.
+                into groups. Has no effect if the distributed process group is not
+                initialized.
 
         Raises:
             ValueError: If topk or group_size are not positive.
+            ValueError: If gather_distributed is True but torch.distributed is not
+                available.
         """
         super().__init__()
         if topk < 1:
             raise ValueError(f"topk must be positive but is {topk}.")
         if group_size is not None and group_size < 1:
             raise ValueError(f"group_size must be positive but is {group_size}.")
+        if gather_distributed and not torch_dist.is_available():
+            raise ValueError(
+                "gather_distributed is True but torch.distributed is not available. "
+                "Please set gather_distributed=False or install a torch version with "
+                "distributed support."
+            )
 
         self.p = p
         self.eps = eps
@@ -136,8 +149,8 @@ class KoLeoLoss(Module):
             Loss value.
 
         Raises:
-            ValueError: If the batch size is not divisible by group_size or if
-                group_size is not larger than topk.
+            ValueError: If the batch is empty, if the batch size is not divisible by
+                group_size, or if topk is too large for the group size.
         """
         # Normalize the input tensor
         x = functional.normalize(x, p=2, dim=-1, eps=self.eps)
@@ -156,11 +169,14 @@ class KoLeoLoss(Module):
             raise ValueError(
                 f"Batch size {batch_size} must be divisible by group size {group_size}."
             )
-        # A group must hold topk neighbors besides the feature itself, except for the
-        # degenerate group of size one, which is allowed for backwards compatibility.
-        if group_size > 1 and self.topk >= group_size:
+        # A group must hold topk neighbors besides the feature itself. Groups of size
+        # one are the exception: there the feature is its own neighbor, which keeps
+        # a batch size of one working as it did before groups existed.
+        max_topk = max(group_size - 1, 1)
+        if self.topk > max_topk:
             raise ValueError(
-                f"Group size {group_size} must be larger than topk {self.topk}."
+                f"topk {self.topk} must not be larger than {max_topk} for group size "
+                f"{group_size}."
             )
 
         # Get the nearest neighbors and their distances.
