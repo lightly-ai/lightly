@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from PIL.Image import Image
 from torch import Tensor
-from torchvision.transforms import InterpolationMode
 
 from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.utils import IMAGENET_NORMALIZE
@@ -44,7 +43,7 @@ class CAPITransform:
             T.RandomResizedCrop(
                 input_size,
                 scale=(min_scale, 1.0),
-                interpolation=InterpolationMode.BICUBIC,
+                interpolation=T.InterpolationMode.BICUBIC,
             ),
             T.RandomHorizontalFlip(),
             T.ToTensor(),
