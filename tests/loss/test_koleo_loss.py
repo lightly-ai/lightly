@@ -9,6 +9,32 @@ from torch import Tensor
 from torch import distributed as torch_dist
 
 from lightly.loss.koleo_loss import KoLeoLoss
+from tests.ddp_helpers import NUM_PROCESSES, USE_PYTEST_POOL
+
+# Group size used by the distributed tests. The global batch is the concatenation of
+# the local batches, so a group spans the features of both ranks.
+DDP_GROUP_SIZE = 4
+
+
+def _local_batch(batch: Tensor, rank: int, world_size: int) -> Tensor:
+    """Returns the chunk of the global batch that belongs to the given rank."""
+    return batch.chunk(world_size)[rank]
+
+
+def _forward_worker(rank: int, world_size: int, batch: Tensor) -> Tensor:
+    # Pool worker: distributed forward on one rank. See #1982.
+    loss: Tensor = KoLeoLoss(group_size=DDP_GROUP_SIZE, gather_distributed=True)(
+        _local_batch(batch, rank, world_size)
+    )
+    return loss.detach()
+
+
+def _gradient_worker(rank: int, world_size: int, batch: Tensor) -> Tensor:
+    # Pool worker: distributed backward on one rank, returns the input gradient.
+    x = _local_batch(batch, rank, world_size).clone().requires_grad_(True)
+    KoLeoLoss(group_size=DDP_GROUP_SIZE, gather_distributed=True)(x).backward()
+    assert x.grad is not None
+    return x.grad
 
 
 class TestKoLeoLoss:
@@ -190,3 +216,45 @@ class TestKoLeoLoss:
 
         assert local_batch.grad is not None
         assert torch.allclose(local_batch.grad, expected_grad, atol=1e-6)
+
+    @pytest.mark.DDP
+    @pytest.mark.skipif(not USE_PYTEST_POOL, reason="DDP pool is not available")
+    def test__gather_distributed_forward_matches_non_distributed(self) -> None:
+        # Every rank gathers the same global batch, so every rank must see the loss
+        # of the non-distributed run on the concatenated batch.
+        torch.manual_seed(0)
+        batch = torch.randn(NUM_PROCESSES * DDP_GROUP_SIZE, 8)
+
+        losses = pytest.pool.starmap(  # type: ignore[attr-defined]
+            _forward_worker,
+            [(rank, NUM_PROCESSES, batch) for rank in range(NUM_PROCESSES)],
+        )
+        loss_truth = KoLeoLoss(group_size=DDP_GROUP_SIZE)(batch)
+
+        assert all(torch.allclose(loss, loss_truth, atol=1e-5) for loss in losses)
+
+    @pytest.mark.DDP
+    @pytest.mark.skipif(not USE_PYTEST_POOL, reason="DDP pool is not available")
+    def test__gather_distributed_gradient_matches_non_distributed(self) -> None:
+        # Complements the mocked world_size=2 test above, which bypasses GatherLayer
+        # and therefore does not cover its backward.
+        #
+        # Every rank computes the loss of the whole global batch, so GatherLayer's
+        # backward all_reduces NUM_PROCESSES identical gradients before slicing out
+        # the local one. The local gradient is therefore NUM_PROCESSES times the
+        # non-distributed one, which DDP cancels when it averages parameter
+        # gradients across ranks.
+        torch.manual_seed(0)
+        batch = torch.randn(NUM_PROCESSES * DDP_GROUP_SIZE, 8)
+
+        grads = pytest.pool.starmap(  # type: ignore[attr-defined]
+            _gradient_worker,
+            [(rank, NUM_PROCESSES, batch) for rank in range(NUM_PROCESSES)],
+        )
+        batch_ref = batch.clone().requires_grad_(True)
+        KoLeoLoss(group_size=DDP_GROUP_SIZE)(batch_ref).backward()
+        assert batch_ref.grad is not None
+
+        for rank, grad in enumerate(grads):
+            expected = NUM_PROCESSES * _local_batch(batch_ref.grad, rank, NUM_PROCESSES)
+            assert torch.allclose(grad, expected, atol=1e-5)
