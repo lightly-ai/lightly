@@ -39,20 +39,40 @@ This synchronizes the project environment from the lockfile and installs the pre
 
 | Command | Purpose |
 |---|---|
-| `make format` | Auto-fix imports/formatting with ruff |
-| `make format-check` | Check formatting without fixing |
-| `make lint` | Ruff lint (`lint-lightly` + `lint-tests`) |
+| `make format` | Auto-fix imports/formatting/lint with ruff |
+| `make format-check` | Check formatting and lint without fixing |
 | `make type-check` | mypy on `lightly` and `tests` |
-| `make static-checks` | `format-check` + `type-check` |
+| `make lock` | Regenerate `uv.lock` after changing dependencies |
+| `make lock-check` | Fail if `uv.lock` is out of date with `pyproject.toml` |
+| `make static-checks` | `lock-check` + `format-check` + `type-check` |
 | `make test` | `pytest tests --runslow` (full suite) |
 | `make test-fast` | `pytest tests` (skips `@pytest.mark.slow`) |
 | `make all-checks` | `static-checks` + `test` |
 | `make generate-example-notebooks` | Regenerate `examples/notebooks/*` from `examples/{pytorch,pytorch_lightning,pytorch_lightning_distributed}` |
+| `make help` | List the common targets |
+
+The `install-*` and `test-*` targets not listed above exist for CI: each workflow job
+runs exactly one `make install-<scenario>` followed by one `make test-<scenario>`.
+Every install target is a single `uv` command; never layer extra packages on top of an
+installed environment.
 
 If `make format` reports changes, re-run it before `make all-checks`.
 
 Development commands should be executed through the Makefile or `uv run --frozen`
 to ensure they use the locked dependency versions.
+
+## Dependencies
+
+All dependencies live in `pyproject.toml`:
+
+- `[project] dependencies` — required at runtime for every user.
+- `[project.optional-dependencies]` — optional user-facing features (`lightly[timm]`,
+  `lightly[video]`, ...). These ship with the package.
+- `[dependency-groups]` — development-only, never distributed. `dev` is installed by
+  default; `docs`, `dist` and `minimal` are opt-in via `--group`.
+
+After changing dependencies run `make lock` and commit `uv.lock`; `make static-checks`
+fails when the lockfile is stale.
 
 ## Code style (see `CONTRIBUTING.md` for full detail)
 
@@ -61,8 +81,8 @@ to ensure they use the locked dependency versions.
   functions unless very short and obvious.
 - Full type hints everywhere (mypy-clean). Use Python 3.10-style unions (`str |
   Path`, not `Union[str, Path]`); this requires `from __future__ import
-  annotations` at the top of the module (package still declares
-  `requires-python = ">=3.8"` and CI tests old Python versions).
+  annotations` at the top of the module (the package declares
+  `requires-python = ">=3.8"` and CI tests that lowest supported version).
 - Prefer keyword arguments when calling functions with more than one argument.
 - Import functions via their module (`from module import submodule;
   submodule.fn(...)`); import classes directly (`from module.submodule import

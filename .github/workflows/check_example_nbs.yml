@@ -11,31 +11,24 @@ on:
       - "examples/**/*.py"
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   convert-to-nbs:
     name: "Check Example Notebooks"
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
-      - name: Set Up Python
-        uses: actions/setup-python@v5
+        uses: actions/checkout@v6
+      - name: Set Up uv
+        uses: astral-sh/setup-uv@v9
         with:
-          python-version: 3.7
+          version: 0.12.3
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
       - name: Set Up Environment
-        run: |
-          make install-uv reset-venv
-          source .venv/bin/activate
-          make install-pinned-notebook
-      - name: Convert using Script
-        run: |
-          source .venv/bin/activate
-          make generate-example-notebooks
-      - name: Check for diff
-        run: |
-          source .venv/bin/activate
-          git add examples/notebooks/
-          if ! git diff --cached --exit-code; then
-            echo "Notebooks have changed! Please run 'make generate-example-notebooks' and commit the changes."
-            exit 1
-          fi
+        run: make install-notebook
+      - name: Check Notebooks Are Up To Date
+        run: make test-notebooks

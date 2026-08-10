@@ -89,8 +89,11 @@ Follow these steps to start contributing:
    make install-dev
    ```
 
-   This synchronizes the project environment from the lockfile and installs the
-   pre-commit hooks. You do not need to activate the virtual environment manually.
+   This synchronizes the project environment from the lockfile, including the
+   dependencies needed to build the docs, and installs the pre-commit hooks. You do
+   not need to activate the virtual environment manually.
+
+   The package supports Python 3.8 and newer.
 
 5. Develop the features on your branch.
 
@@ -125,6 +128,23 @@ Follow these steps to start contributing:
    
    If you're modifying documents under `docs/source`, make sure to validate that
    they can still be built. This check also runs in CI and the build instructions can be found in `docs/README.md`.
+
+   If you're adding or changing a dependency, put it in the right place in
+   `pyproject.toml`:
+
+   - `[project] dependencies` — required at runtime by every user.
+   - `[project.optional-dependencies]` — optional user-facing features, installable
+     as `lightly[<extra>]`. These are distributed with the package.
+   - `[dependency-groups]` — development-only, never distributed. `dev` is installed
+     automatically; `docs`, `dist` and `minimal` are opt-in via `--group`.
+
+   Afterwards regenerate the lockfile and commit it together with your change:
+
+   ```bash
+   make lock
+   ```
+
+   `make static-checks` fails if `uv.lock` is out of date with `pyproject.toml`.
 
    Once you're happy with your changes, add changed files using `git add` and
    make a commit with `git commit` to record your changes locally:
@@ -175,7 +195,7 @@ Important notes:
 - Make your functions checkable through static typecheckers (`mypy`). This means that it must have proper [type hints](https://docs.python.org/3/library/typing.html) everywhere. We use Python 3.10-style type-hints for Union-types, i.e. `str | Path` instead of `Union[str, Path]`. For backwards-compatibility, this requires that every module using such type-hints imports `from __future__ import annotations` at the very top of the module.
 - Don't overlook the `Raises`.
 - Use punctuation.
-- Docstrings follow the Google convention. The selected `pydocstyle` rules in `pyproject.toml` are checked by `ruff` and run as part of `make format-check` and `make lint`.
+- Docstrings follow the Google convention. The selected `pydocstyle` rules in `pyproject.toml` are checked by `ruff` and run as part of `make format-check`.
 - **Please look carefully at the examples provided below (from the styleguide)**.
 
 #### Packages and Modules

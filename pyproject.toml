@@ -7,7 +7,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name="lightly"
-requires-python = ">=3.6"
+# 3.8 is the lowest version we support and test. Python 3.6/3.7 were never
+# actually installable: the pydantic>=1.10.5 dependency below requires >=3.7, and
+# uv cannot provision an interpreter older than 3.8.
+requires-python = ">=3.8"
 authors = [
     {name = "Lightly Team", email = "team@lightly.ai"},
 ]
@@ -26,8 +29,6 @@ classifiers = [
     "Topic :: Software Development :: Libraries",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.6",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
@@ -58,13 +59,10 @@ all = [
   "lightly[matplotlib,minimal,timm,video]"
 ]
 
-# Minimal dependencies against which we test. Older versions might work depending on the
-# functionality used.
-minimal = [
-  "torch>=1.10.0",
-  "torchvision>=0.11.0",
-  "pytorch_lightning>=1.6",
-]
+# Deprecated. The version floors this extra used to carry are test-only and now live
+# in the `minimal` dependency group, which is not distributed with the package. Kept
+# as an empty extra so `lightly[minimal]` and `lightly[all]` keep resolving.
+minimal = []
 openapi = [
   "python_dateutil>=2.5.3",
   "setuptools>=21.0.0",
@@ -77,21 +75,17 @@ video = ["av>=8.0.3; python_version>='3.8'"]
 matplotlib = ["matplotlib>=3"]
 
 
+# Dependency groups are development-only and are never distributed with the package.
+# Anything users are meant to install goes into [project.optional-dependencies] instead.
 [dependency-groups]
+# Tooling to develop, test, lint and type-check the package. Installed by default,
+# see tool.uv.default-groups below.
 dev = [
-  "sphinx",
   "pytest",
   "pytest-forked",
   "pytest-xdist",
   "pytest-mock",
   "responses",
-  "docutils<=0.16",
-  "sphinx-copybutton",
-  "sphinx-design",
-  "sphinx-gallery",
-  "sphinx-tabs",
-  "sphinx-reredirects",
-  "sphinx_rtd_theme",
   "matplotlib",
   "pre-commit",
   "opencv-python",
@@ -110,11 +104,45 @@ dev = [
   "jupytext",
 ]
 
-[tool.uv]
-environments = ["python_full_version >= '3.8'"]
+# Sphinx and its extensions, only needed to build the documentation in docs/.
+docs = [
+  "sphinx",
+  "docutils<=0.16",
+  "sphinx-copybutton",
+  "sphinx-design",
+  "sphinx-gallery",
+  "sphinx-tabs",
+  "sphinx-reredirects",
+  "sphinx_rtd_theme",
+]
 
-[tool.uv.dependency-groups]
-dev = { requires-python = ">=3.8" }
+# Tooling to build and publish the package to PyPI.
+dist = [
+  "build",
+  "twine",
+  "wheel",
+]
+
+# Lowest dependency versions we test against, used together with
+# `uv sync --resolution=lowest-direct`. Older versions might work depending on the
+# functionality used. This used to be the `minimal` extra.
+minimal = [
+  "torch>=1.10.0",
+  "torchvision>=0.11.0",
+  "pytorch_lightning>=1.6",
+]
+
+[tool.uv]
+# Only `dev` is installed automatically; docs/dist/minimal are opt-in via --group.
+default-groups = ["dev"]
+
+# torch 1.10, which `--resolution=lowest-direct` selects for the minimal test setup,
+# is incompatible with setuptools>=60 ("module 'distutils' has no attribute
+# 'version'"). This has to be a constraint rather than a dependency: as a direct
+# dependency under --resolution=lowest-direct, uv would pick the oldest setuptools on
+# PyPI and fail to build it. The Python marker is required because constraints apply
+# to the whole lockfile, and setuptools<50 has no distutils on Python 3.12.
+constraint-dependencies = ["setuptools<50; python_full_version < '3.9'"]
 
 [project.urls]
 "Homepage" = "https://www.lightly.ai"
@@ -144,7 +172,7 @@ lightly = ["lightly/cli/config/*.yaml"]
 
 [tool.ruff]
 line-length = 88
-target-version = "py37"
+target-version = "py38"
 extend-exclude = ["lightly/openapi_generated"]
 
 [tool.ruff.lint]
