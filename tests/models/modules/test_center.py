@@ -76,9 +76,15 @@ class TestCenter:
         assert torch.all(center.value == expected)
 
 
-def _teacher_logits(batch_size: int, num_prototypes: int) -> Tensor:
-    """Returns logits in [-1, 1], as produced by a projection head with weight norm."""
-    return F.normalize(torch.randn(batch_size, num_prototypes), dim=-1)
+def _teacher_logits(batch_size: int, num_prototypes: int, dim: int = 16) -> Tensor:
+    """Returns logits as produced by a DINO projection head.
+
+    The head L2-normalizes the features before the weight-normed prototype layer, so
+    the logits are cosine similarities and lie in [-1, 1].
+    """
+    features = F.normalize(torch.randn(batch_size, dim), dim=-1)
+    prototypes = F.normalize(torch.randn(dim, num_prototypes), dim=0)
+    return features @ prototypes
 
 
 class TestSinkhornKnopp:

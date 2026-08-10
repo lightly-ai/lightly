@@ -111,45 +111,49 @@ def sinkhorn_knopp(
     x: Tensor,
     temperature: Union[float, Tensor] = 0.04,
     num_iterations: int = 3,
+    gather_distributed: bool = True,
 ) -> Tensor:
-    """Returns teacher probabilities with Sinkhorn-Knopp centering as used in DINOv2 [0]
-    and DINOv3 [1].
+    """Returns Sinkhorn-Knopp normalized probabilities as introduced in SwAV [0].
 
-    Sinkhorn-Knopp centering originates from SwAV [2] and replaces the mean centering
-    followed by a softmax used in DINO [3]. Instead of subtracting a running center, the
-    sharpened teacher logits are normalized such that every prototype receives the same
-    total weight across the batch, which avoids collapse without tracking any state.
+    Instead of subtracting a running center, the sharpened logits are normalized such
+    that every prototype receives the same total weight across the batch, which avoids
+    collapse without tracking any state. DINOv2 [1] offers this as an alternative to the
+    mean centering of DINO [2], but keeps mean centering in its released configs, where
+    it reports no difference on ImageNet-1k. DINOv3 [3] uses it for both the DINO and
+    the iBOT objective.
 
-    Implementation is based on [4]. In distributed settings the normalization is computed
-    over the batches of all processes.
+    Implementation is based on [4] and shared with lightly.loss.swav_loss.sinkhorn.
+    The number of samples is reduced across processes instead of being derived from the
+    world size, because processes can hold a different number of samples. This is the
+    case for the iBOT loss, where the number of masked tokens differs between processes.
 
-    This differs from lightly.loss.swav_loss.sinkhorn, which normalizes by
-    local_batch_size * world_size and only reduces across processes if requested. Here
-    the number of samples is reduced across processes, which is required for the iBOT
-    loss where the number of masked tokens differs between processes.
-
-    - [0]: DINOv2, 2023, https://arxiv.org/abs/2304.07193
-    - [1]: DINOv3, 2025, https://arxiv.org/abs/2508.10104
-    - [2]: SwAV, 2020, https://arxiv.org/abs/2006.09882
-    - [3]: DINO, 2021, https://arxiv.org/abs/2104.14294
+    - [0]: SwAV, 2020, https://arxiv.org/abs/2006.09882
+    - [1]: DINOv2, 2023, https://arxiv.org/abs/2304.07193
+    - [2]: DINO, 2021, https://arxiv.org/abs/2104.14294
+    - [3]: DINOv3, 2025, https://arxiv.org/abs/2508.10104
     - [4]: https://github.com/facebookresearch/dinov3/blob/main/dinov3/loss/dino_clstoken_loss.py
 
     Args:
         x:
-            Tensor with shape (batch_size, num_prototypes) containing the teacher
-            logits.
+            Tensor with shape (batch_size, num_prototypes) containing the logits.
         temperature:
-            Temperature used to sharpen the teacher logits.
+            Temperature used to sharpen the logits.
         num_iterations:
             Number of Sinkhorn-Knopp iterations.
+        gather_distributed:
+            If True, the normalization is computed over the batches of all processes.
 
     Returns:
-        Tensor with shape (batch_size, num_prototypes) containing the teacher
-        probabilities in float32. Every row sums to one. The probabilities are detached
-        from the computation graph, following the reference implementation.
+        Tensor with shape (batch_size, num_prototypes) containing the probabilities in
+        float32. Every row sums to one if num_iterations is at least one. The
+        probabilities are detached from the computation graph, following the reference
+        implementation.
     """
+    gather = gather_distributed and dist.is_available() and dist.is_initialized()
+
     # (batch_size, num_prototypes) -> (num_prototypes, batch_size) following the
-    # notation of the reference implementation.
+    # notation of the reference implementation. The exponential is computed in float32
+    # because it overflows in half precision for the low temperatures used by DINO.
     Q = torch.exp(x.float() / temperature).t()
     num_prototypes = Q.shape[0]
 
@@ -160,7 +164,7 @@ def sinkhorn_knopp(
     # of masked tokens differs between processes.
     local_num_samples = torch.tensor(Q.shape[1], device=Q.device, dtype=Q.dtype)
     sums = torch.stack([Q.sum(), local_num_samples])
-    if dist.is_available() and dist.is_initialized():
+    if gather:
         dist.all_reduce(sums)
     sum_Q, num_samples = sums[0], sums[1]
 
@@ -170,7 +174,7 @@ def sinkhorn_knopp(
     for _ in range(num_iterations):
         # Normalize rows: the total weight per prototype must be 1 / num_prototypes.
         sum_of_rows = torch.sum(Q, dim=1, keepdim=True)
-        if dist.is_available() and dist.is_initialized():
+        if gather:
             dist.all_reduce(sum_of_rows)
         Q /= sum_of_rows
         Q /= num_prototypes
