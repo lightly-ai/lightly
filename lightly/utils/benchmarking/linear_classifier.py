@@ -45,7 +45,7 @@ class BaseClassifier(LightningModule, ABC):
             >>> from torch import nn
             >>> import torchvision
             >>> from lightly.models import LinearClassifier
-            >>> from lightly.modles.modules import SimCLRProjectionHead
+            >>> from lightly.models.modules import SimCLRProjectionHead
             >>>
             >>> class SimCLR(nn.Module):
             >>>     def __init__(self):

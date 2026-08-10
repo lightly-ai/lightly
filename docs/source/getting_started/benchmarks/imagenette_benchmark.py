@@ -1221,7 +1221,7 @@ class VICRegLModel(BenchmarkModule):
 
         # The train_backbone variable is introduced in order to fit with the
         # structure of BenchmarkModule. During training, train_backbone is used
-        # to extract local and global features. Durig evaluation, backbone is used
+        # to extract local and global features. During evaluation, backbone is used
         # to evaluate global features.
         self.train_backbone = nn.Sequential(*list(resnet.children())[:-2])
         self.projection_head = heads.BarlowTwinsProjectionHead(512, 2048, 2048)

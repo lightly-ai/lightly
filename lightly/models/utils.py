@@ -612,6 +612,225 @@ def random_token_mask(
     return idx_keep, idx_mask
 
 
+def random_grid_token_mask(
+    size: Tuple[int, int],
+    mask_ratio: float = 0.75,
+    grid_size: int = 4,
+    num_prefix_tokens: int = 1,
+    device: Optional[Union[torch.device, str]] = None,
+) -> Tuple[Tensor, Tensor]:
+    """Creates random token masks at a coarse grid granularity.
+
+    Instead of masking individual patches (as in :func:`random_token_mask`), whole
+    ``grid_size`` x ``grid_size`` blocks of patches on a regular grid are kept or
+    masked together. This is the larger masking granularity used by Pixio [0] to
+    avoid trivial pixel-reconstruction shortcuts between neighboring patches.
+
+    - [0]: In Pursuit of Pixel Supervision for Visual Pre-training, 2025,
+      https://arxiv.org/abs/2512.15715
+
+    Args:
+        size:
+            Size of the token batch, (batch_size, sequence_length). The sequence
+            length must equal num_prefix_tokens + num_patches where num_patches is a
+            perfect square.
+        mask_ratio:
+            Proportion of grid cells to mask.
+        grid_size:
+            Side length of a grid cell measured in patches. The patch grid height
+            (and width) must be divisible by grid_size.
+        num_prefix_tokens:
+            Number of prefix tokens (e.g. class or register tokens) that precede the
+            patch tokens. They are never masked and are always returned first in
+            idx_keep.
+        device:
+            Device on which to create the index masks.
+
+    Returns:
+        An (idx_keep, idx_mask) tuple of int64 index tensors, where
+        num_cells = (height // grid_size) ** 2 and
+        num_keep = int(num_cells * (1 - mask_ratio)) * grid_size ** 2:
+
+        - idx_keep, shape (batch_size, num_prefix_tokens + num_keep): the prefix
+          token indices followed by the indices of the patches in the kept cells.
+        - idx_mask, shape (batch_size, num_patches - num_keep): the indices of the
+          patches in the masked cells.
+
+        Patch index p maps to token index p + num_prefix_tokens.
+
+    Raises:
+        ValueError: If sequence_length is not greater than num_prefix_tokens, if the
+            number of patches is not a perfect square, or if the patch grid is not
+            divisible by grid_size.
+    """
+    batch_size, sequence_length = size
+    num_patches = sequence_length - num_prefix_tokens
+    if num_patches <= 0:
+        raise ValueError(
+            f"sequence_length ({sequence_length}) must be greater than "
+            f"num_prefix_tokens ({num_prefix_tokens})."
+        )
+    height = width = int(num_patches**0.5)
+    if height * width != num_patches:
+        raise ValueError(
+            f"Number of patches ({num_patches}) must be a perfect square. Got "
+            f"sequence_length={sequence_length} and "
+            f"num_prefix_tokens={num_prefix_tokens}."
+        )
+    if height % grid_size != 0:
+        raise ValueError(
+            f"Patch grid side length ({height}) must be divisible by "
+            f"grid_size ({grid_size})."
+        )
+
+    num_cells = (height // grid_size) * (width // grid_size)
+    num_keep_cells = int(num_cells * (1 - mask_ratio))
+
+    # Map every grid cell to the patch indices it covers: (1, num_cells, grid_size**2).
+    patch_indices = torch.arange(num_patches, device=device).reshape(1, height, width)
+    patch_indices = patch_indices.unfold(1, grid_size, grid_size).unfold(
+        2, grid_size, grid_size
+    )
+    patch_indices = patch_indices.reshape(1, num_cells, grid_size * grid_size)
+    patch_indices = patch_indices.expand(batch_size, -1, -1)
+
+    # Randomly order cells per sample and split into kept and masked cells.
+    noise = torch.rand(batch_size, num_cells, device=device)  # (batch_size, num_cells)
+    cell_order = torch.argsort(noise, dim=1)  # (batch_size, num_cells)
+    keep_cells = cell_order[:, :num_keep_cells]  # (batch_size, num_keep_cells)
+    mask_cells = cell_order[
+        :, num_keep_cells:
+    ]  # (batch_size, num_cells - num_keep_cells)
+
+    # Expand each kept/masked cell to the patch indices it covers, then offset by the
+    # prefix tokens. keep_patches: (batch_size, num_keep_cells * grid_size**2).
+    keep_patches = get_at_index(patch_indices, keep_cells).reshape(batch_size, -1)
+    idx_mask = get_at_index(patch_indices, mask_cells).reshape(batch_size, -1)
+    keep_patches = keep_patches + num_prefix_tokens
+    idx_mask = idx_mask + num_prefix_tokens
+
+    # Prefix tokens are always kept and come first:
+    # idx_keep is (batch_size, num_prefix_tokens + num_keep_cells * grid_size**2).
+    prefix = torch.arange(num_prefix_tokens, device=device)  # (num_prefix_tokens,)
+    prefix = prefix.unsqueeze(0).expand(
+        batch_size, -1
+    )  # (batch_size, num_prefix_tokens)
+    idx_keep = torch.cat([prefix, keep_patches], dim=1)
+
+    return idx_keep, idx_mask
+
+
+def random_inverse_block_mask(
+    size: Tuple[int, int],
+    mask_ratio: float = 0.65,
+    num_prefix_tokens: int = 1,
+    min_aspect: float = 0.5,
+    max_aspect: Optional[float] = None,
+    roll: bool = True,
+    device: Optional[Union[torch.device, str]] = None,
+) -> Tuple[Tensor, Tensor]:
+    """Creates inverse-block token masks as used in CAPI [0].
+
+    A single contiguous, aspect-ratio-varying block of patches is kept visible and
+    the remaining patches are masked (the inverse of block masking). The visible
+    block is optionally rolled across the grid for positional coverage. The number
+    of masked patches is fixed at ``int(num_patches * mask_ratio)``.
+
+    - [0]: CAPI: Cluster and Predict Latent Patches for Improved Masked Image Modeling, 2025, https://arxiv.org/abs/2502.08769
+
+    Args:
+        size:
+            Size of the token batch, (batch_size, sequence_length). The sequence
+            length must equal num_prefix_tokens + num_patches where num_patches is a
+            perfect square.
+        mask_ratio:
+            Proportion of patches to mask.
+        num_prefix_tokens:
+            Number of prefix tokens (e.g. class or register tokens) that precede the
+            patch tokens. They are never masked and are always returned first in
+            idx_keep.
+        min_aspect:
+            Minimum aspect ratio of the visible block.
+        max_aspect:
+            Maximum aspect ratio of the visible block. Defaults to 1 / min_aspect.
+        roll:
+            If True, the visible block is randomly rolled across the grid.
+        device:
+            Device on which to create the index masks.
+
+    Returns:
+        An (idx_keep, idx_mask) tuple of int64 index tensors, where
+        num_masked = int(num_patches * mask_ratio):
+
+        - idx_keep, shape (batch_size, num_prefix_tokens + num_patches - num_masked):
+          the prefix token indices followed by the indices of the visible patches.
+        - idx_mask, shape (batch_size, num_masked): the indices of the masked patches.
+
+        Patch index p maps to token index p + num_prefix_tokens.
+
+    Raises:
+        ValueError: If sequence_length is not greater than num_prefix_tokens or the
+            number of patches is not a perfect square.
+    """
+    batch_size, sequence_length = size
+    num_patches = sequence_length - num_prefix_tokens
+    if num_patches <= 0:
+        raise ValueError(
+            f"sequence_length ({sequence_length}) must be greater than "
+            f"num_prefix_tokens ({num_prefix_tokens})."
+        )
+    height = width = int(num_patches**0.5)
+    if height * width != num_patches:
+        raise ValueError(
+            f"Number of patches ({num_patches}) must be a perfect square. Got "
+            f"sequence_length={sequence_length} and "
+            f"num_prefix_tokens={num_prefix_tokens}."
+        )
+    num_masked = int(num_patches * mask_ratio)
+    num_visible = num_patches - num_masked
+    max_aspect = max_aspect or 1.0 / min_aspect
+    log_aspect_ratio = (math.log(min_aspect), math.log(max_aspect))
+
+    # Masks are built per sample on the cpu and moved to the device once at the end.
+    prefix = torch.arange(num_prefix_tokens)
+    idx_keep_rows = []
+    idx_mask_rows = []
+    for _ in range(batch_size):
+        visible = torch.zeros(num_patches, dtype=torch.bool)
+        if num_visible > 0:
+            # Sample the aspect ratio of the visible block, clamped so it fits.
+            min_lar = max(log_aspect_ratio[0], math.log(num_visible / width**2))
+            max_lar = min(
+                log_aspect_ratio[1], math.log(height**2 / (num_visible + 1e-5))
+            )
+            aspect = math.exp(float(torch.empty(1).uniform_(min_lar, max_lar).item()))
+            block_h = min(height, math.ceil(math.sqrt(num_visible * aspect)))
+            block_w = min(width, math.ceil(math.sqrt(num_visible / aspect)))
+            top = int(torch.randint(0, height - block_h + 1, (1,)).item())
+            left = int(torch.randint(0, width - block_w + 1, (1,)).item())
+            grid = torch.zeros(height, width, dtype=torch.bool)
+            grid[top : top + block_h, left : left + block_w] = True
+            # Truncate to exactly num_visible patches, keeping row-major order.
+            block_ids = grid.flatten().nonzero().flatten()[:num_visible]
+            visible[block_ids] = True
+            if roll:
+                shift_x = int(torch.randint(0, height, (1,)).item())
+                shift_y = int(torch.randint(0, width, (1,)).item())
+                visible = torch.roll(
+                    visible.reshape(height, width),
+                    shifts=(shift_x, shift_y),
+                    dims=(0, 1),
+                ).flatten()
+        visible_patches = visible.nonzero().flatten()
+        masked_patches = (~visible).nonzero().flatten()
+        idx_keep_rows.append(torch.cat([prefix, visible_patches + num_prefix_tokens]))
+        idx_mask_rows.append(masked_patches + num_prefix_tokens)
+
+    idx_keep = torch.stack(idx_keep_rows).to(device)
+    idx_mask = torch.stack(idx_mask_rows).to(device)
+    return idx_keep, idx_mask
+
+
 def random_prefix_mask(
     size: Tuple[int, int],
     max_prefix_length: int,
@@ -1055,13 +1274,13 @@ def initialize_positional_embedding(
             f"{strategies}."
         )
 
-    # Initialize the positional embedding based on the startegy
+    # Initialize the positional embedding based on the strategy
     if strategy == "learn":
         initialize_learnable_positional_embedding(pos_embedding)
     elif strategy == "sincos":
         initialize_2d_sine_cosine_positional_embedding(
             pos_embedding=pos_embedding,
-            has_class_token=num_prefix_tokens > 0,
+            num_prefix_tokens=num_prefix_tokens,
         )
     elif strategy == "skip":
         return
@@ -1083,14 +1302,31 @@ def initialize_learnable_positional_embedding(pos_embedding: Parameter) -> None:
 
 
 def initialize_2d_sine_cosine_positional_embedding(
-    pos_embedding: Parameter, has_class_token: bool
+    pos_embedding: Parameter,
+    has_class_token: bool = True,
+    num_prefix_tokens: Optional[int] = None,
 ) -> None:
+    """Initializes a positional embedding in-place with a fixed 2D sine-cosine embedding.
+
+    The positional embedding is frozen (requires_grad set to False) afterwards.
+
+    Args:
+        pos_embedding:
+            Positional embedding parameter to initialize in-place.
+        has_class_token:
+            Whether the embedding has a single prefix (class) token. Ignored if
+            num_prefix_tokens is set.
+        num_prefix_tokens:
+            Number of prefix tokens (e.g. class or register tokens). Overrides
+            has_class_token when set.
+    """
+    n_prefix = int(has_class_token) if num_prefix_tokens is None else num_prefix_tokens
     _, seq_length, hidden_dim = pos_embedding.shape
-    grid_size = int((seq_length - int(has_class_token)) ** 0.5)
+    grid_size = int((seq_length - n_prefix) ** 0.5)
     sine_cosine_embedding = get_2d_sine_cosine_positional_embedding(
         embed_dim=hidden_dim,
         grid_size=grid_size,
-        cls_token=has_class_token,
+        num_prefix_tokens=n_prefix,
     )
     pos_embedding.data.copy_(
         torch.from_numpy(sine_cosine_embedding).float().unsqueeze(0)
@@ -1100,7 +1336,10 @@ def initialize_2d_sine_cosine_positional_embedding(
 
 
 def get_2d_sine_cosine_positional_embedding(
-    embed_dim: int, grid_size: int, cls_token: bool
+    embed_dim: int,
+    grid_size: int,
+    cls_token: bool = True,
+    num_prefix_tokens: Optional[int] = None,
 ) -> NDArray[np.float32]:
     """Generates 2D sine-cosine positional embedding.
 
@@ -1112,12 +1351,17 @@ def get_2d_sine_cosine_positional_embedding(
         grid_size:
             Height and width of the grid.
         cls_token:
-            If True, a positional embedding for the class token is generated.
+            If True, a single zero positional embedding for the class token is
+            prepended. Ignored if num_prefix_tokens is set.
+        num_prefix_tokens:
+            If set, this many zero positional embeddings are prepended, for models
+            with multiple class or register tokens. Overrides cls_token.
 
     Returns:
-        Positional embedding with shape (grid_size * grid_size, embed_dim) or
-        (1 + grid_size * grid_size, embed_dim) if cls_token is True.
+        Positional embedding with shape (num_prefix + grid_size * grid_size, embed_dim)
+        where num_prefix is num_prefix_tokens if set, else int(cls_token).
     """
+    n_prefix = int(cls_token) if num_prefix_tokens is None else num_prefix_tokens
     grid_h = np.arange(grid_size, dtype=np.float32)
     grid_w = np.arange(grid_size, dtype=np.float32)
     grid = np.meshgrid(grid_w, grid_h)  # here w goes first
@@ -1125,8 +1369,8 @@ def get_2d_sine_cosine_positional_embedding(
 
     grid = grid.reshape([2, 1, grid_size, grid_size])
     pos_embed = get_2d_sine_cosine_positional_embedding_from_grid(embed_dim, grid)
-    if cls_token:
-        pos_embed = np.concatenate([np.zeros([1, embed_dim]), pos_embed], axis=0)
+    if n_prefix > 0:
+        pos_embed = np.concatenate([np.zeros([n_prefix, embed_dim]), pos_embed], axis=0)
     return pos_embed
 
 

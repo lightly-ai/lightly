@@ -53,7 +53,7 @@ class MSNTransform(MultiViewTransform):
         cj_bright:
             How much to jitter brightness.
         cj_contrast:
-            How much to jitter constrast.
+            How much to jitter contrast.
         cj_sat:
             How much to jitter saturation.
         cj_hue:
@@ -134,6 +134,28 @@ class MSNTransform(MultiViewTransform):
 
 
 class MSNViewTransform:
+    """Transforms an image into a single view for MSN [0].
+
+    Used by MSNTransform to create the random and focal views of an image.
+
+    Input to this transform:
+        PIL Image. (Tensor inputs are supported when torchvision transforms v2 are available.)
+    Output of this transform:
+        Tensor.
+
+    Applies the following augmentations by default:
+        - Random resized crop
+        - Random horizontal flip
+        - Random vertical flip
+        - Color jitter
+        - Random gray scale
+        - Gaussian blur
+        - ImageNet normalization
+
+    - [0]: Masked Siamese Networks, 2022: https://arxiv.org/abs/2204.07141
+
+    """
+
     def __init__(
         self,
         crop_size: int = 224,
@@ -152,6 +174,31 @@ class MSNViewTransform:
         vf_prob: float = 0.0,
         normalize: Dict[str, List[float]] = IMAGENET_NORMALIZE,
     ):
+        """Initializes MSNViewTransform.
+
+        Args:
+            crop_size: Size of the cropped image in pixels.
+            crop_scale: Tuple of min and max scales relative to crop_size.
+            cj_prob: Probability that color jitter is applied.
+            cj_strength: Strength of the color jitter. `cj_bright`, `cj_contrast`,
+                `cj_sat`, and `cj_hue` are multiplied by this value.
+            cj_bright: How much to jitter brightness.
+            cj_contrast: How much to jitter contrast.
+            cj_sat: How much to jitter saturation.
+            cj_hue: How much to jitter hue.
+            gaussian_blur: Probability of Gaussian blur.
+            kernel_size: Will be deprecated in favor of `sigmas` argument. If set,
+                the old behavior applies and `sigmas` is ignored. Used to calculate
+                sigma of gaussian blur with kernel_size * input_size.
+            sigmas: Tuple of min and max value from which the std of the gaussian
+                kernel is sampled. Is ignored if `kernel_size` is set.
+            random_gray_scale: Probability of conversion to grayscale.
+            hf_prob: Probability that horizontal flip is applied.
+            vf_prob: Probability that vertical flip is applied.
+            normalize: Dictionary with 'mean' and 'std' for
+                torchvision.transforms.Normalize.
+
+        """
         color_jitter = T.ColorJitter(
             brightness=cj_strength * cj_bright,
             contrast=cj_strength * cj_contrast,

@@ -63,6 +63,12 @@ test:
 test-fast:
 	pytest tests
 
+## run distributed tests on the shared gloo pool (see #1982)
+# python -m pytest is required (instead of plain pytest) because it adds the repo
+# root to sys.path, which the spawned pool workers need to import the tests package.
+test-distributed:
+	USE_PYTEST_POOL=1 python -m pytest tests --runslow -m DDP
+
 ## check typing
 type-check:
 	mypy lightly tests

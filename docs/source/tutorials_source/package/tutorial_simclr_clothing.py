@@ -237,7 +237,7 @@ def plot_knn_examples(embeddings, filenames, n_neighbors=3, num_examples=6):
         for plot_x_offset, neighbor_idx in enumerate(indices[idx]):
             # add the subplot
             ax = fig.add_subplot(1, len(indices[idx]), plot_x_offset + 1)
-            # get the correponding filename for the current index
+            # get the corresponding filename for the current index
             fname = os.path.join(path_to_data, filenames[neighbor_idx])
             # plot the image
             plt.imshow(get_image_as_np_array(fname))
@@ -250,7 +250,7 @@ def plot_knn_examples(embeddings, filenames, n_neighbors=3, num_examples=6):
 # %%
 # Let's do the plot of the images. The leftmost image is the query image whereas
 # the ones next to it on the same row are the nearest neighbors.
-# In the title we see the distance of the neigbor.
+# In the title we see the distance of the neighbor.
 plot_knn_examples(embeddings, filenames)
 
 # %%

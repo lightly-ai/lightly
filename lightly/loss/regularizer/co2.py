@@ -37,7 +37,7 @@ class CO2Regularizer(Module):
         >>> # initialize CO2 regularizer
         >>> co2 = CO2Regularizer(alpha=1.0, memory_bank_size=(4096, 128))
         >>>
-        >>> # generate two random trasnforms of images
+        >>> # generate two random transforms of images
         >>> t0 = transforms(images)
         >>> t1 = transforms(images)
         >>>
@@ -66,7 +66,7 @@ class CO2Regularizer(Module):
         """
         super().__init__()
         self.memory_bank = MemoryBankModule(size=memory_bank_size)
-        # Try-catch the KLDivLoss construction for backwards compatability
+        # Try-catch the KLDivLoss construction for backwards compatibility
         self.log_target = True
         try:
             self.kl_div = torch.nn.KLDivLoss(reduction="batchmean", log_target=True)

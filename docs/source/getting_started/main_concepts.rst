@@ -26,7 +26,7 @@ below.
 
 * **Transform**
    In self-supervised learning, the input images are often randomly transformed into
-   *views* of the orignal images. The views and their underlying transforms are
+   *views* of the original images. The views and their underlying transforms are
    important as they define the properties of the model and the image embeddings.
    You can either use our pre-defined :py:mod:`~lightly.transforms` or write your own.
    For more information, check out the following pages:

@@ -121,7 +121,7 @@ class MSNLoss(nn.Module):
             Weight factor lambda by which the regularization loss is scaled. Set to 0
             to disable regularization.
         me_max_weight:
-            Deprecated, use `regularization_weight` instead. Takes precendence over
+            Deprecated, use `regularization_weight` instead. Takes precedence over
             `regularization_weight` if not None. Weight factor lambda by which the mean
             entropy maximization regularization loss is scaled. Set to 0 to disable
             mean entropy maximization reguliarization.

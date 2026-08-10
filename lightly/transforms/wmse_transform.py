@@ -41,7 +41,7 @@ class WMSETransform(MultiViewTransform):
         cj_bright:
             How much to jitter brightness.
         cj_contrast:
-            How much to jitter constrast.
+            How much to jitter contrast.
         cj_sat:
             How much to jitter saturation.
         cj_hue:
@@ -92,7 +92,7 @@ class WMSETransform(MultiViewTransform):
                 T.RandomResizedCrop(
                     input_size,
                     scale=(min_scale, 1.0),
-                    interpolation=3,
+                    interpolation=T.InterpolationMode.BICUBIC,
                 ),
                 T.RandomHorizontalFlip(p=hf_prob),
                 GaussianBlur(

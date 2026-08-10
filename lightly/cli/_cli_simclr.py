@@ -14,7 +14,7 @@ from lightly.models.modules import SimCLRProjectionHead
 class _SimCLR(nn.Module):
     """Implementation of SimCLR used by the command-line interface.
 
-    Provides backwards compatability with old checkpoints.
+    Provides backwards compatibility with old checkpoints.
     """
 
     def __init__(self, backbone: nn.Module, num_ftrs: int = 32, out_dim: int = 128):

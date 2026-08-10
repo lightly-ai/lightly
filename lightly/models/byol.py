@@ -77,7 +77,7 @@ class BYOL(nn.Module, _MomentumEncoderMixin):
         """Forward pass through the encoder and the momentum encoder.
 
         Performs the momentum update, extracts features with the backbone and
-        applies the projection (and prediciton) head to the output space. If
+        applies the projection (and prediction) head to the output space. If
         x1 is None, only x0 will be processed otherwise, x0 is processed with
         the encoder and x1 with the momentum encoder.
 
@@ -88,7 +88,7 @@ class BYOL(nn.Module, _MomentumEncoderMixin):
                 Tensor of shape bsz x channels x W x H.
 
         Returns:
-            The output proejction of x0 and (if x1 is not None) the output
+            The output projection of x0 and (if x1 is not None) the output
             projection of x1.
 
         Examples:

@@ -64,7 +64,9 @@ def cosine_schedule(
             * (np.cos(np.pi * step / (max_steps - 1)) + 1)
             / 2
         )
-    return decay
+    # Cast to float as numpy operations result in np.float64. Checkpoints with
+    # np.float64 values cannot be loaded with torch.load(..., weights_only=True).
+    return float(decay)
 
 
 def cosine_warmup_schedule(

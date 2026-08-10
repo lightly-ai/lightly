@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import copy
 import random
-import unittest
 from typing import Optional
 
 import pytest
@@ -144,7 +143,10 @@ class TestMaskReduce:
         mask = torch.zeros((b, h, w), dtype=torch.int64)
         pooled_global = torch.mean(proj, dim=(2, 3)).unsqueeze(-1)  # (b, c, 1=num_cls)
         pooled_mask = pool_masked(proj, mask, num_cls=1)  # (b, c, 1=num_cls)
-        assert torch.allclose(pooled_global, pooled_mask)
+        # `pool_masked` uses `scatter_reduce_(reduce="mean")` which sums elements in
+        # a different order than `torch.mean`, producing ~1e-7 float32 noise on CPU.
+        # The result is mathematically equivalent; loosen the tolerance accordingly.
+        assert torch.allclose(pooled_global, pooled_mask, atol=1e-5, rtol=1e-3)
 
 
 def has_grad(model: nn.Module) -> bool:
@@ -157,7 +159,7 @@ def has_grad(model: nn.Module) -> bool:
     return has_grad_
 
 
-class TestModelUtils(unittest.TestCase):
+class TestModelUtils:
     def _assert_tensor_equal(self, x: Tensor, y: Tensor) -> None:
         # If the assertion fails then only an "assertion is not True" error is
         # shown without showing the contents of x and y. To help debugging, x
@@ -165,26 +167,27 @@ class TestModelUtils(unittest.TestCase):
         # fails.
         print(x)
         print(y)
-        self.assertTrue(torch.equal(x, y))
+        assert torch.equal(x, y)
 
-    def test_batch_shuffle(self, seed: int = 0) -> None:
+    def test_batch_shuffle(self) -> None:
+        seed = 0
         torch.manual_seed(seed)
         x1 = torch.rand((4, 3, 64, 64))
         x1_shuffled, shuffle = batch_shuffle(x1)
         out1 = batch_unshuffle(x1_shuffled, shuffle)
-        self.assertTrue(torch.equal(x1, out1))
-        self.assertFalse(torch.equal(x1, x1_shuffled))
+        assert torch.equal(x1, out1)
+        assert not torch.equal(x1, x1_shuffled)
 
     def test_activate_requires_grad(self) -> None:
         model = nn.Sequential(
             nn.Linear(32, 32),
             nn.ReLU(),
         )
-        self.assertTrue(has_grad(model))
+        assert has_grad(model)
         deactivate_requires_grad(model)
-        self.assertFalse(has_grad(model))
+        assert not has_grad(model)
         activate_requires_grad(model)
-        self.assertTrue(has_grad(model))
+        assert has_grad(model)
 
     def test_momentum_works(self) -> None:
         model = nn.Sequential(
@@ -199,30 +202,31 @@ class TestModelUtils(unittest.TestCase):
         output_dim = 64
         linear = nn.Linear(input_dim, output_dim, bias=False)
         normalize_weight(linear.weight, dim=0)
-        self.assertEqual(linear.weight.norm(dim=0).sum(), input_dim)
+        assert linear.weight.norm(dim=0).sum() == input_dim
         normalize_weight(linear.weight, dim=1)
-        self.assertEqual(linear.weight.norm(dim=1).sum(), output_dim)
+        assert linear.weight.norm(dim=1).sum() == output_dim
 
-    def test_no_grad_trunc_normal(self, device: str = "cpu", seed: int = 0) -> None:
+    @pytest.mark.parametrize("device", ["cpu", "cuda"])
+    def test_no_grad_trunc_normal(self, device: str) -> None:
+        if device == "cuda" and not torch.cuda.is_available():
+            pytest.skip("CUDA not available")
+        seed = 0
         torch.manual_seed(seed)
         tensor = torch.rand((8, 16)).to(device)
         a = -2
         b = 2
         _no_grad_trunc_normal(tensor, mean=0, std=1, a=-2, b=2)
-        self.assertTrue(tensor.min() >= a)
-        self.assertTrue(tensor.max() <= b)
-
-    @unittest.skipUnless(torch.cuda.is_available(), "No cuda available")
-    def test_no_grad_trunc_normal_cuda(self) -> None:
-        self.test_no_grad_trunc_normal(device="cuda")
+        assert tensor.min() >= a
+        assert tensor.max() <= b
 
     def test_repeat_token(self) -> None:
         token = torch.Tensor([[[1, 2, 3, 4]]])
         out = utils.repeat_token(token, size=(2, 3))
-        self.assertEqual(tuple(out.shape), (2, 3, 4))
-        self.assertListEqual(out[-1][-1].tolist(), [1, 2, 3, 4])
+        assert tuple(out.shape) == (2, 3, 4)
+        assert out[-1][-1].tolist() == [1, 2, 3, 4]
 
-    def test_expand_index_like(self, seed: int = 0) -> None:
+    def test_expand_index_like(self) -> None:
+        seed = 0
         torch.manual_seed(seed)
         index = torch.Tensor(
             [
@@ -233,9 +237,10 @@ class TestModelUtils(unittest.TestCase):
         tokens = torch.rand(2, 4, 5)
         expanded_index = utils.expand_index_like(index, tokens)
 
-        self.assertEqual(tuple(expanded_index.shape), (2, 3, 5))
+        assert tuple(expanded_index.shape) == (2, 3, 5)
 
-    def test_get_at_index(self, seed: int = 0) -> None:
+    def test_get_at_index(self) -> None:
+        seed = 0
         torch.manual_seed(seed)
         index = torch.Tensor(
             [
@@ -246,14 +251,15 @@ class TestModelUtils(unittest.TestCase):
         tokens = torch.rand(2, 4, 5)
         selected = utils.get_at_index(tokens, index)
 
-        self.assertEqual(tuple(selected.shape), (2, 3, 5))
+        assert tuple(selected.shape) == (2, 3, 5)
 
         # make sure that correct tokens were selected
         for i in range(index.shape[0]):
             for j in range(index.shape[1]):
                 self._assert_tensor_equal(tokens[i, index[i, j]], selected[i, j])
 
-    def test_set_at_index(self, seed: int = 0) -> None:
+    def test_set_at_index(self) -> None:
+        seed = 0
         torch.manual_seed(seed)
         index = torch.Tensor(
             [
@@ -270,7 +276,8 @@ class TestModelUtils(unittest.TestCase):
             for j in range(index.shape[1]):
                 self._assert_tensor_equal(new_tokens[i, index[i, j]], values[i, j])
 
-    def test_mask_at_index(self, seed: int = 0) -> None:
+    def test_mask_at_index(self) -> None:
+        seed = 0
         torch.manual_seed(seed)
         index = torch.Tensor(
             [
@@ -285,18 +292,20 @@ class TestModelUtils(unittest.TestCase):
             for j in range(index.shape[1]):
                 self._assert_tensor_equal(new_tokens[i, index[i, j]], mask_token[0, 0])
 
-    def test_prepend_class_token(self, seed: int = 0) -> None:
+    def test_prepend_class_token(self) -> None:
+        seed = 0
         torch.manual_seed(seed)
         tokens = torch.rand(2, 3, 5)
         class_token = torch.rand(1, 1, 5)
         new_tokens = utils.prepend_class_token(tokens, class_token)
-        self.assertListEqual(list(new_tokens.shape), [2, 4, 5])
+        assert list(new_tokens.shape) == [2, 4, 5]
 
         # make sure that class token is inserted in correct place
         for i in range(new_tokens.shape[0]):
             self._assert_tensor_equal(new_tokens[i][0], class_token[0, 0])
 
-    def test_patchify(self, seed: int = 0) -> None:
+    def test_patchify(self) -> None:
+        seed = 0
         torch.manual_seed(seed)
         batch_size, channels, height, width = (2, 3, 8, 8)
         patch_size = 4
@@ -308,9 +317,7 @@ class TestModelUtils(unittest.TestCase):
         num_patches = height_patches * width_patches
         patch_dim = channels * patch_size**2
 
-        self.assertListEqual(
-            list(batch_patches.shape), [batch_size, num_patches, patch_dim]
-        )
+        assert list(batch_patches.shape) == [batch_size, num_patches, patch_dim]
 
         # make sure that patches are correctly formed
         for image, img_patches in zip(images, batch_patches):
@@ -327,7 +334,8 @@ class TestModelUtils(unittest.TestCase):
                     img_patch = img_patches[i * width_patches + j]
                     self._assert_tensor_equal(img_patch, expected_patch)
 
-    def test_unpatchify(self, seed: int = 0) -> None:
+    def test_unpatchify(self) -> None:
+        seed = 0
         torch.manual_seed(seed)
         batch_size, channels, height, width = (2, 3, 8, 8)
         patch_size = 4
@@ -364,7 +372,7 @@ class TestModelUtils(unittest.TestCase):
 
         if not mask_class_token:
             # class token should be first in index
-            self.assertTrue(torch.all(idx_keep[:, 0] == 0))
+            assert torch.all(idx_keep[:, 0] == 0)
 
     def _test_random_token_mask_parameters(self, device: str) -> None:
         for mask_ratio in [0, 0.6, 1.0]:
@@ -427,7 +435,7 @@ class TestModelUtils(unittest.TestCase):
             torch.tensor([[[1, 1]], [[3, 3]], [[1, 1]]])
         )
 
-    @unittest.skipUnless(torch.cuda.is_available(), "No cuda available")
+    @pytest.mark.skipif(not torch.cuda.is_available(), reason="No cuda available")
     def test_random_token_mask_cuda(self) -> None:
         self._test_random_token_mask_parameters(device="cuda")
 
@@ -898,6 +906,20 @@ def test_initialize_positional_embedding(
         mock_fn.assert_called_once()
 
 
+def test_initialize_positional_embedding__sincos_multiple_prefix_tokens() -> None:
+    num_prefix_tokens, grid_size, embed_dim = 8, 4, 16
+    seq_length = num_prefix_tokens + grid_size * grid_size
+    pos_embedding = Parameter(torch.rand(1, seq_length, embed_dim))
+    utils.initialize_positional_embedding(
+        pos_embedding=pos_embedding,
+        strategy="sincos",
+        num_prefix_tokens=num_prefix_tokens,
+    )
+    # prefix rows are zeroed by the sincos init
+    assert (pos_embedding[0, :num_prefix_tokens] == 0).all()
+    assert not (pos_embedding[0, num_prefix_tokens:] == 0).all()
+
+
 def test_initialize_learnable_positional_embedding() -> None:
     pos_embedding = Parameter(torch.ones(1, 1, 64))
     orig_pos_embedding = pos_embedding.clone()
@@ -915,10 +937,13 @@ def test_normalize_mean_var() -> None:
     assert norm[1] == pytest.approx(0.0)
     assert norm[2] == pytest.approx(1)
 
+    # seed for determinism; atol is loosened because normalize_mean_var regularizes
+    # with eps, so the output variance is 1 - eps / var(x) rather than exactly 1.
+    torch.manual_seed(0)
     x = torch.rand(2, 3, 4)
     norm = utils.normalize_mean_var(x)
     assert torch.allclose(norm.mean(dim=-1), torch.tensor(0.0), rtol=0.0001, atol=1e-5)
-    assert torch.allclose(norm.var(dim=-1), torch.tensor(1.0), rtol=0.0001, atol=1e-5)
+    assert torch.allclose(norm.var(dim=-1), torch.tensor(1.0), rtol=0.0001, atol=1e-4)
 
 
 def test_update_drop_path_rate__uniform() -> None:
@@ -968,3 +993,216 @@ def test_update_drop_path_rate__unknown_mode() -> None:
     model = VisionTransformer(drop_path_rate=0, depth=4)
     with pytest.raises(ValueError, match="Unknown mode"):
         utils.update_drop_path_rate(model=model, drop_path_rate=0.1, mode="unknown")
+
+
+def test_random_grid_token_mask__partition() -> None:
+    torch.manual_seed(0)
+    batch_size, num_prefix_tokens = 2, 1
+    sequence_length = num_prefix_tokens + 16  # 4x4 patch grid
+    idx_keep, idx_mask = utils.random_grid_token_mask(
+        size=(batch_size, sequence_length),
+        mask_ratio=0.5,
+        grid_size=2,
+        num_prefix_tokens=num_prefix_tokens,
+    )
+    idx, _ = torch.cat([idx_keep, idx_mask], dim=1).sort(dim=1)
+    expected = torch.arange(sequence_length).expand(batch_size, sequence_length)
+    assert torch.equal(idx, expected)
+
+
+def test_random_grid_token_mask__prefix_tokens_kept() -> None:
+    torch.manual_seed(0)
+    batch_size, num_prefix_tokens = 3, 8
+    sequence_length = num_prefix_tokens + 16
+    idx_keep, idx_mask = utils.random_grid_token_mask(
+        size=(batch_size, sequence_length),
+        mask_ratio=0.75,
+        grid_size=2,
+        num_prefix_tokens=num_prefix_tokens,
+    )
+    prefix = torch.arange(num_prefix_tokens).expand(batch_size, num_prefix_tokens)
+    assert torch.equal(idx_keep[:, :num_prefix_tokens], prefix)
+    assert idx_mask.min().item() >= num_prefix_tokens
+
+
+def test_random_grid_token_mask__whole_cell_granularity() -> None:
+    torch.manual_seed(0)
+    num_prefix_tokens = 1
+    sequence_length = num_prefix_tokens + 16
+    cells = [{0, 1, 4, 5}, {2, 3, 6, 7}, {8, 9, 12, 13}, {10, 11, 14, 15}]
+    idx_keep, idx_mask = utils.random_grid_token_mask(
+        size=(1, sequence_length),
+        mask_ratio=0.5,
+        grid_size=2,
+        num_prefix_tokens=num_prefix_tokens,
+    )
+    masked = {int(i) - num_prefix_tokens for i in idx_mask[0]}
+    for cell in cells:
+        assert masked.issuperset(cell) or masked.isdisjoint(cell)
+
+
+def test_random_grid_token_mask__keep_count() -> None:
+    num_prefix_tokens = 1
+    sequence_length = num_prefix_tokens + 16  # 4 cells of 4 patches (grid=2)
+    idx_keep, idx_mask = utils.random_grid_token_mask(
+        size=(2, sequence_length),
+        mask_ratio=0.75,
+        grid_size=2,
+        num_prefix_tokens=num_prefix_tokens,
+    )
+    # keep int(4 * 0.25) = 1 cell -> 4 patches, + 1 prefix
+    assert idx_keep.shape == (2, num_prefix_tokens + 4)
+    assert idx_mask.shape == (2, 12)
+
+
+def test_random_grid_token_mask__not_divisible_raises() -> None:
+    with pytest.raises(ValueError):
+        utils.random_grid_token_mask(
+            size=(1, 1 + 16), mask_ratio=0.5, grid_size=3, num_prefix_tokens=1
+        )
+
+
+def test_random_grid_token_mask__not_square_raises() -> None:
+    with pytest.raises(ValueError):
+        utils.random_grid_token_mask(
+            size=(1, 1 + 15), mask_ratio=0.5, grid_size=2, num_prefix_tokens=1
+        )
+
+
+def test_random_grid_token_mask__prefix_ge_sequence_raises() -> None:
+    with pytest.raises(ValueError):
+        # num_prefix_tokens >= sequence_length -> non-positive patch count.
+        utils.random_grid_token_mask(
+            size=(1, 3), mask_ratio=0.5, grid_size=2, num_prefix_tokens=5
+        )
+
+
+def test_random_inverse_block_mask__partition() -> None:
+    torch.manual_seed(0)
+    batch_size, num_prefix_tokens = 2, 1
+    sequence_length = num_prefix_tokens + 16  # 4x4 patch grid
+    idx_keep, idx_mask = utils.random_inverse_block_mask(
+        size=(batch_size, sequence_length),
+        mask_ratio=0.5,
+        num_prefix_tokens=num_prefix_tokens,
+    )
+    idx, _ = torch.cat([idx_keep, idx_mask], dim=1).sort(dim=1)
+    expected = torch.arange(sequence_length).expand(batch_size, sequence_length)
+    assert torch.equal(idx, expected)
+
+
+def test_random_inverse_block_mask__prefix_tokens_kept() -> None:
+    torch.manual_seed(0)
+    batch_size, num_prefix_tokens = 3, 8
+    sequence_length = num_prefix_tokens + 16
+    idx_keep, idx_mask = utils.random_inverse_block_mask(
+        size=(batch_size, sequence_length),
+        mask_ratio=0.75,
+        num_prefix_tokens=num_prefix_tokens,
+    )
+    prefix = torch.arange(num_prefix_tokens).expand(batch_size, num_prefix_tokens)
+    assert torch.equal(idx_keep[:, :num_prefix_tokens], prefix)
+    assert idx_mask.min().item() >= num_prefix_tokens
+
+
+def test_random_inverse_block_mask__fixed_count() -> None:
+    num_prefix_tokens = 1
+    sequence_length = num_prefix_tokens + 16  # 4x4 patch grid
+    idx_keep, idx_mask = utils.random_inverse_block_mask(
+        size=(4, sequence_length),
+        mask_ratio=0.75,
+        num_prefix_tokens=num_prefix_tokens,
+    )
+    # int(16 * 0.75) = 12 masked, 4 visible, + 1 prefix
+    assert idx_mask.shape == (4, 12)
+    assert idx_keep.shape == (4, num_prefix_tokens + 4)
+
+
+def test_random_inverse_block_mask__not_square_raises() -> None:
+    with pytest.raises(ValueError):
+        utils.random_inverse_block_mask(
+            size=(1, 1 + 15), mask_ratio=0.5, num_prefix_tokens=1
+        )
+
+
+def test_random_grid_token_mask__mask_ratio_extremes() -> None:
+    num_prefix_tokens = 1
+    sequence_length = num_prefix_tokens + 16  # 4 cells of 4 patches (grid=2)
+    # mask_ratio=0.0 keeps all patches and masks none.
+    idx_keep, idx_mask = utils.random_grid_token_mask(
+        size=(2, sequence_length),
+        mask_ratio=0.0,
+        grid_size=2,
+        num_prefix_tokens=num_prefix_tokens,
+    )
+    assert idx_keep.shape == (2, sequence_length)
+    assert idx_mask.shape == (2, 0)
+    # mask_ratio=1.0 keeps only the prefix tokens and masks all patches.
+    idx_keep, idx_mask = utils.random_grid_token_mask(
+        size=(2, sequence_length),
+        mask_ratio=1.0,
+        grid_size=2,
+        num_prefix_tokens=num_prefix_tokens,
+    )
+    assert idx_keep.shape == (2, num_prefix_tokens)
+    assert idx_mask.shape == (2, 16)
+
+
+def test_random_grid_token_mask__grid_size_4() -> None:
+    torch.manual_seed(0)
+    num_prefix_tokens = 8
+    # 16x16 patch grid -> 4x4 = 16 cells of 4x4 patches (Pixio's headline config).
+    sequence_length = num_prefix_tokens + 256
+    idx_keep, idx_mask = utils.random_grid_token_mask(
+        size=(2, sequence_length),
+        mask_ratio=0.75,
+        grid_size=4,
+        num_prefix_tokens=num_prefix_tokens,
+    )
+    # keep int(16 * 0.25) = 4 cells -> 64 patches (+ 8 prefix); mask 12 cells -> 192.
+    assert idx_keep.shape == (2, num_prefix_tokens + 64)
+    assert idx_mask.shape == (2, 192)
+    idx, _ = torch.cat([idx_keep, idx_mask], dim=1).sort(dim=1)
+    expected = torch.arange(sequence_length).expand(2, sequence_length)
+    assert torch.equal(idx, expected)
+
+
+@pytest.mark.parametrize("device", ["cpu", "cuda"])  # type: ignore[misc]
+def test_random_grid_token_mask__device(device: str) -> None:
+    if device == "cuda" and not torch.cuda.is_available():
+        pytest.skip("CUDA not available")
+
+    idx_keep, idx_mask = utils.random_grid_token_mask(
+        size=(2, 1 + 16),
+        mask_ratio=0.5,
+        grid_size=2,
+        num_prefix_tokens=1,
+        device=device,
+    )
+    assert idx_keep.device.type == device
+    assert idx_mask.device.type == device
+
+
+def test_get_2d_sine_cosine_positional_embedding__num_prefix_tokens() -> None:
+    embed_dim, grid_size = 16, 4
+    emb = utils.get_2d_sine_cosine_positional_embedding(
+        embed_dim=embed_dim, grid_size=grid_size, num_prefix_tokens=8
+    )
+    # 8 prefix rows + grid_size**2 patch rows
+    assert emb.shape == (8 + grid_size * grid_size, embed_dim)
+    # prefix rows are zeros
+    assert (emb[:8] == 0).all()
+    # patch rows are not all zero
+    assert not (emb[8:] == 0).all()
+
+
+def test_get_2d_sine_cosine_positional_embedding__backwards_compatible() -> None:
+    embed_dim, grid_size = 16, 4
+    with_cls = utils.get_2d_sine_cosine_positional_embedding(
+        embed_dim=embed_dim, grid_size=grid_size, cls_token=True
+    )
+    one_prefix = utils.get_2d_sine_cosine_positional_embedding(
+        embed_dim=embed_dim, grid_size=grid_size, num_prefix_tokens=1
+    )
+    assert with_cls.shape == one_prefix.shape == (1 + grid_size * grid_size, embed_dim)
+    assert (with_cls == one_prefix).all()

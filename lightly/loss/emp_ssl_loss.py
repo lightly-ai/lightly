@@ -32,7 +32,7 @@ def tcr_loss(z: Tensor, eps: float) -> Tensor:
 
 
 def invariance_loss(z: Tensor) -> Tensor:
-    """Calculates the invariance loss, representing the similiarity between the patch embeddings and the average of
+    """Calculates the invariance loss, representing the similarity between the patch embeddings and the average of
     the patch embeddings.
 
     Args:

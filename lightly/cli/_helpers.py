@@ -34,10 +34,10 @@ def fix_input_path(path):
 
 
 def fix_hydra_arguments(config_path: str = "config", config_name: str = "config"):
-    """Helper to make hydra arugments adaptive to installed hydra version
+    """Helper to make hydra arguments adaptive to installed hydra version
 
     Hydra introduced the `version_base` argument in version 1.2.0
-    We use this helper to provide backwards compatibility to older hydra verisons.
+    We use this helper to provide backwards compatibility to older hydra versions.
     """
     hydra_args = {"config_path": config_path, "config_name": config_name}
 
@@ -119,7 +119,7 @@ def _filter_state_dict(state_dict, remove_model_prefix_offset: int = 1):
     """Makes the state_dict compatible with the model.
 
     Prevents unexpected key error when loading PyTorch-Lightning checkpoints.
-    Allows backwards compatability to checkpoints before v1.0.6.
+    Allows backwards compatibility to checkpoints before v1.0.6.
 
     """
     prev_backbone = "features"
@@ -130,7 +130,7 @@ def _filter_state_dict(state_dict, remove_model_prefix_offset: int = 1):
         # remove the "model." prefix from the state dict key
         key_parts = key.split(".")[remove_model_prefix_offset:]
         # with v1.0.6 the backbone of the models will be renamed from
-        # "features" to "backbone", ensure compatability with old ckpts
+        # "features" to "backbone", ensure compatibility with old ckpts
         key_parts = [k if k != prev_backbone else curr_backbone for k in key_parts]
 
         new_key = ".".join(key_parts)

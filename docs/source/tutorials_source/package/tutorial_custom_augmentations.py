@@ -322,7 +322,7 @@ trainer.fit(model, dataloader_train)
 # Evaluate the results
 # ------------------------
 # It's always a good idea to evaluate how good the learned representations really
-# are. How to do this depends on the available data and metdata. Luckily, in our case,
+# are. How to do this depends on the available data and metadata. Luckily, in our case,
 # we have annotations of critical findings on the X-ray images. We can use this information
 # to see, whether images with similar annotations are grouped together.
 #
@@ -430,3 +430,15 @@ def plot_knn_multilabels(
 # the three example images at indices 4111, 3340, and 1796.
 k = 20
 plot_knn_multilabels(embeddings, multilabels, [4111, 3340, 1796], fnames, n_neighbors=k)
+
+# %%
+# The dark blue bars show the findings of the example image, while the light
+# blue bars show how often each finding occurs among its nearest neighbors. A
+# useful embedding should give high light blue bars at the same findings as the
+# example and low bars elsewhere.
+#
+# The first two examples have no critical finding, and ``No finding`` also
+# dominates their neighborhoods. The embeddings therefore group these normal
+# X-rays well. The third example has several findings. Each of its annotated
+# findings does show up among its neighbors to some degree, but the fractions
+# are small and the neighborhood is dominated by a ``No finding`` majority.

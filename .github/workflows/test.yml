@@ -5,6 +5,7 @@ on:
     branches:
       - master
   pull_request:
+  merge_group:
   workflow_dispatch:
 
 jobs:
@@ -51,23 +52,43 @@ jobs:
           make install-uv reset-venv
           source .venv/bin/activate
           make install-pinned-extras-${{ matrix.python }}
-      - name: Clean Previous Coverage Data
-        run: rm -f .coverage
       - name: Run Pytest (Python 3.7)
         if: matrix.python == '3.7'
         run: |
           source .venv/bin/activate
           python -m pytest -s -v --runslow
-      - name: Run Pytest with Coverage (Python 3.12)
+      - name: Run Pytest (Python 3.12)
         if: matrix.python == '3.12'
         run: |
           source .venv/bin/activate
-          uv pip install pytest-cov==5.0.0
-          python -m pytest -s -v --runslow --cov=./lightly --cov-report=xml
-      - name: Upload Coverage to Codecov
-        if: matrix.python == '3.12'
-        uses: codecov/codecov-action@v4
+          python -m pytest -s -v --runslow
+
+  distributed-tests:
+    name: Distributed Tests
+    needs: detect-code-changes
+    if: needs.detect-code-changes.outputs.run-tests == 'true'
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Hack to get setup-python to work on nektos/act
+        run: |
+          if [ ! -f "/etc/lsb-release" ] ; then
+            echo "DISTRIB_RELEASE=18.04" > /etc/lsb-release
+          fi
+      - name: Set Up Python
+        uses: actions/setup-python@v5
         with:
-          fail_ci_if_error: false
-          files: ./coverage.xml
-          token: ${{ secrets.CODECOV_TOKEN }}
+          python-version: "3.12"
+      - name: Set Up Environment
+        run: |
+          make install-uv reset-venv
+          source .venv/bin/activate
+          make install-pinned-extras-3.12
+      # Run the @pytest.mark.DDP tests on the shared gloo pool (real multi-rank
+      # collective, not mocked). USE_PYTEST_POOL enables it; off by default. See #1982.
+      - name: Run Distributed Tests (gloo pool)
+        run: |
+          source .venv/bin/activate
+          export USE_PYTEST_POOL=1
+          python -m pytest -s -v --runslow -m DDP

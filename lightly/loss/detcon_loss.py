@@ -236,7 +236,7 @@ class DetConBLoss(Module):
         labels_ab = labels_local * same_mask_ab
         labels_ba = labels_local * same_mask_ba
 
-        ### Remove Logits And Lables Between The Same View ###
+        ### Remove Logits And Labels Between The Same View ###
         logits_aa = logits_aa - infinity_proxy * labels_aa
         logits_bb = logits_bb - infinity_proxy * labels_bb
         labels_aa = 0.0 * labels_aa
