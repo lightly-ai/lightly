@@ -80,47 +80,61 @@ matplotlib = ["matplotlib>=3"]
 [dependency-groups]
 # Tooling to develop, test, lint and type-check the package. Installed by default,
 # see tool.uv.default-groups below.
+#
+# Every entry needs a lower bound, even though this group is development-only and its
+# versions are otherwise pinned by uv.lock. `uv sync --resolution=lowest-direct`, which
+# the minimal test setup uses, resolves the whole lockfile and therefore applies to this
+# group as well: an unbounded `pandas` resolves to pandas 0.1 (2009), which does not
+# build. The bounds are the versions uv.lock already selects for Python 3.8, the lowest
+# version we test against, so the dev tooling stays usable there. Bumping them is only
+# necessary when a tool no longer works at its floor.
 dev = [
-  "pytest",
-  "pytest-forked",
-  "pytest-xdist",
-  "pytest-mock",
-  "responses",
-  "matplotlib",
-  "pre-commit",
-  "opencv-python",
-  "scikit-learn",
-  "pandas",
-  "toml",
-  "torchmetrics",
+  "pytest>=8.3.5",
+  "pytest-forked>=1.6.0",
+  "pytest-xdist>=3.6.1",
+  "pytest-mock>=3.14.1",
+  "responses>=0.25.7",
+  # Also a lower bound for the `matplotlib` extra when both are installed, so the
+  # minimal test setup exercises this version rather than the extra's `matplotlib>=3`.
+  "matplotlib>=3.7.5",
+  "pre-commit>=3.5.0",
+  "opencv-python>=4.11.0.86",
+  "scikit-learn>=1.3.2",
+  "pandas>=2.0.3",
+  "toml>=0.10.2",
+  "torchmetrics>=1.5.2",
   # Ruff should match the version defined in .pre-commit-config.yaml.
   "ruff==0.12.7",
   "mypy>=1.4.1",
-  "types-python-dateutil",
-  "types-toml",
-  "types-requests",
-  "types-PyYAML",
-  "nbformat",
-  "jupytext",
+  "types-python-dateutil>=2.9.0.20241206",
+  "types-toml>=0.10.8.20240310",
+  "types-requests>=2.32.0.20241016",
+  "types-PyYAML>=6.0.12.20241230",
+  "nbformat>=5.10.4",
+  "jupytext>=1.17.1",
 ]
 
 # Sphinx and its extensions, only needed to build the documentation in docs/.
+# Lower bounds are required for the same reason as in the `dev` group above.
 docs = [
-  "sphinx",
-  "docutils<=0.16",
-  "sphinx-copybutton",
-  "sphinx-design",
-  "sphinx-gallery",
-  "sphinx-tabs",
-  "sphinx-reredirects",
-  "sphinx_rtd_theme",
+  "sphinx>=5.3.0",
+  # Pinned: 0.16 is both the highest version the docs build with and the version the
+  # lockfile selects, so the lower bound has nowhere else to go.
+  "docutils==0.16",
+  "sphinx-copybutton>=0.5.2",
+  "sphinx-design>=0.5.0",
+  "sphinx-gallery>=0.19.0",
+  "sphinx-tabs>=3.4.7",
+  "sphinx-reredirects>=0.1.4",
+  "sphinx_rtd_theme>=2.0.0",
 ]
 
 # Tooling to build and publish the package to PyPI.
+# Lower bounds are required for the same reason as in the `dev` group above.
 dist = [
-  "build",
-  "twine",
-  "wheel",
+  "build>=1.2.2.post1",
+  "twine>=6.1.0",
+  "wheel>=0.45.1",
 ]
 
 # Lowest dependency versions we test against, used together with
@@ -143,6 +157,18 @@ default-groups = ["dev"]
 # PyPI and fail to build it. The Python marker is required because constraints apply
 # to the whole lockfile, and setuptools<50 has no distutils on Python 3.12.
 constraint-dependencies = ["setuptools<50; python_full_version < '3.9'"]
+
+# av 8.0.3, which `--resolution=lowest-direct` selects for the minimal test setup, is
+# sdist-only and ships no pyproject.toml, so uv runs its setup.py under the default
+# legacy setuptools backend just to read the package metadata. Line 6 of that setup.py
+# imports `distutils.msvccompiler` unconditionally, and setuptools removed that module
+# from its bundled distutils in 74.0.0. Since setuptools 60, `import distutils` resolves
+# to that bundled copy even on Python 3.8, where the stdlib still provides the module.
+#
+# This has to be a *build* constraint: `constraint-dependencies` above only applies to
+# the project's own resolution, not to the isolated PEP 517 build environments. The
+# Python marker keeps the newer targets, which build against Python 3.12, unaffected.
+build-constraint-dependencies = ["setuptools<74; python_full_version < '3.9'"]
 
 [project.urls]
 "Homepage" = "https://www.lightly.ai"
