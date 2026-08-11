@@ -5,7 +5,7 @@
 
 _ERROR_MESSAGE = (
     "lightly.api and ApiWorkflowClient have been removed from the lightly package. "
-    "The API workflow client is deprecated. If you need ApiWorkflowClient, use "
+    "If you need ApiWorkflowClient, use "
     "Lightly SSL version v1.15.x or older, for example with "
     '`pip install "lightly<1.16"`.'
 )
