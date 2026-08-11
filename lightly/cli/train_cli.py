@@ -177,7 +177,7 @@ def train_cli(cfg):
         >>> lightly-ssl-train input_dir=data/ trainer.max_epochs=10
         >>>
         >>> # print a full summary of the model
-        >>> lightly-ssl-train input_dir=data/ trainer.weights_summary=full
+        >>> lightly-ssl-train input_dir=data/ summary_callback.max_depth=-1
 
     """
     return _train_cli(cfg)

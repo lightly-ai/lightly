@@ -23,11 +23,7 @@ class NNMemoryBankModule(MemoryBankModule):
     Attributes:
         size:
             Size of the memory bank as (num_features, dim) tuple. If num_features is 0
-            then the memory bank is disabled. Deprecated: If only a single integer is
-            passed, it is interpreted as the number of features and the feature
-            dimension is inferred from the first batch stored in the memory bank.
-            Leaving out the feature dimension might lead to errors in distributed
-            training.
+            then the memory bank is disabled.
 
     Examples:
         >>> model = NNCLR(backbone)
@@ -44,7 +40,7 @@ class NNMemoryBankModule(MemoryBankModule):
 
     """
 
-    def __init__(self, size: Union[int, Sequence[int]] = 2**16):
+    def __init__(self, size: Union[int, Sequence[int]] = (2**16, 128)):
         super(NNMemoryBankModule, self).__init__(size)
 
     def forward(  # type: ignore[override] # TODO(Philipp, 11/23): Fix signature to match parent class.

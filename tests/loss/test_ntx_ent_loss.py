@@ -74,7 +74,7 @@ class TestNTXentLoss:
         out0.requires_grad = True
         loss_function = NTXentLoss(
             temperature=temperature,
-            memory_bank_size=memory_bank_size,
+            memory_bank_size=(memory_bank_size, 2) if memory_bank_size > 0 else 0,
             gather_distributed=gather_distributed,
         )
         if memory_bank_size > 0:
@@ -121,7 +121,7 @@ class TestNTXentLoss:
             assert (l1 - l2).pow(2).item() == pytest.approx(0.0)
 
     def test_forward_pass_memory_bank(self) -> None:
-        loss = NTXentLoss(memory_bank_size=64)
+        loss = NTXentLoss(memory_bank_size=(64, 32))
         for bsz in range(1, 20):
             batch_1 = torch.randn((bsz, 32))
             batch_2 = torch.randn((bsz, 32))
@@ -129,7 +129,7 @@ class TestNTXentLoss:
 
     @pytest.mark.skipif(not torch.cuda.is_available(), reason="No cuda")
     def test_forward_pass_memory_bank_cuda(self) -> None:
-        loss = NTXentLoss(memory_bank_size=64)
+        loss = NTXentLoss(memory_bank_size=(64, 32))
         for bsz in range(1, 20):
             batch_1 = torch.randn((bsz, 32)).cuda()
             batch_2 = torch.randn((bsz, 32)).cuda()

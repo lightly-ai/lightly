@@ -77,9 +77,6 @@ lightly.loss
 .. autoclass:: lightly.loss.swav_loss.SwaVLoss
    :members:
 
-.. autoclass:: lightly.loss.sym_neg_cos_sim_loss.SymNegCosineSimilarityLoss
-   :members:
-
 .. autoclass:: lightly.loss.tico_loss.TiCoLoss
    :members:
 

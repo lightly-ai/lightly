@@ -68,8 +68,6 @@ trainer:
   max_epochs: 100             # Number of epochs to train for.
   precision: 32               # If set to 16, will use half-precision.
   enable_model_summary: True  # Whether to enable model summarisation.
-  weights_summary:            # [deprecated] Use enable_model_summary
-                              # and summary_callback.max_depth.
 
 # checkpoint_callback namespace: Modify the checkpoint callback
 checkpoint_callback:
