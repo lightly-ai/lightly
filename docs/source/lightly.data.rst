@@ -14,6 +14,12 @@ lightly.data
    :members:
    :special-members: __call__
 
+.ijepa_collate
+--------------
+.. autoclass:: lightly.data.ijepa_collate.IJEPAMaskCollator
+   :members:
+   :special-members: __call__
+
 .collate:
 ---------
 .. automodule:: lightly.data.collate
