@@ -295,8 +295,10 @@ class PixioDecoderTIMM(MAEDecoderTIMM):
             initialize_weights=initialize_weights,
             mask_token=mask_token,
         )
-        warn_deprecated(
-            "PixioDecoderTIMM",
-            "MaskedVisionTransformerDecoderTIMM",
-            removed_in="1.7.0",
-        )
+        # Guarded like MAEDecoderTIMM: subclasses warn once via __init_subclass__.
+        if type(self) is PixioDecoderTIMM:
+            warn_deprecated(
+                "PixioDecoderTIMM",
+                "MaskedVisionTransformerDecoderTIMM",
+                removed_in="1.7.0",
+            )
