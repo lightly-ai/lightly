@@ -32,7 +32,7 @@ optimizer:
   lr: 1.                      # Learning rate of the optimizer.
   weight_decay: 0.00001       # L2 penalty.
 
-# collate namespace: Passed to lightly.data.ImageCollateFunction.
+# collate namespace: Passed to lightly.transforms.SimCLRTransform.
 collate:
   input_size: 64              # Size of the input images in pixels.
   cj_prob: 0.8                # Probability that color jitter is applied.

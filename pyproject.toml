@@ -192,7 +192,6 @@ exclude = '''(?x)(
     lightly/cli/_cli_simclr.py |
     lightly/cli/_helpers.py |
     lightly/data/dataset.py |
-    lightly/data/collate.py |
     lightly/data/_image_loaders.py |
     lightly/data/_video.py |
     lightly/core.py |
@@ -212,7 +211,6 @@ exclude = '''(?x)(
     tests/cli/test_cli_embed.py |
     tests/core/test_Core.py |
     tests/data/test_multi_view_collate.py |
-    tests/data/test_data_collate.py |
     tests/data/test_LightlySubset.py |
     tests/data/test_LightlyDataset.py |
     tests/embedding/test_callbacks.py |

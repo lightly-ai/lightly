@@ -18,15 +18,9 @@ lightly.data
 --------------
 
 .. note::
-   ``IJEPAMaskCollator`` used to live in ``lightly.data.collate``. That import path
-   still works but warns, and is removed in v1.7.0. Use
-   ``from lightly.data import IJEPAMaskCollator``.
+   ``IJEPAMaskCollator`` used to live in ``lightly.data.collate``, which has been
+   removed. Use ``from lightly.data import IJEPAMaskCollator``.
 
 .. autoclass:: lightly.data.ijepa_collate.IJEPAMaskCollator
    :members:
    :special-members: __call__
-
-.collate:
----------
-.. automodule:: lightly.data.collate
-   :members:
