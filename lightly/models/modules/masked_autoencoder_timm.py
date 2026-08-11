@@ -58,6 +58,19 @@ class MAEDecoderTIMM(Module):
 
     """
 
+    def __init_subclass__(cls, **kwargs: Any) -> None:
+        super().__init_subclass__(**kwargs)
+        # lightly's own subclasses warn from their own __init__.
+        if cls.__module__ != __name__:
+            # Name the deprecated base being subclassed, robust to the order of
+            # bases under multiple inheritance.
+            deprecated = next(b for b in cls.__mro__ if b.__module__ == __name__)
+            warn_deprecated(
+                deprecated.__name__,
+                "MaskedVisionTransformerDecoderTIMM",
+                removed_in="1.7.0",
+            )
+
     def __init__(
         self,
         num_patches: int,
