@@ -127,20 +127,6 @@ known-first-party = ["lightly"]
 [tool.ruff.lint.pydocstyle]
 convention = "google"
 
-[tool.ruff.lint.per-file-ignores]
-# Deprecated paths (mirrors pyproject.toml's mypy excludes for deprecated code).
-"lightly/models/simclr.py" = ["D"]
-"lightly/models/moco.py" = ["D"]
-"lightly/models/barlowtwins.py" = ["D"]
-"lightly/models/nnclr.py" = ["D"]
-"lightly/models/simsiam.py" = ["D"]
-"lightly/models/byol.py" = ["D"]
-"tests/models/test_ModelsSimSiam.py" = ["D"]
-"tests/models/test_ModelsSimCLR.py" = ["D"]
-"tests/models/test_ModelsNNCLR.py" = ["D"]
-"tests/models/test_ModelsMoCo.py" = ["D"]
-"tests/models/test_ModelsBYOL.py" = ["D"]
-
 [tool.ruff.format]
 docstring-code-format = true
 
@@ -223,20 +209,7 @@ exclude = '''(?x)(
     tests/utils/benchmarking/test_linear_classifier.py |
     tests/utils/benchmarking/test_metric_callback.py |
     tests/utils/test_dist.py |
-    tests/conftest.py |
-    # Let's not type deprecated models:
-    lightly/models/simclr.py |
-    lightly/models/moco.py |
-    lightly/models/barlowtwins.py |
-    lightly/models/nnclr.py |
-    lightly/models/simsiam.py |
-    lightly/models/byol.py |
-    # Let's not type deprecated models tests:
-    tests/models/test_ModelsSimSiam.py |
-    tests/models/test_ModelsSimCLR.py |
-    tests/models/test_ModelsNNCLR.py |
-    tests/models/test_ModelsMoCo.py |
-    tests/models/test_ModelsBYOL.py )'''
+    tests/conftest.py )'''
 
 # Ignore imports from untyped modules.
 [[tool.mypy.overrides]]
