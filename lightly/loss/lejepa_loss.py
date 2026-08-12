@@ -241,13 +241,13 @@ class LeJEPALoss(nn.Module):
 
     The loss is a convex combination of two terms:
 
-    - ``SIGReg(local_proj)`` regularizes local projections toward an
+    - ``SIGReg(all_proj)`` regularizes all projected embeddings (local and global) toward an
       isotropic Gaussian distribution.
-    - ``lejepa_invariance_loss(local_proj=local_proj, global_proj=global_proj)``
-      pulls each local view toward the mean of the global views.
+    - ``lejepa_invariance_loss(local_proj=all_proj, global_proj=global_proj)``
+      pulls each view (local and global) toward the mean of the global views.
 
     The total loss is
-    ``lambda_param * SIGReg(local_proj) + (1 - lambda_param) * invariance(local_proj, global_proj)``.
+    ``lambda_param * SIGReg(all_proj) + (1 - lambda_param) * invariance(all_proj, global_proj)``.
 
     The default ``lambda_param=0.05`` matches the reference implementation
     [1]. The paper [0] explores values between 0.01 and 0.1.
@@ -324,9 +324,10 @@ class LeJEPALoss(nn.Module):
             local_proj: Local-view projected embeddings of shape ``(Vl, N, D)``.
             global_proj: Global-view projected embeddings of shape ``(Vg, N, D)``.
         """
-        sigreg_loss = self.sigreg(local_proj)
+        all_proj = torch.cat([local_proj, global_proj], dim=0)
+        sigreg_loss = self.sigreg(all_proj)
         inv_loss = lejepa_invariance_loss(
-            local_proj=local_proj, global_proj=global_proj
+            local_proj=all_proj, global_proj=global_proj
         )
         loss: Tensor = (
             self.lambda_param * sigreg_loss + (1.0 - self.lambda_param) * inv_loss

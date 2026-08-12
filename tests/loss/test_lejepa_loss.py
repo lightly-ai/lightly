@@ -292,8 +292,9 @@ class TestLeJEPALoss:
         lejepa_loss = LeJEPALoss(lambda_param=0.0)(
             local_proj=local_proj, global_proj=global_proj
         )
+        all_proj = torch.cat([local_proj, global_proj], dim=0)
         invariance_only = lejepa_invariance_loss(
-            local_proj=local_proj, global_proj=global_proj
+            local_proj=all_proj, global_proj=global_proj
         )
 
         assert torch.allclose(lejepa_loss, invariance_only)
@@ -311,6 +312,7 @@ class TestLeJEPALoss:
         lejepa_loss = lejepa_fn(local_proj=local_proj, global_proj=global_proj)
 
         torch.manual_seed(42)
-        sigreg_loss = sigreg_fn(local_proj)
+        all_proj = torch.cat([local_proj, global_proj], dim=0)
+        sigreg_loss = sigreg_fn(all_proj)
 
         assert torch.allclose(lejepa_loss, sigreg_loss)
