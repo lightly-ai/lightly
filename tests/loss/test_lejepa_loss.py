@@ -194,25 +194,25 @@ class TestSIGReg:
 class TestLeJEPAInvarianceLoss:
     def test_forward(self) -> None:
         torch.manual_seed(0)
-        local_proj = torch.randn(6, 32, 128)
+        all_proj = torch.randn(6, 32, 128)
         global_proj = torch.randn(2, 32, 128)
-        loss = lejepa_invariance_loss(local_proj=local_proj, global_proj=global_proj)
+        loss = lejepa_invariance_loss(all_proj=all_proj, global_proj=global_proj)
         assert loss.isfinite()
         assert loss.ndim == 0
 
     def test_backward(self) -> None:
         torch.manual_seed(0)
-        local_proj = torch.randn(8, 32, 128, requires_grad=True)
+        all_proj = torch.randn(8, 32, 128, requires_grad=True)
         global_proj = torch.randn(8, 32, 128, requires_grad=True)
-        loss = lejepa_invariance_loss(local_proj=local_proj, global_proj=global_proj)
+        loss = lejepa_invariance_loss(all_proj=all_proj, global_proj=global_proj)
         loss.backward()
-        assert local_proj.grad is not None
-        assert local_proj.grad.shape == local_proj.shape
+        assert all_proj.grad is not None
+        assert all_proj.grad.shape == all_proj.shape
         assert global_proj.grad is not None
         assert global_proj.grad.shape == global_proj.shape
 
     @pytest.mark.parametrize(
-        ("local_shape", "global_shape"),
+        ("all_shape", "global_shape"),
         [
             ((32, 128), (8, 32, 128)),
             ((8, 32, 128), (32, 128)),
@@ -221,13 +221,13 @@ class TestLeJEPAInvarianceLoss:
         ],
     )
     def test_validates_projection_shapes(
-        self, local_shape: tuple[int, ...], global_shape: tuple[int, ...]
+        self, all_shape: tuple[int, ...], global_shape: tuple[int, ...]
     ) -> None:
-        local_proj = torch.randn(*local_shape)
+        all_proj = torch.randn(*all_shape)
         global_proj = torch.randn(*global_shape)
 
         with pytest.raises(ValueError):
-            lejepa_invariance_loss(local_proj=local_proj, global_proj=global_proj)
+            lejepa_invariance_loss(all_proj=all_proj, global_proj=global_proj)
 
 
 class TestLeJEPALoss:
@@ -292,9 +292,9 @@ class TestLeJEPALoss:
         lejepa_loss = LeJEPALoss(lambda_param=0.0)(
             local_proj=local_proj, global_proj=global_proj
         )
-        all_proj = torch.cat([local_proj, global_proj], dim=0)
+        all_proj = torch.cat([global_proj, local_proj], dim=0)
         invariance_only = lejepa_invariance_loss(
-            local_proj=all_proj, global_proj=global_proj
+            all_proj=all_proj, global_proj=global_proj
         )
 
         assert torch.allclose(lejepa_loss, invariance_only)
@@ -312,7 +312,7 @@ class TestLeJEPALoss:
         lejepa_loss = lejepa_fn(local_proj=local_proj, global_proj=global_proj)
 
         torch.manual_seed(42)
-        all_proj = torch.cat([local_proj, global_proj], dim=0)
+        all_proj = torch.cat([global_proj, local_proj], dim=0)
         sigreg_loss = sigreg_fn(all_proj)
 
         assert torch.allclose(lejepa_loss, sigreg_loss)

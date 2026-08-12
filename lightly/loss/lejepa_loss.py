@@ -8,21 +8,21 @@ from torch.distributed import nn as torch_dist_nn
 from lightly.utils import dist as lightly_dist
 
 
-def lejepa_invariance_loss(*, local_proj: Tensor, global_proj: Tensor) -> Tensor:
+def lejepa_invariance_loss(*, all_proj: Tensor, global_proj: Tensor) -> Tensor:
     """LeJEPA invariance loss across multiple views.
 
-    Pulls each local view's projection toward the global mean across views.
-    Given local projections of shape ``(Vl, N, D)`` and global projections of
-    shape ``(Vg, N, D)``, this is the mean-squared distance between every local
-    view and the centroid of the global views.
+    Pulls each view's projection toward the global mean across views.
+    Given all projections of shape ``(Val, N, D)`` and global projections of
+    shape ``(Vg, N, D)``, this is the mean-squared distance between every view
+    and the centroid of the global views.
 
     Reference:
         LeJEPA, 2025, https://arxiv.org/abs/2511.08544
 
     Args:
-        local_proj:
-            Projected embeddings of shape ``(Vl, N, D)`` where ``Vl`` is the
-            number of local views, ``N`` is the batch size, and ``D`` is the
+        all_proj:
+            Projected embeddings of shape ``(Val, N, D)`` where ``Val`` is the
+            total number of views, ``N`` is the batch size, and ``D`` is the
             projection dimensionality.
         global_proj:
             Projected embeddings of shape ``(Vg, N, D)`` where ``Vg`` is the
@@ -32,29 +32,27 @@ def lejepa_invariance_loss(*, local_proj: Tensor, global_proj: Tensor) -> Tensor
     Returns:
         Scalar invariance loss.
     """
-    _validate_projection_shapes(local_proj=local_proj, global_proj=global_proj)
+    _validate_projection_shapes(all_proj=all_proj, global_proj=global_proj)
     centers = global_proj.mean(0)
-    return (centers - local_proj).square().mean()
+    return (centers - all_proj).square().mean()
 
 
-def _validate_projection_shapes(*, local_proj: Tensor, global_proj: Tensor) -> None:
-    if local_proj.ndim != 3:
+def _validate_projection_shapes(*, all_proj: Tensor, global_proj: Tensor) -> None:
+    if all_proj.ndim != 3:
         raise ValueError(
-            f"local_proj must have shape (V_local, N, D), got {local_proj.shape}."
+            f"all_proj must have shape (V_all, N, D), got {all_proj.shape}."
         )
     if global_proj.ndim != 3:
         raise ValueError(
             f"global_proj must have shape (V_global, N, D), got {global_proj.shape}."
         )
-    if local_proj.shape[1:] != global_proj.shape[1:]:
+    if all_proj.shape[1:] != global_proj.shape[1:]:
         raise ValueError(
-            "local_proj and global_proj must have matching batch and feature "
-            f"dimensions, got {local_proj.shape} and {global_proj.shape}."
+            "all_proj and global_proj must have matching batch and feature "
+            f"dimensions, got {all_proj.shape} and {global_proj.shape}."
         )
-    if local_proj.shape[0] < 1:
-        raise ValueError(
-            f"local_proj must have at least one local view, got {local_proj.shape}."
-        )
+    if all_proj.shape[0] < 1:
+        raise ValueError(f"all_proj must have at least one view, got {all_proj.shape}.")
     if global_proj.shape[0] < 1:
         raise ValueError(
             f"global_proj must have at least one global view, got {global_proj.shape}."
@@ -324,11 +322,9 @@ class LeJEPALoss(nn.Module):
             local_proj: Local-view projected embeddings of shape ``(Vl, N, D)``.
             global_proj: Global-view projected embeddings of shape ``(Vg, N, D)``.
         """
-        all_proj = torch.cat([local_proj, global_proj], dim=0)
+        all_proj = torch.cat([global_proj, local_proj], dim=0)
         sigreg_loss = self.sigreg(all_proj)
-        inv_loss = lejepa_invariance_loss(
-            local_proj=all_proj, global_proj=global_proj
-        )
+        inv_loss = lejepa_invariance_loss(all_proj=all_proj, global_proj=global_proj)
         loss: Tensor = (
             self.lambda_param * sigreg_loss + (1.0 - self.lambda_param) * inv_loss
         )
