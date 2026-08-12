@@ -190,16 +190,21 @@ class TestDINOLoss:
     def test_sinkhorn_knopp__half_precision(self) -> None:
         """The teacher probabilities keep the dtype of the teacher output.
 
-        Sinkhorn-Knopp calculates in float32 and the einsum with the student output
-        does not promote dtypes, so the loss fails if the cast back is dropped.
+        Sinkhorn-Knopp calculates in float32 and the einsum with the student output in
+        forward() does not promote dtypes, so the loss fails if the cast back is
+        dropped. Tested on _teacher_probabilities directly, rather than through
+        forward(), because F.log_softmax on the student output has no half-precision
+        CPU kernel in the older torch version pinned for the Python 3.7 CI leg.
         """
         loss_fn = DINOLoss(output_dim=4, center_mode="sinkhorn_knopp")
-        teacher_out = [t.half() for t in _generate_output(n_views=2, output_dim=4)]
-        student_out = [s.half() for s in _generate_output(n_views=4, output_dim=4)]
+        teacher_out = torch.stack(_generate_output(n_views=2, output_dim=4)).half()
 
-        loss = loss_fn(teacher_out=teacher_out, student_out=student_out)
+        probabilities = loss_fn._teacher_probabilities(
+            teacher_out=teacher_out, teacher_temp=torch.tensor(0.04)
+        )
 
-        assert loss.isfinite()
+        assert probabilities.dtype == torch.float16
+        assert probabilities.isfinite().all()
 
     def test_sinkhorn_knopp__center_not_updated(self) -> None:
         """Sinkhorn-Knopp does not track a center, but keeps the buffer registered."""

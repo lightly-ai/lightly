@@ -40,9 +40,12 @@ def _nearest_neighbor_indices(x: Tensor, group_size: int, topk: int) -> Tensor:
     # (num_groups, group_size, topk)
     nn_idx = cos_sim.topk(k=topk, dim=-1).indices
 
-    # Shift the group-local indices so that they index into the flat batch.
+    # Shift the group-local indices so that they index into the flat batch. Assigned
+    # to a Tensor-annotated variable because mypy infers Any from the addition when
+    # checked against the older torch stubs used by the pinned CI environment.
     offset = torch.arange(num_groups, device=x.device) * group_size
-    return (nn_idx + offset.view(-1, 1, 1)).flatten()
+    indices: Tensor = (nn_idx + offset.view(-1, 1, 1)).flatten()
+    return indices
 
 
 class KoLeoLoss(Module):
