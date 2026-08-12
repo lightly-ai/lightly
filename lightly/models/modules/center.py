@@ -188,12 +188,6 @@ def sinkhorn_knopp(
     return Q.t()
 
 
-CENTER_MODE_SINKHORN_KNOPP = "sinkhorn_knopp"
-
 CENTER_MODE_TO_FUNCTION = {
     "mean": center_mean,
 }
-
-# Modes accepted by the losses. The Center module only supports the modes in
-# CENTER_MODE_TO_FUNCTION, as Sinkhorn-Knopp does not track a center.
-VALID_CENTER_MODES = [*CENTER_MODE_TO_FUNCTION, CENTER_MODE_SINKHORN_KNOPP]

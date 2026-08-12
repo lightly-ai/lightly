@@ -49,12 +49,12 @@ class TestIBOTPatchLoss:
 
     def test__init__invalid_center_mode(self) -> None:
         with pytest.raises(ValueError, match="Unknown mode"):
-            IBOTPatchLoss(output_dim=2, center_mode="invalid")
+            IBOTPatchLoss(output_dim=2, center_mode="invalid")  # type: ignore[arg-type]
 
-    def test__init__negative_sinkhorn_iterations(self) -> None:
-        IBOTPatchLoss(output_dim=2, sinkhorn_iterations=0)
-        with pytest.raises(ValueError, match="must not be negative"):
-            IBOTPatchLoss(output_dim=2, sinkhorn_iterations=-1)
+    @pytest.mark.parametrize("sinkhorn_iterations", [0, -1])
+    def test__init__invalid_sinkhorn_iterations(self, sinkhorn_iterations: int) -> None:
+        with pytest.raises(ValueError, match="must be at least 1"):
+            IBOTPatchLoss(output_dim=2, sinkhorn_iterations=sinkhorn_iterations)
 
     def test_sinkhorn_knopp(self) -> None:
         """Sinkhorn-Knopp centering replaces the mean centering of the teacher output.

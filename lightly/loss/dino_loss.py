@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import warnings
+from typing import TYPE_CHECKING
 
 import torch
 import torch.nn.functional as F
@@ -8,11 +9,10 @@ from torch import Tensor
 from torch.nn import Module, Parameter
 
 from lightly.models.modules import center
-from lightly.models.modules.center import (
-    CENTER_MODE_SINKHORN_KNOPP,
-    CENTER_MODE_TO_FUNCTION,
-    VALID_CENTER_MODES,
-)
+from lightly.models.modules.center import CENTER_MODE_TO_FUNCTION
+
+if TYPE_CHECKING:
+    from typing import Literal
 
 
 class DINOLoss(Module):
@@ -74,7 +74,7 @@ class DINOLoss(Module):
         warmup_teacher_temp_epochs: int = 30,
         student_temp: float = 0.1,
         center_momentum: float = 0.9,
-        center_mode: str = "mean",
+        center_mode: Literal["mean", "sinkhorn_knopp"] = "mean",
         sinkhorn_iterations: int = 3,
     ) -> None:
         """Initializes the DINOLoss Module.
@@ -94,7 +94,7 @@ class DINOLoss(Module):
 
         Raises:
             ValueError: If an unknown center mode is provided.
-            ValueError: If sinkhorn_iterations is negative.
+            ValueError: If sinkhorn_iterations is less than 1.
         """
         super().__init__()
 
@@ -103,21 +103,24 @@ class DINOLoss(Module):
 
         # TODO(Guarin, 08/24): Refactor this to use the Center module directly once
         # we do a breaking change.
-        if center_mode not in VALID_CENTER_MODES:
+        if center_mode == "mean":
+            center_fn = CENTER_MODE_TO_FUNCTION["mean"]
+        elif center_mode == "sinkhorn_knopp":
+            # No center is tracked with Sinkhorn-Knopp centering. The center buffer is
+            # still registered to keep the state dict independent of the center mode.
+            center_fn = None
+        else:
             raise ValueError(
-                f"Unknown mode '{center_mode}'. Valid modes are "
-                f"{sorted(VALID_CENTER_MODES)}."
+                f"Unknown mode '{center_mode}'. Valid modes are 'mean' and "
+                "'sinkhorn_knopp'."
             )
-        if sinkhorn_iterations < 0:
+        if sinkhorn_iterations < 1:
             raise ValueError(
-                f"sinkhorn_iterations must not be negative but is "
-                f"{sinkhorn_iterations}."
+                f"sinkhorn_iterations must be at least 1 but is {sinkhorn_iterations}."
             )
         self.center_mode = center_mode
         self.sinkhorn_iterations = sinkhorn_iterations
-        # No center is tracked with Sinkhorn-Knopp centering. The center buffer is
-        # still registered to keep the state dict independent of the center mode.
-        self._center_fn = CENTER_MODE_TO_FUNCTION.get(center_mode)
+        self._center_fn = center_fn
         self.center: Parameter
         self.register_buffer("center", torch.zeros(1, 1, output_dim))
         self.center_momentum = center_momentum
@@ -222,7 +225,7 @@ class DINOLoss(Module):
             detached from the computation graph, following the reference
             implementation.
         """
-        if self.center_mode == CENTER_MODE_SINKHORN_KNOPP:
+        if self.center_mode == "sinkhorn_knopp":
             # Sinkhorn-Knopp is applied jointly over all views, following the reference
             # implementation.
             # (num_views, batch_size, output_dim) -> (num_views * batch_size, output_dim)

@@ -133,12 +133,12 @@ class TestDINOLoss:
 
     def test__init__invalid_center_mode(self) -> None:
         with pytest.raises(ValueError, match="Unknown mode"):
-            DINOLoss(output_dim=4, center_mode="invalid")
+            DINOLoss(output_dim=4, center_mode="invalid")  # type: ignore[arg-type]
 
-    def test__init__negative_sinkhorn_iterations(self) -> None:
-        DINOLoss(output_dim=4, sinkhorn_iterations=0)
-        with pytest.raises(ValueError, match="must not be negative"):
-            DINOLoss(output_dim=4, sinkhorn_iterations=-1)
+    @pytest.mark.parametrize("sinkhorn_iterations", [0, -1])
+    def test__init__invalid_sinkhorn_iterations(self, sinkhorn_iterations: int) -> None:
+        with pytest.raises(ValueError, match="must be at least 1"):
+            DINOLoss(output_dim=4, sinkhorn_iterations=sinkhorn_iterations)
 
     def test_sinkhorn_knopp(self) -> None:
         """Sinkhorn-Knopp centering is applied jointly over all teacher views.

@@ -1,16 +1,17 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import torch
 from torch import Tensor
 from torch.nn import Module
 from torch.nn import functional as F
 
 from lightly.models.modules import center as center_module
-from lightly.models.modules.center import (
-    CENTER_MODE_SINKHORN_KNOPP,
-    VALID_CENTER_MODES,
-    Center,
-)
+from lightly.models.modules.center import Center
+
+if TYPE_CHECKING:
+    from typing import Literal
 
 
 class IBOTPatchLoss(Module):
@@ -45,7 +46,7 @@ class IBOTPatchLoss(Module):
         output_dim: int = 65536,
         teacher_temp: float = 0.04,
         student_temp: float = 0.1,
-        center_mode: str = "mean",
+        center_mode: Literal["mean", "sinkhorn_knopp"] = "mean",
         center_momentum: float = 0.9,
         sinkhorn_iterations: int = 3,
     ) -> None:
@@ -53,30 +54,32 @@ class IBOTPatchLoss(Module):
 
         Raises:
             ValueError: If an unknown center mode is provided.
-            ValueError: If sinkhorn_iterations is negative.
+            ValueError: If sinkhorn_iterations is less than 1.
         """
         super().__init__()
 
         self.teacher_temp = teacher_temp
         self.student_temp = student_temp
 
-        if center_mode not in VALID_CENTER_MODES:
+        if center_mode == "mean":
+            tracks_center = True
+        elif center_mode == "sinkhorn_knopp":
+            # Sinkhorn-Knopp centering does not track a center.
+            tracks_center = False
+        else:
             raise ValueError(
-                f"Unknown mode '{center_mode}'. Valid modes are "
-                f"{sorted(VALID_CENTER_MODES)}."
+                f"Unknown mode '{center_mode}'. Valid modes are 'mean' and "
+                "'sinkhorn_knopp'."
             )
-        if sinkhorn_iterations < 0:
+        if sinkhorn_iterations < 1:
             raise ValueError(
-                f"sinkhorn_iterations must not be negative but is "
-                f"{sinkhorn_iterations}."
+                f"sinkhorn_iterations must be at least 1 but is {sinkhorn_iterations}."
             )
         self.center_mode = center_mode
         self.sinkhorn_iterations = sinkhorn_iterations
 
-        # Sinkhorn-Knopp centering does not track a center. The Center module is still
-        # created, with the default mode, to keep the state dict independent of the
-        # center mode.
-        tracks_center = center_mode != CENTER_MODE_SINKHORN_KNOPP
+        # The Center module is still created, with the default mode, to keep the state
+        # dict independent of the center mode.
         self.center = Center(
             size=(1, output_dim),
             mode=center_mode if tracks_center else "mean",
@@ -104,7 +107,7 @@ class IBOTPatchLoss(Module):
             detached from the computation graph, following the reference
             implementation.
         """
-        if self.center_mode == CENTER_MODE_SINKHORN_KNOPP:
+        if self.center_mode == "sinkhorn_knopp":
             # Sinkhorn-Knopp calculates in float32, the probabilities are cast back to
             # keep the dtype of the loss independent of the center mode.
             probabilities = center_module.sinkhorn_knopp(
@@ -126,7 +129,7 @@ class IBOTPatchLoss(Module):
                 Tensor with shape (num_tokens, output_dim) containing the teacher
                 output.
         """
-        if self.center_mode == CENTER_MODE_SINKHORN_KNOPP:
+        if self.center_mode == "sinkhorn_knopp":
             return
         self.center.update(teacher_out)
 
