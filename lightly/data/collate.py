@@ -6,7 +6,6 @@
 import math
 from multiprocessing import Value
 from typing import List, Optional, Tuple, Union
-from warnings import warn
 
 import torch
 import torch.nn as nn
@@ -18,6 +17,7 @@ from lightly.transforms.random_crop_and_flip_with_grid import RandomResizedCropA
 from lightly.transforms.rotation import random_rotation_transform
 from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.utils import IMAGENET_NORMALIZE
+from lightly.utils.deprecation import warn_deprecated
 
 imagenet_normalize = IMAGENET_NORMALIZE
 # Kept for backwards compatibility
@@ -1512,8 +1512,12 @@ class IJEPAMaskCollator:
 
 
 def _deprecation_warning_collate_functions() -> None:
-    warn(
-        "Collate functions are deprecated and will be removed in favor of transforms in v1.4.0.\n"
-        "See https://docs.lightly.ai/self-supervised-learning/examples/models.html for examples.",
-        category=DeprecationWarning,
+    warn_deprecated(
+        name="Collate functions are",
+        alternative=(
+            "Use transforms instead. See "
+            "https://docs.lightly.ai/self-supervised-learning/examples/models.html "
+            "for examples."
+        ),
+        removed_in="1.6.0",
     )

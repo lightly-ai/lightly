@@ -65,6 +65,8 @@ def mock_versioning_api():
         should be compatible with all future versions.
     """
 
+    import lightly.api._version_checking
+
     def mock_get_latest_pip_version(current_version: str, **kwargs) -> str:
         return current_version
 

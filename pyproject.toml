@@ -342,6 +342,7 @@ ignore_errors = true
 # workers re-import the test module, which deadlocks under the default prepend
 # import mode. It is a no-op for the rest of the suite.
 addopts = "--import-mode=importlib"
+filterwarnings = ["error::FutureWarning"]
 
 [tool.jupytext]
 notebook_metadata_filter="-all"
