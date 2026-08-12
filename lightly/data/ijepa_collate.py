@@ -8,7 +8,7 @@ from __future__ import annotations
 import math
 from multiprocessing import Value
 from multiprocessing.sharedctypes import Synchronized
-from typing import Any, List, Optional, Tuple, Union
+from typing import Any
 
 import torch
 from torch import Tensor
@@ -28,11 +28,11 @@ class IJEPAMaskCollator:
 
     def __init__(
         self,
-        input_size: Union[int, Tuple[int, int]] = (224, 224),
+        input_size: int | tuple[int, int] = (224, 224),
         patch_size: int = 16,
-        enc_mask_scale: Tuple[float, float] = (0.2, 0.8),
-        pred_mask_scale: Tuple[float, float] = (0.2, 0.8),
-        aspect_ratio: Tuple[float, float] = (0.3, 3.0),
+        enc_mask_scale: tuple[float, float] = (0.2, 0.8),
+        pred_mask_scale: tuple[float, float] = (0.2, 0.8),
+        aspect_ratio: tuple[float, float] = (0.3, 3.0),
         nenc: int = 1,
         npred: int = 2,
         min_keep: int = 4,
@@ -68,9 +68,9 @@ class IJEPAMaskCollator:
     def _sample_block_size(
         self,
         generator: torch.Generator,
-        scale: Tuple[float, float],
-        aspect_ratio_scale: Tuple[float, float],
-    ) -> Tuple[int, int]:
+        scale: tuple[float, float],
+        aspect_ratio_scale: tuple[float, float],
+    ) -> tuple[int, int]:
         _rand = torch.rand(1, generator=generator).item()
         # -- Sample block scale
         min_s, max_s = scale
@@ -91,9 +91,9 @@ class IJEPAMaskCollator:
 
     def _sample_block_mask(
         self,
-        b_size: Tuple[int, int],
-        acceptable_regions: Optional[List[Tensor]] = None,
-    ) -> Tuple[Tensor, Tensor]:
+        b_size: tuple[int, int],
+        acceptable_regions: list[Tensor] | None = None,
+    ) -> tuple[Tensor, Tensor]:
         h, w = b_size
 
         def constrain_mask(mask: Tensor, tries: int = 0) -> None:
@@ -132,7 +132,7 @@ class IJEPAMaskCollator:
         # --
         return mask, mask_complement
 
-    def __call__(self, batch: List[Any]) -> Tuple[Any, Any, Any]:
+    def __call__(self, batch: list[Any]) -> tuple[Any, Any, Any]:
         """Create encoder and predictor masks when collating imgs into a batch
         # 1. sample enc block (size + location) using seed
         # 2. sample pred block (size) using seed
@@ -161,8 +161,8 @@ class IJEPAMaskCollator:
         min_keep_pred = self.height * self.width
         min_keep_enc = self.height * self.width
         for _ in range(B):
-            masks_p: List[Tensor] = []
-            masks_C: List[Tensor] = []
+            masks_p: list[Tensor] = []
+            masks_C: list[Tensor] = []
             for _ in range(self.npred):
                 mask, mask_C = self._sample_block_mask(p_size)
                 masks_p.append(mask)
@@ -170,12 +170,12 @@ class IJEPAMaskCollator:
                 min_keep_pred = min(min_keep_pred, len(mask))
             collated_masks_pred.append(masks_p)
 
-            acceptable_regions: Optional[List[Tensor]] = masks_C
+            acceptable_regions: list[Tensor] | None = masks_C
 
             if self.allow_overlap:
                 acceptable_regions = None
 
-            masks_e: List[Tensor] = []
+            masks_e: list[Tensor] = []
             for _ in range(self.nenc):
                 mask, _ = self._sample_block_mask(
                     e_size, acceptable_regions=acceptable_regions

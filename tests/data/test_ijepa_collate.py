@@ -56,3 +56,17 @@ def test_call__allow_overlap() -> None:
 
     assert len(masks_enc) == 1
     assert len(masks_pred) == 2
+
+
+def test_collate_reexport__warns() -> None:
+    with pytest.warns(FutureWarning, match="lightly.data.collate"):
+        from lightly.data.collate import IJEPAMaskCollator as reexported
+
+    assert reexported is IJEPAMaskCollator
+
+
+def test_collate_reexport__unknown_attribute() -> None:
+    import lightly.data.collate
+
+    with pytest.raises(AttributeError):
+        getattr(lightly.data.collate, "DoesNotExist")

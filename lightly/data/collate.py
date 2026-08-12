@@ -3,7 +3,7 @@
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
-from typing import List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, List, Optional, Tuple, Union
 from warnings import warn
 
 import torch
@@ -1346,3 +1346,25 @@ def _deprecation_warning_collate_functions() -> None:
         "See https://docs.lightly.ai/self-supervised-learning/examples/models.html for examples.",
         category=DeprecationWarning,
     )
+
+
+if TYPE_CHECKING:
+    # IJEPAMaskCollator moved to lightly.data.ijepa_collate. Bind the name for type
+    # checkers only; at runtime __getattr__ below serves it with a warning.
+    from lightly.data.ijepa_collate import IJEPAMaskCollator
+else:
+
+    def __getattr__(name: str) -> Any:
+        # Resolve the moved name lazily (PEP 562) so the old import path warns
+        # instead of failing, and raises AttributeError once it is removed.
+        if name == "IJEPAMaskCollator":
+            from lightly.data.ijepa_collate import IJEPAMaskCollator
+            from lightly.utils.deprecation import warn_deprecated
+
+            warn_deprecated(
+                "Importing IJEPAMaskCollator from lightly.data.collate",
+                "lightly.data.IJEPAMaskCollator",
+                removed_in="1.7.0",
+            )
+            return IJEPAMaskCollator
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
