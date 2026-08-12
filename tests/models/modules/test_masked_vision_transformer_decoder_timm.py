@@ -18,6 +18,7 @@ from lightly.models.modules import (
 )
 
 
+@pytest.mark.filterwarnings("ignore::FutureWarning")
 class TestMaskedVisionTransformerDecoderTIMM(unittest.TestCase):
     def test_init(self) -> None:
         MaskedVisionTransformerDecoderTIMM(
