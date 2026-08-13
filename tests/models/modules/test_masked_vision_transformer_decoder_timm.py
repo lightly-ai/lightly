@@ -1,5 +1,3 @@
-import unittest
-
 import pytest
 import torch
 from torch.nn import Linear
@@ -19,7 +17,7 @@ from lightly.models.modules import (
 
 
 @pytest.mark.filterwarnings("ignore::FutureWarning")
-class TestMaskedVisionTransformerDecoderTIMM(unittest.TestCase):
+class TestMaskedVisionTransformerDecoderTIMM:
     def test_init(self) -> None:
         MaskedVisionTransformerDecoderTIMM(
             num_patches=49,
@@ -28,12 +26,15 @@ class TestMaskedVisionTransformerDecoderTIMM(unittest.TestCase):
             num_heads=4,
         )
 
-    def _test_forward(
-        self, device: torch.device, batch_size: int = 8, seed: int = 0
-    ) -> None:
-        torch.manual_seed(seed)
+    @pytest.mark.parametrize("device", ["cpu", "cuda"])
+    def test_forward(self, device: str) -> None:
+        if not torch.cuda.is_available() and device == "cuda":
+            pytest.skip("CUDA not available")
+
+        torch.manual_seed(0)
         num_patches, num_prefix_tokens, embed_dim = 49, 1, 256
         seq_length = num_patches + num_prefix_tokens
+        batch_size = 8
         decoder = MaskedVisionTransformerDecoderTIMM(
             num_patches=num_patches,
             embed_dim=embed_dim,
@@ -45,16 +46,9 @@ class TestMaskedVisionTransformerDecoderTIMM(unittest.TestCase):
         out = decoder(tokens)
 
         # output shape must be unchanged
-        self.assertListEqual(list(out.shape), [batch_size, seq_length, embed_dim])
+        assert list(out.shape) == [batch_size, seq_length, embed_dim]
         # output must have reasonable numbers
-        self.assertTrue(torch.all(torch.isfinite(out)))
-
-    def test_forward(self) -> None:
-        self._test_forward(torch.device("cpu"))
-
-    @unittest.skipUnless(torch.cuda.is_available(), "Cuda not available.")
-    def test_forward_cuda(self) -> None:
-        self._test_forward(torch.device("cuda"))
+        assert torch.all(torch.isfinite(out))
 
     def test_sequence_length(self) -> None:
         decoder = MaskedVisionTransformerDecoderTIMM(
@@ -64,7 +58,7 @@ class TestMaskedVisionTransformerDecoderTIMM(unittest.TestCase):
             num_heads=4,
             num_prefix_tokens=8,
         )
-        self.assertEqual(decoder.sequence_length, 49 + 8)
+        assert decoder.sequence_length == 49 + 8
 
     def test_pos_embed__is_frozen_sine_cosine(self) -> None:
         num_patches, num_prefix_tokens, embed_dim = 49, 1, 256
@@ -76,15 +70,16 @@ class TestMaskedVisionTransformerDecoderTIMM(unittest.TestCase):
             num_prefix_tokens=num_prefix_tokens,
         )
         # positional embedding has the right shape and is frozen
-        self.assertListEqual(
-            list(decoder.pos_embed.shape),
-            [1, num_patches + num_prefix_tokens, embed_dim],
-        )
-        self.assertFalse(decoder.pos_embed.requires_grad)
+        assert list(decoder.pos_embed.shape) == [
+            1,
+            num_patches + num_prefix_tokens,
+            embed_dim,
+        ]
+        assert not decoder.pos_embed.requires_grad
         # prefix token positional embeddings are zero for sine-cosine embeddings
-        self.assertTrue(torch.all(decoder.pos_embed[:, :num_prefix_tokens] == 0))
+        assert torch.all(decoder.pos_embed[:, :num_prefix_tokens] == 0)
         # patch positional embeddings are not zero
-        self.assertFalse(torch.all(decoder.pos_embed[:, num_prefix_tokens:] == 0))
+        assert not torch.all(decoder.pos_embed[:, num_prefix_tokens:] == 0)
 
     def test_preprocess__idx_mask(self) -> None:
         num_patches, embed_dim = 16, 32
@@ -104,10 +99,10 @@ class TestMaskedVisionTransformerDecoderTIMM(unittest.TestCase):
         # masked positions are replaced by the mask token
         for b in range(2):
             for i in idx_mask[b].tolist():
-                self.assertTrue(torch.allclose(out[b, i], decoder.mask_token[0, 0]))
+                assert torch.allclose(out[b, i], decoder.mask_token[0, 0])
         # all other positions are unchanged
         keep = [i for i in range(num_patches) if i not in {0, 1}]
-        self.assertTrue(torch.allclose(out[0, keep], tokens[0, keep]))
+        assert torch.allclose(out[0, keep], tokens[0, keep])
 
     def test_preprocess__mask(self) -> None:
         num_patches, embed_dim = 16, 32
@@ -125,11 +120,9 @@ class TestMaskedVisionTransformerDecoderTIMM(unittest.TestCase):
         out = decoder.preprocess(tokens, mask=mask)
 
         # masked positions are replaced by the mask token
-        self.assertTrue(
-            torch.allclose(out[:, :4], decoder.mask_token.expand(2, 4, embed_dim))
-        )
+        assert torch.allclose(out[:, :4], decoder.mask_token.expand(2, 4, embed_dim))
         # unmasked positions are unchanged
-        self.assertTrue(torch.allclose(out[:, 4:], tokens[:, 4:]))
+        assert torch.allclose(out[:, 4:], tokens[:, 4:])
 
     def test_preprocess__idx_keep(self) -> None:
         num_patches, embed_dim = 16, 32
@@ -146,9 +139,9 @@ class TestMaskedVisionTransformerDecoderTIMM(unittest.TestCase):
         out = decoder.preprocess(tokens, idx_keep=idx_keep)
 
         # only the kept tokens are returned
-        self.assertListEqual(list(out.shape), [2, 3, embed_dim])
+        assert list(out.shape) == [2, 3, embed_dim]
         for b in range(2):
-            self.assertTrue(torch.allclose(out[b], tokens[b, idx_keep[b]]))
+            assert torch.allclose(out[b], tokens[b, idx_keep[b]])
 
     def test_preprocess__idx_mask_and_mask_raises(self) -> None:
         decoder = MaskedVisionTransformerDecoderTIMM(
@@ -161,7 +154,7 @@ class TestMaskedVisionTransformerDecoderTIMM(unittest.TestCase):
         tokens = torch.rand(2, 16, 32)
         idx_mask = torch.tensor([[0], [1]])
         mask = torch.zeros(2, 16, dtype=torch.bool)
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             decoder.preprocess(tokens, idx_mask=idx_mask, mask=mask)
 
     def test_matches_mae_decoder_decode(self) -> None:
@@ -196,7 +189,7 @@ class TestMaskedVisionTransformerDecoderTIMM(unittest.TestCase):
         tokens = torch.rand(4, seq_length, decoder_embed_dim)
         out_mae = mae_decoder.decode(tokens)
         out_decoder = decoder(tokens)
-        self.assertTrue(torch.allclose(out_mae, out_decoder, atol=1e-6))
+        assert torch.allclose(out_mae, out_decoder, atol=1e-6)
 
     def test_matches_mae_decoder_full_flow(self) -> None:
         # The full MAE flow (embed -> scatter kept tokens -> place mask tokens ->
@@ -255,4 +248,4 @@ class TestMaskedVisionTransformerDecoderTIMM(unittest.TestCase):
         x_decoded = decoder(x_masked, idx_mask=idx_mask)
         predictions = prediction_head(utils.get_at_index(x_decoded, idx_mask))
 
-        self.assertTrue(torch.allclose(expected, predictions, atol=1e-6))
+        assert torch.allclose(expected, predictions, atol=1e-6)
