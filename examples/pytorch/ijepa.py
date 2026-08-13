@@ -9,7 +9,7 @@ from torch import nn
 from torch.nn import functional as F
 from tqdm import tqdm
 
-from lightly.data.collate import IJEPAMaskCollator
+from lightly.data import IJEPAMaskCollator
 from lightly.models import utils
 from lightly.models.modules.ijepa import IJEPABackbone, IJEPAPredictor
 from lightly.transforms.ijepa_transform import IJEPATransform
