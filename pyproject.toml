@@ -101,7 +101,9 @@ openapi = [
   "aenum>=3.1.11"
 ]
 timm = ["timm>=0.9.9"]
-video = ["av>=12.0.0; python_version>='3.8'"]
+# av 12.0.0 is the first release with cp38 wheels. 8.x and 9.x have none, 10.0.0 and
+# 11.0.0 are sdist-only.
+video = ["av>=12.0.0"]
 matplotlib = ["matplotlib>=3"]
 
 

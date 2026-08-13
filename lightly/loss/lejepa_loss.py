@@ -1,7 +1,5 @@
 """LeJEPA loss functions and regularizers."""
 
-from typing import cast
-
 import torch
 from torch import Tensor, nn
 from torch import distributed as torch_dist
@@ -163,8 +161,11 @@ class SIGReg(nn.Module):
         weights[[0, -1]] = dt
         window = torch.exp(-t.square() / 2.0)
         # phi is the ideal gaussian
+        self.t: Tensor  # For mypy
         self.register_buffer("t", t)
+        self.phi: Tensor  # For mypy
         self.register_buffer("phi", window)
+        self.weights: Tensor  # For mypy
         self.register_buffer("weights", weights * window)
 
     def _generate_unit_vectors(
@@ -204,10 +205,7 @@ class SIGReg(nn.Module):
         cos_mean = cos_sum / num_samples
         sin_mean = sin_sum / num_samples
         phi = self.phi.to(dtype=x_t.dtype)
-        return cast(
-            Tensor,
-            (cos_mean - phi).square() + sin_mean.square(),  # type: ignore[operator]
-        )
+        return (cos_mean - phi).square() + sin_mean.square()
 
     def _integrate_via_trapezoidal_rule(
         self,
@@ -216,8 +214,8 @@ class SIGReg(nn.Module):
     ) -> Tensor:
         """Integrate the error over frequency using trapezoidal weights."""
         weights = self.weights.to(dtype=err_per_frequency.dtype)
-        statistic = (err_per_frequency @ weights) * num_samples  # type: ignore[operator]
-        return cast(Tensor, statistic.mean())
+        statistic = (err_per_frequency @ weights) * num_samples
+        return statistic.mean()
 
     def forward(self, proj: Tensor) -> Tensor:
         """Compute the SIGReg loss for a batch of projections.
@@ -236,7 +234,7 @@ class SIGReg(nn.Module):
 
         A = self._generate_unit_vectors(proj.device, proj.dtype, num_features)
         x_projected = self._project_embeddings_to_unit_vector(proj, A)
-        x_t = x_projected.unsqueeze(-1) * self.t  # type: ignore[operator]
+        x_t = x_projected.unsqueeze(-1) * self.t
         err_per_frequency = self._compute_cf_error_at_each_frequency(x_t, num_samples)
         return self._integrate_via_trapezoidal_rule(err_per_frequency, num_samples)
 
