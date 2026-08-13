@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         fetch-depth: 0
     - name: Checkout latest release tag
@@ -21,18 +21,25 @@ jobs:
         LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
         git checkout $LATEST_TAG
         echo "tag_name=$LATEST_TAG" >> $GITHUB_OUTPUT;
-    - name: Set up Python 3.12
-      uses: actions/setup-python@v5
+    - name: Set Up uv
+      uses: astral-sh/setup-uv@v9.0.0
       with:
-        python-version: "3.12"
+        version: 0.12.3
+        enable-cache: true
+        cache-dependency-glob: "uv.lock"
+    # This job builds the release tag that was checked out above, not the default
+    # branch, so it deliberately avoids `make` targets and dependency groups: those
+    # only exist in the tag's own Makefile/pyproject.toml. `uv build` needs nothing
+    # but [build-system], and `uvx` installs twine into a throwaway environment.
     - name: Build and release
       id: build_and_release
+      env:
+        TWINE_USERNAME: ${{ secrets.PYPI_USER_NAME }}
+        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
       run: |
-        pip3 install wheel
-        pip3 install twine
-        pip3 install build
-        make dist
-        twine upload -u ${{ secrets.PYPI_USER_NAME }} -p ${{ secrets.PYPI_PASSWORD }} dist/*
+        uv build
+        ls -l dist
+        uvx twine upload dist/*
     - name: Convert success/failure strings to emojis
       id: emoji_status
       run: |

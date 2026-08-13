@@ -82,19 +82,24 @@ Follow these steps to start contributing:
 
    **do not** work on the `master` branch.
 
-4. Set up a development environment. We use [uv](https://github.com/astral-sh/uv) for
-   development. Create and activate a virtual environment, then install the dev dependencies:
+4. Set up the development environment. We use [uv](https://github.com/astral-sh/uv)
+   to manage dependencies and run project commands:
 
    ```bash
-   uv venv
-   source .venv/bin/activate
    make install-dev
    ```
 
+   This synchronizes the project environment from the lockfile, including the
+   dependencies needed to build the docs, and installs the pre-commit hooks. You do
+   not need to activate the virtual environment manually.
+
+   The package supports Python 3.8 and newer.
+
 5. Develop the features on your branch.
 
-   As you work on the features, you should make sure that the code is formatted and the
-   test suite passes:
+   As you work on the features, you should make sure that the code is formatted and
+   the test suite passes. The Makefile runs development tools through the locked `uv`
+   environment, so manual virtual environment activation is not required:
 
    ```bash
    make format
@@ -103,6 +108,16 @@ Follow these steps to start contributing:
 
    If you get a formatting error from ruff, please run `make format` again before
    running `make all-checks`.
+
+   Run the full test suite with `make test`. To run a specific test directory,
+   module, class, or individual test through the locked environment, pass it to
+   `uv run --frozen pytest`, for example:
+
+   ```bash
+   uv run --frozen pytest tests/models
+   uv run --frozen pytest tests/models/test_resnet.py
+   uv run --frozen pytest tests/models/test_resnet.py::TestClass::test_name
+   ```
 
    If you're modifying examples under `examples/`, make sure to update the corresponding notebooks by
    running the following command:
@@ -113,6 +128,23 @@ Follow these steps to start contributing:
    
    If you're modifying documents under `docs/source`, make sure to validate that
    they can still be built. This check also runs in CI and the build instructions can be found in `docs/README.md`.
+
+   If you're adding or changing a dependency, put it in the right place in
+   `pyproject.toml`:
+
+   - `[project] dependencies` — required at runtime by every user.
+   - `[project.optional-dependencies]` — optional user-facing features, installable
+     as `lightly[<extra>]`. These are distributed with the package.
+   - `[dependency-groups]` — development-only, never distributed. `dev` is installed
+     automatically; `docs`, `dist` and `minimal` are opt-in via `--group`.
+
+   Afterwards regenerate the lockfile and commit it together with your change:
+
+   ```bash
+   make lock
+   ```
+
+   `make static-checks` fails if `uv.lock` is out of date with `pyproject.toml`.
 
    Once you're happy with your changes, add changed files using `git add` and
    make a commit with `git commit` to record your changes locally:
@@ -163,7 +195,7 @@ Important notes:
 - Make your functions checkable through static typecheckers (`mypy`). This means that it must have proper [type hints](https://docs.python.org/3/library/typing.html) everywhere. We use Python 3.10-style type-hints for Union-types, i.e. `str | Path` instead of `Union[str, Path]`. For backwards-compatibility, this requires that every module using such type-hints imports `from __future__ import annotations` at the very top of the module.
 - Don't overlook the `Raises`.
 - Use punctuation.
-- Docstrings follow the Google convention. The selected `pydocstyle` rules in `pyproject.toml` are checked by `ruff` and run as part of `make format-check` and `make lint`.
+- Docstrings follow the Google convention. The selected `pydocstyle` rules in `pyproject.toml` are checked by `ruff` and run as part of `make format-check`.
 - **Please look carefully at the examples provided below (from the styleguide)**.
 
 #### Packages and Modules

@@ -8,35 +8,30 @@ on:
   merge_group:
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     name: Check
     runs-on: ubuntu-22.04
-    strategy:
-      matrix:
-        python: ["3.7", "3.12"]
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v4
-    - name: Hack to get setup-python to work on nektos/act
-      run: |
-        if [ ! -f "/etc/lsb-release" ] ; then
-          echo "DISTRIB_RELEASE=18.04" > /etc/lsb-release
-        fi
-    - name: Set Up Python
-      uses: actions/setup-python@v5
+      uses: actions/checkout@v6
+    - name: Set Up uv
+      uses: astral-sh/setup-uv@v9.0.0
       with:
-        python-version: ${{ matrix.python }}
+        version: 0.12.3
+        enable-cache: true
+        cache-dependency-glob: "uv.lock"
     - name: Set Up Environment
-      run: |
-        make install-uv reset-venv
-        source .venv/bin/activate
-        make install-pinned-extras
+      run: make install-maximal
+    # ruff and mypy are version-pinned in the dev dependency group, so their results do
+    # not depend on the Python version. Checking a single environment is enough.
+    - name: Check Lockfile
+      run: make lock-check
     - name: Run Format Check
-      run: |
-        source .venv/bin/activate
-        make format-check
+      run: make format-check
     - name: Run Type Check
-      run: |
-        source .venv/bin/activate
-        make type-check
+      run: make type-check

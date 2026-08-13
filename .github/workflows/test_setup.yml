@@ -8,6 +8,13 @@ on:
   merge_group:
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  LIGHTLY_SERVER_LOCATION: "localhost:-1"
+
 jobs:
   detect-code-changes:
     name: Detect Code Changes
@@ -15,8 +22,8 @@ jobs:
     outputs:
       run-tests: ${{ steps.filter.outputs.run-tests }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: dorny/paths-filter@v3
+      - uses: actions/checkout@v6
+      - uses: dorny/paths-filter@v4
         id: filter
         with:
           list-files: shell
@@ -29,39 +36,18 @@ jobs:
     needs: detect-code-changes
     if: needs.detect-code-changes.outputs.run-tests == 'true'
     runs-on: ubuntu-22.04
-
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
-      - name: Hack to get setup-python to work on nektos/act
-        run: |
-          if [ ! -f "/etc/lsb-release" ] ; then
-            echo "DISTRIB_RELEASE=18.04" > /etc/lsb-release
-          fi
-      - name: Set Up Python
-        uses: actions/setup-python@v5
+        uses: actions/checkout@v6
+      - name: Set Up uv
+        uses: astral-sh/setup-uv@v9.0.0
         with:
-          python-version: 3.7
+          version: 0.12.3
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
       - name: Set Up Environment
-        run: |
-          make install-uv reset-venv
-          source .venv/bin/activate
-          make install-pinned
+        run: make install-maximal
       - name: Test CLI
-        run: |
-          source .venv/bin/activate
-          LIGHTLY_SERVER_LOCATION="localhost:-1"
-          lightly-crop --help
-          lightly-ssl-train --help
-          lightly-embed --help
-          lightly-magic --help
-          lightly-download --help
-          lightly-version
+        run: make test-cli
       - name: Test CLI on Dataset
-        run: |
-          source .venv/bin/activate
-          LIGHTLY_SERVER_LOCATION="localhost:-1"
-          git clone https://github.com/alexeygrigorev/clothing-dataset-small clothing_dataset_small
-          INPUT_DIR_1="clothing_dataset_small/test/dress"
-          lightly-ssl-train input_dir=$INPUT_DIR_1 trainer.max_epochs=1 loader.num_workers=6
-          lightly-embed input_dir=$INPUT_DIR_1
+        run: make test-cli-dataset
