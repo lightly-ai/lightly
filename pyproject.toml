@@ -7,7 +7,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name="lightly"
-requires-python = ">=3.6"
+requires-python = ">=3.8"
 authors = [
     {name = "Lightly Team", email = "team@lightly.ai"},
 ]
@@ -26,8 +26,6 @@ classifiers = [
     "Topic :: Software Development :: Libraries",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.6",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
@@ -39,16 +37,19 @@ dependencies = [
   "certifi>=14.05.14",
   "hydra-core>=1.0.0",
   "lightly_utils~=0.0.0",
-  "numpy>=1.18.1",
+  # 1.19.5 is the floor the oldest Python 3.8 compatible scipy asks for; below it
+  # scipy fails on the missing numpy.random.bit_generator.
+  "numpy>=1.19.5",
   "python_dateutil>=2.5.3",
   "requests>=2.27.0",
-  "six>=1.10",
   "tqdm>=4.44",
   "torch",
   "torchvision",
   "pydantic>=1.10.5",
   "pytorch_lightning>=1.0.4",
-  "urllib3>=1.25.3",
+  # 1.26.5 is the first release whose vendored six implements find_spec, which
+  # pytest calls on every sys.meta_path entry while collecting.
+  "urllib3>=1.26.5",
   "aenum>=3.1.11"
 ]
 dynamic = ["version", "readme"]
@@ -98,12 +99,14 @@ minimal = [
 openapi = [
   "python_dateutil>=2.5.3",
   "setuptools>=21.0.0",
-  "urllib3>=1.25.3",
+  "urllib3>=1.26.5",
   "pydantic>=1.10.5",
   "aenum>=3.1.11"
 ]
 timm = ["timm>=0.9.9"]
-video = ["av>=8.0.3; python_version>='3.8'"]
+# av 12.0.0 is the first release with cp38 wheels. 8.x and 9.x have none, 10.0.0 and
+# 11.0.0 are sdist-only.
+video = ["av>=12.0.0"]
 matplotlib = ["matplotlib>=3"]
 
 
@@ -135,7 +138,7 @@ lightly = ["lightly/cli/config/*.yaml"]
 
 [tool.ruff]
 line-length = 88
-target-version = "py37"
+target-version = "py38"
 extend-exclude = ["lightly/openapi_generated"]
 
 [tool.ruff.lint]
