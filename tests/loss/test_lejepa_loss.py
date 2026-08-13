@@ -211,26 +211,29 @@ class TestLeJEPAInvarianceLoss:
         assert global_proj.grad is not None
         assert global_proj.grad.shape == global_proj.shape
 
+
+class TestLeJEPALoss:
     @pytest.mark.parametrize(
-        ("all_shape", "global_shape"),
+        ("local_shape", "global_shape"),
         [
-            ((32, 128), (8, 32, 128)),
-            ((8, 32, 128), (32, 128)),
-            ((8, 16, 128), (8, 32, 128)),
-            ((8, 32, 64), (8, 32, 128)),
+            ((32, 128), (2, 32, 128)),
+            ((6, 32, 128), (32, 128)),
+            ((6, 16, 128), (2, 32, 128)),
+            ((6, 32, 64), (2, 32, 128)),
+            ((0, 32, 128), (2, 32, 128)),
         ],
     )
     def test_validates_projection_shapes(
-        self, all_shape: tuple[int, ...], global_shape: tuple[int, ...]
+        self, local_shape: tuple[int, ...], global_shape: tuple[int, ...]
     ) -> None:
-        all_proj = torch.randn(*all_shape)
-        global_proj = torch.randn(*global_shape)
+        loss_fn = LeJEPALoss()
 
         with pytest.raises(ValueError):
-            lejepa_invariance_loss(all_proj=all_proj, global_proj=global_proj)
+            loss_fn(
+                local_proj=torch.randn(*local_shape),
+                global_proj=torch.randn(*global_shape),
+            )
 
-
-class TestLeJEPALoss:
     def test_backward_pass(self) -> None:
         torch.manual_seed(0)
         loss_fn = LeJEPALoss()

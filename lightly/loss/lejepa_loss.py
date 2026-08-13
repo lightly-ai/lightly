@@ -32,27 +32,28 @@ def lejepa_invariance_loss(*, all_proj: Tensor, global_proj: Tensor) -> Tensor:
     Returns:
         Scalar invariance loss.
     """
-    _validate_projection_shapes(all_proj=all_proj, global_proj=global_proj)
     centers = global_proj.mean(0)
     return (centers - all_proj).square().mean()
 
 
-def _validate_projection_shapes(*, all_proj: Tensor, global_proj: Tensor) -> None:
-    if all_proj.ndim != 3:
+def _validate_projection_shapes(*, local_proj: Tensor, global_proj: Tensor) -> None:
+    if local_proj.ndim != 3:
         raise ValueError(
-            f"all_proj must have shape (V_all, N, D), got {all_proj.shape}."
+            f"local_proj must have shape (V_local, N, D), got {local_proj.shape}."
         )
     if global_proj.ndim != 3:
         raise ValueError(
             f"global_proj must have shape (V_global, N, D), got {global_proj.shape}."
         )
-    if all_proj.shape[1:] != global_proj.shape[1:]:
+    if local_proj.shape[1:] != global_proj.shape[1:]:
         raise ValueError(
-            "all_proj and global_proj must have matching batch and feature "
-            f"dimensions, got {all_proj.shape} and {global_proj.shape}."
+            "local_proj and global_proj must have matching batch and feature "
+            f"dimensions, got {local_proj.shape} and {global_proj.shape}."
         )
-    if all_proj.shape[0] < 1:
-        raise ValueError(f"all_proj must have at least one view, got {all_proj.shape}.")
+    if local_proj.shape[0] < 1:
+        raise ValueError(
+            f"local_proj must have at least one local view, got {local_proj.shape}."
+        )
     if global_proj.shape[0] < 1:
         raise ValueError(
             f"global_proj must have at least one global view, got {global_proj.shape}."
@@ -321,7 +322,11 @@ class LeJEPALoss(nn.Module):
         Args:
             local_proj: Local-view projected embeddings of shape ``(Vl, N, D)``.
             global_proj: Global-view projected embeddings of shape ``(Vg, N, D)``.
+
+        Raises:
+            ValueError: If the projections have invalid or mismatched shapes.
         """
+        _validate_projection_shapes(local_proj=local_proj, global_proj=global_proj)
         all_proj = torch.cat([global_proj, local_proj], dim=0)
         sigreg_loss = self.sigreg(all_proj)
         inv_loss = lejepa_invariance_loss(all_proj=all_proj, global_proj=global_proj)
