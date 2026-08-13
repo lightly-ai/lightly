@@ -150,11 +150,12 @@ install-api-only:
 # 1. Install the dev dependencies to be able to run tests. We don't want to use
 #    the minimal versions for these dependencies.
 # 2. Then we reinstall the package with minimal dependencies.
-# 3. Finally we pin setuptools between two versions that both matter. Below 56 the
-#    vendored pkg_resources VendorImporter has no find_spec, which pytest calls while
-#    collecting. From 60 on, SETUPTOOLS_USE_DISTUTILS defaults to local, which breaks
-#    the old PyTorch Lightning versions that do not include the correct setuptools
-#    dependencies.
+# 3. Finally we pin setuptools to a narrow window. Below 56 the pkg_resources
+#    VendorImporter has no find_spec, which pytest calls on every sys.meta_path entry
+#    while collecting. From 59 on, importing setuptools no longer pulls in
+#    distutils.version, which old torch needs in torch/utils/tensorboard. From 60 on,
+#    SETUPTOOLS_USE_DISTUTILS also defaults to local, which breaks the old PyTorch
+#    Lightning versions that do not include the correct setuptools dependencies.
 #
 # Explanation of flags:
 # --exclude-newer: We don't want to install dependencies released after that date to
@@ -169,7 +170,7 @@ install-api-only:
 install-minimal:
 	uv pip install --exclude-newer ${EXCLUDE_NEWER_DATE} ${EDITABLE} ".[dev]"
 	uv pip install --resolution=lowest-direct --exclude-newer ${EXCLUDE_NEWER_DATE} --reinstall ${EDITABLE} ".[minimal]"
-	uv pip install --exclude-newer ${EXCLUDE_NEWER_DATE} --reinstall "setuptools>=56,<60"
+	uv pip install --exclude-newer ${EXCLUDE_NEWER_DATE} --reinstall "setuptools>=56,<59"
 
 # Install package with minimal dependencies including extras.
 # See install-minimal for explanation of flags.
@@ -179,7 +180,7 @@ install-minimal:
 install-minimal-extras:
 	uv pip install --exclude-newer ${EXCLUDE_NEWER_DATE} ${EDITABLE} ".[dev]"
 	uv pip install --resolution=lowest-direct --exclude-newer ${EXCLUDE_NEWER_DATE} --reinstall ${EDITABLE} ".[matplotlib,minimal,timm,video]" --requirement pyproject.toml
-	uv pip install --exclude-newer ${EXCLUDE_NEWER_DATE} --reinstall "setuptools>=56,<60"
+	uv pip install --exclude-newer ${EXCLUDE_NEWER_DATE} --reinstall "setuptools>=56,<59"
 
 # Install package with dependencies pinned to the latest compatible version available at
 # EXCLUDE_NEWER_DATE. This keeps CI stable if new versions of dependencies are released.
