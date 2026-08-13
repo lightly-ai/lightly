@@ -17,7 +17,7 @@ Key Components
 - **Multi-view projections**: LeJEPA uses a shared backbone and projection
   head to produce embeddings for several global views and a set of local
   (smaller) views.
-- **Invariance loss**: Each local view's projection is pulled toward the
+- **Invariance loss**: Every view's projection is pulled toward the
   centroid of the global views' projections using a mean-squared distance.
 - **SIGReg**: A sliced, Epps-Pulley based regularizer that compares the
   empirical characteristic function of the projected embeddings to that of
