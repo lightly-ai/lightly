@@ -12,7 +12,7 @@ def lejepa_invariance_loss(*, all_proj: Tensor, global_proj: Tensor) -> Tensor:
     """LeJEPA invariance loss across multiple views.
 
     Pulls each view's projection toward the global mean across views.
-    Given all projections of shape ``(Val, N, D)`` and global projections of
+    Given all projections of shape ``(V_all, N, D)`` and global projections of
     shape ``(Vg, N, D)``, this is the mean-squared distance between every view
     and the centroid of the global views.
 
@@ -21,7 +21,7 @@ def lejepa_invariance_loss(*, all_proj: Tensor, global_proj: Tensor) -> Tensor:
 
     Args:
         all_proj:
-            Projected embeddings of shape ``(Val, N, D)`` where ``Val`` is the
+            Projected embeddings of shape ``(V_all, N, D)`` where ``V_all`` is the
             total number of views, ``N`` is the batch size, and ``D`` is the
             projection dimensionality.
         global_proj:
@@ -241,7 +241,7 @@ class LeJEPALoss(nn.Module):
 
     - ``SIGReg(all_proj)`` regularizes all projected embeddings (local and global) toward an
       isotropic Gaussian distribution.
-    - ``lejepa_invariance_loss(local_proj=all_proj, global_proj=global_proj)``
+    - ``lejepa_invariance_loss(all_proj=all_proj, global_proj=global_proj)``
       pulls each view (local and global) toward the mean of the global views.
 
     The total loss is
