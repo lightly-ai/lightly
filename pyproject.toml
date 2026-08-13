@@ -37,7 +37,9 @@ dependencies = [
   "certifi>=14.05.14",
   "hydra-core>=1.0.0",
   "lightly_utils~=0.0.0",
-  "numpy>=1.18.1",
+  # 1.19.5 is the floor the oldest Python 3.8 compatible scipy asks for; below it
+  # scipy fails on the missing numpy.random.bit_generator.
+  "numpy>=1.19.5",
   "python_dateutil>=2.5.3",
   "requests>=2.27.0",
   "tqdm>=4.44",
