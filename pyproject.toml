@@ -40,13 +40,14 @@ dependencies = [
   "numpy>=1.18.1",
   "python_dateutil>=2.5.3",
   "requests>=2.27.0",
-  "six>=1.10",
   "tqdm>=4.44",
   "torch",
   "torchvision",
   "pydantic>=1.10.5",
   "pytorch_lightning>=1.0.4",
-  "urllib3>=1.25.3",
+  # 1.26.5 is the first release whose vendored six implements find_spec, which
+  # pytest calls on every sys.meta_path entry while collecting.
+  "urllib3>=1.26.5",
   "aenum>=3.1.11"
 ]
 dynamic = ["version", "readme"]
@@ -96,7 +97,7 @@ minimal = [
 openapi = [
   "python_dateutil>=2.5.3",
   "setuptools>=21.0.0",
-  "urllib3>=1.25.3",
+  "urllib3>=1.26.5",
   "pydantic>=1.10.5",
   "aenum>=3.1.11"
 ]
