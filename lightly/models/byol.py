@@ -3,13 +3,12 @@
 # Copyright (c) 2021. Lightly AG and its affiliates.
 # All Rights Reserved
 
-import warnings
-
 import torch
 import torch.nn as nn
 
 from lightly.models._momentum import _MomentumEncoderMixin
 from lightly.models.modules import BYOLProjectionHead
+from lightly.utils.deprecation import warn_deprecated
 
 
 def _get_byol_mlp(num_ftrs: int, hidden_dim: int, out_dim: int):
@@ -64,13 +63,10 @@ class BYOL(nn.Module, _MomentumEncoderMixin):
         self._init_momentum_encoder()
         self.m = m
 
-        warnings.warn(
-            Warning(
-                "The high-level building block BYOL will be deprecated in version 1.3.0. "
-                + "Use low-level building blocks instead. "
-                + "See https://docs.lightly.ai/self-supervised-learning/lightly.models.html for more information"
-            ),
-            DeprecationWarning,
+        warn_deprecated(
+            "The high-level building block BYOL",
+            "low-level building blocks",
+            removed_in="1.7.0",
         )
 
     def _forward(self, x0: torch.Tensor, x1: torch.Tensor = None):

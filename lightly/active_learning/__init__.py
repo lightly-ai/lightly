@@ -1,11 +1,9 @@
-import warnings
+from lightly.utils.deprecation import warn_deprecated
 
 
-def raise_active_learning_deprecation_warning():
-    warnings.warn(
-        "Using active learning via the lightly package is deprecated and will be removed soon. "
-        "Please use the Lightly Solution instead. "
-        "See https://docs.lightly.ai for more information and tutorials on doing active learning.",
-        DeprecationWarning,
-        stacklevel=2,
+def raise_active_learning_deprecation_warning() -> None:
+    warn_deprecated(
+        "Active learning via the lightly package",
+        "the Lightly Solution",
+        removed_in="1.7.0",
     )

@@ -3,12 +3,11 @@
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
-import warnings
-
 import torch
 import torch.nn as nn
 
 from lightly.models.modules import SimSiamPredictionHead, SimSiamProjectionHead
+from lightly.utils.deprecation import warn_deprecated
 
 
 class SimSiam(nn.Module):
@@ -62,13 +61,10 @@ class SimSiam(nn.Module):
             out_dim,
         )
 
-        warnings.warn(
-            Warning(
-                "The high-level building block SimSiam will be deprecated in version 1.3.0. "
-                + "Use low-level building blocks instead. "
-                + "See https://docs.lightly.ai/self-supervised-learning/lightly.models.html for more information"
-            ),
-            DeprecationWarning,
+        warn_deprecated(
+            "The high-level building block SimSiam",
+            "low-level building blocks",
+            removed_in="1.7.0",
         )
 
     def forward(

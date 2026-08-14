@@ -38,6 +38,10 @@ class TestDataCollate:
 
         return batch
 
+    def test_deprecation_warning(self) -> None:
+        with pytest.warns(FutureWarning, match="deprecated"):
+            BaseCollateFunction(T.ToTensor())
+
     def test_base_collate(self) -> None:
         batch = self.create_batch()
         transform = T.ToTensor()

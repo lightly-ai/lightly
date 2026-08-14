@@ -4,7 +4,6 @@
 # All Rights Reserved
 
 from typing import TYPE_CHECKING, Any, List, Optional, Tuple, Union
-from warnings import warn
 
 import torch
 import torch.nn as nn
@@ -16,6 +15,7 @@ from lightly.transforms.random_crop_and_flip_with_grid import RandomResizedCropA
 from lightly.transforms.rotation import random_rotation_transform
 from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.utils import IMAGENET_NORMALIZE
+from lightly.utils.deprecation import warn_deprecated
 
 imagenet_normalize = IMAGENET_NORMALIZE
 # Kept for backwards compatibility
@@ -1341,10 +1341,10 @@ class VICRegLCollateFunction(nn.Module):
 
 
 def _deprecation_warning_collate_functions() -> None:
-    warn(
-        "Collate functions are deprecated and will be removed in favor of transforms in v1.4.0.\n"
-        "See https://docs.lightly.ai/self-supervised-learning/examples/models.html for examples.",
-        category=DeprecationWarning,
+    warn_deprecated(
+        "The collate function API",
+        "transforms",
+        removed_in="1.7.0",
     )
 
 
@@ -1359,7 +1359,6 @@ else:
         # instead of failing, and raises AttributeError once it is removed.
         if name == "IJEPAMaskCollator":
             from lightly.data.ijepa_collate import IJEPAMaskCollator
-            from lightly.utils.deprecation import warn_deprecated
 
             warn_deprecated(
                 "Importing IJEPAMaskCollator from lightly.data.collate",

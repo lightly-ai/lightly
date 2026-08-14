@@ -39,6 +39,16 @@ class TestSimSiam:
         self.batch_size = 2
         self.input_tensor = torch.rand((self.batch_size, 3, 32, 32))
 
+    def test_deprecation_warning(self) -> None:
+        with pytest.warns(FutureWarning, match="deprecated"):
+            SimSiam(
+                nn.Identity(),
+                num_ftrs=8,
+                proj_hidden_dim=8,
+                pred_hidden_dim=8,
+                out_dim=8,
+            )
+
     def test_create_variations_cpu(self):
         for model_name, config in self.resnet_variants.items():
             resnet = resnet_generator(model_name)
