@@ -326,7 +326,7 @@ class VISRegLoss(nn.Module):
         # Eq. 8 pulls every view, global and local, toward the centroid of
         # the global views.
         pred_loss = lejepa_loss.lejepa_invariance_loss(
-            local_proj=proj, global_proj=global_proj
+            all_proj=proj, global_proj=global_proj
         )
 
         # The prediction loss above is computed per device (never gathered),

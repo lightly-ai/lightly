@@ -24,3 +24,4 @@ from lightly.data.collate import (
     imagenet_normalize,
 )
 from lightly.data.dataset import LightlyDataset
+from lightly.data.ijepa_collate import IJEPAMaskCollator

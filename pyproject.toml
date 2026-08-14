@@ -201,7 +201,6 @@ exclude = '''(?x)(
     lightly/utils/debug.py |
     lightly/utils/benchmarking/benchmark_module.py |
     lightly/utils/benchmarking/knn_classifier.py |
-    lightly/utils/benchmarking/online_linear_classifier.py |
     lightly/models/modules/masked_autoencoder.py |
     lightly/models/modules/ijepa.py |
     lightly/models/utils.py |
@@ -221,7 +220,6 @@ exclude = '''(?x)(
     tests/utils/test_debug.py |
     tests/utils/benchmarking/test_benchmark_module.py |
     tests/utils/benchmarking/test_topk.py |
-    tests/utils/benchmarking/test_online_linear_classifier.py |
     tests/utils/benchmarking/test_knn_classifier.py |
     tests/utils/benchmarking/test_knn.py |
     tests/utils/benchmarking/test_linear_classifier.py |
