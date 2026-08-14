@@ -16,6 +16,9 @@ from lightly.openapi_generated.swagger_client.models import (
 )
 from tests.api_workflow import utils
 
+# SelectionConfig is deprecated and emits a FutureWarning on init.
+pytestmark = pytest.mark.filterwarnings("ignore::FutureWarning")
+
 
 def _get_tags(dataset_id: str, tag_name: str = "just-a-tag") -> List[TagData]:
     return [

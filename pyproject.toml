@@ -342,6 +342,15 @@ ignore_errors = true
 # workers re-import the test module, which deadlocks under the default prepend
 # import mode. It is a no-op for the rest of the suite.
 addopts = "--import-mode=importlib"
+filterwarnings = [
+    # Never let a deprecated API be called silently in the test suite.
+    "error::FutureWarning",
+    # Collate functions are deprecated but still used internally; asserted in test_data_collate.py.
+    "ignore:The collate function API is deprecated:FutureWarning",
+    # torch-internal FutureWarnings (weight_norm, _pytree) that lightly cannot fix here.
+    "ignore:.*weight_norm.*:FutureWarning",
+    "ignore:.*treespec.*:FutureWarning",
+]
 
 [tool.jupytext]
 notebook_metadata_filter="-all"

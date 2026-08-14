@@ -18,6 +18,7 @@ def get_backbone(resnet, num_ftrs=64):
     return backbone
 
 
+@pytest.mark.filterwarnings("ignore::FutureWarning")
 class TestModelsMoCo:
     @pytest.fixture(autouse=True)
     def setup(self):

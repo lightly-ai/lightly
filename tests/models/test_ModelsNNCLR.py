@@ -20,6 +20,7 @@ def get_backbone(model: nn.Module):
     return backbone
 
 
+@pytest.mark.filterwarnings("ignore::FutureWarning")
 class TestNNCLR:
     @pytest.fixture(autouse=True)
     def setup(self):

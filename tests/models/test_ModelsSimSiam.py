@@ -19,6 +19,7 @@ def get_backbone(model: nn.Module):
     return backbone
 
 
+@pytest.mark.filterwarnings("ignore::FutureWarning")
 class TestSimSiam:
     @pytest.fixture(autouse=True)
     def setup(self):
