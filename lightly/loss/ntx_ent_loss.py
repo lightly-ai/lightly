@@ -9,6 +9,8 @@ import torch
 from torch import Tensor, nn
 from torch import distributed as torch_dist
 
+from lightly.functional.ntxent import ntxent
+from lightly.loss.distributed import DistributedKind
 from lightly.models.modules.memory_bank import MemoryBankModule
 from lightly.utils import dist
 
@@ -59,6 +61,8 @@ class NTXentLoss(nn.Module):
 
     """
 
+    distributed_kind = DistributedKind.GATHER_FOR_NEGATIVES
+
     def __init__(
         self,
         temperature: float = 0.5,
@@ -85,7 +89,6 @@ class NTXentLoss(nn.Module):
         )
         self.temperature = temperature
         self.gather_distributed = gather_distributed
-        self.cross_entropy = nn.CrossEntropyLoss(reduction="mean")
         self.eps = 1e-8
 
         if abs(self.temperature) < self.eps:
@@ -117,10 +120,8 @@ class NTXentLoss(nn.Module):
         Returns:
             Contrastive Cross Entropy Loss value.
         """
-        device = out0.device
-        batch_size, _ = out0.shape
-
-        # Normalize the output to length 1
+        # Normalize the output to length 1. The memory bank stores unit vectors,
+        # and ntxent takes them, so this happens here and only here.
         out0 = nn.functional.normalize(out0, dim=1)
         out1 = nn.functional.normalize(out1, dim=1)
 
@@ -132,65 +133,19 @@ class NTXentLoss(nn.Module):
         # negatives: shape: (embedding_size, memory_bank_size)
         out1, negatives = self.memory_bank.forward(out1, update=out0.requires_grad)
 
-        # Use cosine similarity (dot product) as all vectors are normalized to unit length
-        # Notation in einsum: n = batch_size, c = embedding_size and k = memory_bank_size.
-
         if negatives is not None:
-            # Use negatives from memory bank
-            negatives = negatives.to(device)
+            return ntxent(out0, out1, temperature=self.temperature, negatives=negatives)
 
-            # sim_pos is of shape (batch_size, 1) and sim_pos[i] denotes the similarity
-            # of the i-th sample in the batch to its positive pair
-            sim_pos = torch.einsum("nc,nc->n", out0, out1).unsqueeze(-1)
+        if self.gather_distributed and dist.world_size() > 1:
+            # GATHER_FOR_NEGATIVES: every sample on every rank is a negative for
+            # every other, so the gather happens with gradient before the loss.
+            return ntxent(
+                out0,
+                out1,
+                temperature=self.temperature,
+                z0_all=torch.cat(dist.gather(out0), 0),
+                z1_all=torch.cat(dist.gather(out1), 0),
+                positives_at=dist.rank() * out0.size(0),
+            )
 
-            # sim_neg is of shape (batch_size, memory_bank_size) and sim_neg[i,j] denotes the similarity
-            # of the i-th sample to the j-th negative sample
-            sim_neg = torch.einsum("nc,ck->nk", out0, negatives)
-
-            # Set the labels to maximize sim_pos in relation to sim_neg
-            logits = torch.cat([sim_pos, sim_neg], dim=1) / self.temperature
-            labels = torch.zeros(logits.shape[0], device=device, dtype=torch.long)
-
-        else:
-            # Use other samples from batch as negatives
-            # and create diagonal mask that only selects similarities between
-            # views of the same image
-            if self.gather_distributed and dist.world_size() > 1:
-                # Gather hidden representations from other processes
-                out0_large = torch.cat(dist.gather(out0), 0)
-                out1_large = torch.cat(dist.gather(out1), 0)
-                diag_mask = dist.eye_rank(batch_size, device=out0.device)
-            else:
-                # Single process
-                out0_large = out0
-                out1_large = out1
-                diag_mask = torch.eye(batch_size, device=out0.device, dtype=torch.bool)
-
-            # Calculate similiarities
-            # Here n = batch_size and m = batch_size * world_size
-            # The resulting vectors have shape (n, m)
-            logits_00 = torch.einsum("nc,mc->nm", out0, out0_large) / self.temperature
-            logits_01 = torch.einsum("nc,mc->nm", out0, out1_large) / self.temperature
-            logits_10 = torch.einsum("nc,mc->nm", out1, out0_large) / self.temperature
-            logits_11 = torch.einsum("nc,mc->nm", out1, out1_large) / self.temperature
-
-            # Remove simliarities between same views of the same image
-            logits_00 = logits_00[~diag_mask].view(batch_size, -1)
-            logits_11 = logits_11[~diag_mask].view(batch_size, -1)
-
-            # Concatenate logits
-            # The logits tensor in the end has shape (2*n, 2*m-1)
-            logits_0100 = torch.cat([logits_01, logits_00], dim=1)
-            logits_1011 = torch.cat([logits_10, logits_11], dim=1)
-            logits = torch.cat([logits_0100, logits_1011], dim=0)
-
-            # Create labels
-            labels = torch.arange(batch_size, device=device, dtype=torch.long)
-            if self.gather_distributed:
-                labels = labels + dist.rank() * batch_size
-            labels = labels.repeat(2)
-
-        # Calculate the cross-entropy loss
-        loss: Tensor = self.cross_entropy(logits, labels)
-
-        return loss
+        return ntxent(out0, out1, temperature=self.temperature)
