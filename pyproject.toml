@@ -69,6 +69,8 @@ dev = [
   "pandas",
   "toml",
   "torchmetrics",
+  # benchmarks/ logs to TensorBoard. Not needed by the wheel.
+  "tensorboard",
   # ruff and mypy should be the same version as defined in .pre-commit-config.yaml
   "ruff==0.12.7", # frozen version to avoid differences between CI and local dev machines
   "mypy==1.4.1", # frozen version to avoid differences between CI and local dev machines
@@ -248,6 +250,18 @@ module = [
     "lightly.models.*",
     "lightly.utils.benchmarking.*",
 ]
+follow_imports = "skip"
+
+# lightly.data.sample is typed, and the transforms depend on View being a real
+# type rather than Any.
+[[tool.mypy.overrides]]
+module = ["lightly.data.sample"]
+follow_imports = "normal"
+
+# tests/test_simclr_agrees.py imports examples/ and benchmarks/, which are not
+# part of the wheel and are not passed to mypy on the command line.
+[[tool.mypy.overrides]]
+module = ["examples.*", "benchmarks.*"]
 follow_imports = "skip"
 
 [tool.pytest.ini_options]
