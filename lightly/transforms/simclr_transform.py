@@ -4,20 +4,21 @@ from PIL.Image import Image
 from torch import Tensor
 
 from lightly.transforms.gaussian_blur import GaussianBlur
-from lightly.transforms.multi_view_transform import MultiViewTransform
 from lightly.transforms.rotation import random_rotation_transform
 from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.utils import IMAGENET_NORMALIZE
+from lightly.transforms.view_transform import ViewTransform
 
 
-class SimCLRTransform(MultiViewTransform):
+class SimCLRTransform(ViewTransform):
     """Implements the transformations for SimCLR [0, 1].
 
     Input to this transform:
         PIL Image or Tensor.
 
     Output of this transform:
-        List of Tensor of length 2.
+        List of View of length 2, each holding a Tensor. Read the pixels with
+        ``views[0].data``.
 
     Applies the following augmentations by default:
         - Random resized crop
