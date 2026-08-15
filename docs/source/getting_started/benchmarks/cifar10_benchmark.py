@@ -71,6 +71,7 @@ import torchvision
 from pytorch_lightning.loggers import TensorBoardLogger
 
 from lightly.data import LightlyDataset
+from lightly.data.sample import legacy_collate
 from lightly.loss import (
     BarlowTwinsLoss,
     DCLLoss,
@@ -95,6 +96,7 @@ from lightly.transforms import (
     SwaVTransform,
 )
 from lightly.transforms.utils import IMAGENET_NORMALIZE
+from lightly.transforms.view_transform import ViewTransform
 from lightly.utils.benchmarking import BenchmarkModule
 
 logs_root_dir = os.path.join(os.getcwd(), "benchmark_logs")
@@ -268,6 +270,14 @@ def get_data_loaders(batch_size: int, dataset_train_ssl):
         shuffle=True,
         drop_last=True,
         num_workers=num_workers,
+        # Transforms that have moved to the view contract return views, which
+        # the default collate cannot stack. legacy_collate hands the models in
+        # this script the tuple they were written against.
+        collate_fn=(
+            legacy_collate
+            if isinstance(dataset_train_ssl.transform, ViewTransform)
+            else None
+        ),
     )
 
     dataloader_train_kNN = torch.utils.data.DataLoader(

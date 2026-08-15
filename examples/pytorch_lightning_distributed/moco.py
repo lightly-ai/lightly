@@ -12,6 +12,7 @@ import torch
 import torchvision
 from torch import nn
 
+from lightly.data.sample import legacy_collate
 from lightly.loss import NTXentLoss
 from lightly.models.modules import MoCoProjectionHead
 from lightly.models.utils import deactivate_requires_grad, update_momentum
@@ -74,6 +75,9 @@ dataloader = torch.utils.data.DataLoader(
     shuffle=True,
     drop_last=True,
     num_workers=8,
+    # This transform returns views. legacy_collate unwraps them into the
+    # (views, labels, filenames) tuple this example was written against.
+    collate_fn=legacy_collate,
 )
 
 # Train with DDP and use Synchronized Batch Norm for a more accurate batch norm

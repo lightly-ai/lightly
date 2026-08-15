@@ -134,6 +134,7 @@ import torchvision
 from lightly import loss
 from lightly import transforms
 from lightly.data import LightlyDataset
+from lightly.data.sample import collate
 from lightly.models.modules import heads
 
 
@@ -174,6 +175,7 @@ dataloader = torch.utils.data.DataLoader(
     dataset,  # Pass the dataset to the dataloader.
     batch_size=128,  # A large batch size helps with the learning.
     shuffle=True,  # Shuffling is important!
+    collate_fn=collate,  # Stacks the views the transform labelled.
 )
 
 # Lightly exposes building blocks such as loss functions.
@@ -184,7 +186,8 @@ optimizer = torch.optim.SGD(model.parameters(), lr=0.1, weight_decay=1e-6)
 
 # Train the model.
 for epoch in range(10):
-    for (view0, view1), targets, filenames in dataloader:
+    for sample in dataloader:
+        view0, view1 = (view.data for view in sample.views)
         z0 = model(view0)
         z1 = model(view1)
         loss = criterion(z0, z1)

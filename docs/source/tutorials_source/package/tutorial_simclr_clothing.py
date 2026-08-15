@@ -45,6 +45,7 @@ from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import normalize
 
 from lightly.data import LightlyDataset
+from lightly.data.sample import legacy_collate
 from lightly.transforms import SimCLRTransform, utils
 
 # %%
@@ -112,6 +113,9 @@ dataloader_train_simclr = torch.utils.data.DataLoader(
     shuffle=True,
     drop_last=True,
     num_workers=num_workers,
+    # This transform returns views. legacy_collate unwraps them into the
+    # (views, labels, filenames) tuple this tutorial was written against.
+    collate_fn=legacy_collate,
 )
 
 dataloader_test = torch.utils.data.DataLoader(

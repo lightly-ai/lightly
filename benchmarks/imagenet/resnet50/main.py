@@ -26,7 +26,6 @@ import finetune_eval
 import knn_eval
 import linear_eval
 import mocov2
-import simclr
 import swav
 import tico
 import torch
@@ -41,8 +40,10 @@ from pytorch_lightning.loggers import TensorBoardLogger
 from torch.utils.data import DataLoader
 
 from lightly.data import LightlyDataset
+from lightly.data.sample import legacy_collate
 from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.utils import IMAGENET_NORMALIZE
+from lightly.transforms.view_transform import ViewTransform
 from lightly.utils.benchmarking import MetricCallback
 from lightly.utils.dist import print_rank_zero
 
@@ -79,7 +80,6 @@ METHODS = {
     "dclw": {"model": dclw.DCLW, "transform": dclw.transform},
     "dino": {"model": dino.DINO, "transform": dino.transform},
     "mocov2": {"model": mocov2.MoCoV2, "transform": mocov2.transform},
-    "simclr": {"model": simclr.SimCLR, "transform": simclr.transform},
     "swav": {"model": swav.SwAV, "transform": swav.transform},
     "tico": {"model": tico.TiCo, "transform": tico.transform},
     "vicreg": {"model": vicreg.VICReg, "transform": vicreg.transform},
@@ -252,6 +252,13 @@ def pretrain(
         num_workers=num_workers,
         drop_last=True,
         persistent_workers=True,
+        # Transforms that have moved to the view contract return views, which
+        # the default collate cannot stack. legacy_collate hands the methods in
+        # this tree the tuple they were written against. The branch goes when
+        # the last transform has moved.
+        collate_fn=(
+            legacy_collate if isinstance(train_transform, ViewTransform) else None
+        ),
     )
 
     # Setup validation data.

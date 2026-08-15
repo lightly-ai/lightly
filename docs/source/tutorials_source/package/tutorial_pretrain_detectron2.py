@@ -63,6 +63,7 @@ from detectron2 import config, modeling
 from detectron2.checkpoint import DetectionCheckpointer
 
 from lightly.data import LightlyDataset
+from lightly.data.sample import legacy_collate
 from lightly.loss import NTXentLoss
 from lightly.models.modules import SimCLRProjectionHead
 from lightly.transforms import SimCLRTransform
@@ -186,6 +187,9 @@ dataloader_train_simclr = torch.utils.data.DataLoader(
     shuffle=True,
     drop_last=True,
     num_workers=num_workers,
+    # This transform returns views. legacy_collate unwraps them into the
+    # (views, labels, filenames) tuple this tutorial was written against.
+    collate_fn=legacy_collate,
 )
 
 # %%
