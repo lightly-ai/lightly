@@ -24,3 +24,13 @@ lightly.models
 --------
 .. automodule:: lightly.models.modules.heads
    :members:
+
+.world_model
+------------
+.. automodule:: lightly.models.modules.world_model
+
+.. autoclass:: lightly.models.modules.world_model.conditioning.ActionEncoder
+   :members:
+
+.. autoclass:: lightly.models.modules.world_model.predictor.LatentDynamicsPredictor
+   :members:

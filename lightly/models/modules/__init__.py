@@ -31,6 +31,10 @@ from lightly.models.modules.heads import (
     SwaVPrototypes,
 )
 from lightly.models.modules.nn_memory_bank import NNMemoryBankModule
+from lightly.models.modules.world_model import (
+    ActionEncoder,
+    LatentDynamicsPredictor,
+)
 from lightly.utils import dependency as _dependency
 
 if _dependency.torchvision_vit_available():
