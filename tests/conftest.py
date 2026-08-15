@@ -1,7 +1,15 @@
 # content of conftest.py
 
+import sys
+from pathlib import Path
+
 import pytest
 import torch.multiprocessing as mp
+
+# tests/test_simclr_agrees.py imports examples/ and benchmarks/, neither of which
+# is installed. --import-mode=importlib does not put the repo root on sys.path,
+# so it goes here.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 # Distributed (DDP) test pool, see #1982. The flag and gloo setup live in
 # tests/ddp_helpers.py so they can be typed and shared with the test modules;
