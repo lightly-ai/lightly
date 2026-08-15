@@ -96,8 +96,12 @@ class _PredictorBlock(nn.Module):
         qkv = qkv.permute(2, 0, 3, 1, 4)
         query, key, value = qkv.unbind(0)
         dropout_p = self.dropout if self.training else 0.0
+        out: Tensor
         if _FUSED_ATTENTION_AVAILABLE:
-            out = nn.functional.scaled_dot_product_attention(
+            # Reached through getattr so that type checking against the oldest
+            # supported torch, which has no fused kernel, does not fail here.
+            fused_attention = getattr(nn.functional, "scaled_dot_product_attention")
+            out = fused_attention(
                 query, key, value, attn_mask=attn_mask, dropout_p=dropout_p
             )
         else:

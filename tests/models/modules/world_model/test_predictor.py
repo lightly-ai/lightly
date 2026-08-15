@@ -3,6 +3,7 @@ from __future__ import annotations
 import pytest
 import torch
 
+from lightly.models.modules.world_model import predictor as predictor_module
 from lightly.models.modules.world_model.predictor import LatentDynamicsPredictor
 
 
@@ -172,24 +173,23 @@ class TestRollout:
 class TestAttentionFallback:
     """The package declares torch>=1.10, and the fused kernel arrives in 2.0."""
 
+    @pytest.mark.skipif(
+        not predictor_module._FUSED_ATTENTION_AVAILABLE,
+        reason="torch has no fused attention kernel before 2.0.",
+    )
     def test_manual_attention_matches_the_fused_kernel(self) -> None:
-        from lightly.models.modules.world_model import predictor as predictor_module
-
         torch.manual_seed(0)
         query, key, value = (torch.randn(2, 4, 6, 8) for _ in range(3))
         mask = torch.tril(torch.ones(6, 6, dtype=torch.bool))
 
-        fused = torch.nn.functional.scaled_dot_product_attention(
-            query, key, value, attn_mask=mask, dropout_p=0.0
-        )
+        fused_attention = getattr(torch.nn.functional, "scaled_dot_product_attention")
+        fused = fused_attention(query, key, value, attn_mask=mask, dropout_p=0.0)
         manual = predictor_module._manual_attention(query, key, value, mask, 0.0, False)
         assert torch.allclose(fused, manual, atol=1e-5)
 
     def test_predictor_matches_with_the_fallback_forced(
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        from lightly.models.modules.world_model import predictor as predictor_module
-
         torch.manual_seed(0)
         predictor = _predictor().eval()
         emb, action_emb = torch.randn(2, 4, 16), torch.randn(2, 4, 16)
@@ -201,8 +201,6 @@ class TestAttentionFallback:
 
     def test_manual_path_is_causal(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """The mask must mean the same thing on both paths."""
-        from lightly.models.modules.world_model import predictor as predictor_module
-
         monkeypatch.setattr(predictor_module, "_FUSED_ATTENTION_AVAILABLE", False)
         torch.manual_seed(0)
         predictor = _predictor().eval()
