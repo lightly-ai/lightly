@@ -25,51 +25,29 @@ Reference:
 Tutorials:
     :ref:`lightly-simclr-tutorial-3`
 
+The example
+-----------
 
-.. tabs::
-    .. tab:: PyTorch
+One file, plain PyTorch, with the training loop in view. Run it with::
 
-        .. image:: https://img.shields.io/badge/Open%20in%20Colab-blue?logo=googlecolab&label=%20&labelColor=5c5c5c
-            :target: https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/simclr.ipynb
+    python examples/simclr.py
 
-        This example can be run from the command line with::
+.. literalinclude:: ../../../examples/simclr.py
 
-            python lightly/examples/pytorch/simclr.py
+Reproducing a published number
+------------------------------
 
-        .. literalinclude:: ../../../examples/pytorch/simclr.py
+``benchmarks/simclr/`` runs the same method on Lightning, with the paper's
+settings, the probes and DDP. It carries one row per dataset, and the example
+above is the small row written out::
 
-    .. tab:: Lightning
+    torchrun --nproc_per_node=8 -m benchmarks.simclr.benchmark \
+        --train-dir /datasets/imagenet/train --val-dir /datasets/imagenet/val
 
-        .. image:: https://img.shields.io/badge/Open%20in%20Colab-blue?logo=googlecolab&label=%20&labelColor=5c5c5c
-            :target: https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/simclr.ipynb
+The two files restate each other rather than one importing the other, and
+``tests/test_simclr_agrees.py`` is what holds them to the same method. They do
+not share numbers: the example is small enough to run on one GPU, the benchmark
+is the paper.
 
-        This example can be run from the command line with::
-
-            python lightly/examples/pytorch_lightning/simclr.py
-
-        .. literalinclude:: ../../../examples/pytorch_lightning/simclr.py
-
-    .. tab:: Lightning Distributed
-
-        .. image:: https://img.shields.io/badge/Open%20in%20Colab-blue?logo=googlecolab&label=%20&labelColor=5c5c5c
-            :target: https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning_distributed/simclr.ipynb
-
-        This example runs on multiple gpus using Distributed Data Parallel (DDP)
-        training with Pytorch Lightning. At least one GPU must be available on 
-        the system. The example can be run from the command line with::
-
-            python lightly/examples/pytorch_lightning_distributed/simclr.py
-
-        The model differs in the following ways from the non-distributed
-        implementation:
-
-        - Distributed Data Parallel is enabled
-        - Synchronized Batch Norm is used in place of standard Batch Norm
-        - Features are gathered from all GPUs before the loss is calculated
-
-        Note that Synchronized Batch Norm and feature gathering are optional and
-        the model can also be trained without them. Without Synchronized Batch
-        Norm and feature gathering the batch norm and loss for each GPU are 
-        only calculated based on the features on that specific GPU.
-
-        .. literalinclude:: ../../../examples/pytorch_lightning_distributed/simclr.py
+For configured training on your own data with any backbone, use
+`LightlyTrain <https://docs.lightly.ai/train/stable/>`_.
