@@ -31,7 +31,6 @@ from lightly.backbones import TorchvisionResNetBackbone, small_image_stem
 from lightly.data.sample import Sample, collate
 from lightly.loss import NTXentLoss
 from lightly.models.modules import SimCLRProjectionHead
-from lightly.nn import encode
 from lightly.optim import param_groups
 from lightly.transforms import SimCLRTransform
 from lightly.transforms.utils import CIFAR10_NORMALIZE
@@ -53,15 +52,13 @@ transform = SimCLRTransform(
 )
 
 
-def project(images: Tensor) -> Tensor:
-    return head(backbone.embed(images))
-
-
 def forward(sample: Sample) -> Tensor:
-    # Both views go through in one call, so every BatchNorm sees 2N samples.
-    # Projecting one view at a time gives it N, which is a different
-    # optimisation problem: the gradients agree at cosine similarity 0.0837.
-    z0, z1 = encode(project, sample.views, group_by="shape")
+    # Both views go through the backbone and the head in one call, so every
+    # BatchNorm sees 2N samples. Running one view at a time gives it N, which is
+    # a different optimisation problem: the gradients of the two agree at cosine
+    # similarity 0.0837.
+    images = torch.cat([view.data for view in sample.views])
+    z0, z1 = head(backbone.embed(images)).chunk(len(sample.views))
     return criterion(z0, z1)
 
 
