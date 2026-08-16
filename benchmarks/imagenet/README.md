@@ -11,7 +11,12 @@ to read, run, and adapt.
 **Goals**
 * Provide easy to use/adapt reference implementations of SSL methods.
 * Keep methods self-contained while using Lightly building blocks. See
-  [resnet50/simclr.py](resnet50/simclr.py) for a compact example.
+  [resnet50/byol.py](resnet50/byol.py) for a compact example.
+
+**Note**
+> SimCLR has moved to [benchmarks/simclr/](../simclr), which carries one row per
+> dataset and is gated against `examples/simclr.py`. The rest of this tree follows
+> as each method is ported.
 * Remain as framework agnostic as possible. The benchmarks mainly rely on PyTorch and PyTorch Lightning; some ViT methods require `timm` (install via `pip install lightly[timm]`).
 
 **Non-Goals**
@@ -64,7 +69,7 @@ python main.py \
 To run only specific methods, use `--methods`:
 
 ```bash
-python main.py --epochs 100 --batch-size-per-device 128 --methods simclr byol
+python main.py --epochs 100 --batch-size-per-device 128 --methods dcl byol
 ```
 
 ## Run ViT Benchmarks
