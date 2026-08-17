@@ -10,21 +10,18 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
+import datetime
 import os
 import sys
 
 sys.path.insert(0, os.path.abspath("../.."))
-
-import sphinx_rtd_theme
 
 import lightly
 
 # -- Project information -----------------------------------------------------
 
 project = "LightlySSL"
-copyright_year = "2020-<script>document.write((new Date()).getFullYear())</script>"
-copyright = "Lightly AG"
-website_url = "https://www.lightly.ai/"
+copyright = f"2020-{datetime.date.today().year}, Lightly AG"
 author = "Lightly Team"
 
 # The full version, including alpha/beta/rc tags
@@ -39,7 +36,6 @@ master_doc = "index"
 # ones.
 extensions = [
     "sphinx.ext.napoleon",
-    "sphinx_rtd_theme",
     "sphinx.ext.autosummary",
     "sphinx_gallery.gen_gallery",
     "sphinx_tabs.tabs",
@@ -84,24 +80,80 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "sphinx_rtd_theme"
+html_theme = "furo"
+
+# Colors come from the LightlyStudio docs palette so the three doc sites read
+# as one product family. Furo takes them as CSS custom properties, so the
+# tokens live here and _static/custom.css only handles what they cannot reach.
+_BRAND = {
+    "color-brand-primary": "#07222c",
+    "color-brand-content": "#0e8fce",
+    "color-brand-visited": "#0e8fce",
+}
+_BRAND_DARK = {
+    "color-brand-primary": "#f7f8fb",
+    "color-brand-content": "#1aa3e4",
+    "color-brand-visited": "#1aa3e4",
+}
 
 html_theme_options = {
-    "collapse_navigation": False,  # set to false to prevent menu item collapse
-    "logo_only": True,
+    "sidebar_hide_name": True,
+    "announcement": (
+        "Interested in training your own vision foundation model? Check out "
+        '<a href="https://docs.lightly.ai/train/stable/index.html"><b>LightlyTrain</b></a>!'
+    ),
+    "footer_icons": [
+        {
+            "name": "GitHub",
+            "url": "https://github.com/lightly-ai/lightly",
+            # Octicon mark-github, as in the furo docs.
+            "html": '<svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>',
+            "class": "",
+        },
+    ],
+    "navigation_with_keys": True,
+    # Furo swaps these with the colour scheme; a single html_logo would be
+    # invisible against one of the two sidebar backgrounds.
+    "light_logo": "lightly_SSL_logo_crop.png",
+    "dark_logo": "lightly_SSL_logo_crop_white_text.png",
+    "light_css_variables": {
+        **_BRAND,
+        "font-stack": "'IBM Plex Sans', system-ui, sans-serif",
+        "font-stack--monospace": "'JetBrains Mono', ui-monospace, monospace",
+        "color-foreground-primary": "#07222c",
+        "color-foreground-secondary": "#4c616b",
+        "color-foreground-muted": "#5e727c",
+        "color-background-primary": "#ffffff",
+        "color-background-secondary": "#fafafc",
+        "color-background-border": "#e6e6ec",
+        "color-api-background": "#fafafc",
+    },
+    "dark_css_variables": {
+        **_BRAND_DARK,
+        "color-foreground-primary": "#f7f8fb",
+        "color-foreground-secondary": "#93a7b0",
+        "color-foreground-muted": "#7f949e",
+        "color-background-primary": "#051a22",
+        "color-background-secondary": "#07222c",
+        "color-background-border": "#123240",
+        "color-api-background": "#07222c",
+    },
 }
+
+# The code panel stays navy in both schemes (see _static/custom.css), so light mode
+# needs dark-background token colors too. A light style renders names like `torch`
+# near-black on navy.
+pygments_style = "native"
+pygments_dark_style = "native"
+
+html_css_files = [
+    "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&family=Open+Sans:wght@600;700&display=swap",
+    "custom.css",
+]
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ["_static"]
+html_static_path = ["_static", "../logos"]
 
 html_favicon = "favicon.png"
-
-html_logo = "../logos/lightly_SSL_logo_crop_white_text.png"
-
-# Exposes variables so that they can be used by django
-html_context = {
-    "copyright_year": copyright_year,
-    "website_url": website_url,
-}

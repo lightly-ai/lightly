@@ -1,0 +1,208 @@
+/* ==========================================================================
+   LightlySSL docs — shared visual language with the LightlyStudio docs.
+
+   Furo exposes most of the palette as CSS custom properties, which are set in
+   conf.py. This file covers what those variables cannot reach: the display
+   face on headings, the navy code panel, and the sidebar rhythm.
+   ========================================================================== */
+
+:root {
+  --ls-font-display: "Space Grotesk", "IBM Plex Sans", system-ui, sans-serif;
+  --ls-font-brand: "Open Sans", system-ui, sans-serif;
+  --ls-font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* The code panel is the brand navy in both schemes, so it does not flip. */
+  --ls-code-surface: #07222c;
+  --ls-code-line: #123240;
+  --ls-code-ink: #cfe3eb;
+  --ls-code-label: #7f949e;
+}
+
+/* ==========================================================================
+   Typography
+   ========================================================================== */
+
+body {
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--ls-font-display);
+  font-weight: 600;
+  letter-spacing: -0.018em;
+}
+
+h1 {
+  font-size: 2.15rem;
+  letter-spacing: -0.022em;
+  line-height: 1.12;
+}
+
+h2 {
+  font-size: 1.5rem;
+  margin-top: 2.2rem;
+}
+
+h3 {
+  font-size: 1.2rem;
+}
+
+article {
+  line-height: 1.68;
+}
+
+/* Reading measure, matched to the Studio docs. Tables, figures and code keep
+   the full column. */
+article p,
+article ul,
+article ol {
+  max-width: 40rem;
+}
+
+/* ==========================================================================
+   Sidebar
+   ========================================================================== */
+
+.sidebar-brand {
+  font-family: var(--ls-font-brand);
+  font-weight: 700;
+}
+
+.sidebar-tree .reference {
+  border-radius: 8px;
+  font-size: 0.88rem;
+}
+
+/* Current page reads as a neutral pill; the accent stays reserved for links. */
+.sidebar-tree .current-page > .reference {
+  background: var(--color-background-secondary);
+  color: var(--color-foreground-primary);
+  font-weight: 600;
+}
+
+.sidebar-tree .caption {
+  color: var(--color-foreground-primary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.toc-title {
+  color: var(--color-foreground-primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+/* ==========================================================================
+   Code
+   ========================================================================== */
+
+/* Fenced blocks are the brand navy panel in both schemes. */
+div.highlight,
+div.highlight pre {
+  background-color: var(--ls-code-surface) !important;
+  border-radius: 8px;
+  color: var(--ls-code-ink);
+}
+
+div.highlight pre {
+  font-family: var(--ls-font-mono);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  padding: 1rem 1.1rem;
+}
+
+/* Syntax colours built from the brand blues rather than a generic rainbow. */
+.highlight .k,
+.highlight .kn,
+.highlight .kd,
+.highlight .ow {
+  color: #3ad9c6;
+}
+
+.highlight .s,
+.highlight .s1,
+.highlight .s2,
+.highlight .sd {
+  color: #a8d8a0;
+}
+
+.highlight .c,
+.highlight .c1,
+.highlight .cm {
+  color: var(--ls-code-label);
+  font-style: normal;
+}
+
+.highlight .nf,
+.highlight .nc,
+.highlight .nd {
+  color: #7fd1f2;
+}
+
+.highlight .mi,
+.highlight .mf,
+.highlight .n,
+.highlight .p,
+.highlight .o {
+  color: var(--ls-code-ink);
+}
+
+.highlight .nb {
+  color: #9ad9ea;
+}
+
+/* Copy button sits on the navy panel, so it needs light ink. */
+.highlight button.copybtn {
+  border-radius: 6px;
+  color: var(--ls-code-label);
+}
+
+.highlight button.copybtn:hover {
+  color: var(--ls-code-ink);
+}
+
+/* Inline code stays on the page surface. */
+code.literal {
+  background: var(--color-background-secondary);
+  border: 1px solid var(--color-background-border);
+  border-radius: 6px;
+  color: var(--color-foreground-primary);
+  font-size: 0.84em;
+  padding: 0.1em 0.35em;
+}
+
+/* ==========================================================================
+   Admonitions and tables
+   ========================================================================== */
+
+.admonition {
+  border-radius: 8px;
+  box-shadow: none;
+  font-size: 0.92rem;
+}
+
+.admonition > .admonition-title {
+  font-family: var(--ls-font-display);
+  font-weight: 600;
+}
+
+.admonition > .admonition-title::after {
+  color: inherit;
+}
+
+table.docutils {
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+table.docutils th {
+  background: var(--color-background-secondary);
+  font-weight: 600;
+}
