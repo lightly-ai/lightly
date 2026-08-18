@@ -33,6 +33,7 @@ class CAPI(LightningModule):
         self.mask_ratio = 0.65
         self.prediction_subsampling = 0.05
 
+        # Deviation from the reference: standard masked ViT encoder; RoPE is only in the predictor, not the encoder.
         vit = vit_base_patch16_224(img_size=256, reg_tokens=16, dynamic_img_size=True)
         self.student_backbone = MaskedVisionTransformerTIMM(vit=vit)
         self.sequence_length = self.student_backbone.sequence_length
