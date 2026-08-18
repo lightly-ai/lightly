@@ -92,7 +92,7 @@ class WMSETransform(MultiViewTransform):
                 T.RandomResizedCrop(
                     input_size,
                     scale=(min_scale, 1.0),
-                    interpolation=3,
+                    interpolation=T.InterpolationMode.BICUBIC,
                 ),
                 T.RandomHorizontalFlip(p=hf_prob),
                 GaussianBlur(

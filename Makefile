@@ -63,6 +63,12 @@ test:
 test-fast:
 	pytest tests
 
+## run distributed tests on the shared gloo pool (see #1982)
+# python -m pytest is required (instead of plain pytest) because it adds the repo
+# root to sys.path, which the spawned pool workers need to import the tests package.
+test-distributed:
+	USE_PYTEST_POOL=1 python -m pytest tests --runslow -m DDP
+
 ## check typing
 type-check:
 	mypy lightly tests
@@ -129,14 +135,6 @@ install-dev:
 	uv pip install ${EDITABLE} . --all-extras --requirement pyproject.toml
 	pre-commit install
 
-
-# Install package with API dependencies only.
-# Should be same command as in the docs with some extra flags for CI:
-# https://docs.lightly.ai/docs/install-lightly#install-the-lightly-python-client
-.PHONY: install-api-only
-install-api-only:
-	uv pip install --exclude-newer ${EXCLUDE_NEWER_DATE} --requirement requirements/base.txt
-	uv pip install --exclude-newer ${EXCLUDE_NEWER_DATE} . --no-deps
 
 # Install package with minimal dependencies.
 # 

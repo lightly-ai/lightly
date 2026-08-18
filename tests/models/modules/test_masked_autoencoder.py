@@ -24,20 +24,20 @@ class TestMAEEncoder:
     def test_from_vit(self) -> None:
         MAEEncoder.from_vit_encoder(self._vit().encoder)
 
-    def _test_forward(
-        self,
-        device: torch.device,
-        use_mask: bool,
-        batch_size: int = 8,
-        seed: int = 0,
-    ) -> None:
-        torch.manual_seed(seed)
+    @pytest.mark.parametrize("device", ["cpu", "cuda"])
+    @pytest.mark.parametrize("use_mask", [False, True])
+    def test_forward(self, use_mask: bool, device: str) -> None:
+        if not torch.cuda.is_available() and device == "cuda":
+            pytest.skip("CUDA not available")
+
+        torch.manual_seed(0)
+        batch_size = 8
         vit = self._vit()
         encoder = MAEEncoder.from_vit_encoder(vit.encoder).to(device)
         tokens = torch.rand(batch_size, vit.seq_length, vit.hidden_dim).to(device)
         idx_keep, _ = utils.random_token_mask(
             size=(batch_size, vit.seq_length),
-            device=device,
+            device=torch.device(device),
         )
         if not use_mask:
             idx_keep = None
@@ -52,15 +52,6 @@ class TestMAEEncoder:
         # output must have reasonable numbers
         assert torch.all(torch.not_equal(out, torch.inf))
 
-    @pytest.mark.parametrize("use_mask", [False, True])
-    def test_forward(self, use_mask: bool) -> None:
-        self._test_forward(device=torch.device("cpu"), use_mask=use_mask)
-
-    @pytest.mark.parametrize("use_mask", [False, True])
-    @pytest.mark.skipif(not torch.cuda.is_available(), reason="Cuda not available.")
-    def test_forward_cuda(self, use_mask: bool) -> None:
-        self._test_forward(torch.device("cuda"), use_mask=use_mask)
-
 
 @pytest.mark.skipif(
     not dependency.torchvision_vit_available(),
@@ -73,20 +64,20 @@ class TestMAEBackbone:
     def test_from_vit(self) -> None:
         MAEBackbone.from_vit(self._vit())
 
-    def _test_forward(
-        self,
-        device: torch.device,
-        use_mask: bool,
-        batch_size: int = 8,
-        seed: int = 0,
-    ) -> None:
-        torch.manual_seed(seed)
+    @pytest.mark.parametrize("device", ["cpu", "cuda"])
+    @pytest.mark.parametrize("use_mask", [False, True])
+    def test_forward(self, use_mask: bool, device: str) -> None:
+        if not torch.cuda.is_available() and device == "cuda":
+            pytest.skip("CUDA not available")
+
+        torch.manual_seed(0)
+        batch_size = 8
         vit = self._vit()
         backbone = MAEBackbone.from_vit(vit).to(device)
         images = torch.rand(batch_size, 3, vit.image_size, vit.image_size).to(device)
         idx_keep, _ = utils.random_token_mask(
             size=(batch_size, vit.seq_length),
-            device=device,
+            device=torch.device(device),
         )
         if not use_mask:
             idx_keep = None
@@ -98,15 +89,6 @@ class TestMAEBackbone:
 
         # output must have reasonable numbers
         assert torch.all(torch.not_equal(class_tokens, torch.inf))
-
-    @pytest.mark.parametrize("use_mask", [False, True])
-    def test_forward(self, use_mask: bool) -> None:
-        self._test_forward(torch.device("cpu"), use_mask=use_mask)
-
-    @pytest.mark.parametrize("use_mask", [False, True])
-    @pytest.mark.skipif(not torch.cuda.is_available(), reason="Cuda not available.")
-    def test_forward_cuda(self, use_mask: bool) -> None:
-        self._test_forward(torch.device("cuda"), use_mask=use_mask)
 
     def test_images_to_tokens(self) -> None:
         torch.manual_seed(0)
@@ -135,10 +117,13 @@ class TestMAEDecoder:
             out_dim=3 * 32**2,
         )
 
-    def _test_forward(
-        self, device: torch.device, batch_size: int = 8, seed: int = 0
-    ) -> None:
-        torch.manual_seed(seed)
+    @pytest.mark.parametrize("device", ["cpu", "cuda"])
+    def test_forward(self, device: str) -> None:
+        if not torch.cuda.is_available() and device == "cuda":
+            pytest.skip("CUDA not available")
+
+        torch.manual_seed(0)
+        batch_size = 8
         seq_length = 50
         embed_input_dim = 128
         out_dim = 3 * 32**2
@@ -160,10 +145,3 @@ class TestMAEDecoder:
 
         # output must have reasonable numbers
         assert torch.all(torch.not_equal(predictions, torch.inf))
-
-    def test_forward(self) -> None:
-        self._test_forward(torch.device("cpu"))
-
-    @pytest.mark.skipif(not torch.cuda.is_available(), reason="Cuda not available.")
-    def test_forward_cuda(self) -> None:
-        self._test_forward(torch.device("cuda"))

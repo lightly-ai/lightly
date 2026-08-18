@@ -180,33 +180,6 @@ The embeddings.csv file should look like the following:
     101101-1.jpg,-67.958,-2.800,-28.861,103.812,0
     101146-1.jpg,-59.831,-2.719,-25.413,90.945,0
 
-Download data using the CLI
------------------------------------------------
-You can download a dataset with a given tag from the Lightly Platform using the 
-following CLI command. The CLI provides you with three options:
-
-* Download the list of filenames for a given tag in the dataset.
-  
-* Download the images for a given tag in the dataset.
-  
-* Copy the images for a given tag from an input directory to a target directory.
-
-The last option allows you to very quickly extract only the images in a given tag
-without the need to download them explicitly.
-
-.. code-block:: bash
-
-    # download a list of files
-    lightly-download tag_name=my_tag_name dataset_id=your_dataset_id token=your_token
-
-    # download the images and store them in an output directory
-    lightly-download tag_name=my_tag_name dataset_id=your_dataset_id token=your_token \
-                     output_dir=path/to/output/dir
-
-    # copy images from an input directory to an output directory
-    lightly-download tag_name=my_tag_name dataset_id=your_dataset_id token=your_token \
-                     input_dir=path/to/input/dir output_dir=path/to/output/dir
-
 .. _ref-breakdown-lightly-magic:
 
 Breakdown of lightly-magic

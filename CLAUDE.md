@@ -14,9 +14,8 @@ Main entry points:
 - `lightly.loss` — SSL loss implementations
 - `lightly.transforms` — method-specific augmentation pipelines
 - `lightly.data` — dataset wrapper + collate functions
-- `lightly.cli` — `lightly-*` command-line tools (train, embed, crop, download, serve, magic)
+- `lightly.cli` — `lightly-*` command-line tools (train, embed, crop, magic)
 - `lightly.core` — one-liner convenience APIs
-- `lightly.api` — communication with the Lightly web app
 
 ## Repo layout
 
@@ -82,15 +81,12 @@ Touch points, mirroring an existing method (e.g. BYOL) as the template:
 
 - `pytest`, config in `tests/conftest.py`. Test tree mirrors `lightly/`.
 - Slow tests are marked `@pytest.mark.slow` and skipped unless `--runslow` is passed (`make test` passes it, `make test-fast` doesn't).
-- `LIGHTLY_SERVER_LOCATION` is set to a dummy URL in `conftest.py` so tests don't hit the real API.
 
 ## CI (`.github/workflows/`)
 
 - `test_code_format.yml` — `make static-checks`
 - `test.yml` — main unit test suite
-- `tests_unmocked.yml` — tests against real dependencies/API where relevant
 - `test_minimal_deps.yml` — install with lowest-pinned direct dependencies, then test
-- `test_api_deps_only.yml` — install with only API-client dependencies
 - `test_setup.yml` — package build/install sanity check
 - `check_example_nbs.yml` — verifies generated notebooks are up to date with `examples/`
 - `weekly_dependency_test.yml` — scheduled test against latest dependency versions
