@@ -11,7 +11,8 @@ class MoCoV1Transform(SimCLRTransform):
         PIL Image or Tensor.
 
     Output of this transform:
-        List of Tensor of length 2.
+        List of View of length 2, each holding a Tensor. Read the pixels with
+        ``views[0].data``.
 
     Applies the following augmentations by default:
         - Random resized crop
@@ -116,7 +117,8 @@ class MoCoV2Transform(SimCLRTransform):
         PIL Image or Tensor.
 
     Output of this transform:
-        List of Tensor of length 2.
+        List of View of length 2, each holding a Tensor. Read the pixels with
+        ``views[0].data``.
 
     Applies the following augmentations by default:
         - Random resized crop
