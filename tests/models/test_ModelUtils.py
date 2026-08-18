@@ -1125,6 +1125,47 @@ def test_random_inverse_block_mask__not_square_raises() -> None:
         )
 
 
+def test_random_inverse_block_mask__mask_ratio_extremes() -> None:
+    num_prefix_tokens = 1
+    sequence_length = num_prefix_tokens + 16  # 4x4 patch grid
+
+    # mask_ratio=0.0 keeps all patches and masks none.
+    idx_keep, idx_mask = utils.random_inverse_block_mask(
+        size=(2, sequence_length),
+        mask_ratio=0.0,
+        num_prefix_tokens=num_prefix_tokens,
+    )
+    assert idx_mask.shape == (2, 0)
+    assert idx_keep.shape == (2, sequence_length)
+    assert torch.equal(
+        idx_keep, torch.arange(sequence_length).expand(2, sequence_length)
+    )
+
+    # mask_ratio=0.05 rounds to 0 masked patches (int(16 * 0.05) == 0).
+    idx_keep, idx_mask = utils.random_inverse_block_mask(
+        size=(2, sequence_length),
+        mask_ratio=0.05,
+        num_prefix_tokens=num_prefix_tokens,
+    )
+    assert idx_mask.shape == (2, 0)
+    assert idx_keep.shape == (2, sequence_length)
+    assert torch.equal(
+        idx_keep, torch.arange(sequence_length).expand(2, sequence_length)
+    )
+
+    # mask_ratio=1.0 keeps only the prefix tokens and masks all patches.
+    idx_keep, idx_mask = utils.random_inverse_block_mask(
+        size=(2, sequence_length),
+        mask_ratio=1.0,
+        num_prefix_tokens=num_prefix_tokens,
+    )
+    assert idx_mask.shape == (2, 16)
+    assert idx_keep.shape == (2, num_prefix_tokens)
+    assert torch.equal(
+        idx_keep, torch.arange(num_prefix_tokens).expand(2, num_prefix_tokens)
+    )
+
+
 def test_random_grid_token_mask__mask_ratio_extremes() -> None:
     num_prefix_tokens = 1
     sequence_length = num_prefix_tokens + 16  # 4 cells of 4 patches (grid=2)
