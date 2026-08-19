@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, Union
 
 import torch
 import torch.distributed as dist
@@ -104,6 +104,88 @@ def center_mean(x: Tensor, dim: Tuple[int, ...]) -> Tensor:
 def center_momentum(center: Tensor, batch_center: Tensor, momentum: float) -> Tensor:
     """Returns the new center with momentum update."""
     return center * momentum + batch_center * (1 - momentum)
+
+
+@torch.no_grad()
+def sinkhorn_knopp(
+    x: Tensor,
+    temperature: Union[float, Tensor] = 0.04,
+    num_iterations: int = 3,
+    gather_distributed: bool = True,
+) -> Tensor:
+    """Returns Sinkhorn-Knopp normalized probabilities as introduced in SwAV [0].
+
+    Instead of subtracting a running center, the sharpened logits are normalized such
+    that every prototype receives the same total weight across the batch, which avoids
+    collapse without tracking any state. DINOv2 [1] offers this as an alternative to the
+    mean centering of DINO [2], but keeps mean centering in its released configs, where
+    it reports no difference on ImageNet-1k. DINOv3 [3] uses it for both the DINO and
+    the iBOT objective.
+
+    Implementation is based on [4] and shared with lightly.loss.swav_loss.sinkhorn.
+    The number of samples is reduced across processes instead of being derived from the
+    world size, because processes can hold a different number of samples. This is the
+    case for the iBOT loss, where the number of masked tokens differs between processes.
+
+    - [0]: SwAV, 2020, https://arxiv.org/abs/2006.09882
+    - [1]: DINOv2, 2023, https://arxiv.org/abs/2304.07193
+    - [2]: DINO, 2021, https://arxiv.org/abs/2104.14294
+    - [3]: DINOv3, 2025, https://arxiv.org/abs/2508.10104
+    - [4]: https://github.com/facebookresearch/dinov3/blob/main/dinov3/loss/dino_clstoken_loss.py
+
+    Args:
+        x:
+            Tensor with shape (batch_size, num_prototypes) containing the logits.
+        temperature:
+            Temperature used to sharpen the logits.
+        num_iterations:
+            Number of Sinkhorn-Knopp iterations.
+        gather_distributed:
+            If True, the normalization is computed over the batches of all processes.
+
+    Returns:
+        Tensor with shape (batch_size, num_prototypes) containing the probabilities in
+        float32. Every row sums to one if num_iterations is at least one. The
+        probabilities are detached from the computation graph, following the reference
+        implementation.
+    """
+    gather = gather_distributed and dist.is_available() and dist.is_initialized()
+
+    # (batch_size, num_prototypes) -> (num_prototypes, batch_size) following the
+    # notation of the reference implementation. The exponential is computed in float32
+    # because it overflows in half precision for the low temperatures used by DINO.
+    Q = torch.exp(x.float() / temperature).t()
+    num_prototypes = Q.shape[0]
+
+    # The number of samples is reduced together with the sum over Q to save a
+    # synchronization point. The actual number of samples is reduced instead of
+    # multiplying the local batch size with the world size because processes can have
+    # different batch sizes. This happens for example in the iBOT loss where the number
+    # of masked tokens differs between processes.
+    local_num_samples = torch.tensor(Q.shape[1], device=Q.device, dtype=Q.dtype)
+    sums = torch.stack([Q.sum(), local_num_samples])
+    if gather:
+        dist.all_reduce(sums)
+    sum_Q, num_samples = sums[0], sums[1]
+
+    # Make the matrix sum to 1.
+    Q /= sum_Q
+
+    for _ in range(num_iterations):
+        # Normalize rows: the total weight per prototype must be 1 / num_prototypes.
+        sum_of_rows = torch.sum(Q, dim=1, keepdim=True)
+        if gather:
+            dist.all_reduce(sum_of_rows)
+        Q /= sum_of_rows
+        Q /= num_prototypes
+
+        # Normalize columns: the total weight per sample must be 1 / num_samples.
+        Q /= torch.sum(Q, dim=0, keepdim=True)
+        Q /= num_samples
+
+    # Scale the columns to sum to one, such that Q is an assignment.
+    Q *= num_samples
+    return Q.t()
 
 
 CENTER_MODE_TO_FUNCTION = {
