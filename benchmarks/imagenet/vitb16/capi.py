@@ -4,7 +4,7 @@ import copy
 
 import torch
 from pytorch_lightning import LightningModule
-from timm.models.vision_transformer import vit_base_patch16_224
+from timm.models.vision_transformer import vit_small_patch16_224
 from torch import Tensor
 from torch.optim import AdamW
 
@@ -34,7 +34,9 @@ class CAPI(LightningModule):
         self.prediction_subsampling = 0.05
 
         # Deviation from the reference: standard masked ViT encoder; RoPE is only in the predictor, not the encoder.
-        vit = vit_base_patch16_224(img_size=256, reg_tokens=16, dynamic_img_size=True)
+        vit = vit_small_patch16_224(
+            img_size=256, reg_tokens=16, dynamic_img_size=True, pretrained=False
+        )
         self.student_backbone = MaskedVisionTransformerTIMM(vit=vit)
         self.sequence_length = self.student_backbone.sequence_length
         self.num_prefix_tokens = vit.num_prefix_tokens
@@ -45,7 +47,7 @@ class CAPI(LightningModule):
             input_dim=self.embed_dim, num_clusters=num_clusters, weight_norm=True
         )
         self.predictor = CAPIPredictorTIMM(
-            embed_dim=self.embed_dim, grid_size=grid_size, depth=12, num_heads=12
+            embed_dim=self.embed_dim, grid_size=grid_size, depth=6, num_heads=6
         )
 
         # The teacher backbone is an exponential moving average of the student; the
