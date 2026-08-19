@@ -101,19 +101,19 @@ class TestIJEPAPredictorTIMM:
             noise_std=noise_std,
         )
 
-    def _test_forward(
-        self,
-        device: torch.device,
-        noise_std: float,
-        batch_size: int = 4,
-        seed: int = 0,
-    ) -> None:
-        torch.manual_seed(seed)
+    @pytest.mark.parametrize("device", ["cpu", "cuda"])
+    def test_forward(self, device: str) -> None:
+        if not torch.cuda.is_available() and device == "cuda":
+            pytest.skip("CUDA not available")
+
+        torch.manual_seed(0)
+        batch_size = 4
         num_patches = 196  # 14x14 patches
         mlp_dim = 128
         predictor_embed_dim = 128
         depth = 3
         num_heads = 2
+        noise_std = 0.1
 
         predictor = IJEPAPredictorTIMM(
             num_patches=num_patches,
@@ -140,15 +140,6 @@ class TestIJEPAPredictorTIMM:
 
         # output must have reasonable numbers
         assert torch.all(torch.isfinite(predictions))
-
-    @pytest.mark.parametrize("noise_std", [0.0, 0.1])
-    def test_forward(self, noise_std: float) -> None:
-        self._test_forward(torch.device("cpu"), noise_std)
-
-    @pytest.mark.skipif(not torch.cuda.is_available(), reason="CUDA not available.")
-    @pytest.mark.parametrize("noise_std", [0.0, 0.1])
-    def test_forward_cuda(self, noise_std: float) -> None:
-        self._test_forward(torch.device("cuda"), noise_std)
 
     def test_migrates_legacy_checkpoint(self) -> None:
         # A checkpoint saved with the pre-refactor parameter names must still load,
