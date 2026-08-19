@@ -86,7 +86,8 @@ class _LegacyIJEPAPredictorTIMM(nn.Module):
 
 
 class TestIJEPAPredictorTIMM:
-    def test_init(self) -> None:
+    @pytest.mark.parametrize("noise_std", [0.0, 0.1])
+    def test_init(self, noise_std: float) -> None:
         IJEPAPredictorTIMM(
             num_patches=196,
             depth=2,
@@ -97,6 +98,7 @@ class TestIJEPAPredictorTIMM:
             mlp_ratio=4.0,
             proj_drop_rate=0.0,
             attn_drop_rate=0.0,
+            noise_std=noise_std,
         )
 
     @pytest.mark.parametrize("device", ["cpu", "cuda"])
@@ -111,6 +113,7 @@ class TestIJEPAPredictorTIMM:
         predictor_embed_dim = 128
         depth = 3
         num_heads = 2
+        noise_std = 0.1
 
         predictor = IJEPAPredictorTIMM(
             num_patches=num_patches,
@@ -122,6 +125,7 @@ class TestIJEPAPredictorTIMM:
             mlp_ratio=4.0,
             proj_drop_rate=0.0,
             attn_drop_rate=0.0,
+            noise_std=noise_std,
         ).to(device)
 
         x = torch.randn(batch_size, num_patches, mlp_dim, device=device)
