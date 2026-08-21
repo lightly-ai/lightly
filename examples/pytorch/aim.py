@@ -57,6 +57,7 @@ vit = MaskedCausalVisionTransformer(
     qk_norm=False,
     class_token=False,
     no_embed_class=True,
+    global_pool="avg",
 )
 model = AIM(vit)
 
