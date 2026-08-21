@@ -14,6 +14,7 @@ from lightly.loss.frossl_loss import FroSSLLoss
 from lightly.loss.ibot_loss import IBOTPatchLoss, IBOTPlusPlusPatchLoss
 from lightly.loss.koleo_loss import KoLeoLoss
 from lightly.loss.lejepa_loss import LeJEPALoss, SIGReg
+from lightly.loss.lewm_loss import LeWMLoss
 from lightly.loss.macl_loss import MACLLoss
 from lightly.loss.mmcr_loss import MMCRLoss
 from lightly.loss.msn_loss import MSNLoss
