@@ -2,11 +2,9 @@
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
-import copy
 import os
 from typing import Any, List, Optional, Sequence, Tuple, Union
 
-import omegaconf
 from omegaconf import DictConfig
 from pytorch_lightning import LightningModule, Trainer
 from pytorch_lightning.callbacks import Callback
@@ -92,7 +90,6 @@ class BaseEmbedding(LightningModule):
                 max_epochs: (int) Maximum number of epochs to train
                 gpus: (int) Number of gpus to use
                 enable_model_summary: (bool) Whether to enable model summarisation.
-                weights_summary: (str) DEPRECATED. How to print a summary of the model and weights.
             checkpoint_callback_config: ModelCheckpoint callback arguments
             summary_callback_config: ModelSummary callback arguments
 
@@ -108,19 +105,12 @@ class BaseEmbedding(LightningModule):
         trainer_callbacks.append(checkpoint_cb)
 
         summary_cb = callbacks.create_summary_callback(
-            summary_callback_config=summary_callback_config,
-            trainer_config=trainer_config,
+            summary_callback_config=summary_callback_config
         )
         if summary_cb is not None:
             trainer_callbacks.append(summary_cb)
 
-        # Remove weights_summary from trainer_config now that the summary callback
-        # has been created. TODO: Drop support for the "weights_summary" argument.
-        trainer_config_copy = copy.deepcopy(trainer_config)
-        if "weights_summary" in trainer_config_copy:
-            with omegaconf.open_dict(trainer_config_copy):
-                del trainer_config_copy["weights_summary"]
-        trainer = Trainer(**trainer_config_copy, callbacks=trainer_callbacks)  # type: ignore[misc]
+        trainer = Trainer(**trainer_config, callbacks=trainer_callbacks)  # type: ignore[misc]
 
         trainer.fit(self)
 

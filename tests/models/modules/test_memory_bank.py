@@ -15,7 +15,7 @@ class TestNTXentLoss:
         bsz = 3
         dim, size = 2, 9
         n = 33 * bsz
-        memory_bank = MemoryBankModule(size=size)
+        memory_bank = MemoryBankModule(size=(size, dim))
 
         ptr = 0
         for i in range(0, n, bsz):
@@ -40,7 +40,7 @@ class TestNTXentLoss:
         bsz = 3
         dim, size = 2, 10
         n = 33 * bsz
-        memory_bank = MemoryBankModule(size=size)
+        memory_bank = MemoryBankModule(size=(size, dim))
 
         for i in range(0, n, bsz):
             # see if there are any problems when the bank size
@@ -53,7 +53,7 @@ class TestNTXentLoss:
         bsz = 3
         dim, size = 2, 10
         n = 33 * bsz
-        memory_bank = MemoryBankModule(size=size)
+        memory_bank = MemoryBankModule(size=(size, dim))
         device = torch.device("cuda")
         memory_bank.to(device=device)
 
@@ -80,17 +80,23 @@ class TestMemoryBank:
         ):
             MemoryBankModule(size=(10, -1))
 
-    def test_init__no_dim_warning(self) -> None:
-        with pytest.warns(
-            UserWarning,
+    def test_init__no_dim(self) -> None:
+        with pytest.raises(
+            ValueError,
             match=re.escape(
-                "Memory bank size 'size=10' does not specify feature "
-                "dimension. It is recommended to set the feature dimension with "
-                "'size=(n, dim)' when creating the memory bank. Distributed "
-                "training might fail if the feature dimension is not set."
+                "Memory bank size 'size=10' does not specify the feature dimension. "
+                "Set it with 'size=(10, dim)', or pass 'size=0' to disable the "
+                "memory bank."
             ),
         ):
             MemoryBankModule(size=10)
+
+    def test_init__disabled(self) -> None:
+        memory_bank = MemoryBankModule(size=0)
+        x = torch.randn(3, 2)
+        out, bank = memory_bank(x, update=True)
+        assert out.tolist() == x.tolist()
+        assert bank is None
 
     def test_forward(self) -> None:
         torch.manual_seed(0)
@@ -131,22 +137,6 @@ class TestMemoryBank:
         assert bank2[3:].tolist() == x1[:2].tolist()
         # Verify that memory bank is overwritten.
         assert memory_bank.bank[:3].tolist() == x2.tolist()
-
-    def test_forward__no_dim(self) -> None:
-        torch.manual_seed(0)
-        # Only specify size but not feature dimension.
-        memory_bank = MemoryBankModule(size=5, feature_dim_first=False)
-        x0 = torch.randn(3, 2)
-        out0, bank0 = memory_bank(x0, update=True)
-        # Verify that output is same as input.
-        assert out0.tolist() == x0.tolist()
-        # Verify that memory bank was initialized and has correct shape.
-        assert bank0.shape == (5, 2)
-        assert memory_bank.bank.shape == (5, 2)
-        # Verify that output bank does not contain features from x0.
-        assert bank0[:3].tolist() != x0.tolist()
-        # Verify that memory bank was updated.
-        assert memory_bank.bank[:3].tolist() == x0.tolist()
 
     def test_forward__dim_first(self) -> None:
         torch.manual_seed(0)
