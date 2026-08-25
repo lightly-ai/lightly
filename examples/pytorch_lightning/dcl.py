@@ -10,6 +10,7 @@ import torch
 import torchvision
 from torch import nn
 
+from lightly.data.sample import legacy_collate
 from lightly.loss import DCLLoss
 from lightly.models.modules import SimCLRProjectionHead
 from lightly.transforms.simclr_transform import SimCLRTransform
@@ -57,6 +58,9 @@ dataloader = torch.utils.data.DataLoader(
     shuffle=True,
     drop_last=True,
     num_workers=8,
+    # This transform returns views. legacy_collate unwraps them into the
+    # (views, labels, filenames) tuple this example was written against.
+    collate_fn=legacy_collate,
 )
 accelerator = "gpu" if torch.cuda.is_available() else "cpu"
 

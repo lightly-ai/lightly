@@ -48,6 +48,7 @@ import torch.nn as nn
 import torchvision
 
 from lightly.data import LightlyDataset
+from lightly.data.sample import legacy_collate
 from lightly.loss import NTXentLoss
 from lightly.models import ResNetGenerator
 from lightly.models.modules.heads import MoCoProjectionHead
@@ -182,6 +183,9 @@ dataloader_train_moco = torch.utils.data.DataLoader(
     shuffle=True,
     drop_last=True,
     num_workers=num_workers,
+    # This transform returns views. legacy_collate unwraps them into the
+    # (views, labels, filenames) tuple this tutorial was written against.
+    collate_fn=legacy_collate,
 )
 
 dataloader_train_classifier = torch.utils.data.DataLoader(

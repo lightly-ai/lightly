@@ -12,6 +12,7 @@ from torch.utils.data import DataLoader
 from torchvision import models
 from torchvision.datasets import CIFAR10
 
+from lightly.data.sample import legacy_collate
 from lightly.loss import DirectCLRLoss
 from lightly.transforms.simclr_transform import SimCLRTransform
 
@@ -32,6 +33,9 @@ dataloader = DataLoader(
     shuffle=True,
     drop_last=True,
     num_workers=8,
+    # This transform returns views. legacy_collate unwraps them into the
+    # (views, labels, filenames) tuple this example was written against.
+    collate_fn=legacy_collate,
 )
 
 criterion = DirectCLRLoss(loss_dim=32)

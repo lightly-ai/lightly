@@ -74,6 +74,7 @@ from timm.models.vision_transformer import vit_base_patch32_224
 from torchvision.models.vision_transformer import VisionTransformer
 
 from lightly.data import LightlyDataset
+from lightly.data.sample import legacy_collate
 from lightly.loss import (
     BarlowTwinsLoss,
     DCLLoss,
@@ -113,6 +114,7 @@ from lightly.transforms import (
     VICRegTransform,
 )
 from lightly.transforms.utils import IMAGENET_NORMALIZE
+from lightly.transforms.view_transform import ViewTransform
 from lightly.utils import scheduler
 from lightly.utils.benchmarking import BenchmarkModule
 from lightly.utils.lars import LARS
@@ -300,6 +302,14 @@ def get_data_loaders(batch_size: int, dataset_train_ssl):
         shuffle=True,
         drop_last=True,
         num_workers=num_workers,
+        # Transforms that have moved to the view contract return views, which
+        # the default collate cannot stack. legacy_collate hands the models in
+        # this script the tuple they were written against.
+        collate_fn=(
+            legacy_collate
+            if isinstance(dataset_train_ssl.transform, ViewTransform)
+            else None
+        ),
     )
 
     dataloader_train_kNN = torch.utils.data.DataLoader(
