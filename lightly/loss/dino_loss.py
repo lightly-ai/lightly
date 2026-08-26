@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import warnings
+from typing import TYPE_CHECKING
 
 import torch
 import torch.nn.functional as F
@@ -9,6 +10,9 @@ from torch.nn import Module, Parameter
 
 from lightly.models.modules import center
 from lightly.models.modules.center import CENTER_MODE_TO_FUNCTION
+
+if TYPE_CHECKING:
+    from typing import Literal
 
 
 class DINOLoss(Module):
@@ -32,9 +36,16 @@ class DINOLoss(Module):
             Temperature parameter for the student network.
         center:
             Center used for the teacher output. It is updated with a moving average
-            during training.
+            during training. Unused if `center_mode="sinkhorn_knopp"` is selected.
         center_momentum:
             Momentum term for the center calculation.
+        center_mode:
+            Mode used to normalize the teacher output. Either 'mean' for the mean
+            centering from DINO or 'sinkhorn_knopp' for the Sinkhorn-Knopp centering
+            that is optional in DINOv2 and used by DINOv3.
+        sinkhorn_iterations:
+            Number of Sinkhorn-Knopp iterations. Only used if
+            `center_mode="sinkhorn_knopp"`.
         warmup_teacher_temp_epochs:
                 Number of epochs for the warmup phase of the teacher temperature (for backward compatibility).
         teacher_temp_schedule:
@@ -63,17 +74,27 @@ class DINOLoss(Module):
         warmup_teacher_temp_epochs: int = 30,
         student_temp: float = 0.1,
         center_momentum: float = 0.9,
-        center_mode: str = "mean",
+        center_mode: Literal["mean", "sinkhorn_knopp"] = "mean",
+        sinkhorn_iterations: int = 3,
     ) -> None:
         """Initializes the DINOLoss Module.
 
         Args:
             center_mode:
-                Mode for center calculation. Only 'mean' is supported.
+                Mode used to normalize the teacher output. Either 'mean' for the mean
+                centering from DINO or 'sinkhorn_knopp' for the Sinkhorn-Knopp
+                centering that is optional in DINOv2 and used by DINOv3.
+            sinkhorn_iterations:
+                Number of Sinkhorn-Knopp iterations. Only used if
+                `center_mode="sinkhorn_knopp"`.
             warmup_teacher_temp:
                 Initial temperature for the teacher network (for backward compatibility).
             warmup_teacher_temp_epochs:
                 Number of epochs for the warmup phase of the teacher temperature (for backward compatibility).
+
+        Raises:
+            ValueError: If an unknown center mode is provided.
+            ValueError: If sinkhorn_iterations is less than 1.
         """
         super().__init__()
 
@@ -82,12 +103,24 @@ class DINOLoss(Module):
 
         # TODO(Guarin, 08/24): Refactor this to use the Center module directly once
         # we do a breaking change.
-        if center_mode not in CENTER_MODE_TO_FUNCTION:
+        if center_mode == "mean":
+            center_fn = CENTER_MODE_TO_FUNCTION["mean"]
+        elif center_mode == "sinkhorn_knopp":
+            # No center is tracked with Sinkhorn-Knopp centering. The center buffer is
+            # still registered to keep the state dict independent of the center mode.
+            center_fn = None
+        else:
             raise ValueError(
-                f"Unknown mode '{center_mode}'. Valid modes are "
-                f"{sorted(CENTER_MODE_TO_FUNCTION.keys())}."
+                f"Unknown mode '{center_mode}'. Valid modes are 'mean' and "
+                "'sinkhorn_knopp'."
             )
-        self._center_fn = CENTER_MODE_TO_FUNCTION[center_mode]
+        if sinkhorn_iterations < 1:
+            raise ValueError(
+                f"sinkhorn_iterations must be at least 1 but is {sinkhorn_iterations}."
+            )
+        self.center_mode = center_mode
+        self.sinkhorn_iterations = sinkhorn_iterations
+        self._center_fn = center_fn
         self.center: Parameter
         self.register_buffer("center", torch.zeros(1, 1, output_dim))
         self.center_momentum = center_momentum
@@ -140,8 +173,8 @@ class DINOLoss(Module):
 
         # Calculate cross-entropy loss.
         teacher_out_stacked = torch.stack(teacher_out)
-        t_out: Tensor = F.softmax(
-            (teacher_out_stacked - self.center) / teacher_temperature, dim=-1
+        t_out = self._teacher_probabilities(
+            teacher_out=teacher_out_stacked, teacher_temp=teacher_temperature
         )
         student_out_stacked = torch.stack(student_out)
         s_out = F.log_softmax(student_out_stacked / self.student_temp, dim=-1)
@@ -171,15 +204,56 @@ class DINOLoss(Module):
 
         return loss
 
+    def _teacher_probabilities(
+        self, teacher_out: Tensor, teacher_temp: Tensor
+    ) -> Tensor:
+        """Returns the sharpened teacher probabilities for the given teacher output.
+
+        Applies either mean centering followed by a softmax, or Sinkhorn-Knopp
+        centering, depending on center_mode.
+
+        Args:
+            teacher_out:
+                Tensor with shape (num_views, batch_size, output_dim) containing
+                features from the teacher model.
+            teacher_temp:
+                The temperature used for the teacher output.
+
+        Returns:
+            Tensor with the same shape as teacher_out containing probabilities that
+            sum to one along the last dimension. Sinkhorn-Knopp probabilities are
+            detached from the computation graph, following the reference
+            implementation.
+        """
+        if self.center_mode == "sinkhorn_knopp":
+            # Sinkhorn-Knopp is applied jointly over all views, following the reference
+            # implementation.
+            # (num_views, batch_size, output_dim) -> (num_views * batch_size, output_dim)
+            probabilities = center.sinkhorn_knopp(
+                x=teacher_out.flatten(0, 1),
+                temperature=teacher_temp,
+                num_iterations=self.sinkhorn_iterations,
+            )
+            # Sinkhorn-Knopp calculates in float32. The probabilities are cast back
+            # because the einsum with the student output does not promote dtypes.
+            return probabilities.reshape(teacher_out.shape).to(teacher_out.dtype)
+        return F.softmax((teacher_out - self.center) / teacher_temp, dim=-1)
+
     @torch.no_grad()
     def update_center(self, teacher_out: Tensor) -> None:
         """Moving average update of the center used for the teacher output.
+
+        Does nothing if Sinkhorn-Knopp centering is used, as it does not track a
+        center.
 
         Args:
             teacher_out:
                 Tensor with shape (num_views, batch_size, output_dim) containing
                 features from the teacher model.
         """
+        if self._center_fn is None:
+            return
+
         # Calculate the batch center using the specified center function
         batch_center = self._center_fn(x=teacher_out, dim=(0, 1))
 
