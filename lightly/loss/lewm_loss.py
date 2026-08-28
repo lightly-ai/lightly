@@ -109,6 +109,15 @@ class LeWMLoss(nn.Module):
             gather_distributed=gather_distributed,
         )
 
+    # forward takes keyword-only arguments so a caller cannot silently swap
+    # predicted and target. This is safe for a loss but is not a pattern to copy
+    # into modules that are exported for inference. The legacy TorchScript ONNX
+    # exporter and torch.jit.trace call forward positionally and raise
+    # ``TypeError: forward() takes 1 positional argument`` on keyword-only
+    # arguments; a loss is never exported, so it is not affected. The predictor
+    # and the action encoder keep positional forward signatures for this reason.
+    # The torch.export-based ONNX exporter (default since torch 2.9) accepts a
+    # ``kwargs`` mapping and does not have this limitation.
     def forward(
         self, *, predicted: Tensor, target: Tensor, embeddings: Tensor
     ) -> Tensor:
