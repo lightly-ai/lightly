@@ -34,7 +34,7 @@ NO_EDITABLE :=
 endif
 
 # Pytest options shared by all the CI test targets.
-PYTEST_CI_OPTS := -v --durations=20 --runslow --ignore=./lightly/openapi_generated/
+PYTEST_CI_OPTS := -v --durations=20 --runslow
 
 # How to invoke tools inside the project environment. Defaults to syncing from the
 # lockfile, which is what you want locally. Targets that run against an environment
@@ -199,26 +199,6 @@ install-notebook:
 	uv sync --python=$(MAXIMAL_PYTHON_VERSION) --exclude-newer $(EXCLUDE_NEWER_DATE) \
 		$(NO_EDITABLE) --extra matplotlib --extra timm
 
-# Create an empty virtual environment. Only needed by install-api-only below, which
-# has to use `uv pip install` and therefore cannot create the environment itself the
-# way `uv sync` does. --clear is required so that packages left over from a previous
-# install (most importantly torch) cannot mask a missing API dependency.
-.PHONY: _clean-venv
-_clean-venv:
-	uv venv --clear --python $(MAXIMAL_PYTHON_VERSION)
-
-# Install the package with only the dependencies needed to use the API client.
-#
-# This mirrors what users do when they only need the API part of the package, see
-# requirements/README.md. We exclude the deep learning dependencies instead of
-# installing requirements/base.txt on top of the package so that this stays a single
-# command and the transitive dependencies of everything else are still resolved.
-# `uv sync` cannot be used here because it has no equivalent of --excludes.
-.PHONY: install-api-only
-install-api-only: _clean-venv
-	printf 'torch\ntorchvision\npytorch_lightning\n' | \
-		uv pip install --exclude-newer $(EXCLUDE_NEWER_DATE) $(EDITABLE) . --excludes -
-
 # Install the package with the latest version of all dependencies. The --upgrade flag
 # ensures that the lockfile is ignored.
 .PHONY: install-latest
@@ -320,18 +300,6 @@ test-cli-dataset:
 	uv run --no-sync lightly-ssl-train input_dir=clothing_dataset_small/test/dress \
 		trainer.max_epochs=1 loader.num_workers=2
 	uv run --no-sync lightly-embed input_dir=clothing_dataset_small/test/dress
-
-# Smoke test that the API client can be created with API dependencies only.
-.PHONY: test-api-only
-test-api-only:
-	uv run --no-sync python -c \
-		"from lightly.api import ApiWorkflowClient; ApiWorkflowClient(token='abc')"
-
-# Run the end-to-end tests against the real API. Requires LIGHTLY_SERVER_LOCATION and
-# LIGHTLY_TOKEN to be set.
-.PHONY: test-unmocked
-test-unmocked:
-	bash tests/UNMOCKED_end2end_tests/run_all_unmocked_tests.sh "$(LIGHTLY_TOKEN)"
 
 
 ### Packaging

@@ -7,9 +7,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name="lightly"
-# 3.8 is the lowest version we support and test. Python 3.6/3.7 were never
-# actually installable: the pydantic>=1.10.5 dependency below requires >=3.7, and
-# uv cannot provision an interpreter older than 3.8.
+# 3.8 is the lowest version we support and test, and the lowest interpreter uv can
+# provision, so 3.6/3.7 can no longer be installed or tested here.
 requires-python = ">=3.8"
 authors = [
     {name = "Lightly Team", email = "team@lightly.ai"},
