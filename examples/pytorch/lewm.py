@@ -28,13 +28,6 @@ from lightly.models.modules import (
     LeWMProjectionHead,
 )
 
-# Number of frames in one training clip. The predictor sees the first
-# num_frames - 1 frames and predicts the embedding of the following frame.
-num_frames = 4
-image_size = 64
-embed_dim = 192
-action_dim = 2
-
 
 class MovingSquareTrajectories(Dataset):
     """Clips of a square that the action pushes around a canvas.
@@ -133,17 +126,12 @@ class LeWM(Module):
         return self.predictor(emb, action_emb=self.action_encoder(actions))
 
 
-model = LeWM(
-    image_size=image_size,
-    embed_dim=embed_dim,
-    action_dim=action_dim,
-    num_frames=num_frames,
-)
+model = LeWM()
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 
-dataset = MovingSquareTrajectories(num_frames=num_frames, image_size=image_size)
+dataset = MovingSquareTrajectories()
 
 dataloader = torch.utils.data.DataLoader(
     dataset,
