@@ -18,11 +18,6 @@ lightly.cli
 .. automodule:: lightly.cli.embed_cli
    :members:
 
-.download_cli
----------------
-.. automodule:: lightly.cli.download_cli
-   :members:
-
 .version_cli
 -------------
 .. automodule:: lightly.cli.version_cli
