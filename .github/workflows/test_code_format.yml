@@ -25,12 +25,16 @@ jobs:
         version: 0.12.3
         enable-cache: true
         cache-dependency-glob: "uv.lock"
-    - name: Set Up Environment
-      run: make install-maximal
-    # ruff and mypy are version-pinned in the dev dependency group, so their results do
-    # not depend on the Python version. Checking a single environment is enough.
+    # Run lock-check before installing: `make install-maximal` runs `uv sync` (no
+    # --frozen/--locked), which heals a stale uv.lock on disk and would hide the
+    # staleness this check exists to catch.
     - name: Check Lockfile
       run: make lock-check
+    - name: Set Up Environment
+      run: make install-maximal
+    # ruff is exact-pinned in the dev group; mypy floats by interpreter (uv.lock pins
+    # 1.14.1 on Python 3.8, 1.17.1 on >=3.9, since mypy >=1.15 dropped 3.8). type-check
+    # here runs only on 3.12, so a single environment is enough.
     - name: Run Format Check
       run: make format-check
     - name: Run Type Check
