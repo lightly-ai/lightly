@@ -18,7 +18,8 @@ Key Components
 --------------
 
 - **Encoder**: Any image encoder maps a frame to an embedding. The example uses
-  a ViT-tiny with a projection head on the class token.
+  a ViT-tiny with a :class:`lightly.models.modules.LeWMProjectionHead` on the
+  class token.
 - **Action encoder**: :class:`lightly.models.modules.ActionEncoder` maps a
   low-dimensional action vector to the width of the predictor.
 - **Predictor**: :class:`lightly.models.modules.LatentDynamicsPredictor` is a

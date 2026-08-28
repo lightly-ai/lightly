@@ -823,6 +823,36 @@ class LeJEPAProjectionHead(ProjectionHead):
         )
 
 
+class LeWMProjectionHead(ProjectionHead):
+    """Projection head used for LeWM.
+
+    LeWM projects the backbone features to the width of the predictor and
+    computes the prediction and SIGReg losses on the projected embeddings. The
+    head is a single linear layer followed by batch normalization.
+
+    - [0]: LeWorldModel, 2026, https://arxiv.org/abs/2603.19312
+    """
+
+    def __init__(
+        self,
+        input_dim: int,
+        output_dim: int = 192,
+    ) -> None:
+        """Initializes the LeWMProjectionHead with the specified dimensions.
+
+        Args:
+            input_dim:
+                Dimensionality of the input features.
+            output_dim:
+                Dimensionality of the output embeddings.
+        """
+        super().__init__(
+            [
+                (input_dim, output_dim, nn.BatchNorm1d(output_dim), None),
+            ]
+        )
+
+
 class MMCRProjectionHead(ProjectionHead):
     """Projection head used for MMCR.
 
