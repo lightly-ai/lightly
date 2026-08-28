@@ -310,7 +310,6 @@ test-cli:
 	uv run --no-sync lightly-ssl-train --help
 	uv run --no-sync lightly-embed --help
 	uv run --no-sync lightly-magic --help
-	uv run --no-sync lightly-download --help
 	uv run --no-sync lightly-version
 
 # Smoke test the CLI on an actual dataset.
