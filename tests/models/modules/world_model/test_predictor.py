@@ -170,51 +170,15 @@ class TestRollout:
         assert not torch.allclose(emb.grad, torch.zeros_like(emb.grad))
 
 
-class TestAttentionFallback:
+class TestFusedAttentionRequired:
     """The package declares torch>=1.10, and the fused kernel arrives in 2.0."""
 
-    @pytest.mark.skipif(
-        not predictor_module._FUSED_ATTENTION_AVAILABLE,
-        reason="torch has no fused attention kernel before 2.0.",
-    )
-    def test_manual_attention_matches_the_fused_kernel(self) -> None:
-        torch.manual_seed(0)
-        query, key, value = (torch.randn(2, 4, 6, 8) for _ in range(3))
-        mask = torch.tril(torch.ones(6, 6, dtype=torch.bool))
-
-        fused_attention = getattr(torch.nn.functional, "scaled_dot_product_attention")
-        fused = fused_attention(query, key, value, attn_mask=mask, dropout_p=0.0)
-        manual = predictor_module._manual_attention(query, key, value, mask, 0.0, False)
-        assert torch.allclose(fused, manual, atol=1e-5)
-
-    def test_predictor_matches_with_the_fallback_forced(
+    def test_init_without_fused_attention_raises(
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        torch.manual_seed(0)
-        predictor = _predictor().eval()
-        emb, action_emb = torch.randn(2, 4, 16), torch.randn(2, 4, 16)
-        with torch.no_grad():
-            fused = predictor(emb, action_emb=action_emb)
-            monkeypatch.setattr(predictor_module, "_FUSED_ATTENTION_AVAILABLE", False)
-            manual = predictor(emb, action_emb=action_emb)
-        assert torch.allclose(fused, manual, atol=1e-5)
-
-    def test_manual_path_is_causal(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        """The mask must mean the same thing on both paths."""
         monkeypatch.setattr(predictor_module, "_FUSED_ATTENTION_AVAILABLE", False)
-        torch.manual_seed(0)
-        predictor = _predictor().eval()
-        emb = torch.randn(2, 4, 16)
-        action_emb = torch.randn(2, 4, 16)
-
-        with torch.no_grad():
-            out = predictor(emb, action_emb=action_emb)
-            perturbed = emb.clone()
-            perturbed[:, 2] += 10.0
-            out_perturbed = predictor(perturbed, action_emb=action_emb)
-
-        assert torch.allclose(out[:, :2], out_perturbed[:, :2], atol=1e-5)
-        assert not torch.allclose(out[:, 2], out_perturbed[:, 2], atol=1e-5)
+        with pytest.raises(RuntimeError, match="scaled_dot_product_attention"):
+            _predictor()
 
 
 def _trained_predictor() -> LatentDynamicsPredictor:

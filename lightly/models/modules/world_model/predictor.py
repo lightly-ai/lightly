@@ -14,31 +14,10 @@ import torch
 from torch import Tensor, nn
 
 # torch added scaled_dot_product_attention in 2.0. The package still declares
-# torch>=1.10, so the fused call is optional and a manual path stands in.
+# torch>=1.10, so the fused kernel is optional at import time. A predictor built
+# on a torch without it fails loudly in __init__ rather than running a slower
+# manual attention path.
 _FUSED_ATTENTION_AVAILABLE = hasattr(nn.functional, "scaled_dot_product_attention")
-
-
-def _manual_attention(
-    query: Tensor,
-    key: Tensor,
-    value: Tensor,
-    attn_mask: Tensor | None,
-    dropout_p: float,
-    training: bool,
-) -> Tensor:
-    """Attention for torch versions without a fused kernel.
-
-    The result matches :func:`torch.nn.functional.scaled_dot_product_attention`
-    for a boolean mask, where True means that the position is readable.
-    """
-    scores = (query @ key.transpose(-2, -1)) * (query.size(-1) ** -0.5)
-    if attn_mask is not None:
-        scores = scores.masked_fill(~attn_mask, float("-inf"))
-    weights = scores.softmax(dim=-1)
-    if dropout_p > 0.0:
-        weights = nn.functional.dropout(weights, p=dropout_p, training=training)
-    out: Tensor = weights @ value
-    return out
 
 
 def _modulate(x: Tensor, shift: Tensor, scale: Tensor) -> Tensor:
@@ -96,18 +75,9 @@ class _PredictorBlock(nn.Module):
         qkv = qkv.permute(2, 0, 3, 1, 4)
         query, key, value = qkv.unbind(0)
         dropout_p = self.dropout if self.training else 0.0
-        out: Tensor
-        if _FUSED_ATTENTION_AVAILABLE:
-            # Reached through getattr so that type checking against the oldest
-            # supported torch, which has no fused kernel, does not fail here.
-            fused_attention = getattr(nn.functional, "scaled_dot_product_attention")
-            out = fused_attention(
-                query, key, value, attn_mask=attn_mask, dropout_p=dropout_p
-            )
-        else:
-            out = _manual_attention(
-                query, key, value, attn_mask, dropout_p, self.training
-            )
+        out = nn.functional.scaled_dot_product_attention(
+            query, key, value, attn_mask=attn_mask, dropout_p=dropout_p
+        )
         out = out.transpose(1, 2).reshape(batch_size, seq_len, hidden_dim)
         projected: Tensor = self.proj_drop(self.proj(out))
         return projected
@@ -179,6 +149,12 @@ class LatentDynamicsPredictor(nn.Module):
             dropout: Dropout probability inside the transformer.
         """
         super().__init__()
+        if not _FUSED_ATTENTION_AVAILABLE:
+            raise RuntimeError(
+                "LatentDynamicsPredictor needs "
+                "torch.nn.functional.scaled_dot_product_attention, which torch "
+                "added in 2.0. Upgrade to torch>=2.0."
+            )
         if num_frames <= 0:
             raise ValueError("num_frames must be a positive integer.")
         if hidden_dim % num_heads != 0:
