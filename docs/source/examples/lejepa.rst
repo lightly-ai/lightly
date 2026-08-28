@@ -17,7 +17,7 @@ Key Components
 - **Multi-view projections**: LeJEPA uses a shared backbone and projection
   head to produce embeddings for several global views and a set of local
   (smaller) views.
-- **Invariance loss**: Each local view's projection is pulled toward the
+- **Invariance loss**: Every view's projection is pulled toward the
   centroid of the global views' projections using a mean-squared distance.
 - **SIGReg**: A sliced, Epps-Pulley based regularizer that compares the
   empirical characteristic function of the projected embeddings to that of
@@ -56,7 +56,7 @@ Reference:
 .. tabs::
     .. tab:: PyTorch
 
-        .. image:: https://img.shields.io/badge/Open%20in%20Colab-blue?logo=googlecolab&label=%20&labelColor=5c5c5c
+        .. image:: /_static/colab-badge.svg
             :target: https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/lejepa.ipynb
 
         This example can be run from the command line with::
@@ -67,7 +67,7 @@ Reference:
 
     .. tab:: Lightning
 
-        .. image:: https://img.shields.io/badge/Open%20in%20Colab-blue?logo=googlecolab&label=%20&labelColor=5c5c5c
+        .. image:: /_static/colab-badge.svg
             :target: https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/lejepa.ipynb
 
         This example can be run from the command line with::
@@ -78,7 +78,7 @@ Reference:
 
     .. tab:: Lightning Distributed
 
-        .. image:: https://img.shields.io/badge/Open%20in%20Colab-blue?logo=googlecolab&label=%20&labelColor=5c5c5c
+        .. image:: /_static/colab-badge.svg
             :target: https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning_distributed/lejepa.ipynb
 
         This example runs on multiple gpus using Distributed Data Parallel (DDP)

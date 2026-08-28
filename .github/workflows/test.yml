@@ -56,14 +56,12 @@ jobs:
         if: matrix.python == '3.7'
         run: |
           source .venv/bin/activate
-          export LIGHTLY_SERVER_LOCATION="localhost:-1"
-          python -m pytest -s -v --runslow --ignore=./lightly/openapi_generated/
+          python -m pytest -s -v --runslow
       - name: Run Pytest (Python 3.12)
         if: matrix.python == '3.12'
         run: |
           source .venv/bin/activate
-          export LIGHTLY_SERVER_LOCATION="localhost:-1"
-          python -m pytest -s -v --runslow --ignore=./lightly/openapi_generated/
+          python -m pytest -s -v --runslow
 
   distributed-tests:
     name: Distributed Tests
@@ -92,6 +90,5 @@ jobs:
       - name: Run Distributed Tests (gloo pool)
         run: |
           source .venv/bin/activate
-          export LIGHTLY_SERVER_LOCATION="localhost:-1"
           export USE_PYTEST_POOL=1
-          python -m pytest -s -v --runslow -m DDP --ignore=./lightly/openapi_generated/
+          python -m pytest -s -v --runslow -m DDP
