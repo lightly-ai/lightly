@@ -23,7 +23,7 @@ resolution-markers = [
 exclude-newer = "2025-08-07T22:00:00Z"
 
 [manifest]
-constraints = [{ name = "setuptools", marker = "python_full_version < '3.9'", specifier = "<50" }]
+constraints = [{ name = "setuptools", marker = "python_full_version < '3.9'", specifier = ">=56,<60" }]
 build-constraints = [{ name = "setuptools", marker = "python_full_version < '3.9'", specifier = "<74" }]
 
 [[package]]
@@ -2438,7 +2438,7 @@ openapi = [
     { name = "pydantic", version = "2.10.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
     { name = "pydantic", version = "2.11.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
     { name = "python-dateutil" },
-    { name = "setuptools", version = "49.6.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
+    { name = "setuptools", version = "59.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
     { name = "setuptools", version = "80.9.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
     { name = "urllib3", version = "2.2.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
     { name = "urllib3", version = "2.5.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
@@ -2540,7 +2540,7 @@ requires-dist = [
     { name = "urllib3", specifier = ">=1.25.3" },
     { name = "urllib3", marker = "extra == 'openapi'", specifier = ">=1.25.3" },
 ]
-provides-extras = ["all", "matplotlib", "minimal", "openapi", "timm", "video"]
+provides-extras = ["all", "minimal", "openapi", "timm", "video", "matplotlib"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -2614,7 +2614,7 @@ resolution-markers = [
 ]
 dependencies = [
     { name = "packaging" },
-    { name = "setuptools", version = "49.6.0", source = { registry = "https://pypi.org/simple" } },
+    { name = "setuptools", version = "59.8.0", source = { registry = "https://pypi.org/simple" } },
     { name = "typing-extensions", version = "4.13.2", source = { registry = "https://pypi.org/simple" } },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/8c/4d/54d38e237ab437f25f191602373d99b89d1d047ad2a3bb5ad0d84ea5daa6/lightning_utilities-0.11.9.tar.gz", hash = "sha256:f5052b81344cc2684aa9afd74b7ce8819a8f49a858184ec04548a5a109dfd053", size = 29362, upload-time = "2024-11-19T17:20:01.723Z" }
@@ -6459,16 +6459,16 @@ wheels = [
 
 [[package]]
 name = "setuptools"
-version = "49.6.0"
+version = "59.8.0"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version < '3.9' and platform_machine == 'arm64' and sys_platform == 'darwin'",
     "python_full_version < '3.9' and platform_machine == 'aarch64' and sys_platform == 'linux'",
     "(python_full_version < '3.9' and platform_machine != 'arm64' and sys_platform == 'darwin') or (python_full_version < '3.9' and platform_machine != 'aarch64' and sys_platform == 'linux') or (python_full_version < '3.9' and sys_platform != 'darwin' and sys_platform != 'linux')",
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/38/cc/db23dbe4efc464c3c0111fedf7d46de8888f05b09488d610f6f8ab6e2544/setuptools-49.6.0.zip", hash = "sha256:46bd862894ed22c2edff033c758c2dc026324788d758e96788e8f7c11f4e9707", size = 2188590, upload-time = "2020-08-14T02:13:05.816Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ef/75/2bc7bef4d668f9caa9c6ed3f3187989922765403198243040d08d2a52725/setuptools-59.8.0.tar.gz", hash = "sha256:09980778aa734c3037a47997f28d6db5ab18bdf2af0e49f719bfc53967fd2e82", size = 2282358, upload-time = "2021-12-20T01:46:45.956Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c3/a9/5dc32465951cf4812e9e93b4ad2d314893c2fa6d5f66ce5c057af6e76d85/setuptools-49.6.0-py3-none-any.whl", hash = "sha256:4dd5bb0a0a0cff77b46ca5dd3a84857ee48c83e8223886b556613c724994073f", size = 803275, upload-time = "2020-08-14T02:13:04.434Z" },
+    { url = "https://files.pythonhosted.org/packages/8d/25/88b377b99ffb4ad0fc44ff5735fd6be605b2183f743d1ff5c10b7790cea5/setuptools-59.8.0-py3-none-any.whl", hash = "sha256:608a7885b664342ae9fafc43840b29d219c5a578876f6f7e00c4e2612160587f", size = 952779, upload-time = "2021-12-20T01:46:44.354Z" },
 ]
 
 [[package]]
