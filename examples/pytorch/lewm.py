@@ -17,12 +17,16 @@ from __future__ import annotations
 import torch
 from timm.models.vision_transformer import vit_tiny_patch16_224
 from torch import Tensor
-from torch.nn import BatchNorm1d, Linear, Module, Sequential
+from torch.nn import Module
 from torch.optim import AdamW
 from torch.utils.data import Dataset
 
 from lightly.loss import LeWMLoss
-from lightly.models.modules import ActionEncoder, LatentDynamicsPredictor
+from lightly.models.modules import (
+    ActionEncoder,
+    LatentDynamicsPredictor,
+    LeWMProjectionHead,
+)
 
 # Number of frames in one training clip. The predictor sees the first
 # num_frames - 1 frames and predicts the embedding of the following frame.
@@ -47,11 +51,15 @@ class MovingSquareTrajectories(Dataset):
     def __init__(
         self,
         num_clips: int = 512,
+        num_frames: int = 4,
+        image_size: int = 64,
         square_size: int = 12,
         max_speed: float = 8.0,
         seed: int = 0,
     ) -> None:
         self.num_clips = num_clips
+        self.num_frames = num_frames
+        self.image_size = image_size
         self.square_size = square_size
         self.max_speed = max_speed
         self.seed = seed
@@ -61,7 +69,7 @@ class MovingSquareTrajectories(Dataset):
         return self.num_clips
 
     def _render(self, position: Tensor) -> Tensor:
-        frame = torch.zeros(3, image_size, image_size)
+        frame = torch.zeros(3, self.image_size, self.image_size)
         top, left = position.round().long().tolist()
         frame[:, top : top + self.square_size, left : left + self.square_size] = 1.0
         return frame
@@ -70,11 +78,11 @@ class MovingSquareTrajectories(Dataset):
         generator = torch.Generator().manual_seed(self.seed + index)
         position = torch.rand(2, generator=generator) * self.max_position
         actions = (
-            torch.rand(num_frames, 2, generator=generator) - 0.5
+            torch.rand(self.num_frames, 2, generator=generator) - 0.5
         ) * self.max_speed
 
         frames = []
-        for t in range(num_frames):
+        for t in range(self.num_frames):
             frames.append(self._render(position))
             # actions[t] is the action taken at frame t, so it leads to the
             # frame at t + 1. The loss below relies on this alignment.
@@ -83,7 +91,13 @@ class MovingSquareTrajectories(Dataset):
 
 
 class LeWM(Module):
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        image_size: int = 64,
+        embed_dim: int = 192,
+        action_dim: int = 2,
+        num_frames: int = 4,
+    ) -> None:
         super().__init__()
         # Any image encoder works here. LeWM trains it from scratch, but a
         # frozen pretrained encoder can be used instead without changing the
@@ -94,9 +108,9 @@ class LeWM(Module):
             num_classes=0,
             dynamic_img_size=True,
         )
-        self.projection_head = Sequential(
-            Linear(self.backbone.num_features, embed_dim),
-            BatchNorm1d(embed_dim),
+        self.projection_head = LeWMProjectionHead(
+            input_dim=self.backbone.num_features,
+            output_dim=embed_dim,
         )
         self.action_encoder = ActionEncoder(action_dim=action_dim, output_dim=embed_dim)
         self.predictor = LatentDynamicsPredictor(
@@ -119,12 +133,17 @@ class LeWM(Module):
         return self.predictor(emb, action_emb=self.action_encoder(actions))
 
 
-model = LeWM()
+model = LeWM(
+    image_size=image_size,
+    embed_dim=embed_dim,
+    action_dim=action_dim,
+    num_frames=num_frames,
+)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 
-dataset = MovingSquareTrajectories()
+dataset = MovingSquareTrajectories(num_frames=num_frames, image_size=image_size)
 
 dataloader = torch.utils.data.DataLoader(
     dataset,
