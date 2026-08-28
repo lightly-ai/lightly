@@ -142,19 +142,20 @@ default-groups = ["dev"]
 # setuptools is pulled into the Python 3.8 minimal test setup transitively (nothing
 # depends on it directly), and `--resolution=lowest-direct` leaves transitive versions
 # at their newest. It is held in a narrow window:
-# - Cap <60: torch 1.10, which lowest-direct selects here, is incompatible with
-#   setuptools>=60 ("module 'distutils' has no attribute 'version'"). Without the cap the
-#   resolution takes the newest setuptools and torch 1.10 breaks.
+# - Cap <59.6: torch 1.10's tensorboard import reads distutils.version.LooseVersion.
+#   setuptools 59.6.0 changed its bundled-distutils hook so that access raises
+#   "module 'distutils' has no attribute 'version'"; 59.5.0 is the last release where it
+#   works. Without the cap the resolution takes the newest setuptools and torch 1.10 breaks.
 # - Floor >=56: 56.0.0 is the first release whose pkg_resources import hook (VendorImporter)
 #   implements find_spec. pytest's `--import-mode=importlib` calls find_spec on every
 #   sys.meta_path finder, so an older setuptools would break collection with
 #   "'VendorImporter' object has no attribute 'find_spec'". The cap already lands on a
-#   find_spec-capable version; the floor guards against a future direct dependency
+#   find_spec-capable version (59.5.0); the floor guards against a future direct dependency
 #   re-pinning setuptools low, the way the removed openapi extra once did.
 # A constraint, not a dependency, so it only bounds setuptools where it is already pulled
 # in. The Python marker keeps the newer targets, which build against Python 3.12 and need
 # a modern setuptools, unaffected.
-constraint-dependencies = ["setuptools>=56,<60; python_full_version < '3.9'"]
+constraint-dependencies = ["setuptools>=56,<59.6; python_full_version < '3.9'"]
 
 # av 8.0.3, which `--resolution=lowest-direct` selects for the minimal test setup, is
 # sdist-only and ships no pyproject.toml, so uv runs its setup.py under the default

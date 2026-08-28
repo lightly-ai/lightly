@@ -23,7 +23,7 @@ resolution-markers = [
 exclude-newer = "2025-08-07T22:00:00Z"
 
 [manifest]
-constraints = [{ name = "setuptools", marker = "python_full_version < '3.9'", specifier = ">=56,<60" }]
+constraints = [{ name = "setuptools", marker = "python_full_version < '3.9'", specifier = ">=56,<59.6" }]
 build-constraints = [{ name = "setuptools", marker = "python_full_version < '3.9'", specifier = "<74" }]
 
 [[package]]
@@ -2548,7 +2548,7 @@ resolution-markers = [
 ]
 dependencies = [
     { name = "packaging" },
-    { name = "setuptools", version = "59.8.0", source = { registry = "https://pypi.org/simple" } },
+    { name = "setuptools", version = "59.5.0", source = { registry = "https://pypi.org/simple" } },
     { name = "typing-extensions", version = "4.13.2", source = { registry = "https://pypi.org/simple" } },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/8c/4d/54d38e237ab437f25f191602373d99b89d1d047ad2a3bb5ad0d84ea5daa6/lightning_utilities-0.11.9.tar.gz", hash = "sha256:f5052b81344cc2684aa9afd74b7ce8819a8f49a858184ec04548a5a109dfd053", size = 29362, upload-time = "2024-11-19T17:20:01.723Z" }
@@ -6107,16 +6107,16 @@ wheels = [
 
 [[package]]
 name = "setuptools"
-version = "59.8.0"
+version = "59.5.0"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version < '3.9' and platform_machine == 'arm64' and sys_platform == 'darwin'",
     "python_full_version < '3.9' and platform_machine == 'aarch64' and sys_platform == 'linux'",
     "(python_full_version < '3.9' and platform_machine != 'arm64' and sys_platform == 'darwin') or (python_full_version < '3.9' and platform_machine != 'aarch64' and sys_platform == 'linux') or (python_full_version < '3.9' and sys_platform != 'darwin' and sys_platform != 'linux')",
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ef/75/2bc7bef4d668f9caa9c6ed3f3187989922765403198243040d08d2a52725/setuptools-59.8.0.tar.gz", hash = "sha256:09980778aa734c3037a47997f28d6db5ab18bdf2af0e49f719bfc53967fd2e82", size = 2282358, upload-time = "2021-12-20T01:46:45.956Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e6/e2/f2bfdf364e016f7a464db709ea40d1101c4c5a463dd7019dae0a42dbd1c6/setuptools-59.5.0.tar.gz", hash = "sha256:d144f85102f999444d06f9c0e8c737fd0194f10f2f7e5fdb77573f6e2fa4fad0", size = 2281671, upload-time = "2021-12-05T17:28:45.563Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/8d/25/88b377b99ffb4ad0fc44ff5735fd6be605b2183f743d1ff5c10b7790cea5/setuptools-59.8.0-py3-none-any.whl", hash = "sha256:608a7885b664342ae9fafc43840b29d219c5a578876f6f7e00c4e2612160587f", size = 952779, upload-time = "2021-12-20T01:46:44.354Z" },
+    { url = "https://files.pythonhosted.org/packages/40/a9/7deac76c58fa47c95360116a06b53b9b62f6db11336fe61b6ab53784d98b/setuptools-59.5.0-py3-none-any.whl", hash = "sha256:6d10741ff20b89cd8c6a536ee9dc90d3002dec0226c78fb98605bfb9ef8a7adf", size = 952351, upload-time = "2021-12-05T17:28:43.837Z" },
 ]
 
 [[package]]
