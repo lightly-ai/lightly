@@ -2465,6 +2465,10 @@ docs = [
     { name = "sphinx-tabs" },
 ]
 minimal = [
+    { name = "numpy", version = "1.24.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
+    { name = "numpy", version = "2.0.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.9.*'" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.10.*'" },
+    { name = "numpy", version = "2.3.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "pytorch-lightning", version = "2.4.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
     { name = "pytorch-lightning", version = "2.5.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
     { name = "torch", version = "2.5.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
@@ -2527,6 +2531,7 @@ docs = [
     { name = "sphinx-tabs", specifier = ">=3.4.7" },
 ]
 minimal = [
+    { name = "numpy", specifier = ">=1.21.0" },
     { name = "pytorch-lightning", specifier = ">=1.6" },
     { name = "torch", specifier = ">=1.10.0" },
     { name = "torchvision", specifier = ">=0.11.0" },
