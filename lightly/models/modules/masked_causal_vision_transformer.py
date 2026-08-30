@@ -3,7 +3,6 @@ from typing import Optional
 
 import torch
 import torch.nn.functional as F
-from timm.models import _manipulate
 from timm.models.vision_transformer import Attention, Block, VisionTransformer
 from torch import Tensor, jit
 
@@ -151,7 +150,9 @@ class MaskedCausalBlock(Block):  # type: ignore[misc]
         Returns:
             Output tensor after applying the attention block.
         """
-        x = x + self.drop_path1(self.ls1(self.attn(self.norm1(x), mask=mask)))
+        x = x + self.drop_path1(
+            self.ls1(self.attn(self.norm1(x), mask=mask, is_causal=is_causal))
+        )
         x = x + self.drop_path2(self.ls2(self.mlp(self.norm2(x))))
         return x
 
@@ -193,6 +194,8 @@ class MaskedCausalVisionTransformer(VisionTransformer):  # type: ignore[misc]
                 causal attention, while unmasked tokens are used for bidirectional
                 attention. If the mask is None, all tokens are used for bidirectional
                 attention.
+            is_causal:
+                Whether to apply causal attention to masked tokens.
 
         Returns:
             Output tensor after applying the transformer blocks.
@@ -202,11 +205,12 @@ class MaskedCausalVisionTransformer(VisionTransformer):  # type: ignore[misc]
         x = self.patch_drop(x)
         x = self.norm_pre(x)
         if self.grad_checkpointing and not jit.is_scripting():
-            # TODO: This probably doesn't work correctly as it doesn't consider the
-            # mask.
-            x = _manipulate.checkpoint_seq(self.blocks, x)
+            for block in self.blocks:
+                x = torch.utils.checkpoint.checkpoint(
+                    block, x, mask, is_causal, use_reentrant=False
+                )
         else:
             for block in self.blocks:
-                x = block(x, mask=mask)
+                x = block(x, mask=mask, is_causal=is_causal)
         x = self.norm(x)
         return x
