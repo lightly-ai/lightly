@@ -200,3 +200,22 @@ class TestMaskedCausalVisionTransformer:
         out_with_ckpt = model.forward_features(images, mask=mask, is_causal=is_causal)
 
         torch.testing.assert_close(out_with_ckpt, out_no_ckpt)
+
+    @skip_without_fused_attention
+    def test_forward_features__is_causal_controls_masked_attention(self) -> None:
+        torch.manual_seed(0)
+        model = MaskedCausalVisionTransformer(
+            img_size=32, patch_size=16, embed_dim=24, depth=2, num_heads=3
+        ).eval()
+        images = torch.rand(2, 3, 32, 32)
+        mask = torch.zeros(2, 5, dtype=torch.bool)
+        mask[:, 1:] = True
+
+        out_causal = model.forward_features(images, mask=mask, is_causal=True)
+        out_bidirectional = model.forward_features(images, mask=mask, is_causal=False)
+        out_unmasked = model.forward_features(images, mask=None)
+
+        # is_causal=True applies causal masking to masked tokens, differing from bidirectional
+        assert not torch.allclose(out_causal, out_bidirectional)
+        # is_causal=False enables bidirectional attention, matching unmasked forward
+        torch.testing.assert_close(out_bidirectional, out_unmasked)

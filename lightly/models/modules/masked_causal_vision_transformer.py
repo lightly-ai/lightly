@@ -34,7 +34,7 @@ class MaskedCausalAttention(Attention):  # type: ignore[misc]
                 attention.
         """
         B, N, C = x.shape
-        attn_mask = self._get_attention_mask(x, mask=mask)
+        attn_mask = self._get_attention_mask(x, mask=mask, is_causal=is_causal)
         qkv = (
             self.qkv(x)
             .reshape(B, N, 3, self.num_heads, self.head_dim)
@@ -67,7 +67,7 @@ class MaskedCausalAttention(Attention):  # type: ignore[misc]
         return x
 
     def _get_attention_mask(
-        self, x: Tensor, mask: Optional[Tensor]
+        self, x: Tensor, mask: Optional[Tensor], is_causal: bool = True
     ) -> Optional[Tensor]:
         """Generates an attention mask for causal attention.
 
@@ -77,17 +77,16 @@ class MaskedCausalAttention(Attention):  # type: ignore[misc]
             mask:
                 Mask tensor of shape (batch_size, sequence_length) indicating which tokens
                 should be masked.
+            is_causal:
+                Whether to apply causal attention to masked tokens.
 
         Returns:
             Attention mask of shape (batch_size, 1, sequence_length, sequence_length).
         """
         B, N = x.shape[:2]
 
-        # Only apply causal attention if mask is not None. This is a bit hacky, but it
-        # allows us to use bidirectional instead of causal attention during evaluation
-        # and fine-tuning.
         attn_mask = None
-        if mask is not None:
+        if is_causal and mask is not None:
             attn_mask = x.new_ones(size=(B, N, N), dtype=torch.bool).tril(diagonal=0)
             # mask has shape (B, N)
             mask = (~mask).unsqueeze(1).expand(B, N, N).bool()
