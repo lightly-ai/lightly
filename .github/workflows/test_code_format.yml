@@ -16,6 +16,9 @@ jobs:
   test:
     name: Check
     runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        python: ["3.8", "3.12"]
     steps:
     - name: Checkout Code
       uses: actions/checkout@v6
@@ -31,10 +34,10 @@ jobs:
     - name: Check Lockfile
       run: make lock-check
     - name: Set Up Environment
-      run: make install-maximal
+      run: make install-maximal MAXIMAL_PYTHON_VERSION=${{ matrix.python }}
     # ruff is exact-pinned in the dev group; mypy floats by interpreter (uv.lock pins
-    # 1.14.1 on Python 3.8, 1.17.1 on >=3.9, since mypy >=1.15 dropped 3.8). type-check
-    # here runs only on 3.12, so a single environment is enough.
+    # 1.14.1 on Python 3.8, 1.17.1 on >=3.9, since mypy >=1.15 dropped 3.8). The matrix
+    # runs type-check under both interpreters to catch version-specific typing issues.
     - name: Run Format Check
       run: make format-check
     - name: Run Type Check

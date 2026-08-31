@@ -12,9 +12,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  LIGHTLY_SERVER_LOCATION: "localhost:-1"
-
 jobs:
   detect-code-changes:
     name: Detect Code Changes
@@ -38,6 +35,9 @@ jobs:
     needs: detect-code-changes
     if: needs.detect-code-changes.outputs.run-tests == 'true'
     runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        python: ["3.8", "3.12"]
     steps:
       - name: Checkout Code
         uses: actions/checkout@v6
@@ -48,7 +48,7 @@ jobs:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
       - name: Set Up Environment
-        run: make install-maximal-extras
+        run: make install-maximal-extras MAXIMAL_PYTHON_VERSION=${{ matrix.python }}
       - name: Run Pytest
         run: make test-maximal-extras
 

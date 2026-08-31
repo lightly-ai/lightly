@@ -12,9 +12,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  LIGHTLY_SERVER_LOCATION: "localhost:-1"
-
 jobs:
   detect-code-changes:
     name: Detect Code Changes
