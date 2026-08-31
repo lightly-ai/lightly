@@ -7,7 +7,9 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name="lightly"
-requires-python = ">=3.6"
+# 3.8 is the lowest version we support and test, and the lowest interpreter uv can
+# provision, so 3.6/3.7 can no longer be installed or tested here.
+requires-python = ">=3.8"
 authors = [
     {name = "Lightly Team", email = "team@lightly.ai"},
 ]
@@ -26,8 +28,6 @@ classifiers = [
     "Topic :: Software Development :: Libraries",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.6",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
@@ -41,53 +41,133 @@ dependencies = [
   "tqdm>=4.44",
   "torch",
   "torchvision",
-  "pytorch_lightning>=1.0.4"
+  "pytorch_lightning>=1.0.4",
 ]
 dynamic = ["version", "readme"]
 
 [project.optional-dependencies]
 all = [
-  "lightly[dev,matplotlib,minimal,timm,video]"
+  "lightly[matplotlib,minimal,timm,video]"
 ]
+
+# Deprecated. The version floors this extra used to carry are test-only and now live
+# in the `minimal` dependency group, which is not distributed with the package. Kept
+# as an empty extra so `lightly[minimal]` and `lightly[all]` keep resolving.
+minimal = []
+timm = ["timm>=0.9.9"]
+video = ["av>=8.0.3"]
+matplotlib = ["matplotlib>=3"]
+
+
+# Dependency groups are development-only and are never distributed with the package.
+# Anything users are meant to install goes into [project.optional-dependencies] instead.
+[dependency-groups]
+# Tooling to develop, test, lint and type-check the package. Installed by default,
+# see tool.uv.default-groups below.
+#
+# Every entry needs a lower bound, even though this group is development-only and its
+# versions are otherwise pinned by uv.lock. `uv sync --resolution=lowest-direct`, which
+# the minimal test setup uses, resolves the whole lockfile and therefore applies to this
+# group as well: an unbounded `pandas` resolves to pandas 0.1 (2009), which does not
+# build. The bounds are the versions uv.lock already selects for Python 3.8, the lowest
+# version we test against (except mypy, floored lower at 1.4.1 since type-check runs only
+# on 3.12), so the dev tooling stays usable there. Bumping them is only necessary when a
+# tool no longer works at its floor.
 dev = [
-  "sphinx",
-  "pytest",
-  "pytest-forked",
-  "pytest-xdist",
-  "pytest-mock",
-  "docutils<=0.16",
-  "sphinx-copybutton",
-  "sphinx-design",
-  "sphinx-gallery",
-  "sphinx-tabs",
-  "sphinx-reredirects",
-  "sphinx_rtd_theme",
-  "matplotlib",
-  "pre-commit",
-  "opencv-python",
-  "scikit-learn",
-  "pandas",
-  "toml",
-  "torchmetrics",
-  # ruff and mypy should be the same version as defined in .pre-commit-config.yaml
-  "ruff==0.12.7", # frozen version to avoid differences between CI and local dev machines
-  "mypy==1.4.1", # frozen version to avoid differences between CI and local dev machines
-  "types-toml",
-  "types-PyYAML",
-  "nbformat",
-  "jupytext"
+  "pytest>=8.3.5",
+  "pytest-forked>=1.6.0",
+  "pytest-xdist>=3.6.1",
+  "pytest-mock>=3.14.1",
+  "responses>=0.25.7",
+  # Also a lower bound for the `matplotlib` extra when both are installed, so the
+  # minimal test setup exercises this version rather than the extra's `matplotlib>=3`.
+  "matplotlib>=3.7.5",
+  "pre-commit>=3.5.0",
+  "opencv-python>=4.11.0.86",
+  "scikit-learn>=1.3.2",
+  "pandas>=2.0.3",
+  "toml>=0.10.2",
+  "torchmetrics>=1.5.2",
+  # Ruff should match the version defined in .pre-commit-config.yaml.
+  "ruff==0.12.7",
+  "mypy>=1.4.1",
+  "types-python-dateutil>=2.9.0.20241206",
+  "types-toml>=0.10.8.20240310",
+  "types-requests>=2.32.0.20241016",
+  "types-PyYAML>=6.0.12.20241230",
+  "nbformat>=5.10.4",
+  "jupytext>=1.17.1",
 ]
-# Minimal dependencies against which we test. Older versions might work depending on the
-# functionality used.
+
+# Sphinx and its extensions, only needed to build the documentation in docs/.
+# Lower bounds are required for the same reason as in the `dev` group above.
+docs = [
+  "sphinx>=5.3.0",
+  # Pinned: 0.16 is both the highest version the docs build with and the version the
+  # lockfile selects, so the lower bound has nowhere else to go.
+  "docutils==0.16",
+  "sphinx-copybutton>=0.5.2",
+  "sphinx-design>=0.5.0",
+  "sphinx-gallery>=0.19.0",
+  "sphinx-tabs>=3.4.7",
+  "sphinx-reredirects>=0.1.4",
+  "sphinx_rtd_theme>=2.0.0",
+]
+
+# Tooling to build and publish the package to PyPI.
+# Lower bounds are required for the same reason as in the `dev` group above.
+dist = [
+  "build>=1.2.2.post1",
+  "twine>=6.1.0",
+  "wheel>=0.45.1",
+]
+
+# Lowest dependency versions we test against, used together with
+# `uv sync --resolution=lowest-direct`. Older versions might work depending on the
+# functionality used. This used to be the `minimal` extra.
 minimal = [
   "torch>=1.10.0",
   "torchvision>=0.11.0",
   "pytorch_lightning>=1.6",
+  # Without this floor, lowest-direct resolves numpy to ~1.20.1 (torchmetrics 1.5.2 in the
+  # dev group requires numpy>1.20.0) while taking the newest Pillow, whose PIL/_typing.py
+  # imports numpy.typing.NDArray (added in 1.21.0). Floor numpy to 1.21 so the two agree.
+  "numpy>=1.21.0",
 ]
-timm = ["timm>=0.9.9"]
-video = ["av>=8.0.3; python_version>='3.8'"]
-matplotlib = ["matplotlib>=3"]
 
+[tool.uv]
+# Only `dev` is installed automatically; docs/dist/minimal are opt-in via --group.
+default-groups = ["dev"]
+
+# setuptools is pulled into the Python 3.8 minimal test setup transitively (nothing
+# depends on it directly), and `--resolution=lowest-direct` leaves transitive versions
+# at their newest. It is held in a narrow window:
+# - Cap <59.6: torch 1.10's tensorboard import reads distutils.version.LooseVersion.
+#   setuptools 59.6.0 changed its bundled-distutils hook so that access raises
+#   "module 'distutils' has no attribute 'version'"; 59.5.0 is the last release where it
+#   works. Without the cap the resolution takes the newest setuptools and torch 1.10 breaks.
+# - Floor >=56: 56.0.0 is the first release whose pkg_resources import hook (VendorImporter)
+#   implements find_spec. pytest's `--import-mode=importlib` calls find_spec on every
+#   sys.meta_path finder, so an older setuptools would break collection with
+#   "'VendorImporter' object has no attribute 'find_spec'". The cap already lands on a
+#   find_spec-capable version (59.5.0); the floor guards against a future direct dependency
+#   re-pinning setuptools low, the way the removed openapi extra once did.
+# A constraint, not a dependency, so it only bounds setuptools where it is already pulled
+# in. The Python marker keeps the newer targets, which build against Python 3.12 and need
+# a modern setuptools, unaffected.
+constraint-dependencies = ["setuptools>=56,<59.6; python_full_version < '3.9'"]
+
+# av 8.0.3, which `--resolution=lowest-direct` selects for the minimal test setup, is
+# sdist-only and ships no pyproject.toml, so uv runs its setup.py under the default
+# legacy setuptools backend just to read the package metadata. Line 6 of that setup.py
+# imports `distutils.msvccompiler` unconditionally, and setuptools removed that module
+# from its bundled distutils in 74.0.0. Since setuptools 60, `import distutils` resolves
+# to that bundled copy even on Python 3.8, where the stdlib still provides the module.
+#
+# This has to be a *build* constraint: `constraint-dependencies` above only applies to
+# the project's own resolution, not to the isolated PEP 517 build environments. The
+# Python marker keeps the newer targets, which build against Python 3.12, unaffected.
+build-constraint-dependencies = ["setuptools<74; python_full_version < '3.9'"]
 
 [project.urls]
 "Homepage" = "https://www.lightly.ai"
@@ -115,7 +195,8 @@ lightly = ["lightly/cli/config/*.yaml"]
 
 [tool.ruff]
 line-length = 88
-target-version = "py37"
+target-version = "py38"
+extend-exclude = ["lightly/openapi_generated"]
 
 [tool.ruff.lint]
 select = ["I", "D202", "D209", "D212", "D214", "D410", "D411", "D412"]

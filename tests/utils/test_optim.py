@@ -1,10 +1,15 @@
-from typing import Any, Dict, List
+from typing import Any, Callable, Dict, List, TypeVar, cast
 
 import pytest
 from torch.nn import Linear
 from torch.optim import SGD
 
 from lightly.utils import optim
+
+TestFunction = TypeVar("TestFunction", bound=Callable[..., None])
+parametrize = cast(
+    Callable[..., Callable[[TestFunction], TestFunction]], pytest.mark.parametrize
+)
 
 
 def test_update_param_groups() -> None:
@@ -58,7 +63,7 @@ def test_update_param_groups__default_no_add_entry() -> None:
     assert "unknown" not in optimizer.param_groups[0]
 
 
-@pytest.mark.parametrize(  # type: ignore[misc]
+@parametrize(
     "updates, match",
     [
         ([{"name": "unknown"}], "No param group with name 'unknown' in optimizer."),
@@ -68,7 +73,9 @@ def test_update_param_groups__default_no_add_entry() -> None:
         ),
     ],
 )
-def test_update_param_groups__error(updates: List[Dict[str, Any]], match: str) -> None:
+def test_update_param_groups__error(
+    updates: List[Dict[str, object]], match: str
+) -> None:
     optimizer = SGD([{"name": "model", "params": Linear(1, 1).parameters()}], lr=0.1)
     with pytest.raises(ValueError, match=match):
         optim.update_param_groups(optimizer=optimizer, updates=updates)

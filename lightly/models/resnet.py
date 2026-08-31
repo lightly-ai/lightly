@@ -12,7 +12,7 @@ run for example on a microcontroller with 100kBytes of storage.
 # All Rights Reserved
 from __future__ import annotations
 
-from typing import List
+from typing import List, cast
 
 import torch.nn as nn
 import torch.nn.functional as F
@@ -241,7 +241,7 @@ class ResNet(nn.Module):
         out = F.avg_pool2d(out, 4)
         out = out.view(out.size(0), -1)
         out = self.linear(out)
-        return out
+        return cast(Tensor, out)
 
 
 def ResNetGenerator(
