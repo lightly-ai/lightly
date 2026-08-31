@@ -55,7 +55,7 @@ all = [
 # as an empty extra so `lightly[minimal]` and `lightly[all]` keep resolving.
 minimal = []
 timm = ["timm>=0.9.9"]
-video = ["av>=8.0.3; python_version>='3.8'"]
+video = ["av>=8.0.3"]
 matplotlib = ["matplotlib>=3"]
 
 
@@ -70,8 +70,9 @@ matplotlib = ["matplotlib>=3"]
 # the minimal test setup uses, resolves the whole lockfile and therefore applies to this
 # group as well: an unbounded `pandas` resolves to pandas 0.1 (2009), which does not
 # build. The bounds are the versions uv.lock already selects for Python 3.8, the lowest
-# version we test against, so the dev tooling stays usable there. Bumping them is only
-# necessary when a tool no longer works at its floor.
+# version we test against (except mypy, floored lower at 1.4.1 since type-check runs only
+# on 3.12), so the dev tooling stays usable there. Bumping them is only necessary when a
+# tool no longer works at its floor.
 dev = [
   "pytest>=8.3.5",
   "pytest-forked>=1.6.0",
@@ -128,9 +129,9 @@ minimal = [
   "torch>=1.10.0",
   "torchvision>=0.11.0",
   "pytorch_lightning>=1.6",
-  # lowest-direct pins numpy to its runtime floor (1.18.1) but takes the newest Pillow,
-  # whose PIL/_typing.py uses numpy.typing.NDArray at import time (added in numpy 1.21.0).
-  # That combination never happens in a real install; floor numpy here so the two agree.
+  # Without this floor, lowest-direct resolves numpy to ~1.20.1 (torchmetrics 1.5.2 in the
+  # dev group requires numpy>1.20.0) while taking the newest Pillow, whose PIL/_typing.py
+  # imports numpy.typing.NDArray (added in 1.21.0). Floor numpy to 1.21 so the two agree.
   "numpy>=1.21.0",
 ]
 
