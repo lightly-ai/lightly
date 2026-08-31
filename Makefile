@@ -133,7 +133,7 @@ lock:
 # build the docs.
 .PHONY: install-dev
 install-dev:
-	uv sync --frozen --all-extras --group docs
+	uv sync --locked --exclude-newer $(EXCLUDE_NEWER_DATE) --all-extras --group docs
 	uv run --frozen pre-commit install
 
 # Install system dependencies required to build PyAV from source.
@@ -143,14 +143,15 @@ install-dev:
 # av==8.0.3, which ships no wheel for Python 3.8 and therefore builds from source. The
 # maximal targets get an av wheel instead and need no system libraries.
 #
-# This installs packages system-wide with apt-get, so it refuses to run outside CI.
+# This installs packages system-wide with apt-get, so it is skipped outside CI.
 .PHONY: _av-system-deps
 _av-system-deps:
 ifndef CI
-	$(error _av-system-deps installs system packages with apt-get and must only run in CI (CI is unset))
-endif
+	@echo "Skipping PyAV system dependencies (CI only)."
+else
 	sudo apt-get update
 	sudo apt-get install -y libavformat-dev libavdevice-dev
+endif
 
 # Install the package with the lowest supported dependency versions.
 #
