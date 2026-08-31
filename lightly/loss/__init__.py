@@ -22,7 +22,6 @@ from lightly.loss.ntx_ent_loss import NTXentLoss
 from lightly.loss.patch_kernel_alignment_loss import PatchKernelAlignmentLoss
 from lightly.loss.pmsn_loss import PMSNCustomLoss, PMSNLoss
 from lightly.loss.swav_loss import SwaVLoss
-from lightly.loss.sym_neg_cos_sim_loss import SymNegCosineSimilarityLoss
 from lightly.loss.tico_loss import TiCoLoss
 from lightly.loss.vicreg_loss import VICRegLoss
 from lightly.loss.vicregl_loss import VICRegLLoss

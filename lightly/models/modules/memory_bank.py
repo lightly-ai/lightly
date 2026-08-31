@@ -3,7 +3,6 @@
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
-import warnings
 from typing import Optional, Sequence, Tuple, Union
 
 import torch
@@ -24,11 +23,8 @@ class MemoryBankModule(Module):
     Attributes:
         size:
             Size of the memory bank as (num_features, dim) tuple. If num_features is 0
-            then the memory bank is disabled. Deprecated: If only a single integer is
-            passed, it is interpreted as the number of features and the feature
-            dimension is inferred from the first batch stored in the memory bank.
-            Leaving out the feature dimension might lead to errors in distributed
-            training.
+            then the memory bank is disabled. Pass 0 to disable the memory bank; any
+            other bare integer is rejected because the feature dimension is required.
         gather_distributed:
             If True then negatives from all gpus are gathered before the memory bank
             is updated. This results in more frequent updates of the memory bank and
@@ -57,7 +53,7 @@ class MemoryBankModule(Module):
 
     def __init__(
         self,
-        size: Union[int, Sequence[int]] = 65536,
+        size: Union[int, Sequence[int]] = (65536, 128),
         gather_distributed: bool = False,
         feature_dim_first: bool = True,
     ):
@@ -67,6 +63,12 @@ class MemoryBankModule(Module):
         if any(x < 0 for x in size_tuple):
             raise ValueError(
                 f"Illegal memory bank size {size}, all entries must be non-negative."
+            )
+        if isinstance(size, int) and size > 0:
+            raise ValueError(
+                f"Memory bank size 'size={size}' does not specify the feature "
+                f"dimension. Set it with 'size=({size}, dim)', or pass 'size=0' to "
+                "disable the memory bank."
             )
 
         self.size = size_tuple
@@ -85,17 +87,7 @@ class MemoryBankModule(Module):
             persistent=False,
         )
 
-        if isinstance(size, int) and size > 0:
-            warnings.warn(
-                (
-                    f"Memory bank size 'size={size}' does not specify feature "
-                    "dimension. It is recommended to set the feature dimension with "
-                    "'size=(n, dim)' when creating the memory bank. Distributed "
-                    "training might fail if the feature dimension is not set."
-                ),
-                UserWarning,
-            )
-        elif len(size_tuple) > 1:
+        if len(size_tuple) > 1:
             self._init_memory_bank(size=size_tuple)
 
     def forward(
@@ -124,11 +116,6 @@ class MemoryBankModule(Module):
         # no memory bank, return the output
         if self.size[0] == 0:
             return output, None
-
-        # Initialize the memory bank if it is not already done.
-        if self.bank.ndim == 1:
-            dim = output.shape[1:]
-            self._init_memory_bank(size=(*self.size, *dim))
 
         # query and update memory bank
         bank = self.bank.clone().detach()
