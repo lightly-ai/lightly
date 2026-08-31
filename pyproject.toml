@@ -258,9 +258,6 @@ warn_unreachable = true
 show_error_codes = true
 show_error_context = true
 
-# Plugins
-plugins = ["numpy.typing.mypy_plugin"]
-
 # Excludes
 # TODO(Philipp, 09/23): Remove these one by one (start with 300 files).
 exclude = '''(?x)(
