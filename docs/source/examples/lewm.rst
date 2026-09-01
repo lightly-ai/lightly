@@ -40,12 +40,13 @@ Key Components
 The shape contract
 ------------------
 
-The predictor reads and returns::
+The predictor reads::
 
     embeddings   (B, T, D)
     action_emb   (B, T, D)
 
-``B`` is the batch, ``T`` the frames of one clip and ``D`` the width. Entry
+and returns the predicted next-frame embeddings of shape ``(B, T, D)``. ``B``
+is the batch, ``T`` the frames of one clip and ``D`` the width. Entry
 ``t`` of the output predicts frame ``t + 1``, and ``action_emb[:, t]`` is the
 action taken **at** frame ``t``. A shape check cannot catch a phase error, so a
 training step reads::
@@ -81,8 +82,8 @@ Reference:
 
 .. note::
 
-    LeWM requires `TIMM <https://github.com/huggingface/pytorch-image-models>`_
-    to be installed
+    This example requires `TIMM
+    <https://github.com/huggingface/pytorch-image-models>`_ to be installed
 
     .. code-block:: bash
 
@@ -98,6 +99,6 @@ Reference:
         environment or a recorded dataset. It can be run from the command line
         with::
 
-            python lightly/examples/pytorch/lewm.py
+            python examples/pytorch/lewm.py
 
         .. literalinclude:: ../../../examples/pytorch/lewm.py
