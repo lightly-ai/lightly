@@ -1,9 +1,14 @@
 """Distance between predicted and observed frame embeddings.
 
-Every latent world model compares a predicted embedding against an observed
-one. They differ only in the norm and in whether the representations are
-normalized first, so the comparison lives here rather than in the loss of any
-single method.
+LeWM and other continuous-latent, next-embedding predictors compare a predicted
+embedding against an observed one. They differ only in the norm and in whether
+the representations are normalized first, so the comparison lives here rather
+than in the loss of any single method.
+
+.. warning::
+
+    Experimental. This helper may change in a minor release while the world
+    model methods that use it are added.
 """
 
 from __future__ import annotations

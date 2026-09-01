@@ -14,6 +14,11 @@ This is the self-supervised idea with one more axis. An SSL method predicts the
 embedding of one view from another view. A world model predicts the embedding
 of the next frame from the past ones, given what the agent did.
 
+.. warning::
+
+    LeWM and the ``world_model`` modules are experimental. Their shapes and
+    signatures may change in a minor release.
+
 Key Components
 --------------
 
@@ -24,7 +29,10 @@ Key Components
   low-dimensional action vector to the width of the predictor.
 - **Predictor**: :class:`lightly.models.modules.LatentDynamicsPredictor` is a
   causal transformer over frames. The action at frame ``t`` conditions every
-  block through AdaLN-Zero.
+  block through AdaLN-Zero. It is action-conditioned and causal by default;
+  ``conditional=False`` gives an actionless predictor and ``causal=False`` a
+  bidirectional one, both built from
+  :class:`lightly.models.modules.PredictorBlock`.
 - **Loss**: :class:`lightly.loss.LeWMLoss` adds a next-embedding prediction
   term and :class:`lightly.loss.SIGReg`. The weight of the SIGReg term is the
   only hyperparameter that needs tuning.

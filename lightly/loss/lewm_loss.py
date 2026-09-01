@@ -43,11 +43,15 @@ class LeWMLoss(nn.Module):
     - :class:`~lightly.loss.lejepa_loss.SIGReg`, which drives the distribution
       of the frame embeddings toward an isotropic Gaussian.
 
-    SIGReg is what keeps the encoder from collapsing. LeWM therefore needs no
+    In LeWM, SIGReg is what keeps the encoder from collapsing, so LeWM needs no
     stop-gradient, no teacher network and no exponential moving average, and
     the encoder can be trained from pixels together with the predictor.
 
     The total loss is ``prediction + lambda_param * SIGReg(embeddings)``.
+
+    .. warning::
+
+        LeWM is experimental. Its API may change in a minor release.
 
     Reference:
         LeWorldModel, 2026, https://arxiv.org/abs/2603.19312
