@@ -15,7 +15,7 @@ import inspect
 from argparse import ArgumentParser
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Sequence, Union
+from typing import Dict, Sequence, Tuple, Union
 
 import barlowtwins
 import byol
@@ -36,6 +36,7 @@ from pytorch_lightning.callbacks import (
     DeviceStatsMonitor,
     EarlyStopping,
     LearningRateMonitor,
+    ModelCheckpoint,
 )
 from pytorch_lightning.loggers import TensorBoardLogger
 from torch.utils.data import DataLoader
@@ -57,6 +58,7 @@ parser.add_argument("--accelerator", type=str, default="gpu")
 parser.add_argument("--devices", type=int, default=1)
 parser.add_argument("--precision", type=str, default="16-mixed")
 parser.add_argument("--ckpt-path", type=Path, default=None)
+parser.add_argument("--resume", action="store_true")
 parser.add_argument("--compile-model", action="store_true")
 parser.add_argument("--methods", type=str, nargs="+")
 parser.add_argument("--num-classes", type=int, default=1000)
@@ -105,11 +107,14 @@ def main(
     skip_linear_eval: bool,
     skip_finetune_eval: bool,
     ckpt_path: Union[Path, None],
+    resume: bool,
     float32_matmul_precision: str,
     strategy: str,
     seed: int | None = None,
 ) -> None:
     print_rank_zero(f"Args: {locals()}")
+    if resume and ckpt_path is not None:
+        raise ValueError("--resume and --ckpt-path cannot be used together.")
     if seed is not None:
         seed_everything(seed, workers=True, verbose=True)
 
@@ -118,9 +123,21 @@ def main(
     method_names = methods or METHODS.keys()
 
     for method in method_names:
-        method_dir = (
-            log_dir / method / datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        ).resolve()
+        method_ckpt_path = ckpt_path
+        method_dir = None
+        if resume:
+            resume_run = find_resume_run(log_dir / method)
+            if resume_run is None:
+                print_rank_zero(
+                    f"No checkpoint found in {log_dir / method}, starting a new run."
+                )
+            else:
+                method_dir, method_ckpt_path = resume_run
+                print_rank_zero(f"Resuming from checkpoint {method_ckpt_path}")
+        if method_dir is None:
+            method_dir = (
+                log_dir / method / datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            ).resolve()
         print_rank_zero(f"Logging to {method_dir}")
         # Initialise the base arguments for all models
         model_kwargs = {
@@ -147,8 +164,8 @@ def main(
 
         if epochs <= 0:
             print_rank_zero("Epochs <= 0, skipping pretraining.")
-            if ckpt_path is not None:
-                model.load_state_dict(torch.load(ckpt_path)["state_dict"])
+            if method_ckpt_path is not None:
+                model.load_state_dict(torch.load(method_ckpt_path)["state_dict"])
         else:
             pretrain(
                 model=model,
@@ -162,7 +179,7 @@ def main(
                 accelerator=accelerator,
                 devices=devices,
                 precision=precision,
-                ckpt_path=ckpt_path,
+                ckpt_path=method_ckpt_path,
                 strategy=strategy,
                 run_online_knn_eval=run_online_knn_eval,
             )
@@ -222,6 +239,30 @@ def main(
         if eval_metrics:
             print_rank_zero(f"Results for {method}:")
             print_rank_zero(eval_metrics_to_markdown(eval_metrics))
+
+
+def find_resume_run(method_log_dir: Path) -> Union[Tuple[Path, Path], None]:
+    """Finds the newest run of a method that can be resumed.
+
+    Returns:
+        Tuple with the run directory and its most recent last.ckpt checkpoint,
+        or None if no run with a checkpoint exists.
+    """
+    if not method_log_dir.is_dir():
+        return None
+    # Run directories are named after their start time, so the lexicographic
+    # order matches the chronological order.
+    for run_dir in sorted(
+        (path for path in method_log_dir.iterdir() if path.is_dir()), reverse=True
+    ):
+        # Every resume logs to a new version subdirectory, so a run can contain
+        # multiple checkpoints. Pick the most recently modified one.
+        checkpoints = sorted(
+            run_dir.rglob("last.ckpt"), key=lambda path: path.stat().st_mtime
+        )
+        if checkpoints:
+            return run_dir.resolve(), checkpoints[-1].resolve()
+    return None
 
 
 def pretrain(
@@ -305,6 +346,8 @@ def pretrain(
         devices=devices,
         callbacks=[
             LearningRateMonitor(),
+            # Save last.ckpt so interrupted runs can be resumed with --resume.
+            ModelCheckpoint(save_last=True),
             # Stop if training loss diverges.
             EarlyStopping(monitor="train_loss", patience=int(1e12), check_finite=True),
             DeviceStatsMonitor(),
