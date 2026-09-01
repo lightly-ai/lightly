@@ -5,6 +5,7 @@ import torch
 
 from lightly.models.modules.world_model import predictor as predictor_module
 from lightly.models.modules.world_model.predictor import (
+    AdaLNZero,
     LatentDynamicsPredictor,
     PredictorBlock,
 )
@@ -285,6 +286,23 @@ class TestPredictorBlock:
         from lightly.models.modules import PredictorBlock as ExportedPredictorBlock
 
         assert ExportedPredictorBlock is PredictorBlock
+
+
+class TestAdaLNZero:
+    """AdaLNZero is a pure projection (no attention), so it needs no SDPA guard."""
+
+    def test_zero_initialized(self) -> None:
+        adaln = AdaLNZero(32)
+        assert torch.all(adaln(torch.randn(2, 4, 32)) == 0.0)
+
+    def test_output_shape(self) -> None:
+        adaln = AdaLNZero(32)
+        assert adaln(torch.randn(2, 4, 32)).shape == (2, 4, 6 * 32)
+
+    def test_importable_from_modules(self) -> None:
+        from lightly.models.modules import AdaLNZero as ExportedAdaLNZero
+
+        assert ExportedAdaLNZero is AdaLNZero
 
 
 class TestFusedAttentionRequired:

@@ -8,8 +8,9 @@ taken.
 The modules here are parts that latent world models share.
 :class:`ActionEncoder` turns what the agent did into an embedding,
 :class:`LatentDynamicsPredictor` maps embeddings and optional actions to future
-embeddings, and :class:`PredictorBlock` is its conditioned transformer block,
-reusable on its own.
+embeddings, :class:`PredictorBlock` is its conditioned transformer block, and
+:class:`AdaLNZero` is the AdaLN-Zero conditioning projection -- both reusable on
+their own.
 
 The image encoder is deliberately absent. A predictor reads embeddings, not
 pixels, so any backbone in :mod:`lightly.models` works as an encoder, trained
@@ -24,18 +25,21 @@ makes them the job of a control library.
 .. warning::
 
     This subpackage is new. The shapes and signatures here -- including the
-    ``conditional`` and ``causal`` options and :class:`PredictorBlock` -- may
-    change in a minor release while the remaining world model methods are added.
+    ``conditional`` and ``causal`` options, :class:`PredictorBlock` and
+    :class:`AdaLNZero` -- may change in a minor release while the remaining
+    world model methods are added.
 """
 
 from lightly.models.modules.world_model.conditioning import ActionEncoder
 from lightly.models.modules.world_model.predictor import (
+    AdaLNZero,
     LatentDynamicsPredictor,
     PredictorBlock,
 )
 
 __all__ = [
     "ActionEncoder",
+    "AdaLNZero",
     "LatentDynamicsPredictor",
     "PredictorBlock",
 ]

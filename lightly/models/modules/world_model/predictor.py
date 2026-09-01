@@ -25,6 +25,36 @@ def _modulate(x: Tensor, shift: Tensor, scale: Tensor) -> Tensor:
     return x * (1 + scale) + shift
 
 
+class AdaLNZero(nn.Sequential):
+    """AdaLN-Zero conditioning projection.
+
+    Maps a conditioning embedding of shape ``(..., hidden_dim)`` to the six
+    per-sublayer modulation parameters (shift, scale and gate for the attention
+    and the MLP sublayers), returned concatenated as ``(..., 6 * hidden_dim)``;
+    the caller splits them with ``chunk(6, dim=-1)``. The projection is
+    zero-initialized, so a block conditioned by it is the identity at
+    initialization (AdaLN-Zero).
+
+    ``AdaLNZero`` subclasses :class:`~torch.nn.Sequential` so the linear layer
+    stays at child index ``1``, which keeps the parameter names stable.
+
+    .. warning::
+
+        Experimental. This module may change in a minor release.
+    """
+
+    def __init__(self, hidden_dim: int) -> None:
+        """Initialize the AdaLN-Zero projection.
+
+        Args:
+            hidden_dim: Width of the conditioning embedding and the transformer.
+        """
+        proj = nn.Linear(hidden_dim, 6 * hidden_dim, bias=True)
+        nn.init.zeros_(proj.weight)
+        nn.init.zeros_(proj.bias)
+        super().__init__(nn.SiLU(), proj)
+
+
 class PredictorBlock(nn.Module):
     """Transformer block with optional AdaLN-Zero conditioning.
 
@@ -74,14 +104,9 @@ class PredictorBlock(nn.Module):
             nn.Dropout(dropout),
         )
 
-        self.adaln: nn.Sequential | None = None
-        if conditional:
-            adaln_proj = nn.Linear(hidden_dim, 6 * hidden_dim, bias=True)
-            # AdaLN-Zero: the gates start at zero so the block is the identity at
-            # initialization.
-            nn.init.zeros_(adaln_proj.weight)
-            nn.init.zeros_(adaln_proj.bias)
-            self.adaln = nn.Sequential(nn.SiLU(), adaln_proj)
+        # AdaLN-Zero: the projection is zero-initialized, so the gates start at
+        # zero and the block is the identity at initialization.
+        self.adaln: AdaLNZero | None = AdaLNZero(hidden_dim) if conditional else None
 
     def _attention(self, x: Tensor, attn_mask: Tensor | None) -> Tensor:
         batch_size, seq_len, hidden_dim = x.shape

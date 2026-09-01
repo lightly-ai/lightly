@@ -34,6 +34,7 @@ from lightly.models.modules.heads import (
 from lightly.models.modules.nn_memory_bank import NNMemoryBankModule
 from lightly.models.modules.world_model import (
     ActionEncoder,
+    AdaLNZero,
     LatentDynamicsPredictor,
     PredictorBlock,
 )

@@ -37,3 +37,6 @@ lightly.models
 
 .. autoclass:: lightly.models.modules.world_model.predictor.PredictorBlock
    :members:
+
+.. autoclass:: lightly.models.modules.world_model.predictor.AdaLNZero
+   :members:
