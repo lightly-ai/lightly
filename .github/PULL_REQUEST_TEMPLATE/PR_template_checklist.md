@@ -1,3 +1,4 @@
+<!-- PR title must follow Conventional Commits, e.g. `feat(loss): ...` or `fix: ...`. It is squash-merged onto master and checked in CI. See CONTRIBUTING.md. -->
 closes #issue_number
 
 ## Description
