@@ -1,0 +1,45 @@
+name: Prepare Release
+
+# Manually dispatched. Runs `cz bump`, which reads the Conventional Commit history
+# since the last tag, computes the next version, updates lightly/__init__.py and
+# CHANGELOG.md, commits, and creates the version tag. Publishing to PyPI stays in
+# release_pypi.yml, which builds whatever tag this produces.
+#
+# Defaults to a dry run so dispatching it never mutates the repo by accident.
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Only print the computed bump; do not commit, tag or push."
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    name: Bump version and changelog
+    runs-on: ubuntu-22.04
+    steps:
+    - name: Checkout full history
+      uses: actions/checkout@v6
+      with:
+        fetch-depth: 0
+    - name: Set up uv
+      uses: astral-sh/setup-uv@v9.0.0
+      with:
+        version: 0.12.3
+    - name: Show the computed bump
+      if: ${{ inputs.dry_run }}
+      run: uvx --from commitizen cz bump --dry-run --yes
+    # NOTE: pushing to master from CI needs branch protection to allow the
+    # github-actions bot (or a dedicated PAT). Confirm that before disabling the
+    # dry-run default. See the PR description.
+    - name: Bump, tag and push
+      if: ${{ !inputs.dry_run }}
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        uvx --from commitizen cz bump --yes
+        git push --follow-tags origin HEAD
