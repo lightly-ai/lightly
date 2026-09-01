@@ -11,6 +11,7 @@ from lightly.models.modules.heads import (
     DINOProjectionHead,
     DINOv2ProjectionHead,
     LeJEPAProjectionHead,
+    LeWMProjectionHead,
     MMCRProjectionHead,
     MoCoProjectionHead,
     MSNProjectionHead,
@@ -323,6 +324,36 @@ class TestProjectionHeads:
                 output_dim=4,
                 num_layers=0,
             )
+
+    def test_lewm_projection_head_backward(self) -> None:
+        device = "cpu"
+        seed = 0
+        for batch_norm in [True, False]:
+            # batch_size must be at least 2 when the head uses BatchNorm1d in
+            # training mode; with the norm off a single sample is fine, which
+            # also confirms the norm is really gone.
+            batch_size = 2 if batch_norm else 1
+            for in_features, _, out_features in self.n_features:
+                torch.manual_seed(seed)
+                head = LeWMProjectionHead(
+                    input_dim=in_features,
+                    output_dim=out_features,
+                    batch_norm=batch_norm,
+                ).to(device)
+                x = torch.randn(
+                    (batch_size, in_features), requires_grad=True, device=device
+                )
+                y = head(x)
+                assert y.shape == (batch_size, out_features)
+
+                y.sum().backward()
+                x_grad = x.grad
+                assert x_grad is not None
+                assert x_grad.shape == x.shape
+                for name, param in head.named_parameters():
+                    param_grad = param.grad
+                    assert param_grad is not None
+                    assert param_grad.shape == param.shape
 
 
 def test_capi_projection_head() -> None:
