@@ -328,29 +328,32 @@ class TestProjectionHeads:
     def test_lewm_projection_head_backward(self) -> None:
         device = "cpu"
         seed = 0
-        # batch_size must be at least 2
-        # because the head uses BatchNorm1d in training mode.
-        batch_size = 2
-        for in_features, _, out_features in self.n_features:
-            torch.manual_seed(seed)
-            head = LeWMProjectionHead(
-                input_dim=in_features,
-                output_dim=out_features,
-            ).to(device)
-            x = torch.randn(
-                (batch_size, in_features), requires_grad=True, device=device
-            )
-            y = head(x)
-            assert y.shape == (batch_size, out_features)
+        for batch_norm in [True, False]:
+            # batch_size must be at least 2 when the head uses BatchNorm1d in
+            # training mode; with the norm off a single sample is fine, which
+            # also confirms the norm is really gone.
+            batch_size = 2 if batch_norm else 1
+            for in_features, _, out_features in self.n_features:
+                torch.manual_seed(seed)
+                head = LeWMProjectionHead(
+                    input_dim=in_features,
+                    output_dim=out_features,
+                    batch_norm=batch_norm,
+                ).to(device)
+                x = torch.randn(
+                    (batch_size, in_features), requires_grad=True, device=device
+                )
+                y = head(x)
+                assert y.shape == (batch_size, out_features)
 
-            y.sum().backward()
-            x_grad = x.grad
-            assert x_grad is not None
-            assert x_grad.shape == x.shape
-            for name, param in head.named_parameters():
-                param_grad = param.grad
-                assert param_grad is not None
-                assert param_grad.shape == param.shape
+                y.sum().backward()
+                x_grad = x.grad
+                assert x_grad is not None
+                assert x_grad.shape == x.shape
+                for name, param in head.named_parameters():
+                    param_grad = param.grad
+                    assert param_grad is not None
+                    assert param_grad.shape == param.shape
 
 
 def test_capi_projection_head() -> None:
