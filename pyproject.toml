@@ -275,7 +275,6 @@ exclude = '''(?x)(
     lightly/data/_video.py |
     lightly/core.py |
     lightly/utils/cropping/crop_image_by_bounding_boxes.py |
-    lightly/utils/cropping/read_yolo_label_file.py |
     lightly/utils/debug.py |
     lightly/utils/benchmarking/benchmark_module.py |
     lightly/utils/benchmarking/knn_classifier.py |
