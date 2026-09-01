@@ -8,35 +8,34 @@ on:
   merge_group:
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     name: Check
     runs-on: ubuntu-22.04
-    strategy:
-      matrix:
-        python: ["3.8", "3.12"]
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v4
-    - name: Hack to get setup-python to work on nektos/act
-      run: |
-        if [ ! -f "/etc/lsb-release" ] ; then
-          echo "DISTRIB_RELEASE=18.04" > /etc/lsb-release
-        fi
-    - name: Set Up Python
-      uses: actions/setup-python@v5
+      uses: actions/checkout@v6
+    - name: Set Up uv
+      uses: astral-sh/setup-uv@v9.0.0
       with:
-        python-version: ${{ matrix.python }}
+        version: 0.12.3
+        enable-cache: true
+        cache-dependency-glob: "uv.lock"
+    # Run lock-check before installing: `make install-maximal` runs `uv sync` (no
+    # --frozen/--locked), which heals a stale uv.lock on disk and would hide the
+    # staleness this check exists to catch.
+    - name: Check Lockfile
+      run: make lock-check
     - name: Set Up Environment
-      run: |
-        make install-uv reset-venv
-        source .venv/bin/activate
-        make install-pinned-extras
+      run: make install-maximal
+    # ruff is exact-pinned in the dev group; mypy floats by interpreter (uv.lock pins
+    # 1.14.1 on Python 3.8, 1.17.1 on >=3.9, since mypy >=1.15 dropped 3.8). type-check
+    # here runs only on 3.12, so a single environment is enough.
     - name: Run Format Check
-      run: |
-        source .venv/bin/activate
-        make format-check
+      run: make format-check
     - name: Run Type Check
-      run: |
-        source .venv/bin/activate
-        make type-check
+      run: make type-check

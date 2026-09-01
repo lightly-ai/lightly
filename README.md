@@ -22,7 +22,7 @@ a single command, please contact sales@lightly.ai.
 
 We've also built a whole platform on top, with additional features for active learning
 and [data curation](https://docs.lightly.ai/docs/what-is-lightly). If you're interested in the
-Lightly Worker Solution to easily process millions of samples and run [powerful algorithms](https://docs.lightly.ai/docs/customize-a-selection)
+LightlyStudio, our all-in-one product for [data curation and labeling](https://docs.lightly.ai/studio/)
 on your data, check out [lightly.ai](https://www.lightly.ai). It's free to get started!
 
 ## News 🚀
@@ -347,11 +347,16 @@ Head to the [documentation](https://docs.lightly.ai/self-supervised-learning/) a
 
 ## Development
 
-To install dev dependencies (for example to contribute to the framework) you can use the following command:
+We use [uv](https://github.com/astral-sh/uv) to manage dependencies. To set up a
+development environment (for example to contribute to the framework) you can use the
+following command:
 
 ```
-pip3 install -e ".[dev]"
+make install-dev
 ```
+
+This installs the package with all extras and development dependencies, and sets up the
+pre-commit hooks. You do not need to activate the virtual environment manually.
 
 For more information about how to contribute have a look [here](CONTRIBUTING.md).
 
@@ -374,7 +379,7 @@ make test
 To test a specific file or directory use:
 
 ```
-pytest <path to file or directory>
+uv run --frozen pytest <path to file or directory>
 ```
 
 ### Code Formatting
@@ -450,7 +455,7 @@ You can find out more about the company and it's services by following the links
 - [Homepage](https://www.lightly.ai)
 - [LightlyTrain](https://docs.lightly.ai/train/stable/index.html)
 - [Web-App](https://app.lightly.ai)
-- [Lightly Solution Documentation (Lightly Worker & API)](https://docs.lightly.ai/)
+- [LightlyStudio](https://docs.lightly.ai/studio/)
 - [Lightly's AwesomeSSL](https://github.com/lightly-ai/awesome-self-supervised-learning) (collection of SSL papers)
 
 [Back to top🚀](#top)

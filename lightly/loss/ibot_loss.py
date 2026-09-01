@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import cast
+
 import torch
 from torch import Tensor
 from torch.nn import Module
@@ -105,7 +107,7 @@ class IBOTPatchLoss(Module):
 
         self.center.update(teacher_out)
 
-        return loss
+        return cast(Tensor, loss)
 
 
 class IBOTPlusPlusPatchLoss(IBOTPatchLoss):
