@@ -48,9 +48,13 @@ class TestLatentDynamicsPredictor:
         assert out.shape == (3, 2, 16)
 
     def test_forward__is_causal(self) -> None:
-        """A change at frame t must not change the outputs before t."""
-        torch.manual_seed(0)
-        predictor = _predictor().eval()
+        """A change at frame t must not change the outputs before t.
+
+        The predictor is trained first so the AdaLN-Zero gates are non-zero;
+        at initialization every block is the identity and the assertions would
+        hold even with a broken mask.
+        """
+        predictor = _trained_predictor()
         emb = torch.randn(2, 4, 16)
         action_emb = torch.randn(2, 4, 16)
 
@@ -250,6 +254,14 @@ class TestRollout:
     def test_rollout__unconditional_rejects_action(self) -> None:
         predictor = _predictor(conditional=False)
         with pytest.raises(ValueError, match="must be None"):
+            predictor.rollout(
+                torch.randn(3, 2, 16), action_emb=torch.randn(3, 6, 16), steps=4
+            )
+
+    def test_rollout__output_dim_mismatch_raises(self) -> None:
+        """Feeding predictions back needs output_dim == input_dim past one step."""
+        predictor = _predictor(output_dim=8)
+        with pytest.raises(ValueError, match="output_dim"):
             predictor.rollout(
                 torch.randn(3, 2, 16), action_emb=torch.randn(3, 6, 16), steps=4
             )

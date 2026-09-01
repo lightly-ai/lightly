@@ -61,6 +61,15 @@ class TestLeWMLoss:
                 predicted=torch.randn(8, 3, 2, 16), target=emb[:, 1:], embeddings=emb
             )
 
+    def test_forward__embeddings_batch_or_dim_mismatch(self) -> None:
+        criterion = LeWMLoss(sigreg_num_vectors=32)
+        with pytest.raises(ValueError, match="batch size and embedding dimension"):
+            criterion(
+                predicted=torch.randn(8, 3, 16),
+                target=torch.randn(8, 3, 16),
+                embeddings=torch.randn(4, 4, 16),  # batch 4 != predicted batch 8
+            )
+
     def test_backward_pass(self) -> None:
         torch.manual_seed(0)
         criterion = LeWMLoss(sigreg_num_vectors=32)

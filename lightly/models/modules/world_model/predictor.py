@@ -342,6 +342,12 @@ class LatentDynamicsPredictor(nn.Module):
         """
         if steps < 1:
             raise ValueError("steps must be a positive integer.")
+        if steps > 1 and self.output_dim != self.input_dim:
+            raise ValueError(
+                "rollout feeds predictions back as input, so it requires "
+                f"output_dim ({self.output_dim}) == input_dim ({self.input_dim}) "
+                "when steps > 1."
+            )
         num_context = embeddings.size(1)
         if self.conditional:
             if action_emb is None:

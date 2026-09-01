@@ -134,6 +134,14 @@ class LeWMLoss(nn.Module):
             raise ValueError(
                 f"embeddings must have shape (B, T, D), got {tuple(embeddings.shape)}."
             )
+        if (
+            embeddings.shape[0] != predicted.shape[0]
+            or embeddings.shape[-1] != predicted.shape[-1]
+        ):
+            raise ValueError(
+                "embeddings must share the batch size and embedding dimension of "
+                f"predicted, got {tuple(embeddings.shape)} and {tuple(predicted.shape)}."
+            )
         prediction = latent_prediction_loss(
             predicted=predicted, target=target, normalize=self.normalize
         )
