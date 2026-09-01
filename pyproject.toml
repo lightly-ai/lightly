@@ -193,6 +193,25 @@ version = {attr = "lightly.__version__"}
 [tool.setuptools.package-data]
 lightly = ["lightly/cli/config/*.yaml"]
 
+# Conventional-commit tooling. `cz bump` derives the next version and the changelog
+# from the commit history since the last tag. Deliberately not a dependency-groups
+# entry: the commit-msg hook runs commitizen from its own pre-commit environment and
+# prepare_release.yml runs it with `uvx`, so uv.lock is untouched and lock-check stays
+# green.
+#
+# `version` mirrors lightly.__version__, which [tool.setuptools.dynamic] above reads as
+# the package version; `version_files` makes `cz bump` rewrite both so they never drift.
+# The default rule map is the standard SemVer mapping: fix -> patch, feat -> minor, a
+# `!` after the type or a `BREAKING CHANGE:` footer -> major.
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "1.5.26"
+version_files = [
+  "lightly/__init__.py:__version__",
+]
+tag_format = "v$version" # matches the existing v-prefixed release tags (v1.5.26, ...)
+update_changelog_on_bump = true
+
 [tool.ruff]
 line-length = 88
 target-version = "py38"
