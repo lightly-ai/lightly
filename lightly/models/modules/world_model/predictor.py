@@ -1,7 +1,7 @@
-"""Predictors that map a history of embeddings and actions to the future.
+"""Predictors that map a history of embeddings and optional actions to the future.
 
-The predictor is the part that every latent world model has. It reads the
-embeddings of the past frames and the actions that were taken, and it returns
+The predictor is the part that a latent world model has. It reads the embeddings
+of the past frames and, optionally, the actions that were taken, and it returns
 embeddings of future frames. It never sees pixels, so an encoder trained
 alongside it and a frozen pretrained encoder are interchangeable.
 
@@ -25,12 +25,21 @@ def _modulate(x: Tensor, shift: Tensor, scale: Tensor) -> Tensor:
     return x * (1 + scale) + shift
 
 
-class _PredictorBlock(nn.Module):
-    """Transformer block with AdaLN-Zero action conditioning.
+class PredictorBlock(nn.Module):
+    """Transformer block with optional AdaLN-Zero conditioning.
 
-    The block follows the AdaLN-Zero scheme of DiT: the conditioning embedding
-    produces per-timestep shift, scale and gate parameters, and the gate
-    projections start at zero so the block is an identity at initialization.
+    .. warning::
+
+        Experimental. This block may change in a minor release.
+
+    With ``conditional=True`` the block follows the AdaLN-Zero scheme of DiT: a
+    per-timestep conditioning embedding ``cond`` produces the shift, scale and
+    gate parameters, and the gate projections start at zero so the block is an
+    identity at initialization. ``cond`` is opaque -- an action embedding for
+    LeWM, a diffusion timestep or a goal embedding for another method.
+
+    With ``conditional=False`` the block is a plain pre-norm transformer block
+    that ignores ``cond``, which is the actionless / unconditional predictor.
     """
 
     def __init__(
@@ -40,13 +49,19 @@ class _PredictorBlock(nn.Module):
         num_heads: int,
         mlp_ratio: float,
         dropout: float,
+        conditional: bool = True,
     ) -> None:
         super().__init__()
         self.num_heads = num_heads
         self.dropout = dropout
+        self.conditional = conditional
 
-        self.norm1 = nn.LayerNorm(hidden_dim, elementwise_affine=False, eps=1e-6)
-        self.norm2 = nn.LayerNorm(hidden_dim, elementwise_affine=False, eps=1e-6)
+        # A conditional block gets its affine parameters from the AdaLN
+        # modulation, so its norms are affine-free; an unconditional block keeps
+        # the usual learnable LayerNorm affine instead.
+        affine = not conditional
+        self.norm1 = nn.LayerNorm(hidden_dim, elementwise_affine=affine, eps=1e-6)
+        self.norm2 = nn.LayerNorm(hidden_dim, elementwise_affine=affine, eps=1e-6)
         self.qkv = nn.Linear(hidden_dim, 3 * hidden_dim, bias=False)
         self.proj = nn.Linear(hidden_dim, hidden_dim)
         self.proj_drop = nn.Dropout(dropout)
@@ -59,14 +74,16 @@ class _PredictorBlock(nn.Module):
             nn.Dropout(dropout),
         )
 
-        adaln_proj = nn.Linear(hidden_dim, 6 * hidden_dim, bias=True)
-        # AdaLN-Zero: the gates start at zero so the block is the identity at
-        # initialization.
-        nn.init.zeros_(adaln_proj.weight)
-        nn.init.zeros_(adaln_proj.bias)
-        self.adaln = nn.Sequential(nn.SiLU(), adaln_proj)
+        self.adaln: nn.Sequential | None = None
+        if conditional:
+            adaln_proj = nn.Linear(hidden_dim, 6 * hidden_dim, bias=True)
+            # AdaLN-Zero: the gates start at zero so the block is the identity at
+            # initialization.
+            nn.init.zeros_(adaln_proj.weight)
+            nn.init.zeros_(adaln_proj.bias)
+            self.adaln = nn.Sequential(nn.SiLU(), adaln_proj)
 
-    def _attention(self, x: Tensor, attn_mask: Tensor) -> Tensor:
+    def _attention(self, x: Tensor, attn_mask: Tensor | None) -> Tensor:
         batch_size, seq_len, hidden_dim = x.shape
         qkv = self.qkv(x).reshape(
             batch_size, seq_len, 3, self.num_heads, hidden_dim // self.num_heads
@@ -82,8 +99,20 @@ class _PredictorBlock(nn.Module):
         projected: Tensor = self.proj_drop(self.proj(out))
         return projected
 
-    def forward(self, x: Tensor, attn_mask: Tensor, cond: Tensor) -> Tensor:
-        params = self.adaln(cond).chunk(6, dim=-1)
+    def forward(
+        self,
+        x: Tensor,
+        attn_mask: Tensor | None = None,
+        cond: Tensor | None = None,
+    ) -> Tensor:
+        adaln = self.adaln
+        if adaln is None:
+            x = x + self._attention(self.norm1(x), attn_mask)
+            x = x + self.mlp(self.norm2(x))
+            return x
+        if cond is None:
+            raise ValueError("cond is required when the block is conditional.")
+        params = adaln(cond).chunk(6, dim=-1)
         shift_attn, scale_attn, gate_attn = params[0], params[1], params[2]
         shift_mlp, scale_mlp, gate_mlp = params[3], params[4], params[5]
         x = x + gate_attn * self._attention(
@@ -94,13 +123,21 @@ class _PredictorBlock(nn.Module):
 
 
 class LatentDynamicsPredictor(nn.Module):
-    """Predicts the next frame embedding from past embeddings and actions.
+    """Predicts the next frame embedding from past embeddings and optional actions.
 
-    The predictor is a causal transformer over a sequence of frame embeddings.
-    Frame ``t`` attends to the frames ``0`` to ``t``, and position information
-    is a learned embedding over frames. The action embedding of frame ``t``
-    produces the shift, scale and gate parameters of every transformer block
-    for that frame, which is the AdaLN-Zero conditioning that LeWM uses.
+    .. warning::
+
+        Experimental. The shapes and signatures here may change in a minor
+        release while the remaining world model methods are added.
+
+    The predictor is a transformer over a sequence of frame embeddings. With
+    ``causal=True`` frame ``t`` attends to the frames ``0`` to ``t``, and
+    position information is a learned embedding over frames. With
+    ``conditional=True`` (LeWM) the action embedding of frame ``t`` produces the
+    shift, scale and gate parameters of every transformer block for that frame,
+    which is the AdaLN-Zero conditioning that LeWM uses. With
+    ``conditional=False`` the predictor takes no actions and its blocks are plain
+    transformer blocks -- the actionless predictor.
 
     Reference:
         LeWorldModel, 2026, https://arxiv.org/abs/2603.19312
@@ -109,6 +146,8 @@ class LatentDynamicsPredictor(nn.Module):
         num_frames: Maximum number of frames in the context window.
         input_dim: Dimension of an input frame embedding.
         output_dim: Dimension of a predicted frame embedding.
+        conditional: Whether the predictor conditions on actions.
+        causal: Whether frame ``t`` attends only to frames ``0`` to ``t``.
 
     Examples:
         >>> predictor = LatentDynamicsPredictor(
@@ -118,6 +157,17 @@ class LatentDynamicsPredictor(nn.Module):
         >>> action_emb = torch.randn(8, 4, 192)
         >>> pred = predictor(emb, action_emb=action_emb)  # (8, 4, 192)
         >>> # pred[:, t] is the prediction of emb[:, t + 1]
+        >>>
+        >>> # An actionless predictor takes no action embeddings:
+        >>> predictor = LatentDynamicsPredictor(
+        ...     num_frames=4,
+        ...     input_dim=192,
+        ...     hidden_dim=384,
+        ...     depth=6,
+        ...     num_heads=6,
+        ...     conditional=False,
+        ... )
+        >>> pred = predictor(emb)  # (8, 4, 192)
     """
 
     def __init__(
@@ -131,6 +181,8 @@ class LatentDynamicsPredictor(nn.Module):
         output_dim: int | None = None,
         mlp_ratio: float = 4.0,
         dropout: float = 0.0,
+        conditional: bool = True,
+        causal: bool = True,
     ) -> None:
         """Initialize the latent dynamics predictor.
 
@@ -147,6 +199,14 @@ class LatentDynamicsPredictor(nn.Module):
             output_dim: Dimension of the output. Defaults to ``input_dim``.
             mlp_ratio: Width of the block MLP relative to ``hidden_dim``.
             dropout: Dropout probability inside the transformer.
+            conditional:
+                If True (default), the predictor conditions each block on an
+                action embedding via AdaLN-Zero, and ``forward`` requires
+                ``action_emb``. If False, the predictor takes no actions and its
+                blocks are plain transformer blocks.
+            causal:
+                If True (default), frame ``t`` attends only to frames ``0`` to
+                ``t``. Set False for a bidirectional predictor.
         """
         super().__init__()
         if not _FUSED_ATTENTION_AVAILABLE:
@@ -166,21 +226,24 @@ class LatentDynamicsPredictor(nn.Module):
         self.num_frames = num_frames
         self.input_dim = input_dim
         self.output_dim = output_dim if output_dim is not None else input_dim
+        self.conditional = conditional
+        self.causal = causal
 
         self.input_proj = nn.Linear(input_dim, hidden_dim)
         self.output_proj = nn.Linear(hidden_dim, self.output_dim)
-        self.action_proj = nn.Linear(input_dim, hidden_dim)
+        self.action_proj = nn.Linear(input_dim, hidden_dim) if conditional else None
 
         self.frame_pos_embed = nn.Parameter(torch.zeros(1, num_frames, hidden_dim))
         nn.init.trunc_normal_(self.frame_pos_embed, std=0.02)
 
         self.blocks = nn.ModuleList(
             [
-                _PredictorBlock(
+                PredictorBlock(
                     hidden_dim=hidden_dim,
                     num_heads=num_heads,
                     mlp_ratio=mlp_ratio,
                     dropout=dropout,
+                    conditional=conditional,
                 )
                 for _ in range(depth)
             ]
@@ -192,13 +255,14 @@ class LatentDynamicsPredictor(nn.Module):
         frame_idx = torch.arange(num_frames, device=device)
         return frame_idx[:, None] >= frame_idx[None, :]
 
-    def forward(self, embeddings: Tensor, action_emb: Tensor) -> Tensor:
+    def forward(self, embeddings: Tensor, action_emb: Tensor | None = None) -> Tensor:
         """Predict the next frame embedding for every frame in the context.
 
         Args:
             embeddings: Frame embeddings of shape ``(B, T, input_dim)``.
             action_emb:
-                Action embeddings of shape ``(B, T, input_dim)``.
+                Action embeddings of shape ``(B, T, input_dim)``, required when
+                the predictor is conditional and ``None`` otherwise.
 
                 ``action_emb[:, t]`` is the action taken **at** frame ``t``,
                 which leads to frame ``t + 1``. A shape check cannot catch a
@@ -223,16 +287,30 @@ class LatentDynamicsPredictor(nn.Module):
                 f"embeddings have {num_frames} frames, but the predictor "
                 f"context window is {self.num_frames}."
             )
-        if action_emb.shape[:2] != (batch_size, num_frames):
-            raise ValueError(
-                "action_emb must have shape (B, T, D) matching embeddings, "
-                f"got {tuple(action_emb.shape)} and {tuple(embeddings.shape)}."
-            )
+
+        if self.conditional:
+            if action_emb is None:
+                raise ValueError(
+                    "action_emb is required for a conditional predictor "
+                    "(conditional=True)."
+                )
+            if action_emb.shape[:2] != (batch_size, num_frames):
+                raise ValueError(
+                    "action_emb must have shape (B, T, D) matching embeddings, "
+                    f"got {tuple(action_emb.shape)} and {tuple(embeddings.shape)}."
+                )
+            assert self.action_proj is not None
+            cond = self.action_proj(action_emb)
+        else:
+            if action_emb is not None:
+                raise ValueError(
+                    "action_emb must be None for an unconditional predictor "
+                    "(conditional=False)."
+                )
+            cond = None
 
         x = self.input_proj(embeddings) + self.frame_pos_embed[:, :num_frames]
-        cond = self.action_proj(action_emb)
-
-        attn_mask = self._causal_mask(num_frames, x.device)
+        attn_mask = self._causal_mask(num_frames, x.device) if self.causal else None
         for block in self.blocks:
             x = block(x, attn_mask=attn_mask, cond=cond)
         out: Tensor = self.output_proj(self.norm(x))
@@ -241,7 +319,7 @@ class LatentDynamicsPredictor(nn.Module):
     def rollout(
         self,
         embeddings: Tensor,
-        action_emb: Tensor,
+        action_emb: Tensor | None = None,
         steps: int = 1,
     ) -> Tensor:
         """Roll the dynamics forward in latent space.
@@ -255,7 +333,8 @@ class LatentDynamicsPredictor(nn.Module):
         Args:
             embeddings: Context embeddings of shape ``(B, T_ctx, input_dim)``.
             action_emb:
-                Action embeddings of shape ``(B, T_ctx + steps - 1, input_dim)``.
+                Action embeddings of shape ``(B, T_ctx + steps - 1, input_dim)``,
+                required when the predictor is conditional and ``None`` otherwise.
             steps: Number of frames to predict beyond the context.
 
         Returns:
@@ -264,10 +343,21 @@ class LatentDynamicsPredictor(nn.Module):
         if steps < 1:
             raise ValueError("steps must be a positive integer.")
         num_context = embeddings.size(1)
-        if action_emb.size(1) < num_context + steps - 1:
+        if self.conditional:
+            if action_emb is None:
+                raise ValueError(
+                    "action_emb is required for a conditional predictor "
+                    "(conditional=True)."
+                )
+            if action_emb.size(1) < num_context + steps - 1:
+                raise ValueError(
+                    f"action_emb must cover {num_context + steps - 1} frames, got "
+                    f"{action_emb.size(1)}."
+                )
+        elif action_emb is not None:
             raise ValueError(
-                f"action_emb must cover {num_context + steps - 1} frames, got "
-                f"{action_emb.size(1)}."
+                "action_emb must be None for an unconditional predictor "
+                "(conditional=False)."
             )
 
         frames = list(embeddings.unbind(dim=1))
@@ -276,7 +366,8 @@ class LatentDynamicsPredictor(nn.Module):
             end = num_context + step
             start = max(0, end - self.num_frames)
             context = torch.stack(frames[start:end], dim=1)
-            next_frame = self(context, action_emb=action_emb[:, start:end])[:, -1]
+            step_actions = action_emb[:, start:end] if action_emb is not None else None
+            next_frame = self(context, action_emb=step_actions)[:, -1]
             predictions.append(next_frame)
             frames.append(next_frame)
         return torch.stack(predictions, dim=1)

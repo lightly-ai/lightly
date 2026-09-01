@@ -4,7 +4,18 @@ import pytest
 import torch
 
 from lightly.models.modules.world_model import predictor as predictor_module
-from lightly.models.modules.world_model.predictor import LatentDynamicsPredictor
+from lightly.models.modules.world_model.predictor import (
+    LatentDynamicsPredictor,
+    PredictorBlock,
+)
+
+# The predictor requires torch>=2.0 (scaled_dot_product_attention); the package
+# still supports torch>=1.10, so skip these tests where the fused kernel is
+# absent rather than failing. TestFusedAttentionRequired covers the guard.
+_needs_fused_attention = pytest.mark.skipif(
+    not predictor_module._FUSED_ATTENTION_AVAILABLE,
+    reason="requires torch>=2.0 for scaled_dot_product_attention",
+)
 
 
 def _predictor(**kwargs: object) -> LatentDynamicsPredictor:
@@ -19,6 +30,7 @@ def _predictor(**kwargs: object) -> LatentDynamicsPredictor:
     return LatentDynamicsPredictor(**defaults)  # type: ignore[arg-type]
 
 
+@_needs_fused_attention
 class TestLatentDynamicsPredictor:
     def test_forward(self) -> None:
         predictor = _predictor()
@@ -100,6 +112,61 @@ class TestLatentDynamicsPredictor:
         with pytest.raises(ValueError, match="action_emb must have shape"):
             predictor(torch.randn(3, 4, 16), action_emb=torch.randn(3, 2, 16))
 
+    def test_forward__unconditional(self) -> None:
+        predictor = _predictor(conditional=False)
+        out = predictor(torch.randn(3, 4, 16))
+        assert out.shape == (3, 4, 16)
+
+    def test_forward__unconditional_has_no_action_parameters(self) -> None:
+        predictor = _predictor(conditional=False)
+        assert predictor.action_proj is None
+        names = [name for name, _ in predictor.named_parameters()]
+        assert not any("action_proj" in name or "adaln" in name for name in names)
+
+    def test_forward__conditional_requires_action(self) -> None:
+        predictor = _predictor()
+        with pytest.raises(ValueError, match="action_emb is required"):
+            predictor(torch.randn(3, 4, 16))
+
+    def test_forward__unconditional_rejects_action(self) -> None:
+        predictor = _predictor(conditional=False)
+        with pytest.raises(ValueError, match="must be None"):
+            predictor(torch.randn(3, 4, 16), action_emb=torch.randn(3, 4, 16))
+
+    def test_forward__unconditional_is_causal(self) -> None:
+        """The causal mask holds for the unconditional block, whose attention is
+        active from initialization (no AdaLN gate to zero it out).
+        """
+        torch.manual_seed(0)
+        predictor = _predictor(conditional=False).eval()
+        emb = torch.randn(2, 4, 16)
+        with torch.no_grad():
+            out = predictor(emb)
+            perturbed = emb.clone()
+            perturbed[:, 2] += 10.0
+            out_perturbed = predictor(perturbed)
+        assert torch.allclose(out[:, :2], out_perturbed[:, :2], atol=1e-5)
+        assert not torch.allclose(out[:, 2], out_perturbed[:, 2], atol=1e-5)
+
+    def test_forward__non_causal(self) -> None:
+        """Without the causal mask, a later frame reaches the earlier outputs."""
+        torch.manual_seed(0)
+        predictor = _predictor(conditional=False, causal=False).eval()
+        emb = torch.randn(2, 4, 16)
+        with torch.no_grad():
+            out = predictor(emb)
+            perturbed = emb.clone()
+            perturbed[:, 2] += 10.0
+            out_perturbed = predictor(perturbed)
+        assert not torch.allclose(out[:, 0], out_perturbed[:, 0], atol=1e-5)
+
+    def test_backward_pass__unconditional(self) -> None:
+        predictor = _predictor(conditional=False)
+        emb = torch.randn(3, 4, 16, requires_grad=True)
+        predictor(emb).sum().backward()
+        assert emb.grad is not None
+        assert emb.grad.shape == emb.shape
+
     @pytest.mark.parametrize(
         "kwargs, match",
         [
@@ -119,6 +186,7 @@ class TestLatentDynamicsPredictor:
         assert emb.grad.shape == emb.shape
 
 
+@_needs_fused_attention
 class TestRollout:
     def test_rollout(self) -> None:
         predictor = _predictor()
@@ -169,6 +237,43 @@ class TestRollout:
         assert emb.grad is not None
         assert not torch.allclose(emb.grad, torch.zeros_like(emb.grad))
 
+    def test_rollout__unconditional(self) -> None:
+        predictor = _predictor(conditional=False)
+        rolled = predictor.rollout(torch.randn(3, 2, 16), steps=4)
+        assert rolled.shape == (3, 4, 16)
+
+    def test_rollout__conditional_requires_action(self) -> None:
+        predictor = _predictor()
+        with pytest.raises(ValueError, match="action_emb is required"):
+            predictor.rollout(torch.randn(3, 2, 16), steps=4)
+
+    def test_rollout__unconditional_rejects_action(self) -> None:
+        predictor = _predictor(conditional=False)
+        with pytest.raises(ValueError, match="must be None"):
+            predictor.rollout(
+                torch.randn(3, 2, 16), action_emb=torch.randn(3, 6, 16), steps=4
+            )
+
+
+@_needs_fused_attention
+class TestPredictorBlock:
+    def test_conditional_block_requires_cond(self) -> None:
+        block = PredictorBlock(hidden_dim=32, num_heads=4, mlp_ratio=4.0, dropout=0.0)
+        with pytest.raises(ValueError, match="cond is required"):
+            block(torch.randn(2, 4, 32))
+
+    def test_unconditional_block_runs_without_cond(self) -> None:
+        block = PredictorBlock(
+            hidden_dim=32, num_heads=4, mlp_ratio=4.0, dropout=0.0, conditional=False
+        )
+        out = block(torch.randn(2, 4, 32))
+        assert out.shape == (2, 4, 32)
+
+    def test_importable_from_modules(self) -> None:
+        from lightly.models.modules import PredictorBlock as ExportedPredictorBlock
+
+        assert ExportedPredictorBlock is PredictorBlock
+
 
 class TestFusedAttentionRequired:
     """The package declares torch>=1.10, and the fused kernel arrives in 2.0."""
@@ -202,6 +307,7 @@ def _trained_predictor() -> LatentDynamicsPredictor:
     return predictor.eval()
 
 
+@_needs_fused_attention
 @pytest.mark.slow
 def test_predictor__overfits_linear_dynamics() -> None:
     """The predictor must actually learn action-conditioned dynamics.

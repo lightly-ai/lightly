@@ -34,3 +34,6 @@ lightly.models
 
 .. autoclass:: lightly.models.modules.world_model.predictor.LatentDynamicsPredictor
    :members:
+
+.. autoclass:: lightly.models.modules.world_model.predictor.PredictorBlock
+   :members:

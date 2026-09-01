@@ -35,6 +35,7 @@ from lightly.models.modules.nn_memory_bank import NNMemoryBankModule
 from lightly.models.modules.world_model import (
     ActionEncoder,
     LatentDynamicsPredictor,
+    PredictorBlock,
 )
 from lightly.utils import dependency as _dependency
 
