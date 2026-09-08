@@ -1,4 +1,5 @@
 import inspect
+from functools import partial
 from typing import Optional
 
 import torch
@@ -202,9 +203,8 @@ class MaskedCausalVisionTransformer(VisionTransformer):  # type: ignore[misc]
         x = self.patch_drop(x)
         x = self.norm_pre(x)
         if self.grad_checkpointing and not jit.is_scripting():
-            # TODO: This probably doesn't work correctly as it doesn't consider the
-            # mask.
-            x = _manipulate.checkpoint_seq(self.blocks, x)
+            blocks = [partial(block, mask=mask) for block in self.blocks]
+            x = _manipulate.checkpoint_seq(blocks, x)
         else:
             for block in self.blocks:
                 x = block(x, mask=mask)
