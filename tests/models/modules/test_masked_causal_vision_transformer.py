@@ -96,3 +96,29 @@ class TestMaskedCausalVisionTransformer:
         assert features.shape == (2, sequence_length, 24)
         # The mask switches the patch tokens to causal attention and changes the output.
         assert not torch.allclose(features, features_no_mask)
+
+    @skip_without_fused_attention
+    def test_forward__with_mask__grad_checkpointing(self) -> None:
+        torch.manual_seed(0)
+        model = MaskedCausalVisionTransformer(
+            img_size=32, patch_size=16, embed_dim=24, depth=2, num_heads=3
+        )
+        model.eval()
+        images = torch.rand(2, 3, 32, 32, requires_grad=True)
+        sequence_length = (32 // 16) ** 2 + model.num_prefix_tokens
+        mask = torch.zeros(2, sequence_length, dtype=torch.bool)
+        mask[:, model.num_prefix_tokens :] = True
+
+        expected = model.forward_features(images, mask=mask)
+        expected.sum().backward()
+        assert images.grad is not None
+        expected_input_grad = images.grad.detach().clone()
+
+        model.zero_grad(set_to_none=True)
+        images.grad.zero_()
+        model.set_grad_checkpointing()
+        features = model.forward_features(images, mask=mask)
+        features.sum().backward()
+
+        torch.testing.assert_close(features, expected)
+        torch.testing.assert_close(images.grad, expected_input_grad)
