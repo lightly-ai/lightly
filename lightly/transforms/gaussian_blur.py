@@ -49,9 +49,10 @@ class GaussianBlur:
         prob = np.random.random_sample()
 
         # Convert to PIL image if it's a tensor, otherwise use as is
+        sample_pil: Image
         if isinstance(sample, Tensor):
             is_input_tensor = True
-            sample_pil = cast(Image, F.to_pil_image(sample))
+            sample_pil = F.to_pil_image(sample)
         else:
             is_input_tensor = False
             sample_pil = sample
