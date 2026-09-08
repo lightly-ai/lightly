@@ -27,6 +27,7 @@ class AIM(pl.LightningModule):
             qk_norm=False,
             class_token=False,
             no_embed_class=True,
+            global_pool="avg",
         )
         utils.initialize_2d_sine_cosine_positional_embedding(
             pos_embedding=vit.pos_embed, has_class_token=vit.has_class_token

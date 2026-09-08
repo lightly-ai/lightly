@@ -1,3 +1,4 @@
+import inspect
 from typing import Optional
 
 import torch
@@ -120,9 +121,16 @@ class MaskedCausalBlock(Block):  # type: ignore[misc]
             *args,
             **kwargs,
         )
+        # Keep only the kwargs that timm's Attention accepts. Block-level kwargs
+        # such as mlp_ratio do not apply to the attention layer.
+        attention_kwargs = {
+            key: value
+            for key, value in kwargs.items()
+            if key in inspect.signature(Attention.__init__).parameters
+        }
         self.attn = MaskedCausalAttention(
             *args,
-            **kwargs,
+            **attention_kwargs,
         )
 
     def forward(

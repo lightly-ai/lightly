@@ -6,13 +6,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-try:
-    import torch.linalg.solve_triangular
-except ImportError:
-    # Only available in PyTorch >=1.11.
-    _SOLVE_TRIANGULAR_AVAILABLE = False
-else:
-    _SOLVE_TRIANGULAR_AVAILABLE = True
+# torch.linalg.solve_triangular is only available in PyTorch >=1.11.
+_SOLVE_TRIANGULAR_AVAILABLE = hasattr(torch.linalg, "solve_triangular")
 
 
 def norm_mse_loss(x0: torch.Tensor, x1: torch.Tensor) -> torch.Tensor:

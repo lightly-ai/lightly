@@ -3,9 +3,8 @@ import torch
 
 from lightly.loss.wmse_loss import WMSELoss
 
-try:
-    import torch.linalg.solve_triangular
-except ImportError:
+if not hasattr(torch.linalg, "solve_triangular"):
+    # torch.linalg.solve_triangular is only available in PyTorch >=1.11.
     pytest.skip("torch.linalg.solve_triangular not available", allow_module_level=True)
 
 

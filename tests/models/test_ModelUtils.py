@@ -1125,27 +1125,60 @@ def test_random_inverse_block_mask__not_square_raises() -> None:
         )
 
 
-def test_random_grid_token_mask__mask_ratio_extremes() -> None:
+@pytest.mark.parametrize(
+    "mask_ratio, expected_keep_shape, expected_mask_shape",
+    [
+        (0.0, (2, 17), (2, 0)),
+        (0.05, (2, 17), (2, 0)),  # rounds to 0 masked patches (int(16 * 0.05) == 0)
+        (1.0, (2, 1), (2, 16)),
+    ],
+)
+def test_random_inverse_block_mask__mask_ratio_extremes(
+    mask_ratio: float,
+    expected_keep_shape: tuple[int, int],
+    expected_mask_shape: tuple[int, int],
+) -> None:
+    num_prefix_tokens = 1
+    sequence_length = num_prefix_tokens + 16  # 4x4 patch grid
+    idx_keep, idx_mask = utils.random_inverse_block_mask(
+        size=(2, sequence_length),
+        mask_ratio=mask_ratio,
+        num_prefix_tokens=num_prefix_tokens,
+    )
+    assert idx_keep.shape == expected_keep_shape
+    assert idx_mask.shape == expected_mask_shape
+    if mask_ratio == 0.0 or mask_ratio == 0.05:
+        assert torch.equal(
+            idx_keep, torch.arange(sequence_length).expand(2, sequence_length)
+        )
+    elif mask_ratio == 1.0:
+        assert torch.equal(
+            idx_keep, torch.arange(num_prefix_tokens).expand(2, num_prefix_tokens)
+        )
+
+
+@pytest.mark.parametrize(
+    "mask_ratio, expected_keep_shape, expected_mask_shape",
+    [
+        (0.0, (2, 17), (2, 0)),
+        (1.0, (2, 1), (2, 16)),
+    ],
+)
+def test_random_grid_token_mask__mask_ratio_extremes(
+    mask_ratio: float,
+    expected_keep_shape: tuple[int, int],
+    expected_mask_shape: tuple[int, int],
+) -> None:
     num_prefix_tokens = 1
     sequence_length = num_prefix_tokens + 16  # 4 cells of 4 patches (grid=2)
-    # mask_ratio=0.0 keeps all patches and masks none.
     idx_keep, idx_mask = utils.random_grid_token_mask(
         size=(2, sequence_length),
-        mask_ratio=0.0,
+        mask_ratio=mask_ratio,
         grid_size=2,
         num_prefix_tokens=num_prefix_tokens,
     )
-    assert idx_keep.shape == (2, sequence_length)
-    assert idx_mask.shape == (2, 0)
-    # mask_ratio=1.0 keeps only the prefix tokens and masks all patches.
-    idx_keep, idx_mask = utils.random_grid_token_mask(
-        size=(2, sequence_length),
-        mask_ratio=1.0,
-        grid_size=2,
-        num_prefix_tokens=num_prefix_tokens,
-    )
-    assert idx_keep.shape == (2, num_prefix_tokens)
-    assert idx_mask.shape == (2, 16)
+    assert idx_keep.shape == expected_keep_shape
+    assert idx_mask.shape == expected_mask_shape
 
 
 def test_random_grid_token_mask__grid_size_4() -> None:
