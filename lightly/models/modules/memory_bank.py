@@ -24,7 +24,8 @@ class MemoryBankModule(Module):
         size:
             Size of the memory bank as (num_features, dim) tuple. If num_features is 0
             then the memory bank is disabled. Pass 0 to disable the memory bank; any
-            other bare integer is rejected because the feature dimension is required.
+            other bare integer is rejected because the feature dimension is required
+            and cannot be guessed.
         gather_distributed:
             If True then negatives from all gpus are gathered before the memory bank
             is updated. This results in more frequent updates of the memory bank and
@@ -53,7 +54,7 @@ class MemoryBankModule(Module):
 
     def __init__(
         self,
-        size: Union[int, Sequence[int]] = (65536, 128),
+        size: Union[int, Sequence[int]],
         gather_distributed: bool = False,
         feature_dim_first: bool = True,
     ):

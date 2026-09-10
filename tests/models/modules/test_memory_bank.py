@@ -91,6 +91,10 @@ class TestMemoryBank:
         ):
             MemoryBankModule(size=10)
 
+    def test_init__size_required(self) -> None:
+        with pytest.raises(TypeError):
+            MemoryBankModule()  # type: ignore[call-arg]
+
     def test_init__disabled(self) -> None:
         memory_bank = MemoryBankModule(size=0)
         x = torch.randn(3, 2)
