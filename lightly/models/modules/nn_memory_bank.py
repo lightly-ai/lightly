@@ -26,13 +26,12 @@ class NNMemoryBankModule(MemoryBankModule):
             then the memory bank is disabled.
 
     Examples:
-        >>> model = NNCLR(backbone)
         >>> criterion = NTXentLoss(temperature=0.1)
         >>>
-        >>> nn_replacer = NNmemoryBankModule(size=(2**16, 128))
+        >>> nn_replacer = NNMemoryBankModule(size=(2**16, 128))
         >>>
         >>> # forward pass
-        >>> (z0, p0), (z1, p1) = model(x0, x1)
+        >>> (z0, p0), (z1, p1) = model(x0), model(x1)
         >>> z0 = nn_replacer(z0.detach(), update=False)
         >>> z1 = nn_replacer(z1.detach(), update=True)
         >>>
@@ -40,7 +39,7 @@ class NNMemoryBankModule(MemoryBankModule):
 
     """
 
-    def __init__(self, size: Union[int, Sequence[int]] = (2**16, 128)):
+    def __init__(self, size: Union[int, Sequence[int]]):
         super(NNMemoryBankModule, self).__init__(size)
 
     def forward(  # type: ignore[override] # TODO(Philipp, 11/23): Fix signature to match parent class.
