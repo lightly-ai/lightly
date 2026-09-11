@@ -6,6 +6,7 @@ This module provides image loading functionality similar to torchvision's implem
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
+from typing import cast
 
 from PIL import Image
 
@@ -40,7 +41,7 @@ def accimage_loader(path: str) -> Image.Image:
     try:
         import accimage
 
-        return accimage.Image(path)
+        return cast(Image.Image, accimage.Image(path))
     except IOError:
         # Potentially a decoding problem, fall back to PIL.Image
         return pil_loader(path)
