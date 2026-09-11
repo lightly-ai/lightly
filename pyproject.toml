@@ -271,7 +271,6 @@ exclude = '''(?x)(
     lightly/cli/_helpers.py |
     lightly/data/dataset.py |
     lightly/data/collate.py |
-    lightly/data/_image_loaders.py |
     lightly/data/_video.py |
     lightly/core.py |
     lightly/utils/cropping/crop_image_by_bounding_boxes.py |
