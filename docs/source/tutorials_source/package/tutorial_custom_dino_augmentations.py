@@ -17,7 +17,7 @@ each image policy into AlbumentationsX. You will learn how to:
 - change crop ratio, scale, or photometric operations in one policy;
 - pass the policies to Lightly's
   :class:`~lightly.transforms.multi_view_transform.MultiViewTransform`;
-- serialize the policies with the experiment configuration.
+- serialize the policies and reproduce a diagnostic view with its sampled parameters.
 
 Prerequisites
 -------------
@@ -27,7 +27,7 @@ for your CPU, CUDA, or MPS environment, then install Lightly and AlbumentationsX
 
 .. code-block:: console
 
-    python -m pip install lightly
+    python -m pip install "lightly[matplotlib]"
     python -m pip install "albumentationsx[headless]>=2.4.3"
 
 AlbumentationsX is distributed under the AGPL-3.0-only license and remains separate
@@ -42,6 +42,7 @@ needs them.
 from __future__ import annotations
 
 import json
+import pprint
 
 import albumentations as A
 import cv2
@@ -114,6 +115,7 @@ def make_dino_view(
     )
 
 
+# %%
 # ``ratio`` is explicit, so changing the experiment no longer requires copying
 # Lightly's complete ``DINOTransform``. The values below deliberately widen the
 # default 3:4-to-4:3 range to demonstrate the customization point.
@@ -156,9 +158,9 @@ class AlbumentationsView:
         self.pipeline = pipeline
 
     def __call__(self, image: Image.Image) -> torch.Tensor:
+        """Converts a PIL image to RGB and returns one normalized CHW tensor."""
         image_array = np.asarray(image.convert("RGB"))
-        transformed = self.pipeline(image=image_array)
-        return transformed["image"]
+        return self.pipeline(image=image_array)["image"]
 
 
 n_local_views = 6
@@ -264,18 +266,48 @@ restored_global_view_1 = A.from_dict(json.loads(serialized_json)["global_view_1"
 assert A.to_dict(restored_global_view_1) == serialized_policies["global_view_1"]
 print(f"Serialized policies: {', '.join(serialized_policies)}")
 
+# %%
 # Persist ``serialized_json`` with the rest of your experiment configuration. Restore
 # any policy with ``A.from_dict`` before constructing ``AlbumentationsView``.
 
 # %%
-# Keep Lightly's training workflow
-# --------------------------------
+# Inspect and reproduce a diagnostic view
+# ---------------------------------------
 #
-# Lightly still owns the multi-view ordering, dataset boundary, DINO model, loss, and
-# training loop. AlbumentationsX owns only the three image policies. This separation is
-# useful when an experiment needs a crop ratio or operation that ``DINOTransform`` does
-# not expose. The policies above preserve DINO's view sizes, scale ranges, and
-# role-specific photometric probabilities while intentionally changing crop ratio.
+# ``run_with_trace`` returns the output in ``data`` and the visited transforms in
+# ``records``. Give each diagnostic view an explicit ``invocation_seed`` to reproduce
+# its crop and photometric choices. Here we sample one view per role and inspect the
+# second global view, including skipped transforms and sampled parameters.
+
+diagnostic_seeds = {"global_view_0": 137, "global_view_1": 138, "local_view": 139}
+diagnostic_traces = {
+    name: pipeline.run_with_trace(
+        image=image_array, invocation_seed=diagnostic_seeds[name]
+    )
+    for name, pipeline in view_pipelines.items()
+}
+selected_trace = diagnostic_traces["global_view_1"]
+for record in selected_trace.records:
+    if record.node_kind == "leaf":
+        print(f"{record.class_fullname}: {record.status}")
+        if record.params is not None:
+            pprint.pprint(dict(record.params))
+
+# %%
+# Reuse the saved policy and seed with the same image to reproduce the tensor.
+repeated_trace = restored_global_view_1.run_with_trace(
+    image=image_array, invocation_seed=diagnostic_seeds["global_view_1"]
+)
+torch.testing.assert_close(
+    repeated_trace.data["image"], selected_trace.data["image"], rtol=0, atol=0
+)
+print("The restored policy and seed reproduce the diagnostic view exactly.")
+
+# %%
+# Save the input image, policy JSON, per-view seeds, and library versions with your
+# diagnostic results. The unseeded ``transform(image)`` call used for training keeps
+# sampling new views; these fixed seeds are only for reproducing diagnostics.
+#
 # OpenCV and torchvision can still produce different pixels for nominally equivalent
 # operations. Treat a policy change as an experiment and evaluate the learned
 # representation on the intended downstream task.
