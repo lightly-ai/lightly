@@ -71,6 +71,11 @@ class MemoryBankModule(Module):
                 f"dimension. Set it with 'size=({size}, dim)', or pass 'size=0' to "
                 "disable the memory bank."
             )
+        if size_tuple != (0,) and len(size_tuple) != 2:
+            raise ValueError(
+                f"Illegal memory bank size {size}, expected a (num_features, dim) "
+                "tuple, or 'size=0' to disable the memory bank."
+            )
 
         self.size = size_tuple
         self.gather_distributed = gather_distributed

@@ -1,4 +1,5 @@
 import re
+from typing import Tuple
 
 import pytest
 import torch
@@ -90,6 +91,17 @@ class TestMemoryBank:
             ),
         ):
             MemoryBankModule(size=10)
+
+    @pytest.mark.parametrize("size", [(), (10,), (10, 2, 3)])
+    def test_init__invalid_shape(self, size: Tuple[int, ...]) -> None:
+        with pytest.raises(
+            ValueError,
+            match=re.escape(
+                f"Illegal memory bank size {size}, expected a (num_features, dim) "
+                "tuple, or 'size=0' to disable the memory bank."
+            ),
+        ):
+            MemoryBankModule(size=size)
 
     def test_init__size_required(self) -> None:
         with pytest.raises(TypeError):
