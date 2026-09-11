@@ -1,7 +1,7 @@
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
-from typing import Optional, Tuple, Union
+from typing import Optional, Tuple, Union, cast
 from warnings import warn
 
 import numpy as np
@@ -64,8 +64,12 @@ class GaussianBlur:
         prob = np.random.random_sample()
 
         # Convert to PIL image if it's a tensor, otherwise use as is
-        is_input_tensor = isinstance(sample, Tensor)
-        sample_pil: Image = F.to_pil_image(sample) if is_input_tensor else sample
+        if isinstance(sample, Tensor):
+            is_input_tensor = True
+            sample_pil = cast(Image, F.to_pil_image(sample))
+        else:
+            is_input_tensor = False
+            sample_pil = sample
 
         if prob < self.prob:
             # choose randomized std for Gaussian filtering
