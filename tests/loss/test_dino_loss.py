@@ -1,5 +1,6 @@
 import copy
 import typing
+import warnings
 from typing import List
 
 import numpy as np
@@ -9,7 +10,7 @@ import torch.nn.functional as F
 from torch import Tensor, nn
 
 from lightly.loss import DINOLoss
-from lightly.models.modules.center import Center
+from lightly.models.modules.center import MAX_ACCUMULATED, Center
 from lightly.models.utils import deactivate_requires_grad
 
 
@@ -153,6 +154,123 @@ def test_center__equivalence() -> None:
     criterion.update_center(teacher_out=x)
     center.update(x=x)
     assert torch.allclose(criterion.center, center.value)
+
+
+def test_center__equivalence_accumulate() -> None:
+    """Check that deferred center updates are equivalent to Center's.
+
+    TODO(Guarin, 08/24): Remove this test once DINOLoss uses Center internally.
+    """
+    criterion = DINOLoss(output_dim=32, center_momentum=0.9)
+    center = Center(size=(1, 1, 32), momentum=0.9)
+    for _ in range(3):
+        x = torch.rand(2, 32)
+        criterion._accumulate_center(x)
+        center.accumulate(x)
+    criterion.update_center()
+    center.apply_update()
+    assert torch.allclose(criterion.center, center.value)
+
+
+class TestDINOLossCenterUpdate:
+    @pytest.mark.parametrize("num_micro_batches", [1, 2, 4])
+    def test_gradient_accumulation__equivalent_to_single_batch(
+        self, num_micro_batches: int
+    ) -> None:
+        """Deferring the update matches a single forward over the full batch."""
+        batch_size, output_dim = 8, 4
+        criterion = DINOLoss(output_dim=output_dim, center_momentum=0.9)
+        single = DINOLoss(output_dim=output_dim, center_momentum=0.9)
+
+        torch.manual_seed(0)
+        micro_batches = [
+            [torch.rand(batch_size, output_dim) for _ in range(2)]
+            for _ in range(num_micro_batches)
+        ]
+
+        for micro_batch in micro_batches:
+            criterion(micro_batch, micro_batch, update_center=False)
+        criterion.update_center()
+
+        full_batch = [
+            torch.cat([micro_batch[view] for micro_batch in micro_batches], dim=0)
+            for view in range(2)
+        ]
+        single(full_batch, full_batch)
+
+        assert torch.allclose(criterion.center, single.center)
+
+    @pytest.mark.parametrize("batch_sizes", [[2, 6], [1, 8, 3]])
+    def test_gradient_accumulation__unequal_batch_sizes(
+        self, batch_sizes: List[int]
+    ) -> None:
+        """Micro-batches of different sizes must be weighted by their size."""
+        output_dim = 4
+        criterion = DINOLoss(output_dim=output_dim, center_momentum=0.9)
+        single = DINOLoss(output_dim=output_dim, center_momentum=0.9)
+
+        torch.manual_seed(0)
+        micro_batches = [
+            [torch.rand(batch_size, output_dim) for _ in range(2)]
+            for batch_size in batch_sizes
+        ]
+
+        for micro_batch in micro_batches:
+            criterion(micro_batch, micro_batch, update_center=False)
+        criterion.update_center()
+
+        full_batch = [
+            torch.cat([micro_batch[view] for micro_batch in micro_batches], dim=0)
+            for view in range(2)
+        ]
+        single(full_batch, full_batch)
+
+        assert torch.allclose(criterion.center, single.center)
+
+    def test_update_center_false__does_not_update_center(self) -> None:
+        criterion = DINOLoss(output_dim=4)
+        out = [torch.rand(2, 4) for _ in range(2)]
+        criterion(out, out, update_center=False)
+        assert torch.all(criterion.center == 0)
+
+    def test_update_center__accepts_list(self) -> None:
+        """update_center accepts the same list of views that forward takes."""
+        out = [torch.rand(2, 4) for _ in range(2)]
+        from_list = DINOLoss(output_dim=4)
+        from_list.update_center(out)
+        from_tensor = DINOLoss(output_dim=4)
+        from_tensor.update_center(torch.stack(out))
+        assert torch.allclose(from_list.center, from_tensor.center)
+
+    def test_eval__does_not_update_center(self) -> None:
+        criterion = DINOLoss(output_dim=4)
+        criterion.eval()
+        out = [torch.rand(2, 4) for _ in range(2)]
+        criterion(out, out)
+        assert torch.all(criterion.center == 0)
+
+    def test_eval__manual_update_center_still_works(self) -> None:
+        """The manual escape hatch must not be gated by the training mode."""
+        criterion = DINOLoss(output_dim=4)
+        criterion.eval()
+        criterion.update_center(torch.rand(2, 2, 4))
+        assert torch.any(criterion.center != 0)
+
+    def test_state_dict__accumulator_not_persisted(self) -> None:
+        """The accumulator must stay out of the state dict for checkpoint compat."""
+        criterion = DINOLoss(output_dim=4)
+        assert set(criterion.state_dict().keys()) == {"center"}
+
+    def test_missing_update_warns(self) -> None:
+        criterion = DINOLoss(output_dim=2)
+        out = [torch.rand(2, 2) for _ in range(2)]
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            for _ in range(MAX_ACCUMULATED + 2):
+                criterion(out, out, update_center=False)
+        messages = [str(w.message) for w in caught if w.category is UserWarning]
+        assert len(messages) == 1
+        assert "update_center()" in messages[0]
 
 
 def _generate_output(
