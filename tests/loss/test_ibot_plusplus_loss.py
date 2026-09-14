@@ -196,3 +196,45 @@ class TestIBOTPlusPlusPatchLoss:
         loss = criterion(teacher_out=teacher_out, student_out=student_out)
         assert loss.isfinite()
         assert loss.device.type == "cuda"
+
+
+class TestIBOTPlusPlusPatchLossCenterUpdate:
+    @pytest.mark.parametrize("num_micro_batches", [1, 2, 4])
+    def test_gradient_accumulation__equivalent_to_single_batch(
+        self, num_micro_batches: int
+    ) -> None:
+        """Deferring the update matches a single forward over the full batch."""
+        torch.manual_seed(0)
+        output_dim = 4
+        criterion = IBOTPlusPlusPatchLoss(output_dim=output_dim, center_momentum=0.9)
+        single = IBOTPlusPlusPatchLoss(output_dim=output_dim, center_momentum=0.9)
+
+        micro_batches = [
+            (torch.rand(2, 6, output_dim), torch.rand(2, 6, output_dim))
+            for _ in range(num_micro_batches)
+        ]
+
+        for teacher_out, student_out in micro_batches:
+            criterion(
+                teacher_out=teacher_out,
+                student_out=student_out,
+                update_center=False,
+            )
+        criterion.center.update()
+
+        single(
+            teacher_out=torch.cat([m[0] for m in micro_batches], dim=0),
+            student_out=torch.cat([m[1] for m in micro_batches], dim=0),
+        )
+
+        assert torch.allclose(criterion.center.value, single.center.value)
+
+    def test_eval__does_not_update_center(self) -> None:
+        criterion = IBOTPlusPlusPatchLoss(output_dim=4)
+        criterion.eval()
+        criterion(teacher_out=torch.rand(2, 6, 4), student_out=torch.rand(2, 6, 4))
+        assert torch.all(criterion.center.value == 0)
+
+    def test_state_dict__accumulator_not_persisted(self) -> None:
+        criterion = IBOTPlusPlusPatchLoss(output_dim=4)
+        assert set(criterion.state_dict().keys()) == {"center.center"}
