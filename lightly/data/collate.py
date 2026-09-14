@@ -11,9 +11,14 @@ import torch.nn as nn
 import torchvision
 from PIL import Image
 
-from lightly.transforms import GaussianBlur, Jigsaw, RandomSolarization
+# Imported from their own modules rather than from the lightly.transforms
+# package: lightly.transforms now reaches lightly.data.sample for View, and going
+# through the package __init__ closes that loop.
+from lightly.transforms.gaussian_blur import GaussianBlur
+from lightly.transforms.jigsaw import Jigsaw
 from lightly.transforms.random_crop_and_flip_with_grid import RandomResizedCropAndFlip
 from lightly.transforms.rotation import random_rotation_transform
+from lightly.transforms.solarize import RandomSolarization
 from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 

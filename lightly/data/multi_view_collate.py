@@ -12,8 +12,12 @@ class MultiViewCollate:
     multiple views of an image, a label, and a filename. It outputs these as
     separate grouped tensors for easy batch processing.
 
+    Transforms that have moved to the view contract return views rather than
+    bare tensors, and ``lightly.data.sample.legacy_collate`` is the equivalent
+    of this class for them.
+
     Example:
-        >>> transform = SimCLRTransform()
+        >>> transform = SimSiamTransform()
         >>> dataset = LightlyDataset(input_dir, transform=transform)
         >>> dataloader = DataLoader(
         ...     dataset, batch_size=4, collate_fn=MultiViewCollate()
