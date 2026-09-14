@@ -165,10 +165,6 @@ There are three ways how you can customize augmentations in Lightly\ **SSL**:
 Previewing Augmentations
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. note::
-  This section is outdated and still uses the old collate functions which are deprecated
-  since v1.4.0. We will update this section soon.
-
 It often can be very useful to understand how the image augmentations we pick affect
 the input dataset. We provide a few helper methods that make it very easy to 
 preview augmentations using Lightly\ **SSL**.
@@ -183,7 +179,7 @@ well as their augmentations next to them.
     :align: center
     :alt: SimCLR augmentations example
 
-    Example augmentations of the `SimCLRCollateFunction` function on images
+    Example augmentations of the `SimCLRTransform` transform on images
     from the clothing dataset.
 
 The images seem rather blurry! However, we don't want our model to ignore small
@@ -194,17 +190,17 @@ details. Let's disable Gaussian Blur and check again:
     :align: center
     :alt: SimCLR augmentations example
 
-    Example augmentations of the `SimCLRCollateFunction` function on images
+    Example augmentations of the `SimCLRTransform` transform on images
     from the clothing dataset.
 
-We can also repeat the experiment for the `DINOCollateFunction` to see what 
+We can also repeat the experiment for the `DINOTransform` to see what 
 our DINO model would see during training.
 
 .. figure:: images/dino_augmentations.jpg
     :align: center
     :alt: DINO augmentations example
 
-    Example augmentations of the `DINOCollateFunction` function on images
+    Example augmentations of the `DINOTransform` transform on images
     from the clothing dataset.
 
 
