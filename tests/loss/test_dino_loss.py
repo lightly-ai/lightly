@@ -200,6 +200,33 @@ class TestDINOLossCenterUpdate:
 
         assert torch.allclose(criterion.center, single.center)
 
+    @pytest.mark.parametrize("batch_sizes", [[2, 6], [1, 8, 3]])
+    def test_gradient_accumulation__unequal_batch_sizes(
+        self, batch_sizes: List[int]
+    ) -> None:
+        """Micro-batches of different sizes must be weighted by their size."""
+        output_dim = 4
+        criterion = DINOLoss(output_dim=output_dim, center_momentum=0.9)
+        single = DINOLoss(output_dim=output_dim, center_momentum=0.9)
+
+        torch.manual_seed(0)
+        micro_batches = [
+            [torch.rand(batch_size, output_dim) for _ in range(2)]
+            for batch_size in batch_sizes
+        ]
+
+        for micro_batch in micro_batches:
+            criterion(micro_batch, micro_batch, update_center=False)
+        criterion.update_center()
+
+        full_batch = [
+            torch.cat([micro_batch[view] for micro_batch in micro_batches], dim=0)
+            for view in range(2)
+        ]
+        single(full_batch, full_batch)
+
+        assert torch.allclose(criterion.center, single.center)
+
     def test_update_center_false__does_not_update_center(self) -> None:
         criterion = DINOLoss(output_dim=4)
         out = [torch.rand(2, 4) for _ in range(2)]

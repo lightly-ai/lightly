@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 import warnings
 from typing import Tuple
 
@@ -66,6 +67,8 @@ class Center(Module):
         self.register_buffer(
             "_batch_center_sum", torch.zeros(self.size), persistent=False
         )
+        self._batch_num_elements: Tensor  # For mypy
+        self.register_buffer("_batch_num_elements", torch.zeros(()), persistent=False)
         # Kept as a plain Python int on purpose. A tensor counter would force a
         # device synchronization in apply_update. Note that this makes accumulate
         # and apply_update unsuitable for a torch.compile'd region; the
@@ -112,8 +115,15 @@ class Center(Module):
         # broadcasts buffers (including non-persistent ones) from rank zero before
         # every forward pass, so that broadcast is a no-op for the accumulator.
         # Moving the all-reduce to apply_update would break this.
+        # Weight every batch by the number of elements it contributes, so that
+        # accumulating micro-batches of different sizes gives the same center as a
+        # single pass over all of them. This matters for losses with a variable
+        # number of features per batch, such as IBOTPatchLoss, where the number of
+        # masked tokens differs between batches.
         batch_center = self._center_fn(x=x, dim=self.dim)
-        self._batch_center_sum += batch_center
+        num_elements = center_num_elements(x=x, dim=self.dim)
+        self._batch_center_sum += batch_center * num_elements
+        self._batch_num_elements += num_elements
         self._num_accumulated += 1
 
         if self._num_accumulated > MAX_ACCUMULATED and not self._warned_missing_update:
@@ -136,11 +146,12 @@ class Center(Module):
         """
         if self._num_accumulated == 0:
             return
-        batch_center = self._batch_center_sum / self._num_accumulated
+        batch_center = self._batch_center_sum / self._batch_num_elements
         self.center = center_momentum(
             center=self.center, batch_center=batch_center, momentum=self.momentum
         )
         self._batch_center_sum.zero_()
+        self._batch_num_elements.zero_()
         self._num_accumulated = 0
 
 
@@ -162,6 +173,30 @@ def center_mean(x: Tensor, dim: Tuple[int, ...]) -> Tensor:
         dist.all_reduce(batch_center)
         batch_center = batch_center / dist.get_world_size()
     return batch_center
+
+
+@torch.no_grad()
+def center_num_elements(x: Tensor, dim: Tuple[int, ...]) -> Tensor:
+    """Returns the number of elements that the center is calculated over.
+
+    The count is summed over all processes, mirroring center_mean, so that every
+    process weights an accumulated batch identically.
+
+    Args:
+        x:
+            Input tensor.
+        dim:
+            Dimensions along which the center is calculated.
+
+    Returns:
+        A scalar tensor with the number of elements.
+    """
+    num_elements = torch.tensor(
+        float(math.prod(x.shape[d] for d in dim)), device=x.device
+    )
+    if dist.is_available() and dist.is_initialized():
+        dist.all_reduce(num_elements)
+    return num_elements
 
 
 @torch.no_grad()

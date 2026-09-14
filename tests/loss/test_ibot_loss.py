@@ -1,3 +1,5 @@
+from typing import List
+
 import pytest
 import torch
 
@@ -100,3 +102,38 @@ class TestIBOTPatchLossCenterUpdate:
     def test_state_dict__accumulator_not_persisted(self) -> None:
         criterion = IBOTPatchLoss(output_dim=4)
         assert set(criterion.state_dict().keys()) == {"center.center"}
+
+    @pytest.mark.parametrize("masked_per_image", [[2, 6], [1, 8, 3]])
+    def test_gradient_accumulation__unequal_masked_tokens(
+        self, masked_per_image: List[int]
+    ) -> None:
+        """iBOT masks a variable number of tokens, so sizes differ by construction."""
+        torch.manual_seed(0)
+        output_dim = 4
+        criterion = IBOTPatchLoss(output_dim=output_dim, center_momentum=0.9)
+        single = IBOTPatchLoss(output_dim=output_dim, center_momentum=0.9)
+
+        micro_batches = []
+        for num_masked in masked_per_image:
+            mask = torch.zeros(2, 4, 4, dtype=torch.bool)
+            mask.view(2, -1)[:, :num_masked] = True
+            teacher_out = torch.rand(int(mask.sum()), output_dim)
+            student_out = torch.rand(int(mask.sum()), output_dim)
+            micro_batches.append((teacher_out, student_out, mask))
+
+        for teacher_out, student_out, mask in micro_batches:
+            criterion(
+                teacher_out=teacher_out,
+                student_out=student_out,
+                mask=mask,
+                update_center=False,
+            )
+        criterion.center.update()
+
+        single(
+            teacher_out=torch.cat([m[0] for m in micro_batches], dim=0),
+            student_out=torch.cat([m[1] for m in micro_batches], dim=0),
+            mask=torch.cat([m[2] for m in micro_batches], dim=0),
+        )
+
+        assert torch.allclose(criterion.center.value, single.center.value)

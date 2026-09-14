@@ -8,7 +8,11 @@ from torch import Tensor
 from torch.nn import Module
 
 from lightly.models.modules import center
-from lightly.models.modules.center import CENTER_MODE_TO_FUNCTION, MAX_ACCUMULATED
+from lightly.models.modules.center import (
+    CENTER_MODE_TO_FUNCTION,
+    MAX_ACCUMULATED,
+    center_num_elements,
+)
 
 
 class DINOLoss(Module):
@@ -100,6 +104,8 @@ class DINOLoss(Module):
         self.register_buffer(
             "_batch_center_sum", torch.zeros(1, 1, output_dim), persistent=False
         )
+        self._batch_num_elements: Tensor  # For mypy
+        self.register_buffer("_batch_num_elements", torch.zeros(()), persistent=False)
         # Kept as a plain Python int on purpose. A tensor counter would force a
         # device synchronization in update_center. Note that this makes
         # update_center unsuitable for a torch.compile'd region; the
@@ -226,13 +232,14 @@ class DINOLoss(Module):
         if self._num_accumulated == 0:
             return
 
-        batch_center = self._batch_center_sum / self._num_accumulated
+        batch_center = self._batch_center_sum / self._batch_num_elements
 
         # Update the center with a moving average
         self.center.data = center.center_momentum(
             center=self.center, batch_center=batch_center, momentum=self.center_momentum
         )
         self._batch_center_sum.zero_()
+        self._batch_num_elements.zero_()
         self._num_accumulated = 0
 
     @torch.no_grad()
@@ -249,8 +256,13 @@ class DINOLoss(Module):
         # broadcasts buffers (including non-persistent ones) from rank zero before
         # every forward pass, so that broadcast is a no-op for the accumulator.
         # Moving the all-reduce to update_center would break this.
+        # Weight every batch by the number of elements it contributes, so that
+        # accumulating micro-batches of different sizes gives the same center as a
+        # single pass over all of them.
         batch_center = self._center_fn(x=teacher_out, dim=(0, 1))
-        self._batch_center_sum += batch_center
+        num_elements = center_num_elements(x=teacher_out, dim=(0, 1))
+        self._batch_center_sum += batch_center * num_elements
+        self._batch_num_elements += num_elements
         self._num_accumulated += 1
 
         if self._num_accumulated > MAX_ACCUMULATED and not self._warned_missing_update:

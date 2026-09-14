@@ -1,3 +1,5 @@
+from typing import List
+
 import pytest
 import torch
 import torch.nn.functional as F
@@ -238,3 +240,34 @@ class TestIBOTPlusPlusPatchLossCenterUpdate:
     def test_state_dict__accumulator_not_persisted(self) -> None:
         criterion = IBOTPlusPlusPatchLoss(output_dim=4)
         assert set(criterion.state_dict().keys()) == {"center.center"}
+
+    @pytest.mark.parametrize("num_patches", [[4, 10], [2, 12, 6]])
+    def test_gradient_accumulation__unequal_patch_counts(
+        self, num_patches: List[int]
+    ) -> None:
+        """Micro-batches with different numbers of patch tokens must be weighted."""
+        torch.manual_seed(0)
+        output_dim = 4
+        criterion = IBOTPlusPlusPatchLoss(output_dim=output_dim, center_momentum=0.9)
+        single = IBOTPlusPlusPatchLoss(output_dim=output_dim, center_momentum=0.9)
+
+        micro_batches = [
+            (torch.rand(2, n, output_dim), torch.rand(2, n, output_dim))
+            for n in num_patches
+        ]
+
+        for teacher_out, student_out in micro_batches:
+            criterion(
+                teacher_out=teacher_out,
+                student_out=student_out,
+                update_center=False,
+            )
+        criterion.center.update()
+
+        # Concatenate along the token dimension: one pass over all patch tokens.
+        single(
+            teacher_out=torch.cat([m[0] for m in micro_batches], dim=1),
+            student_out=torch.cat([m[1] for m in micro_batches], dim=1),
+        )
+
+        assert torch.allclose(criterion.center.value, single.center.value)
