@@ -44,6 +44,7 @@ parser.add_argument("--devices", type=int, default=1)
 parser.add_argument("--precision", type=str, default="16-mixed")
 parser.add_argument("--ckpt-path", type=Path, default=None)
 parser.add_argument("--compile-model", action="store_true")
+parser.add_argument("--grad-checkpointing", action="store_true")
 parser.add_argument("--methods", type=str, nargs="+")
 parser.add_argument("--eval-method", type=str, default="mae", choices=["mae", "simclr"])
 parser.add_argument("--num-classes", type=int, default=1000)
@@ -79,6 +80,7 @@ def main(
     devices: int,
     precision: str,
     compile_model: bool,
+    grad_checkpointing: bool,
     methods: Union[Sequence[str], None],
     eval_method: str,
     num_classes: int,
@@ -106,6 +108,12 @@ def main(
         model = METHODS[method]["model"](
             batch_size_per_device=batch_size_per_device, num_classes=num_classes
         )
+
+        if grad_checkpointing:
+            for module in model.modules():
+                set_grad_checkpointing = getattr(module, "set_grad_checkpointing", None)
+                if callable(set_grad_checkpointing):
+                    set_grad_checkpointing(enable=True)
 
         if compile_model and hasattr(torch, "compile"):
             # Compile model if PyTorch supports it.
