@@ -53,21 +53,25 @@ class BenchmarkModule(LightningModule):
         >>>             *list(resnet.children())[:-1],
         >>>             nn.AdaptiveAvgPool2d(1),
         >>>         )
-        >>>         self.resnet_simsiam =
-        >>>             lightly.models.SimSiam(self.backbone, num_ftrs=512)
-        >>>         self.criterion = lightly.loss.SymNegCosineSimilarityLoss()
+        >>>         self.projection_head = SimSiamProjectionHead(512, 512, 128)
+        >>>         self.prediction_head = SimSiamPredictionHead(128, 64, 128)
+        >>>         self.criterion = lightly.loss.NegativeCosineSimilarity()
         >>>
         >>>     def forward(self, x):
-        >>>         self.resnet_simsiam(x)
+        >>>         f = self.backbone(x).flatten(start_dim=1)
+        >>>         z = self.projection_head(f)
+        >>>         p = self.prediction_head(z)
+        >>>         return z.detach(), p
         >>>
         >>>     def training_step(self, batch, batch_idx):
         >>>         (x0, x1), _, _ = batch
-        >>>         x0, x1 = self.resnet_simsiam(x0, x1)
-        >>>         loss = self.criterion(x0, x1)
+        >>>         z0, p0 = self.forward(x0)
+        >>>         z1, p1 = self.forward(x1)
+        >>>         loss = 0.5 * (self.criterion(z0, p1) + self.criterion(z1, p0))
         >>>         return loss
         >>>     def configure_optimizers(self):
         >>>         optim = torch.optim.SGD(
-        >>>             self.resnet_simsiam.parameters(), lr=6e-2, momentum=0.9
+        >>>             self.parameters(), lr=6e-2, momentum=0.9
         >>>         )
         >>>         return [optim]
         >>>

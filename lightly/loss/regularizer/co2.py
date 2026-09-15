@@ -25,10 +25,7 @@ class CO2Regularizer(Module):
         memory_bank_size:
             Size of the memory bank as (num_features, dim) tuple. num_features is the
             number of negatives stored in the bank. If set to 0, the memory bank is
-            disabled. Deprecated: If only a single integer is passed, it is interpreted
-            as the number of features and the feature dimension is inferred from the
-            first batch stored in the memory bank. Leaving out the feature dimension
-            might lead to errors in distributed training.
+            disabled.
 
     Examples:
         >>> # initialize loss function for MoCo
