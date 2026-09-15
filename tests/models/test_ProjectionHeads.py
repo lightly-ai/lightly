@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pytest
 import torch
 
@@ -10,6 +12,7 @@ from lightly.models.modules.heads import (
     DenseCLProjectionHead,
     DINOProjectionHead,
     DINOv2ProjectionHead,
+    FrancaProjectionHead,
     LeJEPAProjectionHead,
     MMCRProjectionHead,
     MoCoProjectionHead,
@@ -233,6 +236,100 @@ class TestProjectionHeads:
                         y = head(x)
                     assert y.shape[0] == batch_size
                     assert y.shape[1] == output_dim
+
+    @pytest.mark.parametrize("device", ["cpu", "cuda"])
+    def test_franca_projection_head(self, device: str) -> None:
+        if device == "cuda" and not torch.cuda.is_available():
+            pytest.skip("CUDA not available")
+        seed = 0
+        input_dim, hidden_dim = 32, 16
+        nesting_dims = [8, 16, 32]
+        output_dim = 24
+        last_dim = nesting_dims[-1]
+        for bottleneck_dim in [8, 16]:
+            for batch_norm in [False, True]:
+                torch.manual_seed(seed)
+                head = FrancaProjectionHead(
+                    input_dim=input_dim,
+                    nesting_dims=nesting_dims,
+                    hidden_dim=hidden_dim,
+                    bottleneck_dim=bottleneck_dim,
+                    output_dim=output_dim,
+                    batch_norm=batch_norm,
+                )
+                head = head.eval()
+                head = head.to(device)
+                for batch_size in [1, 2]:
+                    x = torch.rand((batch_size, input_dim)).to(device)
+                    with torch.no_grad():
+                        outputs = head(x)
+                    assert isinstance(outputs, tuple)
+                    assert len(outputs) == len(nesting_dims)
+                    expected_dims = [
+                        int(output_dim * dim / last_dim) for dim in nesting_dims
+                    ]
+                    assert head.output_dims == expected_dims
+                    for out, expected in zip(outputs, expected_dims):
+                        assert out.shape[0] == batch_size
+                        assert out.shape[1] == expected
+
+    def test_franca_projection_head_backward(self) -> None:
+        torch.manual_seed(0)
+        head = FrancaProjectionHead(
+            input_dim=32,
+            nesting_dims=[8, 16, 32],
+            hidden_dim=16,
+            bottleneck_dim=8,
+            output_dim=24,
+        )
+        x = torch.rand((4, 32), requires_grad=True)
+        outputs = head(x)
+        loss = sum(out.sum() for out in outputs)
+        loss.backward()
+        assert x.grad is not None
+        for param in head.parameters():
+            if param.requires_grad:
+                assert param.grad is not None
+
+    def test_franca_projection_head_uses_only_nested_prefix(self) -> None:
+        """Each level's output depends only on the prefix ``x[..., :nesting_dim]``."""
+        torch.manual_seed(0)
+        head = FrancaProjectionHead(
+            input_dim=32,
+            nesting_dims=[8, 16, 32],
+            hidden_dim=16,
+            bottleneck_dim=8,
+            output_dim=24,
+        )
+        head = head.eval()
+        x = torch.rand((2, 32))
+        x_perturbed = x.clone()
+        # Change only the tail beyond the smallest nesting dim (8).
+        x_perturbed[..., 8:] += 1.0
+        with torch.no_grad():
+            out = head(x)
+            out_perturbed = head(x_perturbed)
+        # The smallest level reads only x[..., :8], so it must be unchanged.
+        assert torch.equal(out[0], out_perturbed[0])
+        # A larger level reads a longer prefix that the perturbation touched, so it changes.
+        assert not torch.equal(out[-1], out_perturbed[-1])
+
+    @pytest.mark.parametrize(
+        "nesting_dims",
+        [[], [16, 16], [32, 16], [-1, 16], [16, 64]],
+        ids=["empty", "not-increasing", "decreasing", "non-positive", "exceeds-input"],
+    )
+    def test_franca_projection_head_invalid_nesting(
+        self, nesting_dims: list[int]
+    ) -> None:
+        with pytest.raises(ValueError):
+            FrancaProjectionHead(input_dim=32, nesting_dims=nesting_dims)
+
+    def test_franca_projection_head_output_dim_too_small(self) -> None:
+        """An output_dim that rounds a level to zero prototypes is rejected."""
+        with pytest.raises(ValueError):
+            # Level 8/32 would give int(3 * 8 / 32) = 0 prototypes.
+            FrancaProjectionHead(input_dim=32, nesting_dims=[8, 32], output_dim=3)
 
     def test_simclr_projection_head_multiple_layers(self) -> None:
         device = "cpu"
