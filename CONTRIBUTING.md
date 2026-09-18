@@ -154,7 +154,17 @@ Follow these steps to start contributing:
    git commit
    ```
 
-   Please write [good commit messages](https://chris.beams.io/git-commit).
+   Write your commit messages, and above all your **pull request title**,
+   following the [Conventional Commits](https://www.conventionalcommits.org)
+   specification. Pull requests are squash-merged, so the PR title becomes the
+   commit subject on `master`, and a CI check rejects titles that don't match.
+   Allowed types:
+
+   `feat` `fix` `docs` `test` `ci` `build` `perf` `refactor` `chore` `revert`
+
+   The type sets the next release version: `fix` bumps the patch, `feat` the
+   minor, and a `!` after the type (or a `BREAKING CHANGE:` footer) bumps the
+   major. For example `feat(loss): add DINOv2 head` or `fix!: drop Python 3.7`.
 
    It is a good idea to sync your copy of the code with the original
    repository regularly. This way you can quickly account for changes:
