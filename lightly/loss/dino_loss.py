@@ -8,11 +8,7 @@ from torch import Tensor
 from torch.nn import Module
 
 from lightly.models.modules import center
-from lightly.models.modules.center import (
-    CENTER_MODE_TO_FUNCTION,
-    MAX_ACCUMULATED,
-    center_num_elements,
-)
+from lightly.models.modules.center import CENTER_MODE_TO_SUM_FUNCTION, MAX_ACCUMULATED
 
 
 class DINOLoss(Module):
@@ -85,31 +81,21 @@ class DINOLoss(Module):
         self.student_temp = student_temp
 
         # TODO(Guarin, 08/24): Refactor this to use the Center module directly once
-        # we do a breaking change. The center accumulation below duplicates
-        # Center.accumulate/Center.apply_update and should collapse into it.
-        if center_mode not in CENTER_MODE_TO_FUNCTION:
+        # we do a breaking change.
+        if center_mode not in CENTER_MODE_TO_SUM_FUNCTION:
             raise ValueError(
                 f"Unknown mode '{center_mode}'. Valid modes are "
-                f"{sorted(CENTER_MODE_TO_FUNCTION.keys())}."
+                f"{sorted(CENTER_MODE_TO_SUM_FUNCTION.keys())}."
             )
-        self._center_fn = CENTER_MODE_TO_FUNCTION[center_mode]
+        self._sum_fn = CENTER_MODE_TO_SUM_FUNCTION[center_mode]
         self.center: Tensor  # For mypy
         self.register_buffer("center", torch.zeros(1, 1, output_dim))
         self.center_momentum = center_momentum
 
-        # Batch centers accumulated since the last momentum update. The buffer is
-        # non-persistent so that state dicts stay compatible with checkpoints that
-        # were written before accumulation was introduced.
-        self._batch_center_sum: Tensor  # For mypy
-        self.register_buffer(
-            "_batch_center_sum", torch.zeros(1, 1, output_dim), persistent=False
-        )
-        self._batch_num_elements: Tensor  # For mypy
-        self.register_buffer("_batch_num_elements", torch.zeros(()), persistent=False)
-        # Kept as a plain Python int on purpose. A tensor counter would force a
-        # device synchronization in update_center. Note that this makes
-        # update_center unsuitable for a torch.compile'd region; the
-        # dist.all_reduce in center_mean causes a graph break there anyway.
+        # Plain attributes instead of buffers: DDP broadcasts buffers from rank
+        # zero before every forward, which would overwrite these rank-local sums.
+        self._batch_sum: Tensor | None = None
+        self._batch_num_elements = 0
         self._num_accumulated = 0
         self._warned_missing_update = False
 
@@ -147,13 +133,10 @@ class DINOLoss(Module):
             epoch:
                 The current epoch for backward compatibility.
             update_center:
-                Experimental: Support for deferred center updates is experimental,
-                there might be breaking changes in the future. If True, the center
-                is updated from the teacher output. Set to False when training with
-                gradient accumulation and call update_center manually once per
-                optimizer step, so that a single momentum update is applied per
-                step instead of one per micro-batch. The teacher output of every
-                forward pass is accumulated regardless of this flag.
+                Experimental: If True, the momentum update of the center is applied
+                on every call. Set to False when training with gradient accumulation
+                and call update_center once per optimizer step instead. The teacher
+                output is accumulated regardless of this flag.
 
         Returns:
             The average cross-entropy loss.
@@ -197,14 +180,6 @@ class DINOLoss(Module):
 
         loss = loss.sum() / (n_terms * batch_size)
 
-        # Update the center used for the teacher output. The center is only updated
-        # while training, and the momentum update can be deferred with
-        # update_center=False to support gradient accumulation. This runs after the
-        # validation above so that an invalid call cannot corrupt the accumulator.
-        #
-        # NOTE(Lionel, 09/26): self.training gates a distributed collective in
-        # center_mean, so train() and eval() must be called on all ranks in
-        # lockstep. This is the same contract as torch.nn.SyncBatchNorm.
         if self.training:
             self._accumulate_center(teacher_out_stacked)
             if update_center:
@@ -215,6 +190,8 @@ class DINOLoss(Module):
     @torch.no_grad()
     def update_center(self, teacher_out: list[Tensor] | Tensor | None = None) -> None:
         """Moving average update of the center used for the teacher output.
+
+        Runs a distributed collective, so all ranks must call this in lockstep.
 
         Args:
             teacher_out:
@@ -229,17 +206,15 @@ class DINOLoss(Module):
                 teacher_out = torch.stack(teacher_out)
             self._accumulate_center(teacher_out)
 
-        if self._num_accumulated == 0:
+        if self._batch_sum is None:
             return
 
-        batch_center = self._batch_center_sum / self._batch_num_elements
-
-        # Update the center with a moving average
+        batch_center = center.reduce_mean(self._batch_sum / self._batch_num_elements)
         self.center.data = center.center_momentum(
             center=self.center, batch_center=batch_center, momentum=self.center_momentum
         )
-        self._batch_center_sum.zero_()
-        self._batch_num_elements.zero_()
+        self._batch_sum = None
+        self._batch_num_elements = 0
         self._num_accumulated = 0
 
     @torch.no_grad()
@@ -251,18 +226,12 @@ class DINOLoss(Module):
                 Tensor with shape (num_views, batch_size, output_dim) containing
                 features from the teacher model.
         """
-        # NOTE(Lionel, 09/26): The distributed all-reduce happens here, inside the
-        # accumulation, which makes the accumulated sum identical on all ranks. DDP
-        # broadcasts buffers (including non-persistent ones) from rank zero before
-        # every forward pass, so that broadcast is a no-op for the accumulator.
-        # Moving the all-reduce to update_center would break this.
-        # Weight every batch by the number of elements it contributes, so that
-        # accumulating micro-batches of different sizes gives the same center as a
-        # single pass over all of them.
-        batch_center = self._center_fn(x=teacher_out, dim=(0, 1))
-        num_elements = center_num_elements(x=teacher_out, dim=(0, 1))
-        self._batch_center_sum += batch_center * num_elements
-        self._batch_num_elements += num_elements
+        batch_sum = self._sum_fn(x=teacher_out, dim=(0, 1))
+        if self._batch_sum is None:
+            self._batch_sum = batch_sum
+        else:
+            self._batch_sum += batch_sum
+        self._batch_num_elements += teacher_out.shape[0] * teacher_out.shape[1]
         self._num_accumulated += 1
 
         if self._num_accumulated > MAX_ACCUMULATED and not self._warned_missing_update:

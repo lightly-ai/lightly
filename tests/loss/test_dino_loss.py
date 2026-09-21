@@ -150,7 +150,7 @@ def test_center__equivalence() -> None:
     """
     criterion = DINOLoss(output_dim=32, center_momentum=0.9)
     center = Center(size=(1, 1, 32), momentum=0.9)
-    x = torch.rand(2, 32)
+    x = torch.rand(2, 4, 32)
     criterion.update_center(teacher_out=x)
     center.update(x=x)
     assert torch.allclose(criterion.center, center.value)
@@ -163,8 +163,8 @@ def test_center__equivalence_accumulate() -> None:
     """
     criterion = DINOLoss(output_dim=32, center_momentum=0.9)
     center = Center(size=(1, 1, 32), momentum=0.9)
-    for _ in range(3):
-        x = torch.rand(2, 32)
+    for batch_size in [1, 4, 2]:
+        x = torch.rand(2, batch_size, 32)
         criterion._accumulate_center(x)
         center.accumulate(x)
     criterion.update_center()

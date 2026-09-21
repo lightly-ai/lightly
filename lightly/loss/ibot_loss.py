@@ -78,13 +78,10 @@ class IBOTPatchLoss(Module):
                 The temperature used for the teacher output. If None, the default
                 temperature defined in __init__ is used.
             update_center:
-                Experimental: Support for deferred center updates is experimental,
-                there might be breaking changes in the future. If True, the center
-                is updated from the teacher output. Set to False when training with
-                gradient accumulation and call ``criterion.center.update()``
-                manually once per optimizer step, so that a single momentum update
-                is applied per step instead of one per micro-batch. The teacher
-                output of every forward pass is accumulated regardless of this flag.
+                Experimental: If True, the momentum update of the center is applied
+                on every call. Set to False when training with gradient accumulation
+                and call ``criterion.center.update()`` once per optimizer step
+                instead. The teacher output is accumulated regardless of this flag.
 
         Returns:
             The loss value.
@@ -115,13 +112,6 @@ class IBOTPatchLoss(Module):
         B = mask.shape[0]
         loss = (loss * weight).sum() / B
 
-        # Update the center used for the teacher output. The center is only updated
-        # while training, and the momentum update can be deferred with
-        # update_center=False to support gradient accumulation.
-        #
-        # NOTE(Lionel, 09/26): self.training gates a distributed collective in
-        # center_mean, so train() and eval() must be called on all ranks in
-        # lockstep. This is the same contract as torch.nn.SyncBatchNorm.
         if self.training:
             self.center.accumulate(teacher_out)
             if update_center:
@@ -203,13 +193,10 @@ class IBOTPlusPlusPatchLoss(IBOTPatchLoss):
                 used when ``mask`` is provided. Defaults to ``1.0``. Use ``0.0``
                 to recover the original iBOT masked-only behavior.
             update_center:
-                Experimental: Support for deferred center updates is experimental,
-                there might be breaking changes in the future. If True, the center
-                is updated from the teacher output. Set to False when training with
-                gradient accumulation and call ``criterion.center.update()``
-                manually once per optimizer step, so that a single momentum update
-                is applied per step instead of one per micro-batch. The teacher
-                output of every forward pass is accumulated regardless of this flag.
+                Experimental: If True, the momentum update of the center is applied
+                on every call. Set to False when training with gradient accumulation
+                and call ``criterion.center.update()`` once per optimizer step
+                instead. The teacher output is accumulated regardless of this flag.
 
         Returns:
             The loss value as a scalar tensor.
@@ -281,13 +268,6 @@ class IBOTPlusPlusPatchLoss(IBOTPatchLoss):
             visible_loss = (ce * (1.0 - mask_flat)).sum(dim=1) / n_visible
             loss = (masked_loss + visible_loss_weight * visible_loss).mean()
 
-        # Update the center used for the teacher output. The center is only updated
-        # while training, and the momentum update can be deferred with
-        # update_center=False to support gradient accumulation.
-        #
-        # NOTE(Lionel, 09/26): self.training gates a distributed collective in
-        # center_mean, so train() and eval() must be called on all ranks in
-        # lockstep. This is the same contract as torch.nn.SyncBatchNorm.
         if self.training:
             self.center.accumulate(teacher_flat)
             if update_center:
