@@ -16,6 +16,7 @@ from lightly.models.modules.heads import (
     DenseCLProjectionHead,
     DINOProjectionHead,
     DINOv2ProjectionHead,
+    FrancaProjectionHead,
     LeJEPAProjectionHead,
     MMCRProjectionHead,
     MoCoProjectionHead,

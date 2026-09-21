@@ -775,6 +775,113 @@ class DINOv2ProjectionHead(ProjectionHead):
         return x
 
 
+class FrancaProjectionHead(nn.Module):
+    """Projection head used by Franca.
+
+    Franca applies Matryoshka Representation Learning to the DINOv2 clustering head: it
+    runs a separate DINOv2 projection head on each nested prefix of the backbone
+    embedding, so shorter prefixes stay usable on their own. For every nesting dimension
+    ``d`` in ``nesting_dims`` the head projects ``x[..., :d]`` with a prototype count of
+    ``output_dim * d / max(nesting_dims)``, so the number of prototypes scales with the
+    nested dimension. The forward pass returns one output per nesting level, in order.
+
+    This head composes lightly's :class:`DINOv2ProjectionHead` per level, so each level
+    matches the standard DINOv2 head (L2-normalized bottleneck, weight-normed prototypes).
+    The reference implementation instead adds a per-level linear projection, omits the L2
+    normalization, and adds a trailing GELU. [1]
+
+    - [0]: Franca, 2025, https://arxiv.org/abs/2507.14137
+    - [1]: https://github.com/valeoai/Franca
+
+    Attributes:
+        nesting_dims: Nested prefix dimensions, in increasing order.
+        output_dims: Number of prototypes per level; pass to the matching Franca loss.
+        heads: One :class:`DINOv2ProjectionHead` per nesting dimension.
+    """
+
+    def __init__(
+        self,
+        input_dim: int = 2048,
+        nesting_dims: Sequence[int] = (1024, 2048),
+        hidden_dim: int = 2048,
+        bottleneck_dim: int = 256,
+        output_dim: int = 65536,
+        batch_norm: bool = False,
+    ) -> None:
+        """Initializes the FrancaProjectionHead with the specified dimensions.
+
+        Args:
+            input_dim:
+                Dimensionality of the backbone embedding fed to the head.
+            nesting_dims:
+                Nested prefix dimensions, strictly increasing, each at most ``input_dim``.
+            hidden_dim:
+                Dimensionality of the hidden layers of each per-level head.
+            bottleneck_dim:
+                Dimensionality of the bottleneck of each per-level head.
+            output_dim:
+                Prototype count at the largest nesting dimension. Smaller levels use
+                ``output_dim * d / max(nesting_dims)``.
+            batch_norm:
+                Whether to use batch normalization in each per-level head.
+
+        Raises:
+            ValueError: If ``nesting_dims`` is empty, not strictly increasing, has a
+                non-positive entry, or has a maximum larger than ``input_dim``.
+        """
+        super().__init__()
+        nesting = list(nesting_dims)
+        if not nesting:
+            raise ValueError("nesting_dims must not be empty.")
+        if any(dim <= 0 for dim in nesting):
+            raise ValueError(f"nesting_dims must be positive, got {nesting}.")
+        if any(later <= earlier for earlier, later in zip(nesting, nesting[1:])):
+            raise ValueError(
+                f"nesting_dims must be strictly increasing, got {nesting}."
+            )
+        if nesting[-1] > input_dim:
+            raise ValueError(
+                f"nesting_dims maximum ({nesting[-1]}) must not exceed input_dim ({input_dim})."
+            )
+        self.nesting_dims = nesting
+        last_dim = nesting[-1]
+        proto_counts = [int(output_dim * dim / last_dim) for dim in nesting]
+        if any(count <= 0 for count in proto_counts):
+            raise ValueError(
+                f"output_dim ({output_dim}) is too small for nesting_dims {nesting}: "
+                f"it yields non-positive prototype counts {proto_counts}."
+            )
+        # Number of prototypes per level; pass this to the matching Franca loss.
+        self.output_dims = proto_counts
+        self.heads = nn.ModuleList(
+            [
+                DINOv2ProjectionHead(
+                    input_dim=dim,
+                    hidden_dim=hidden_dim,
+                    bottleneck_dim=bottleneck_dim,
+                    output_dim=count,
+                    batch_norm=batch_norm,
+                )
+                for dim, count in zip(nesting, proto_counts)
+            ]
+        )
+
+    def forward(self, x: Tensor) -> Tuple[Tensor, ...]:
+        """Projects each nested prefix of the input.
+
+        Args:
+            x:
+                Backbone embeddings of shape (batch_size, input_dim).
+
+        Returns:
+            One tensor per nesting dimension, each of shape
+            (batch_size, output_dim * d / max(nesting_dims)), in nesting order.
+        """
+        return tuple(
+            head(x[..., :dim]) for head, dim in zip(self.heads, self.nesting_dims)
+        )
+
+
 class LeJEPAProjectionHead(ProjectionHead):
     """Projection head used for LeJEPA.
 
