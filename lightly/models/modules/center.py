@@ -45,13 +45,11 @@ class Center(Module):
         """
         super().__init__()
 
-        sum_fn = CENTER_MODE_TO_SUM_FUNCTION.get(mode)
-        if sum_fn is None:
+        if mode not in CENTER_MODE_TO_FUNCTION:
             raise ValueError(
                 f"Unknown mode '{mode}'. Valid modes are "
-                f"{sorted(CENTER_MODE_TO_SUM_FUNCTION.keys())}."
+                f"{sorted(CENTER_MODE_TO_FUNCTION.keys())}."
             )
-        self._sum_fn = sum_fn
 
         self.size = size
         self.dim = tuple(i for i, s in enumerate(size) if s == 1)
@@ -100,7 +98,7 @@ class Center(Module):
                 Feature tensor used to update the center. Must have the same number of
                 dimensions as self.size.
         """
-        batch_sum = self._sum_fn(x=x, dim=self.dim)
+        batch_sum = torch.sum(x, dim=self.dim, keepdim=True)
         if self._batch_sum is None:
             self._batch_sum = batch_sum
         else:
@@ -156,22 +154,6 @@ def center_mean(x: Tensor, dim: Tuple[int, ...]) -> Tensor:
 
 
 @torch.no_grad()
-def center_sum(x: Tensor, dim: Tuple[int, ...]) -> Tensor:
-    """Returns the process-local sum of the input tensor.
-
-    Args:
-        x:
-            Input tensor.
-        dim:
-            Dimensions along which the sum is calculated.
-
-    Returns:
-        The sum of the input tensor.
-    """
-    return torch.sum(x, dim=dim, keepdim=True)
-
-
-@torch.no_grad()
 def reduce_mean(x: Tensor) -> Tensor:
     """Returns the mean of the input tensor across all processes.
 
@@ -198,10 +180,4 @@ def center_momentum(center: Tensor, batch_center: Tensor, momentum: float) -> Te
 
 CENTER_MODE_TO_FUNCTION = {
     "mean": center_mean,
-}
-
-# Center functions decomposed into a process-local sum, so that features can be
-# accumulated across micro-batches before the cross-process reduction.
-CENTER_MODE_TO_SUM_FUNCTION = {
-    "mean": center_sum,
 }

@@ -8,7 +8,7 @@ from torch import Tensor
 from torch.nn import Module
 
 from lightly.models.modules import center
-from lightly.models.modules.center import CENTER_MODE_TO_SUM_FUNCTION, MAX_ACCUMULATED
+from lightly.models.modules.center import CENTER_MODE_TO_FUNCTION, MAX_ACCUMULATED
 
 
 class DINOLoss(Module):
@@ -82,12 +82,11 @@ class DINOLoss(Module):
 
         # TODO(Guarin, 08/24): Refactor this to use the Center module directly once
         # we do a breaking change.
-        if center_mode not in CENTER_MODE_TO_SUM_FUNCTION:
+        if center_mode not in CENTER_MODE_TO_FUNCTION:
             raise ValueError(
                 f"Unknown mode '{center_mode}'. Valid modes are "
-                f"{sorted(CENTER_MODE_TO_SUM_FUNCTION.keys())}."
+                f"{sorted(CENTER_MODE_TO_FUNCTION.keys())}."
             )
-        self._sum_fn = CENTER_MODE_TO_SUM_FUNCTION[center_mode]
         self.center: Tensor  # For mypy
         self.register_buffer("center", torch.zeros(1, 1, output_dim))
         self.center_momentum = center_momentum
@@ -226,7 +225,7 @@ class DINOLoss(Module):
                 Tensor with shape (num_views, batch_size, output_dim) containing
                 features from the teacher model.
         """
-        batch_sum = self._sum_fn(x=teacher_out, dim=(0, 1))
+        batch_sum = torch.sum(teacher_out, dim=(0, 1), keepdim=True)
         if self._batch_sum is None:
             self._batch_sum = batch_sum
         else:
