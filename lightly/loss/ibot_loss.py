@@ -58,6 +58,8 @@ class IBOTPatchLoss(Module):
         student_out: Tensor,
         mask: Tensor,
         teacher_temp: float | None = None,
+        *,
+        update_center: bool = True,
     ) -> Tensor:
         """Forward pass through the iBOT patch loss.
 
@@ -75,6 +77,11 @@ class IBOTPatchLoss(Module):
             teacher_temp:
                 The temperature used for the teacher output. If None, the default
                 temperature defined in __init__ is used.
+            update_center:
+                Experimental: If True, the momentum update of the center is applied
+                on every call. Set to False when training with gradient accumulation
+                and call ``criterion.center.update()`` once per optimizer step
+                instead. The teacher output is accumulated regardless of this flag.
 
         Returns:
             The loss value.
@@ -105,7 +112,10 @@ class IBOTPatchLoss(Module):
         B = mask.shape[0]
         loss = (loss * weight).sum() / B
 
-        self.center.update(teacher_out)
+        if self.training:
+            self.center.accumulate(teacher_out)
+            if update_center:
+                self.center.apply_update()
 
         return cast(Tensor, loss)
 
@@ -145,6 +155,8 @@ class IBOTPlusPlusPatchLoss(IBOTPatchLoss):
         mask: Tensor | None = None,
         teacher_temp: float | None = None,
         visible_loss_weight: float = 1.0,
+        *,
+        update_center: bool = True,
     ) -> Tensor:
         """Forward pass through the iBOT++ patch loss.
 
@@ -180,6 +192,11 @@ class IBOTPlusPlusPatchLoss(IBOTPatchLoss):
                 Weight applied to the visible-token (unmasked) loss term. Only
                 used when ``mask`` is provided. Defaults to ``1.0``. Use ``0.0``
                 to recover the original iBOT masked-only behavior.
+            update_center:
+                Experimental: If True, the momentum update of the center is applied
+                on every call. Set to False when training with gradient accumulation
+                and call ``criterion.center.update()`` once per optimizer step
+                instead. The teacher output is accumulated regardless of this flag.
 
         Returns:
             The loss value as a scalar tensor.
@@ -251,6 +268,9 @@ class IBOTPlusPlusPatchLoss(IBOTPatchLoss):
             visible_loss = (ce * (1.0 - mask_flat)).sum(dim=1) / n_visible
             loss = (masked_loss + visible_loss_weight * visible_loss).mean()
 
-        self.center.update(teacher_flat)
+        if self.training:
+            self.center.accumulate(teacher_flat)
+            if update_center:
+                self.center.apply_update()
 
         return loss
