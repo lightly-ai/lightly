@@ -122,3 +122,112 @@ class TestMaskedCausalVisionTransformer:
 
         torch.testing.assert_close(features, expected)
         torch.testing.assert_close(images.grad, expected_input_grad)
+
+    @skip_without_fused_attention
+    def test_forward_features__grad_checkpointing_matches_without_checkpointing_unmasked(
+        self,
+    ) -> None:
+        """Verifies that unmasked forward features match between checkpointed and non-checkpointed execution."""
+        torch.manual_seed(0)
+        model = MaskedCausalVisionTransformer(
+            img_size=32, patch_size=16, embed_dim=24, depth=2, num_heads=3
+        ).eval()
+        images = torch.rand(2, 3, 32, 32)
+
+        expected = model.forward_features(images, mask=None)
+        model.set_grad_checkpointing(True)
+        actual = model.forward_features(images, mask=None)
+
+        torch.testing.assert_close(actual, expected)
+
+    @skip_without_fused_attention
+    def test_forward_features__gradients_match_with_and_without_checkpointing(
+        self,
+    ) -> None:
+        """Verifies that parameter gradients match between checkpointed and non-checkpointed execution."""
+        torch.manual_seed(42)
+        model = MaskedCausalVisionTransformer(
+            img_size=32, patch_size=16, embed_dim=24, depth=2, num_heads=3
+        ).train()
+        images = torch.rand(2, 3, 32, 32)
+        mask = torch.zeros(2, 5, dtype=torch.bool)
+        mask[:, 1:] = True
+
+        # Forward and backward without checkpointing
+        images_no_ckpt = images.clone().detach().requires_grad_(True)
+        model.set_grad_checkpointing(False)
+        out_no_ckpt = model.forward_features(images_no_ckpt, mask=mask)
+        loss_no_ckpt = out_no_ckpt.sum()
+        loss_no_ckpt.backward()
+
+        grads_no_ckpt = {
+            name: param.grad.clone()
+            for name, param in model.named_parameters()
+            if param.grad is not None
+        }
+        img_grad_no_ckpt = images_no_ckpt.grad.clone()
+
+        # Reset model gradients
+        model.zero_grad()
+
+        # Forward and backward with checkpointing
+        images_with_ckpt = images.clone().detach().requires_grad_(True)
+        model.set_grad_checkpointing(True)
+        out_with_ckpt = model.forward_features(images_with_ckpt, mask=mask)
+        loss_with_ckpt = out_with_ckpt.sum()
+        loss_with_ckpt.backward()
+
+        grads_with_ckpt = {
+            name: param.grad.clone()
+            for name, param in model.named_parameters()
+            if param.grad is not None
+        }
+        img_grad_with_ckpt = images_with_ckpt.grad.clone()
+
+        # Compare outputs and gradients
+        torch.testing.assert_close(out_with_ckpt, out_no_ckpt)
+        torch.testing.assert_close(img_grad_with_ckpt, img_grad_no_ckpt)
+        for name in grads_no_ckpt:
+            torch.testing.assert_close(
+                grads_with_ckpt[name],
+                grads_no_ckpt[name],
+                msg=f"Gradient mismatch in parameter {name}",
+            )
+
+    @skip_without_fused_attention
+    @pytest.mark.parametrize("is_causal", [True, False])
+    def test_forward_features__is_causal(self, is_causal: bool) -> None:
+        """Verifies output parity with and without gradient checkpointing across both is_causal=True and is_causal=False."""
+        torch.manual_seed(0)
+        model = MaskedCausalVisionTransformer(
+            img_size=32, patch_size=16, embed_dim=24, depth=2, num_heads=3
+        ).eval()
+        images = torch.rand(2, 3, 32, 32)
+        mask = torch.zeros(2, 5, dtype=torch.bool)
+        mask[:, 1:] = True
+
+        out_no_ckpt = model.forward_features(images, mask=mask, is_causal=is_causal)
+        model.set_grad_checkpointing(True)
+        out_with_ckpt = model.forward_features(images, mask=mask, is_causal=is_causal)
+
+        torch.testing.assert_close(out_with_ckpt, out_no_ckpt)
+
+    @skip_without_fused_attention
+    def test_forward_features__is_causal_controls_masked_attention(self) -> None:
+        """Verifies that is_causal=False enables bidirectional attention for masked tokens matching unmasked forward."""
+        torch.manual_seed(0)
+        model = MaskedCausalVisionTransformer(
+            img_size=32, patch_size=16, embed_dim=24, depth=2, num_heads=3
+        ).eval()
+        images = torch.rand(2, 3, 32, 32)
+        mask = torch.zeros(2, 5, dtype=torch.bool)
+        mask[:, 1:] = True
+
+        out_causal = model.forward_features(images, mask=mask, is_causal=True)
+        out_bidirectional = model.forward_features(images, mask=mask, is_causal=False)
+        out_unmasked = model.forward_features(images, mask=None)
+
+        # is_causal=True applies causal masking to masked tokens, differing from bidirectional
+        assert not torch.allclose(out_causal, out_bidirectional)
+        # is_causal=False enables bidirectional attention, matching unmasked forward
+        torch.testing.assert_close(out_bidirectional, out_unmasked)
