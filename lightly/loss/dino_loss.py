@@ -5,10 +5,10 @@ import warnings
 import torch
 import torch.nn.functional as F
 from torch import Tensor
-from torch.nn import Module, Parameter
+from torch.nn import Module
 
 from lightly.models.modules import center
-from lightly.models.modules.center import CENTER_MODE_TO_FUNCTION
+from lightly.models.modules.center import CENTER_MODE_TO_FUNCTION, MAX_ACCUMULATED
 
 
 class DINOLoss(Module):
@@ -87,10 +87,16 @@ class DINOLoss(Module):
                 f"Unknown mode '{center_mode}'. Valid modes are "
                 f"{sorted(CENTER_MODE_TO_FUNCTION.keys())}."
             )
-        self._center_fn = CENTER_MODE_TO_FUNCTION[center_mode]
-        self.center: Parameter
+        self.center: Tensor  # For mypy
         self.register_buffer("center", torch.zeros(1, 1, output_dim))
         self.center_momentum = center_momentum
+
+        # Plain attributes instead of buffers: DDP broadcasts buffers from rank
+        # zero before every forward, which would overwrite these rank-local sums.
+        self._batch_sum: Tensor | None = None
+        self._batch_num_elements = 0
+        self._num_accumulated = 0
+        self._warned_missing_update = False
 
         # comput the warmup teacher temperature internally for backward compatibility
         self.warmup_teacher_temp_epochs = warmup_teacher_temp_epochs
@@ -106,6 +112,8 @@ class DINOLoss(Module):
         student_out: list[Tensor],
         teacher_temp: float | None = None,
         epoch: int | None = None,
+        *,
+        update_center: bool = True,
     ) -> Tensor:
         """Cross-entropy between softmax outputs of the teacher and student networks.
 
@@ -123,6 +131,11 @@ class DINOLoss(Module):
                 temperature defined in __init__ is used.
             epoch:
                 The current epoch for backward compatibility.
+            update_center:
+                Experimental: If True, the momentum update of the center is applied
+                on every call. Set to False when training with gradient accumulation
+                and call update_center once per optimizer step instead. The teacher
+                output is accumulated regardless of this flag.
 
         Returns:
             The average cross-entropy loss.
@@ -166,24 +179,68 @@ class DINOLoss(Module):
 
         loss = loss.sum() / (n_terms * batch_size)
 
-        # Update the center used for the teacher output
-        self.update_center(teacher_out_stacked)
+        if self.training:
+            self._accumulate_center(teacher_out_stacked)
+            if update_center:
+                self.update_center()
 
         return loss
 
     @torch.no_grad()
-    def update_center(self, teacher_out: Tensor) -> None:
+    def update_center(self, teacher_out: list[Tensor] | Tensor | None = None) -> None:
         """Moving average update of the center used for the teacher output.
+
+        Runs a distributed collective, so all ranks must call this in lockstep.
+
+        Args:
+            teacher_out:
+                Tensor with shape (num_views, batch_size, output_dim) containing
+                features from the teacher model, or the list of per-view tensors
+                passed to forward. If None, the center is updated from the features
+                accumulated by previous forward passes only. The latter is the form
+                to use when training with gradient accumulation.
+        """
+        if teacher_out is not None:
+            if not isinstance(teacher_out, Tensor):
+                teacher_out = torch.stack(teacher_out)
+            self._accumulate_center(teacher_out)
+
+        if self._batch_sum is None:
+            return
+
+        batch_center = center.reduce_mean(self._batch_sum / self._batch_num_elements)
+        self.center.data = center.center_momentum(
+            center=self.center, batch_center=batch_center, momentum=self.center_momentum
+        )
+        self._batch_sum = None
+        self._batch_num_elements = 0
+        self._num_accumulated = 0
+
+    @torch.no_grad()
+    def _accumulate_center(self, teacher_out: Tensor) -> None:
+        """Accumulates the batch center without updating the center.
 
         Args:
             teacher_out:
                 Tensor with shape (num_views, batch_size, output_dim) containing
                 features from the teacher model.
         """
-        # Calculate the batch center using the specified center function
-        batch_center = self._center_fn(x=teacher_out, dim=(0, 1))
+        batch_sum = torch.sum(teacher_out, dim=(0, 1), keepdim=True)
+        if self._batch_sum is None:
+            self._batch_sum = batch_sum
+        else:
+            self._batch_sum += batch_sum
+        self._batch_num_elements += teacher_out.shape[0] * teacher_out.shape[1]
+        self._num_accumulated += 1
 
-        # Update the center with a moving average
-        self.center.data = center.center_momentum(
-            center=self.center, batch_center=batch_center, momentum=self.center_momentum
-        )
+        if self._num_accumulated > MAX_ACCUMULATED and not self._warned_missing_update:
+            self._warned_missing_update = True
+            warnings.warn(
+                f"{type(self).__name__} accumulated {self._num_accumulated} center "
+                "updates without a call to update_center(). If you pass "
+                "update_center=False for gradient accumulation, you must call "
+                "update_center() once per optimizer step, otherwise the center "
+                "stays frozen and the model may collapse.",
+                UserWarning,
+                stacklevel=2,
+            )
