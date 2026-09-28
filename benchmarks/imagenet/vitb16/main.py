@@ -8,6 +8,7 @@ import capi
 import dino
 import dinov2
 import finetune_eval
+import franca
 import ibot
 import knn_eval
 import lejepa
@@ -59,6 +60,7 @@ METHODS = {
     "capi": {"model": capi.CAPI, "transform": capi.transform},
     "dino": {"model": dino.DINO, "transform": dino.transform},
     "dinov2": {"model": dinov2.DINOv2, "transform": dinov2.transform},
+    "franca": {"model": franca.Franca, "transform": franca.transform},
     "ibot": {"model": ibot.IBOT, "transform": ibot.transform},
     "lejepa": {"model": lejepa.LeJEPA, "transform": lejepa.transform},
     "mae": {"model": mae.MAE, "transform": mae.transform},
