@@ -157,7 +157,8 @@ class TestMaskedCausalVisionTransformer:
         images_no_ckpt = images.clone().detach().requires_grad_(True)
         model.set_grad_checkpointing(False)
         out_no_ckpt = model.forward_features(images_no_ckpt, mask=mask)
-        loss_no_ckpt = out_no_ckpt.sum()
+        weights = torch.randn_like(out_no_ckpt)
+        loss_no_ckpt = (out_no_ckpt * weights).sum()
         loss_no_ckpt.backward()
 
         grads_no_ckpt = {
@@ -174,7 +175,7 @@ class TestMaskedCausalVisionTransformer:
         images_with_ckpt = images.clone().detach().requires_grad_(True)
         model.set_grad_checkpointing(True)
         out_with_ckpt = model.forward_features(images_with_ckpt, mask=mask)
-        loss_with_ckpt = out_with_ckpt.sum()
+        loss_with_ckpt = (out_with_ckpt * weights).sum()
         loss_with_ckpt.backward()
 
         grads_with_ckpt = {
