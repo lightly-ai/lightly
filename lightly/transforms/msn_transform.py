@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Tuple, Union
 
 from PIL.Image import Image
 from torch import Tensor
@@ -60,12 +60,8 @@ class MSNTransform(MultiViewTransform):
             How much to jitter hue.
         gaussian_blur:
             Probability of Gaussian blur.
-        kernel_size:
-            Will be deprecated in favor of `sigmas` argument. If set, the old behavior applies and `sigmas` is ignored.
-            Used to calculate sigma of gaussian blur with kernel_size * input_size.
         sigmas:
             Tuple of min and max value from which the std of the gaussian kernel is sampled.
-            Is ignored if `kernel_size` is set.
         random_gray_scale:
             Probability of conversion to grayscale.
         hf_prob:
@@ -91,7 +87,6 @@ class MSNTransform(MultiViewTransform):
         cj_sat: float = 0.8,
         cj_hue: float = 0.2,
         gaussian_blur: float = 0.5,
-        kernel_size: Optional[float] = None,
         sigmas: Tuple[float, float] = (0.1, 2),
         random_gray_scale: float = 0.2,
         hf_prob: float = 0.5,
@@ -108,7 +103,6 @@ class MSNTransform(MultiViewTransform):
             cj_sat=cj_sat,
             cj_hue=cj_hue,
             gaussian_blur=gaussian_blur,
-            kernel_size=kernel_size,
             sigmas=sigmas,
             random_gray_scale=random_gray_scale,
             hf_prob=hf_prob,
@@ -121,7 +115,6 @@ class MSNTransform(MultiViewTransform):
             cj_prob=cj_prob,
             cj_strength=cj_strength,
             gaussian_blur=gaussian_blur,
-            kernel_size=kernel_size,
             sigmas=sigmas,
             random_gray_scale=random_gray_scale,
             hf_prob=hf_prob,
@@ -167,7 +160,6 @@ class MSNViewTransform:
         cj_sat: float = 0.8,
         cj_hue: float = 0.2,
         gaussian_blur: float = 0.5,
-        kernel_size: Optional[float] = None,
         sigmas: Tuple[float, float] = (0.1, 2),
         random_gray_scale: float = 0.2,
         hf_prob: float = 0.5,
@@ -187,11 +179,8 @@ class MSNViewTransform:
             cj_sat: How much to jitter saturation.
             cj_hue: How much to jitter hue.
             gaussian_blur: Probability of Gaussian blur.
-            kernel_size: Will be deprecated in favor of `sigmas` argument. If set,
-                the old behavior applies and `sigmas` is ignored. Used to calculate
-                sigma of gaussian blur with kernel_size * input_size.
             sigmas: Tuple of min and max value from which the std of the gaussian
-                kernel is sampled. Is ignored if `kernel_size` is set.
+                kernel is sampled.
             random_gray_scale: Probability of conversion to grayscale.
             hf_prob: Probability that horizontal flip is applied.
             vf_prob: Probability that vertical flip is applied.
@@ -211,7 +200,7 @@ class MSNViewTransform:
             T.RandomVerticalFlip(p=vf_prob),
             T.RandomApply([color_jitter], p=cj_prob),
             T.RandomGrayscale(p=random_gray_scale),
-            GaussianBlur(kernel_size=kernel_size, sigmas=sigmas, prob=gaussian_blur),
+            GaussianBlur(sigmas=sigmas, prob=gaussian_blur),
             T.ToTensor(),
             T.Normalize(mean=normalize["mean"], std=normalize["std"]),
         ]

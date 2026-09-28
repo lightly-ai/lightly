@@ -45,12 +45,8 @@ class DenseCLTransform(MoCoV2Transform):
             Probability of conversion to grayscale.
         gaussian_blur:
             Probability of Gaussian blur.
-        kernel_size:
-            Will be deprecated in favor of `sigmas` argument. If set, the old behavior applies and `sigmas` is ignored.
-            Used to calculate sigma of gaussian blur with kernel_size * input_size.
         sigmas:
             Tuple of min and max value from which the std of the gaussian kernel is sampled.
-            Is ignored if `kernel_size` is set.
         vf_prob:
             Probability that vertical flip is applied.
         hf_prob:

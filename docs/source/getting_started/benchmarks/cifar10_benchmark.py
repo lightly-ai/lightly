@@ -310,7 +310,7 @@ class MocoModel(BenchmarkModule):
         # create our loss with the optional memory bank
         self.criterion = NTXentLoss(
             temperature=0.1,
-            memory_bank_size=4096,
+            memory_bank_size=(4096, 128),
         )
 
     def forward(self, x):
@@ -662,7 +662,7 @@ class NNCLRModel(BenchmarkModule):
         )
 
         self.criterion = NTXentLoss()
-        self.memory_bank = modules.NNMemoryBankModule(size=4096)
+        self.memory_bank = modules.NNMemoryBankModule(size=(4096, 256))
 
     def forward(self, x):
         y = self.backbone(x).flatten(start_dim=1)

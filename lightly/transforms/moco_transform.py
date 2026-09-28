@@ -42,12 +42,8 @@ class MoCoV1Transform(SimCLRTransform):
             Probability of conversion to grayscale.
         gaussian_blur:
             Probability of Gaussian blur.
-        kernel_size:
-            Will be deprecated in favor of `sigmas` argument. If set, the old behavior applies and `sigmas` is ignored.
-            Used to calculate sigma of gaussian blur with kernel_size * input_size.
         sigmas:
             Tuple of min and max value from which the std of the gaussian kernel is sampled.
-            Is ignored if `kernel_size` is set.
         vf_prob:
             Probability that vertical flip is applied.
         hf_prob:
@@ -77,7 +73,6 @@ class MoCoV1Transform(SimCLRTransform):
         min_scale: float = 0.2,
         random_gray_scale: float = 0.2,
         gaussian_blur: float = 0.0,
-        kernel_size: Optional[float] = None,
         sigmas: Tuple[float, float] = (0.1, 2),
         vf_prob: float = 0.0,
         hf_prob: float = 0.5,
@@ -96,7 +91,6 @@ class MoCoV1Transform(SimCLRTransform):
             min_scale=min_scale,
             random_gray_scale=random_gray_scale,
             gaussian_blur=gaussian_blur,
-            kernel_size=kernel_size,
             sigmas=sigmas,
             vf_prob=vf_prob,
             hf_prob=hf_prob,
@@ -151,12 +145,8 @@ class MoCoV2Transform(SimCLRTransform):
             Probability of conversion to grayscale.
         gaussian_blur:
             Probability of Gaussian blur.
-        kernel_size:
-            Will be deprecated in favor of `sigmas` argument. If set, the old behavior applies and `sigmas` is ignored.
-            Used to calculate sigma of gaussian blur with kernel_size * input_size.
         sigmas:
             Tuple of min and max value from which the std of the gaussian kernel is sampled.
-            Is ignored if `kernel_size` is set.
         vf_prob:
             Probability that vertical flip is applied.
         hf_prob:
@@ -186,7 +176,6 @@ class MoCoV2Transform(SimCLRTransform):
         min_scale: float = 0.2,
         random_gray_scale: float = 0.2,
         gaussian_blur: float = 0.5,
-        kernel_size: Optional[float] = None,
         sigmas: Tuple[float, float] = (0.1, 2),
         vf_prob: float = 0.0,
         hf_prob: float = 0.5,
@@ -205,7 +194,6 @@ class MoCoV2Transform(SimCLRTransform):
             min_scale=min_scale,
             random_gray_scale=random_gray_scale,
             gaussian_blur=gaussian_blur,
-            kernel_size=kernel_size,
             sigmas=sigmas,
             vf_prob=vf_prob,
             hf_prob=hf_prob,

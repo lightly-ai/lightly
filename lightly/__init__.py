@@ -21,8 +21,7 @@ The framework is structured into the following modules:
 - **data**:
 
   The lightly.data module provides a dataset wrapper and collate functions. The
-  collate functions are in charge of the data augmentations which are crucial for
-  self-supervised learning.
+  collate functions combine the views produced by a transform into a batch.
 
 - **loss**:
 

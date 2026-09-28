@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Tuple, Union
 
 from PIL.Image import Image
 from torch import Tensor
@@ -39,8 +39,6 @@ class SMoGTransform(MultiViewTransform):
             Max_scales for each crop category.
         gaussian_blur_probs:
             Probability of Gaussian blur for each crop category.
-        gaussian_blur_kernel_sizes:
-            Deprecated values in favour of sigmas.
         gaussian_blur_sigmas:
             Tuple of min and max value from which the std of the gaussian kernel is sampled.
         solarize_probs:
@@ -74,10 +72,6 @@ class SMoGTransform(MultiViewTransform):
         crop_min_scales: Tuple[float, float] = (0.2, 0.05),
         crop_max_scales: Tuple[float, float] = (1.0, 0.2),
         gaussian_blur_probs: Tuple[float, float] = (0.5, 0.1),
-        gaussian_blur_kernel_sizes: Tuple[Optional[float], Optional[float]] = (
-            None,
-            None,
-        ),
         gaussian_blur_sigmas: Tuple[float, float] = (0.1, 2),
         solarize_probs: Tuple[float, float] = (0.0, 0.2),
         hf_prob: float = 0.5,
@@ -99,7 +93,6 @@ class SMoGTransform(MultiViewTransform):
                         crop_min_scale=crop_min_scales[i],
                         crop_max_scale=crop_max_scales[i],
                         gaussian_blur_prob=gaussian_blur_probs[i],
-                        kernel_size=gaussian_blur_kernel_sizes[i],
                         sigmas=gaussian_blur_sigmas,
                         solarize_prob=solarize_probs[i],
                         hf_prob=hf_prob,
@@ -146,7 +139,6 @@ class SmoGViewTransform:
         crop_min_scale: float = 0.2,
         crop_max_scale: float = 1.0,
         gaussian_blur_prob: float = 0.5,
-        kernel_size: Optional[float] = None,
         sigmas: Tuple[float, float] = (0.1, 2),
         solarize_prob: float = 0.0,
         hf_prob: float = 0.5,
@@ -166,11 +158,8 @@ class SmoGViewTransform:
             crop_min_scale: Minimum size of the randomized crop relative to the input_size.
             crop_max_scale: Maximum size of the randomized crop relative to the input_size.
             gaussian_blur_prob: Probability of Gaussian blur.
-            kernel_size: Will be deprecated in favor of `sigmas` argument. If set,
-                the old behavior applies and `sigmas` is ignored. Used to calculate
-                sigma of gaussian blur with kernel_size * input_size.
             sigmas: Tuple of min and max value from which the std of the gaussian
-                kernel is sampled. Is ignored if `kernel_size` is set.
+                kernel is sampled.
             solarize_prob: Probability of solarization.
             hf_prob: Probability that horizontal flip is applied.
             cj_prob: Probability that color jitter is applied.
@@ -198,7 +187,6 @@ class SmoGViewTransform:
             T.RandomApply([color_jitter], p=cj_prob),
             T.RandomGrayscale(p=random_gray_scale),
             GaussianBlur(
-                kernel_size=kernel_size,
                 prob=gaussian_blur_prob,
                 sigmas=sigmas,
             ),

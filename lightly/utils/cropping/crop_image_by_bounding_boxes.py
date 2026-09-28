@@ -1,7 +1,8 @@
+from __future__ import annotations
+
 import os.path
 import warnings
 from pathlib import Path
-from typing import List
 
 from PIL import Image
 from tqdm import tqdm
@@ -13,10 +14,10 @@ from lightly.utils.bounding_box import BoundingBox
 def crop_dataset_by_bounding_boxes_and_save(
     dataset: LightlyDataset,
     output_dir: str,
-    bounding_boxes_list_list: List[List[BoundingBox]],
-    class_indices_list_list: List[List[int]],
-    class_names: List[str] = None,
-) -> List[List[str]]:
+    bounding_boxes_list_list: list[list[BoundingBox]],
+    class_indices_list_list: list[list[int]],
+    class_names: list[str] | None = None,
+) -> list[list[str]]:
     """Crops all images in a dataset by the bounding boxes and saves them in the output dir
 
     Args:
@@ -48,7 +49,7 @@ def crop_dataset_by_bounding_boxes_and_save(
             "but the lengths dont align."
         )
 
-    cropped_image_filepath_list_list: List[List[str]] = []
+    cropped_image_filepath_list_list: list[list[str]] = []
 
     print(f"Cropping objects out of {len(filenames_images)} images...")
     for filename_image, class_indices, bounding_boxes in tqdm(
@@ -92,8 +93,12 @@ def crop_dataset_by_bounding_boxes_and_save(
 
             # crop out the image and save it
             w, h = image.size
-            crop_box = (w * bbox.x0, h * bbox.y0, w * bbox.x1, h * bbox.y1)
-            crop_box = tuple(int(i) for i in crop_box)
+            crop_box = (
+                int(w * bbox.x0),
+                int(h * bbox.y0),
+                int(w * bbox.x1),
+                int(h * bbox.y1),
+            )
             cropped_image = image.crop(crop_box)
             cropped_image.save(cropped_image_filepath)
 
