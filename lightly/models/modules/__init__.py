@@ -17,6 +17,7 @@ from lightly.models.modules.heads import (
     DINOProjectionHead,
     DINOv2ProjectionHead,
     LeJEPAProjectionHead,
+    LeWMProjectionHead,
     MMCRProjectionHead,
     MoCoProjectionHead,
     NNCLRPredictionHead,
@@ -31,6 +32,12 @@ from lightly.models.modules.heads import (
     SwaVPrototypes,
 )
 from lightly.models.modules.nn_memory_bank import NNMemoryBankModule
+from lightly.models.modules.world_model import (
+    ActionEncoder,
+    AdaLNZero,
+    LatentDynamicsPredictor,
+    PredictorBlock,
+)
 from lightly.utils import dependency as _dependency
 
 if _dependency.torchvision_vit_available():
