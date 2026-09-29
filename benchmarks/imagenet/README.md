@@ -141,10 +141,11 @@ Common flags supported by both benchmark families:
 * `--accelerator`: Accelerator used by PyTorch Lightning. Defaults to `gpu`.
 * `--precision`: PyTorch Lightning precision. Defaults to `16-mixed`.
 * `--ckpt-path`: Load or resume from a specific checkpoint file.
-* `--resume`: Resume the newest run of each method. Reuses its run directory
-  and continues pretraining from its `last.ckpt`. Starts a new run if no
-  checkpoint exists yet, so the flag is safe to always pass on preemptible
-  clusters. Cannot be combined with `--ckpt-path`.
+* `--resume`: Continue the newest run of each method from its `last.ckpt` and
+  reuse its run directory. Starts a new run if the newest run has no
+  checkpoint yet. The checkpoint is not checked against the current flags, so
+  use a separate `--log-dir` per experiment. Cannot be combined with
+  `--ckpt-path`.
 * `--num-classes`: Number of dataset classes. Defaults to `1000`.
 * `--skip-knn-eval`: Skip kNN evaluation.
 * `--skip-linear-eval`: Skip linear evaluation.
