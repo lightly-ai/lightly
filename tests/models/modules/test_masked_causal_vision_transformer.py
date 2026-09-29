@@ -166,6 +166,7 @@ class TestMaskedCausalVisionTransformer:
             for name, param in model.named_parameters()
             if param.grad is not None
         }
+        assert images_no_ckpt.grad is not None
         img_grad_no_ckpt = images_no_ckpt.grad.clone()
 
         # Reset model gradients
@@ -183,6 +184,7 @@ class TestMaskedCausalVisionTransformer:
             for name, param in model.named_parameters()
             if param.grad is not None
         }
+        assert images_with_ckpt.grad is not None
         img_grad_with_ckpt = images_with_ckpt.grad.clone()
 
         # Compare outputs and gradients
