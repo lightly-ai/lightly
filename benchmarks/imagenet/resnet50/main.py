@@ -167,6 +167,11 @@ def main(
             if method_ckpt_path is not None:
                 model.load_state_dict(torch.load(method_ckpt_path)["state_dict"])
         else:
+            logger_version = (
+                method_ckpt_path.parent.parent.name
+                if resume and method_ckpt_path is not None
+                else None
+            )
             pretrain(
                 model=model,
                 method=method,
@@ -180,6 +185,7 @@ def main(
                 devices=devices,
                 precision=precision,
                 ckpt_path=method_ckpt_path,
+                logger_version=logger_version,
                 strategy=strategy,
                 run_online_knn_eval=run_online_knn_eval,
             )
@@ -277,6 +283,7 @@ def pretrain(
     devices: int,
     precision: str,
     ckpt_path: Union[Path, None],
+    logger_version: Union[str, None],
     strategy: str,
     run_online_knn_eval: bool,
 ) -> None:
@@ -352,7 +359,9 @@ def pretrain(
             DeviceStatsMonitor(),
             metric_callback,
         ],
-        logger=TensorBoardLogger(save_dir=str(log_dir), name="pretrain"),
+        logger=TensorBoardLogger(
+            save_dir=str(log_dir), name="pretrain", version=logger_version
+        ),
         precision=precision,
         strategy=strategy,
         sync_batchnorm=accelerator != "cpu",  # Sync batchnorm is not supported on CPU.
