@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from argparse import ArgumentParser
 from datetime import datetime
 from pathlib import Path
@@ -218,7 +220,7 @@ def main(
             print_rank_zero(eval_metrics_to_markdown(eval_metrics))
 
 
-def find_resume_run(method_log_dir: Path) -> Union[Tuple[Path, Path], None]:
+def find_resume_run(method_log_dir: Path) -> Tuple[Path, Path] | None:
     """Finds a checkpoint in the newest run of a method.
 
     Returns:
@@ -254,7 +256,7 @@ def pretrain(
     devices: int,
     precision: str,
     ckpt_path: Union[Path, None],
-    logger_version: Union[str, None],
+    logger_version: str | None,
     strategy: str,
 ) -> None:
     print_rank_zero(f"Running pretraining for {method}...")
