@@ -213,27 +213,26 @@ def main(
 
 
 def find_resume_run(method_log_dir: Path) -> Union[Tuple[Path, Path], None]:
-    """Finds the newest run of a method that can be resumed.
+    """Finds a checkpoint in the newest run of a method.
 
     Returns:
         Tuple with the run directory and its most recent last.ckpt checkpoint,
-        or None if no run with a checkpoint exists.
+        or None if the newest run has no checkpoint.
     """
     if not method_log_dir.is_dir():
         return None
-    # Run directories are named after their start time, so the lexicographic
-    # order matches the chronological order.
-    for run_dir in sorted(
-        (path for path in method_log_dir.iterdir() if path.is_dir()), reverse=True
-    ):
-        # Every resume logs to a new version subdirectory, so a run can contain
-        # multiple checkpoints. Pick the most recently modified one.
-        checkpoints = sorted(
-            run_dir.rglob("last.ckpt"), key=lambda path: path.stat().st_mtime
-        )
-        if checkpoints:
-            return run_dir.resolve(), checkpoints[-1].resolve()
-    return None
+    # Timestamped run names sort in chronological order.
+    run_dirs = sorted(path for path in method_log_dir.iterdir() if path.is_dir())
+    if not run_dirs:
+        return None
+    run_dir = run_dirs[-1]
+    # Use the most recently modified checkpoint when a run has several.
+    checkpoints = sorted(
+        run_dir.rglob("last.ckpt"), key=lambda path: path.stat().st_mtime
+    )
+    if not checkpoints:
+        return None
+    return run_dir.resolve(), checkpoints[-1].resolve()
 
 
 def pretrain(
