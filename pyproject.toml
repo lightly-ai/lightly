@@ -270,7 +270,6 @@ exclude = '''(?x)(
     tests/cli/test_cli_magic.py |
     tests/cli/test_cli_crop.py |
     tests/cli/test_cli_train.py |
-    tests/cli/test_cli_get_lighty_config.py |
     tests/cli/test_cli_embed.py |
     tests/core/test_Core.py |
     tests/data/test_multi_view_collate.py |
@@ -280,9 +279,7 @@ exclude = '''(?x)(
     tests/embedding/test_embedding.py |
     tests/utils/test_debug.py |
     tests/utils/benchmarking/test_benchmark_module.py |
-    tests/utils/benchmarking/test_topk.py |
     tests/utils/benchmarking/test_knn_classifier.py |
-    tests/utils/benchmarking/test_knn.py |
     tests/utils/benchmarking/test_linear_classifier.py |
     tests/utils/benchmarking/test_metric_callback.py |
     tests/utils/test_dist.py |
