@@ -259,9 +259,7 @@ exclude = '''(?x)(
     lightly/data/_image_loaders.py |
     lightly/data/_video.py |
     lightly/core.py |
-    lightly/utils/cropping/read_yolo_label_file.py |
     lightly/utils/debug.py |
-    lightly/utils/benchmarking/benchmark_module.py |
     lightly/utils/benchmarking/knn_classifier.py |
     lightly/models/modules/masked_autoencoder.py |
     lightly/models/modules/ijepa.py |
@@ -279,7 +277,6 @@ exclude = '''(?x)(
     tests/embedding/test_callbacks.py |
     tests/embedding/test_embedding.py |
     tests/utils/test_debug.py |
-    tests/utils/benchmarking/test_benchmark_module.py |
     tests/utils/benchmarking/test_topk.py |
     tests/utils/benchmarking/test_knn_classifier.py |
     tests/utils/benchmarking/test_knn.py |
