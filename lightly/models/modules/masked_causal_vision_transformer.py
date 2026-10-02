@@ -33,9 +33,11 @@ class MaskedCausalAttention(Attention):  # type: ignore[misc]
                 should be masked. Tokens where the mask is True will only be used for
                 causal attention, while unmasked tokens are used for bidirectional
                 attention. If the mask is None, all tokens are used for bidirectional
-                attention.
+                attention. Ignored if is_causal is False.
             is_causal:
-                Whether to apply causal attention to masked tokens.
+                Whether to apply causal attention to masked tokens. If False, the mask
+                is ignored and all tokens use bidirectional attention. Defaults to True,
+                unlike timm.
         """
         B, N, C = x.shape
         attn_mask = self._get_attention_mask(x, mask=mask, is_causal=is_causal)
@@ -80,12 +82,14 @@ class MaskedCausalAttention(Attention):  # type: ignore[misc]
                 Input tensor of shape (batch_size, sequence_length, channels).
             mask:
                 Mask tensor of shape (batch_size, sequence_length) indicating which tokens
-                should be masked.
+                should be masked. Ignored if is_causal is False.
             is_causal:
-                Whether to apply causal attention to masked tokens.
+                Whether to apply causal attention to masked tokens. If False, returns None
+                so all tokens use bidirectional attention. Defaults to True, unlike timm.
 
         Returns:
-            Attention mask of shape (batch_size, 1, sequence_length, sequence_length).
+            Attention mask of shape (batch_size, 1, sequence_length, sequence_length),
+            or None if is_causal is False or mask is None.
         """
         B, N = x.shape[:2]
 
@@ -149,9 +153,11 @@ class MaskedCausalBlock(Block):  # type: ignore[misc]
                 should be masked. Tokens where the mask is True will only be used for
                 causal attention, while unmasked tokens are used for bidirectional
                 attention. If the mask is None, all tokens are used for bidirectional
-                attention.
+                attention. Ignored if is_causal is False.
             is_causal:
-                Whether to apply causal attention to masked tokens.
+                Whether to apply causal attention to masked tokens. If False, the mask
+                is ignored and all tokens use bidirectional attention. Defaults to True,
+                unlike timm.
 
         Returns:
             Output tensor after applying the attention block.
@@ -199,9 +205,11 @@ class MaskedCausalVisionTransformer(VisionTransformer):  # type: ignore[misc]
                 should be masked. Tokens where the mask is True will only be used for
                 causal attention, while unmasked tokens are used for bidirectional
                 attention. If the mask is None, all tokens are used for bidirectional
-                attention.
+                attention. Ignored if is_causal is False.
             is_causal:
-                Whether to apply causal attention to masked tokens.
+                Whether to apply causal attention to masked tokens. If False, the mask
+                is ignored and all tokens use bidirectional attention. Defaults to True,
+                unlike timm.
 
         Returns:
             Output tensor after applying the transformer blocks.
