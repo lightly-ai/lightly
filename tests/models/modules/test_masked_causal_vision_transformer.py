@@ -164,7 +164,8 @@ class TestMaskedCausalVisionTransformer:
 
         images = torch.rand(2, 3, 32, 32, requires_grad=True)
         expected = model.forward_features(images, mask=mask, is_causal=is_causal)
-        expected.sum().backward()
+        weights = torch.randn_like(expected)
+        (expected * weights).sum().backward()
         assert images.grad is not None
         expected_input_grad = images.grad.detach().clone()
 
@@ -172,7 +173,7 @@ class TestMaskedCausalVisionTransformer:
         images.grad.zero_()
         model.set_grad_checkpointing(True)
         actual = model.forward_features(images, mask=mask, is_causal=is_causal)
-        actual.sum().backward()
+        (actual * weights).sum().backward()
 
         torch.testing.assert_close(actual, expected)
         torch.testing.assert_close(images.grad, expected_input_grad)
