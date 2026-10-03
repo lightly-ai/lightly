@@ -63,7 +63,7 @@ class DetConSLoss(Module):
         Args:
             view0: Mask-pooled output for the first view, a float tensor of shape
                 :math:`(B, M, D)`.
-            pred_view1: Mask-pooled output for the second view, a float tensor of shape
+            view1: Mask-pooled output for the second view, a float tensor of shape
                 :math:`(B, M, D)`.
             mask_view0: Indices corresponding to the sampled masks for the first view,
                 an integer tensor of shape :math:`(B, M)` with (possibly repeated)

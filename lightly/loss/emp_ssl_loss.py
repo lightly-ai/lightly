@@ -87,12 +87,12 @@ class EMPSSLLoss(Module):
         tcr_eps: float = 0.2,
         inv_coef: float = 200.0,
     ) -> None:
-        """Initializes the EMPSSLoss module.
+        """Initializes the EMPSSLLoss module.
 
         Args:
             tcr_eps:
                 Total coding rate (TCR) epsilon.
-            inv_coff:
+            inv_coef:
                 Coefficient for the invariance loss.
         """
         super().__init__()
