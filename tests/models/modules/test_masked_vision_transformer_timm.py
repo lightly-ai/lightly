@@ -95,3 +95,41 @@ class TestMaskedVisionTransformerTIMM(MaskedVisionTransformerTest):
         model.add_pos_embed(x)
         _, call_kwargs = mock_resample_abs_pos_embed.call_args
         assert call_kwargs["antialias"] == antialias
+
+    @pytest.mark.parametrize("method_name", ["encode", "forward_intermediates"])
+    def test_gradient_checkpointing(
+        self, method_name: str, mocker: MockerFixture
+    ) -> None:
+        model = self.get_masked_vit(
+            patch_size=32,
+            depth=2,
+            num_heads=1,
+            embed_dim=32,
+        )
+        model.eval()
+        images = torch.rand(2, 3, 64, 64)
+
+        expected = getattr(model, method_name)(images)
+        model.set_grad_checkpointing(enable=True)
+        mock_checkpoint_seq = mocker.spy(
+            masked_vision_transformer_timm, "checkpoint_seq"
+        )
+
+        checkpointed_images = images.clone().requires_grad_()
+        actual = getattr(model, method_name)(checkpointed_images)
+        mock_checkpoint_seq.assert_called()
+
+        if method_name == "forward_intermediates":
+            expected_output, expected_intermediates = expected
+            actual_output, actual_intermediates = actual
+            torch.testing.assert_close(actual_output, expected_output)
+            for actual_intermediate, expected_intermediate in zip(
+                actual_intermediates, expected_intermediates
+            ):
+                torch.testing.assert_close(actual_intermediate, expected_intermediate)
+            actual_output.sum().backward()
+        else:
+            torch.testing.assert_close(actual, expected)
+            actual.sum().backward()
+
+        assert checkpointed_images.grad is not None
