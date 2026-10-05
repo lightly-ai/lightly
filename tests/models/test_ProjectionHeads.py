@@ -333,10 +333,11 @@ class TestProjectionHeads:
             # training mode; with the norm off a single sample is fine, which
             # also confirms the norm is really gone.
             batch_size = 2 if batch_norm else 1
-            for in_features, _, out_features in self.n_features:
+            for in_features, hidden_features, out_features in self.n_features:
                 torch.manual_seed(seed)
                 head = LeWMProjectionHead(
                     input_dim=in_features,
+                    hidden_dim=hidden_features,
                     output_dim=out_features,
                     batch_norm=batch_norm,
                 ).to(device)

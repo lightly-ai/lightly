@@ -71,7 +71,7 @@ Good to Know
 
 .. note::
 
-    A projection head that ends in ``BatchNorm`` behaves differently in train
+    The projection head uses ``BatchNorm``, which behaves differently in train
     and eval mode, and planning runs in eval mode. Check that the embeddings
     agree between the two modes before trusting a rollout.
 
