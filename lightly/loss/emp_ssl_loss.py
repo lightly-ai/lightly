@@ -66,7 +66,7 @@ class EMPSSLLoss(Module):
 
     Examples:
         >>> # initialize loss function
-        >>> loss_fn = EMP_SSLLoss()
+        >>> loss_fn = EMPSSLLoss()
         >>> base_transform = VICRegViewTransform()  # As discussed in paper
         >>> transform_fn = MultiCropTransform(
         ...     transforms=base_transform, crop_counts=100
