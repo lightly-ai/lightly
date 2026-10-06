@@ -67,7 +67,8 @@ Good to Know
   :meth:`lightly.models.modules.LatentDynamicsPredictor.rollout` feeds the
   model its own predictions, which is how a planner scores candidate action
   sequences. The planner itself needs an environment and an episode, so it
-  belongs to a control library rather than here.
+  belongs to a control library rather than here. The tutorial below builds a
+  small planner with the cross-entropy method.
 
 .. note::
 
@@ -79,6 +80,9 @@ Reference:
 
     .. [0] `LeWorldModel, 2026 <https://arxiv.org/abs/2603.19312>`_
     .. [1] `LeJEPA, 2025 <https://arxiv.org/abs/2511.08544>`_
+
+Tutorials:
+    :ref:`lightly-lewm-tutorial-9`
 
 .. note::
 
