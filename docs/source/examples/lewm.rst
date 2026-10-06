@@ -96,7 +96,7 @@ Tutorials:
 .. tabs::
     .. tab:: PyTorch
 
-        .. image:: https://img.shields.io/badge/Open%20in%20Colab-blue?logo=googlecolab&label=%20&labelColor=5c5c5c
+        .. image:: /_static/colab-badge.svg
             :target: https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/lewm.ipynb
 
         The example generates its own trajectories, so it runs without an
