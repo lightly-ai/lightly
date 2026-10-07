@@ -39,6 +39,7 @@ In this tutorial you will learn:
 # .. code-block:: console
 #
 #   pip install "lightly[timm]" matplotlib
+import copy
 import math
 
 import matplotlib.pyplot as plt
@@ -166,21 +167,25 @@ def collect(num_episodes, num_steps, rng, keep_prob=0.8):
         for t in range(num_steps):
             if rng.random() > keep_prob:
                 action = rng.uniform(-1, 1, size=2)
-            pos = world.step(pos, action)
+            pos = world.step(pos=pos, action=action)
             actions[episode, t] = action
             positions[episode, t + 1] = pos
     return positions, actions
 
 
-train_positions, train_actions = collect(num_episodes, episode_length, rng)
-test_positions, test_actions = collect(64, episode_length, rng)
+train_positions, train_actions = collect(
+    num_episodes=num_episodes, num_steps=episode_length, rng=rng
+)
+test_positions, test_actions = collect(
+    num_episodes=64, num_steps=episode_length, rng=rng
+)
 
 # %%
 # The plot shows one of the episodes. The agent slides along the wall and then
 # goes through the door.
 wall_center = sum(world.wall) / 2
 left = train_positions[..., 0] + world.agent / 2 < wall_center
-crossing = np.flatnonzero(left.any(axis=1) & ~left.all(axis=1))[0]
+crossing = np.argmax(left.any(axis=1) & ~left.all(axis=1))  # 0 if none crosses
 frames = world.render(train_positions[crossing, ::4])
 fig, axes = plt.subplots(1, len(frames), figsize=(2 * len(frames), 2.4))
 for t, (ax, frame) in enumerate(zip(axes, frames)):
@@ -283,7 +288,7 @@ scheduler = torch.optim.lr_scheduler.LambdaLR(
 history = []
 for epoch in range(epochs):
     model.train()
-    prediction_sum, sigreg_sum = 0.0, 0.0
+    term_sums = torch.zeros(2, device=device)
     for positions, actions in dataloader:
         frames = torch.from_numpy(world.render(positions.numpy())).to(device)
         actions = actions.to(device)
@@ -296,10 +301,13 @@ for epoch in range(epochs):
         loss.backward()
         optimizer.step()
         scheduler.step()
-        prediction = (predicted - embeddings[:, 1:]).square().mean().item()
-        prediction_sum += prediction
-        sigreg_sum += (loss.item() - prediction) / criterion.lambda_param
-    history.append((prediction_sum / len(dataloader), sigreg_sum / len(dataloader)))
+        # Log both terms for the plot. SIGReg expects the batch in dimension -2.
+        with torch.no_grad():
+            embeddings = embeddings.detach()
+            prediction = (predicted - embeddings[:, 1:]).square().mean()
+            sigreg = criterion.sigreg(embeddings.transpose(0, 1))
+            term_sums += torch.stack([prediction, sigreg])
+    history.append((term_sums / len(dataloader)).tolist())
     print(
         f"epoch {epoch}: prediction {history[-1][0]:.4f}, SIGReg {history[-1][1]:.3f}"
     )
@@ -311,6 +319,25 @@ for ax, values, title in zip(axes, zip(*history), ["prediction term", "SIGReg te
     ax.set_title(title)
 fig.tight_layout()
 plt.show()
+
+# %%
+# Check the batch norm
+# --------------------
+#
+# The projection head has a batch norm layer. In training mode, it uses the
+# statistics of the batch. In eval mode, it uses running statistics. We plan in
+# eval mode, so the two modes must give almost the same embeddings. We compare
+# them on a batch of test frames. A copy of the head runs in training mode, so
+# that the running statistics do not change.
+model.eval()
+with torch.no_grad():
+    frames = torch.from_numpy(world.render(test_positions[:, 0])).to(device)
+    features = model.backbone(frames)
+    eval_embeddings = model.projection_head(features)
+    train_embeddings = copy.deepcopy(model.projection_head).train()(features)
+    gap = (train_embeddings - eval_embeddings).square().mean()
+    gap = gap / eval_embeddings.var(dim=0).mean()
+print(f"difference between train and eval mode: {gap:.3f} of the variance")
 
 # %%
 # Does the model use the actions?
@@ -331,7 +358,6 @@ plt.show()
 # The plot shows the mean squared error to the real embeddings, divided by the
 # variance of the embeddings. A model that uses the actions has a much lower error
 # with the true actions.
-model.eval()
 
 
 @torch.no_grad()
@@ -361,9 +387,9 @@ context = test_embeddings[:, :1]
 target = test_embeddings[:, 1 : horizon + 1]
 variance = target.var(dim=(0, 1)).mean()
 rollouts = {
-    "true actions": rollout(context, test_actions_t[:, :horizon]),
+    "true actions": rollout(context=context, actions=test_actions_t[:, :horizon]),
     "actions of a different episode": rollout(
-        context, test_actions_t[:, :horizon].roll(1, dims=0)
+        context=context, actions=test_actions_t[:, :horizon].roll(1, dims=0)
     ),
     "first embedding, repeated": context.expand_as(target),
 }
@@ -432,10 +458,12 @@ def push_right(starts, num_steps=10):
     real = [starts]
     for t in range(num_steps):
         real.append(
-            np.stack([world.step(p, a) for p, a in zip(real[-1], actions[:, t])])
+            np.stack(
+                [world.step(pos=p, action=a) for p, a in zip(real[-1], actions[:, t])]
+            )
         )
     context = encode_positions(starts[:, None]).to(device)
-    predicted = rollout(context, torch.from_numpy(actions).to(device))
+    predicted = rollout(context=context, actions=torch.from_numpy(actions).to(device))
     real = np.stack(real, axis=1)
     imagined = read_position(predicted).numpy()
     imagined = np.concatenate([starts[:, None], imagined], axis=1)
@@ -511,7 +539,7 @@ print(f"decoder error: {loss.item():.5f}")
 # The first row shows a test episode. The second row decodes a rollout with the
 # true actions. The third row decodes a rollout with the opposite actions. All
 # rows start from the same frame.
-opposite = rollout(context[:1], -test_actions_t[:1, :horizon])
+opposite = rollout(context=context[:1], actions=-test_actions_t[:1, :horizon])
 with torch.no_grad():
     first = torch.from_numpy(world.render(test_positions[0, :1])).to(device)
     rows = {
@@ -558,8 +586,13 @@ plt.show()
 #     there. On this environment, it gives a much higher success rate.
 
 
+plan_horizon = 8
+
+
 @torch.no_grad()
-def plan(current, goal, horizon=8, num_samples=300, num_iters=10, num_elites=30):
+def plan(
+    current, goal, horizon=plan_horizon, num_samples=300, num_iters=10, num_elites=30
+):
     # current, goal: embeddings (B, D). Returns plans (B, horizon, 2).
     batch, dim = current.shape
     mean = torch.zeros(batch, horizon, 2, device=device)
@@ -568,7 +601,7 @@ def plan(current, goal, horizon=8, num_samples=300, num_iters=10, num_elites=30)
     for _ in range(num_iters):
         noise = torch.randn(batch, num_samples, horizon, 2, device=device)
         candidates = (mean[:, None] + std[:, None] * noise).clamp(-1, 1)
-        predicted = rollout(context, candidates.flatten(0, 1))
+        predicted = rollout(context=context, actions=candidates.flatten(0, 1))
         predicted = predicted.view(batch, num_samples, horizon, dim)
         costs = (predicted - goal[:, None, None]).square().mean(dim=(2, 3))
         # Refit the distribution to the plans with the lowest cost.
@@ -589,10 +622,10 @@ def run_episodes(starts, goals, policy, num_steps, replan_every=4):
     positions = starts.copy()
     path = [positions]
     for _ in range(num_steps // replan_every):
-        actions = policy(positions, goals)
+        actions = policy(positions=positions, goals=goals)
         for t in range(replan_every):
             positions = np.stack(
-                [world.step(p, a) for p, a in zip(positions, actions[:, t])]
+                [world.step(pos=p, action=a) for p, a in zip(positions, actions[:, t])]
             )
             path.append(positions)
     return np.stack(path, axis=1)
@@ -601,11 +634,11 @@ def run_episodes(starts, goals, policy, num_steps, replan_every=4):
 def cem_policy(positions, goals):
     current = encode_positions(positions).to(device)
     goal = encode_positions(goals).to(device)
-    return plan(current, goal).cpu().numpy()
+    return plan(current=current, goal=goal).cpu().numpy()
 
 
 def random_policy(positions, goals):
-    return rng.uniform(-1, 1, size=(len(positions), 4, 2))
+    return rng.uniform(-1, 1, size=(len(positions), plan_horizon, 2))
 
 
 # %%
@@ -613,25 +646,25 @@ def random_policy(positions, goals):
 # new episode, and the agent has ``2 * k`` steps to reach it. An episode is a
 # success if the agent ends less than 4 pixels from the goal. A random policy is
 # the baseline.
-cem_paths = {}
+results = {}
 for k in [4, 8, 16]:
-    goal_positions, _ = collect(400, k, rng)
+    goal_positions, _ = collect(num_episodes=400, num_steps=k, rng=rng)
     distance = np.linalg.norm(goal_positions[:, k] - goal_positions[:, 0], axis=1)
     keep = np.flatnonzero(distance >= 8)[:30]
     starts, goals = goal_positions[keep, 0], goal_positions[keep, k]
     for name, policy in [("random actions", random_policy), ("CEM", cem_policy)]:
-        paths = run_episodes(starts, goals, policy, num_steps=2 * k)
+        paths = run_episodes(starts=starts, goals=goals, policy=policy, num_steps=2 * k)
         miss = np.linalg.norm(paths[:, -1] - goals, axis=1)
+        results[k, name] = (paths, goals, miss)
         print(
             f"goal {k} steps ahead, {name}: success {np.mean(miss < 4):.0%}, "
             f"median distance to the goal {np.median(miss):.1f} pixels"
         )
-    cem_paths[k] = (paths, goals, miss)
 
 # %%
 # The plot shows four CEM episodes with the goal 8 steps ahead: two that reach
 # the goal and two that miss it. The outline is the goal position of the agent.
-paths, goals, miss = cem_paths[8]
+paths, goals, miss = results[8, "CEM"]
 episodes = [*np.flatnonzero(miss < 4)[:2], *np.flatnonzero(miss >= 4)[:2]]
 fig, axes = plt.subplots(1, len(episodes), figsize=(3 * len(episodes), 3.4))
 for ax, episode in zip(axes, episodes):
