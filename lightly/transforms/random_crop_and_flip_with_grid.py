@@ -72,7 +72,7 @@ class RandomHorizontalFlipWithLocation(T.RandomHorizontalFlip):  # type: ignore[
 
         Args:
             img (PIL Image or Tensor): Image to be flipped..
-            Location: Location object linked to the image
+            location (Location): Location object linked to the image
         Returns:
             PIL Image or Tensor: Randomly flipped image
             Location: Location object with updated location.horizontal_flip parameter
@@ -96,7 +96,7 @@ class RandomVerticalFlipWithLocation(T.RandomVerticalFlip):  # type: ignore[misc
 
         Args:
             img (PIL Image or Tensor): Image to be flipped..
-            Location: Location object linked to the image
+            location (Location): Location object linked to the image
         Returns:
             PIL Image or Tensor: Randomly flipped image
             Location: Location object with updated location.vertical_flip parameter
