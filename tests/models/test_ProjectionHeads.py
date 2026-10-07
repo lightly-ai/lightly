@@ -333,10 +333,11 @@ class TestProjectionHeads:
             # training mode; with the norm off a single sample is fine, which
             # also confirms the norm is really gone.
             batch_size = 2 if batch_norm else 1
-            for in_features, _, out_features in self.n_features:
+            for in_features, hidden_features, out_features in self.n_features:
                 torch.manual_seed(seed)
                 head = LeWMProjectionHead(
                     input_dim=in_features,
+                    hidden_dim=hidden_features,
                     output_dim=out_features,
                     batch_norm=batch_norm,
                 ).to(device)
@@ -354,6 +355,22 @@ class TestProjectionHeads:
                     param_grad = param.grad
                     assert param_grad is not None
                     assert param_grad.shape == param.shape
+
+    @pytest.mark.parametrize("batch_norm", [True, False])
+    def test_lewm_projection_head_layers(self, batch_norm: bool) -> None:
+        head = LeWMProjectionHead(
+            input_dim=8, hidden_dim=16, output_dim=4, batch_norm=batch_norm
+        )
+        layers = list(head.layers)
+        expected = [torch.nn.Linear, torch.nn.GELU, torch.nn.Linear]
+        if batch_norm:
+            expected.insert(1, torch.nn.BatchNorm1d)
+        assert [type(layer) for layer in layers] == expected
+        first, last = layers[0], layers[-1]
+        assert isinstance(first, torch.nn.Linear)
+        assert isinstance(last, torch.nn.Linear)
+        assert (first.in_features, first.out_features) == (8, 16)
+        assert (last.in_features, last.out_features) == (16, 4)
 
 
 def test_capi_projection_head() -> None:

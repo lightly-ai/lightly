@@ -832,14 +832,17 @@ class LeWMProjectionHead(ProjectionHead):
 
     LeWM projects the backbone features to the width of the predictor and
     computes the prediction and SIGReg losses on the projected embeddings. The
-    head is a single linear layer, optionally followed by batch normalization.
+    head is an MLP with one hidden layer: a linear layer, batch normalization, a
+    GELU and a second linear layer, as in the official implementation [1].
 
     - [0]: LeWorldModel, 2026, https://arxiv.org/abs/2603.19312
+    - [1]: https://github.com/lucas-maes/le-wm
     """
 
     def __init__(
         self,
         input_dim: int,
+        hidden_dim: int = 2048,
         output_dim: int = 192,
         batch_norm: bool = True,
     ) -> None:
@@ -848,20 +851,23 @@ class LeWMProjectionHead(ProjectionHead):
         Args:
             input_dim:
                 Dimensionality of the input features.
+            hidden_dim:
+                Dimensionality of the hidden layer.
             output_dim:
                 Dimensionality of the output embeddings.
             batch_norm:
-                If True (default), apply batch normalization after the linear
+                If True (default), apply batch normalization in the hidden
                 layer.
         """
         super().__init__(
             [
                 (
                     input_dim,
-                    output_dim,
-                    nn.BatchNorm1d(output_dim) if batch_norm else None,
-                    None,
+                    hidden_dim,
+                    nn.BatchNorm1d(hidden_dim) if batch_norm else None,
+                    nn.GELU(),
                 ),
+                (hidden_dim, output_dim, None, None),
             ]
         )
 
