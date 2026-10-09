@@ -4,8 +4,9 @@ from typing import List, Optional, Tuple, cast
 import torch
 import torch.nn as nn
 from timm.layers.pos_embed import resample_abs_pos_embed
+from timm.models._manipulate import checkpoint_seq
 from timm.models.vision_transformer import VisionTransformer
-from torch import Tensor
+from torch import Tensor, jit
 from torch.nn import LayerNorm, Linear, Module, Parameter
 
 from lightly.models import utils
@@ -63,6 +64,11 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
         )
 
         self.antialias = antialias
+        self.grad_checkpointing = False
+
+    def set_grad_checkpointing(self, enable: bool = True) -> None:
+        """Enables or disables gradient checkpointing."""
+        self.grad_checkpointing = enable
 
     @property
     def sequence_length(self) -> int:
@@ -106,7 +112,10 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
 
         intermediates: List[Tensor] = []
         for blk in self.vit.blocks:
-            tokens = blk(tokens)
+            if self.grad_checkpointing and not jit.is_scripting():
+                tokens = checkpoint_seq((blk,), tokens)
+            else:
+                tokens = blk(tokens)
             intermediates.append(self.vit.norm(tokens) if norm else tokens)
 
         # normalize
@@ -128,7 +137,10 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
         # normalization layer
         tokens = self.vit.norm_pre(tokens)
         # apply Transformer blocks
-        tokens = self.vit.blocks(tokens)
+        if self.grad_checkpointing and not jit.is_scripting():
+            tokens = checkpoint_seq(self.vit.blocks, tokens)
+        else:
+            tokens = self.vit.blocks(tokens)
         # normalize
         tokens = self.vit.norm(tokens)
         return tokens
