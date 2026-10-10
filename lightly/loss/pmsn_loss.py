@@ -26,7 +26,8 @@ class PMSNLoss(MSNLoss):
             Exponent for power law distribution. Entry k of the distribution is
             proportional to (1 / k) ^ power_law_exponent, with k ranging from 1 to dim + 1.
         gather_distributed:
-            If True, then target probabilities are gathered from all GPUs.
+            If True, target assignments and the mean anchor probabilities used
+            for regularization are computed across all processes.
 
     Examples:
         >>> # initialize loss function
@@ -103,7 +104,8 @@ class PMSNCustomLoss(MSNLoss):
             Weight factor lambda by which the regularization loss is scaled. Set to 0
             to disable regularization.
         gather_distributed:
-            If True, then target probabilities are gathered from all GPUs.
+            If True, target assignments and the mean anchor probabilities used
+            for regularization are computed across all processes.
 
     Examples:
         >>> # define custom target distribution

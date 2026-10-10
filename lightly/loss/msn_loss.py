@@ -5,6 +5,7 @@ import torch.distributed as dist
 import torch.nn as nn
 import torch.nn.functional as F
 from torch import Tensor
+from torch.distributed import nn as dist_nn
 
 
 def prototype_probabilities(
@@ -119,7 +120,8 @@ class MSNLoss(nn.Module):
             Weight factor lambda by which the regularization loss is scaled. Set to 0
             to disable regularization.
         gather_distributed:
-            If True, then target probabilities are gathered from all GPUs.
+            If True, target assignments and the mean anchor probabilities used
+            for regularization are computed across all processes.
 
     Examples:
         >>> # initialize loss function
@@ -154,7 +156,8 @@ class MSNLoss(nn.Module):
             regularization_weight:
                 Weight factor lambda by which the regularization loss is scaled. Set to 0 to disable regularization.
             gather_distributed:
-                If True, then target probabilities are gathered from all GPUs.
+                If True, target assignments and the mean anchor probabilities used
+                for regularization are computed across all processes.
 
         Raises:
             ValueError: If temperature is not in (0, inf).
@@ -234,6 +237,12 @@ class MSNLoss(nn.Module):
         # Regularization loss
         if self.regularization_weight > 0:
             mean_anchor_probs = torch.mean(anchor_probs, dim=0)
+            if self.gather_distributed and dist.is_initialized():
+                world_size = dist.get_world_size()
+                if world_size > 1:
+                    mean_anchor_probs = dist_nn.all_reduce(
+                        mean_anchor_probs / world_size
+                    )
             reg_loss = self.regularization_loss(mean_anchor_probs=mean_anchor_probs)
             loss += self.regularization_weight * reg_loss
 
