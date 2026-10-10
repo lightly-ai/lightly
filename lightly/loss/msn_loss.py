@@ -240,8 +240,12 @@ class MSNLoss(nn.Module):
             if self.gather_distributed and dist.is_initialized():
                 world_size = dist.get_world_size()
                 if world_size > 1:
+                    num_anchors = torch.tensor(
+                        anchor_probs.shape[0], device=anchor_probs.device
+                    )
+                    dist.all_reduce(num_anchors)
                     mean_anchor_probs = dist_nn.all_reduce(
-                        mean_anchor_probs / world_size
+                        anchor_probs.sum(dim=0) / num_anchors
                     )
             reg_loss = self.regularization_loss(mean_anchor_probs=mean_anchor_probs)
             loss += self.regularization_weight * reg_loss

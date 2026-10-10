@@ -1,4 +1,4 @@
-from typing import Type
+from typing import List, Type
 
 import pytest
 import torch
@@ -64,7 +64,69 @@ def _distributed_prior_worker(
     )
 
 
+def _unequal_distributed_prior_worker(loss_class: Type[MSNLoss]) -> None:
+    """Check the regularizer for ranks with one and three target samples."""
+    torch.manual_seed(7)
+    rank = dist.get_rank()
+    world_size = dist.get_world_size()
+    assert world_size == 2
+    anchors = torch.randn(2, 4, 4, dtype=torch.float64)
+    targets = torch.randn(4, 4, dtype=torch.float64)
+    prototypes = torch.randn(5, 4, dtype=torch.float64)
+    selection = slice(0, 1) if rank == 0 else slice(1, 4)
+    local_anchors = anchors[:, selection].reshape(-1, 4).clone().requires_grad_()
+    local_prototypes = prototypes.clone().requires_grad_()
+    global_anchors = anchors.reshape(-1, 4).clone().requires_grad_()
+    global_prototypes = prototypes.clone().requires_grad_()
+
+    def regularizer(
+        anchors: torch.Tensor,
+        targets: torch.Tensor,
+        prototypes: torch.Tensor,
+        gather_distributed: bool,
+    ) -> torch.Tensor:
+        # Subtract the unregularized objective to isolate the prototype prior.
+        # The existing cross entropy averages locally on each rank.
+        losses: List[torch.Tensor] = [
+            loss_class(
+                gather_distributed=gather_distributed,
+                sinkhorn_iterations=0,
+                regularization_weight=weight,
+                temperature=0.5,
+            )(anchors, targets, prototypes)
+            for weight in [1.0, 0.0]
+        ]
+        return losses[0] - losses[1]
+
+    actual = regularizer(local_anchors, targets[selection], local_prototypes, True)
+    expected = regularizer(global_anchors, targets, global_prototypes, False)
+    torch.testing.assert_close(actual, expected)
+    actual.backward()
+    expected.backward()
+    assert local_anchors.grad is not None
+    assert global_anchors.grad is not None
+    torch.testing.assert_close(
+        local_anchors.grad / world_size,
+        global_anchors.grad.reshape(2, 4, 4)[:, selection].reshape(-1, 4),
+    )
+    assert local_prototypes.grad is not None
+    assert global_prototypes.grad is not None
+    dist.all_reduce(local_prototypes.grad)
+    torch.testing.assert_close(
+        local_prototypes.grad / world_size, global_prototypes.grad
+    )
+
+
 class TestMSNLoss:
+    @pytest.mark.DDP
+    @pytest.mark.skipif(not USE_PYTEST_POOL, reason="DDP pool is not available")
+    @pytest.mark.parametrize("loss_class", [MSNLoss, PMSNLoss])
+    def test_distributed_prior_unequal_batches(self, loss_class: Type[MSNLoss]) -> None:
+        pytest.pool.starmap(  # type: ignore[attr-defined]
+            _unequal_distributed_prior_worker,
+            [(loss_class,)] * NUM_PROCESSES,
+        )
+
     @pytest.mark.DDP
     @pytest.mark.skipif(not USE_PYTEST_POOL, reason="DDP pool is not available")
     @pytest.mark.parametrize("loss_class", [MSNLoss, PMSNLoss])
