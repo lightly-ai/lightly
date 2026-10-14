@@ -62,8 +62,10 @@ class SplitBatchNorm(nn.BatchNorm2d):
                 input=input.view(-1, C * self.num_splits, H, W),
                 running_mean=self.running_mean,
                 running_var=self.running_var,
-                weight=self.weight.repeat(self.num_splits),
-                bias=self.bias.repeat(self.num_splits),
+                weight=None
+                if self.weight is None
+                else self.weight.repeat(self.num_splits),
+                bias=None if self.bias is None else self.bias.repeat(self.num_splits),
                 training=True,
                 momentum=momentum,
                 eps=self.eps,
