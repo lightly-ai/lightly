@@ -212,8 +212,8 @@ class TestKNNClassifier:
         spy_normalize.reset_mock()
 
 
-class _FeaturesDataset(Dataset):
-    def __init__(self, features: Tensor, targets) -> None:
+class _FeaturesDataset(Dataset[Tuple[Tensor, Tensor]]):
+    def __init__(self, features: Tensor, targets: Tensor) -> None:
         super().__init__()
         self.features = features
         self.targets = targets
