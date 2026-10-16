@@ -51,7 +51,8 @@ def test_sigreg_distributed_sample_count(
     def unit_vectors(
         device: torch.device, dtype: torch.dtype, num_features: int
     ) -> Tensor:
-        return torch.eye(num_features, device=device, dtype=dtype)
+        # Older supported PyTorch versions lack a bfloat16 eye kernel.
+        return torch.eye(num_features, device=device).to(dtype=dtype)
 
     mocker.patch.object(lightly_dist, "world_size", return_value=world_size)
     mocker.patch.object(dist, "all_reduce", side_effect=reduce_count)
