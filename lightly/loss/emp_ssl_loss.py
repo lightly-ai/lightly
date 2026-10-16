@@ -66,7 +66,7 @@ class EMPSSLLoss(Module):
 
     Examples:
         >>> # initialize loss function
-        >>> loss_fn = EMP_SSLLoss()
+        >>> loss_fn = EMPSSLLoss()
         >>> base_transform = VICRegViewTransform()  # As discussed in paper
         >>> transform_fn = MultiCropTransform(
         ...     transforms=base_transform, crop_counts=100
@@ -87,12 +87,12 @@ class EMPSSLLoss(Module):
         tcr_eps: float = 0.2,
         inv_coef: float = 200.0,
     ) -> None:
-        """Initializes the EMPSSLoss module.
+        """Initializes the EMPSSLLoss module.
 
         Args:
             tcr_eps:
                 Total coding rate (TCR) epsilon.
-            inv_coff:
+            inv_coef:
                 Coefficient for the invariance loss.
         """
         super().__init__()
