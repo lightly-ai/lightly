@@ -221,7 +221,7 @@ disallow_any_decorated = true
 # TODO(Philipp, 09/23): Remove me!
 # disallow_any_explicit = True
 disallow_any_generics = true
-https://github.com/aws/amazon-vpc-cni-k8s/actions/runs/36988568144disallow_subclassing_any = true
+disallow_subclassing_any = true
 
 # Disallow untyped definitions
 disallow_untyped_defs = true
