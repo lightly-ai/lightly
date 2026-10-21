@@ -1,11 +1,15 @@
+from __future__ import annotations
+
 import typing
 
 import pytest
 import torch
 from torch import Tensor
+from torch import distributed as dist
 from torch.nn import functional as F
 
 from lightly.models.modules.center import Center, sinkhorn_knopp
+from tests.ddp_helpers import NUM_PROCESSES, USE_PYTEST_POOL
 
 
 @typing.no_type_check
@@ -87,6 +91,14 @@ def _teacher_logits(batch_size: int, num_prototypes: int, dim: int = 16) -> Tens
     return features @ prototypes
 
 
+def _sinkhorn_knopp_worker(x: Tensor, split_sizes: list[int]) -> tuple[int, Tensor]:
+    # Pool worker: Sinkhorn-Knopp on the part of x that belongs to this rank, returns
+    # the rank and the probabilities. See #1982. The rank is read from the process
+    # group because the pool hands every task to whichever worker is free.
+    rank = dist.get_rank()
+    return rank, sinkhorn_knopp(x=x.split(split_sizes)[rank], temperature=0.04)
+
+
 class TestSinkhornKnopp:
     @pytest.mark.parametrize("temperature", [0.04, 0.07, 0.1])
     @pytest.mark.parametrize("num_iterations", [1, 3, 5])
@@ -125,3 +137,29 @@ class TestSinkhornKnopp:
     def test__no_grad(self) -> None:
         x = _teacher_logits(batch_size=4, num_prototypes=8).requires_grad_()
         assert not sinkhorn_knopp(x=x, temperature=0.04).requires_grad
+
+    @pytest.mark.DDP
+    @pytest.mark.skipif(not USE_PYTEST_POOL, reason="DDP pool is not available")
+    @pytest.mark.parametrize("equal_batch_sizes", [True, False])
+    def test__gather_distributed_matches_non_distributed(
+        self, equal_batch_sizes: bool
+    ) -> None:
+        # The normalization over all processes equals the non-distributed one on the
+        # concatenated batch. This must also hold if the processes have different
+        # batch sizes, as with the masked tokens of the iBOT loss.
+        torch.manual_seed(0)
+        split_sizes = [
+            8 if equal_batch_sizes else 4 * (rank + 1) for rank in range(NUM_PROCESSES)
+        ]
+        x = _teacher_logits(batch_size=sum(split_sizes), num_prototypes=8)
+
+        results = dict(
+            pytest.pool.starmap(  # type: ignore[attr-defined]
+                _sinkhorn_knopp_worker, [(x, split_sizes)] * NUM_PROCESSES
+            )
+        )
+        expected = sinkhorn_knopp(x=x, temperature=0.04, gather_distributed=False)
+
+        assert sorted(results) == list(range(NUM_PROCESSES))
+        probabilities = torch.cat([results[rank] for rank in range(NUM_PROCESSES)])
+        assert torch.allclose(probabilities, expected, atol=1e-6)

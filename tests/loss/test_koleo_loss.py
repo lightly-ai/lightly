@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import math
 
 import pytest
@@ -11,30 +13,37 @@ from torch import distributed as torch_dist
 from lightly.loss.koleo_loss import KoLeoLoss
 from tests.ddp_helpers import NUM_PROCESSES, USE_PYTEST_POOL
 
-# Group size used by the distributed tests. The global batch is the concatenation of
-# the local batches, so a group spans the features of both ranks.
+# Sizes used by the distributed tests. The local batch size is not a multiple of the
+# group size, so the global batch, which concatenates the local batches in rank order,
+# has a group that spans the features of two ranks.
+DDP_LOCAL_BATCH_SIZE = 6
 DDP_GROUP_SIZE = 4
 
 
-def _local_batch(batch: Tensor, rank: int, world_size: int) -> Tensor:
+def _local_batch(batch: Tensor, rank: int) -> Tensor:
     """Returns the chunk of the global batch that belongs to the given rank."""
-    return batch.chunk(world_size)[rank]
+    start = rank * DDP_LOCAL_BATCH_SIZE
+    return batch[start : start + DDP_LOCAL_BATCH_SIZE]
 
 
-def _forward_worker(rank: int, world_size: int, batch: Tensor) -> Tensor:
+# The pool workers read their rank from the process group instead of receiving it with
+# the task, because the pool hands every task to whichever worker is free.
+def _forward_worker(batch: Tensor) -> Tensor:
     # Pool worker: distributed forward on one rank. See #1982.
     loss: Tensor = KoLeoLoss(group_size=DDP_GROUP_SIZE, gather_distributed=True)(
-        _local_batch(batch, rank, world_size)
+        _local_batch(batch, rank=torch_dist.get_rank())
     )
     return loss.detach()
 
 
-def _gradient_worker(rank: int, world_size: int, batch: Tensor) -> Tensor:
-    # Pool worker: distributed backward on one rank, returns the input gradient.
-    x = _local_batch(batch, rank, world_size).clone().requires_grad_(True)
+def _gradient_worker(batch: Tensor) -> tuple[int, Tensor]:
+    # Pool worker: distributed backward on one rank, returns the rank and the gradient
+    # of its local batch.
+    rank = torch_dist.get_rank()
+    x = _local_batch(batch, rank=rank).clone().requires_grad_(True)
     KoLeoLoss(group_size=DDP_GROUP_SIZE, gather_distributed=True)(x).backward()
     assert x.grad is not None
-    return x.grad
+    return rank, x.grad
 
 
 class TestKoLeoLoss:
@@ -166,7 +175,8 @@ class TestKoLeoLoss:
         batch is the concatenation of the two local batches.
         """
         torch.manual_seed(0)
-        rank_0, rank_1 = torch.randn(4, 8), torch.randn(4, 8)
+        # Local batches of 6 with groups of 4, so one group spans both ranks.
+        rank_0, rank_1 = torch.randn(6, 8), torch.randn(6, 8)
 
         # Non-distributed truth: loss on the concatenated global batch.
         expected = KoLeoLoss(group_size=4)(torch.cat([rank_0, rank_1]))
@@ -194,8 +204,9 @@ class TestKoLeoLoss:
         neighbor indexing keep the gradients attached to the right features.
         """
         torch.manual_seed(0)
-        rank_0 = torch.randn(4, 8)
-        rank_1 = torch.randn(4, 8)
+        # Local batches of 6 with groups of 4, so one group spans both ranks.
+        rank_0 = torch.randn(6, 8)
+        rank_1 = torch.randn(6, 8)
 
         # Non-distributed truth: gradient of the loss on the concatenated global batch.
         global_batch = torch.cat([rank_0, rank_1]).requires_grad_()
@@ -223,11 +234,10 @@ class TestKoLeoLoss:
         # Every rank gathers the same global batch, so every rank must see the loss
         # of the non-distributed run on the concatenated batch.
         torch.manual_seed(0)
-        batch = torch.randn(NUM_PROCESSES * DDP_GROUP_SIZE, 8)
+        batch = torch.randn(NUM_PROCESSES * DDP_LOCAL_BATCH_SIZE, 8)
 
         losses = pytest.pool.starmap(  # type: ignore[attr-defined]
-            _forward_worker,
-            [(rank, NUM_PROCESSES, batch) for rank in range(NUM_PROCESSES)],
+            _forward_worker, [(batch,)] * NUM_PROCESSES
         )
         loss_truth = KoLeoLoss(group_size=DDP_GROUP_SIZE)(batch)
 
@@ -245,16 +255,18 @@ class TestKoLeoLoss:
         # non-distributed one, which DDP cancels when it averages parameter
         # gradients across ranks.
         torch.manual_seed(0)
-        batch = torch.randn(NUM_PROCESSES * DDP_GROUP_SIZE, 8)
+        batch = torch.randn(NUM_PROCESSES * DDP_LOCAL_BATCH_SIZE, 8)
 
-        grads = pytest.pool.starmap(  # type: ignore[attr-defined]
-            _gradient_worker,
-            [(rank, NUM_PROCESSES, batch) for rank in range(NUM_PROCESSES)],
+        grads = dict(
+            pytest.pool.starmap(  # type: ignore[attr-defined]
+                _gradient_worker, [(batch,)] * NUM_PROCESSES
+            )
         )
         batch_ref = batch.clone().requires_grad_(True)
         KoLeoLoss(group_size=DDP_GROUP_SIZE)(batch_ref).backward()
         assert batch_ref.grad is not None
 
-        for rank, grad in enumerate(grads):
-            expected = NUM_PROCESSES * _local_batch(batch_ref.grad, rank, NUM_PROCESSES)
+        assert sorted(grads) == list(range(NUM_PROCESSES))
+        for rank, grad in grads.items():
+            expected = NUM_PROCESSES * _local_batch(batch_ref.grad, rank=rank)
             assert torch.allclose(grad, expected, atol=1e-5)
