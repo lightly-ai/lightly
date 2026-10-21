@@ -1,4 +1,6 @@
-from typing import Tuple, Union
+from __future__ import annotations
+
+from typing import Tuple
 
 import torch
 import torch.distributed as dist
@@ -109,7 +111,7 @@ def center_momentum(center: Tensor, batch_center: Tensor, momentum: float) -> Te
 @torch.no_grad()
 def sinkhorn_knopp(
     x: Tensor,
-    temperature: Union[float, Tensor] = 0.04,
+    temperature: float | Tensor = 0.04,
     num_iterations: int = 3,
     gather_distributed: bool = True,
 ) -> Tensor:

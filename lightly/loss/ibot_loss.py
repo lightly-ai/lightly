@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, cast
+from typing import Literal, cast
 
 import torch
 from torch import Tensor
@@ -9,9 +9,6 @@ from torch.nn import functional as F
 
 from lightly.models.modules import center as center_module
 from lightly.models.modules.center import Center
-
-if TYPE_CHECKING:
-    from typing import Literal
 
 
 class IBOTPatchLoss(Module):

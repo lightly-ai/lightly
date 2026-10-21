@@ -194,7 +194,7 @@ class TestDINOLoss:
         forward() does not promote dtypes, so the loss fails if the cast back is
         dropped. Tested on _teacher_probabilities directly, rather than through
         forward(), because F.log_softmax on the student output has no half-precision
-        CPU kernel in the older torch version pinned for the Python 3.7 CI leg.
+        CPU kernel in the oldest supported torch versions.
         """
         loss_fn = DINOLoss(output_dim=4, center_mode="sinkhorn_knopp")
         teacher_out = torch.stack(_generate_output(n_views=2, output_dim=4)).half()

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import warnings
-from typing import TYPE_CHECKING
+from typing import Literal
 
 import torch
 import torch.nn.functional as F
@@ -10,9 +10,6 @@ from torch.nn import Module, Parameter
 
 from lightly.models.modules import center
 from lightly.models.modules.center import CENTER_MODE_TO_FUNCTION
-
-if TYPE_CHECKING:
-    from typing import Literal
 
 
 class DINOLoss(Module):
