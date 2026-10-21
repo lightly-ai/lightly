@@ -155,8 +155,9 @@ class KoLeoLoss(Module):
         # Normalize the input tensor
         x = functional.normalize(x, p=2, dim=-1, eps=self.eps)
 
-        # Gather features from all GPUs. The loss is calculated over the global batch
-        # on every process, gradients are averaged by the GatherLayer.
+        # Gather features from all GPUs. Every process calculates the loss over the
+        # global batch. In the backward pass, GatherLayer sums the identical gradients
+        # of all processes, which DDP undoes when it averages the parameter gradients.
         if self.gather_distributed and lightly_dist.world_size() > 1:
             x = torch.cat(lightly_dist.gather(x), dim=0)
 
