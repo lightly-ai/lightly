@@ -797,7 +797,9 @@ def random_inverse_block_mask(
     idx_mask_rows = []
     for _ in range(batch_size):
         visible = torch.zeros(num_patches, dtype=torch.bool)
-        if num_visible > 0:
+        if num_visible == num_patches:
+            visible.fill_(True)
+        elif num_visible > 0:
             # Sample the aspect ratio of the visible block, clamped so it fits.
             min_lar = max(log_aspect_ratio[0], math.log(num_visible / width**2))
             max_lar = min(

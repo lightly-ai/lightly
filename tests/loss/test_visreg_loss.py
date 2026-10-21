@@ -246,7 +246,7 @@ class TestVISRegLoss:
             local_proj=local_proj, global_proj=global_proj
         )
         invariance_only = lejepa_invariance_loss(
-            local_proj=torch.cat([global_proj, local_proj], dim=0),
+            all_proj=torch.cat([global_proj, local_proj], dim=0),
             global_proj=global_proj,
         )
 

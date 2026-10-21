@@ -23,9 +23,12 @@ class OnlineLinearClassifier(LightningModule):
         self.criterion = CrossEntropyLoss()
 
     def forward(self, x: Tensor) -> Tensor:
-        return self.classification_head(x.detach().flatten(start_dim=1))
+        predictions: Tensor = self.classification_head(x.detach().flatten(start_dim=1))
+        return predictions
 
-    def shared_step(self, batch, batch_idx) -> Tuple[Tensor, Dict[int, Tensor]]:
+    def shared_step(
+        self, batch: Tuple[Tensor, ...], batch_idx: int
+    ) -> Tuple[Tensor, Dict[int, Tensor]]:
         features, targets = batch[0], batch[1]
         predictions = self.forward(features)
         loss = self.criterion(predictions, targets)
@@ -33,13 +36,23 @@ class OnlineLinearClassifier(LightningModule):
         topk = mean_topk_accuracy(predicted_classes, targets, k=self.topk)
         return loss, topk
 
-    def training_step(self, batch, batch_idx) -> Tuple[Tensor, Dict[str, Tensor]]:
+    # type ignore is needed because LightningModule.training_step is typed to return
+    # STEP_OUTPUT. this classifier is not run by a Trainer directly; the parent module
+    # calls it and logs the returned dict itself.
+    def training_step(  # type: ignore[override]
+        self, batch: Tuple[Tensor, ...], batch_idx: int
+    ) -> Tuple[Tensor, Dict[str, Tensor]]:
         loss, topk = self.shared_step(batch=batch, batch_idx=batch_idx)
         log_dict = {"train_online_cls_loss": loss}
         log_dict.update({f"train_online_cls_top{k}": acc for k, acc in topk.items()})
         return loss, log_dict
 
-    def validation_step(self, batch, batch_idx) -> Tuple[Tensor, Dict[str, Tensor]]:
+    # type ignore is needed because LightningModule.validation_step is typed to return
+    # STEP_OUTPUT. this classifier is not run by a Trainer directly; the parent module
+    # calls it and logs the returned dict itself.
+    def validation_step(  # type: ignore[override]
+        self, batch: Tuple[Tensor, ...], batch_idx: int
+    ) -> Tuple[Tensor, Dict[str, Tensor]]:
         loss, topk = self.shared_step(batch=batch, batch_idx=batch_idx)
         log_dict = {"val_online_cls_loss": loss}
         log_dict.update({f"val_online_cls_top{k}": acc for k, acc in topk.items()})

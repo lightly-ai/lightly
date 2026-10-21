@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Tuple, Union
 
 from PIL.Image import Image
 from torch import Tensor
@@ -66,15 +66,8 @@ class IBOTTransform(MultiViewTransform):
             Tuple of probabilities to apply gaussian blur on the different
             views. The input is ordered as follows:
             (global_view_0, global_view_1, local_views)
-        kernel_size:
-            Will be deprecated in favor of `sigmas` argument. If set, the old behavior applies and `sigmas` is ignored.
-            Used to calculate sigma of gaussian blur with kernel_size * input_size.
-        kernel_scale:
-            Old argument. Value is deprecated in favor of sigmas. If set, the old behavior applies and `sigmas` is ignored.
-            Used to scale the `kernel_size` of a factor of `kernel_scale`
         sigmas:
             Tuple of min and max value from which the std of the gaussian kernel is sampled.
-            Is ignored if `kernel_size` is set.
         solarization:
             Probability to apply solarization on the second global view.
         normalize:
@@ -98,8 +91,6 @@ class IBOTTransform(MultiViewTransform):
         cj_hue: float = 0.2,
         random_gray_scale: float = 0.2,
         gaussian_blur: Tuple[float, float, float] = (1.0, 0.1, 0.5),
-        kernel_size: Optional[float] = None,
-        kernel_scale: Optional[float] = None,
         sigmas: Tuple[float, float] = (0.1, 2),
         solarization_prob: float = 0.2,
         normalize: Union[None, Dict[str, List[float]]] = IMAGENET_NORMALIZE,
@@ -117,8 +108,6 @@ class IBOTTransform(MultiViewTransform):
             cj_sat=cj_sat,
             random_gray_scale=random_gray_scale,
             gaussian_blur=gaussian_blur[0],
-            kernel_size=kernel_size,
-            kernel_scale=kernel_scale,
             sigmas=sigmas,
             solarization_prob=0,
             normalize=normalize,
@@ -136,8 +125,6 @@ class IBOTTransform(MultiViewTransform):
             cj_sat=cj_sat,
             random_gray_scale=random_gray_scale,
             gaussian_blur=gaussian_blur[1],
-            kernel_size=kernel_size,
-            kernel_scale=kernel_scale,
             sigmas=sigmas,
             solarization_prob=solarization_prob,
             normalize=normalize,
@@ -156,8 +143,6 @@ class IBOTTransform(MultiViewTransform):
             cj_sat=cj_sat,
             random_gray_scale=random_gray_scale,
             gaussian_blur=gaussian_blur[2],
-            kernel_size=kernel_size,
-            kernel_scale=kernel_scale,
             sigmas=sigmas,
             solarization_prob=0,
             normalize=normalize,
@@ -204,8 +189,6 @@ class IBOTViewTransform:
         cj_hue: float = 0.2,
         random_gray_scale: float = 0.2,
         gaussian_blur: float = 1.0,
-        kernel_size: Optional[float] = None,
-        kernel_scale: Optional[float] = None,
         sigmas: Tuple[float, float] = (0.1, 2),
         solarization_prob: float = 0.2,
         normalize: Union[None, Dict[str, List[float]]] = IMAGENET_NORMALIZE,
@@ -225,14 +208,8 @@ class IBOTViewTransform:
             cj_hue: How much to jitter hue.
             random_gray_scale: Probability of conversion to grayscale.
             gaussian_blur: Probability of Gaussian blur.
-            kernel_size: Will be deprecated in favor of `sigmas` argument. If set,
-                the old behavior applies and `sigmas` is ignored. Used to calculate
-                sigma of gaussian blur with kernel_size * input_size.
-            kernel_scale: Old argument. Will be deprecated in favor of `sigmas`
-                argument. If set, the old behavior applies and `sigmas` is ignored.
-                Used to scale the `kernel_size` of a factor of `kernel_scale`.
             sigmas: Tuple of min and max value from which the std of the gaussian
-                kernel is sampled. Is ignored if `kernel_size` is set.
+                kernel is sampled.
             solarization_prob: Probability to apply solarization.
             normalize: Dictionary with 'mean' and 'std' for
                 torchvision.transforms.Normalize.
@@ -258,8 +235,6 @@ class IBOTViewTransform:
             ),
             T.RandomGrayscale(p=random_gray_scale),
             GaussianBlur(
-                kernel_size=kernel_size,
-                scale=kernel_scale,
                 sigmas=sigmas,
                 prob=gaussian_blur,
             ),

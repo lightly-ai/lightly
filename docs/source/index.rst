@@ -103,7 +103,6 @@ Lightly AI
    :caption: Python API
 
    lightly
-   lightly.api
    lightly.cli
    lightly.core
    lightly.data

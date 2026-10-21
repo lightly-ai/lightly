@@ -4,8 +4,6 @@ from typing import Optional
 from omegaconf import DictConfig
 from pytorch_lightning.callbacks import ModelCheckpoint, ModelSummary
 
-from lightly.utils.hipify import print_as_warning
-
 
 def create_checkpoint_callback(
     save_last: bool = False,
@@ -39,27 +37,18 @@ def create_checkpoint_callback(
     )
 
 
-def create_summary_callback(
-    summary_callback_config: DictConfig, trainer_config: DictConfig
-) -> ModelSummary:
+def create_summary_callback(summary_callback_config: DictConfig) -> ModelSummary:
     """Creates a model summary callback based on the configuration.
 
     Args:
         summary_callback_config:
             Configuration dictionary for the summary callback.
-        trainer_config:
-            Trainer configuration dictionary, which may include deprecated `weights_summary`.
 
     Returns:
         ModelSummary: The model summary callback.
 
     """
-    # TODO: Drop support for the "weights_summary" argument.
-    weights_summary = trainer_config.get("weights_summary", None)
-    if weights_summary not in [None, "None"]:
-        return _create_summary_callback_deprecated(weights_summary)
-    else:
-        return _create_summary_callback(summary_callback_config["max_depth"])
+    return _create_summary_callback(summary_callback_config["max_depth"])
 
 
 def _create_summary_callback(max_depth: int) -> ModelSummary:
@@ -76,39 +65,3 @@ def _create_summary_callback(max_depth: int) -> ModelSummary:
 
     """
     return ModelSummary(max_depth=max_depth)
-
-
-def _create_summary_callback_deprecated(weights_summary: str) -> ModelSummary:
-    """Constructs summary callback from the deprecated ``weights_summary`` argument.
-
-    The ``weights_summary`` trainer argument was deprecated with the release
-    of pytorch lightning 1.7 in 08/2022. Support for this will be removed
-    in the future.
-
-    Args:
-        weights_summary:
-            The deprecated `weights_summary` argument value ("top" or "full").
-
-    Returns:
-        ModelSummary: The initialized model summary callback based on the `weights_summary` argument.
-
-    Raises:
-        ValueError: If an invalid value is provided for `weights_summary`.
-
-    """
-    print_as_warning(
-        "The configuration parameter 'trainer.weights_summary' is deprecated."
-        " Please use 'trainer.weights_summary: True' and set"
-        " 'checkpoint_callback.max_depth' to value 1 for the option 'top'"
-        " or -1 for the option 'full'."
-    )
-    if weights_summary == "top":
-        max_depth = 1
-    elif weights_summary == "full":
-        max_depth = -1
-    else:
-        raise ValueError(
-            "Invalid value for the deprecated trainer.weights_summary"
-            " configuration parameter."
-        )
-    return _create_summary_callback(max_depth=max_depth)

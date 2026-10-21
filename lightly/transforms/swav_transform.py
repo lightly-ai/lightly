@@ -65,12 +65,8 @@ class SwaVTransform(MultiCropTranform):
             Probability of conversion to grayscale.
         gaussian_blur:
             Probability of Gaussian blur.
-        kernel_size:
-            Will be deprecated in favor of `sigmas` argument. If set, the old behavior applies and `sigmas` is ignored.
-            Used to calculate sigma of gaussian blur with kernel_size * input_size.
         sigmas:
             Tuple of min and max value from which the std of the gaussian kernel is sampled.
-            Is ignored if `kernel_size` is set.
         normalize:
             Dictionary with 'mean' and 'std' for torchvision.transforms.Normalize.
 
@@ -94,7 +90,6 @@ class SwaVTransform(MultiCropTranform):
         cj_hue: float = 0.2,
         random_gray_scale: float = 0.2,
         gaussian_blur: float = 0.5,
-        kernel_size: Optional[float] = None,
         sigmas: Tuple[float, float] = (0.1, 2),
         normalize: Union[None, Dict[str, List[float]]] = IMAGENET_NORMALIZE,
     ):
@@ -111,7 +106,6 @@ class SwaVTransform(MultiCropTranform):
             cj_hue=cj_hue,
             random_gray_scale=random_gray_scale,
             gaussian_blur=gaussian_blur,
-            kernel_size=kernel_size,
             sigmas=sigmas,
             normalize=normalize,
         )
@@ -160,7 +154,6 @@ class SwaVViewTransform:
         cj_hue: float = 0.2,
         random_gray_scale: float = 0.2,
         gaussian_blur: float = 0.5,
-        kernel_size: Optional[float] = None,
         sigmas: Tuple[float, float] = (0.1, 2),
         normalize: Union[None, Dict[str, List[float]]] = IMAGENET_NORMALIZE,
     ):
@@ -185,11 +178,8 @@ class SwaVViewTransform:
             cj_hue: How much to jitter hue.
             random_gray_scale: Probability of conversion to grayscale.
             gaussian_blur: Probability of Gaussian blur.
-            kernel_size: Will be deprecated in favor of `sigmas` argument. If set,
-                the old behavior applies and `sigmas` is ignored. Used to calculate
-                sigma of gaussian blur with kernel_size * input_size.
             sigmas: Tuple of min and max value from which the std of the gaussian
-                kernel is sampled. Is ignored if `kernel_size` is set.
+                kernel is sampled.
             normalize: Dictionary with 'mean' and 'std' for
                 torchvision.transforms.Normalize.
 
@@ -208,7 +198,7 @@ class SwaVViewTransform:
             T.ColorJitter(),
             T.RandomApply([color_jitter], p=cj_prob),
             T.RandomGrayscale(p=random_gray_scale),
-            GaussianBlur(kernel_size=kernel_size, sigmas=sigmas, prob=gaussian_blur),
+            GaussianBlur(sigmas=sigmas, prob=gaussian_blur),
             T.ToTensor(),
         ]
         if normalize:

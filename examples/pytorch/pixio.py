@@ -14,6 +14,7 @@ from lightly.models.modules import (
     MaskedVisionTransformerDecoderTIMM,
     MaskedVisionTransformerTIMM,
 )
+from lightly.models.modules.masked_vision_transformer_timm import init_weights
 from lightly.transforms import MAETransform
 
 
@@ -43,6 +44,9 @@ class Pixio(nn.Module):
             attn_drop_rate=0.0,
         )
         self.prediction_head = nn.Linear(decoder_dim, self.patch_size**2 * 3)
+        # decoder_embed and prediction_head sit outside the decoder, so init them here.
+        self.decoder_embed.apply(init_weights)
+        self.prediction_head.apply(init_weights)
 
     def forward_encoder(self, images, idx_keep=None):
         return self.backbone.encode(images=images, idx_keep=idx_keep)

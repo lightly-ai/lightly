@@ -1,7 +1,6 @@
 import os
-import re
-import sys
 import tempfile
+import unittest
 
 import hydra
 import torchvision
@@ -13,15 +12,10 @@ except ImportError:
     from hydra.experimental import initialize
 
 from lightly import cli
-from tests.api_workflow.mocked_api_workflow_client import (
-    MockedApiWorkflowClient,
-    MockedApiWorkflowSetup,
-)
 
 
-class TestCLITrain(MockedApiWorkflowSetup):
+class TestCLITrain(unittest.TestCase):
     def setUp(self):
-        MockedApiWorkflowSetup.setUp(self)
         self.create_fake_dataset()
         with initialize(config_path="../../lightly/cli/config", job_name="test_app"):
             self.cfg = compose(

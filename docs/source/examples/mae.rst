@@ -50,7 +50,7 @@ Reference:
 .. tabs::
     .. tab:: PyTorch
 
-        .. image:: https://img.shields.io/badge/Open%20in%20Colab-blue?logo=googlecolab&label=%20&labelColor=5c5c5c
+        .. image:: /_static/colab-badge.svg
             :target: https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/mae.ipynb
 
         This example can be run from the command line with::
@@ -61,7 +61,7 @@ Reference:
 
     .. tab:: Lightning
 
-        .. image:: https://img.shields.io/badge/Open%20in%20Colab-blue?logo=googlecolab&label=%20&labelColor=5c5c5c
+        .. image:: /_static/colab-badge.svg
             :target: https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/mae.ipynb
 
         This example can be run from the command line with::
@@ -72,7 +72,7 @@ Reference:
 
     .. tab:: Lightning Distributed
 
-        .. image:: https://img.shields.io/badge/Open%20in%20Colab-blue?logo=googlecolab&label=%20&labelColor=5c5c5c
+        .. image:: /_static/colab-badge.svg
             :target: https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning_distributed/mae.ipynb
 
         This example runs on multiple gpus using Distributed Data Parallel (DDP)
