@@ -260,7 +260,6 @@ exclude = '''(?x)(
     lightly/data/_video.py |
     lightly/core.py |
     lightly/utils/debug.py |
-    lightly/utils/benchmarking/knn_classifier.py |
     lightly/models/modules/masked_autoencoder.py |
     lightly/models/modules/ijepa.py |
     lightly/models/utils.py |
