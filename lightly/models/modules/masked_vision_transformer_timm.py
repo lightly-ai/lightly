@@ -1,5 +1,5 @@
 import math
-from typing import List, Optional, Tuple, cast
+from typing import Iterable, List, Optional, Tuple, cast
 
 import torch
 import torch.nn as nn
@@ -113,7 +113,7 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
         intermediates: List[Tensor] = []
         for blk in self.vit.blocks:
             if self.grad_checkpointing and not jit.is_scripting():
-                tokens = _manipulate.checkpoint_seq((blk,), tokens)
+                tokens = _checkpoint_seq((blk,), tokens)
             else:
                 tokens = blk(tokens)
             intermediates.append(self.vit.norm(tokens) if norm else tokens)
@@ -138,7 +138,7 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
         tokens = self.vit.norm_pre(tokens)
         # apply Transformer blocks
         if self.grad_checkpointing and not jit.is_scripting():
-            tokens = _manipulate.checkpoint_seq(self.vit.blocks, tokens)
+            tokens = _checkpoint_seq(self.vit.blocks, tokens)
         else:
             tokens = self.vit.blocks(tokens)
         # normalize
@@ -227,3 +227,13 @@ def init_weights(module: Module) -> None:
     elif isinstance(module, LayerNorm):
         nn.init.constant_(module.bias, 0)
         nn.init.constant_(module.weight, 1.0)
+
+
+def _checkpoint_seq(blocks: Iterable[Module], tokens: Tensor) -> Tensor:
+    if not tokens.requires_grad:
+        # Reentrant checkpointing (the default for timm < 1.0.16) only tracks
+        # gradients if an input requires grad. Without this, the blocks get no
+        # gradients when everything before them is frozen.
+        tokens = tokens.detach().requires_grad_()
+    out: Tensor = _manipulate.checkpoint_seq(blocks, tokens)
+    return out

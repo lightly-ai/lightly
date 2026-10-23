@@ -12,6 +12,7 @@ if not dependency.timm_vit_available():
     pytest.skip("TIMM vision transformer is not available", allow_module_level=True)
 
 
+from timm.layers import config as timm_config
 from timm.models import _manipulate
 from timm.models.vision_transformer import VisionTransformer
 
@@ -150,6 +151,33 @@ class TestMaskedVisionTransformerTIMM(MaskedVisionTransformerTest):
         assert len(param_grads) == len(expected_param_grads)
         for param_grad, expected_grad in zip(param_grads, expected_param_grads):
             torch.testing.assert_close(param_grad, expected_grad)
+
+    @pytest.mark.parametrize("method_name", ["encode", "forward_intermediates"])
+    def test_gradient_checkpointing__frozen_preprocessing(
+        self, method_name: str, mocker: MockerFixture
+    ) -> None:
+        # timm < 1.0.16 always uses reentrant checkpointing, which drops the
+        # block gradients when the checkpoint input does not require grad.
+        mocker.patch.object(timm_config, "_USE_REENTRANT_CKPT", True, create=True)
+        model = self.get_masked_vit(
+            patch_size=32,
+            depth=2,
+            num_heads=1,
+            embed_dim=32,
+        )
+        model.eval()
+        for name, param in model.named_parameters():
+            if not name.startswith("vit.blocks."):
+                param.requires_grad_(False)
+        model.set_grad_checkpointing(enable=True)
+
+        output = getattr(model, method_name)(torch.rand(2, 3, 64, 64))
+        if method_name == "forward_intermediates":
+            output = output[0]
+        output.sum().backward()
+
+        for param in model.vit.blocks.parameters():
+            assert param.grad is not None
 
     def test_gradient_checkpointing__no_grad(self) -> None:
         model = self.get_masked_vit(
