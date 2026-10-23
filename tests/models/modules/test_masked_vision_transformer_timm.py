@@ -131,6 +131,7 @@ class TestMaskedVisionTransformerTIMM(MaskedVisionTransformerTest):
         if method_name == "forward_intermediates":
             actual_output, actual_intermediates = actual
             _, expected_intermediates = expected
+            assert len(actual_intermediates) == len(expected_intermediates)
             for actual_intermediate, expected_intermediate in zip(
                 actual_intermediates, expected_intermediates
             ):
@@ -139,7 +140,10 @@ class TestMaskedVisionTransformerTIMM(MaskedVisionTransformerTest):
             actual_output = actual
         actual_output.sum().backward()
 
-        spy.assert_called()
+        expected_call_count = (
+            len(model.vit.blocks) if method_name == "forward_intermediates" else 1
+        )
+        assert spy.call_count == expected_call_count
         torch.testing.assert_close(actual_output, expected_output)
         torch.testing.assert_close(checkpointed_images.grad, plain_images.grad)
         param_grads = [param.grad for param in model.vit.blocks.parameters()]
