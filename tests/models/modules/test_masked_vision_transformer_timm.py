@@ -12,6 +12,7 @@ if not dependency.timm_vit_available():
     pytest.skip("TIMM vision transformer is not available", allow_module_level=True)
 
 
+from timm.models import _manipulate
 from timm.models.vision_transformer import VisionTransformer
 
 from lightly.models.modules import masked_vision_transformer_timm
@@ -109,27 +110,56 @@ class TestMaskedVisionTransformerTIMM(MaskedVisionTransformerTest):
         model.eval()
         images = torch.rand(2, 3, 64, 64)
 
-        expected = getattr(model, method_name)(images)
-        model.set_grad_checkpointing(enable=True)
-        mock_checkpoint_seq = mocker.spy(
-            masked_vision_transformer_timm, "checkpoint_seq"
+        plain_images = images.clone().requires_grad_()
+        expected = getattr(model, method_name)(plain_images)
+        expected_output = (
+            expected[0] if method_name == "forward_intermediates" else expected
         )
+        expected_output.sum().backward()
+        expected_param_grads = [
+            param.grad.clone()
+            for param in model.vit.blocks.parameters()
+            if param.grad is not None
+        ]
+
+        model.zero_grad(set_to_none=True)
+        model.set_grad_checkpointing(enable=True)
+        spy = mocker.spy(_manipulate, "checkpoint_seq")
 
         checkpointed_images = images.clone().requires_grad_()
         actual = getattr(model, method_name)(checkpointed_images)
-        mock_checkpoint_seq.assert_called()
-
         if method_name == "forward_intermediates":
-            expected_output, expected_intermediates = expected
             actual_output, actual_intermediates = actual
-            torch.testing.assert_close(actual_output, expected_output)
+            _, expected_intermediates = expected
             for actual_intermediate, expected_intermediate in zip(
                 actual_intermediates, expected_intermediates
             ):
                 torch.testing.assert_close(actual_intermediate, expected_intermediate)
-            actual_output.sum().backward()
         else:
-            torch.testing.assert_close(actual, expected)
-            actual.sum().backward()
+            actual_output = actual
+        actual_output.sum().backward()
 
-        assert checkpointed_images.grad is not None
+        spy.assert_called()
+        torch.testing.assert_close(actual_output, expected_output)
+        torch.testing.assert_close(checkpointed_images.grad, plain_images.grad)
+        param_grads = [param.grad for param in model.vit.blocks.parameters()]
+        assert len(param_grads) == len(expected_param_grads)
+        for param_grad, expected_grad in zip(param_grads, expected_param_grads):
+            torch.testing.assert_close(param_grad, expected_grad)
+
+    def test_gradient_checkpointing__no_grad(self) -> None:
+        model = self.get_masked_vit(
+            patch_size=32,
+            depth=2,
+            num_heads=1,
+            embed_dim=32,
+        )
+        model.eval()
+        images = torch.rand(2, 3, 64, 64)
+
+        expected = model.encode(images)
+        model.set_grad_checkpointing(enable=True)
+        with torch.no_grad():
+            actual = model.encode(images)
+
+        torch.testing.assert_close(actual, expected)

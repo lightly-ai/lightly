@@ -4,7 +4,7 @@ from typing import List, Optional, Tuple, cast
 import torch
 import torch.nn as nn
 from timm.layers.pos_embed import resample_abs_pos_embed
-from timm.models._manipulate import checkpoint_seq
+from timm.models import _manipulate
 from timm.models.vision_transformer import VisionTransformer
 from torch import Tensor, jit
 from torch.nn import LayerNorm, Linear, Module, Parameter
@@ -113,7 +113,7 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
         intermediates: List[Tensor] = []
         for blk in self.vit.blocks:
             if self.grad_checkpointing and not jit.is_scripting():
-                tokens = checkpoint_seq((blk,), tokens)
+                tokens = _manipulate.checkpoint_seq((blk,), tokens)
             else:
                 tokens = blk(tokens)
             intermediates.append(self.vit.norm(tokens) if norm else tokens)
@@ -138,7 +138,7 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
         tokens = self.vit.norm_pre(tokens)
         # apply Transformer blocks
         if self.grad_checkpointing and not jit.is_scripting():
-            tokens = checkpoint_seq(self.vit.blocks, tokens)
+            tokens = _manipulate.checkpoint_seq(self.vit.blocks, tokens)
         else:
             tokens = self.vit.blocks(tokens)
         # normalize
