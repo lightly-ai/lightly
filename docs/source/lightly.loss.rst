@@ -41,6 +41,9 @@ lightly.loss
 .. autoclass:: lightly.loss.lejepa_loss.LeJEPALoss
    :members:
 
+.. autoclass:: lightly.loss.lewm_loss.LeWMLoss
+   :members:
+
 .. autoclass:: lightly.loss.koleo_loss.KoLeoLoss
    :members:
 
