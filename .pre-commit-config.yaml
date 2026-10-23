@@ -1,4 +1,4 @@
-default_install_hook_types: [pre-commit, pre-push] # install both git hooks (mypy runs on pre-push)
+default_install_hook_types: [pre-commit, pre-push, commit-msg] # commit-msg runs commitizen
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v4.6.0
@@ -17,6 +17,11 @@ repos:
     - id: ruff-check
       args: [--fix]
     - id: ruff-format
+- repo: https://github.com/commitizen-tools/commitizen
+  rev: v3.29.1 # run `pre-commit autoupdate` to move this forward
+  hooks:
+  - id: commitizen
+    stages: [commit-msg] # lint the commit message against Conventional Commits
 - repo: local
   hooks:
   - id: mypy
