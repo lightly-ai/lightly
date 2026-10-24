@@ -226,7 +226,7 @@ class SIGReg(nn.Module):
         num_samples = proj.size(-2)
         if self.gather_distributed and lightly_dist.world_size() > 1:
             num_samples_tensor = torch.tensor(
-                float(num_samples), device=proj.device, dtype=proj.dtype
+                num_samples, device=proj.device, dtype=torch.int64
             )
             torch_dist.all_reduce(num_samples_tensor)
             num_samples = int(num_samples_tensor.item())
