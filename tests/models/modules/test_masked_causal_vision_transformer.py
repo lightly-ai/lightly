@@ -1,11 +1,14 @@
 import pytest
 import torch
+from pytest_mock import MockerFixture
 
 from lightly.utils import dependency
 
 if not dependency.timm_vit_available():
     # We do not use pytest.importorskip on module level because it makes mypy unhappy.
     pytest.skip("TIMM vision transformer is not available", allow_module_level=True)
+
+from timm.layers import config as timm_config
 
 from lightly.models.modules.masked_causal_vision_transformer import (
     MaskedCausalAttention,
@@ -149,6 +152,27 @@ class TestMaskedCausalVisionTransformer:
 
         torch.testing.assert_close(features, expected)
         torch.testing.assert_close(images.grad, expected_input_grad)
+
+    @skip_without_fused_attention
+    def test_forward_features__grad_checkpointing__frozen_preprocessing(
+        self, mocker: MockerFixture
+    ) -> None:
+        # timm < 1.0.16 always uses reentrant checkpointing, which drops the
+        # block gradients when the checkpoint input does not require grad.
+        mocker.patch.object(timm_config, "_USE_REENTRANT_CKPT", True, create=True)
+        model = MaskedCausalVisionTransformer(
+            img_size=32, patch_size=16, embed_dim=24, depth=2, num_heads=3
+        ).eval()
+        for name, param in model.named_parameters():
+            if not name.startswith("blocks."):
+                param.requires_grad_(False)
+        model.set_grad_checkpointing(True)
+
+        features = model.forward_features(torch.rand(2, 3, 32, 32))
+        features.sum().backward()
+
+        for param in model.blocks.parameters():
+            assert param.grad is not None
 
     @skip_without_fused_attention
     @pytest.mark.parametrize("is_causal", [True, False])
