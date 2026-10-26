@@ -53,27 +53,8 @@ each move in its own embedding space.
 pip install "lightly[timm]"  # LeWM needs PyTorch 2.0+
 ```
 
-```python
-import timm
-
-from lightly.loss import LeWMLoss
-from lightly.models.modules import ActionEncoder, LatentDynamicsPredictor, LeWMProjectionHead
-
-encoder = timm.create_model("vit_tiny_patch16_224", img_size=64, num_classes=0)
-head = LeWMProjectionHead(input_dim=192, output_dim=192)
-action_encoder = ActionEncoder(action_dim=2, output_dim=192)
-predictor = LatentDynamicsPredictor(
-    num_frames=3, input_dim=192, hidden_dim=384, depth=4, num_heads=6
-)
-criterion = LeWMLoss()
-
-# frames: (B, T, 3, H, W), actions: (B, T, 2)
-emb = head(encoder(frames.flatten(0, 1))).unflatten(0, frames.shape[:2])
-predicted = predictor(emb[:, :-1], action_emb=action_encoder(actions[:, :-1]))
-loss = criterion(predicted=predicted, target=emb[:, 1:], embeddings=emb)
-```
-
 - [Tutorial: Train a World Model and Plan with It](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_lewm.html)
+- [Example script](https://github.com/lightly-ai/lightly/blob/master/examples/pytorch/lewm.py)
 - [LeWM docs](https://docs.lightly.ai/self-supervised-learning/examples/lewm.html)
 - [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/lewm.ipynb)
 
