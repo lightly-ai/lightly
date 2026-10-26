@@ -56,6 +56,11 @@ class EMPSSLLoss(Module):
 
     - [0] EMP-SSL, 2023, https://arxiv.org/abs/2304.03977
 
+    The embeddings are L2-normalized before the loss is computed, as in the
+    official implementation. Without normalization the TCR term depends on the
+    embedding scale, and the optimizer can change the loss by rescaling instead
+    of learning better features.
+
     Attributes:
         tcr_eps:
             Total Coding Rate (TCR) epsilon. NOTE: While in the paper, this term is
@@ -68,18 +73,17 @@ class EMPSSLLoss(Module):
         >>> # initialize loss function
         >>> loss_fn = EMPSSLLoss()
         >>> base_transform = VICRegViewTransform()  # As discussed in paper
-        >>> transform_fn = MultiCropTransform(
-        ...     transforms=base_transform, crop_counts=100
-        ... )
+        >>> transform_fn = MultiViewTransform(transforms=[base_transform] * 100)
         >>>
-        >>> # generate the transformed samples
-        >>> samples = transform_fn(image)
+        >>> # use transform_fn in the dataset; a DataLoader batch then holds
+        >>> # one (batch_size, C, H, W) tensor per view
+        >>> views, _ = batch
         >>>
-        >>> # feed through encoder head
-        >>> z = [model(s) for s in samples]
+        >>> # feed through encoder head, one (batch_size, dim) tensor per view
+        >>> z_views = [model(v) for v in views]
         >>>
         >>> # calculate loss
-        >>> loss = loss_fn(z)
+        >>> loss = loss_fn(z_views)
     """
 
     def __init__(
@@ -110,6 +114,6 @@ class EMPSSLLoss(Module):
             The computed EMP-SSL loss.
         """
         # z has shape (num_views, batch_size, dim)
-        z = torch.stack(z_views)
+        z = F.normalize(torch.stack(z_views), dim=-1)
 
         return tcr_loss(z, eps=self.tcr_eps) + self.inv_coef * invariance_loss(z)

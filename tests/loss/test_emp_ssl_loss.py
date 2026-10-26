@@ -4,7 +4,18 @@ import torch
 from lightly.loss.emp_ssl_loss import EMPSSLLoss
 
 
-class testEMPSSSLLoss:
+class TestEMPSSLLoss:
+    def test_forward__scale_invariant(self) -> None:
+        """Scaling the embeddings must not change the loss."""
+        torch.manual_seed(0)
+        z_views = list(torch.randn(3, 8, 4).unbind())
+        loss_fn = EMPSSLLoss()
+
+        loss = loss_fn(z_views)
+        loss_scaled = loss_fn([10 * z for z in z_views])
+
+        torch.testing.assert_close(loss, loss_scaled)
+
     def test_forward(self) -> None:
         bs = 512
         dim = 128
@@ -22,6 +33,6 @@ class testEMPSSSLLoss:
         num_views = 100
 
         loss_fn = EMPSSLLoss().cuda()
-        x = x = [torch.randn(bs, dim).cuda()] * num_views
+        x = [torch.randn(bs, dim).cuda()] * num_views
 
         loss_fn(x)
