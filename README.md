@@ -10,7 +10,7 @@
 [![Twitter](https://img.shields.io/twitter/follow/LightlyAI)](https://x.com/LightlyAI)
 
 
-Lightly**SSL** is a computer vision framework for self-supervised learning.
+Lightly**SSL** is a computer vision framework for self-supervised learning and latent world models.
 
 - [Documentation](https://docs.lightly.ai/self-supervised-learning/)
 - [Github](https://github.com/lightly-ai/lightly)
@@ -27,6 +27,7 @@ on your data, check out [lightly.ai](https://www.lightly.ai). It's free to get s
 
 ## News 🚀
 
+* October 26, 2026 - LightlySSL now trains world models! Learn how a scene responds to actions with [LeWM](https://arxiv.org/abs/2603.19312) and plan with it in our [new tutorial](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_lewm.html). 🌍
 * May 28, 2026 - We now have [LeJEPA](https://arxiv.org/pdf/2511.08544) support for self-supervised learning! 🧬 
 * March 23, 2026 - Check out our latest open-source project [LightlyStudio](https://github.com/lightly-ai/lightly-studio) to visualize, annotate, and manage your data with ease! 🔍
 * April 15, 2025 - We are excited to announce that you can now leverage SSL and distillation pretraining in just a few lines of code! We've worked hard to make self-supervised learning even more accessible with our new project [LightlyTrain](https://github.com/lightly-ai/lightly-train). Head over there to get started and supercharge your models! ⚡️
@@ -36,6 +37,41 @@ on your data, check out [lightly.ai](https://www.lightly.ai). It's free to get s
 <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
 <a href="https://github.com/lightly-ai/lightly-studio"><img src="https://storage.googleapis.com/lightly-public/studio/lightlystudio_standard_horizontal_dark.png" alt="LightlyStudio" height="40"/></a>
 </p>
+
+## World Models 🌍
+
+A world model learns how a scene responds to actions. [LeWM](https://arxiv.org/abs/2603.19312)
+learns it from raw frames and actions, then plans by imagining the outcome of
+each move in its own embedding space.
+
+<p align="center">
+<img src="https://raw.githubusercontent.com/lightly-ai/lightly/master/docs/assets/lewm_planning.gif" alt="Four agents planned by LeWM pass through a door to reach their goals" width="480"/>
+</p>
+<p align="center"><em>Each agent (orange) gets only a picture of its goal (white box). LeWM finds a way through the door.<br/>It learned from random play: no rewards, no labels, no map of the room.</em></p>
+
+```python
+import timm
+
+from lightly.loss import LeWMLoss
+from lightly.models.modules import ActionEncoder, LatentDynamicsPredictor, LeWMProjectionHead
+
+encoder = timm.create_model("vit_tiny_patch16_224", img_size=64, num_classes=0)
+head = LeWMProjectionHead(input_dim=192, output_dim=192)
+action_encoder = ActionEncoder(action_dim=2, output_dim=192)
+predictor = LatentDynamicsPredictor(
+    num_frames=3, input_dim=192, hidden_dim=384, depth=4, num_heads=6
+)
+criterion = LeWMLoss()
+
+# frames: (B, T, 3, H, W), actions: (B, T, 2)
+emb = head(encoder(frames.flatten(0, 1))).unflatten(0, frames.shape[:2])
+predicted = predictor(emb[:, :-1], action_emb=action_encoder(actions[:, :-1]))
+loss = criterion(predicted=predicted, target=emb[:, 1:], embeddings=emb)
+```
+
+- [Tutorial: Train a World Model and Plan with It](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_lewm.html)
+- [LeWM docs](https://docs.lightly.ai/self-supervised-learning/examples/lewm.html)
+- [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/lewm.ipynb)
 
 ## Features
 
@@ -80,10 +116,17 @@ and PyTorch Lightning distributed examples for all models to kickstart your proj
 | LeJEPA         | 2025 | [paper](https://arxiv.org/abs/2511.08544) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/lejepa.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/lejepa.ipynb) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch_Lightning-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/lejepa.ipynb) | <!-- 11/11/2025 -->
 | Pixio          | 2025 | [paper](https://arxiv.org/abs/2512.15715) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/pixio.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/pixio.ipynb) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch_Lightning-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/pixio.ipynb) | <!-- 17/12/2025 -->
 
+**World models**:
+
+| Model          | Year | Paper | Docs | Colab (PyTorch) |
+|----------------|------|-------|------|-----------------|
+| LeWM           | 2026 | [paper](https://arxiv.org/abs/2603.19312) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/lewm.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/lewm.ipynb) |
+
 ## Tutorials
 
 Want to jump to the tutorials and see Lightly in action?
 
+- [Train a World Model and Plan with It](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_lewm.html)
 - [Train MoCo on CIFAR-10](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_moco_memory_bank.html)
 - [Train SimCLR on Clothing Data](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_simclr_clothing.html)
 - [Train SimSiam on Satellite Images](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_simsiam_esa.html)
@@ -91,7 +134,6 @@ Want to jump to the tutorials and see Lightly in action?
 - [Pre-train a Detectron2 Backbone with Lightly](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_pretrain_detectron2.html)
 - [Finetuning Lightly Checkpoints](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_checkpoint_finetuning.html)
 - [Using timm Models as Backbones](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_timm_backbone.html)
-- [Train a World Model and Plan with It](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_lewm.html)
 
 Community and partner projects:
 

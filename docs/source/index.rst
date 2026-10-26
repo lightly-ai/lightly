@@ -24,7 +24,25 @@ Documentation
    please follow our Lightly\ **One** Worker `documentation <https://docs.lightly.ai/>`_.
 
 
-Lightly\ **SSL** is a computer vision framework for self-supervised learning.
+Lightly\ **SSL** is a computer vision framework for self-supervised learning and
+latent world models.
+
+.. rubric:: World Models
+
+A world model learns how a scene responds to actions. :ref:`lewm` learns it from
+raw frames and actions, then plans by imagining the outcome of each move in its
+own embedding space.
+
+.. figure:: ../assets/lewm_planning.gif
+   :width: 480
+   :align: center
+   :alt: Four agents planned by LeWM pass through a door to reach their goals
+
+   Each agent (orange) gets only a picture of its goal (white box). LeWM finds a
+   way through the door. It learned from random play: no rewards, no labels, no
+   map of the room.
+
+Start with :ref:`lightly-lewm-tutorial-9`.
 
 With Lightly\ **SSL** you can train deep learning models using self-supervision. 
 This means, that you don’t require any labels to train a model. 
@@ -73,6 +91,13 @@ Lightly AI
 
 .. toctree::
    :maxdepth: 1
+   :caption: World Models
+
+   examples/lewm.rst
+   tutorials/package/tutorial_lewm.rst
+
+.. toctree::
+   :maxdepth: 1
    :caption: Advanced
 
    getting_started/advanced.rst
@@ -91,7 +116,6 @@ Lightly AI
    tutorials/package/tutorial_pretrain_detectron2.rst
    tutorials/package/tutorial_checkpoint_finetuning.rst
    tutorials/package/tutorial_timm_backbone.rst
-   tutorials/package/tutorial_lewm.rst
 
 .. toctree::
    :maxdepth: 1
