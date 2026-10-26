@@ -1,5 +1,5 @@
 <a name="top"></a>
-![LightlySSL self-supervised learning Logo](docs/logos/lightly_SSL_logo_crop.png)
+![LightlySSL self-supervised learning Logo](https://raw.githubusercontent.com/lightly-ai/lightly/master/docs/logos/lightly_SSL_logo_crop.png)
 
 [![GitHub](https://img.shields.io/github/license/lightly-ai/lightly)](https://github.com/lightly-ai/lightly/blob/master/LICENSE.txt)
 [![Unit Tests](https://github.com/lightly-ai/lightly/workflows/Unit%20Tests/badge.svg)](https://github.com/lightly-ai/lightly/actions/workflows/test.yml)
