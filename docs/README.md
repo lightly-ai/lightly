@@ -1,11 +1,7 @@
 # Documentation Guide
 All the commands in here are assumed to be run from within the `docs` directory.
 ## Prerequisites
-In a virtual environment, make sure that you install the development dependencies:
-```bash
-pip install -e "..[dev]"
-```
-Or if your package manager of choice is `uv`, you can run:
+Install the development dependencies. They include everything needed to build the docs:
 ```bash
 (cd .. && make install-dev)
 ```

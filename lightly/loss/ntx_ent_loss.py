@@ -31,10 +31,6 @@ class NTXentLoss(nn.Module):
             number of negative samples stored in the memory bank. If num_features is 0,
             the memory bank is disabled. Use 0 for SimCLR. For MoCo we typically use
             numbers like 4096 or 65536.
-            Deprecated: If only a single integer is passed, it is interpreted as the
-            number of features and the feature dimension is inferred from the first
-            batch stored in the memory bank. Leaving out the feature dimension might
-            lead to errors in distributed training.
         gather_distributed:
             If True then negatives from all GPUs are gathered before the
             loss calculation. If a memory bank is used and gather_distributed is True,

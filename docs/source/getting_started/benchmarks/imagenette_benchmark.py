@@ -581,7 +581,7 @@ class NNCLRModel(BenchmarkModule):
         self.prediction_head = heads.NNCLRPredictionHead(256, 4096, 256)
 
         self.criterion = NTXentLoss()
-        self.memory_bank = modules.NNMemoryBankModule(size=4096)
+        self.memory_bank = modules.NNMemoryBankModule(size=(4096, 256))
 
     def forward(self, x):
         y = self.backbone(x).flatten(start_dim=1)

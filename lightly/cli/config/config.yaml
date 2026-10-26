@@ -32,7 +32,7 @@ optimizer:
   lr: 1.                      # Learning rate of the optimizer.
   weight_decay: 0.00001       # L2 penalty.
 
-# collate namespace: Passed to lightly.data.ImageCollateFunction.
+# collate namespace: Passed to lightly.transforms.SimCLRTransform.
 collate:
   input_size: 64              # Size of the input images in pixels.
   cj_prob: 0.8                # Probability that color jitter is applied.
@@ -44,9 +44,6 @@ collate:
   random_gray_scale: 0.2      # Probability of converting image to gray scale.
   gaussian_blur: 0.5          # Probability of Gaussian blur.
   sigmas: [0.2, 2]            # Sigmas of Gaussian blur
-  kernel_size: null           # Will be deprecated in favor of `sigmas` argument. If set, the old behavior
-                              # applies and `sigmas` is ignored. Used to calculate sigma of gaussian blur
-                              # with kernel_size * input_size.
   vf_prob: 0.0                # Probability that vertical flip is applied.
   hf_prob: 0.5                # Probability that horizontal flip is applied.
   rr_prob: 0.0                # Probability that random rotation is applied.
@@ -71,8 +68,6 @@ trainer:
   max_epochs: 100             # Number of epochs to train for.
   precision: 32               # If set to 16, will use half-precision.
   enable_model_summary: True  # Whether to enable model summarisation.
-  weights_summary:            # [deprecated] Use enable_model_summary
-                              # and summary_callback.max_depth.
 
 # checkpoint_callback namespace: Modify the checkpoint callback
 checkpoint_callback:

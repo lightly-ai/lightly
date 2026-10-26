@@ -21,7 +21,7 @@ repos:
   hooks:
   - id: mypy
     name: mypy
-    entry: mypy
+    entry: uv run --frozen mypy
     language: system
     types: [python]
     pass_filenames: false

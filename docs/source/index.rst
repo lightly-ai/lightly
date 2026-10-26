@@ -91,6 +91,7 @@ Lightly AI
    tutorials/package/tutorial_pretrain_detectron2.rst
    tutorials/package/tutorial_checkpoint_finetuning.rst
    tutorials/package/tutorial_timm_backbone.rst
+   tutorials/package/tutorial_lewm.rst
 
 .. toctree::
    :maxdepth: 1

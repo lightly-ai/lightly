@@ -101,7 +101,7 @@ class LARS(Optimizer):
         for group in self.param_groups:
             group.setdefault("nesterov", False)
 
-    # Type ignore for overloads is required for Python 3.7.
+    # PyTorch's version-dependent overloads do not match these signatures.
     @overload  # type: ignore[override]
     def step(self, closure: None = None) -> None: ...
 

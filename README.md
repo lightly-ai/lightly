@@ -91,6 +91,7 @@ Want to jump to the tutorials and see Lightly in action?
 - [Pre-train a Detectron2 Backbone with Lightly](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_pretrain_detectron2.html)
 - [Finetuning Lightly Checkpoints](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_checkpoint_finetuning.html)
 - [Using timm Models as Backbones](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_timm_backbone.html)
+- [Train a World Model and Plan with It](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_lewm.html)
 
 Community and partner projects:
 
@@ -98,7 +99,7 @@ Community and partner projects:
 
 ## Quick Start
 
-Lightly requires **Python 3.7+**. We recommend installing Lightly in a **Linux** or **OSX** environment. Python 3.13 is not yet supported, as PyTorch itself lacks Python 3.13 compatibility.
+Lightly requires **Python 3.8+**. We recommend installing Lightly in a **Linux** or **OSX** environment. Python 3.13 is not yet supported, as PyTorch itself lacks Python 3.13 compatibility.
 
 ### Dependencies
 
@@ -347,11 +348,16 @@ Head to the [documentation](https://docs.lightly.ai/self-supervised-learning/) a
 
 ## Development
 
-To install dev dependencies (for example to contribute to the framework) you can use the following command:
+We use [uv](https://github.com/astral-sh/uv) to manage dependencies. To set up a
+development environment (for example to contribute to the framework) you can use the
+following command:
 
 ```
-pip3 install -e ".[dev]"
+make install-dev
 ```
+
+This installs the package with all extras and development dependencies, and sets up the
+pre-commit hooks. You do not need to activate the virtual environment manually.
 
 For more information about how to contribute have a look [here](CONTRIBUTING.md).
 
@@ -374,7 +380,7 @@ make test
 To test a specific file or directory use:
 
 ```
-pytest <path to file or directory>
+uv run --frozen pytest <path to file or directory>
 ```
 
 ### Code Formatting
