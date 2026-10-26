@@ -298,4 +298,4 @@ cell_metadata_filter="-all"
 
 [tool.codespell]
 skip = "*.ipynb"
-ignore-words-list = "nce,inpt,nd,wirth"
+ignore-words-list = "nce,inpt,nd,wirth,fro"
