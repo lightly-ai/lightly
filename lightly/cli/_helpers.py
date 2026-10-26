@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 import os
-from typing import Any
+from typing import Any, Callable, Mapping
 
 import hydra
 import torch
@@ -66,7 +66,7 @@ def is_url(checkpoint: str) -> bool:
     return is_url
 
 
-def get_ptmodel_from_config(model: dict[str, Any]) -> tuple[str, str]:
+def get_ptmodel_from_config(model: Mapping[str, Any]) -> tuple[str, str]:
     """Get a pre-trained model from the lightly model zoo."""
     key = model["name"]
     key += "/simclr"
@@ -80,7 +80,10 @@ def get_ptmodel_from_config(model: dict[str, Any]) -> tuple[str, str]:
 
 
 def load_state_dict_from_url(
-    url: str, map_location: str | torch.device | None = None
+    url: str,
+    map_location: (
+        str | torch.device | Callable[..., Any] | dict[str, str] | None
+    ) = None,
 ) -> dict[str, Any]:
     """Try to load the checkopint from the given url."""
     try:
@@ -211,7 +214,7 @@ def load_from_state_dict(
 
 
 def get_model_from_config(
-    cfg: dict[str, Any], is_cli_call: bool = False
+    cfg: Mapping[str, Any], is_cli_call: bool = False
 ) -> SelfSupervisedEmbedding:
     checkpoint = cfg["checkpoint"]
     if torch.cuda.is_available():
