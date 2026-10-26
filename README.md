@@ -91,6 +91,7 @@ Want to jump to the tutorials and see Lightly in action?
 - [Pre-train a Detectron2 Backbone with Lightly](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_pretrain_detectron2.html)
 - [Finetuning Lightly Checkpoints](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_checkpoint_finetuning.html)
 - [Using timm Models as Backbones](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_timm_backbone.html)
+- [Train a World Model and Plan with It](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_lewm.html)
 
 Community and partner projects:
 
