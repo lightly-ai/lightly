@@ -80,13 +80,11 @@ def get_ptmodel_from_config(model: dict[str, Any]) -> tuple[str, str]:
 
 
 def load_state_dict_from_url(
-    url: str, map_location: torch.device | None = None
-) -> dict[str, torch.Tensor | None]:
+    url: str, map_location: str | torch.device | None = None
+) -> dict[str, Any]:
     """Try to load the checkopint from the given url."""
     try:
-        state_dict: dict[str, torch.Tensor] = torch.hub.load_state_dict_from_url(
-            url, map_location=map_location
-        )
+        state_dict = torch.hub.load_state_dict_from_url(url, map_location=map_location)
         return state_dict
     except Exception:
         print("Not able to load state dict from %s" % (url))
@@ -100,7 +98,6 @@ def load_state_dict_from_url(
 
     # in this case downloading the pre-trained model was not possible
     # notify the user and return
-
     return {"state_dict": None}
 
 
@@ -237,7 +234,7 @@ def get_model_from_config(
 
     # load model
     resnet = ResNetGenerator(cfg["model"]["name"], cfg["model"]["width"])
-    last_conv_channels = list(resnet.children())[-1].in_features
+    last_conv_channels = resnet.linear.in_features
     features = nn.Sequential(
         get_norm_layer(3, 0),
         *list(resnet.children())[:-1],
@@ -252,5 +249,5 @@ def get_model_from_config(
     if state_dict is not None:
         load_from_state_dict(model, state_dict)
 
-    encoder = SelfSupervisedEmbedding(model, None, None, None)  # type: ignore
+    encoder = SelfSupervisedEmbedding(model, None, None, None)  # type: ignore[arg-type]
     return encoder
