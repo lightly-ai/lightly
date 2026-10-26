@@ -147,7 +147,7 @@ pygments_style = "native"
 pygments_dark_style = "native"
 
 html_css_files = [
-    "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&family=Open+Sans:wght@600;700&display=swap",
+    "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Open+Sans:wght@600;700&display=swap",
     "custom.css",
 ]
 

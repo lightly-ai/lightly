@@ -7,7 +7,7 @@
    ========================================================================== */
 
 :root {
-  --ls-font-display: "Space Grotesk", "IBM Plex Sans", system-ui, sans-serif;
+  --ls-font-display: "IBM Plex Sans", system-ui, sans-serif;
   --ls-font-brand: "Open Sans", system-ui, sans-serif;
   --ls-font-mono: "JetBrains Mono", ui-monospace, monospace;
 
