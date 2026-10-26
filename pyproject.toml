@@ -14,7 +14,7 @@ authors = [
     {name = "Lightly Team", email = "team@lightly.ai"},
 ]
 license = {file = "LICENSE.txt"}
-description="A deep learning package for self-supervised learning"
+description="A deep learning package for self-supervised learning and world models"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
