@@ -49,6 +49,10 @@ each move in its own embedding space.
 </p>
 <p align="center"><em>Each agent (orange) gets only a picture of its goal (white box). LeWM finds a way through the door.<br/>It learned from random play: no rewards, no labels, no map of the room.</em></p>
 
+```bash
+pip install "lightly[timm]"  # LeWM needs PyTorch 2.0+
+```
+
 ```python
 import timm
 
