@@ -76,7 +76,7 @@ class EMPSSLLoss(Module):
         >>> samples = transform_fn(image)
         >>>
         >>> # feed through encoder head
-        >>> z = torch.cat([model(s) for s in samples])
+        >>> z = [model(s) for s in samples]
         >>>
         >>> # calculate loss
         >>> loss = loss_fn(z)
