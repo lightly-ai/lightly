@@ -56,6 +56,11 @@ class EMPSSLLoss(Module):
 
     - [0] EMP-SSL, 2023, https://arxiv.org/abs/2304.03977
 
+    The embeddings are L2-normalized before the loss is computed, as in the
+    official implementation. Without normalization the TCR term depends on the
+    embedding scale, and the optimizer can change the loss by rescaling instead
+    of learning better features.
+
     Attributes:
         tcr_eps:
             Total Coding Rate (TCR) epsilon. NOTE: While in the paper, this term is
@@ -110,6 +115,6 @@ class EMPSSLLoss(Module):
             The computed EMP-SSL loss.
         """
         # z has shape (num_views, batch_size, dim)
-        z = torch.stack(z_views)
+        z = F.normalize(torch.stack(z_views), dim=-1)
 
         return tcr_loss(z, eps=self.tcr_eps) + self.inv_coef * invariance_loss(z)
