@@ -18,7 +18,7 @@ def tcr_loss(z: Tensor, eps: float) -> Tensor:
             Epsilon value for numerical stability.
 
     Returns:
-        TCR loss.
+        Negative TCR, averaged over views.
     """
     _, batch_size, dim = z.shape
     diag = torch.eye(dim, device=z.device).unsqueeze(0)

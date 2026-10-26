@@ -10,13 +10,14 @@ class TestEMPSSLLoss:
         """Match the per-view objective and gradients from the EMP-SSL reference."""
         torch.manual_seed(0)
         z = torch.randn(3, 5, 4, dtype=torch.float64, requires_grad=True)
+        _, batch_size, dim = z.shape
         eps = 0.2
         loss = EMPSSLLoss(tcr_eps=eps, inv_coef=inv_coef)(list(z.unbind()))
 
         # The reference minimizes negative coding rate, averaged over views.
         coding_rates = [
             torch.linalg.slogdet(
-                torch.eye(4, dtype=z.dtype) + 4 / (5 * eps) * view.T @ view
+                torch.eye(dim, dtype=z.dtype) + dim / (batch_size * eps) * view.T @ view
             )[1]
             / 2
             for view in z
