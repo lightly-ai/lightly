@@ -1,5 +1,4 @@
-"""
-.. _lightly-detectron-tutorial-6:
+""".. _lightly-detectron-tutorial-6:
 
 .. role:: bash(code)
    :language: bash

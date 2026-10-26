@@ -53,7 +53,7 @@ def lightly_cli(cfg):
             Path to the input directory where images are stored.
 
     Examples:
-        >>> # train model and embed images with default settings
+        >>> # train model and embed images with default settings
         >>> lightly-magic input_dir=data/
         >>>
         >>> # train model for 10 epochs and embed images

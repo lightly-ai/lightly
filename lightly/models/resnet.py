@@ -4,7 +4,7 @@ Note that the architecture we present here differs from the one used in
 torchvision. We replace the first 7x7 convolution by a 3x3 convolution to make
 the model faster and run better on smaller input image resolutions.
 
-Furthermore, we introduce a resnet-9 variant for extra small models. These can 
+Furthermore, we introduce a resnet-9 variant for extra small models. These can
 run for example on a microcontroller with 100kBytes of storage.
 """
 
@@ -12,7 +12,7 @@ run for example on a microcontroller with 100kBytes of storage.
 # All Rights Reserved
 from __future__ import annotations
 
-from typing import List
+from typing import List, cast
 
 import torch.nn as nn
 import torch.nn.functional as F
@@ -73,7 +73,6 @@ class BasicBlock(nn.Module):
         Returns:
             Tensor of shape bsz x channels x W x H
         """
-
         out: Tensor = self.conv1(x)
         out = self.bn1(out)
         out = F.relu(out)
@@ -143,7 +142,6 @@ class Bottleneck(nn.Module):
         Returns:
             Tensor of shape bsz x channels x W x H
         """
-
         out: Tensor = self.conv1(x)
         out = self.bn1(out)
         out = F.relu(out)
@@ -243,7 +241,7 @@ class ResNet(nn.Module):
         out = F.avg_pool2d(out, 4)
         out = out.view(out.size(0), -1)
         out = self.linear(out)
-        return out
+        return cast(Tensor, out)
 
 
 def ResNetGenerator(
@@ -273,10 +271,9 @@ def ResNetGenerator(
     Examples:
         >>> # binary classifier with ResNet-34
         >>> from lightly.models import ResNetGenerator
-        >>> resnet = ResNetGenerator('resnet-34', num_classes=2)
+        >>> resnet = ResNetGenerator("resnet-34", num_classes=2)
 
     """
-
     model_params = {
         "resnet-9": {"block": BasicBlock, "layers": [1, 1, 1, 1]},
         "resnet-18": {"block": BasicBlock, "layers": [2, 2, 2, 2]},

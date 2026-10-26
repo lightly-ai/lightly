@@ -1,6 +1,5 @@
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Tuple, Union
 
-import torchvision.transforms as T
 from PIL.Image import Image
 from torch import Tensor
 
@@ -8,6 +7,7 @@ from lightly.transforms.gaussian_blur import GaussianBlur
 from lightly.transforms.image_grid_transform import ImageGridTransform
 from lightly.transforms.random_crop_and_flip_with_grid import RandomResizedCropAndFlip
 from lightly.transforms.solarize import RandomSolarization
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 
 
@@ -53,23 +53,13 @@ class VICRegLTransform(ImageGridTransform):
             Probability of Gaussian blur for the global crop views.
         local_gaussian_blur_prob:
             Probability of Gaussian blur for the local crop views.
-        global_gaussian_blur_kernel_size:
-            Will be deprecated in favor of `global_gaussian_blur_sigmas` argument.
-            If set, the old behavior applies and `global_gaussian_blur_sigmas`
-            is ignored. Used to calculate sigma of gaussian blur with
-            global_gaussian_blur_kernel_size * input_size. Applied to global crop views.
-        local_gaussian_blur_kernel_size:
-            Will be deprecated in favor of `local_gaussian_blur_sigmas` argument.
-            If set, the old behavior applies and `local_gaussian_blur_sigmas`
-            is ignored. Used to calculate sigma of gaussian blur with
-            local_gaussian_blur_kernel_size * input_size. Applied to local crop views.
         global_gaussian_blur_sigmas:
             Tuple of min and max value from which the std of the gaussian kernel
-            is sampled. It is ignored if `global_gaussian_blur_kernel_size` is set.
+            is sampled.
             Applied to global crop views.
         local_gaussian_blur_sigmas:
             Tuple of min and max value from which the std of the gaussian kernel
-            is sampled. It is ignored if `local_gaussian_blur_kernel_size` is set.
+            is sampled.
             Applied to local crop views.
         global_solarize_prob:
             Probability of solarization for the global crop views.
@@ -85,7 +75,7 @@ class VICRegLTransform(ImageGridTransform):
         cj_bright:
             How much to jitter brightness.
         cj_contrast:
-            How much to jitter constrast.
+            How much to jitter contrast.
         cj_sat:
             How much to jitter saturation.
         cj_hue:
@@ -108,8 +98,6 @@ class VICRegLTransform(ImageGridTransform):
         local_grid_size: int = 3,
         global_gaussian_blur_prob: float = 0.5,
         local_gaussian_blur_prob: float = 0.1,
-        global_gaussian_blur_kernel_size: Optional[float] = None,
-        local_gaussian_blur_kernel_size: Optional[float] = None,
         global_gaussian_blur_sigmas: Tuple[float, float] = (0.1, 2),
         local_gaussian_blur_sigmas: Tuple[float, float] = (0.1, 2),
         global_solarize_prob: float = 0.0,
@@ -136,7 +124,6 @@ class VICRegLTransform(ImageGridTransform):
             ),
             VICRegLViewTransform(
                 gaussian_blur_prob=global_gaussian_blur_prob,
-                gaussian_blur_kernel_size=global_gaussian_blur_kernel_size,
                 gaussian_blur_sigmas=global_gaussian_blur_sigmas,
                 solarize_prob=global_solarize_prob,
                 cj_prob=cj_prob,
@@ -159,7 +146,6 @@ class VICRegLTransform(ImageGridTransform):
             ),
             VICRegLViewTransform(
                 gaussian_blur_prob=local_gaussian_blur_prob,
-                gaussian_blur_kernel_size=local_gaussian_blur_kernel_size,
                 gaussian_blur_sigmas=local_gaussian_blur_sigmas,
                 solarize_prob=local_solarize_prob,
                 cj_prob=cj_prob,
@@ -176,10 +162,31 @@ class VICRegLTransform(ImageGridTransform):
 
 
 class VICRegLViewTransform:
+    """Transforms an image into a single view for VICRegL [0].
+
+    Used by VICRegLTransform to create the global and local views of an image.
+    The crop and flip augmentations are applied separately by VICRegLTransform;
+    this transform applies the remaining photometric augmentations.
+
+    Input to this transform:
+        PIL Image. (Tensor inputs are supported when torchvision transforms v2 are available.)
+    Output of this transform:
+        Tensor.
+
+    Applies the following augmentations by default:
+        - Color jitter
+        - Random gray scale
+        - Gaussian blur
+        - Random solarization
+        - ImageNet normalization
+
+    - [0]: VICRegL, 2022, https://arxiv.org/abs/2210.01571
+
+    """
+
     def __init__(
         self,
         gaussian_blur_prob: float = 0.5,
-        gaussian_blur_kernel_size: Optional[float] = None,
         gaussian_blur_sigmas: Tuple[float, float] = (0.1, 2),
         solarize_prob: float = 0.0,
         cj_prob: float = 1.0,
@@ -191,6 +198,25 @@ class VICRegLViewTransform:
         random_gray_scale: float = 0.2,
         normalize: Union[None, Dict[str, List[float]]] = IMAGENET_NORMALIZE,
     ):
+        """Initializes VICRegLViewTransform.
+
+        Args:
+            gaussian_blur_prob: Probability of Gaussian blur.
+            gaussian_blur_sigmas: Tuple of min and max value from which the std of
+                the gaussian kernel is sampled.
+            solarize_prob: Probability of solarization.
+            cj_prob: Probability that color jitter is applied.
+            cj_strength: Strength of the color jitter. `cj_bright`, `cj_contrast`,
+                `cj_sat`, and `cj_hue` are multiplied by this value.
+            cj_bright: How much to jitter brightness.
+            cj_contrast: How much to jitter contrast.
+            cj_sat: How much to jitter saturation.
+            cj_hue: How much to jitter hue.
+            random_gray_scale: Probability of conversion to grayscale.
+            normalize: Dictionary with 'mean' and 'std' for
+                torchvision.transforms.Normalize.
+
+        """
         color_jitter = T.ColorJitter(
             brightness=cj_strength * cj_bright,
             contrast=cj_strength * cj_contrast,
@@ -202,7 +228,6 @@ class VICRegLViewTransform:
             T.RandomApply([color_jitter], p=cj_prob),
             T.RandomGrayscale(p=random_gray_scale),
             GaussianBlur(
-                kernel_size=gaussian_blur_kernel_size,
                 prob=gaussian_blur_prob,
                 sigmas=gaussian_blur_sigmas,
             ),

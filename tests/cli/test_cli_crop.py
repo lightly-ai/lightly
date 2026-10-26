@@ -1,8 +1,8 @@
 import os
 import random
 import re
-import sys
 import tempfile
+import unittest
 
 import hydra
 import torchvision
@@ -21,15 +21,10 @@ from lightly.utils.cropping.crop_image_by_bounding_boxes import (
     crop_dataset_by_bounding_boxes_and_save,
 )
 from lightly.utils.cropping.read_yolo_label_file import read_yolo_label_file
-from tests.api_workflow.mocked_api_workflow_client import (
-    MockedApiWorkflowClient,
-    MockedApiWorkflowSetup,
-)
 
 
-class TestCLICrop(MockedApiWorkflowSetup):
+class TestCLICrop(unittest.TestCase):
     def setUp(self):
-        MockedApiWorkflowSetup.setUp(self)
         self.create_fake_dataset()
         self.create_fake_yolo_labels()
         with initialize(config_path="../../lightly/cli/config", job_name="test_app"):
@@ -44,7 +39,7 @@ class TestCLICrop(MockedApiWorkflowSetup):
             )
 
     def create_fake_dataset(self):
-        n_data = len(self.api_workflow_client.get_filenames())
+        n_data = 5
         self.dataset = torchvision.datasets.FakeData(
             size=n_data, image_size=(3, 32, 32)
         )
@@ -62,7 +57,7 @@ class TestCLICrop(MockedApiWorkflowSetup):
     ):
         random.seed(42)
 
-        n_data = len(self.api_workflow_client.get_filenames())
+        n_data = 5
 
         self.folder_path_labels = tempfile.mkdtemp()
         label_names = [f"img_{i}.txt" for i in range(n_data)]

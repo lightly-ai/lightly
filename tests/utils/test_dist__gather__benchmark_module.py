@@ -12,13 +12,13 @@ from torch.nn import Linear, Module
 from torch.optim import SGD
 from torch.utils.data import DataLoader, TensorDataset
 from torchvision.datasets import FakeData
-from torchvision.transforms import ToTensor
 
 from lightly.data import LightlyDataset
 from lightly.loss.dcl_loss import DCLLoss
 from lightly.loss.ntx_ent_loss import NTXentLoss
 from lightly.loss.tico_loss import TiCoLoss
 from lightly.loss.vicreg_loss import VICRegLoss
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from tests.utils.benchmarking.test_benchmark_module import (
     _DummyModel as _BenchmarkDummyModel,
 )
@@ -41,8 +41,7 @@ def close_torch_distributed() -> Generator[None, None, None]:
     reason="This test is running in parallel and breaks codecov",
 )
 class TestGatherLayerBenchmarkModule:
-    """
-    Tests that the gather layer works as expected.
+    """Tests that the gather layer works as expected.
 
     Because using a DDPStrategy causes the whole script to be executed multiple
     times, running a proper test is difficult. The approach used here:
@@ -74,7 +73,7 @@ class TestGatherLayerBenchmarkModule:
                 size=n_samples,
                 image_size=(3, 32, 32),
                 num_classes=num_classes,
-                transform=ToTensor(),
+                transform=T.ToTensor(),
             )
         )
         dataloader_train = DataLoader(
@@ -89,7 +88,7 @@ class TestGatherLayerBenchmarkModule:
                 size=100,
                 image_size=(3, 32, 32),
                 num_classes=num_classes,
-                transform=ToTensor(),
+                transform=T.ToTensor(),
                 random_offset=10,
             )
         )

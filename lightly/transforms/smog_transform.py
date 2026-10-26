@@ -1,12 +1,12 @@
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Tuple, Union
 
-import torchvision.transforms as T
 from PIL.Image import Image
 from torch import Tensor
 
 from lightly.transforms.gaussian_blur import GaussianBlur
 from lightly.transforms.multi_view_transform import MultiViewTransform
 from lightly.transforms.solarize import RandomSolarization
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 
 
@@ -39,8 +39,6 @@ class SMoGTransform(MultiViewTransform):
             Max_scales for each crop category.
         gaussian_blur_probs:
             Probability of Gaussian blur for each crop category.
-        gaussian_blur_kernel_sizes:
-            Deprecated values in favour of sigmas.
         gaussian_blur_sigmas:
             Tuple of min and max value from which the std of the gaussian kernel is sampled.
         solarize_probs:
@@ -55,7 +53,7 @@ class SMoGTransform(MultiViewTransform):
         cj_bright:
             How much to jitter brightness.
         cj_contrast:
-            How much to jitter constrast.
+            How much to jitter contrast.
         cj_sat:
             How much to jitter saturation.
         cj_hue:
@@ -74,10 +72,6 @@ class SMoGTransform(MultiViewTransform):
         crop_min_scales: Tuple[float, float] = (0.2, 0.05),
         crop_max_scales: Tuple[float, float] = (1.0, 0.2),
         gaussian_blur_probs: Tuple[float, float] = (0.5, 0.1),
-        gaussian_blur_kernel_sizes: Tuple[Optional[float], Optional[float]] = (
-            None,
-            None,
-        ),
         gaussian_blur_sigmas: Tuple[float, float] = (0.1, 2),
         solarize_probs: Tuple[float, float] = (0.0, 0.2),
         hf_prob: float = 0.5,
@@ -99,7 +93,6 @@ class SMoGTransform(MultiViewTransform):
                         crop_min_scale=crop_min_scales[i],
                         crop_max_scale=crop_max_scales[i],
                         gaussian_blur_prob=gaussian_blur_probs[i],
-                        kernel_size=gaussian_blur_kernel_sizes[i],
                         sigmas=gaussian_blur_sigmas,
                         solarize_prob=solarize_probs[i],
                         hf_prob=hf_prob,
@@ -120,13 +113,32 @@ class SMoGTransform(MultiViewTransform):
 
 
 class SmoGViewTransform:
+    """Transforms an image into a view for SMoG.
+
+    Used by SMoGTransform to create the views of an image.
+
+    Input to this transform:
+        PIL Image. (Tensor inputs are supported when torchvision transforms v2 are available.)
+    Output of this transform:
+        Tensor.
+
+    Applies the following augmentations by default:
+        - Random resized crop
+        - Random horizontal flip
+        - Color jitter
+        - Random gray scale
+        - Gaussian blur
+        - Random solarization
+        - ImageNet normalization
+
+    """
+
     def __init__(
         self,
         crop_size: int = 224,
         crop_min_scale: float = 0.2,
         crop_max_scale: float = 1.0,
         gaussian_blur_prob: float = 0.5,
-        kernel_size: Optional[float] = None,
         sigmas: Tuple[float, float] = (0.1, 2),
         solarize_prob: float = 0.0,
         hf_prob: float = 0.5,
@@ -139,6 +151,29 @@ class SmoGViewTransform:
         random_gray_scale: float = 0.2,
         normalize: Union[None, Dict[str, List[float]]] = IMAGENET_NORMALIZE,
     ):
+        """Initializes SmoGViewTransform.
+
+        Args:
+            crop_size: Size of the input image in pixels.
+            crop_min_scale: Minimum size of the randomized crop relative to the input_size.
+            crop_max_scale: Maximum size of the randomized crop relative to the input_size.
+            gaussian_blur_prob: Probability of Gaussian blur.
+            sigmas: Tuple of min and max value from which the std of the gaussian
+                kernel is sampled.
+            solarize_prob: Probability of solarization.
+            hf_prob: Probability that horizontal flip is applied.
+            cj_prob: Probability that color jitter is applied.
+            cj_strength: Strength of the color jitter. `cj_bright`, `cj_contrast`,
+                `cj_sat`, and `cj_hue` are multiplied by this value.
+            cj_bright: How much to jitter brightness.
+            cj_contrast: How much to jitter contrast.
+            cj_sat: How much to jitter saturation.
+            cj_hue: How much to jitter hue.
+            random_gray_scale: Probability of conversion to grayscale.
+            normalize: Dictionary with 'mean' and 'std' for
+                torchvision.transforms.Normalize.
+
+        """
         color_jitter = T.ColorJitter(
             brightness=cj_strength * cj_bright,
             contrast=cj_strength * cj_contrast,
@@ -152,7 +187,6 @@ class SmoGViewTransform:
             T.RandomApply([color_jitter], p=cj_prob),
             T.RandomGrayscale(p=random_gray_scale),
             GaussianBlur(
-                kernel_size=kernel_size,
                 prob=gaussian_blur_prob,
                 sigmas=sigmas,
             ),
@@ -164,8 +198,7 @@ class SmoGViewTransform:
         self.transform = T.Compose(transform)
 
     def __call__(self, image: Union[Tensor, Image]) -> Tensor:
-        """
-        Applies the transforms to the input image.
+        """Applies the transforms to the input image.
 
         Args:
             image:

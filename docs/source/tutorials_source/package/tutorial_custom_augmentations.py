@@ -1,5 +1,4 @@
-"""
-.. _lightly-custom-augmentation-5:
+""".. _lightly-custom-augmentation-5:
 
 Tutorial 5: Custom Augmentations
 ==============================================
@@ -16,18 +15,17 @@ We will show how to address these problems and how to train a ResNet-18 with MoC
 on a set of 16-bit X-ray images in TIFF format.
 
 The original dataset this tutorial is based on can be found `on Kaggle <https://www.kaggle.com/c/vinbigdata-chest-xray-abnormalities-detection/overview>`_.
-These images are in the DICOM format. For simplicity and efficiency reasons, 
+These images are in the DICOM format. For simplicity and efficiency reasons,
 we randomly selected ~4000 images from the above dataset, resized them such that the
 maximum of the width and height of each image is no larger than 512, and converted
 them to the 16-bit TIFF format. To do so, we used ImageMagick which is preinstalled
-on most Linux systems. 
+on most Linux systems.
 
 .. code::
 
-    mogrify -path path/to/new/dataset -resize 512x512 -format tiff "*.dicom" 
+    mogrify -path path/to/new/dataset -resize 512x512 -format tiff "*.dicom"
 
 """
-
 
 # %%
 # Imports
@@ -324,7 +322,7 @@ trainer.fit(model, dataloader_train)
 # Evaluate the results
 # ------------------------
 # It's always a good idea to evaluate how good the learned representations really
-# are. How to do this depends on the available data and metdata. Luckily, in our case,
+# are. How to do this depends on the available data and metadata. Luckily, in our case,
 # we have annotations of critical findings on the X-ray images. We can use this information
 # to see, whether images with similar annotations are grouped together.
 #
@@ -355,7 +353,6 @@ dataloader_test = torch.utils.data.DataLoader(
 # Next, we add a small helper function to generate embeddings of our images
 def generate_embeddings(model, dataloader):
     """Generates representations for all images in the dataloader"""
-
     embeddings = []
     filenames = []
     with torch.no_grad():
@@ -433,3 +430,15 @@ def plot_knn_multilabels(
 # the three example images at indices 4111, 3340, and 1796.
 k = 20
 plot_knn_multilabels(embeddings, multilabels, [4111, 3340, 1796], fnames, n_neighbors=k)
+
+# %%
+# The dark blue bars show the findings of the example image, while the light
+# blue bars show how often each finding occurs among its nearest neighbors. A
+# useful embedding should give high light blue bars at the same findings as the
+# example and low bars elsewhere.
+#
+# The first two examples have no critical finding, and ``No finding`` also
+# dominates their neighborhoods. The embeddings therefore group these normal
+# X-rays well. The third example has several findings. Each of its annotated
+# findings does show up among its neighbors to some degree, but the fractions
+# are small and the neighborhood is dominated by a ``No finding`` majority.

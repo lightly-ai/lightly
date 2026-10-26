@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Benchmark Results
+"""Benchmark Results
 
 Updated: 13.02.2023
 
@@ -25,6 +24,7 @@ processes might continue the benchmark if one of the nodes is killed.
 If you know how to fix this don't hesitate to create an issue or PR :)
 Code has been tested on a A6000 GPU with 48GBytes of memory.
 """
+
 import copy
 import os
 import time

@@ -1,11 +1,10 @@
-"""
-.. _lightly-simclr-tutorial-3:
+""".. _lightly-simclr-tutorial-3:
 
 Tutorial 3: Train SimCLR on Clothing
 ==============================================
 
 In this tutorial, we will train a SimCLR model using lightly. The model,
-augmentations and training procedure is from 
+augmentations and training procedure is from
 `A Simple Framework for Contrastive Learning of Visual Representations <https://arxiv.org/abs/2002.05709>`_.
 
 The paper explores a rather simple training procedure for contrastive learning.
@@ -14,8 +13,8 @@ greatly benefits from having larger batch sizes. In this example, we use a batch
 size of 256 and paired with the input resolution per image of 64x64 pixels and
 a resnet-18 model this example requires 16GB of GPU memory.
 
-We use the 
-`clothing dataset from Alex Grigorev <https://github.com/alexeygrigorev/clothing-dataset>`_ 
+We use the
+`clothing dataset from Alex Grigorev <https://github.com/alexeygrigorev/clothing-dataset>`_
 for this tutorial.
 
 In this tutorial you will learn:
@@ -189,7 +188,6 @@ def generate_embeddings(model, dataloader):
     """Generates representations for all images in the dataloader with
     the given model
     """
-
     embeddings = []
     filenames = []
     with torch.no_grad():
@@ -239,7 +237,7 @@ def plot_knn_examples(embeddings, filenames, n_neighbors=3, num_examples=6):
         for plot_x_offset, neighbor_idx in enumerate(indices[idx]):
             # add the subplot
             ax = fig.add_subplot(1, len(indices[idx]), plot_x_offset + 1)
-            # get the correponding filename for the current index
+            # get the corresponding filename for the current index
             fname = os.path.join(path_to_data, filenames[neighbor_idx])
             # plot the image
             plt.imshow(get_image_as_np_array(fname))
@@ -252,7 +250,7 @@ def plot_knn_examples(embeddings, filenames, n_neighbors=3, num_examples=6):
 # %%
 # Let's do the plot of the images. The leftmost image is the query image whereas
 # the ones next to it on the same row are the nearest neighbors.
-# In the title we see the distance of the neigbor.
+# In the title we see the distance of the neighbor.
 plot_knn_examples(embeddings, filenames)
 
 # %%

@@ -18,9 +18,10 @@ class IRFFT2DTransform:
     """
 
     def __init__(self, shape: Tuple[int, int]):
-        """
+        """Initialize the transform with the desired output shape.
+
         Args:
-            shape: The desired output shape (H, W) after applying the inverse FFT
+            shape: The desired output shape (H, W) after applying the inverse FFT.
         """
         self.shape = shape
 

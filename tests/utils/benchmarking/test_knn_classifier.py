@@ -42,17 +42,35 @@ class TestKNNClassifier:
 
         # Run KNN classifier.
         model = nn.Identity()
-        classifier = KNNClassifier(model, num_classes=4, knn_k=3, topk=(1, 2, 3, 4))
-        trainer = Trainer(max_epochs=1, accelerator="cpu", devices=1)
-        trainer.fit(
-            model=classifier,
-            train_dataloaders=train_dataloader,
-            val_dataloaders=val_dataloader,
+        classifier = KNNClassifier(
+            model=model,
+            num_classes=4,
+            knn_k=3,
+            knn_t=0.1,
+            topk=(1, 2, 3, 4),
+            train_dataloader_idx=0,
+            val_dataloader_idx=1,
         )
-        assert trainer.callback_metrics["val_top1"].item() == pytest.approx(1 / 3)
-        assert trainer.callback_metrics["val_top2"].item() == pytest.approx(1 / 3)
-        assert trainer.callback_metrics["val_top3"].item() == pytest.approx(2 / 3)
-        assert trainer.callback_metrics["val_top4"].item() == pytest.approx(3 / 3)
+        trainer = Trainer(max_epochs=1, accelerator="cpu", devices=1)
+        trainer.validate(
+            model=classifier,
+            dataloaders=[
+                train_dataloader,
+                val_dataloader,
+            ],  # dataloader_idx_1 is val_dataloader
+        )
+        assert trainer.callback_metrics[
+            "val_knn_top1/dataloader_idx_1"
+        ].item() == pytest.approx(1 / 3)
+        assert trainer.callback_metrics[
+            "val_knn_top2/dataloader_idx_1"
+        ].item() == pytest.approx(1 / 3)
+        assert trainer.callback_metrics[
+            "val_knn_top3/dataloader_idx_1"
+        ].item() == pytest.approx(2 / 3)
+        assert trainer.callback_metrics[
+            "val_knn_top4/dataloader_idx_1"
+        ].item() == pytest.approx(3 / 3)
 
     def test__cpu(self) -> None:
         self._test__accelerator(accelerator="cpu", expected_device="cpu")
@@ -68,7 +86,14 @@ class TestKNNClassifier:
         model = nn.Sequential(linear, batch_norm)
         initial_weights = linear.weight.clone()
         initial_bn_weights = batch_norm.weight.clone()
-        classifier = KNNClassifier(model, num_classes=10, knn_k=20)
+        classifier = KNNClassifier(
+            model=model,
+            num_classes=10,
+            knn_k=20,
+            knn_t=0.1,
+            train_dataloader_idx=0,
+            val_dataloader_idx=1,
+        )
         trainer = Trainer(max_epochs=1, accelerator=accelerator, devices=1)
         train_features = torch.randn(40, 3)
         train_targets = torch.randint(0, 10, (40,))
@@ -78,17 +103,19 @@ class TestKNNClassifier:
         val_dataset = _FeaturesDataset(features=val_features, targets=val_targets)
         train_dataloader = DataLoader(train_dataset, batch_size=3)
         val_dataloader = DataLoader(val_dataset, batch_size=3)
-        trainer.fit(
+        trainer.validate(
             model=classifier,
-            train_dataloaders=train_dataloader,
-            val_dataloaders=val_dataloader,
+            dataloaders=[
+                train_dataloader,
+                val_dataloader,
+            ],  # dataloader_idx_1 is val_dataloader
         )
-        assert trainer.callback_metrics["val_top1"].item() >= 0.0
+        assert trainer.callback_metrics["val_knn_top1/dataloader_idx_1"].item() >= 0.0
         assert (
-            trainer.callback_metrics["val_top5"].item()
-            >= trainer.callback_metrics["val_top1"].item()
+            trainer.callback_metrics["val_knn_top5/dataloader_idx_1"].item()
+            >= trainer.callback_metrics["val_knn_top1/dataloader_idx_1"].item()
         )
-        assert trainer.callback_metrics["val_top5"].item() <= 1.0
+        assert trainer.callback_metrics["val_knn_top5/dataloader_idx_1"].item() <= 1.0
         assert classifier._train_features == []
         assert classifier._train_targets == []
         assert classifier._train_features_tensor is not None
@@ -114,7 +141,13 @@ class TestKNNClassifier:
         # Set feature_dtype to torch.int to test if classifier correctly changes dtype.
         # We cannot test for torch.float16 because it is not supported on cpu.
         classifier = KNNClassifier(
-            model, num_classes=10, knn_k=3, feature_dtype=torch.int
+            model=model,
+            num_classes=10,
+            knn_k=3,
+            knn_t=0.1,
+            feature_dtype=torch.int,
+            train_dataloader_idx=0,
+            val_dataloader_idx=1,
         )
         trainer = Trainer(max_epochs=1, accelerator="cpu", devices=1)
         train_features = torch.randn(4, 3)
@@ -125,10 +158,9 @@ class TestKNNClassifier:
         val_dataset = _FeaturesDataset(features=val_features, targets=val_targets)
         train_dataloader = DataLoader(train_dataset)
         val_dataloader = DataLoader(val_dataset)
-        trainer.fit(
+        trainer.validate(
             model=classifier,
-            train_dataloaders=train_dataloader,
-            val_dataloaders=val_dataloader,
+            dataloaders=[train_dataloader, val_dataloader],
         )
         assert classifier._train_features_tensor is not None
         assert classifier._train_features_tensor.dtype == torch.int
@@ -147,72 +179,41 @@ class TestKNNClassifier:
 
         # Test that normalize is called when normalize=True.
         classifier = KNNClassifier(
-            nn.Identity(), num_classes=10, knn_k=3, normalize=True
+            model=nn.Identity(),
+            num_classes=10,
+            knn_k=3,
+            knn_t=0.1,
+            normalize=True,
+            train_dataloader_idx=0,
+            val_dataloader_idx=1,
         )
-        trainer.fit(
+        trainer.validate(
             model=classifier,
-            train_dataloaders=train_dataloader,
+            dataloaders=[train_dataloader, val_dataloader],
         )
-        spy_normalize.assert_called()
-        spy_normalize.reset_mock()
-
-        trainer.validate(model=classifier, dataloaders=val_dataloader)
         spy_normalize.assert_called()
         spy_normalize.reset_mock()
 
         # Test that normalize is not called when normalize=False.
         classifier = KNNClassifier(
-            nn.Identity(), num_classes=10, knn_k=3, normalize=False
+            model=nn.Identity(),
+            num_classes=10,
+            knn_k=3,
+            knn_t=0.1,
+            normalize=False,
+            train_dataloader_idx=0,
+            val_dataloader_idx=1,
         )
-        trainer.fit(
+        trainer.validate(
             model=classifier,
-            train_dataloaders=train_dataloader,
+            dataloaders=[train_dataloader, val_dataloader],
         )
         spy_normalize.assert_not_called()
         spy_normalize.reset_mock()
 
-        trainer.validate(model=classifier, dataloaders=val_dataloader)
-        spy_normalize.assert_not_called()
-        spy_normalize.reset_mock()
 
-    def test__reset_features_and_targets(self) -> None:
-        train_features = torch.randn(4, 3)
-        train_targets = torch.randint(0, 10, (4,))
-        train_dataset = _FeaturesDataset(features=train_features, targets=train_targets)
-        val_features = torch.randn(4, 3)
-        val_targets = torch.randint(0, 10, (4,))
-        val_dataset = _FeaturesDataset(features=val_features, targets=val_targets)
-        train_dataloader = DataLoader(train_dataset)
-        val_dataloader = DataLoader(val_dataset)
-        classifier = KNNClassifier(nn.Identity(), num_classes=10, knn_k=3)
-
-        trainer = Trainer(max_epochs=2, accelerator="cpu", devices=1)
-        trainer.fit(
-            model=classifier,
-            train_dataloaders=train_dataloader,
-            val_dataloaders=val_dataloader,
-        )
-
-        # Check that train features and targets are reset after validation.
-        assert classifier._train_features == []
-        assert classifier._train_targets == []
-        assert classifier._train_features_tensor is not None
-        assert classifier._train_targets_tensor is not None
-        # Check that train features and targets are not accumulated over multiple
-        # validation epochs.
-        assert classifier._train_features_tensor.shape == (3, 4)
-        assert classifier._train_targets_tensor.shape == (4,)
-
-        # Check that train features and targets are not accumulated over multiple
-        # training epochs.
-        trainer = Trainer(max_epochs=2, accelerator="cpu", devices=1)
-        trainer.fit(model=classifier, train_dataloaders=train_dataloader)
-        assert len(classifier._train_features) == 4
-        assert len(classifier._train_targets) == 4
-
-
-class _FeaturesDataset(Dataset):
-    def __init__(self, features: Tensor, targets) -> None:
+class _FeaturesDataset(Dataset[Tuple[Tensor, Tensor]]):
+    def __init__(self, features: Tensor, targets: Tensor) -> None:
         super().__init__()
         self.features = features
         self.targets = targets

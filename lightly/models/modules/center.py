@@ -31,6 +31,11 @@ class Center(Module):
         mode: str = "mean",
         momentum: float = 0.9,
     ) -> None:
+        """Initializes the Center module with the specified parameters.
+
+        Raises:
+            ValueError: If an unknown mode is provided.
+        """
         super().__init__()
 
         center_fn = CENTER_MODE_TO_FUNCTION.get(mode)
@@ -49,8 +54,10 @@ class Center(Module):
 
     @property
     def value(self) -> Tensor:
-        """The current value of the center. Use this property to do any operations based
-        on the center."""
+        """The current value of the center.
+
+        Use this property to do any operations based on the center.
+        """
         return self.center
 
     @torch.no_grad()
@@ -75,7 +82,17 @@ class Center(Module):
 
 @torch.no_grad()
 def center_mean(x: Tensor, dim: Tuple[int, ...]) -> Tensor:
-    """Returns the center of the input tensor by calculating the mean."""
+    """Returns the center of the input tensor by calculating the mean.
+
+    Args:
+        x:
+            Input tensor.
+        dim:
+            Dimensions along which the mean is calculated.
+
+    Returns:
+        The center of the input tensor.
+    """
     batch_center = torch.mean(x, dim=dim, keepdim=True)
     if dist.is_available() and dist.is_initialized():
         dist.all_reduce(batch_center)

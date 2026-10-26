@@ -1,10 +1,10 @@
 import os
 import tempfile
-import unittest
 from typing import List, Tuple
 
 import hydra
 import numpy as np
+import pytest
 import torch
 import torchvision
 from hydra.experimental import compose
@@ -19,16 +19,17 @@ from torch.utils.data import DataLoader
 
 from lightly.cli._helpers import get_model_from_config
 from lightly.data import LightlyDataset
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 
 
-class TestLightlyDataset(unittest.TestCase):
-    def setUp(self):
+class TestLightlyDataset:
+    @pytest.fixture(autouse=True)
+    def setup(self):
         self.folder_path, self.sample_names = self.create_dataset_no_subdir(10)
         with initialize(config_path="../../lightly/cli/config", job_name="test_app"):
             self.cfg = compose(
                 config_name="config",
                 overrides=[
-                    'token="123"',
                     f"input_dir={self.folder_path}",
                     "trainer.max_epochs=0",
                 ],
@@ -47,7 +48,7 @@ class TestLightlyDataset(unittest.TestCase):
 
     def test_embed_correct_order(self):
         # get dataset and encoder
-        transform = torchvision.transforms.ToTensor()
+        transform = T.ToTensor()
         dataset = LightlyDataset(self.folder_path, transform=transform)
         encoder = get_model_from_config(self.cfg)
         if torch.cuda.is_available():
@@ -76,5 +77,5 @@ class TestLightlyDataset(unittest.TestCase):
         np.testing.assert_allclose(embeddings_1_worker, embeddings_4_worker, atol=5e-4)
         np.testing.assert_allclose(labels_1_worker, labels_4_worker, atol=1e-5)
 
-        self.assertListEqual(filenames_1_worker, filenames_4_worker)
-        self.assertListEqual(filenames_1_worker, dataset.get_filenames())
+        assert filenames_1_worker == filenames_4_worker
+        assert filenames_1_worker == dataset.get_filenames()

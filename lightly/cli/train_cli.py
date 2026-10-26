@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-"""**Lightly Train:** Train a self-supervised model from the command-line.
+"""**Lightly SSL Train:** Train a self-supervised model from the command-line.
 
-This module contains the entrypoint for the **lightly-train**
+This module contains the entrypoint for the **lightly-ssl-train**
 command-line interface.
 """
 
@@ -26,11 +26,12 @@ from lightly.cli._helpers import (
     load_from_state_dict,
     load_state_dict_from_url,
 )
-from lightly.data import ImageCollateFunction, LightlyDataset
+from lightly.data import LightlyDataset, MultiViewCollate
 from lightly.embedding import SelfSupervisedEmbedding
 from lightly.loss import NTXentLoss
 from lightly.models import ResNetGenerator
 from lightly.models.batchnorm import get_norm_layer
+from lightly.transforms import SimCLRTransform
 from lightly.utils.hipify import bcolors
 
 
@@ -108,13 +109,12 @@ def _train_cli(cfg, is_cli_call=True):
     criterion = NTXentLoss(**cfg["criterion"])
     optimizer = torch.optim.SGD(model.parameters(), **cfg["optimizer"])
 
-    dataset = LightlyDataset(input_dir)
+    dataset = LightlyDataset(input_dir, transform=SimCLRTransform(**cfg["collate"]))
 
     cfg["loader"]["batch_size"] = min(cfg["loader"]["batch_size"], len(dataset))
 
-    collate_fn = ImageCollateFunction(**cfg["collate"])
     dataloader = torch.utils.data.DataLoader(
-        dataset, **cfg["loader"], collate_fn=collate_fn
+        dataset, **cfg["loader"], collate_fn=MultiViewCollate()
     )
 
     encoder = SelfSupervisedEmbedding(model, criterion, optimizer, dataloader)
@@ -146,9 +146,9 @@ def _train_cli(cfg, is_cli_call=True):
     print(
         f"Best model is stored at: {bcolors.OKBLUE}{encoder.checkpoint}{bcolors.ENDC}"
     )
-    os.environ[
-        cfg["environment_variable_names"]["lightly_last_checkpoint_path"]
-    ] = encoder.checkpoint
+    os.environ[cfg["environment_variable_names"]["lightly_last_checkpoint_path"]] = (
+        encoder.checkpoint
+    )
     return encoder.checkpoint
 
 
@@ -167,17 +167,17 @@ def train_cli(cfg):
             Path to the input directory where images are stored.
 
     Examples:
-        >>> # train model with default settings
-        >>> lightly-train input_dir=data/
+        >>> # train model with default settings
+        >>> lightly-ssl-train input_dir=data/
         >>>
         >>> # train model with batches of size 128
-        >>> lightly-train input_dir=data/ loader.batch_size=128
+        >>> lightly-ssl-train input_dir=data/ loader.batch_size=128
         >>>
         >>> # train model for 10 epochs
-        >>> lightly-train input_dir=data/ trainer.max_epochs=10
+        >>> lightly-ssl-train input_dir=data/ trainer.max_epochs=10
         >>>
         >>> # print a full summary of the model
-        >>> lightly-train input_dir=data/ trainer.weights_summary=full
+        >>> lightly-ssl-train input_dir=data/ summary_callback.max_depth=-1
 
     """
     return _train_cli(cfg)

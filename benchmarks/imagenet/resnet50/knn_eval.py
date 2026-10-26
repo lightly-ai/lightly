@@ -1,13 +1,14 @@
 from pathlib import Path
+from typing import Dict
 
 import torch
 from pytorch_lightning import LightningModule, Trainer
 from pytorch_lightning.callbacks import DeviceStatsMonitor
 from pytorch_lightning.loggers import TensorBoardLogger
 from torch.utils.data import DataLoader
-from torchvision import transforms as T
 
 from lightly.data import LightlyDataset
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 from lightly.utils.benchmarking import KNNClassifier, MetricCallback
 from lightly.utils.dist import print_rank_zero
@@ -22,8 +23,11 @@ def knn_eval(
     num_workers: int,
     accelerator: str,
     devices: int,
+    strategy: str,
     num_classes: int,
-) -> None:
+    knn_k: int,
+    knn_t: float,
+) -> Dict[str, float]:
     """Runs KNN evaluation on the given model.
 
     Parameters follow InstDisc [0] settings.
@@ -67,7 +71,10 @@ def knn_eval(
     classifier = KNNClassifier(
         model=model,
         num_classes=num_classes,
-        feature_dtype=torch.float16,
+        knn_k=knn_k,
+        knn_t=knn_t,
+        train_dataloader_idx=0,  # We're only passing 2 dataloaders here
+        val_dataloader_idx=1,
     )
 
     # Run KNN evaluation.
@@ -81,13 +88,20 @@ def knn_eval(
             DeviceStatsMonitor(),
             metric_callback,
         ],
-        strategy="ddp_find_unused_parameters_true",
-        num_sanity_val_steps=0,
+        strategy=strategy,
+        num_sanity_val_steps=0,  # NOTE: save shared memory usage
     )
-    trainer.fit(
+    trainer.validate(
         model=classifier,
-        train_dataloaders=train_dataloader,
-        val_dataloaders=val_dataloader,
+        dataloaders=[train_dataloader, val_dataloader],
+        verbose=False,
     )
-    for metric in ["val_top1", "val_top5"]:
-        print_rank_zero(f"knn {metric}: {max(metric_callback.val_metrics[metric])}")
+
+    metrics_dict: dict[str, float] = dict()
+    for metric in ["val_knn_top1", "val_knn_top5"]:
+        for name, value in metric_callback.val_metrics.items():
+            if name.startswith(metric):
+                print_rank_zero(f"knn {name}: {max(value)}")
+                metrics_dict[name] = max(value)
+
+    return metrics_dict

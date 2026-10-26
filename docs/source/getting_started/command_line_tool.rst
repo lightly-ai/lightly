@@ -79,7 +79,7 @@ An example for the label names .yaml file:
     names: [cat, dog]
 
 You can use the output of the lightly-crop command as the *input_dir* for your
-lightly-train command.
+lightly-ssl-train command.
 
 Training and Embedding in a Go – Magic
 ---------------------------------------------------
@@ -118,23 +118,23 @@ You can use the following command to train a model and save the checkpoint:
 .. code-block:: bash
 
     # train a model using default parameters
-    lightly-train input_dir=cat
+    lightly-ssl-train input_dir=cat
 
     # train a model for 5 epochs
-    lightly-train input_dir=cat trainer.max_epochs=5
+    lightly-ssl-train input_dir=cat trainer.max_epochs=5
 
     # continue training from a checkpoint for another 10 epochs
-    lightly-train input_dir=cat trainer.max_epochs=10 checkpoint=mycheckpoint.ckpt
+    lightly-ssl-train input_dir=cat trainer.max_epochs=10 checkpoint=mycheckpoint.ckpt
 
     # continue training from the last checkpoint
-    lightly-train input_dir=cat trainer.max_epochs=10 \
+    lightly-ssl-train input_dir=cat trainer.max_epochs=10 \
                   checkpoint=$LIGHTLY_LAST_CHECKPOINT_PATH
 
     # train with multiple gpus
     # the total batch size will be trainer.gpus * loader.batch_size
-    lightly-train input_dir=data_dir trainer.gpus=2
+    lightly-ssl-train input_dir=data_dir trainer.gpus=2
 
-The path to the latest checkpoint you created using the `lightly-train` command
+The path to the latest checkpoint you created using the `lightly-ssl-train` command
 will be saved under an environment variable named LIGHTLY_LAST_CHECKPOINT_PATH.
 This can be useful for continuing training or for creating embeddings from
 a checkpoint.
@@ -143,7 +143,7 @@ For a full list of supported arguments run
 
 .. code-block:: bash
     
-    lightly-train --help
+    lightly-ssl-train --help
 
 
 You can get an overview of the various CLI parameters you can set in 
@@ -158,7 +158,7 @@ Once you have a trained model checkpoint, you can create an embedding of a datas
 
 .. code-block:: bash
 
-    # use pre-trained models provided by Lighly
+    # use pre-trained models provided by Lightly
     lightly-embed input_dir=cat
 
     # use custom checkpoint
@@ -180,33 +180,6 @@ The embeddings.csv file should look like the following:
     101101-1.jpg,-67.958,-2.800,-28.861,103.812,0
     101146-1.jpg,-59.831,-2.719,-25.413,90.945,0
 
-Download data using the CLI
------------------------------------------------
-You can download a dataset with a given tag from the Lightly Platform using the 
-following CLI command. The CLI provides you with three options:
-
-* Download the list of filenames for a given tag in the dataset.
-  
-* Download the images for a given tag in the dataset.
-  
-* Copy the images for a given tag from an input directory to a target directory.
-
-The last option allows you to very quickly extract only the images in a given tag
-without the need to download them explicitly.
-
-.. code-block:: bash
-
-    # download a list of files
-    lightly-download tag_name=my_tag_name dataset_id=your_dataset_id token=your_token
-
-    # download the images and store them in an output directory
-    lightly-download tag_name=my_tag_name dataset_id=your_dataset_id token=your_token \
-                     output_dir=path/to/output/dir
-
-    # copy images from an input directory to an output directory
-    lightly-download tag_name=my_tag_name dataset_id=your_dataset_id token=your_token \
-                     input_dir=path/to/input/dir output_dir=path/to/output/dir
-
 .. _ref-breakdown-lightly-magic:
 
 Breakdown of lightly-magic
@@ -222,14 +195,14 @@ you can use the following:
     # equivalent breakdown into single commands
 
     # train the embedding model
-    lightly-train input_dir=data_dir
+    lightly-ssl-train input_dir=data_dir
     # embed the images with the embedding model just trained
     lightly-embed input_dir=data_dir checkpoint=$LIGHTLY_LAST_CHECKPOINT_PATH
 
 
 
 
-    
+
 
 
 

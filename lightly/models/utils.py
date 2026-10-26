@@ -1,4 +1,4 @@
-""" Utils for working with SSL models """
+"""Utils for working with SSL models"""
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
@@ -25,6 +25,57 @@ from lightly.utils import dependency
 if TYPE_CHECKING:
     from numpy.typing import NDArray
     from timm.models.vision_transformer import VisionTransformer
+
+
+def pool_masked(
+    source: Tensor, mask: Tensor, num_cls: int, reduce: str = "mean"
+) -> Tensor:
+    """Reduce image feature maps :math:`(B, C, H, W)` or :math:`(C, H, W)` according to
+    an integer index given by `mask` :math:`(B, H, W)` or :math:`(H, W)`.
+
+    Args:
+        source: Float tensor of shape :math:`(B, C, H, W)` or :math:`(C, H, W)` to be
+            reduced.
+        mask: Integer tensor of shape :math:`(B, H, W)` or :math:`(H, W)` containing the
+            integer indices.
+        num_cls: The number of classes in the possible masks.
+
+    Returns:
+        A tensor of shape :math:`(B, C, num_cls)` or :math:`(C, num_cls)`.
+    """
+    if source.dim() == 3:
+        return _mask_reduce(source, mask, reduce, num_cls)
+    elif source.dim() == 4:
+        return _mask_reduce_batched(source, mask, num_cls)
+    else:
+        raise ValueError("source must have 3 or 4 dimensions")
+
+
+def _mask_reduce(
+    source: Tensor, mask: Tensor, num_cls: int, reduce: str = "mean"
+) -> Tensor:
+    output = _mask_reduce_batched(
+        source.unsqueeze(0), mask.unsqueeze(0), num_cls=num_cls, reduce=reduce
+    )
+    return output.squeeze(0)
+
+
+def _mask_reduce_batched(
+    source: Tensor, mask: Tensor, num_cls: int, reduce: str = "mean"
+) -> Tensor:
+    b, c, h, w = source.shape
+    cls = torch.arange(num_cls, device=mask.device)
+    num_cls = cls.size(0)
+    # create output tensor
+    output = source.new_zeros((b, c, num_cls))  # (B C N)
+    mask = mask.unsqueeze(1).expand(-1, c, -1, -1).view(b, c, -1)  # (B C HW)
+    source = source.view(b, c, -1)  # (B C HW)
+    output.scatter_reduce_(
+        dim=2, index=mask, src=source, reduce=reduce, include_self=False
+    )  # (B C N)
+    # scatter_reduce_ produces NaNs if the count is zero
+    output = torch.nan_to_num(output, nan=0.0)
+    return output
 
 
 @torch.no_grad()
@@ -124,6 +175,7 @@ def batch_shuffle_distributed(batch: torch.Tensor) -> Tuple[torch.Tensor, torch.
     batch_gather = concat_all_gather(batch)
     batch_size_all = batch_gather.shape[0]
 
+    # Calculate the number of devices
     num_devices = batch_size_all // batch_size_this
 
     # random shuffle index
@@ -165,11 +217,16 @@ def batch_unshuffle_distributed(
     batch_gather = concat_all_gather(batch)
     batch_size_all = batch_gather.shape[0]
 
+    # Calculate the number of devices
     num_devices = batch_size_all // batch_size_this
 
-    # restored index for this gpu
+    # Get the rank of the current device
     rank = dist.get_rank()
+
+    # Index for this device after unshuffling
     idx_this = shuffle.view(num_devices, -1)[rank]
+
+    # Returns the unshuffled batch for this device
     return batch_gather[idx_this]
 
 
@@ -206,7 +263,15 @@ def activate_requires_grad(model: nn.Module):
 def update_momentum(model: nn.Module, model_ema: nn.Module, m: float):
     """Updates parameters of `model_ema` with Exponential Moving Average of `model`
 
-    Momentum encoders are a crucial component fo models such as MoCo or BYOL.
+    Momentum encoders are a crucial component for models such as MoCo or BYOL.
+
+    Args:
+        model:
+            The current model.
+        model_ema:
+            The model with exponential moving average (EMA) parameters.
+        m:
+            The momentum factor, between 0 and 1.
 
     Examples:
         >>> backbone = resnet18()
@@ -218,8 +283,11 @@ def update_momentum(model: nn.Module, model_ema: nn.Module, m: float):
         >>> update_momentum(moco, moco_momentum, m=0.999)
         >>> update_momentum(projection_head, projection_head_momentum, m=0.999)
     """
-    for model_ema, model in zip(model_ema.parameters(), model.parameters()):
-        model_ema.data = model_ema.data * m + model.data * (1.0 - m)
+    model_params = list(model.parameters())
+    model_ema_params = list(model_ema.parameters())
+
+    torch._foreach_mul_(model_ema_params, m)
+    torch._foreach_add_(model_ema_params, model_params, alpha=1.0 - m)
 
 
 @torch.no_grad()
@@ -343,7 +411,9 @@ def get_at_index(tokens: torch.Tensor, index: torch.Tensor) -> torch.Tensor:
         selected tokens.
 
     """
+    # Expand the index tensor to match the shape of tokens tensor
     index = expand_index_like(index, tokens)
+
     return torch.gather(tokens, 1, index)
 
 
@@ -455,19 +525,25 @@ def patchify(images: torch.Tensor, patch_size: int) -> torch.Tensor:
 
     patch_h = patch_w = H // patch_size
     num_patches = patch_h * patch_w
+
+    # Reshape images to form patches
     patches = images.reshape(shape=(N, C, patch_h, patch_size, patch_w, patch_size))
+
+    # Reorder dimensions for patches
     patches = torch.einsum("nchpwq->nhwpqc", patches)
+
+    # Flatten patches
     patches = patches.reshape(shape=(N, num_patches, patch_size**2 * C))
+
     return patches
 
 
 def unpatchify(
     patches: torch.Tensor, patch_size: int, channels: int = 3
 ) -> torch.Tensor:
-    """
-    Reconstructs images from their patches.
+    """Reconstructs images from their patches.
 
-     Args:
+    Args:
          patches:
              Patches tensor with shape (batch_size, num_patches, channels * patch_size ** 2).
          patch_size:
@@ -475,7 +551,7 @@ def unpatchify(
          channels:
              The number of channels the image must have
 
-     Returns:
+    Returns:
          Reconstructed images tensor with shape (batch_size, channels, height, width).
     """
     N, C = patches.shape[0], channels
@@ -501,7 +577,7 @@ def random_token_mask(
             Size of the token batch for which to generate masks.
             Should be (batch_size, sequence_length).
         mask_ratio:
-            Percentage of tokens to mask.
+            Proportion of tokens to mask.
         mask_class_token:
             If False the class token is never masked. If True the class token
             might be masked.
@@ -524,15 +600,236 @@ def random_token_mask(
 
     noise = torch.rand(batch_size, sequence_length, device=device)
     if not mask_class_token and sequence_length > 0:
-        # make sure that class token is not masked
+        # Make sure that class token is not masked
         noise[:, 0] = -1
         num_keep = max(1, num_keep + 1)
 
-    # get indices of tokens to keep
+    # Get indices of tokens to keep by sorting the noise
     indices = torch.argsort(noise, dim=1)
     idx_keep = indices[:, :num_keep]
     idx_mask = indices[:, num_keep:]
 
+    return idx_keep, idx_mask
+
+
+def random_grid_token_mask(
+    size: Tuple[int, int],
+    mask_ratio: float = 0.75,
+    grid_size: int = 4,
+    num_prefix_tokens: int = 1,
+    device: Optional[Union[torch.device, str]] = None,
+) -> Tuple[Tensor, Tensor]:
+    """Creates random token masks at a coarse grid granularity.
+
+    Instead of masking individual patches (as in :func:`random_token_mask`), whole
+    ``grid_size`` x ``grid_size`` blocks of patches on a regular grid are kept or
+    masked together. This is the larger masking granularity used by Pixio [0] to
+    avoid trivial pixel-reconstruction shortcuts between neighboring patches.
+
+    - [0]: In Pursuit of Pixel Supervision for Visual Pre-training, 2025,
+      https://arxiv.org/abs/2512.15715
+
+    Args:
+        size:
+            Size of the token batch, (batch_size, sequence_length). The sequence
+            length must equal num_prefix_tokens + num_patches where num_patches is a
+            perfect square.
+        mask_ratio:
+            Proportion of grid cells to mask.
+        grid_size:
+            Side length of a grid cell measured in patches. The patch grid height
+            (and width) must be divisible by grid_size.
+        num_prefix_tokens:
+            Number of prefix tokens (e.g. class or register tokens) that precede the
+            patch tokens. They are never masked and are always returned first in
+            idx_keep.
+        device:
+            Device on which to create the index masks.
+
+    Returns:
+        An (idx_keep, idx_mask) tuple of int64 index tensors, where
+        num_cells = (height // grid_size) ** 2 and
+        num_keep = int(num_cells * (1 - mask_ratio)) * grid_size ** 2:
+
+        - idx_keep, shape (batch_size, num_prefix_tokens + num_keep): the prefix
+          token indices followed by the indices of the patches in the kept cells.
+        - idx_mask, shape (batch_size, num_patches - num_keep): the indices of the
+          patches in the masked cells.
+
+        Patch index p maps to token index p + num_prefix_tokens.
+
+    Raises:
+        ValueError: If sequence_length is not greater than num_prefix_tokens, if the
+            number of patches is not a perfect square, or if the patch grid is not
+            divisible by grid_size.
+    """
+    batch_size, sequence_length = size
+    num_patches = sequence_length - num_prefix_tokens
+    if num_patches <= 0:
+        raise ValueError(
+            f"sequence_length ({sequence_length}) must be greater than "
+            f"num_prefix_tokens ({num_prefix_tokens})."
+        )
+    height = width = int(num_patches**0.5)
+    if height * width != num_patches:
+        raise ValueError(
+            f"Number of patches ({num_patches}) must be a perfect square. Got "
+            f"sequence_length={sequence_length} and "
+            f"num_prefix_tokens={num_prefix_tokens}."
+        )
+    if height % grid_size != 0:
+        raise ValueError(
+            f"Patch grid side length ({height}) must be divisible by "
+            f"grid_size ({grid_size})."
+        )
+
+    num_cells = (height // grid_size) * (width // grid_size)
+    num_keep_cells = int(num_cells * (1 - mask_ratio))
+
+    # Map every grid cell to the patch indices it covers: (1, num_cells, grid_size**2).
+    patch_indices = torch.arange(num_patches, device=device).reshape(1, height, width)
+    patch_indices = patch_indices.unfold(1, grid_size, grid_size).unfold(
+        2, grid_size, grid_size
+    )
+    patch_indices = patch_indices.reshape(1, num_cells, grid_size * grid_size)
+    patch_indices = patch_indices.expand(batch_size, -1, -1)
+
+    # Randomly order cells per sample and split into kept and masked cells.
+    noise = torch.rand(batch_size, num_cells, device=device)  # (batch_size, num_cells)
+    cell_order = torch.argsort(noise, dim=1)  # (batch_size, num_cells)
+    keep_cells = cell_order[:, :num_keep_cells]  # (batch_size, num_keep_cells)
+    mask_cells = cell_order[
+        :, num_keep_cells:
+    ]  # (batch_size, num_cells - num_keep_cells)
+
+    # Expand each kept/masked cell to the patch indices it covers, then offset by the
+    # prefix tokens. keep_patches: (batch_size, num_keep_cells * grid_size**2).
+    keep_patches = get_at_index(patch_indices, keep_cells).reshape(batch_size, -1)
+    idx_mask = get_at_index(patch_indices, mask_cells).reshape(batch_size, -1)
+    keep_patches = keep_patches + num_prefix_tokens
+    idx_mask = idx_mask + num_prefix_tokens
+
+    # Prefix tokens are always kept and come first:
+    # idx_keep is (batch_size, num_prefix_tokens + num_keep_cells * grid_size**2).
+    prefix = torch.arange(num_prefix_tokens, device=device)  # (num_prefix_tokens,)
+    prefix = prefix.unsqueeze(0).expand(
+        batch_size, -1
+    )  # (batch_size, num_prefix_tokens)
+    idx_keep = torch.cat([prefix, keep_patches], dim=1)
+
+    return idx_keep, idx_mask
+
+
+def random_inverse_block_mask(
+    size: Tuple[int, int],
+    mask_ratio: float = 0.65,
+    num_prefix_tokens: int = 1,
+    min_aspect: float = 0.5,
+    max_aspect: Optional[float] = None,
+    roll: bool = True,
+    device: Optional[Union[torch.device, str]] = None,
+) -> Tuple[Tensor, Tensor]:
+    """Creates inverse-block token masks as used in CAPI [0].
+
+    A single contiguous, aspect-ratio-varying block of patches is kept visible and
+    the remaining patches are masked (the inverse of block masking). The visible
+    block is optionally rolled across the grid for positional coverage. The number
+    of masked patches is fixed at ``int(num_patches * mask_ratio)``.
+
+    - [0]: CAPI: Cluster and Predict Latent Patches for Improved Masked Image Modeling, 2025, https://arxiv.org/abs/2502.08769
+
+    Args:
+        size:
+            Size of the token batch, (batch_size, sequence_length). The sequence
+            length must equal num_prefix_tokens + num_patches where num_patches is a
+            perfect square.
+        mask_ratio:
+            Proportion of patches to mask.
+        num_prefix_tokens:
+            Number of prefix tokens (e.g. class or register tokens) that precede the
+            patch tokens. They are never masked and are always returned first in
+            idx_keep.
+        min_aspect:
+            Minimum aspect ratio of the visible block.
+        max_aspect:
+            Maximum aspect ratio of the visible block. Defaults to 1 / min_aspect.
+        roll:
+            If True, the visible block is randomly rolled across the grid.
+        device:
+            Device on which to create the index masks.
+
+    Returns:
+        An (idx_keep, idx_mask) tuple of int64 index tensors, where
+        num_masked = int(num_patches * mask_ratio):
+
+        - idx_keep, shape (batch_size, num_prefix_tokens + num_patches - num_masked):
+          the prefix token indices followed by the indices of the visible patches.
+        - idx_mask, shape (batch_size, num_masked): the indices of the masked patches.
+
+        Patch index p maps to token index p + num_prefix_tokens.
+
+    Raises:
+        ValueError: If sequence_length is not greater than num_prefix_tokens or the
+            number of patches is not a perfect square.
+    """
+    batch_size, sequence_length = size
+    num_patches = sequence_length - num_prefix_tokens
+    if num_patches <= 0:
+        raise ValueError(
+            f"sequence_length ({sequence_length}) must be greater than "
+            f"num_prefix_tokens ({num_prefix_tokens})."
+        )
+    height = width = int(num_patches**0.5)
+    if height * width != num_patches:
+        raise ValueError(
+            f"Number of patches ({num_patches}) must be a perfect square. Got "
+            f"sequence_length={sequence_length} and "
+            f"num_prefix_tokens={num_prefix_tokens}."
+        )
+    num_masked = int(num_patches * mask_ratio)
+    num_visible = num_patches - num_masked
+    max_aspect = max_aspect or 1.0 / min_aspect
+    log_aspect_ratio = (math.log(min_aspect), math.log(max_aspect))
+
+    # Masks are built per sample on the cpu and moved to the device once at the end.
+    prefix = torch.arange(num_prefix_tokens)
+    idx_keep_rows = []
+    idx_mask_rows = []
+    for _ in range(batch_size):
+        visible = torch.zeros(num_patches, dtype=torch.bool)
+        if num_visible == num_patches:
+            visible.fill_(True)
+        elif num_visible > 0:
+            # Sample the aspect ratio of the visible block, clamped so it fits.
+            min_lar = max(log_aspect_ratio[0], math.log(num_visible / width**2))
+            max_lar = min(
+                log_aspect_ratio[1], math.log(height**2 / (num_visible + 1e-5))
+            )
+            aspect = math.exp(float(torch.empty(1).uniform_(min_lar, max_lar).item()))
+            block_h = min(height, math.ceil(math.sqrt(num_visible * aspect)))
+            block_w = min(width, math.ceil(math.sqrt(num_visible / aspect)))
+            top = int(torch.randint(0, height - block_h + 1, (1,)).item())
+            left = int(torch.randint(0, width - block_w + 1, (1,)).item())
+            grid = torch.zeros(height, width, dtype=torch.bool)
+            grid[top : top + block_h, left : left + block_w] = True
+            # Truncate to exactly num_visible patches, keeping row-major order.
+            block_ids = grid.flatten().nonzero().flatten()[:num_visible]
+            visible[block_ids] = True
+            if roll:
+                shift_x = int(torch.randint(0, height, (1,)).item())
+                shift_y = int(torch.randint(0, width, (1,)).item())
+                visible = torch.roll(
+                    visible.reshape(height, width),
+                    shifts=(shift_x, shift_y),
+                    dims=(0, 1),
+                ).flatten()
+        visible_patches = visible.nonzero().flatten()
+        masked_patches = (~visible).nonzero().flatten()
+        idx_keep_rows.append(torch.cat([prefix, visible_patches + num_prefix_tokens]))
+        idx_mask_rows.append(masked_patches + num_prefix_tokens)
+
+    idx_keep = torch.stack(idx_keep_rows).to(device)
+    idx_mask = torch.stack(idx_mask_rows).to(device)
     return idx_keep, idx_mask
 
 
@@ -562,11 +859,18 @@ def random_prefix_mask(
 
     """
     batch_size, sequence_length = size
+
+    # Create an arange tensor and expand it to match batch size
     arange = torch.arange(sequence_length, device=device).expand(
         batch_size, sequence_length
     )
+
+    # Generate random indices for the prefix length
     indices = torch.randint(0, max_prefix_length, (batch_size, 1), device=device)
+
+    # Create the mask based on arange and indices
     mask = arange >= indices
+
     return mask
 
 
@@ -623,16 +927,20 @@ def random_block_mask(
             Maximum number of attempts to find a valid block mask for an image.
         device:
             Device on which to create the mask.
+
     Returns:
         A boolean tensor with shape (batch_size, height, width) where each entry
         is True if the patch should be masked and False otherwise.
-    """
 
+    Raises:
+        ValueError: If 'max_image_mask_ratio' is less than 'min_image_mask_ratio'.
+    """
     if max_image_mask_ratio < min_image_mask_ratio:
         raise ValueError(
             "max_image_mask_ratio must be greater or equal to min_image_mask_ratio."
         )
 
+    # B is batch size(number of images), H is height, W is width
     B, H, W = size
     num_images_masked = int(B * batch_mask_ratio)
     probs = torch.linspace(
@@ -653,8 +961,11 @@ def random_block_mask(
                 device=device,
             )
         )
+
+    # Add non-masked images to fill the batch
     for _ in range(num_images_masked, B):
         image_masks.append(torch.zeros((H, W), dtype=torch.bool, device=device))
+
     random.shuffle(image_masks)
     return torch.stack(image_masks)
 
@@ -689,11 +1000,15 @@ def random_block_mask_image(
             Maximum number of attempts to find a valid block mask.
         device:
             Device on which to create the mask.
+
     Returns:
         A boolean tensor with shape (height, width) where each entry is True if the
         patch should be masked and False otherwise.
-    """
 
+    Raises:
+        ValueError: If 'max_num_masks_per_block' is less than 'min_num_masks_per_block' or
+            if 'max_block_aspect_ratio' is less than 'min_block_aspect_ratio'
+    """
     if max_block_aspect_ratio is None:
         max_block_aspect_ratio = 1 / min_block_aspect_ratio
     if max_num_masks_per_block is None:
@@ -751,22 +1066,21 @@ def nearest_neighbors(
     Args:
         input_maps:
             A tensor of maps for which to find nearest neighbors.
-            It has size: [batch_size, input_map_size, feature_dimension]
+            It has shape: [batch_size, input_map_size, feature_dimension]
         candidate_maps:
             A tensor of maps to search for nearest neighbors.
-            It has size: [batch_size, candidate_map_size, feature_dimension]
+            It has shape: [batch_size, candidate_map_size, feature_dimension]
         distances:
             A tensor of distances between the maps in input_maps and candidate_maps.
-            It has size: [batch_size, input_map_size, candidate_map_size]
+            It has shape: [batch_size, input_map_size, candidate_map_size]
         num_matches:
             Number of nearest neighbors to return. If num_matches is None or -1,
             all the maps in candidate_maps are considered.
 
     Returns:
         A tuple of tensors, containing the nearest neighbors in input_maps and candidate_maps.
-        They both have size: [batch_size, input_map_size, feature_dimension]
+        They both have shape: [batch_size, input_map_size, feature_dimension]
     """
-
     if num_matches is None or num_matches == -1 or num_matches > input_maps.size(1):
         num_matches = input_maps.size(1)
 
@@ -787,7 +1101,7 @@ def nearest_neighbors(
         input_maps, 1, min_indices.unsqueeze(-1).expand(-1, -1, feature_dimension)
     )  # [bsz, num_matches, feature_dimension]
 
-    # Create candidate maps in the same way as input maps, but using corrispondent candidate values
+    # Create candidate maps in the same way as input maps, but using corresponding candidate values
     selected_candidate_maps = torch.gather(
         candidate_maps, 1, topk_indices.expand(-1, -1, feature_dimension)
     )  # [bsz, input_map_size, feature_dimension]
@@ -809,16 +1123,19 @@ def most_similar_index(
 
     Args:
         x:
-            Tensor with shape (B, N, C).
+            Tensor with shape (B, N, C) containing the features to compare.
         y:
-            Tensor with shape (B, N, C).
+            Tensor with shape (B, N, C) containing the features to search for similarity.
+
     Returns:
         Index with shape (B, N) such that y[i, index[i, j]] is most similar to x[i, j]
         over all y[i, ...].
 
     """
+    # Normalize the input tensors along the last dimension
     x = functional.normalize(x, dim=-1)
     y = functional.normalize(y, dim=-1)
+
     similarity = torch.einsum("bnc,bmc->bnm", x, y)
     return similarity.argmax(dim=2)
 
@@ -838,6 +1155,7 @@ def select_most_similar(
             Tensor with shape (B, N, C).
         y_values:
             Tensor with shape (B, N, D).
+
     Returns:
         Values with shape (B, N, D) where values[i, j] is the entry in y_values[i, ...]
         such that x[i, j] is the most similar to y[i, ...].
@@ -873,6 +1191,8 @@ def get_weight_decay_parameters(
     """
     params = []
     params_no_weight_decay = []
+
+    # Iterate through each module and categorize its parameters into ones that should be decayed and those that should not
     for module in modules:
         for mod in module.modules():
             if isinstance(mod, norm_layers):
@@ -897,7 +1217,19 @@ def get_named_leaf_modules(module: Module) -> Dict[str, Module]:
 
 
 def add_stochastic_depth_to_blocks(vit: Module, prob: float = 0.0, mode="row") -> None:
-    """Adds stochastic depth dropout to all transformer blocks."""
+    """Adds stochastic depth dropout to all transformer blocks in a Vision Transformer Model
+
+    Args:
+        vit:
+            Vision Transformer Model to which stochastic depth dropout will be added.
+        prob:
+            Probability of dropping a layer.
+        mode:
+            Mode for stochastic depth. Default is "row".
+
+    Raises:
+        Runtime Error: If torchvision version is less than 0.12.
+    """
     if dependency.torchvision_vit_available():
         # Requires torchvision >=0.12
         from torchvision.models.vision_transformer import EncoderBlock
@@ -928,24 +1260,29 @@ def initialize_positional_embedding(
             ['learn', 'sincos', 'skip']. 'learn' makes the embedding learnable,
             'sincos' creates a fixed 2D sine-cosine positional embedding, and 'skip'
             does not initialize the positional embedding.
-
         num_prefix_tokens:
             Number of prefix tokens in the positional embedding. This includes the class
             token.
+
+    Raises:
+        ValueError: If an invalid strategy is provided.
     """
     strategies = ["learn", "sincos", "skip"]
+
+    # Validate the strategy
     if strategy not in strategies:
         raise ValueError(
             f"Invalid positional embedding strategy: '{strategy}'. Valid options are: "
             f"{strategies}."
         )
 
+    # Initialize the positional embedding based on the strategy
     if strategy == "learn":
         initialize_learnable_positional_embedding(pos_embedding)
     elif strategy == "sincos":
         initialize_2d_sine_cosine_positional_embedding(
             pos_embedding=pos_embedding,
-            has_class_token=num_prefix_tokens > 0,
+            num_prefix_tokens=num_prefix_tokens,
         )
     elif strategy == "skip":
         return
@@ -967,14 +1304,31 @@ def initialize_learnable_positional_embedding(pos_embedding: Parameter) -> None:
 
 
 def initialize_2d_sine_cosine_positional_embedding(
-    pos_embedding: Parameter, has_class_token: bool
+    pos_embedding: Parameter,
+    has_class_token: bool = True,
+    num_prefix_tokens: Optional[int] = None,
 ) -> None:
+    """Initializes a positional embedding in-place with a fixed 2D sine-cosine embedding.
+
+    The positional embedding is frozen (requires_grad set to False) afterwards.
+
+    Args:
+        pos_embedding:
+            Positional embedding parameter to initialize in-place.
+        has_class_token:
+            Whether the embedding has a single prefix (class) token. Ignored if
+            num_prefix_tokens is set.
+        num_prefix_tokens:
+            Number of prefix tokens (e.g. class or register tokens). Overrides
+            has_class_token when set.
+    """
+    n_prefix = int(has_class_token) if num_prefix_tokens is None else num_prefix_tokens
     _, seq_length, hidden_dim = pos_embedding.shape
-    grid_size = int((seq_length - int(has_class_token)) ** 0.5)
+    grid_size = int((seq_length - n_prefix) ** 0.5)
     sine_cosine_embedding = get_2d_sine_cosine_positional_embedding(
         embed_dim=hidden_dim,
         grid_size=grid_size,
-        cls_token=has_class_token,
+        num_prefix_tokens=n_prefix,
     )
     pos_embedding.data.copy_(
         torch.from_numpy(sine_cosine_embedding).float().unsqueeze(0)
@@ -984,7 +1338,10 @@ def initialize_2d_sine_cosine_positional_embedding(
 
 
 def get_2d_sine_cosine_positional_embedding(
-    embed_dim: int, grid_size: int, cls_token: bool
+    embed_dim: int,
+    grid_size: int,
+    cls_token: bool = True,
+    num_prefix_tokens: Optional[int] = None,
 ) -> NDArray[np.float32]:
     """Generates 2D sine-cosine positional embedding.
 
@@ -996,11 +1353,17 @@ def get_2d_sine_cosine_positional_embedding(
         grid_size:
             Height and width of the grid.
         cls_token:
-            If True, a positional embedding for the class token is generated.
+            If True, a single zero positional embedding for the class token is
+            prepended. Ignored if num_prefix_tokens is set.
+        num_prefix_tokens:
+            If set, this many zero positional embeddings are prepended, for models
+            with multiple class or register tokens. Overrides cls_token.
+
     Returns:
-        Positional embedding with shape (grid_size * grid_size, embed_dim) or
-        (1 + grid_size * grid_size, embed_dim) if cls_token is True.
+        Positional embedding with shape (num_prefix + grid_size * grid_size, embed_dim)
+        where num_prefix is num_prefix_tokens if set, else int(cls_token).
     """
+    n_prefix = int(cls_token) if num_prefix_tokens is None else num_prefix_tokens
     grid_h = np.arange(grid_size, dtype=np.float32)
     grid_w = np.arange(grid_size, dtype=np.float32)
     grid = np.meshgrid(grid_w, grid_h)  # here w goes first
@@ -1008,8 +1371,8 @@ def get_2d_sine_cosine_positional_embedding(
 
     grid = grid.reshape([2, 1, grid_size, grid_size])
     pos_embed = get_2d_sine_cosine_positional_embedding_from_grid(embed_dim, grid)
-    if cls_token:
-        pos_embed = np.concatenate([np.zeros([1, embed_dim]), pos_embed], axis=0)
+    if n_prefix > 0:
+        pos_embed = np.concatenate([np.zeros([n_prefix, embed_dim]), pos_embed], axis=0)
     return pos_embed
 
 
@@ -1031,16 +1394,19 @@ def get_2d_sine_cosine_positional_embedding_from_grid(
             Embedding dimension.
         grid:
             Grid of shape (2, grid_size, grid_size) with x and y coordinates.
+
     Returns:
         Positional embedding with shape (grid_size * grid_size, embed_dim).
     """
     assert embed_dim % 2 == 0
 
-    # Use half of dimensions to encode grid_h.
+    # Use half of dimensions to encode grid_h
     # (grid_size * grid_size, embed_dim/2)
     emb_h = get_1d_sine_cosine_positional_embedding_from_positions(
         embed_dim // 2, grid[0]
     )
+
+    # Use the other half of dimensions to encode grid_w
     # (grid_size * grid_size, embed_dim/2)
     emb_w = get_1d_sine_cosine_positional_embedding_from_positions(
         embed_dim // 2, grid[1]
@@ -1062,6 +1428,7 @@ def get_1d_sine_cosine_positional_embedding_from_positions(
             Embedding dimension.
         pos:
             Positions to be encoded with shape (N, M).
+
     Returns:
         Positional embedding with shape (N * M, embed_dim).
     """
@@ -1116,10 +1483,15 @@ def update_drop_path_rate(
             Drop path rate update mode. Can be "linear" or "uniform". Linear increases
             the drop path rate from 0 to drop_path_rate over the depth of the model.
             Uniform sets the drop path rate to drop_path_rate for all blocks.
+
+    Raises:
+        ValueError: If an unknown mode is provided.
     """
     from timm.layers import DropPath
 
     total_depth = len(model.blocks)
+
+    # Determine drop path rates based on the specified mode
     if mode == "linear":
         drop_probabilities = np.linspace(0, drop_path_rate, total_depth)
     elif mode == "uniform":
@@ -1129,6 +1501,7 @@ def update_drop_path_rate(
             f"Unknown mode: '{mode}', supported modes are 'linear' and 'uniform'."
         )
 
+    # Update the drop path rate for each block in the model
     for block, drop_prob in zip(model.blocks, drop_probabilities):
         if drop_prob > 0.0:
             block.drop_path1 = DropPath(drop_prob=drop_path_rate)
@@ -1136,3 +1509,56 @@ def update_drop_path_rate(
         else:
             block.drop_path1 = Identity()
             block.drop_path2 = Identity()
+
+
+def repeat_interleave_batch(x: Tensor, B: int, repeat: int) -> Tensor:
+    """Repeat and interleave the input tensor.
+
+    Args:
+        x:
+            Tensor with shape (B * N, ...) where B is the batch size and N the number of
+            batches.
+        B:
+            Batch size.
+        repeat:
+            Number of times to repeat each batch.
+
+    Returns:
+        Tensor with shape (B * repeat * N, ...) where each batch is repeated `repeat`
+        times.
+    """
+    N = len(x) // B
+    x = torch.cat(
+        [
+            torch.cat([x[i * B : (i + 1) * B] for _ in range(repeat)], dim=0)
+            for i in range(N)
+        ],
+        dim=0,
+    )
+    return x
+
+
+def apply_masks(x: Tensor, masks: Tensor | list[Tensor]) -> Tensor:
+    """Apply masks to the input tensor.
+
+    From https://github.com/facebookresearch/ijepa/blob/main/src/masks/utils.py
+
+    Args:
+        x:
+            Tensor of shape (B, N, D) where N is the number of patches.
+        masks:
+            Tensor or list of tensors containing indices of patches in
+            [0, N-1] to keep. Each tensor musth have shape (B, K) where K is the number
+            of patches to keep. All masks must have the same K.
+
+    Returns:
+        Tensor of shape (B * num_masks, K, D) where K is the number of patches to keep.
+    """
+    if not isinstance(masks, list):
+        masks = [masks]
+
+    all_x = []
+    for m in masks:
+        mask_keep = m.unsqueeze(-1).repeat(1, 1, x.size(-1))
+        all_x += [torch.gather(x, dim=1, index=mask_keep)]
+    return torch.cat(all_x, dim=0)

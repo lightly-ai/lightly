@@ -1,25 +1,38 @@
-from typing import Callable, Optional, Tuple, Type, Union
+import inspect
+from functools import partial
+from typing import Callable, Iterable, Optional
 
 import torch
 import torch.nn.functional as F
-from timm.layers import LayerType, Mlp, PatchEmbed
 from timm.models import _manipulate
 from timm.models.vision_transformer import Attention, Block, VisionTransformer
 from torch import Tensor, jit
-from torch.nn import GELU, LayerNorm, Module
+
+
+def _checkpoint_seq(blocks: Iterable[Callable[..., Tensor]], tokens: Tensor) -> Tensor:
+    if not tokens.requires_grad:
+        # Reentrant checkpointing (the default for timm < 1.0.16) only tracks
+        # gradients if an input requires grad. Without this, the blocks get no
+        # gradients when everything before them is frozen.
+        tokens = tokens.detach().requires_grad_()
+    out: Tensor = _manipulate.checkpoint_seq(blocks, tokens)
+    return out
 
 
 # Type ignore because superclass has Any types.
 class MaskedCausalAttention(Attention):  # type: ignore[misc]
     """Identical to timm.models.vision_transformer.Attention, but supports causal
-    attention with masking.
+    attention with masking. Please check the source code of the
+    timm.models.vision_transformer.Attention class for input parameters.
 
     The implementation is based on AIM [0].
 
     - [0]: AIM, 2024, https://arxiv.org/abs/2401.08541
     """
 
-    def forward(self, x: Tensor, mask: Optional[Tensor] = None) -> Tensor:
+    def forward(
+        self, x: Tensor, mask: Optional[Tensor] = None, is_causal: bool = True
+    ) -> Tensor:
         """Forward pass of the attention layer.
 
         Args:
@@ -30,10 +43,14 @@ class MaskedCausalAttention(Attention):  # type: ignore[misc]
                 should be masked. Tokens where the mask is True will only be used for
                 causal attention, while unmasked tokens are used for bidirectional
                 attention. If the mask is None, all tokens are used for bidirectional
-                attention.
+                attention. Ignored if is_causal is False.
+            is_causal:
+                Whether to apply causal attention to masked tokens. If False, the mask
+                is ignored and all tokens use bidirectional attention. Defaults to True,
+                unlike timm.
         """
         B, N, C = x.shape
-        attn_mask = self._get_attention_mask(x, mask=mask)
+        attn_mask = self._get_attention_mask(x, mask=mask, is_causal=is_causal)
         qkv = (
             self.qkv(x)
             .reshape(B, N, 3, self.num_heads, self.head_dim)
@@ -66,15 +83,29 @@ class MaskedCausalAttention(Attention):  # type: ignore[misc]
         return x
 
     def _get_attention_mask(
-        self, x: Tensor, mask: Optional[Tensor]
+        self, x: Tensor, mask: Optional[Tensor], is_causal: bool = True
     ) -> Optional[Tensor]:
+        """Generates an attention mask for causal attention.
+
+        Args:
+            x:
+                Input tensor of shape (batch_size, sequence_length, channels).
+            mask:
+                Mask tensor of shape (batch_size, sequence_length) indicating which tokens
+                should be masked. Ignored if is_causal is False.
+            is_causal:
+                Whether to apply causal attention to masked tokens. If False, returns None
+                so all tokens use bidirectional attention. Defaults to True, unlike timm.
+
+        Returns:
+            Attention mask of shape (batch_size, 1, sequence_length, sequence_length),
+            or None if is_causal is False or mask is None.
+        """
         B, N = x.shape[:2]
 
-        # Only apply causal attention if mask is not None. This is a bit hacky, but it
-        # allows us to use bidirectional instead of causal attention during evaluation
-        # and fine-tuning.
+        # Only apply causal attention if is_causal is True and mask is not None.
         attn_mask = None
-        if mask is not None:
+        if is_causal and mask is not None:
             attn_mask = x.new_ones(size=(B, N, N), dtype=torch.bool).tril(diagonal=0)
             # mask has shape (B, N)
             mask = (~mask).unsqueeze(1).expand(B, N, N).bool()
@@ -86,53 +117,42 @@ class MaskedCausalAttention(Attention):  # type: ignore[misc]
 # Type ignore because superclass has Any types.
 class MaskedCausalBlock(Block):  # type: ignore[misc]
     """Identical to timm.models.vision_transformer.Block, but uses PrefixCausalAttention
-    instead of Attention.
+    instead of Attention. Please check the source code of the timm.models.vision_transformer.Block
+    class for input parameters.
 
     The implementation is based on AIM [0].
 
     - [0]: AIM, 2024, https://arxiv.org/abs/2401.08541
     """
 
-    def __init__(
+    def __init__(  # type: ignore[no-untyped-def]
         self,
-        dim: int,
-        num_heads: int,
-        mlp_ratio: float = 4.0,
-        qkv_bias: bool = False,
-        qk_norm: bool = False,
-        proj_drop: float = 0.0,
-        attn_drop: float = 0.0,
-        init_values: Optional[float] = None,
-        drop_path: float = 0.0,
-        act_layer: Type[Module] = GELU,
-        norm_layer: Type[Module] = LayerNorm,
-        mlp_layer: Type[Module] = Mlp,
+        *args,
+        **kwargs,
     ) -> None:
+        """Initializes the MaskedCausalBlock with the specified parameters. Please check the source code of the timm.models.vision_transformer.Block
+        class for input parameters.
+
+        """
         super().__init__(
-            dim=dim,
-            num_heads=num_heads,
-            mlp_ratio=mlp_ratio,
-            qkv_bias=qkv_bias,
-            qk_norm=qk_norm,
-            proj_drop=proj_drop,
-            attn_drop=attn_drop,
-            init_values=init_values,
-            drop_path=drop_path,
-            act_layer=act_layer,
-            norm_layer=norm_layer,
-            mlp_layer=mlp_layer,
+            *args,
+            **kwargs,
         )
+        # Keep only the kwargs that timm's Attention accepts. Block-level kwargs
+        # such as mlp_ratio do not apply to the attention layer.
+        attention_kwargs = {
+            key: value
+            for key, value in kwargs.items()
+            if key in inspect.signature(Attention.__init__).parameters
+        }
         self.attn = MaskedCausalAttention(
-            dim,
-            num_heads=num_heads,
-            qkv_bias=qkv_bias,
-            qk_norm=qk_norm,
-            attn_drop=attn_drop,
-            proj_drop=proj_drop,
-            norm_layer=norm_layer,
+            *args,
+            **attention_kwargs,
         )
 
-    def forward(self, x: Tensor, mask: Optional[Tensor] = None) -> Tensor:
+    def forward(
+        self, x: Tensor, mask: Optional[Tensor] = None, is_causal: bool = True
+    ) -> Tensor:
         """Forward pass of the attention block.
 
         Args:
@@ -143,89 +163,48 @@ class MaskedCausalBlock(Block):  # type: ignore[misc]
                 should be masked. Tokens where the mask is True will only be used for
                 causal attention, while unmasked tokens are used for bidirectional
                 attention. If the mask is None, all tokens are used for bidirectional
-                attention.
+                attention. Ignored if is_causal is False.
+            is_causal:
+                Whether to apply causal attention to masked tokens. If False, the mask
+                is ignored and all tokens use bidirectional attention. Defaults to True,
+                unlike timm.
+
+        Returns:
+            Output tensor after applying the attention block.
         """
-        x = x + self.drop_path1(self.ls1(self.attn(self.norm1(x), mask=mask)))
+        x = x + self.drop_path1(
+            self.ls1(self.attn(self.norm1(x), mask=mask, is_causal=is_causal))
+        )
         x = x + self.drop_path2(self.ls2(self.mlp(self.norm2(x))))
         return x
 
 
 # Type ignore because superclass has Any types.
 class MaskedCausalVisionTransformer(VisionTransformer):  # type: ignore[misc]
-    """Vision transformer with masked causal attention based on AIM [0].
+    """Vision transformer with masked causal attention based on AIM [0]. Please check the source code of the timm.models.vision_transformer.VisionTransformer
+    class for input parameters.
 
     - [0]: AIM, 2024, https://arxiv.org/abs/2401.08541
     """
 
-    def __init__(
+    def __init__(  # type: ignore[no-untyped-def]
         self,
-        img_size: Union[int, Tuple[int, int]] = 224,
-        patch_size: Union[int, Tuple[int, int]] = 16,
-        in_chans: int = 3,
-        num_classes: int = 1000,
-        global_pool: str = "",
-        embed_dim: int = 768,
-        depth: int = 12,
-        num_heads: int = 12,
-        mlp_ratio: float = 4.0,
-        qkv_bias: bool = True,
-        qk_norm: bool = False,
-        init_values: Optional[float] = None,
-        class_token: bool = True,
-        no_embed_class: bool = False,
-        reg_tokens: int = 0,
-        pre_norm: bool = False,
-        fc_norm: Optional[bool] = None,
-        dynamic_img_size: bool = False,
-        dynamic_img_pad: bool = False,
-        drop_rate: float = 0.0,
-        pos_drop_rate: float = 0.0,
-        patch_drop_rate: float = 0.0,
-        proj_drop_rate: float = 0.0,
-        attn_drop_rate: float = 0.0,
-        drop_path_rate: float = 0.0,
-        weight_init: str = "",
-        embed_layer: Callable = PatchEmbed,  # type: ignore[type-arg]
-        norm_layer: Optional[LayerType] = None,
-        act_layer: Optional[LayerType] = None,
-        block_fn: Type[Module] = MaskedCausalBlock,
-        mlp_layer: Type[Module] = Mlp,
+        *args,
+        **kwargs,
     ) -> None:
+        """Initializes the MaskedCausalVisionTransformer with the specified parameters. Please check the source code of the timm.models.vision_transformer.VisionTransformer
+        class for input parameters.
+
+        """
+        kwargs.setdefault("block_fn", MaskedCausalBlock)
         super().__init__(
-            img_size=img_size,
-            patch_size=patch_size,
-            in_chans=in_chans,
-            num_classes=num_classes,
-            global_pool=global_pool,
-            embed_dim=embed_dim,
-            depth=depth,
-            num_heads=num_heads,
-            mlp_ratio=mlp_ratio,
-            qkv_bias=qkv_bias,
-            qk_norm=qk_norm,
-            init_values=init_values,
-            class_token=class_token,
-            no_embed_class=no_embed_class,
-            reg_tokens=reg_tokens,
-            pre_norm=pre_norm,
-            fc_norm=fc_norm,
-            dynamic_img_size=dynamic_img_size,
-            dynamic_img_pad=dynamic_img_pad,
-            drop_rate=drop_rate,
-            pos_drop_rate=pos_drop_rate,
-            patch_drop_rate=patch_drop_rate,
-            proj_drop_rate=proj_drop_rate,
-            attn_drop_rate=attn_drop_rate,
-            drop_path_rate=drop_path_rate,
-            weight_init=weight_init,
-            embed_layer=embed_layer,
-            norm_layer=norm_layer,
-            act_layer=act_layer,
-            block_fn=block_fn,
-            mlp_layer=mlp_layer,
+            *args,
+            **kwargs,
         )
 
-    def forward_features(self, x: Tensor, mask: Optional[Tensor] = None) -> Tensor:
+    def forward_features(
+        self, x: Tensor, mask: Optional[Tensor] = None, is_causal: bool = True
+    ) -> Tensor:
         """Forward pass of the model without the classification head.
 
         Args:
@@ -236,18 +215,26 @@ class MaskedCausalVisionTransformer(VisionTransformer):  # type: ignore[misc]
                 should be masked. Tokens where the mask is True will only be used for
                 causal attention, while unmasked tokens are used for bidirectional
                 attention. If the mask is None, all tokens are used for bidirectional
-                attention.
+                attention. Ignored if is_causal is False.
+            is_causal:
+                Whether to apply causal attention to masked tokens. If False, the mask
+                is ignored and all tokens use bidirectional attention. Defaults to True,
+                unlike timm.
+
+        Returns:
+            Output tensor after applying the transformer blocks.
         """
         x = self.patch_embed(x)
         x = self._pos_embed(x)
         x = self.patch_drop(x)
         x = self.norm_pre(x)
         if self.grad_checkpointing and not jit.is_scripting():
-            # TODO: This probably doesn't work correctly as it doesn't consider the
-            # mask.
-            x = _manipulate.checkpoint_seq(self.blocks, x)
+            blocks = [
+                partial(block, mask=mask, is_causal=is_causal) for block in self.blocks
+            ]
+            x = _checkpoint_seq(blocks, x)
         else:
             for block in self.blocks:
-                x = block(x, mask=mask)
+                x = block(x, mask=mask, is_causal=is_causal)
         x = self.norm(x)
         return x

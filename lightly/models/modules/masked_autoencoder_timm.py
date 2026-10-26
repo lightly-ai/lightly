@@ -1,5 +1,5 @@
 from functools import partial
-from typing import Callable, Optional
+from typing import Any, Callable, Optional, cast
 
 import torch
 import torch.nn as nn
@@ -9,6 +9,7 @@ from torch.nn import LayerNorm, Module, Parameter, Sequential
 
 from lightly.models import utils
 from lightly.models.modules.masked_vision_transformer_timm import init_weights
+from lightly.utils.deprecation import warn_deprecated
 
 
 class MAEDecoderTIMM(Module):
@@ -16,6 +17,10 @@ class MAEDecoderTIMM(Module):
 
     Decodes encoded patches and predicts pixel values for every patch.
     Code inspired by [1].
+
+    Deprecated in favor of :class:`MaskedVisionTransformerDecoderTIMM` and will be
+    removed in lightly 1.7.0. See the MAE and Pixio examples under ``examples/`` for
+    the migration pattern.
 
     - [0]: Masked Autoencoder, 2021, https://arxiv.org/abs/2111.06377
     - [1]: https://github.com/facebookresearch/mae
@@ -35,6 +40,9 @@ class MAEDecoderTIMM(Module):
             Depth of transformer.
         decoder_num_heads:
             Number of attention heads.
+        num_prefix_tokens:
+            Number of prefix tokens (e.g. class or register tokens) preceding the
+            patch tokens. Determines the length of the decoder positional embedding.
         mlp_ratio:
             Ratio of mlp hidden dim to embedding dim.
         proj_drop_rate:
@@ -50,6 +58,19 @@ class MAEDecoderTIMM(Module):
 
     """
 
+    def __init_subclass__(cls, **kwargs: Any) -> None:
+        super().__init_subclass__(**kwargs)
+        # lightly's own subclasses warn from their own __init__.
+        if cls.__module__ != __name__:
+            # Name the deprecated base being subclassed, robust to the order of
+            # bases under multiple inheritance.
+            deprecated = next(b for b in cls.__mro__ if b.__module__ == __name__)
+            warn_deprecated(
+                deprecated.__name__,
+                "MaskedVisionTransformerDecoderTIMM",
+                removed_in="1.7.0",
+            )
+
     def __init__(
         self,
         num_patches: int,
@@ -59,6 +80,7 @@ class MAEDecoderTIMM(Module):
         decoder_embed_dim: int = 512,
         decoder_depth: int = 8,
         decoder_num_heads: int = 16,
+        num_prefix_tokens: int = 1,
         mlp_ratio: float = 4.0,
         proj_drop_rate: float = 0.0,
         attn_drop_rate: float = 0.0,
@@ -66,8 +88,17 @@ class MAEDecoderTIMM(Module):
         initialize_weights: bool = True,
         mask_token: Optional[Parameter] = None,
     ):
+        """Initializes the MAEDecoderTIMM with the specified parameters."""
         super().__init__()
+        # Warn per class so subclasses do not inherit a mis-stacked base-class call.
+        if type(self) is MAEDecoderTIMM:
+            warn_deprecated(
+                "MAEDecoderTIMM",
+                "MaskedVisionTransformerDecoderTIMM",
+                removed_in="1.7.0",
+            )
 
+        self.num_prefix_tokens = num_prefix_tokens
         self.decoder_embed = nn.Linear(embed_dim, decoder_embed_dim, bias=True)
         self.mask_token = (
             nn.Parameter(torch.zeros(1, 1, decoder_embed_dim))
@@ -75,9 +106,10 @@ class MAEDecoderTIMM(Module):
             else mask_token
         )
 
-        # positional encoding of the decoder
+        # Positional encoding of the decoder
         self.decoder_pos_embed = nn.Parameter(
-            torch.zeros(1, num_patches + 1, decoder_embed_dim), requires_grad=False
+            torch.zeros(1, num_patches + num_prefix_tokens, decoder_embed_dim),
+            requires_grad=False,
         )  # fixed sin-cos embedding
 
         self.decoder_blocks = Sequential(
@@ -87,7 +119,8 @@ class MAEDecoderTIMM(Module):
                     decoder_num_heads,
                     mlp_ratio,
                     qkv_bias=True,
-                    norm_layer=norm_layer,
+                    # timm's type hints for norm_layer vary between versions.
+                    norm_layer=cast(Any, norm_layer),
                     proj_drop=proj_drop_rate,
                     attn_drop=attn_drop_rate,
                 )
@@ -112,7 +145,6 @@ class MAEDecoderTIMM(Module):
 
         Returns:
             Tensor with shape (batch_size, seq_length, out_dim).
-
         """
         out = self.embed(input)
         out = self.decode(out)
@@ -156,7 +188,7 @@ class MAEDecoderTIMM(Module):
         return output
 
     def predict(self, input: Tensor) -> Tensor:
-        """Predics pixel values from decoded tokens.
+        """Predicts pixel values from decoded tokens.
 
         Args:
             input:
@@ -172,8 +204,101 @@ class MAEDecoderTIMM(Module):
         return out
 
     def _initialize_weights(self) -> None:
+        """Initializes weights for the decoder components."""
         torch.nn.init.normal_(self.mask_token, std=0.02)
         utils.initialize_2d_sine_cosine_positional_embedding(
-            pos_embedding=self.decoder_pos_embed, has_class_token=True
+            pos_embedding=self.decoder_pos_embed,
+            num_prefix_tokens=self.num_prefix_tokens,
         )
         self.apply(init_weights)
+
+
+class PixioDecoderTIMM(MAEDecoderTIMM):
+    """Decoder for the Pixio model [0].
+
+    Pixio is a masked autoencoder variant that uses a much deeper decoder than MAE
+    (32 blocks vs. 8) to move pixel-level detail modeling from the encoder into the
+    decoder. This is an :class:`MAEDecoderTIMM` with a deeper default decoder
+    (``decoder_depth`` defaults to 32 following Pixio). Implemented from the paper;
+    not derived from the reference code.
+
+    Deprecated in favor of :class:`MaskedVisionTransformerDecoderTIMM` and will be
+    removed in lightly 1.7.0. See the MAE and Pixio examples under ``examples/`` for
+    the migration pattern.
+
+    - [0]: In Pursuit of Pixel Supervision for Visual Pre-training, 2025,
+      https://arxiv.org/abs/2512.15715
+
+    Attributes:
+        num_patches:
+            Number of patches.
+        patch_size:
+            Patch size.
+        in_chans:
+            Number of image input channels.
+        embed_dim:
+            Embedding dimension of the encoder.
+        decoder_embed_dim:
+            Embedding dimension of the decoder.
+        decoder_depth:
+            Depth of the decoder transformer. Defaults to 32 following Pixio.
+        decoder_num_heads:
+            Number of attention heads.
+        num_prefix_tokens:
+            Number of prefix (class or register) tokens preceding the patch tokens.
+        mlp_ratio:
+            Ratio of mlp hidden dim to embedding dim.
+        proj_drop_rate:
+            Percentage of elements set to zero after the MLP in the transformer.
+        attn_drop_rate:
+            Percentage of elements set to zero after the attention head.
+        norm_layer:
+            Normalization layer.
+        initialize_weights:
+            Flag that determines if weights should be initialized.
+        mask_token:
+            The mask token.
+
+    """
+
+    def __init__(
+        self,
+        num_patches: int,
+        patch_size: int,
+        in_chans: int = 3,
+        embed_dim: int = 1024,
+        decoder_embed_dim: int = 512,
+        decoder_depth: int = 32,
+        decoder_num_heads: int = 16,
+        num_prefix_tokens: int = 1,
+        mlp_ratio: float = 4.0,
+        proj_drop_rate: float = 0.0,
+        attn_drop_rate: float = 0.0,
+        norm_layer: Callable[..., nn.Module] = partial(LayerNorm, eps=1e-6),
+        initialize_weights: bool = True,
+        mask_token: Optional[Parameter] = None,
+    ):
+        """Initializes the PixioDecoderTIMM with a deep (default 32-block) decoder."""
+        super().__init__(
+            num_patches=num_patches,
+            patch_size=patch_size,
+            in_chans=in_chans,
+            embed_dim=embed_dim,
+            decoder_embed_dim=decoder_embed_dim,
+            decoder_depth=decoder_depth,
+            decoder_num_heads=decoder_num_heads,
+            num_prefix_tokens=num_prefix_tokens,
+            mlp_ratio=mlp_ratio,
+            proj_drop_rate=proj_drop_rate,
+            attn_drop_rate=attn_drop_rate,
+            norm_layer=norm_layer,
+            initialize_weights=initialize_weights,
+            mask_token=mask_token,
+        )
+        # Guarded like MAEDecoderTIMM: subclasses warn once via __init_subclass__.
+        if type(self) is PixioDecoderTIMM:
+            warn_deprecated(
+                "PixioDecoderTIMM",
+                "MaskedVisionTransformerDecoderTIMM",
+                removed_in="1.7.0",
+            )

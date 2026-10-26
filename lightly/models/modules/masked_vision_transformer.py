@@ -8,8 +8,7 @@ from lightly.models import utils
 
 
 class MaskedVisionTransformer(ABC, Module):
-    """
-    Abstract base class for Masked Vision Transformer models.
+    """Abstract base class for Masked Vision Transformer models.
 
     Defines the interface for a Masked Vision Transformer. This class includes abstract
     methods that must be implemented by concrete subclasses to define the forward pass,
@@ -22,8 +21,7 @@ class MaskedVisionTransformer(ABC, Module):
 
     @property
     @abstractmethod
-    def sequence_length(self) -> int:
-        ...
+    def sequence_length(self) -> int: ...
 
     @abstractmethod
     def forward(

@@ -1,4 +1,6 @@
-from typing import Optional, Tuple
+from __future__ import annotations
+
+from typing import Dict, List, Optional, Tuple
 
 import torch
 import torch.nn.functional as F
@@ -13,10 +15,12 @@ from lightly.utils.benchmarking.topk import mean_topk_accuracy
 class KNNClassifier(LightningModule):
     def __init__(
         self,
-        model: Module,
+        model: Optional[Module],
         num_classes: int,
-        knn_k: int = 200,
-        knn_t: float = 0.1,
+        knn_k: int,
+        knn_t: float,
+        train_dataloader_idx: int,
+        val_dataloader_idx: int,
         topk: Tuple[int, ...] = (1, 5),
         feature_dtype: torch.dtype = torch.float32,
         normalize: bool = True,
@@ -31,7 +35,8 @@ class KNNClassifier(LightningModule):
         Args:
             model:
                 Model used for feature extraction. Must define a forward(images) method
-                that returns a feature tensor.
+                that returns a feature tensor. If not defined, hands over the features
+                directly.
             num_classes:
                 Number of classes in the dataset.
             knn_k:
@@ -51,7 +56,7 @@ class KNNClassifier(LightningModule):
             >>> from torch import nn
             >>> import torchvision
             >>> from lightly.models import LinearClassifier
-            >>> from lightly.modles.modules import SimCLRProjectionHead
+            >>> from lightly.models.modules import SimCLRProjectionHead
             >>>
             >>> class SimCLR(nn.Module):
             >>>     def __init__(self):
@@ -61,8 +66,7 @@ class KNNClassifier(LightningModule):
             >>>         self.projection_head = SimCLRProjectionHead(512, 512, 128)
             >>>
             >>>     def forward(self, x):
-            >>>         # Forward must return image features.
-            >>>         features = self.backbone(x).flatten(start_dim=1)
+            >>>         features = self.backbone(x).flatten(start_dim=1)  # Forward must return image features.
             >>>         return features
             >>>
             >>> # Initialize a model.
@@ -74,8 +78,10 @@ class KNNClassifier(LightningModule):
             >>>
             >>> # Extract features and evaluate.
             >>> trainer = Trainer(max_epochs=1)
-            >>> trainer.fit(knn_classifier, train_dataloder, val_dataloader)
-
+            >>> trainer.validate(
+                    model=knn_classifier,
+                    dataloaders=[train_dataloader, val_dataloader],
+                )
         """
         super().__init__()
         self.save_hyperparameters(
@@ -87,6 +93,8 @@ class KNNClassifier(LightningModule):
                 "feature_dtype": str(feature_dtype),
             }
         )
+        self.train_dataloader_idx = train_dataloader_idx
+        self.val_dataloader_idx = val_dataloader_idx
         self.model = model
         self.num_classes = num_classes
         self.knn_k = knn_k
@@ -95,52 +103,38 @@ class KNNClassifier(LightningModule):
         self.feature_dtype = feature_dtype
         self.normalize = normalize
 
-        self._train_features = []
-        self._train_targets = []
+        self._train_features: List[Tensor] = []
+        self._train_targets: List[Tensor] = []
         self._train_features_tensor: Optional[Tensor] = None
         self._train_targets_tensor: Optional[Tensor] = None
 
-    @torch.no_grad()
-    def training_step(self, batch, batch_idx) -> None:
-        images, targets = batch[0], batch[1]
-        features = self.model.forward(images).flatten(start_dim=1)
+    def _prepare_features(self, features: Tensor) -> Tensor:
+        """Normalize and convert feature dtype for KNN scoring."""
         if self.normalize:
             features = F.normalize(features, dim=1)
         features = features.to(self.feature_dtype)
+        return features
+
+    def forward(self, images: Tensor) -> Tensor:
+        assert self.model is not None
+        features = self.model.forward(images).flatten(start_dim=1)
+        features = self._prepare_features(features)
+        return features
+
+    def append_train_features(self, features: Tensor, targets: Tensor) -> None:
         self._train_features.append(features.cpu())
         self._train_targets.append(targets.cpu())
 
-    def validation_step(self, batch, batch_idx) -> None:
-        if self._train_features_tensor is None or self._train_targets_tensor is None:
-            return
-
-        images, targets = batch[0], batch[1]
-        features = self.model.forward(images).flatten(start_dim=1)
-        if self.normalize:
-            features = F.normalize(features, dim=1)
-        features = features.to(self.feature_dtype)
-        predicted_classes = knn_predict(
-            feature=features,
-            feature_bank=self._train_features_tensor,
-            feature_labels=self._train_targets_tensor,
-            num_classes=self.num_classes,
-            knn_k=self.knn_k,
-            knn_t=self.knn_t,
-        )
-        topk = mean_topk_accuracy(
-            predicted_classes=predicted_classes, targets=targets, k=self.topk
-        )
-        log_dict = {f"val_top{k}": acc for k, acc in topk.items()}
-        self.log_dict(log_dict, prog_bar=True, sync_dist=True, batch_size=len(targets))
-
-    def on_validation_epoch_start(self) -> None:
+    def concat_train_features(self) -> None:
         if self._train_features and self._train_targets:
             # Features and targets have size (world_size, batch_size, dim) and
             # (world_size, batch_size) after gather. For non-distributed training,
             # features and targets have size (batch_size, dim) and (batch_size,).
             features = self.all_gather(torch.cat(self._train_features, dim=0))
+            assert isinstance(features, Tensor)
             self._train_features = []
             targets = self.all_gather(torch.cat(self._train_targets, dim=0))
+            assert isinstance(targets, Tensor)
             self._train_targets = []
             # Reshape to (dim, world_size * batch_size)
             features = features.flatten(end_dim=-2).t().contiguous()
@@ -149,15 +143,71 @@ class KNNClassifier(LightningModule):
             targets = targets.flatten().t().contiguous()
             self._train_targets_tensor = targets.to(self.device)
 
-    def on_train_epoch_start(self) -> None:
-        # Set model to eval mode to disable norm layer updates.
-        self.model.eval()
-
-        # Reset features and targets.
+    def reset_storage(self) -> None:
+        """Clears the feature bank to prepare for a new validation epoch."""
         self._train_features = []
         self._train_targets = []
         self._train_features_tensor = None
         self._train_targets_tensor = None
+
+    @torch.no_grad()
+    def training_step(  # type: ignore[override]
+        self, batch: Tuple[Tensor, ...], batch_idx: int
+    ) -> None:
+        pass
+
+    def validation_step(  # type: ignore[override]
+        self, batch: Tuple[Tensor, ...], batch_idx: int, dataloader_idx: int
+    ) -> Dict[str, Tensor] | None:
+        """Run a step for kNN validation.
+
+        One dataloader contains training data and we use it to build the feature bank.
+        The other dataloader contains validation data and we use it for kNN evaluation.
+        In case of the step running on validation data, this function returns a dict
+        containing the kNN top-k accuracy metrics.
+        """
+        if self.model is None:
+            # We receive the features directly
+            features, targets = batch
+            features = self._prepare_features(features)
+        else:
+            # Extracting features
+            images, targets = batch[0], batch[1]
+            features = self(images)
+
+        if dataloader_idx == self.train_dataloader_idx:
+            if batch_idx == 0:
+                # Reset storage at beginning of new train dataloader.
+                self.reset_storage()
+            # The first dataloader is the training dataloader.
+            self.append_train_features(features=features, targets=targets)
+        elif dataloader_idx == self.val_dataloader_idx:
+            if batch_idx == 0:
+                # Concatenate train features when starting the validation dataloader.
+                self.concat_train_features()
+
+            assert self._train_features_tensor is not None
+            assert self._train_targets_tensor is not None
+            predicted_classes = knn_predict(
+                feature=features,
+                feature_bank=self._train_features_tensor,
+                feature_labels=self._train_targets_tensor,
+                num_classes=self.num_classes,
+                knn_k=self.knn_k,
+                knn_t=self.knn_t,
+            )
+            topk = mean_topk_accuracy(
+                predicted_classes=predicted_classes, targets=targets, k=self.topk
+            )
+            log_dict = {f"val_knn_top{k}": acc for k, acc in topk.items()}
+
+            if self.trainer is not None:
+                self.log_dict(
+                    log_dict, prog_bar=True, sync_dist=True, batch_size=len(targets)
+                )
+
+            return log_dict
+        return None
 
     def configure_optimizers(self) -> None:
         # configure_optimizers must be implemented for PyTorch Lightning. Returning None

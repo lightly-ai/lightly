@@ -9,7 +9,7 @@ architecture. It learns image representations by predicting pixel values for ima
 patches based on previous patches in the image. This is similar to the next word prediction
 task in natural language processing. AIM demonstrates that it is possible to train
 large-scale vision models using an autoregressive objective. The model is split into
-and encoder and a decoder part. The encoder generates features for image patches and
+an encoder and a decoder part. The encoder generates features for image patches and
 the decoder predicts pixel values based on the features.
 
 Reference:
@@ -19,7 +19,7 @@ Reference:
 .. tabs::
     .. tab:: PyTorch
 
-        .. image:: https://colab.research.google.com/assets/colab-badge.svg
+        .. image:: /_static/colab-badge.svg
             :target: https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/aim.ipynb
 
         This example can be run from the command line with::
@@ -30,7 +30,7 @@ Reference:
 
     .. tab:: Lightning
 
-        .. image:: https://colab.research.google.com/assets/colab-badge.svg
+        .. image:: /_static/colab-badge.svg
             :target: https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/aim.ipynb
 
         This example can be run from the command line with::
@@ -41,7 +41,7 @@ Reference:
 
     .. tab:: Lightning Distributed
 
-        .. image:: https://colab.research.google.com/assets/colab-badge.svg
+        .. image:: /_static/colab-badge.svg
             :target: https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning_distributed/aim.ipynb
 
         This example runs on multiple gpus using Distributed Data Parallel (DDP)

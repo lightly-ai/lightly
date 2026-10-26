@@ -9,7 +9,7 @@ from torch.nn import Module
 
 
 def tcr_loss(z: Tensor, eps: float) -> Tensor:
-    """Total Coding Rate (TCR) loss.
+    """Computes the Total Coding Rate (TCR) loss.
 
     Args:
         z:
@@ -22,24 +22,31 @@ def tcr_loss(z: Tensor, eps: float) -> Tensor:
     """
     _, batch_size, dim = z.shape
     diag = torch.eye(dim, device=z.device).unsqueeze(0)
-    # matmul over batch dimension
+    # Matrix multiplication over the batch dimension
     einsum = torch.einsum("vbd,vbe->vde", z, z)
+
+    # Calculate the log determinant
     logdet = torch.logdet(diag + dim / (batch_size * eps) * einsum)
+
     return 0.5 * logdet.mean()
 
 
 def invariance_loss(z: Tensor) -> Tensor:
-    """Loss representing the similiarity between the patch embeddings and the average of
+    """Calculates the invariance loss, representing the similarity between the patch embeddings and the average of
     the patch embeddings.
 
     Args:
         z:
             Patch embeddings.
+
     Returns:
         Similarity loss.
     """
     # z has shape (num_views, batch_size, dim)
+
+    # Calculate the mean of the patch embeddings across the batch dimension
     z_mean = z.mean(0, keepdim=True)
+
     return -F.cosine_similarity(z, z_mean, dim=-1).mean()
 
 
@@ -60,8 +67,10 @@ class EMPSSLLoss(Module):
     Examples:
         >>> # initialize loss function
         >>> loss_fn = EMP_SSLLoss()
-        >>> base_transform = VICRegViewTransform() # As discussed in paper
-        >>> transform_fn = MultiCropTransform(transforms=base_transform, crop_counts=100)
+        >>> base_transform = VICRegViewTransform()  # As discussed in paper
+        >>> transform_fn = MultiCropTransform(
+        ...     transforms=base_transform, crop_counts=100
+        ... )
         >>>
         >>> # generate the transformed samples
         >>> samples = transform_fn(image)
@@ -78,11 +87,29 @@ class EMPSSLLoss(Module):
         tcr_eps: float = 0.2,
         inv_coef: float = 200.0,
     ) -> None:
+        """Initializes the EMPSSLoss module.
+
+        Args:
+            tcr_eps:
+                Total coding rate (TCR) epsilon.
+            inv_coff:
+                Coefficient for the invariance loss.
+        """
         super().__init__()
         self.tcr_eps = tcr_eps
         self.inv_coef = inv_coef
 
     def forward(self, z_views: List[Tensor]) -> Tensor:
+        """Computes the EMP-SSL loss, which is a combination of Total Coding Rate loss and invariance loss.
+
+        Args:
+            z_views:
+                List of patch embeddings tensors from different views.
+
+        Returns:
+            The computed EMP-SSL loss.
+        """
         # z has shape (num_views, batch_size, dim)
         z = torch.stack(z_views)
+
         return tcr_loss(z, eps=self.tcr_eps) + self.inv_coef * invariance_loss(z)

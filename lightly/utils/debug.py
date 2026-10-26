@@ -1,10 +1,11 @@
-from typing import List, Union
+from typing import List
 
 import torch
 import torchvision
 from PIL import Image
 
-from lightly.data.collate import BaseCollateFunction, MultiViewCollateFunction
+from lightly.transforms.multi_view_transform import MultiViewTransform
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 
 try:
     import matplotlib.pyplot as plt
@@ -15,7 +16,6 @@ except ModuleNotFoundError:
         "'pip install lightly[matplotlib]'."
     )
 except ImportError as ex:
-    # Matplotlib import can fail if an incompatible dateutil version is installed.
     plt = ex
 
 
@@ -24,9 +24,9 @@ def std_of_l2_normalized(z: torch.Tensor) -> torch.Tensor:
     """Calculates the mean of the standard deviation of z along each dimension.
 
     This measure was used by [0] to determine the level of collapse of the
-    learned representations. If the returned number is 0., the outputs z have
-    collapsed to a constant vector. "If the output z has a zero-mean isotropic
-    Gaussian distribution" [0], the returned number should be close to 1/sqrt(d)
+    learned representations. If the returned value is 0., the outputs z have
+    collapsed to a constant vector. If the output z has a zero-mean isotropic
+    Gaussian distribution [0], the returned value should be close to 1/sqrt(d),
     where d is the dimensionality of the output.
 
     [0]: https://arxiv.org/abs/2011.10566
@@ -38,9 +38,7 @@ def std_of_l2_normalized(z: torch.Tensor) -> torch.Tensor:
     Returns:
         The mean of the standard deviation of the l2 normalized tensor z along
         each dimension.
-
     """
-
     if len(z.shape) != 2:
         raise ValueError(
             f"Input tensor must have two dimensions but has {len(z.shape)}!"
@@ -53,94 +51,99 @@ def std_of_l2_normalized(z: torch.Tensor) -> torch.Tensor:
 def apply_transform_without_normalize(
     image: Image.Image,
     transform,
-):
-    """Applies the transform to the image but skips ToTensor and Normalize."""
+) -> Image.Image:
+    """Applies the transform to the image but skips ToTensor and Normalize.
+
+    Args:
+        image:
+            The input PIL image.
+        transform:
+            The transformation to apply, excluding ToTensor and Normalize.
+
+    Returns:
+        The transformed image.
+    """
     skippable_transforms = (
-        torchvision.transforms.ToTensor,
-        torchvision.transforms.Normalize,
+        type(T.ToTensor()),
+        T.Normalize,
     )
-    if isinstance(transform, torchvision.transforms.Compose):
+    if isinstance(transform, skippable_transforms):
+        # Checked first because our ToTensor shim also wraps a T.Compose, which the
+        # branch below would otherwise unwrap and apply.
+        return image
+    if isinstance(transform, T.Compose):
         for transform_ in transform.transforms:
             image = apply_transform_without_normalize(image, transform_)
-    elif not isinstance(transform, skippable_transforms):
+    elif isinstance(getattr(transform, "transform", None), T.Compose):
+        # View transforms such as SimCLRViewTransform wrap a T.Compose instead of
+        # subclassing it. torchvision v2's Compose has a bound method named
+        # "transform", so the isinstance check above has to come first.
+        image = apply_transform_without_normalize(image, transform.transform)
+    else:
         image = transform(image)
     return image
 
 
 def generate_grid_of_augmented_images(
     input_images: List[Image.Image],
-    collate_function: Union[BaseCollateFunction, MultiViewCollateFunction],
-):
+    transform: MultiViewTransform,
+) -> List[List[Image.Image]]:
     """Returns a grid of augmented images. Images in a column belong together.
 
-    This function ignores the transforms ToTensor and Normalize for visualization purposes.
+    This function ignores the ToTensor and Normalize transforms for visualization purposes.
 
     Args:
         input_images:
             List of PIL images for which the augmentations should be plotted.
-        collate_function:
-            The collate function of the self-supervised learning algorithm.
-            Must be of type BaseCollateFunction or MultiViewCollateFunction.
+        transform:
+            The transform of the self-supervised learning algorithm. Must be of type
+            MultiViewTransform.
 
     Returns:
         A grid of augmented images. Images in a column belong together.
 
     """
-    grid = []
-    if isinstance(collate_function, BaseCollateFunction):
-        for _ in range(2):
-            grid.append(
-                [
-                    apply_transform_without_normalize(image, collate_function.transform)
-                    for image in input_images
-                ]
-            )
-    elif isinstance(collate_function, MultiViewCollateFunction):
-        for transform in collate_function.transforms:
-            grid.append(
-                [
-                    apply_transform_without_normalize(image, transform)
-                    for image in input_images
-                ]
-            )
-    else:
+    if not isinstance(transform, MultiViewTransform):
         raise ValueError(
-            "Collate function must be one of "
-            "(BaseCollateFunction, MultiViewCollateFunction) "
-            f"but is {type(collate_function)}."
+            f"Transform must be of type MultiViewTransform but is {type(transform)}."
+        )
+    grid = []
+    for view_transform in transform.transforms:
+        grid.append(
+            [
+                apply_transform_without_normalize(image, view_transform)
+                for image in input_images
+            ]
         )
     return grid
 
 
 def plot_augmented_images(
     input_images: List[Image.Image],
-    collate_function: Union[BaseCollateFunction, MultiViewCollateFunction],
+    transform: MultiViewTransform,
 ):
-    """Returns a figure showing original images in the left column and augmented images to their right.
+    """Plots original images and augmented images in a figure.
 
-    This function ignores the transforms ToTensor and Normalize for visualization purposes.
+    This function ignores the ToTensor and Normalize transforms for visualization purposes.
 
     Args:
         input_images:
             List of PIL images for which the augmentations should be plotted.
-        collate_function:
-            The collate function of the self-supervised learning algorithm.
-            Must be of type BaseCollateFunction or MultiViewCollateFunction.
+        transform:
+            The transform of the self-supervised learning algorithm. Must be of type
+            MultiViewTransform.
 
     Returns:
         A figure showing the original images in the left column and the augmented
-        images to their right. If the collate_function is an instance of the
-        BaseCollateFunction, two example augmentations are shown. For
-        MultiViewCollateFunctions all the generated views are shown.
+        images to their right. All views generated by the transform are shown.
 
     """
-
     _check_matplotlib_available()
 
     if len(input_images) == 0:
         raise ValueError("There must be at least one input image.")
 
-    grid = generate_grid_of_augmented_images(input_images, collate_function)
+    grid = generate_grid_of_augmented_images(input_images, transform)
     grid.insert(0, input_images)
     nrows = len(input_images)
     ncols = len(grid)
@@ -166,5 +169,6 @@ def plot_augmented_images(
 
 
 def _check_matplotlib_available() -> None:
+    """Checks if matplotlib is available. Raises an error if not."""
     if isinstance(plt, Exception):
         raise plt

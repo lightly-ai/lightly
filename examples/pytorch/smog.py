@@ -1,5 +1,6 @@
 # This example requires the following dependencies to be installed:
 # pip install lightly
+# pip install "scikit-learn>=1.7.1"
 
 # Note: The model and training settings do not follow the reference settings
 # from the paper. The settings are chosen such that the example can easily be
@@ -53,7 +54,7 @@ class SMoGModel(nn.Module):
     def reset_group_features(self, memory_bank):
         # see https://arxiv.org/pdf/2207.06167.pdf Table 7b)
         features = memory_bank.bank
-        group_features = self._cluster_features(features.t())
+        group_features = self._cluster_features(features)
         self.smog.set_group_features(group_features)
 
     def reset_momentum_weights(self):

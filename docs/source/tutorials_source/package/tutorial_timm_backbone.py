@@ -1,5 +1,4 @@
-"""
-.. _lightly-timm-backbone-tutorial-8:
+""".. _lightly-timm-backbone-tutorial-8:
 
 Tutorial 8: Using timm Models as Backbones
 ===========================================
@@ -22,7 +21,6 @@ as a backbone in a self-supervised learning workflow.
 # .. code-block:: console
 #
 #   pip install lightly"[timm]"
-
 
 import timm
 import torch

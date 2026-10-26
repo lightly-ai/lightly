@@ -25,16 +25,17 @@ def cosine_schedule(
             Target value.
         period:
             The number of steps over which the cosine function completes a full cycle.
-            Defaults to max_steps.
+            If no period is provided, the scheduler will complete a half cycle over
+            max_steps.
 
     Returns:
         Cosine decay value.
 
     """
     if step < 0:
-        raise ValueError(f"Current step number {step} can't be negative")
-    if max_steps < 1:
-        raise ValueError(f"Total step number {max_steps} must be >= 1")
+        raise ValueError(f"Current step number {step} can't be negative.")
+    if max_steps < 0:
+        raise ValueError(f"Total step number {max_steps} can't be negative.")
     if period is None and step > max_steps:
         warnings.warn(
             f"Current step number {step} exceeds max_steps {max_steps}.",
@@ -49,10 +50,10 @@ def cosine_schedule(
             end_value
             - (end_value - start_value) * (np.cos(2 * np.pi * step / period) + 1) / 2
         )
-    elif max_steps == 1:
+    elif max_steps <= 1:
         # Avoid division by zero
         decay = end_value
-    elif step == max_steps:
+    elif step >= max_steps - 1:
         # Special case for Pytorch Lightning which updates LR scheduler also for epoch
         # after last training epoch.
         decay = end_value
@@ -63,7 +64,9 @@ def cosine_schedule(
             * (np.cos(np.pi * step / (max_steps - 1)) + 1)
             / 2
         )
-    return decay
+    # Cast to float as numpy operations result in np.float64. Checkpoints with
+    # np.float64 values cannot be loaded with torch.load(..., weights_only=True).
+    return float(decay)
 
 
 def cosine_warmup_schedule(
@@ -97,14 +100,16 @@ def cosine_warmup_schedule(
             Target value for warmup. Defaults to start_value.
         period:
             The number of steps over which the cosine function completes a full cycle.
-            Defaults to max_steps - warmup_steps.
+            If no period is provided, the scheduler will complete a half cycle over
+            max_steps - warmup_steps.
+
     Returns:
         Cosine decay value.
     """
     if warmup_steps < 0:
-        raise ValueError(f"Warmup steps {warmup_steps} can't be negative")
+        raise ValueError(f"Warmup steps {warmup_steps} can't be negative.")
     if warmup_steps > max_steps:
-        raise ValueError(f"Warmup steps {warmup_steps} must be <= max_steps")
+        raise ValueError(f"Warmup steps {warmup_steps} must be <= max_steps.")
     if step > max_steps:
         warnings.warn(
             f"Current step number {step} exceeds max_steps {max_steps}.",
@@ -123,7 +128,7 @@ def cosine_warmup_schedule(
             + (warmup_end_value - warmup_start_value) * (step + 1) / warmup_steps
         )
     else:
-        max_steps = max_steps - warmup_steps if period is None else 1
+        max_steps = max_steps - (warmup_steps if period is None else 1)
         return cosine_schedule(
             step=step - warmup_steps,
             max_steps=max_steps,
@@ -149,15 +154,13 @@ class CosineWarmupScheduler(torch.optim.lr_scheduler.LambdaLR):
             Starting learning rate.
         end_value:
             Target learning rate.
-        verbose:
-            If True, prints a message to stdout for each update.
         warmup_start_value:
             Starting learning rate for warmup.
         warmup_end_value:
             Target learning rate for warmup. Defaults to start_value.
 
     Note: The `epoch` arguments do not necessarily have to be epochs. Any step or index
-    can be used. The naming follows the Pytorch convention to use `epoch` for the steps
+    can be used. The naming follows the PyTorch convention to use `epoch` for the steps
     in the scheduler.
     """
 
@@ -170,7 +173,6 @@ class CosineWarmupScheduler(torch.optim.lr_scheduler.LambdaLR):
         start_value: float = 1.0,
         end_value: float = 0.001,
         period: Optional[int] = None,
-        verbose: bool = False,
         warmup_start_value: float = 0.0,
         warmup_end_value: Optional[float] = None,
     ) -> None:
@@ -181,16 +183,15 @@ class CosineWarmupScheduler(torch.optim.lr_scheduler.LambdaLR):
         self.period = period
         self.warmup_start_value = warmup_start_value
         self.warmup_end_value = warmup_end_value
+
         super().__init__(
             optimizer=optimizer,
             lr_lambda=self.scale_lr,
             last_epoch=last_epoch,
-            verbose=verbose,
         )
 
     def scale_lr(self, epoch: int) -> float:
-        """
-        Scale learning rate according to the current epoch number.
+        """Scale learning rate according to the current epoch number.
 
         Args:
             epoch:
@@ -210,3 +211,27 @@ class CosineWarmupScheduler(torch.optim.lr_scheduler.LambdaLR):
             warmup_end_value=self.warmup_end_value,
             period=self.period,
         )
+
+
+def linear_warmup_schedule(
+    step: int,
+    warmup_steps: int,
+    start_value: float,
+    end_value: float,
+) -> float:
+    if warmup_steps < 0:
+        raise ValueError(f"Warmup steps {warmup_steps} can't be negative.")
+    if step < 0:
+        raise ValueError(f"Current step number {step} can't be negative.")
+    if start_value < 0:
+        raise ValueError(f"Start value {start_value} can't be negative.")
+    if end_value <= 0:
+        raise ValueError(f"End value {end_value} can't be non-positive.")
+    if start_value > end_value:
+        raise ValueError(
+            f"Start value {start_value} must be less than or equal to end value {end_value}."
+        )
+    if step < warmup_steps:
+        return start_value + step / warmup_steps * (end_value - start_value)
+    else:
+        return end_value

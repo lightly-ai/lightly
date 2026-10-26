@@ -1,12 +1,12 @@
 from typing import Dict, List, Optional, Tuple, Union
 
-import torchvision.transforms as T
 from PIL.Image import Image
 from torch import Tensor
 
 from lightly.transforms.gaussian_blur import GaussianBlur
 from lightly.transforms.multi_view_transform import MultiViewTransform
 from lightly.transforms.rotation import random_rotation_transform
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 
 
@@ -39,7 +39,7 @@ class SimSiamTransform(MultiViewTransform):
         cj_bright:
             How much to jitter brightness.
         cj_contrast:
-            How much to jitter constrast.
+            How much to jitter contrast.
         cj_sat:
             How much to jitter saturation.
         cj_hue:
@@ -50,12 +50,8 @@ class SimSiamTransform(MultiViewTransform):
             Probability of conversion to grayscale.
         gaussian_blur:
             Probability of Gaussian blur.
-        kernel_size:
-            Will be deprecated in favor of `sigmas` argument. If set, the old behavior applies and `sigmas` is ignored.
-            Used to calculate sigma of gaussian blur with kernel_size * input_size.
         sigmas:
             Tuple of min and max value from which the std of the gaussian kernel is sampled.
-            Is ignored if `kernel_size` is set.
         vf_prob:
             Probability that vertical flip is applied.
         hf_prob:
@@ -85,7 +81,6 @@ class SimSiamTransform(MultiViewTransform):
         min_scale: float = 0.2,
         random_gray_scale: float = 0.2,
         gaussian_blur: float = 0.5,
-        kernel_size: Optional[float] = None,
         sigmas: Tuple[float, float] = (0.1, 2),
         vf_prob: float = 0.0,
         hf_prob: float = 0.5,
@@ -104,7 +99,6 @@ class SimSiamTransform(MultiViewTransform):
             min_scale=min_scale,
             random_gray_scale=random_gray_scale,
             gaussian_blur=gaussian_blur,
-            kernel_size=kernel_size,
             sigmas=sigmas,
             vf_prob=vf_prob,
             hf_prob=hf_prob,
@@ -116,6 +110,27 @@ class SimSiamTransform(MultiViewTransform):
 
 
 class SimSiamViewTransform:
+    """Transforms an image into a single view for SimSiam.
+
+    Used by SimSiamTransform to create the views of an image.
+
+    Input to this transform:
+        PIL Image. (Tensor inputs are supported when torchvision transforms v2 are available.)
+    Output of this transform:
+        Tensor.
+
+    Applies the following augmentations by default:
+        - Random resized crop
+        - Random horizontal flip
+        - Random vertical flip
+        - Random rotation
+        - Color jitter
+        - Random gray scale
+        - Gaussian blur
+        - ImageNet normalization
+
+    """
+
     def __init__(
         self,
         input_size: int = 224,
@@ -128,7 +143,6 @@ class SimSiamViewTransform:
         min_scale: float = 0.2,
         random_gray_scale: float = 0.2,
         gaussian_blur: float = 0.5,
-        kernel_size: Optional[float] = None,
         sigmas: Tuple[float, float] = (0.1, 2),
         vf_prob: float = 0.0,
         hf_prob: float = 0.5,
@@ -136,6 +150,37 @@ class SimSiamViewTransform:
         rr_degrees: Optional[Union[float, Tuple[float, float]]] = None,
         normalize: Union[None, Dict[str, List[float]]] = IMAGENET_NORMALIZE,
     ):
+        """Initializes SimSiamViewTransform.
+
+        Args:
+            input_size: Size of the input image in pixels.
+            cj_prob: Probability that color jitter is applied.
+            cj_strength: Strength of the color jitter. `cj_bright`, `cj_contrast`,
+                `cj_sat`, and `cj_hue` are multiplied by this value. For datasets
+                with small images, such as CIFAR, it is recommended to set
+                `cj_strength` to 0.5.
+            cj_bright: How much to jitter brightness.
+            cj_contrast: How much to jitter contrast.
+            cj_sat: How much to jitter saturation.
+            cj_hue: How much to jitter hue.
+            min_scale: Minimum size of the randomized crop relative to the input_size.
+            random_gray_scale: Probability of conversion to grayscale.
+            gaussian_blur: Probability of Gaussian blur.
+            sigmas: Tuple of min and max value from which the std of the gaussian
+                kernel is sampled.
+            vf_prob: Probability that vertical flip is applied.
+            hf_prob: Probability that horizontal flip is applied.
+            rr_prob: Probability that random rotation is applied.
+            rr_degrees: Range of degrees to select from for random rotation. If
+                rr_degrees is None, images are rotated by 90 degrees. If rr_degrees
+                is a (min, max) tuple, images are rotated by a random angle in
+                [min, max]. If rr_degrees is a single number, images are rotated by
+                a random angle in [-rr_degrees, +rr_degrees]. All rotations are
+                counter-clockwise.
+            normalize: Dictionary with 'mean' and 'std' for
+                torchvision.transforms.Normalize.
+
+        """
         color_jitter = T.ColorJitter(
             brightness=cj_strength * cj_bright,
             contrast=cj_strength * cj_contrast,
@@ -145,12 +190,12 @@ class SimSiamViewTransform:
 
         transform = [
             T.RandomResizedCrop(size=input_size, scale=(min_scale, 1.0)),
-            random_rotation_transform(rr_prob=rr_prob, rr_degrees=rr_degrees),
             T.RandomHorizontalFlip(p=hf_prob),
             T.RandomVerticalFlip(p=vf_prob),
+            random_rotation_transform(rr_prob=rr_prob, rr_degrees=rr_degrees),
             T.RandomApply([color_jitter], p=cj_prob),
             T.RandomGrayscale(p=random_gray_scale),
-            GaussianBlur(kernel_size=kernel_size, sigmas=sigmas, prob=gaussian_blur),
+            GaussianBlur(sigmas=sigmas, prob=gaussian_blur),
             T.ToTensor(),
         ]
         if normalize:
@@ -158,8 +203,7 @@ class SimSiamViewTransform:
         self.transform = T.Compose(transform)
 
     def __call__(self, image: Union[Tensor, Image]) -> Tensor:
-        """
-        Applies the transforms to the input image.
+        """Applies the transforms to the input image.
 
         Args:
             image:

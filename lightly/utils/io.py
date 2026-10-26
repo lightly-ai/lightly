@@ -1,4 +1,4 @@
-""" I/O operations to save and load embeddings. """
+"""I/O operations to save and load embeddings."""
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
@@ -127,7 +127,6 @@ def save_embeddings(
         >>>     labels,
         >>>     filenames)
     """
-
     n_embeddings = len(embeddings)
     n_filenames = len(filenames)
     n_labels = len(labels)
@@ -255,7 +254,7 @@ class COCO_ANNOTATION_KEYS:
 
 
 def format_custom_metadata(
-    custom_metadata: List[Tuple[str, Any]]
+    custom_metadata: List[Tuple[str, Any]],
 ) -> Dict[str, List[Any]]:
     """Transforms custom metadata into a format which can be handled by Lightly.
 

@@ -1,17 +1,20 @@
+<a name="top"></a>
 ![LightlySSL self-supervised learning Logo](docs/logos/lightly_SSL_logo_crop.png)
 
-![GitHub](https://img.shields.io/github/license/lightly-ai/lightly)
-![Unit Tests](https://github.com/lightly-ai/lightly/workflows/Unit%20Tests/badge.svg)
+[![GitHub](https://img.shields.io/github/license/lightly-ai/lightly)](https://github.com/lightly-ai/lightly/blob/master/LICENSE.txt)
+[![Unit Tests](https://github.com/lightly-ai/lightly/workflows/Unit%20Tests/badge.svg)](https://github.com/lightly-ai/lightly/actions/workflows/test.yml)
 [![PyPI](https://img.shields.io/pypi/v/lightly)](https://pypi.org/project/lightly/)
 [![Downloads](https://static.pepy.tech/badge/lightly)](https://pepy.tech/project/lightly)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![Discord](https://img.shields.io/discord/752876370337726585?logo=discord&logoColor=white&label=discord&color=7289da)](https://discord.gg/xvNJW94)
+[![Twitter](https://img.shields.io/twitter/follow/LightlyAI)](https://x.com/LightlyAI)
+
 
 Lightly**SSL** is a computer vision framework for self-supervised learning.
 
 - [Documentation](https://docs.lightly.ai/self-supervised-learning/)
 - [Github](https://github.com/lightly-ai/lightly)
-- [Discord](https://discord.gg/xvNJW94) (We have weekly paper sessions!)
+- [Discord](https://discord.gg/xvNJW94)
 
 For a commercial version with more features, including Docker support and pretraining
 models for embedding, classification, detection, and segmentation tasks with
@@ -19,8 +22,20 @@ a single command, please contact sales@lightly.ai.
 
 We've also built a whole platform on top, with additional features for active learning
 and [data curation](https://docs.lightly.ai/docs/what-is-lightly). If you're interested in the
-Lightly Worker Solution to easily process millions of samples and run [powerful algorithms](https://docs.lightly.ai/docs/customize-a-selection)
+LightlyStudio, our all-in-one product for [data curation and labeling](https://docs.lightly.ai/studio/)
 on your data, check out [lightly.ai](https://www.lightly.ai). It's free to get started!
+
+## News 🚀
+
+* May 28, 2026 - We now have [LeJEPA](https://arxiv.org/pdf/2511.08544) support for self-supervised learning! 🧬 
+* March 23, 2026 - Check out our latest open-source project [LightlyStudio](https://github.com/lightly-ai/lightly-studio) to visualize, annotate, and manage your data with ease! 🔍
+* April 15, 2025 - We are excited to announce that you can now leverage SSL and distillation pretraining in just a few lines of code! We've worked hard to make self-supervised learning even more accessible with our new project [LightlyTrain](https://github.com/lightly-ai/lightly-train). Head over there to get started and supercharge your models! ⚡️
+
+<p>
+<a href="https://github.com/lightly-ai/lightly-train"><img src="https://storage.googleapis.com/lightly-public/train/lightlytrain_standard_horizontal_dark.png" alt="LightlyTrain" height="40"/></a>
+<span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
+<a href="https://github.com/lightly-ai/lightly-studio"><img src="https://storage.googleapis.com/lightly-public/studio/lightlystudio_standard_horizontal_dark.png" alt="LightlyStudio" height="40"/></a>
+</p>
 
 ## Features
 
@@ -41,22 +56,29 @@ and PyTorch Lightning distributed examples for all models to kickstart your proj
 
 | Model          | Year | Paper | Docs | Colab (PyTorch) | Colab (PyTorch Lightning) |
 |----------------|------|-------|------|-----------------|----------------------------|
-| AIM            | 2024 | [paper](https://arxiv.org/abs/2401.08541) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/aim.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/aim.ipynb) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch_Lightning-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/aim.ipynb) |
-| Barlow Twins   | 2021 | [paper](https://arxiv.org/abs/2103.03230) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/barlowtwins.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/barlowtwins.ipynb) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch_Lightning-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/barlowtwins.ipynb) |
-| BYOL           | 2020 | [paper](https://arxiv.org/abs/2006.07733) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/byol.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/byol.ipynb) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch_Lightning-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/byol.ipynb) |
-| DCL & DCLW     | 2021 | [paper](https://arxiv.org/abs/2110.06848) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/dcl.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/dcl.ipynb) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch_Lightning-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/dcl.ipynb) |
-| DenseCL        | 2021 | [paper](https://arxiv.org/abs/2011.09157) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/densecl.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/densecl.ipynb) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch_Lightning-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/densecl.ipynb) |
-| DINO           | 2021 | [paper](https://arxiv.org/abs/2104.14294) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/dino.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/dino.ipynb) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch_Lightning-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/dino.ipynb) |
-| MAE            | 2021 | [paper](https://arxiv.org/abs/2111.06377) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/mae.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/mae.ipynb) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch_Lightning-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/mae.ipynb) |
-| MSN            | 2022 | [paper](https://arxiv.org/abs/2204.07141) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/msn.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/msn.ipynb) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch_Lightning-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/msn.ipynb) |
-| MoCo           | 2019 | [paper](https://arxiv.org/abs/1911.05722) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/moco.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/moco.ipynb) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch_Lightning-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/moco.ipynb) |
-| NNCLR          | 2021 | [paper](https://arxiv.org/abs/2104.14548) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/nnclr.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/nnclr.ipynb) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch_Lightning-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/nnclr.ipynb) |
-| PMSN           | 2022 | [paper](https://arxiv.org/abs/2210.07277) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/pmsn.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/pmsn.ipynb) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch_Lightning-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/pmsn.ipynb) |
-| SimCLR         | 2020 | [paper](https://arxiv.org/abs/2002.05709) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/simclr.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/simclr.ipynb) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch_Lightning-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/simclr.ipynb) |
-| SimMIM         | 2022 | [paper](https://arxiv.org/abs/2111.09886) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/simmim.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/simmim.ipynb) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch_Lightning-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/simmim.ipynb) |
-| SimSiam        | 2021 | [paper](https://arxiv.org/abs/2011.10566) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/simsiam.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/simsiam.ipynb) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch_Lightning-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/simsiam.ipynb) |
-| SwaV           | 2020 | [paper](https://arxiv.org/abs/2006.09882) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/swav.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/swav.ipynb) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch_Lightning-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/swav.ipynb) |
-| VICReg         | 2021 | [paper](https://arxiv.org/abs/2105.04906) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/vicreg.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/vicreg.ipynb) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch_Lightning-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/vicreg.ipynb) |
+| MoCo           | 2019 | [paper](https://arxiv.org/abs/1911.05722) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/moco.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/moco.ipynb) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch_Lightning-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/moco.ipynb) | <!-- 13/11/2019 -->
+| SimCLR         | 2020 | [paper](https://arxiv.org/abs/2002.05709) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/simclr.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/simclr.ipynb) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch_Lightning-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/simclr.ipynb) | <!-- 13/02/2020 -->
+| BYOL           | 2020 | [paper](https://arxiv.org/abs/2006.07733) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/byol.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/byol.ipynb) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch_Lightning-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/byol.ipynb) | <!-- 13/06/2020 -->
+| SwaV           | 2020 | [paper](https://arxiv.org/abs/2006.09882) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/swav.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/swav.ipynb) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch_Lightning-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/swav.ipynb) | <!-- 17/06/2020 -->
+| DenseCL        | 2020 | [paper](https://arxiv.org/abs/2011.09157) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/densecl.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/densecl.ipynb) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch_Lightning-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/densecl.ipynb) | <!-- 18/11/2020 -->
+| SimSiam        | 2020 | [paper](https://arxiv.org/abs/2011.10566) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/simsiam.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/simsiam.ipynb) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch_Lightning-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/simsiam.ipynb) | <!-- 20/11/2020 -->
+| Barlow Twins   | 2021 | [paper](https://arxiv.org/abs/2103.03230) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/barlowtwins.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/barlowtwins.ipynb) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch_Lightning-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/barlowtwins.ipynb) | <!-- 04/03/2021 -->
+| DetConS        | 2021 | [paper](https://arxiv.org/abs/2103.10957) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/detcon.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/detcon.ipynb) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch_Lightning-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/detcon.ipynb) | <!-- 19/03/2021 -->
+| DINO           | 2021 | [paper](https://arxiv.org/abs/2104.14294) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/dino.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/dino.ipynb) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch_Lightning-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/dino.ipynb) | <!-- 29/04/2021 -->
+| NNCLR          | 2021 | [paper](https://arxiv.org/abs/2104.14548) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/nnclr.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/nnclr.ipynb) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch_Lightning-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/nnclr.ipynb) | <!-- 29/04/2021 -->
+| VICReg         | 2021 | [paper](https://arxiv.org/abs/2105.04906) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/vicreg.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/vicreg.ipynb) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch_Lightning-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/vicreg.ipynb) | <!-- 11/05/2021 -->
+| DCL & DCLW     | 2021 | [paper](https://arxiv.org/abs/2110.06848) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/dcl.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/dcl.ipynb) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch_Lightning-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/dcl.ipynb) | <!-- 13/10/2021 -->
+| MAE            | 2021 | [paper](https://arxiv.org/abs/2111.06377) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/mae.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/mae.ipynb) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch_Lightning-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/mae.ipynb) | <!-- 11/11/2021 -->
+| iBOT           | 2021 | [paper](https://arxiv.org/abs/2111.07832) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/ibot.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/ibot.ipynb) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch_Lightning-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/ibot.ipynb) | <!-- 15/11/2021 -->
+| SimMIM         | 2021 | [paper](https://arxiv.org/abs/2111.09886) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/simmim.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/simmim.ipynb) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch_Lightning-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/simmim.ipynb) | <!-- 18/11/2021 -->
+| MSN            | 2022 | [paper](https://arxiv.org/abs/2204.07141) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/msn.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/msn.ipynb) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch_Lightning-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/msn.ipynb) | <!-- 14/04/2022 -->
+| PMSN           | 2022 | [paper](https://arxiv.org/abs/2210.07277) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/pmsn.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/pmsn.ipynb) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch_Lightning-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/pmsn.ipynb) | <!-- 13/10/2022 -->
+| DINOv2         | 2023 | [paper](https://arxiv.org/abs/2304.07193) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/dinov2.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/dinov2.ipynb) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch_Lightning-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/dinov2.ipynb) | <!-- 14/04/2023 -->
+| FroSSL         | 2023 | [paper](https://arxiv.org/abs/2310.02903) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/frossl.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/frossl.ipynb) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch_Lightning-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/frossl.ipynb) | <!-- 04/10/2023 -->
+| AIM            | 2024 | [paper](https://arxiv.org/abs/2401.08541) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/aim.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/aim.ipynb) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch_Lightning-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/aim.ipynb) | <!-- 16/01/2024 -->
+| CAPI           | 2025 | [paper](https://arxiv.org/abs/2502.08769) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/capi.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/capi.ipynb) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch_Lightning-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/capi.ipynb) | <!-- 12/02/2025 -->
+| LeJEPA         | 2025 | [paper](https://arxiv.org/abs/2511.08544) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/lejepa.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/lejepa.ipynb) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch_Lightning-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/lejepa.ipynb) | <!-- 11/11/2025 -->
+| Pixio          | 2025 | [paper](https://arxiv.org/abs/2512.15715) | [docs](https://docs.lightly.ai/self-supervised-learning/examples/pixio.html) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/pixio.ipynb) | [![Open In Colab](https://img.shields.io/badge/Colab-PyTorch_Lightning-blue?logo=googlecolab)](https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/pixio.ipynb) | <!-- 17/12/2025 -->
 
 ## Tutorials
 
@@ -69,6 +91,7 @@ Want to jump to the tutorials and see Lightly in action?
 - [Pre-train a Detectron2 Backbone with Lightly](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_pretrain_detectron2.html)
 - [Finetuning Lightly Checkpoints](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_checkpoint_finetuning.html)
 - [Using timm Models as Backbones](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_timm_backbone.html)
+- [Train a World Model and Plan with It](https://docs.lightly.ai/self-supervised-learning/tutorials/package/tutorial_lewm.html)
 
 Community and partner projects:
 
@@ -76,7 +99,7 @@ Community and partner projects:
 
 ## Quick Start
 
-Lightly requires **Python 3.7+**. We recommend installing Lightly in a **Linux** or **OSX** environment. Python 3.12 is not yet supported, as PyTorch itself lacks Python 3.12 compatibility.
+Lightly requires **Python 3.8+**. We recommend installing Lightly in a **Linux** or **OSX** environment. Python 3.13 is not yet supported, as PyTorch itself lacks Python 3.13 compatibility.
 
 ### Dependencies
 
@@ -271,17 +294,21 @@ tuned for maximum accuracy. For detailed results and more information about the 
 
 **Note**: Evaluation settings are based on these papers:
 
-- Linear: [SimCLR](https://arxiv.org/abs/2002.05709)
-- Finetune: [SimCLR](https://arxiv.org/abs/2002.05709)
+- Linear & Finetune:
+  - ResNet: [SimCLR](https://arxiv.org/abs/2002.05709)
+  - ViT: [MAE](https://arxiv.org/abs/2111.06377)
 - KNN: [InstDisc](https://arxiv.org/abs/1805.01978)
 
-See the [benchmarking scripts](./benchmarks/imagenet/resnet50/) for details.
+See the [benchmarking scripts](./benchmarks/imagenet/) for details.
 
 | Model           | Backbone | Batch Size | Epochs | Linear Top1 | Finetune Top1 | kNN Top1 | Tensorboard                                                                                                                                                                    | Checkpoint                                                                                                                                                              |
 | --------------- | -------- | ---------- | ------ | ----------- | ------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | BarlowTwins     | Res50    | 256        | 100    | 62.9        | 72.6          | 45.6     | [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_barlowtwins_2023-08-18_00-11-03/pretrain/version_0/events.out.tfevents.1692310273.Machine2.569794.0) | [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_barlowtwins_2023-08-18_00-11-03/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt) |
 | BYOL            | Res50    | 256        | 100    | 62.5        | 74.5          | 46.0     | [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_byol_2024-02-14_16-10-09/pretrain/version_0/events.out.tfevents.1707923418.Machine2.3205.0)          | [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_byol_2024-02-14_16-10-09/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt)        |
 | DINO            | Res50    | 128        | 100    | 68.2        | 72.5          | 49.9     | [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_dino_2023-06-06_13-59-48/pretrain/version_0/events.out.tfevents.1686052799.Machine2.482599.0)        | [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_dino_2023-06-06_13-59-48/pretrain/version_0/checkpoints/epoch%3D99-step%3D1000900.ckpt)       |
+| DINO            | ViT-S/16    | 128        | 100    | 73.3        | 79.8          | 67.5     | [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_vits14_dino_2025-02-16_16-03-14/pretrain/version_0/events.out.tfevents.1739718198.compute-03-ubuntu-4x4090.2832462.0)        | [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_vits14_dino_2025-02-16_16-03-14/pretrain/version_0/checkpoints/epoch%3D99-step%3D1000900.ckpt)       |
+| iBOT            | ViT-S/16    | 128        | 100    | 72.2        | 78.3          | 65.4     | [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_vits16_ibot_2025-07-10_13-47-17/pretrain/version_0/events.out.tfevents.1752148040.compute-01-ubuntu-2x4090.253473.0)        | [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_vits16_ibot_2025-07-10_13-47-17/pretrain/version_0/checkpoints/epoch%3D99-step%3D1000900.ckpt)       |
+| LeJEPA\*\*      | ViT-S/16    | 512        | 100    | 64.0        | 78.7          | 47.1     | [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_vits16_lejepa_2026-05-20_17-59-16/pretrain/version_0/metrics_plot.png)                                                             | [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_vits16_lejepa_2026-05-20_17-59-16/pretrain/version_0/checkpoints/epoch%3D099-val_online_cls_top1%3D0.5623.ckpt)       |
 | MAE             | ViT-B/16 | 256        | 100    | 46.0        | 81.3          | 11.2     | [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_vitb16_mae_2024-02-25_19-57-30/pretrain/version_0/events.out.tfevents.1708887459.Machine2.1092409.0)          | [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_vitb16_mae_2024-02-25_19-57-30/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt)           |
 | MoCoV2          | Res50    | 256        | 100    | 61.5        | 74.3          | 41.8     | [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_mocov2_2024-02-18_10-29-14/pretrain/version_0/events.out.tfevents.1708248562.Machine2.439033.0)      | [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_mocov2_2024-02-18_10-29-14/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt)      |
 | SimCLR\*        | Res50    | 256        | 100    | 63.2        | 73.9          | 44.8     | [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_simclr_2023-06-22_09-11-13/pretrain/version_0/events.out.tfevents.1687417883.Machine2.33270.0)       | [link](https://lightly-ssl-checkpoints.s3.amazonaws.com/imagenet_resnet50_simclr_2023-06-22_09-11-13/pretrain/version_0/checkpoints/epoch%3D99-step%3D500400.ckpt)      |
@@ -293,6 +320,8 @@ See the [benchmarking scripts](./benchmarks/imagenet/resnet50/) for details.
 
 _\*We use square root learning rate scaling instead of linear scaling as it yields
 better results for smaller batch sizes. See Appendix B.1 in the [SimCLR paper](https://arxiv.org/abs/2002.05709)._
+
+_\*\*The LeJEPA numbers were published in [#1935](https://github.com/lightly-ai/lightly/pull/1935) (`a08c5c35`) and predate the loss fix in [#2023](https://github.com/lightly-ai/lightly/pull/2023), which adds the global views to SIGReg and the invariance term. They will be updated after a re-run._
 
 ### ImageNet100
 
@@ -319,11 +348,16 @@ Head to the [documentation](https://docs.lightly.ai/self-supervised-learning/) a
 
 ## Development
 
-To install dev dependencies (for example to contribute to the framework) you can use the following command:
+We use [uv](https://github.com/astral-sh/uv) to manage dependencies. To set up a
+development environment (for example to contribute to the framework) you can use the
+following command:
 
 ```
-pip3 install -e ".[dev]"
+make install-dev
 ```
+
+This installs the package with all extras and development dependencies, and sets up the
+pre-commit hooks. You do not need to activate the virtual environment manually.
 
 For more information about how to contribute have a look [here](CONTRIBUTING.md).
 
@@ -346,12 +380,12 @@ make test
 To test a specific file or directory use:
 
 ```
-pytest <path to file or directory>
+uv run --frozen pytest <path to file or directory>
 ```
 
 ### Code Formatting
 
-To format code with [black](https://black.readthedocs.io/en/stable/) and [isort](https://docs.pytest.org) run:
+To format code with [ruff](https://docs.astral.sh/ruff/) run:
 
 ```
 make format
@@ -394,12 +428,23 @@ make format
 
 ## Lightly in Research
 
+- [DINOv2-3D: Self-Supervised 3D Vision Transformer Pretraining](https://github.com/AIM-Harvard/DINOv2-3D-Med)
+- [Joint-Embedding vs Reconstruction: Provable Benefits of Latent Space Prediction for Self-Supervised Learning, 2025](https://arxiv.org/abs/2505.12477)
 - [Reverse Engineering Self-Supervised Learning, 2023](https://arxiv.org/abs/2305.15614)
 - [Learning Visual Representations via Language-Guided Sampling, 2023](https://arxiv.org/pdf/2302.12248.pdf)
 - [Self-Supervised Learning Methods for Label-Efficient Dental Caries Classification, 2022](https://www.mdpi.com/2075-4418/12/5/1237)
 - [DPCL: Contrastive representation learning with differential privacy, 2022](https://assets.researchsquare.com/files/rs-1516950/v1_covered.pdf?c=1654486158)
-- [Decoupled Contrastive Learning, 2021](https://arxiv.org/abs/2110.06848)
+- [Decoupled Contrastive Learning, 2021](https://arxiv.org/pdf/2110.06848)
 - [solo-learn: A Library of Self-supervised Methods for Visual Representation Learning, 2021](https://www.jmlr.org/papers/volume23/21-1155/21-1155.pdf)
+- [EdgeCrafter: Compact ViTs for Edge Dense Prediction via Task-Specialized Distillation](https://arxiv.org/pdf/2603.18739)
+- [Unlabeled to Accurate: Self-Supervised Learning for Land Use Classification in Sentinel-2 Imagery](https://ieeexplore.ieee.org/abstract/document/11087068)
+- [Self-supervised Representation Learning for AI-Based Musculoskeletal Radiograph Registry Construction](https://link.springer.com/chapter/10.1007/978-3-032-14492-8_29)
+- [Real-Time Object Detection Meets DINOv3](https://intellindust-ai-lab.github.io/projects/DEIMv2/)
+- [Vision Foundry: A System for Training Foundational Vision AI Models, 2025](https://arxiv.org/pdf/2512.11837)
+- [Self-supervised learning outperforms supervised learning for crop classification by annotating only 5% of images, 2025](https://link.springer.com/article/10.1007/s11119-025-10302-9)
+- [Self-Supervised Learning Powered by Synthetic Data From Diffusion Models: Application to X-Ray Images, 2025](https://doi.org/10.1109/ACCESS.2025.3555619)
+- [Wildlife Target Re-Identification Using Self-supervised Learning in Non-Urban Settings, 2025](https://arxiv.org/pdf/2507.02403)
+- [SSL-MAE: Adaptive Semisupervised Learning Framework for Multilabel Classification of Remote Sensing Images Using Masked Autoencoders, 2025](https://ieeexplore.ieee.org/document/11029124/)
 
 ## Company behind this Open Source Framework
 
@@ -409,5 +454,9 @@ build efficient active learning pipelines to select the most relevant data for t
 You can find out more about the company and it's services by following the links below:
 
 - [Homepage](https://www.lightly.ai)
+- [LightlyTrain](https://docs.lightly.ai/train/stable/index.html)
 - [Web-App](https://app.lightly.ai)
-- [Lightly Solution Documentation (Lightly Worker & API)](https://docs.lightly.ai/)
+- [LightlyStudio](https://docs.lightly.ai/studio/)
+- [Lightly's AwesomeSSL](https://github.com/lightly-ai/awesome-self-supervised-learning) (collection of SSL papers)
+
+[Back to top🚀](#top)

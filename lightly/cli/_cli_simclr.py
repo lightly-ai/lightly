@@ -1,4 +1,4 @@
-""" SimCLR Model """
+"""SimCLR Model"""
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
@@ -14,7 +14,7 @@ from lightly.models.modules import SimCLRProjectionHead
 class _SimCLR(nn.Module):
     """Implementation of SimCLR used by the command-line interface.
 
-    Provides backwards compatability with old checkpoints.
+    Provides backwards compatibility with old checkpoints.
     """
 
     def __init__(self, backbone: nn.Module, num_ftrs: int = 32, out_dim: int = 128):
@@ -27,7 +27,6 @@ class _SimCLR(nn.Module):
 
     def forward(self, x0: torch.Tensor, x1: torch.Tensor = None):
         """Embeds and projects the input images."""
-
         # forward pass of first input x0
         f0 = self.backbone(x0).flatten(start_dim=1)
         out0 = self.projection_head(f0)

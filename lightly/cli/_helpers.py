@@ -1,4 +1,4 @@
-""" Command-Line Interface Helpers """
+"""Command-Line Interface Helpers"""
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
@@ -39,12 +39,11 @@ def fix_input_path(path: str) -> str:
 def fix_hydra_arguments(
     config_path: str = "config", config_name: str = "config"
 ) -> dict[str, str | None]:
-    """Helper to make hydra arugments adaptive to installed hydra version
+    """Helper to make hydra arguments adaptive to installed hydra version
 
     Hydra introduced the `version_base` argument in version 1.2.0
-    We use this helper to provide backwards compatibility to older hydra verisons.
+    We use this helper to provide backwards compatibility to older hydra versions.
     """
-
     hydra_args: dict[str, str | None] = {
         "config_path": config_path,
         "config_name": config_name,
@@ -139,10 +138,9 @@ def _filter_state_dict(
     """Makes the state_dict compatible with the model.
 
     Prevents unexpected key error when loading PyTorch-Lightning checkpoints.
-    Allows backwards compatability to checkpoints before v1.0.6.
+    Allows backwards compatibility to checkpoints before v1.0.6.
 
     """
-
     prev_backbone = "features"
     curr_backbone = "backbone"
 
@@ -151,7 +149,7 @@ def _filter_state_dict(
         # remove the "model." prefix from the state dict key
         key_parts = key.split(".")[remove_model_prefix_offset:]
         # with v1.0.6 the backbone of the models will be renamed from
-        # "features" to "backbone", ensure compatability with old ckpts
+        # "features" to "backbone", ensure compatibility with old ckpts
         key_parts = [k if k != prev_backbone else curr_backbone for k in key_parts]
 
         new_key = ".".join(key_parts)
@@ -161,7 +159,7 @@ def _filter_state_dict(
 
 
 def _fix_projection_head_keys(
-    state_dict: dict[str, torch.Tensor]
+    state_dict: dict[str, torch.Tensor],
 ) -> dict[str, torch.Tensor]:
     """Makes the state_dict compatible with the refactored projection heads.
 
@@ -171,7 +169,6 @@ def _fix_projection_head_keys(
     Prevents unexpected key error when loading old checkpoints.
 
     """
-
     projection_head_identifier = "projection_head"
     prediction_head_identifier = "prediction_head"
     projection_head_insert = "layers"
@@ -201,7 +198,6 @@ def load_from_state_dict(
     num_splits: int = 0,
 ) -> None:
     """Loads the model weights from the state dictionary."""
-
     # step 1: filter state dict
     if apply_filter:
         state_dict = _filter_state_dict(state_dict)

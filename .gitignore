@@ -6,6 +6,7 @@ lightning_logs/
 **/__MACOSX
 datasets/
 dist/
+docs/source/sg_execution_times.rst
 docs/source/tutorials/package/*
 docs/source/tutorials/platform/*
 docs/source/tutorials_source/platform/data
@@ -18,11 +19,12 @@ docs/source/getting_started/resources
 **.zip
 *.egg-info
 
-
+# ignore swagger-generated artifacts
+lightly/openapi_generated/swagger_client/**/*.py-e
 
 #ignore venv
 venv
-
+.venv
 #ignore pycharm IDE
 .idea
 

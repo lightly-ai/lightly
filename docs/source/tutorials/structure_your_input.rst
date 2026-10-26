@@ -130,7 +130,7 @@ The dataset assigns each video frame its video as label.
 PyTorch Datasets
 ----------------
 
-You can also use native `torchvision <https://pytorch.org/vision/main/datasets.html>`_ datasets with Lightly\ **SSL** directly.
+You can also use native `torchvision datasets <https://pytorch.org/vision/main/datasets.html>`_ with Lightly\ **SSL** directly.
 Just create a dataset as you normally would and apply transforms for greater control over the dataloader. For example, the
 :ref:`simclr` self-supervised learning method expects two views of an input image. To achieve this, we can use the `SimCLRTransform`
 while creating the dataset instance, which will lead to the dataloader returning two views per batch.
@@ -147,7 +147,7 @@ while creating the dataset instance, which will lead to the dataloader returning
 
 
 Hugging Face Datasets
---------------------
+----------------------
 
 To use a dataset from the Hugging Face Hub 🤗, we can simply apply the desired transformations using the
 `set_transform <https://huggingface.co/docs/datasets/v2.20.0/en/package_reference/main_classes#datasets.Dataset.set_transform>`_

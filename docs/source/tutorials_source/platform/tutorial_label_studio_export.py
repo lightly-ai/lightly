@@ -1,6 +1,4 @@
-"""
-
-.. _lightly-tutorial-export-labelstudio:
+""".. _lightly-tutorial-export-labelstudio:
 
 Tutorial 10: Export to LabelStudio
 =============================================

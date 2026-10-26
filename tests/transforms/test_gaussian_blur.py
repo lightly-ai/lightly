@@ -1,22 +1,25 @@
-import unittest
-
+import pytest
+import torch
 from PIL import Image
 
 from lightly.transforms.gaussian_blur import GaussianBlur
 
 
-class TestGaussianBlur(unittest.TestCase):
-    def test_on_pil_image(self) -> None:
-        for w in range(1, 100):
-            for h in range(1, 100):
-                gaussian_blur = GaussianBlur()
-                sample = Image.new("RGB", (w, h))
-                gaussian_blur(sample)
+class TestGaussianBlur:
+    @pytest.mark.parametrize("w", [1, 10, 100])
+    @pytest.mark.parametrize("h", [1, 10, 100])
+    def test_on_pil_image(self, w: int, h: int) -> None:
+        gaussian_blur = GaussianBlur()
+        sample = Image.new("RGB", (w, h))
+        gaussian_blur(sample)
 
-    def test_raise_kernel_size_deprecation(self) -> None:
-        gaussian_blur = GaussianBlur(kernel_size=2)
-        self.assertWarns(DeprecationWarning)
+    @pytest.mark.parametrize("w", [1, 10, 100])
+    @pytest.mark.parametrize("h", [1, 10, 100])
+    def test_on_tensor(self, w: int, h: int) -> None:
+        gaussian_blur = GaussianBlur()
+        sample_tensor = torch.randn(3, h, w)
+        gaussian_blur(sample_tensor)
 
-    def test_raise_scale_deprecation(self) -> None:
-        gaussian_blur = GaussianBlur(scale=0.1)
-        self.assertWarns(DeprecationWarning)
+    def test_init__keyword_only(self) -> None:
+        with pytest.raises(TypeError):
+            GaussianBlur(0.5)  # type: ignore[misc]

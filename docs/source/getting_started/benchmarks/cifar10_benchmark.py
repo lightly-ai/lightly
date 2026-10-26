@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Benchmark Results
+"""Benchmark Results
 
 Updated: 27.03.2023 (42a6a924b1b6d5b6cc89a6b2a0a0942cc4af93ab)
 
@@ -47,7 +46,7 @@ Updated: 27.03.2023 (42a6a924b1b6d5b6cc89a6b2a0a0942cc4af93ab)
 | SMoG          |        512 |    800 |              0.800 |  415.6 Min |      3.2 GByte |
 ------------------------------------------------------------------------------------------
 
-(*): Increased size of memory bank from 4096 to 8192 to avoid too quickly 
+(*): Increased size of memory bank from 4096 to 8192 to avoid too quickly
 changing memory bank due to larger batch size.
 
 The benchmarks were created on a single NVIDIA RTX A6000.
@@ -59,6 +58,7 @@ processes might continue the benchmark if one of the nodes is killed.
 If you know how to fix this don't hesitate to create an issue or PR :)
 
 """
+
 import copy
 import os
 import time
@@ -76,6 +76,7 @@ from lightly.loss import (
     DCLLoss,
     DCLWLoss,
     DINOLoss,
+    FroSSLLoss,
     NegativeCosineSimilarity,
     NTXentLoss,
     SwaVLoss,
@@ -243,6 +244,7 @@ def create_dataset_train_ssl(model):
         DCLW: simclr_transform,
         DINOModel: dino_transform,
         FastSiamModel: fast_siam_transform,
+        FroSSLModel: byol_transform,
         MocoModel: simclr_transform,
         NNCLRModel: simclr_transform,
         SimCLRModel: simclr_transform,
@@ -308,7 +310,7 @@ class MocoModel(BenchmarkModule):
         # create our loss with the optional memory bank
         self.criterion = NTXentLoss(
             temperature=0.1,
-            memory_bank_size=4096,
+            memory_bank_size=(4096, 128),
         )
 
     def forward(self, x):
@@ -489,6 +491,46 @@ class BarlowTwinsModel(BenchmarkModule):
         return [optim], [scheduler]
 
 
+class FroSSLModel(BenchmarkModule):
+    def __init__(self, dataloader_kNN, num_classes):
+        super().__init__(dataloader_kNN, num_classes)
+        # create a ResNet backbone and remove the classification head
+        resnet = ResNetGenerator("resnet-18")
+        self.backbone = nn.Sequential(
+            *list(resnet.children())[:-1], nn.AdaptiveAvgPool2d(1)
+        )
+        # use the same 2-layer projection head as BarlowTwins for cifar10
+        self.projection_head = heads.ProjectionHead(
+            [
+                (512, 2048, nn.BatchNorm1d(2048), nn.ReLU(inplace=True)),
+                (2048, 2048, None, None),
+            ]
+        )
+
+        self.criterion = FroSSLLoss()
+
+    def forward(self, x):
+        x = self.backbone(x).flatten(start_dim=1)
+        z = self.projection_head(x)
+        return z
+
+    def training_step(self, batch, batch_index):
+        (x0, x1), _, _ = batch
+        z0 = self.forward(x0)
+        z1 = self.forward(x1)
+        # FroSSL supports any number of views; here we use the standard two.
+        loss = self.criterion([z0, z1])
+        self.log("train_loss_ssl", loss)
+        return loss
+
+    def configure_optimizers(self):
+        optim = torch.optim.SGD(
+            self.parameters(), lr=6e-2 * lr_factor, momentum=0.9, weight_decay=5e-4
+        )
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
+        return [optim], [scheduler]
+
+
 class BYOLModel(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
         super().__init__(dataloader_kNN, num_classes)
@@ -620,7 +662,7 @@ class NNCLRModel(BenchmarkModule):
         )
 
         self.criterion = NTXentLoss()
-        self.memory_bank = modules.NNMemoryBankModule(size=4096)
+        self.memory_bank = modules.NNMemoryBankModule(size=(4096, 256))
 
     def forward(self, x):
         y = self.backbone(x).flatten(start_dim=1)
@@ -886,6 +928,7 @@ models = [
     DCL,
     DCLW,
     DINOModel,
+    FroSSLModel,
     MocoModel,
     NNCLRModel,
     SimCLRModel,

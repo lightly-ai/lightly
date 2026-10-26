@@ -1,5 +1,4 @@
-"""
-.. _lightly-simsiam-tutorial-4:
+""".. _lightly-simsiam-tutorial-4:
 
 Tutorial 4: Train SimSiam on Satellite Images
 ==============================================
@@ -12,7 +11,7 @@ You can read up on the model in the paper
 `Exploring Simple Siamese Representation Learning <https://arxiv.org/abs/2011.10566>`_.
 
 We will be using a dataset of satellite images from ESAs Sentinel-2 satellite over Italy.
-If you're interested, you can get your own data from the `Copernicus Open Acces Hub <https://scihub.copernicus.eu/>`_.
+If you're interested, you can get your own data from the `Copernicus Open Access Hub <https://scihub.copernicus.eu/>`_.
 The original images have been cropped into smaller tiles due to their immense size and
 the dataset has been balanced based on a simple clustering of the mean RGB color values
 to prevent a surplus of images of the sea.
@@ -32,7 +31,6 @@ In this tutorial you will learn:
 # -------
 #
 # Import the Python frameworks we need for this tutorial.
-
 
 import math
 

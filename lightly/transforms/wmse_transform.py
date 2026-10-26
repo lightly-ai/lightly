@@ -1,9 +1,8 @@
-from typing import Dict, List, Optional, Tuple
-
-import torchvision.transforms as T
+from typing import Dict, List, Tuple
 
 from lightly.transforms.gaussian_blur import GaussianBlur
 from lightly.transforms.multi_view_transform import MultiViewTransform
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 
 
@@ -42,7 +41,7 @@ class WMSETransform(MultiViewTransform):
         cj_bright:
             How much to jitter brightness.
         cj_contrast:
-            How much to jitter constrast.
+            How much to jitter contrast.
         cj_sat:
             How much to jitter saturation.
         cj_hue:
@@ -55,12 +54,8 @@ class WMSETransform(MultiViewTransform):
             Probability that horizontal flip is applied.
         gaussian_blur:
             Probability of Gaussian blur.
-        kernel_size:
-            Will be deprecated in favor of `sigmas` argument. If set, the old behavior applies and `sigmas` is ignored.
-            Used to calculate sigma of gaussian blur with kernel_size * input_size.
         sigmas:
             Tuple of min and max value from which the std of the gaussian kernel is sampled.
-            Is ignored if `kernel_size` is set.
         normalize:
             Dictionary with 'mean' and 'std' for torchvision.transforms.Normalize.
     """
@@ -78,7 +73,6 @@ class WMSETransform(MultiViewTransform):
         random_gray_scale: float = 0.1,
         hf_prob: float = 0.5,
         gaussian_blur: float = 0.5,
-        kernel_size: Optional[int] = None,
         sigmas: Tuple[float, float] = (0.1, 2.0),
         normalize: Dict[str, List[float]] = IMAGENET_NORMALIZE,
     ):
@@ -93,12 +87,10 @@ class WMSETransform(MultiViewTransform):
                 T.RandomResizedCrop(
                     input_size,
                     scale=(min_scale, 1.0),
-                    interpolation=3,
+                    interpolation=T.InterpolationMode.BICUBIC,
                 ),
                 T.RandomHorizontalFlip(p=hf_prob),
-                GaussianBlur(
-                    kernel_size=kernel_size, sigmas=sigmas, prob=gaussian_blur
-                ),
+                GaussianBlur(sigmas=sigmas, prob=gaussian_blur),
                 T.ToTensor(),
                 T.Normalize(mean=normalize["mean"], std=normalize["std"]),
             ]

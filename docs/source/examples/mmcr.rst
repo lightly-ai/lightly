@@ -13,7 +13,7 @@ Reference:
 
     .. tab:: PyTorch
 
-        .. image:: https://colab.research.google.com/assets/colab-badge.svg
+        .. image:: /_static/colab-badge.svg
             :target: https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch/mmcr.ipynb
 
         This example can be run from the command line with::
@@ -24,7 +24,7 @@ Reference:
 
     .. tab:: Lightning
 
-        .. image:: https://colab.research.google.com/assets/colab-badge.svg
+        .. image:: /_static/colab-badge.svg
             :target: https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning/mmcr.ipynb
 
         This example can be run from the command line with::
@@ -35,7 +35,7 @@ Reference:
 
     .. tab:: Lightning Distributed
 
-        .. image:: https://colab.research.google.com/assets/colab-badge.svg
+        .. image:: /_static/colab-badge.svg
             :target: https://colab.research.google.com/github/lightly-ai/lightly/blob/master/examples/notebooks/pytorch_lightning_distributed/mmcr.ipynb
 
         This example runs on multiple gpus using Distributed Data Parallel (DDP)

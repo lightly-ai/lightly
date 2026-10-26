@@ -1,10 +1,8 @@
 from typing import Dict, List, Tuple, Union
 
-import torchvision.transforms as T
-
 from lightly.transforms.jigsaw import Jigsaw
 from lightly.transforms.multi_view_transform import MultiViewTransform
-from lightly.transforms.rotation import random_rotation_transform
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 
 
@@ -38,7 +36,7 @@ class PIRLTransform(MultiViewTransform):
         cj_bright:
             How much to jitter brightness.
         cj_contrast:
-            How much to jitter constrast.
+            How much to jitter contrast.
         cj_sat:
             How much to jitter saturation.
         cj_hue:

@@ -1,5 +1,4 @@
-"""
-.. _lightly-checkpoint-finetuning-tutorial-7:
+""".. _lightly-checkpoint-finetuning-tutorial-7:
 
 Tutorial 7: Finetuning Lightly Checkpoints
 ===========================================
@@ -23,7 +22,6 @@ PyTorch Lightning.
 # .. code-block:: console
 #
 #   pip install lightly torchmetrics
-
 
 import pytorch_lightning as pl
 import torch

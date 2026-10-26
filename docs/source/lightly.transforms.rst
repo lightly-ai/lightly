@@ -3,21 +3,41 @@ lightly.transforms
 
 .. automodule:: lightly.transforms
 
+.. automodule:: lightly.transforms.add_grid_transform
+   :members:
+   :special-members: __call__
+
+.. automodule:: lightly.transforms.byol_transform
+   :members:
+   :special-members: __call__, __init__
+
 .. automodule:: lightly.transforms.densecl_transform
    :members:
    :special-members: __call__
 
+.. automodule:: lightly.transforms.detcon_transform
+   :members:
+   :special-members: __call__, __init__
+
 .. automodule:: lightly.transforms.dino_transform
    :members:
-   :special-members: __call__
+   :special-members: __call__, __init__
 
 .. automodule:: lightly.transforms.fast_siam_transform
    :members:
    :special-members: __call__
 
+.. automodule:: lightly.transforms.fda_transform
+   :members:
+   :special-members: __call__, __init__
+
 .. automodule:: lightly.transforms.gaussian_blur
    :members:
    :special-members: __call__
+
+.. automodule:: lightly.transforms.ibot_transform
+   :members:
+   :special-members: __call__, __init__
 
 .. automodule:: lightly.transforms.image_grid_transform
    :members:
@@ -41,13 +61,17 @@ lightly.transforms
 
 .. automodule:: lightly.transforms.msn_transform
    :members:
-   :special-members: __call__
+   :special-members: __call__, __init__
 
 .. automodule:: lightly.transforms.multi_crop_transform
    :members:
    :special-members: __call__
 
 .. automodule:: lightly.transforms.multi_view_transform
+   :members:
+   :special-members: __call__
+
+.. automodule:: lightly.transforms.multi_view_transform_v2
    :members:
    :special-members: __call__
 
@@ -65,15 +89,15 @@ lightly.transforms
 
 .. automodule:: lightly.transforms.simclr_transform
    :members:
-   :special-members: __call__
+   :special-members: __call__, __init__
 
 .. automodule:: lightly.transforms.simsiam_transform
    :members:
-   :special-members: __call__
+   :special-members: __call__, __init__
 
 .. automodule:: lightly.transforms.smog_transform
    :members:
-   :special-members: __call__
+   :special-members: __call__, __init__
 
 .. automodule:: lightly.transforms.solarize
    :members:
@@ -81,7 +105,7 @@ lightly.transforms
 
 .. automodule:: lightly.transforms.swav_transform
    :members:
-   :special-members: __call__
+   :special-members: __call__, __init__
 
 .. automodule:: lightly.transforms.utils
    :members:
@@ -89,8 +113,8 @@ lightly.transforms
 
 .. automodule:: lightly.transforms.vicreg_transform
    :members:
-   :special-members: __call__
+   :special-members: __call__, __init__
 
 .. automodule:: lightly.transforms.vicregl_transform
    :members:
-   :special-members: __call__
+   :special-members: __call__, __init__

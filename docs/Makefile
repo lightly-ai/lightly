@@ -35,6 +35,11 @@ help:
 	make download
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O) -v
 
+# Clean up everything and build from scratch
+clean-html-noplot:
+	$(MAKE) clean-all
+	$(MAKE) html-noplot
+
 # Build the docs without running the python tutorials
 html-noplot:
 	$(SPHINXBUILD) -D plot_gallery=0 -b html $(SPHINXOPTS) "$(SOURCEDIR)" "$(BUILDDIR)/html"

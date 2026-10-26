@@ -1,3 +1,5 @@
+from typing import Tuple
+
 import pytest
 import torch
 from pytorch_lightning import LightningModule, Trainer
@@ -5,8 +7,8 @@ from torch import Tensor, nn
 from torch.optim import SGD
 from torch.utils.data import DataLoader
 from torchvision.datasets import FakeData
-from torchvision.transforms import ToTensor
 
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.utils.benchmarking import OnlineLinearClassifier
 
 
@@ -20,7 +22,7 @@ class TestOnlineLinearClassifier:
 
     def _test(self, accelerator: str) -> None:
         dataset = FakeData(
-            size=10, image_size=(3, 8, 8), num_classes=5, transform=ToTensor()
+            size=10, image_size=(3, 8, 8), num_classes=5, transform=T.ToTensor()
         )
         train_dataloader = DataLoader(dataset, batch_size=2)
         val_dataloader = DataLoader(dataset, batch_size=2)
@@ -55,7 +57,7 @@ class _DummyModule(LightningModule):
         self.linear = nn.Sequential(nn.Flatten(), nn.Linear(3 * 8 * 8, 3))
         self.online_classifier = OnlineLinearClassifier(feature_dim=3, num_classes=5)
 
-    def training_step(self, batch, batch_idx) -> Tensor:
+    def training_step(self, batch: Tuple[Tensor, ...], batch_idx: int) -> Tensor:
         images, targets = batch[0], batch[1]
         features = self.linear(images)
         cls_loss, cls_log = self.online_classifier.training_step(
@@ -64,7 +66,7 @@ class _DummyModule(LightningModule):
         self.log_dict(cls_log)
         return cls_loss
 
-    def validation_step(self, batch, batch_idx) -> Tensor:
+    def validation_step(self, batch: Tuple[Tensor, ...], batch_idx: int) -> Tensor:
         images, targets = batch[0], batch[1]
         features = self.linear(images)
         cls_loss, cls_log = self.online_classifier.validation_step(

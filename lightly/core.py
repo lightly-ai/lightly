@@ -1,4 +1,4 @@
-""" Contains the core functionality of the lightly Python package. """
+"""Contains the core functionality of the lightly Python package."""
 
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
@@ -80,7 +80,7 @@ def train_model_and_embed_images(
 ) -> Tuple[np.ndarray, List[int], List[str]]:
     """Train a self-supervised model and use it to embed images.
 
-    First trains a modle using the _train_cli(),
+    First trains a model using the _train_cli(),
     then embeds with the _embed_cli().
     All arguments passed to the CLI functions
     can also be passed to this function (see below for an example).
@@ -103,8 +103,8 @@ def train_model_and_embed_images(
         >>> embeddings, _, _ = lightly.train_model_and_embed_images(
         >>>     input_dir='path/to/data')
         >>>
-        >>> # train a model and embed images with separate config file
-        >>> my_config_path = 'my/config/file.yaml'
+        >>> # train a model and embed images with separate config file
+        >>> my_config_path = "my/config/file.yaml"
         >>> embeddings, _, _ = lightly.train_model_and_embed_images(
         >>>     input_dir='path/to/data', config_path=my_config_path)
         >>>
@@ -127,8 +127,8 @@ def train_model_and_embed_images(
 def train_embedding_model(config_path: str = None, **kwargs):
     """Train a self-supervised model.
 
-    Calls the same function as lightly-train. All arguments passed to
-    lightly-train can also be passed to this function (see below for an
+    Calls the same function as lightly-ssl-train. All arguments passed to
+    lightly-ssl-train can also be passed to this function (see below for an
     example).
 
     Args:
@@ -147,22 +147,22 @@ def train_embedding_model(config_path: str = None, **kwargs):
         >>> checkpoint_path = lightly.train_embedding_model(
         >>>     input_dir='path/to/data')
         >>>
-        >>> # train a model with separate config file
-        >>> my_config_path = 'my/config/file.yaml'
+        >>> # train a model with separate config file
+        >>> my_config_path = "my/config/file.yaml"
         >>> checkpoint_path = lightly.train_embedding_model(
         >>>     input_dir='path/to/data', config_path=my_config_path)
         >>>
         >>> # train a model with default settings and overwrites: large batch
-        >>> # sizes are benefitial for self-supervised training and more
-        >>> # workers speed up the dataloading process.
+        >>> # sizes are beneficial for self-supervised training and more
+        >>> # workers speed up the dataloading process.
         >>> my_loader = {
         >>>     batch_size: 100,
         >>>     num_workers: 8,
         >>> }
         >>> checkpoint_path = lightly.train_embedding_model(
         >>>     input_dir='path/to/data', loader=my_loader)
-        >>> # the command above is equivalent to:
-        >>> # lightly-train input_dir='path/to/data' loader.batch_size=100 loader.num_workers=8
+        >>> # the command above is equivalent to:
+        >>> # lightly-ssl-train input_dir='path/to/data' loader.batch_size=100 loader.num_workers=8
     """
     config_path = _get_config_path(config_path)
     config_args = _load_config_file(config_path)
@@ -191,24 +191,24 @@ def embed_images(checkpoint: str, config_path: str = None, **kwargs):
 
     Examples:
         >>> import lightly
-        >>> my_checkpoint_path = 'path/to/checkpoint.ckpt'
+        >>> my_checkpoint_path = "path/to/checkpoint.ckpt"
         >>>
         >>> # embed images with default configs
         >>> embeddings, _, _ = lightly.embed_images(
         >>>     my_checkpoint_path, input_dir='path/to/data')
         >>>
-        >>> # embed images with separate config file
-        >>> my_config_path = 'my/config/file.yaml'
+        >>> # embed images with separate config file
+        >>> my_config_path = "my/config/file.yaml"
         >>> embeddings, _, _ = lightly.embed_images(
         >>>     my_checkpoint_path, input_dir='path/to/data', config_path=my_config_path)
         >>>
         >>> # embed images with default settings and overwrites: at inference,
-        >>> # we can use larger input_sizes because it requires less memory.
+        >>> # we can use larger input_sizes because it requires less memory.
         >>> my_collate = {input_size: 256}
         >>> embeddings, _, _ = lightly.embed_images(
         >>>     my_checkpoint_path, input_dir='path/to/data', collate=my_collate)
-        >>> # the command above is equivalent to:
-        >>> # lightly-embed input_dir='path/to/data' collate.input_size=256
+        >>> # the command above is equivalent to:
+        >>> # lightly-embed input_dir='path/to/data' collate.input_size=256
 
     """
     config_path = _get_config_path(config_path)

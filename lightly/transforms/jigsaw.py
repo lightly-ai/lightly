@@ -8,7 +8,8 @@ import torch
 from PIL import Image as Image
 from PIL.Image import Image as PILImage
 from torch import Tensor
-from torchvision import transforms as T
+
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
@@ -34,7 +35,9 @@ class Jigsaw(object):
     Examples:
         >>> from lightly.transforms import Jigsaw
         >>>
-        >>> jigsaw_crop = Jigsaw(n_grid=3, img_size=255, crop_size=64, transform=transforms.ToTensor())
+        >>> jigsaw_crop = Jigsaw(
+        ...     n_grid=3, img_size=255, crop_size=64, transform=T.ToTensor()
+        ... )
         >>>
         >>> # img is a PIL image
         >>> crops = jigsaw_crops(img)

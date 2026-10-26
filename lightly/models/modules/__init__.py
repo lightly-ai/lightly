@@ -8,13 +8,16 @@ can be combined with any lightly model.
 # Copyright (c) 2021. Lightly AG and its affiliates.
 # All Rights Reserved
 
-
 from lightly.models.modules.heads import (
     BarlowTwinsProjectionHead,
     BYOLPredictionHead,
     BYOLProjectionHead,
+    CAPIProjectionHead,
     DenseCLProjectionHead,
     DINOProjectionHead,
+    DINOv2ProjectionHead,
+    LeJEPAProjectionHead,
+    LeWMProjectionHead,
     MMCRProjectionHead,
     MoCoProjectionHead,
     NNCLRPredictionHead,
@@ -29,6 +32,12 @@ from lightly.models.modules.heads import (
     SwaVPrototypes,
 )
 from lightly.models.modules.nn_memory_bank import NNMemoryBankModule
+from lightly.models.modules.world_model import (
+    ActionEncoder,
+    AdaLNZero,
+    LatentDynamicsPredictor,
+    PredictorBlock,
+)
 from lightly.utils import dependency as _dependency
 
 if _dependency.torchvision_vit_available():
@@ -44,11 +53,18 @@ if _dependency.torchvision_vit_available():
 
 if _dependency.timm_vit_available():
     # Requires timm >= 0.9.9
+    from lightly.models.modules.capi_predictor_timm import CAPIPredictorTIMM
     from lightly.models.modules.heads_timm import AIMPredictionHead
     from lightly.models.modules.ijepa_timm import IJEPAPredictorTIMM
-    from lightly.models.modules.masked_autoencoder_timm import MAEDecoderTIMM
+    from lightly.models.modules.masked_autoencoder_timm import (
+        MAEDecoderTIMM,
+        PixioDecoderTIMM,
+    )
     from lightly.models.modules.masked_causal_vision_transformer import (
         MaskedCausalVisionTransformer,
+    )
+    from lightly.models.modules.masked_vision_transformer_decoder_timm import (
+        MaskedVisionTransformerDecoderTIMM,
     )
     from lightly.models.modules.masked_vision_transformer_timm import (
         MaskedVisionTransformerTIMM,

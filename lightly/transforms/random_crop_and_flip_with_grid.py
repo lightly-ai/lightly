@@ -2,10 +2,11 @@ from dataclasses import dataclass
 from typing import Tuple
 
 import torch
-import torchvision.transforms as T
-import torchvision.transforms.functional as F
 from PIL import Image
 from torch import nn
+
+from lightly.transforms.torchvision_v2_compatibility import functional as F
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 
 
 @dataclass
@@ -29,22 +30,21 @@ class Location:
 
 
 class RandomResizedCropWithLocation(T.RandomResizedCrop):  # type: ignore[misc] # Class cannot subclass "RandomResizedCrop" (has type "Any")
-    """
-    Do a random resized crop and return both the resulting image and the location. See base class.
-
-    """
+    """Do a random resized crop and return both the resulting image and the location. See base class."""
 
     def forward(self, img: Image.Image) -> Tuple[Image.Image, Location]:
-        """
+        """Apply a random resized crop and return the cropped image with its location.
+
         Args:
             img (PIL Image or Tensor): Image to be cropped.
+
         Returns:
             PIL Image or Tensor: Randomly cropped image
             Location: Location object containing crop parameters
 
         """
         top, left, height, width = self.get_params(img, self.scale, self.ratio)
-        image_width, image_height = T.functional.get_image_size(img)
+        image_width, image_height = F.get_image_size(img)
         location = Location(
             top=top,
             left=left,
@@ -53,7 +53,7 @@ class RandomResizedCropWithLocation(T.RandomResizedCrop):  # type: ignore[misc] 
             image_height=image_height,
             image_width=image_width,
         )
-        img = T.functional.resized_crop(
+        img = F.resized_crop(
             img, top, left, height, width, self.size, self.interpolation
         )
         return img, location
@@ -77,7 +77,6 @@ class RandomHorizontalFlipWithLocation(T.RandomHorizontalFlip):  # type: ignore[
             PIL Image or Tensor: Randomly flipped image
             Location: Location object with updated location.horizontal_flip parameter
         """
-
         if torch.rand(1) < self.p:
             img = F.hflip(img)
             location.horizontal_flip = True
@@ -102,14 +101,13 @@ class RandomVerticalFlipWithLocation(T.RandomVerticalFlip):  # type: ignore[misc
             PIL Image or Tensor: Randomly flipped image
             Location: Location object with updated location.vertical_flip parameter
         """
-
         if torch.rand(1) < self.p:
             img = F.vflip(img)
             location.vertical_flip = True
         return img, location
 
 
-class RandomResizedCropAndFlip(nn.Module):
+class RandomResizedCropAndFlip(nn.Module):  # type: ignore[misc] # Class cannot subclass "RandomResizedCropAndFlip" (has type "Any")
     """Randomly flip and crop an image.
 
     A PyTorch module that applies random cropping, horizontal and vertical flipping to an image,
@@ -164,7 +162,6 @@ class RandomResizedCropAndFlip(nn.Module):
         Returns:
             A tuple containing the transformed PIL image and the grid tensor.
         """
-
         img, location = self.resized_crop.forward(img=img)
         img, location = self.horizontal_flip.forward(img, location)
         img, location = self.vertical_flip.forward(img, location)
@@ -187,7 +184,6 @@ class RandomResizedCropAndFlip(nn.Module):
             A grid tensor of shape (grid_size, grid_size, 2), where the last dimension represents the (x, y) coordinate
             of the center of each cell in the original image space.
         """
-
         cell_width = location.width / self.grid_size
         cell_height = location.height / self.grid_size
         x = torch.linspace(

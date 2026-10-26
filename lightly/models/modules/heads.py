@@ -1,4 +1,4 @@
-""" Projection and Prediction Heads for Self-supervised Learning """
+"""Projection and Prediction Heads for Self-supervised Learning"""
 
 # Copyright (c) 2021. Lightly AG and its affiliates.
 # All Rights Reserved
@@ -29,7 +29,6 @@ class ProjectionHead(nn.Module):
         >>>     (256, 256, nn.BatchNorm1d(256), nn.ReLU()),
         >>>     (256, 128, None, None)
         >>> ])
-
     """
 
     def __init__(
@@ -41,6 +40,7 @@ class ProjectionHead(nn.Module):
             ],
         ],
     ) -> None:
+        """Initializes the ProjectionHead module with the specified blocks."""
         super().__init__()
 
         layers: List[nn.Module] = []
@@ -60,7 +60,6 @@ class ProjectionHead(nn.Module):
         Args:
             x:
                 Input of shape bsz x num_ftrs.
-
         """
         projection: Tensor = self.layers(x)
         return projection
@@ -73,13 +72,22 @@ class BarlowTwinsProjectionHead(ProjectionHead):
     units. The first two layers of the projector are followed by a batch
     normalization layer and rectified linear units." [0]
 
-    [0]: 2021, Barlow Twins, https://arxiv.org/abs/2103.03230
-
+    - [0]: 2021, Barlow Twins, https://arxiv.org/abs/2103.03230
     """
 
     def __init__(
         self, input_dim: int = 2048, hidden_dim: int = 8192, output_dim: int = 8192
     ):
+        """Initializes the BarlowTwinsProjectionHead with the specified dimensions.
+
+        Args:
+            input_dim:
+                Dimensionality of the input features.
+            hidden_dim:
+                Dimensionality of the hidden layers.
+            output_dim:
+                Dimensionality of the output features.
+        """
         super(BarlowTwinsProjectionHead, self).__init__(
             [
                 (input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),
@@ -96,13 +104,13 @@ class BYOLProjectionHead(ProjectionHead):
     batch normalization, rectified linear units (ReLU), and a final
     linear layer with output dimension 256." [0]
 
-    [0]: BYOL, 2020, https://arxiv.org/abs/2006.07733
-
+    - [0]: BYOL, 2020, https://arxiv.org/abs/2006.07733
     """
 
     def __init__(
         self, input_dim: int = 2048, hidden_dim: int = 4096, output_dim: int = 256
     ):
+        """Initializes the BYOLProjectionHead with the specified dimensions."""
         super(BYOLProjectionHead, self).__init__(
             [
                 (input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),
@@ -118,8 +126,7 @@ class BYOLPredictionHead(ProjectionHead):
     batch normalization, rectified linear units (ReLU), and a final
     linear layer with output dimension 256." [0]
 
-    [0]: BYOL, 2020, https://arxiv.org/abs/2006.07733
-
+    - [0]: BYOL, 2020, https://arxiv.org/abs/2006.07733
     """
 
     def __init__(
@@ -143,9 +150,9 @@ class MoCoProjectionHead(ProjectionHead):
     hidden layers of both MLPs are 4096-d and are with ReLU; the output layers of both
     MLPs are 256-d, without ReLU. In MoCo v3, all layers in both MLPs have BN" [2]
 
-    [0]: MoCo v1, 2020, https://arxiv.org/abs/1911.05722
-    [1]: MoCo v2, 2020, https://arxiv.org/abs/2003.04297
-    [2]: MoCo v3, 2021, https://arxiv.org/abs/2104.02057
+    - [0]: MoCo v1, 2020, https://arxiv.org/abs/1911.05722
+    - [1]: MoCo v2, 2020, https://arxiv.org/abs/2003.04297
+    - [2]: MoCo v3, 2021, https://arxiv.org/abs/2104.02057
     """
 
     def __init__(
@@ -159,12 +166,16 @@ class MoCoProjectionHead(ProjectionHead):
         """Initialize a new MoCoProjectionHead instance.
 
         Args:
-            input_dim: Number of input dimensions.
-            hidden_dim: Number of hidden dimensions (2048 for v2, 4096 for v3).
-            output_dim: Number of output dimensions (128 for v2, 256 for v3).
-            num_layers: Number of hidden layers (2 for v2, 3 for v3).
-            batch_norm: Whether or not to use batch norms.
-                (False for v2, True for v3)
+            input_dim:
+                Number of input dimensions.
+            hidden_dim:
+                Number of hidden dimensions (2048 for v2, 4096 for v3).
+            output_dim:
+                Number of output dimensions (128 for v2, 256 for v3).
+            num_layers:
+                Number of hidden layers (2 for v2, 3 for v3).
+            batch_norm:
+                Whether or not to use batch norms. (False for v2, True for v3).
         """
         layers: List[Tuple[int, int, Optional[nn.Module], Optional[nn.Module]]] = []
         layers.append(
@@ -204,13 +215,22 @@ class NNCLRProjectionHead(ProjectionHead):
     layers are followed by batch-normalization [36]. All the batch-norm layers
     except the last layer are followed by ReLU activation." [0]
 
-    [0]: NNCLR, 2021, https://arxiv.org/abs/2104.14548
-
+    - [0]: NNCLR, 2021, https://arxiv.org/abs/2104.14548
     """
 
     def __init__(
         self, input_dim: int = 2048, hidden_dim: int = 2048, output_dim: int = 256
     ):
+        """Initializes the NNCLRProjectionHead with the specified dimensions.
+
+        Args:
+            input_dim:
+                Dimensionality of the input features.
+            hidden_dim:
+                Dimensionality of the hidden layers.
+            output_dim:
+                Dimensionality of the output features.
+        """
         super(NNCLRProjectionHead, self).__init__(
             [
                 (input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),
@@ -227,8 +247,7 @@ class NNCLRPredictionHead(ProjectionHead):
     of size [4096,d]. The hidden layer of the prediction MLP is followed by
     batch-norm and ReLU. The last layer has no batch-norm or activation." [0]
 
-    [0]: NNCLR, 2021, https://arxiv.org/abs/2104.14548
-
+    - [0]: NNCLR, 2021, https://arxiv.org/abs/2104.14548
     """
 
     def __init__(
@@ -265,11 +284,16 @@ class SimCLRProjectionHead(ProjectionHead):
         """Initialize a new SimCLRProjectionHead instance.
 
         Args:
-            input_dim: Number of input dimensions.
-            hidden_dim: Number of hidden dimensions.
-            output_dim: Number of output dimensions.
-            num_layers: Number of hidden layers (2 for v1, 3+ for v2).
-            batch_norm: Whether or not to use batch norms.
+            input_dim:
+                Number of input dimensions.
+            hidden_dim:
+                Number of hidden dimensions.
+            output_dim:
+                Number of output dimensions.
+            num_layers:
+                Number of hidden layers (2 for v1, 3+ for v2).
+            batch_norm:
+                Whether or not to use batch norms.
         """
         layers: List[Tuple[int, int, Optional[nn.Module], Optional[nn.Module]]] = []
         layers.append(
@@ -307,8 +331,7 @@ class SimSiamProjectionHead(ProjectionHead):
     layer, including its output fc. Its output fc has no ReLU. The hidden fc is
     2048-d. This MLP has 3 layers." [0]
 
-    [0]: SimSiam, 2020, https://arxiv.org/abs/2011.10566
-
+    - [0]: SimSiam, 2020, https://arxiv.org/abs/2011.10566
     """
 
     def __init__(
@@ -329,13 +352,21 @@ class SimSiamProjectionHead(ProjectionHead):
 
 
 class SMoGPrototypes(nn.Module):
-    """SMoG prototypes module for synchronous momentum grouping."""
+    """SMoG prototypes module for synchronous momentum grouping.
+
+    Args:
+        group_features:
+            Tensor containing the group features.
+        beta:
+            Beta parameter for momentum updating.
+    """
 
     def __init__(
         self,
         group_features: Tensor,
         beta: float,
     ):
+        """Initializes the SMoGPrototypes module with the specified parameter."""
         super(SMoGPrototypes, self).__init__()
         self.group_features = nn.Parameter(group_features, requires_grad=False)
         self.beta = beta
@@ -354,8 +385,7 @@ class SMoGPrototypes(nn.Module):
                 Temperature parameter for calculating the logits.
 
         Returns:
-            The logits.
-
+            The computed logits.
         """
         x = torch.nn.functional.normalize(x, dim=1)
         group_features = torch.nn.functional.normalize(group_features, dim=1)
@@ -371,7 +401,6 @@ class SMoGPrototypes(nn.Module):
 
         Returns:
             The updated group features.
-
         """
         assignments = self.assign_groups(x)
         group_features = torch.clone(self.group_features.data)
@@ -392,11 +421,11 @@ class SMoGPrototypes(nn.Module):
         """Assigns each representation in x to a group based on cosine similarity.
 
         Args:
-            Tensor of shape bsz x dim.
+            x:
+                Tensor of shape (bsz, dim).
 
         Returns:
-            Tensor of shape bsz indicating group assignments.
-
+            Tensor of shape (bsz,) indicating group assignments.
         """
         return torch.argmax(self.forward(x, self.group_features), dim=-1)
 
@@ -408,13 +437,22 @@ class SMoGProjectionHead(ProjectionHead):
     followed by a BatchNorm [28] and an activation function. (...) The output
     layer of projection head also has BN" [0]
 
-    [0]: SMoG, 2022, https://arxiv.org/pdf/2207.06167.pdf
-
+    - [0]: SMoG, 2022, https://arxiv.org/pdf/2207.06167.pdf
     """
 
     def __init__(
         self, input_dim: int = 2048, hidden_dim: int = 2048, output_dim: int = 128
     ):
+        """Initializes the SMoGProjectionHead with the specified dimensions.
+
+        Args:
+            input_dim:
+                Dimensionality of the input features.
+            hidden_dim:
+                Dimensionality of the hidden layers.
+            output_dim:
+                Dimensionality of the output features.
+        """
         super(SMoGProjectionHead, self).__init__(
             [
                 (input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),
@@ -435,13 +473,22 @@ class SMoGPredictionHead(ProjectionHead):
     followed by a BatchNorm [28] and an activation function. (...) The output
     layer of projection head also has BN" [0]
 
-    [0]: SMoG, 2022, https://arxiv.org/pdf/2207.06167.pdf
-
+    - [0]: SMoG, 2022, https://arxiv.org/pdf/2207.06167.pdf
     """
 
     def __init__(
         self, input_dim: int = 128, hidden_dim: int = 2048, output_dim: int = 128
     ):
+        """Initializes the SMoGPredictionHead with the specified dimensions.
+
+        Args:
+            input_dim:
+                Dimensionality of the input features.
+            hidden_dim:
+                Dimensionality of the hidden layers.
+            output_dim:
+                Dimensionality of the output features.
+        """
         super(SMoGPredictionHead, self).__init__(
             [
                 (input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),
@@ -456,13 +503,22 @@ class SimSiamPredictionHead(ProjectionHead):
     "The prediction MLP (h) has BN applied to its hidden fc layers. Its output
     fc does not have BN (...) or ReLU. This MLP has 2 layers." [0]
 
-    [0]: SimSiam, 2020, https://arxiv.org/abs/2011.10566
-
+    - [0]: SimSiam, 2020, https://arxiv.org/abs/2011.10566
     """
 
     def __init__(
         self, input_dim: int = 2048, hidden_dim: int = 512, output_dim: int = 2048
     ):
+        """Initializes the SimSiamPredictionHead with the specified dimensions.
+
+        Args:
+            input_dim:
+                Dimensionality of the input features.
+            hidden_dim:
+                Dimensionality of the hidden layers.
+            output_dim:
+                Dimensionality of the output features.
+        """
         super(SimSiamPredictionHead, self).__init__(
             [
                 (input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),
@@ -474,12 +530,13 @@ class SimSiamPredictionHead(ProjectionHead):
 class SwaVProjectionHead(ProjectionHead):
     """Projection head used for SwaV.
 
-    [0]: SwAV, 2020, https://arxiv.org/abs/2006.09882
+    - [0]: SwAV, 2020, https://arxiv.org/abs/2006.09882
     """
 
     def __init__(
         self, input_dim: int = 2048, hidden_dim: int = 2048, output_dim: int = 128
     ):
+        """Initializes the SwaVProjectionHead with the specified dimensions."""
         super(SwaVProjectionHead, self).__init__(
             [
                 (input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),
@@ -513,7 +570,6 @@ class SwaVPrototypes(nn.Module):
         >>>
         >>> # logits has shape bsz x 512
         >>> logits = prototypes(features)
-
     """
 
     def __init__(
@@ -522,7 +578,9 @@ class SwaVPrototypes(nn.Module):
         n_prototypes: Union[List[int], int] = 3000,
         n_steps_frozen_prototypes: int = 0,
     ):
+        """Initializes the SwaVPrototypes module with the specified parameters"""
         super(SwaVPrototypes, self).__init__()
+
         # Default to a list of 1 if n_prototypes is an int.
         self.n_prototypes = (
             n_prototypes if isinstance(n_prototypes, list) else [n_prototypes]
@@ -536,6 +594,18 @@ class SwaVPrototypes(nn.Module):
     def forward(
         self, x: Tensor, step: Optional[int] = None
     ) -> Union[Tensor, List[Tensor]]:
+        """Forward pass of the SwaVPrototypes module.
+
+        Args:
+            x:
+                Input tensor.
+            step:
+                Current training step.
+
+        Returns:
+            The logits after passing through the prototype heads. Returns a single tensor
+            if there's one prototype head, otherwise returns a list of tensors.
+        """
         self._freeze_prototypes_if_required(step)
         out = []
         for layer in self.heads:
@@ -548,6 +618,7 @@ class SwaVPrototypes(nn.Module):
             utils.normalize_weight(layer.weight)
 
     def _freeze_prototypes_if_required(self, step: Optional[int] = None) -> None:
+        """Freezes the prototypes if the specified number of steps has been reached."""
         if self.n_steps_frozen_prototypes > 0:
             if step is None:
                 raise ValueError(
@@ -588,7 +659,6 @@ class DINOProjectionHead(ProjectionHead):
             Whether or not to weight normalize the last layer of the DINO head.
             Not normalizing leads to better performance but can make the
             training unstable.
-
     """
 
     def __init__(
@@ -601,12 +671,21 @@ class DINOProjectionHead(ProjectionHead):
         freeze_last_layer: int = -1,
         norm_last_layer: bool = True,
     ):
-        bn = nn.BatchNorm1d(hidden_dim) if batch_norm else None
-
+        """Initializes the DINOProjectionHead with the specified dimensions."""
         super().__init__(
             [
-                (input_dim, hidden_dim, bn, nn.GELU()),
-                (hidden_dim, hidden_dim, bn, nn.GELU()),
+                (
+                    input_dim,
+                    hidden_dim,
+                    nn.BatchNorm1d(hidden_dim) if batch_norm else None,
+                    nn.GELU(),
+                ),
+                (
+                    hidden_dim,
+                    hidden_dim,
+                    nn.BatchNorm1d(hidden_dim) if batch_norm else None,
+                    nn.GELU(),
+                ),
                 (hidden_dim, bottleneck_dim, None, None),
             ]
         )
@@ -642,12 +721,155 @@ class DINOProjectionHead(ProjectionHead):
             utils._no_grad_trunc_normal(
                 module.weight,
                 mean=0,
-                std=0.2,
+                std=0.02,
                 a=-2,
                 b=2,
             )
             if module.bias is not None:
                 nn.init.constant_(module.bias, 0)
+
+
+class DINOv2ProjectionHead(ProjectionHead):
+    def __init__(
+        self,
+        input_dim: int = 2048,
+        hidden_dim: int = 2048,
+        bottleneck_dim: int = 256,
+        output_dim: int = 65536,
+        batch_norm: bool = False,
+    ) -> None:
+        super().__init__(
+            [
+                (
+                    input_dim,
+                    hidden_dim,
+                    nn.BatchNorm1d(hidden_dim) if batch_norm else None,
+                    nn.GELU(),
+                ),
+                (
+                    hidden_dim,
+                    hidden_dim,
+                    nn.BatchNorm1d(hidden_dim) if batch_norm else None,
+                    nn.GELU(),
+                ),
+                (hidden_dim, bottleneck_dim, None, None),
+            ]
+        )
+        self.apply(self._init_weights)
+        self.last_layer = nn.utils.weight_norm(
+            nn.Linear(bottleneck_dim, output_dim, bias=False)
+        )
+        self.last_layer.weight_g.data.fill_(1)  # type: ignore[operator]
+
+    def _init_weights(self, m: nn.Module) -> None:
+        if isinstance(m, nn.Linear):
+            nn.init.trunc_normal_(m.weight, std=0.02)
+            if isinstance(m, nn.Linear) and m.bias is not None:
+                nn.init.constant_(m.bias, 0)
+
+    def forward(self, x: Tensor) -> Tensor:
+        x = self.layers(x)
+        eps = 1e-6 if x.dtype == torch.float16 else 1e-12
+        x = nn.functional.normalize(x, dim=-1, p=2, eps=eps)
+        x = self.last_layer(x)
+        return x
+
+
+class LeJEPAProjectionHead(ProjectionHead):
+    """Projection head used for LeJEPA.
+
+    LeJEPA applies a projector (a multi-layer perceptron) on top of the
+    backbone and computes the SIGReg and invariance losses on the
+    projected embeddings. [0] The default is a 3-layer MLP with
+    BatchNorm and ReLU, matching the reference implementation. [1]
+
+    - [0]: LeJEPA, 2025, https://arxiv.org/abs/2511.08544
+    - [1]: https://github.com/galilai-group/lejepa
+    """
+
+    def __init__(
+        self,
+        input_dim: int,
+        hidden_dim: int = 2048,
+        output_dim: int = 64,
+        num_layers: int = 3,
+    ):
+        """Initializes the LeJEPAProjectionHead with the specified dimensions.
+
+        Args:
+            input_dim:
+                Required dimensionality of the input features.
+            hidden_dim:
+                Dimensionality of the hidden layers.
+            output_dim:
+                Dimensionality of the output features.
+            num_layers:
+                Number of linear layers in the projection head. Must be at
+                least 2.
+        """
+        if num_layers < 2:
+            raise ValueError("num_layers must be greater than or equal to 2.")
+
+        hidden_layers = [
+            (hidden_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU())
+            for _ in range(num_layers - 2)
+        ]
+        super().__init__(
+            [
+                (input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),
+                *hidden_layers,
+                (hidden_dim, output_dim, None, None),
+            ]
+        )
+
+
+class LeWMProjectionHead(ProjectionHead):
+    """Projection head used for LeWM.
+
+    .. warning::
+
+        Experimental. This head may change in a minor release.
+
+    LeWM projects the backbone features to the width of the predictor and
+    computes the prediction and SIGReg losses on the projected embeddings. The
+    head is an MLP with one hidden layer: a linear layer, batch normalization, a
+    GELU and a second linear layer, as in the official implementation [1].
+
+    - [0]: LeWorldModel, 2026, https://arxiv.org/abs/2603.19312
+    - [1]: https://github.com/lucas-maes/le-wm
+    """
+
+    def __init__(
+        self,
+        input_dim: int,
+        hidden_dim: int = 2048,
+        output_dim: int = 192,
+        batch_norm: bool = True,
+    ) -> None:
+        """Initializes the LeWMProjectionHead with the specified dimensions.
+
+        Args:
+            input_dim:
+                Dimensionality of the input features.
+            hidden_dim:
+                Dimensionality of the hidden layer.
+            output_dim:
+                Dimensionality of the output embeddings.
+            batch_norm:
+                If True (default), apply batch normalization in the hidden
+                layer.
+        """
+        super().__init__(
+            [
+                (
+                    input_dim,
+                    hidden_dim,
+                    nn.BatchNorm1d(hidden_dim) if batch_norm else None,
+                    nn.GELU(),
+                ),
+                (hidden_dim, output_dim, None, None),
+            ]
+        )
 
 
 class MMCRProjectionHead(ProjectionHead):
@@ -672,16 +894,24 @@ class MMCRProjectionHead(ProjectionHead):
         """Initialize a new MMCRProjectionHead instance.
 
         Args:
-            input_dim: Number of input dimensions.
-            hidden_dim: Number of hidden dimensions.
-            output_dim: Number of output dimensions.
-            num_layers: Number of hidden layers.
-            batch_norm: Whether or not to use batch norms.
-            use_bias: Whether or not to use bias in the linear layers.
+            input_dim:
+                Number of input dimensions.
+            hidden_dim:
+                Number of hidden dimensions.
+            output_dim:
+                Number of output dimensions.
+            num_layers:
+                Number of hidden layers.
+            batch_norm:
+                Whether or not to use batch norms.
+            use_bias:
+                Whether or not to use bias in the linear layers.
         """
         layers: List[
             Tuple[int, int, Optional[nn.Module], Optional[nn.Module], bool]
         ] = []
+
+        # Add the first layer
         layers.append(
             (
                 input_dim,
@@ -691,6 +921,8 @@ class MMCRProjectionHead(ProjectionHead):
                 use_bias,
             )
         )
+
+        # Add the hidden layers
         for _ in range(num_layers - 1):
             layers.append(
                 (
@@ -701,6 +933,8 @@ class MMCRProjectionHead(ProjectionHead):
                     use_bias,
                 )
             )
+
+        # Add the output layer
         layers.append((hidden_dim, output_dim, None, None, use_bias))
         super().__init__(layers)
 
@@ -710,6 +944,7 @@ class MSNProjectionHead(ProjectionHead):
 
     "We train with a 3-layer projection head with output dimension 256 and
     batch-normalization at the input and hidden layers.." [0]
+
     Code inspired by [1].
 
     - [0]: Masked Siamese Networks, 2022, https://arxiv.org/abs/2204.07141
@@ -730,6 +965,7 @@ class MSNProjectionHead(ProjectionHead):
         hidden_dim: int = 2048,
         output_dim: int = 256,
     ):
+        """Initializes the MSNProjectionHead with the specified dimensions."""
         super().__init__(
             blocks=[
                 (input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.GELU()),
@@ -746,13 +982,13 @@ class TiCoProjectionHead(ProjectionHead):
     batch normalization, rectified linear units (ReLU), and a final
     linear layer with output dimension 256." [0]
 
-    [0]: TiCo, 2022, https://arxiv.org/pdf/2206.10698.pdf
-
+    - [0]: TiCo, 2022, https://arxiv.org/pdf/2206.10698.pdf
     """
 
     def __init__(
         self, input_dim: int = 2048, hidden_dim: int = 4096, output_dim: int = 256
     ):
+        """Initializes the TiCoProjectionHead with the specified dimensions."""
         super(TiCoProjectionHead, self).__init__(
             [
                 (input_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU()),
@@ -768,8 +1004,7 @@ class VICRegProjectionHead(ProjectionHead):
     units. The first two layers of the projector are followed by a batch
     normalization layer and rectified linear units." [0]
 
-    [0]: 2022, VICReg, https://arxiv.org/pdf/2105.04906.pdf
-
+    - [0]: 2022, VICReg, https://arxiv.org/pdf/2105.04906.pdf
     """
 
     def __init__(
@@ -779,6 +1014,18 @@ class VICRegProjectionHead(ProjectionHead):
         output_dim: int = 8192,
         num_layers: int = 3,
     ):
+        """Initializes the VICRegProjectionHead with the specified dimensions.
+
+        Args:
+            input_dim:
+                Dimensionality of the input features.
+            hidden_dim:
+                Dimensionality of the hidden layers.
+            output_dim:
+                Dimensionality of the output features.
+            num_layers:
+                Number of layers in the projection head.
+        """
         hidden_layers = [
             (hidden_dim, hidden_dim, nn.BatchNorm1d(hidden_dim), nn.ReLU())
             for _ in range(num_layers - 2)  # Exclude first and last layer.
@@ -795,16 +1042,16 @@ class VICRegProjectionHead(ProjectionHead):
 class VicRegLLocalProjectionHead(ProjectionHead):
     """Projection head used for the local head of VICRegL.
 
-    The projector network has three linear layers. The first two layers of the projector
-    are followed by a batch normalization layer and rectified linear units.
+    "The projector network has three linear layers. The first two layers of the projector
+    are followed by a batch normalization layer and rectified linear units." [0]
 
-    2022, VICRegL, https://arxiv.org/abs/2210.01571
-
+    - [0]: 2022, VICRegL, https://arxiv.org/abs/2210.01571
     """
 
     def __init__(
         self, input_dim: int = 2048, hidden_dim: int = 8192, output_dim: int = 8192
     ):
+        """Initializes the VicRegLLocalProjectionHead with the specified dimensions."""
         super(VicRegLLocalProjectionHead, self).__init__(
             [
                 (input_dim, hidden_dim, nn.LayerNorm(hidden_dim), nn.ReLU()),
@@ -826,9 +1073,72 @@ class DenseCLProjectionHead(ProjectionHead):
     def __init__(
         self, input_dim: int = 2048, hidden_dim: int = 2048, output_dim: int = 128
     ):
+        """Initializes the DenseCLProjectionHead with the specified dimensions."""
         super().__init__(
             [
                 (input_dim, hidden_dim, None, nn.ReLU()),
                 (hidden_dim, output_dim, None, None),
             ]
         )
+
+
+class CAPIProjectionHead(nn.Module):
+    """Projection head for CAPI [0].
+
+    L2-normalizes the input features and projects them with a single linear layer
+    to cluster logits. The linear layer weights are the cluster prototypes. The
+    same head is used for the student and, with its own weights, for the teacher's
+    online clustering.
+
+    - [0]: CAPI: Cluster and Predict Latent Patches for Improved Masked Image Modeling, 2025, https://arxiv.org/abs/2502.08769
+
+    Attributes:
+        input_dim:
+            The input dimension of the head.
+        num_clusters:
+            Number of clusters, i.e. the number of output prototypes.
+        bias:
+            If True, the linear layer uses a bias term.
+        weight_norm:
+            If True, the prototypes are weight-normalized to unit norm with a
+            fixed scale, as used for the student head in the reference. The
+            teacher's clustering head leaves this disabled.
+
+    Examples:
+        >>> # project 384-dimensional features to 16384 cluster logits
+        >>> head = CAPIProjectionHead(input_dim=384, num_clusters=16384)
+        >>>
+        >>> # features has shape (batch_size, sequence_length, 384)
+        >>> logits = head(features)  # (batch_size, sequence_length, 16384)
+    """
+
+    def __init__(
+        self,
+        input_dim: int = 384,
+        num_clusters: int = 16384,
+        bias: bool = False,
+        weight_norm: bool = False,
+    ):
+        """Initializes the CAPIProjectionHead with the specified parameters."""
+        super().__init__()
+        self.layer = nn.Linear(input_dim, num_clusters, bias=bias)
+        if weight_norm:
+            # Weight-normalize the prototypes to unit norm with a fixed scale, as
+            # the reference uses for the student head.
+            self.layer = nn.utils.weight_norm(self.layer)
+            self.layer.weight_g.data.fill_(1)  # type: ignore[operator]
+            self.layer.weight_g.requires_grad = False  # type: ignore[operator]
+
+    def forward(self, x: Tensor) -> Tensor:
+        """Projects L2-normalized features to cluster logits.
+
+        Args:
+            x:
+                Input features of shape (..., input_dim).
+
+        Returns:
+            Cluster logits of shape (..., num_clusters).
+        """
+        x = nn.functional.normalize(x, dim=-1, p=2)
+        logits: Tensor = self.layer(x)
+        return logits

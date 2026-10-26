@@ -1,11 +1,17 @@
+from __future__ import annotations
+
+import warnings
 from functools import partial
-from typing import Callable, List, Union
+from typing import Any, Callable
 
 import torch
 import torch.nn as nn
-from timm.models.vision_transformer import Block
+from torch import Tensor
 
 from lightly.models import utils
+from lightly.models.modules.masked_vision_transformer_decoder_timm import (
+    MaskedVisionTransformerDecoderTIMM,
+)
 
 
 class IJEPAPredictorTIMM(nn.Module):
@@ -14,20 +20,29 @@ class IJEPAPredictorTIMM(nn.Module):
     Experimental: Support for I-JEPA is experimental, there might be breaking changes
     in the future.
 
-    Predict patch embeddings. Code inspired by [1].
+    Predict patch embeddings. Code inspired by [1]. Holds a shared
+    :class:`MaskedVisionTransformerDecoderTIMM` (positional embedding, transformer
+    blocks, and norm) as the decoder submodule and adds the I-JEPA specific input
+    embedding, prediction projection, and multi-mask logic.
 
     - [0]: Joint-Embedding Predictive Architecture, 2023, https://arxiv.org/abs/2301.08243
     - [1]: https://github.com/facebookresearch/ijepa
 
+    The transformer core lives in the decoder submodule. Compared to earlier versions
+    the parameters predictor_pos_embed, predictor_blocks, and predictor_norm are now
+    decoder.pos_embed, decoder.blocks, and decoder.norm, and mask_token is now
+    decoder.mask_token. Checkpoints saved with the previous names must rename these
+    keys before loading.
+
     Attributes:
         num_patches:
-            Number of patches (tokens), including the class token.
+            Number of patches (tokens).
         depth:
             Number of transformer blocks.
         mlp_dim:
-            Dimension of the MLP in the transformer block.
+            Dimension of the input and output tokens.
         predictor_embed_dim:
-            Dimension of inner predicted patches(tokens).
+            Dimension of inner predicted patches (tokens).
         num_heads:
             Number of attention heads.
         qkv_bias:
@@ -42,7 +57,6 @@ class IJEPAPredictorTIMM(nn.Module):
             Percentage of elements set to zero after the attention head.
         norm_layer:
             Normalization layer.
-
     """
 
     def __init__(
@@ -57,111 +71,129 @@ class IJEPAPredictorTIMM(nn.Module):
         drop_path_rate: float = 0.0,
         proj_drop_rate: float = 0.0,
         attn_drop_rate: float = 0.0,
-        norm_layer: Callable[..., torch.nn.Module] = partial(nn.LayerNorm, eps=1e-6),
+        norm_layer: Callable[..., nn.Module] = partial(nn.LayerNorm, eps=1e-6),
     ):
+        """Initializes the IJEPAPredictorTIMM with the specified dimensions."""
         super().__init__()
-
+        self.decoder = MaskedVisionTransformerDecoderTIMM(
+            num_patches=num_patches,
+            embed_dim=predictor_embed_dim,
+            depth=depth,
+            num_heads=num_heads,
+            # I-JEPA uses a positional embedding without prefix tokens.
+            num_prefix_tokens=0,
+            mlp_ratio=mlp_ratio,
+            qkv_bias=qkv_bias,
+            proj_drop_rate=proj_drop_rate,
+            attn_drop_rate=attn_drop_rate,
+            drop_path_rate=drop_path_rate,
+            norm_layer=norm_layer,
+            # I-JEPA keeps a zero-initialized mask token and relies on the default
+            # timm initialization for the remaining layers. Only the positional
+            # embedding is initialized below.
+            initialize_weights=False,
+        )
         self.predictor_embed = nn.Linear(mlp_dim, predictor_embed_dim, bias=True)
-        self.mask_token = nn.Parameter(torch.zeros(1, 1, predictor_embed_dim))
         self.predictor_proj = nn.Linear(predictor_embed_dim, mlp_dim, bias=True)
-        self.predictor_norm = norm_layer(predictor_embed_dim)
-        self.predictor_pos_embed = nn.Parameter(
-            torch.zeros(1, num_patches, predictor_embed_dim), requires_grad=False
+        with torch.no_grad():
+            self.decoder.mask_token.zero_()
+        utils.initialize_2d_sine_cosine_positional_embedding(
+            pos_embedding=self.decoder.pos_embed, num_prefix_tokens=0
         )
-        predictor_pos_embed = utils.get_2d_sincos_pos_embed(
-            self.predictor_pos_embed.shape[-1], int(num_patches**0.5), cls_token=False
-        )
-        self.predictor_pos_embed.data.copy_(
-            torch.from_numpy(predictor_pos_embed).float().unsqueeze(0)
-        )
-
-        # original implementation also has drop path rate
-        self.predictor_blocks = nn.ModuleList(
-            [
-                Block(
-                    dim=predictor_embed_dim,
-                    num_heads=num_heads,
-                    mlp_ratio=mlp_ratio,
-                    qkv_bias=qkv_bias,
-                    drop_path=drop_path_rate,
-                    proj_drop=proj_drop_rate,
-                    attn_drop=attn_drop_rate,
-                    norm_layer=norm_layer,
-                )
-                for _ in range(depth)
-            ]
-        )
+        # Keep loading checkpoints saved with the pre-refactor parameter names by
+        # remapping their keys on load (see the note in the class docstring).
+        self._register_load_state_dict_pre_hook(self._migrate_legacy_state_dict)
 
     def forward(
         self,
-        x: torch.Tensor,
-        masks_x: Union[List[torch.Tensor], torch.Tensor],
-        masks: Union[List[torch.Tensor], torch.Tensor],
-    ) -> torch.Tensor:
-        assert (masks is not None) and (
-            masks_x is not None
-        ), "Cannot run predictor without mask indices"
+        x: Tensor,
+        masks_x: list[Tensor] | Tensor,
+        masks: list[Tensor] | Tensor,
+    ) -> Tensor:
+        """Forward pass of the IJEPAPredictorTIMM.
+
+        Args:
+            x:
+                Input tensor.
+            masks_x:
+                Mask indices for the input tensor.
+            masks:
+                Mask indices for the predicted tokens.
+
+        Returns:
+            The predicted output tensor.
+        """
+        assert (masks is not None) and (masks_x is not None), (
+            "Cannot run predictor without mask indices"
+        )
 
         len_masks_x = len(masks_x) if isinstance(masks_x, list) else 1
         len_masks = len(masks) if isinstance(masks, list) else 1
 
         B = len(x) // len_masks_x
         x = self.predictor_embed(x)
-        x_pos_embed = self.predictor_pos_embed.repeat(B, 1, 1)
+        x_pos_embed = self.decoder.pos_embed.repeat(B, 1, 1)
 
-        x += self.apply_masks(x_pos_embed, masks_x)
+        x += utils.apply_masks(x_pos_embed, masks_x)
         _, N_ctxt, _ = x.shape
 
-        pos_embs = self.predictor_pos_embed.repeat(B, 1, 1)
-        pos_embs = self.apply_masks(pos_embs, masks)
-        pos_embs = self.repeat_interleave_batch(pos_embs, B, repeat=len_masks_x)
-        pred_tokens = self.mask_token.repeat(pos_embs.size(0), pos_embs.size(1), 1)
+        pos_embs = self.decoder.pos_embed.repeat(B, 1, 1)
+        pos_embs = utils.apply_masks(pos_embs, masks)
+        pos_embs = utils.repeat_interleave_batch(pos_embs, B, repeat=len_masks_x)
+        pred_tokens = self.decoder.mask_token.repeat(
+            pos_embs.size(0), pos_embs.size(1), 1
+        )
 
         pred_tokens += pos_embs
         x = x.repeat(len_masks, 1, 1)
         x = torch.cat([x, pred_tokens], dim=1)
 
-        for blk in self.predictor_blocks:
-            x = blk(x)
-        x = self.predictor_norm(x)
+        x = self.decoder.decode(x)
 
         x = x[:, N_ctxt:]
         x = self.predictor_proj(x)
 
         return x
 
-    def repeat_interleave_batch(
-        self, x: torch.Tensor, B: int, repeat: int
-    ) -> torch.Tensor:
-        """Repeat and interleave the input tensor."""
-        N = len(x) // B
-        x = torch.cat(
-            [
-                torch.cat([x[i * B : (i + 1) * B] for _ in range(repeat)], dim=0)
-                for i in range(N)
-            ],
-            dim=0,
-        )
-        return x
+    def _migrate_legacy_state_dict(
+        self, state_dict: dict[str, Tensor], prefix: str, *args: Any
+    ) -> None:
+        """Remaps pre-refactor parameter names in a checkpoint before loading.
 
-    def apply_masks(
-        self, x: torch.Tensor, masks: Union[torch.Tensor, List[torch.Tensor]]
-    ) -> torch.Tensor:
+        The transformer core moved into the decoder submodule, so checkpoints saved
+        with the old names use different keys. This load hook renames the affected
+        keys in place and warns, so old checkpoints keep loading.
         """
-        From https://github.com/facebookresearch/ijepa/blob/main/src/masks/utils.py
-        Apply masks to the input tensor.
+        renames = {
+            "predictor_pos_embed": "decoder.pos_embed",
+            "mask_token": "decoder.mask_token",
+            "predictor_norm.": "decoder.norm.",
+            "predictor_blocks.": "decoder.blocks.",
+        }
 
-        Args:
-            x: tensor of shape [B (batch-size), N (num-patches), D (feature-dim)]
-            masks: tensor or list of tensors containing indices of patches in [N] to keep
-        Returns:
-            tensor of shape [B, N', D] where N' is the number of patches to keep
-        """
-        if not isinstance(masks, list):
-            masks = [masks]
+        def remap(local: str) -> str | None:
+            for old, new in renames.items():
+                if old.endswith("."):
+                    if local.startswith(old):
+                        return new + local[len(old) :]
+                elif local == old:
+                    return new
+            return None
 
-        all_x = []
-        for m in masks:
-            mask_keep = m.unsqueeze(-1).repeat(1, 1, x.size(-1))
-            all_x += [torch.gather(x, dim=1, index=mask_keep)]
-        return torch.cat(all_x, dim=0)
+        migrated = False
+        for key in list(state_dict.keys()):
+            new_local = remap(key[len(prefix) :])
+            if new_local is not None:
+                state_dict[prefix + new_local] = state_dict.pop(key)
+                migrated = True
+
+        if migrated:
+            warnings.warn(
+                "Loading an I-JEPA checkpoint saved with the old parameter names "
+                "(predictor_pos_embed, predictor_blocks, predictor_norm, mask_token). "
+                "They were renamed to decoder.pos_embed, decoder.blocks, decoder.norm, "
+                "and decoder.mask_token and remapped automatically. Re-save the "
+                "checkpoint to silence this warning.",
+                DeprecationWarning,
+                stacklevel=2,
+            )

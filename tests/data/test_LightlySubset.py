@@ -1,7 +1,8 @@
 import random
 import tempfile
-import unittest
 from typing import List, Tuple
+
+import pytest
 
 from lightly.data.dataset import LightlyDataset
 from lightly.data.lightly_subset import LightlySubset
@@ -11,15 +12,15 @@ try:
     import av
     import cv2
 
-    from lightly.data._video import VideoDataset
+    from lightly.data._video import VIDEO_SUPPORT_AVAILABLE, VideoDataset
 
-    VIDEO_DATASET_AVAILABLE = True
+    VIDEO_DATASET_AVAILABLE = VIDEO_SUPPORT_AVAILABLE
 except ModuleNotFoundError:
     VIDEO_DATASET_AVAILABLE = False
 
 
 class TestLightlySubset(TestLightlyDataset):
-    def setUp(self) -> None:
+    def setup_method(self) -> None:
         tmp_dir, folder_names, sample_names = self.create_dataset(
             n_subfolders=5, n_samples_per_subfolder=5
         )
@@ -38,7 +39,10 @@ class TestLightlySubset(TestLightlyDataset):
         )
         return subset, filenames_subset
 
-    @unittest.skipUnless(VIDEO_DATASET_AVAILABLE, "PyAV and CV2 are both installed")
+    @pytest.mark.skipif(
+        not VIDEO_DATASET_AVAILABLE,
+        reason="torchvision<=0.25, PyAV, and CV2 are installed",
+    )
     def create_video_subset(self, seed=0) -> Tuple[LightlySubset, List[str]]:
         random.seed(seed)
         self.create_video_dataset(n_videos=5, n_frames_per_video=10)
@@ -61,7 +65,10 @@ class TestLightlySubset(TestLightlyDataset):
             sample, target, fname = subset.__getitem__(index_subset)
             assert filename_subset == fname
 
-    @unittest.skipUnless(VIDEO_DATASET_AVAILABLE, "PyAV and CV2 are both installed")
+    @pytest.mark.skipif(
+        not VIDEO_DATASET_AVAILABLE,
+        reason="torchvision<=0.25, PyAV, and CV2 are installed",
+    )
     def test_create_lightly_video_subset(self):
         subset, filenames_subset = self.create_video_subset()
 

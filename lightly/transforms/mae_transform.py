@@ -1,9 +1,9 @@
 from typing import Dict, List, Tuple, Union
 
-import torchvision.transforms as T
 from PIL.Image import Image
 from torch import Tensor
 
+from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 from lightly.transforms.utils import IMAGENET_NORMALIZE
 
 
@@ -40,8 +40,10 @@ class MAETransform:
     ):
         transforms = [
             T.RandomResizedCrop(
-                input_size, scale=(min_scale, 1.0), interpolation=3
-            ),  # 3 is bicubic
+                input_size,
+                scale=(min_scale, 1.0),
+                interpolation=T.InterpolationMode.BICUBIC,
+            ),
             T.RandomHorizontalFlip(),
             T.ToTensor(),
         ]
@@ -51,8 +53,7 @@ class MAETransform:
         self.transform = T.Compose(transforms)
 
     def __call__(self, image: Union[Tensor, Image]) -> List[Tensor]:
-        """
-        Applies the transforms to the input image.
+        """Applies the transforms to the input image.
 
         Args:
             image:

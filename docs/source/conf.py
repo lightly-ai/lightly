@@ -21,7 +21,7 @@ import lightly
 
 # -- Project information -----------------------------------------------------
 
-project = "lightly"
+project = "LightlySSL"
 copyright_year = "2020-<script>document.write((new Date()).getFullYear())</script>"
 copyright = "Lightly AG"
 website_url = "https://www.lightly.ai/"
