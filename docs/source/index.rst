@@ -82,6 +82,7 @@ Lightly AI
 
 .. toctree::
    :maxdepth: 1
+   :hidden:
    :caption: Getting Started
 
    getting_started/main_concepts.rst
@@ -91,6 +92,7 @@ Lightly AI
 
 .. toctree::
    :maxdepth: 1
+   :hidden:
    :caption: World Models
 
    examples/lewm.rst
@@ -98,6 +100,7 @@ Lightly AI
 
 .. toctree::
    :maxdepth: 1
+   :hidden:
    :caption: Advanced
 
    getting_started/advanced.rst
@@ -106,6 +109,7 @@ Lightly AI
 
 .. toctree::
    :maxdepth: 1
+   :hidden:
    :caption: Tutorials
 
    tutorials/structure_your_input.rst
@@ -119,12 +123,14 @@ Lightly AI
 
 .. toctree::
    :maxdepth: 1
+   :hidden:
    :caption: Examples
 
    examples/models.rst
 
 .. toctree::
    :maxdepth: 1
+   :hidden:
    :caption: Python API
 
    lightly
@@ -140,6 +146,7 @@ Lightly AI
 
 .. toctree::
    :maxdepth: 1
+   :hidden:
    :caption: On-Premise
 
    docker_archive/overview.rst
