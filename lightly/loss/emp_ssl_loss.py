@@ -71,20 +71,18 @@ class EMPSSLLoss(Module):
 
     Examples:
         >>> # initialize loss function
-        >>> loss_fn = EMP_SSLLoss()
+        >>> loss_fn = EMPSSLLoss()
         >>> base_transform = VICRegViewTransform()  # As discussed in paper
-        >>> transform_fn = MultiCropTransform(
-        ...     transforms=base_transform, crop_counts=100
-        ... )
+        >>> transform_fn = MultiViewTransform(transforms=[base_transform] * 100)
         >>>
         >>> # generate the transformed samples
         >>> samples = transform_fn(image)
         >>>
-        >>> # feed through encoder head
-        >>> z = torch.cat([model(s) for s in samples])
+        >>> # feed through encoder head, one embedding tensor per view
+        >>> z_views = [model(s) for s in samples]
         >>>
         >>> # calculate loss
-        >>> loss = loss_fn(z)
+        >>> loss = loss_fn(z_views)
     """
 
     def __init__(
@@ -92,12 +90,12 @@ class EMPSSLLoss(Module):
         tcr_eps: float = 0.2,
         inv_coef: float = 200.0,
     ) -> None:
-        """Initializes the EMPSSLoss module.
+        """Initializes the EMPSSLLoss module.
 
         Args:
             tcr_eps:
                 Total coding rate (TCR) epsilon.
-            inv_coff:
+            inv_coef:
                 Coefficient for the invariance loss.
         """
         super().__init__()

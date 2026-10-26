@@ -33,6 +33,6 @@ class TestEMPSSLLoss:
         num_views = 100
 
         loss_fn = EMPSSLLoss().cuda()
-        x = x = [torch.randn(bs, dim).cuda()] * num_views
+        x = [torch.randn(bs, dim).cuda()] * num_views
 
         loss_fn(x)
