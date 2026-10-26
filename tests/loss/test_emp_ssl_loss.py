@@ -14,18 +14,20 @@ class TestEMPSSLLoss:
         eps = 0.2
         loss = EMPSSLLoss(tcr_eps=eps, inv_coef=inv_coef)(list(z.unbind()))
 
+        # Retain the upstream L2 normalization before evaluating coding rate.
+        normalized = torch.nn.functional.normalize(z, dim=-1)
         # The reference minimizes negative coding rate, averaged over views.
         coding_rates = [
             torch.linalg.slogdet(
                 torch.eye(dim, dtype=z.dtype) + dim / (batch_size * eps) * view.T @ view
             )[1]
             / 2
-            for view in z
+            for view in normalized
         ]
         similarity = torch.stack(
             [
-                torch.nn.functional.cosine_similarity(view, z.mean(0)).mean()
-                for view in z
+                torch.nn.functional.cosine_similarity(view, normalized.mean(0)).mean()
+                for view in normalized
             ]
         ).mean()
         expected = -torch.stack(coding_rates).mean() - inv_coef * similarity
@@ -42,6 +44,17 @@ class TestEMPSSLLoss:
         collapsed = diverse[:1].expand(4, -1)
 
         assert loss_fn([diverse, diverse]) < loss_fn([collapsed, collapsed])
+
+    def test_forward__scale_invariant(self) -> None:
+        """Scaling the embeddings must not change the loss."""
+        torch.manual_seed(0)
+        z_views = list(torch.randn(3, 8, 4).unbind())
+        loss_fn = EMPSSLLoss()
+
+        loss = loss_fn(z_views)
+        loss_scaled = loss_fn([10 * z for z in z_views])
+
+        torch.testing.assert_close(loss, loss_scaled)
 
     def test_forward(self) -> None:
         bs = 512
@@ -60,6 +73,6 @@ class TestEMPSSLLoss:
         num_views = 100
 
         loss_fn = EMPSSLLoss().cuda()
-        x = x = [torch.randn(bs, dim).cuda()] * num_views
+        x = [torch.randn(bs, dim).cuda()] * num_views
 
         loss_fn(x)

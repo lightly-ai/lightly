@@ -14,7 +14,7 @@ authors = [
     {name = "Lightly Team", email = "team@lightly.ai"},
 ]
 license = {file = "LICENSE.txt"}
-description="A deep learning package for self-supervised learning"
+description="A deep learning package for self-supervised learning and world models"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
@@ -254,15 +254,10 @@ exclude = '''(?x)(
     lightly/cli/config/get_config.py |
     lightly/cli/train_cli.py |
     lightly/cli/_cli_simclr.py |
-    lightly/cli/_helpers.py |
     lightly/data/dataset.py |
     lightly/data/_image_loaders.py |
     lightly/data/_video.py |
     lightly/core.py |
-    lightly/utils/cropping/read_yolo_label_file.py |
-    lightly/utils/debug.py |
-    lightly/utils/benchmarking/benchmark_module.py |
-    lightly/utils/benchmarking/knn_classifier.py |
     lightly/models/modules/masked_autoencoder.py |
     lightly/models/modules/ijepa.py |
     lightly/models/utils.py |
@@ -270,19 +265,12 @@ exclude = '''(?x)(
     tests/cli/test_cli_magic.py |
     tests/cli/test_cli_crop.py |
     tests/cli/test_cli_train.py |
-    tests/cli/test_cli_get_lighty_config.py |
     tests/cli/test_cli_embed.py |
     tests/core/test_Core.py |
-    tests/data/test_multi_view_collate.py |
     tests/data/test_LightlySubset.py |
     tests/data/test_LightlyDataset.py |
     tests/embedding/test_callbacks.py |
     tests/embedding/test_embedding.py |
-    tests/utils/test_debug.py |
-    tests/utils/benchmarking/test_benchmark_module.py |
-    tests/utils/benchmarking/test_topk.py |
-    tests/utils/benchmarking/test_knn_classifier.py |
-    tests/utils/benchmarking/test_knn.py |
     tests/utils/benchmarking/test_linear_classifier.py |
     tests/utils/benchmarking/test_metric_callback.py |
     tests/utils/test_dist.py |
@@ -310,4 +298,4 @@ cell_metadata_filter="-all"
 
 [tool.codespell]
 skip = "*.ipynb"
-ignore-words-list = "nce,inpt,nd,wirth"
+ignore-words-list = "nce,inpt,nd,wirth,fro"

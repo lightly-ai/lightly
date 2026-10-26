@@ -6,8 +6,8 @@
 _ERROR_MESSAGE = (
     "lightly.api and ApiWorkflowClient have been removed from the lightly package. "
     "If you need ApiWorkflowClient, use "
-    "Lightly SSL version v1.15.x or older, for example with "
-    '`pip install "lightly<1.16"`.'
+    "Lightly SSL version v1.5.x or older, for example with "
+    '`pip install "lightly<1.6"`.'
 )
 
 raise ImportError(_ERROR_MESSAGE)
