@@ -63,6 +63,38 @@ article ol {
 }
 
 /* ==========================================================================
+   Layout on wide screens
+   ========================================================================== */
+
+/* Furo fixes the column at 46em and centres it by sizing the sidebar as
+   50% - 26em (half of 46em plus 2 x 3em padding). Above Furo's 82em breakpoint
+   the column grows with the window up to 60em, keeping room for the 15em sidebar
+   and 15em table of contents, and the sidebar follows so the column stays
+   centred. */
+@media (min-width: 82em) {
+  :root {
+    --ls-content-width: clamp(46em, 100vw - 37em, 60em);
+  }
+
+  .content {
+    width: var(--ls-content-width);
+  }
+
+  .sidebar-drawer {
+    width: calc(50% - var(--ls-content-width) / 2 - 3em);
+  }
+}
+
+/* Lines up to about 90 characters once the column has room for them. */
+@media (min-width: 100em) {
+  article p,
+  article ul,
+  article ol {
+    max-width: 48rem;
+  }
+}
+
+/* ==========================================================================
    Sidebar
    ========================================================================== */
 
