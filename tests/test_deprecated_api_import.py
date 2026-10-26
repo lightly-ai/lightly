@@ -21,8 +21,8 @@ def test_lightly_api_imports_raise_deprecation_error(import_statement: str) -> N
     message = str(error.value)
     assert "ApiWorkflowClient" in message
     assert "removed" in message
-    assert "v1.15" in message
-    assert "lightly<1.16" in message
+    assert "v1.5.x" in message
+    assert "lightly<1.6" in message
 
 
 def test_lightly_api_importlib_import_raises_deprecation_error() -> None:
