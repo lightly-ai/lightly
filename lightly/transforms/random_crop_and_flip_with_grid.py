@@ -71,8 +71,9 @@ class RandomHorizontalFlipWithLocation(T.RandomHorizontalFlip):  # type: ignore[
         return both the resulting image and the location.
 
         Args:
-            img (PIL Image or Tensor): Image to be flipped..
-            Location: Location object linked to the image
+            img (PIL Image or Tensor): Image to be flipped.
+            location (Location): Location object linked to the image
+
         Returns:
             PIL Image or Tensor: Randomly flipped image
             Location: Location object with updated location.horizontal_flip parameter
@@ -95,8 +96,9 @@ class RandomVerticalFlipWithLocation(T.RandomVerticalFlip):  # type: ignore[misc
         return both the resulting image and the location.
 
         Args:
-            img (PIL Image or Tensor): Image to be flipped..
-            Location: Location object linked to the image
+            img (PIL Image or Tensor): Image to be flipped.
+            location (Location): Location object linked to the image
+
         Returns:
             PIL Image or Tensor: Randomly flipped image
             Location: Location object with updated location.vertical_flip parameter
@@ -125,8 +127,8 @@ class RandomResizedCropAndFlip(nn.Module):  # type: ignore[misc] # Class cannot 
             The maximum scale factor for random resized crops.
         hf_prob:
             The probability of applying horizontal flipping to the image.
-        normalize:
-            A dictionary containing the mean and std values for normalizing the image.
+        vf_prob:
+            The probability of applying vertical flipping to the image.
     """
 
     def __init__(
