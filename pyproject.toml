@@ -278,7 +278,6 @@ exclude = '''(?x)(
     tests/embedding/test_embedding.py |
     tests/utils/test_debug.py |
     tests/utils/benchmarking/test_benchmark_module.py |
-    tests/utils/benchmarking/test_knn_classifier.py |
     tests/utils/benchmarking/test_linear_classifier.py |
     tests/utils/benchmarking/test_metric_callback.py |
     tests/utils/test_dist.py |
