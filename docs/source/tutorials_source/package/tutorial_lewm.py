@@ -1,6 +1,6 @@
 """.. _lightly-lewm-tutorial-9:
 
-Tutorial 9: Train a World Model and Plan with It
+Train a World Model and Plan with It
 ================================================
 
 A world model predicts what an agent will see after it does an action. In this
