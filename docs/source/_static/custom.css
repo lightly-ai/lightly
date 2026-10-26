@@ -206,3 +206,59 @@ table.docutils th {
   background: var(--color-background-secondary);
   font-weight: 600;
 }
+
+/* ==========================================================================
+   Previous / next pager
+   ========================================================================== */
+
+/* Two cards on one row, framed like the code panels and admonitions. Furo floats
+   the links and renders "next" before "previous", so the grid columns put them
+   back in reading order. A page with only one neighbour keeps its side. */
+.related-pages {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr 1fr;
+  margin-top: 2rem;
+}
+
+.related-pages a.prev-page,
+.related-pages a.next-page {
+  border: 1px solid var(--color-background-border);
+  border-radius: 8px;
+  float: none;
+  grid-row: 1;
+  max-width: none;
+  padding: 0.85rem 1rem;
+  transition: border-color 0.15s ease;
+}
+
+.related-pages a.prev-page {
+  grid-column: 1;
+}
+
+.related-pages a.next-page {
+  grid-column: 2;
+  justify-content: flex-end;
+}
+
+.related-pages a:hover {
+  border-color: var(--color-brand-content);
+}
+
+.related-pages a svg.furo-related-icon,
+.related-pages a svg.furo-related-icon > use {
+  color: var(--color-foreground-muted);
+}
+
+/* The title carries the card, set like the headings. Furo's hover rule still turns
+   it link blue; the border change already marks hover, so no underline. */
+.related-pages .page-info .title {
+  color: var(--color-foreground-primary);
+  font-family: var(--ls-font-display);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.related-pages a:hover .page-info .title {
+  text-decoration: none;
+}
