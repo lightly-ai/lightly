@@ -75,11 +75,12 @@ class EMPSSLLoss(Module):
         >>> base_transform = VICRegViewTransform()  # As discussed in paper
         >>> transform_fn = MultiViewTransform(transforms=[base_transform] * 100)
         >>>
-        >>> # generate the transformed samples
-        >>> samples = transform_fn(image)
+        >>> # use transform_fn in the dataset; a DataLoader batch then holds
+        >>> # one (batch_size, C, H, W) tensor per view
+        >>> views, _ = batch
         >>>
-        >>> # feed through encoder head, one embedding tensor per view
-        >>> z_views = [model(s) for s in samples]
+        >>> # feed through encoder head, one (batch_size, dim) tensor per view
+        >>> z_views = [model(v) for v in views]
         >>>
         >>> # calculate loss
         >>> loss = loss_fn(z_views)
