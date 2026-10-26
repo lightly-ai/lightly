@@ -254,7 +254,6 @@ exclude = '''(?x)(
     lightly/cli/config/get_config.py |
     lightly/cli/train_cli.py |
     lightly/cli/_cli_simclr.py |
-    lightly/cli/_helpers.py |
     lightly/data/dataset.py |
     lightly/data/_image_loaders.py |
     lightly/data/_video.py |
