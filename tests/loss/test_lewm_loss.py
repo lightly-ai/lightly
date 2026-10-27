@@ -81,6 +81,17 @@ class TestLeWMLoss:
         assert emb.grad is not None
         assert predicted.grad is not None
 
+    def test_forward__gradients_reach_target(self) -> None:
+        # lambda_param=0 leaves only the prediction term, so the target gradient
+        # comes from that term alone.
+        criterion = LeWMLoss(lambda_param=0.0, sigreg_num_vectors=32)
+        predicted = torch.randn(8, 3, 16, requires_grad=True)
+        target = torch.randn(8, 3, 16, requires_grad=True)
+        criterion(
+            predicted=predicted, target=target, embeddings=torch.randn(8, 4, 16)
+        ).backward()
+        assert target.grad is not None
+
     def test_forward__lambda_zero_drops_regularizer(self) -> None:
         torch.manual_seed(0)
         emb = torch.randn(8, 4, 16)
