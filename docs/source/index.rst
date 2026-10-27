@@ -4,10 +4,19 @@
    contain the root `toctree` directive.
 
 
+.. Furo shows only-light images in light mode and only-dark ones in dark mode.
+
 .. image:: ../logos/lightly_SSL_logo_crop.png
    :width: 600
    :align: center
    :alt: LightlySSL Self-Supervised Learning
+   :class: only-light
+
+.. image:: ../logos/lightly_SSL_logo_crop_white_text.png
+   :width: 600
+   :align: center
+   :alt: LightlySSL Self-Supervised Learning
+   :class: only-dark
 
 
 Documentation
