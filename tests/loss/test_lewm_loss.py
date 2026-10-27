@@ -12,12 +12,12 @@ class TestLatentPredictionLoss:
         emb = torch.randn(4, 3, 16)
         assert latent_prediction_loss(predicted=emb, target=emb).item() == 0.0
 
-    def test_forward__target_is_detached(self) -> None:
+    def test_forward__gradients_reach_target(self) -> None:
         predicted = torch.randn(4, 3, 16, requires_grad=True)
         target = torch.randn(4, 3, 16, requires_grad=True)
         latent_prediction_loss(predicted=predicted, target=target).backward()
         assert predicted.grad is not None
-        assert target.grad is None
+        assert target.grad is not None
 
     def test_forward__normalize(self) -> None:
         predicted = torch.randn(4, 3, 16)

@@ -14,9 +14,8 @@ def latent_prediction_loss(
     """Mean squared error between predicted and target frame embeddings.
 
     This is :func:`~lightly.loss.latent_distance.latent_distance` with the
-    squared error, which is what LeWM uses. The target is detached, so
-    gradients flow only through the predictor and through the encoder path that
-    produced ``predicted``.
+    squared error, which is what LeWM uses. Gradients flow through both
+    ``predicted`` and ``target``.
 
     Args:
         predicted: Predicted embeddings of shape ``(B, T, D)``.
