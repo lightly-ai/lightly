@@ -89,11 +89,21 @@ _BRAND = {
     "color-brand-primary": "#07222c",
     "color-brand-content": "#0e8fce",
     "color-brand-visited": "#0e8fce",
+    # Notes and see-also boxes use the brand blue instead of Furo's material blue.
+    "color-admonition-title--note": "#0e8fce",
+    "color-admonition-title--seealso": "#0e8fce",
+    # The banner is the brand navy in both schemes.
+    "color-announcement-background": "#07222c",
+    "color-announcement-text": "#cfe3eb",
 }
 _BRAND_DARK = {
     "color-brand-primary": "#f7f8fb",
     "color-brand-content": "#1aa3e4",
     "color-brand-visited": "#1aa3e4",
+    "color-admonition-title--note": "#1aa3e4",
+    "color-admonition-title--seealso": "#1aa3e4",
+    "color-announcement-background": "#0b3140",
+    "color-announcement-text": "#cfe3eb",
 }
 
 html_theme_options = {
@@ -119,7 +129,7 @@ html_theme_options = {
     "light_css_variables": {
         **_BRAND,
         "font-stack": "'IBM Plex Sans', system-ui, sans-serif",
-        "font-stack--monospace": "'JetBrains Mono', ui-monospace, monospace",
+        "font-stack--monospace": "'IBM Plex Mono', ui-monospace, monospace",
         "color-foreground-primary": "#07222c",
         "color-foreground-secondary": "#4c616b",
         "color-foreground-muted": "#5e727c",
@@ -127,6 +137,13 @@ html_theme_options = {
         "color-background-secondary": "#fafafc",
         "color-background-border": "#e6e6ec",
         "color-api-background": "#fafafc",
+        # A gray sidebar sets the navigation apart from the white page.
+        "color-sidebar-background": "#f4f6f8",
+        "color-sidebar-background-border": "#e3e8ec",
+        "color-sidebar-search-background": "#ffffff",
+        "color-sidebar-caption-text": "#5e727c",
+        # Tint behind the current page in the sidebar.
+        "ls-accent-tint": "#e6f3fb",
     },
     "dark_css_variables": {
         **_BRAND_DARK,
@@ -137,6 +154,11 @@ html_theme_options = {
         "color-background-secondary": "#07222c",
         "color-background-border": "#123240",
         "color-api-background": "#07222c",
+        "color-sidebar-background": "#07222c",
+        "color-sidebar-background-border": "#123240",
+        "color-sidebar-search-background": "#051a22",
+        "color-sidebar-caption-text": "#7f949e",
+        "ls-accent-tint": "#0b3140",
     },
 }
 
@@ -147,7 +169,7 @@ pygments_style = "native"
 pygments_dark_style = "native"
 
 html_css_files = [
-    "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Open+Sans:wght@600;700&display=swap",
+    "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=Open+Sans:wght@600;700&display=swap",
     "custom.css",
 ]
 

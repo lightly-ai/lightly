@@ -9,7 +9,7 @@
 :root {
   --ls-font-display: "IBM Plex Sans", system-ui, sans-serif;
   --ls-font-brand: "Open Sans", system-ui, sans-serif;
-  --ls-font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --ls-font-mono: "IBM Plex Mono", ui-monospace, monospace;
 
   /* The code panel is the brand navy in both schemes, so it does not flip. */
   --ls-code-surface: #07222c;
@@ -108,27 +108,45 @@ article ol {
   font-size: 0.88rem;
 }
 
-/* Current page reads as a neutral pill; the accent stays reserved for links. */
+/* Current page: a tinted pill in the brand blue, as in the Studio docs. */
 .sidebar-tree .current-page > .reference {
-  background: var(--color-background-secondary);
-  color: var(--color-foreground-primary);
+  background: var(--ls-accent-tint);
+  color: var(--color-brand-content);
   font-weight: 600;
 }
 
-.sidebar-tree .caption {
-  color: var(--color-foreground-primary);
-  font-size: 0.82rem;
-  font-weight: 600;
-  letter-spacing: normal;
-  text-transform: none;
-}
-
+/* Section labels and the "On this page" title: small uppercase mono, as in the
+   Studio docs. */
+.sidebar-tree .caption,
 .toc-title {
-  color: var(--color-foreground-primary);
-  font-size: 0.85rem;
+  color: var(--color-sidebar-caption-text);
+  font-family: var(--ls-font-mono);
+  font-size: 0.68rem;
   font-weight: 600;
-  letter-spacing: normal;
-  text-transform: none;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Expanded sections hang off a guide line so the nesting reads at a glance. */
+.sidebar-tree .toctree-l1 > ul {
+  border-left: 1px solid var(--color-sidebar-background-border);
+  margin-left: calc(var(--sidebar-item-spacing-horizontal) + 0.25rem);
+}
+
+/* The search box sits on the gray sidebar as a white field. */
+.sidebar-search-container {
+  border: 1px solid var(--color-sidebar-background-border);
+  border-radius: 8px;
+  /* The sidebar is a fixed-height flex column; without this the box shrinks
+     when the navigation below it is long. */
+  flex-shrink: 0;
+  margin: 0.25rem var(--sidebar-item-spacing-horizontal) 0.75rem;
+  overflow: hidden;
+}
+
+/* Banner links pick up the code-panel teal so they read on the navy. */
+.announcement a {
+  color: #3ad9c6;
 }
 
 /* ==========================================================================
@@ -214,19 +232,50 @@ code.literal {
    Admonitions and tables
    ========================================================================== */
 
+/* A tinted card with a thin border in the admonition's own colour, as in the
+   Studio docs, instead of Furo's left bar and title band. --ls-adm carries the
+   colour Furo assigns to each type. */
 .admonition {
-  border-radius: 8px;
+  --ls-adm: var(--color-admonition-title);
+  background: color-mix(in srgb, var(--ls-adm) 7%, var(--color-background-primary));
+  border: 1px solid color-mix(in srgb, var(--ls-adm) 30%, var(--color-background-primary));
+  border-radius: 9px;
   box-shadow: none;
   font-size: 0.92rem;
+  padding: 0.85rem 1rem;
 }
 
-.admonition > .admonition-title {
+.admonition.note { --ls-adm: var(--color-admonition-title--note); }
+.admonition.seealso { --ls-adm: var(--color-admonition-title--seealso); }
+.admonition.tip { --ls-adm: var(--color-admonition-title--tip); }
+.admonition.hint { --ls-adm: var(--color-admonition-title--hint); }
+.admonition.important { --ls-adm: var(--color-admonition-title--important); }
+.admonition.warning { --ls-adm: var(--color-admonition-title--warning); }
+.admonition.caution { --ls-adm: var(--color-admonition-title--caution); }
+.admonition.attention { --ls-adm: var(--color-admonition-title--attention); }
+.admonition.danger { --ls-adm: var(--color-admonition-title--danger); }
+.admonition.error { --ls-adm: var(--color-admonition-title--error); }
+
+/* Doubled class to match the specificity of Furo's per-type title rules, such as
+   .admonition.seealso > .admonition-title, which set the title band. */
+.admonition.admonition > .admonition-title {
+  background: transparent;
   font-family: var(--ls-font-display);
   font-weight: 600;
+  margin: 0 0 0.35rem;
+  padding: 0 0 0 1.6rem;
+}
+
+.admonition > .admonition-title::before {
+  left: 0;
 }
 
 .admonition > .admonition-title::after {
   color: inherit;
+}
+
+.admonition > :last-child {
+  margin-bottom: 0;
 }
 
 table.docutils {
