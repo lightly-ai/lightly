@@ -337,6 +337,355 @@ div.sphx-glr-download code.download {
 }
 
 /* ==========================================================================
+   Cards and buttons from sphinx-design
+   ========================================================================== */
+
+.sd-card {
+  background: var(--color-background-primary);
+  border-color: var(--color-background-border) !important;
+  border-radius: 10px !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sd-card:hover {
+  border-color: var(--color-brand-content) !important;
+  box-shadow: 0 6px 20px -8px color-mix(in srgb, var(--color-brand-primary) 25%, transparent) !important;
+}
+
+.sd-card-title {
+  font-size: 1.02rem;
+  font-weight: 600 !important;
+}
+
+.sd-card-body {
+  color: var(--color-foreground-secondary);
+  font-size: 0.92rem;
+}
+
+.sd-card-title .sd-octicon {
+  color: var(--color-brand-content);
+}
+
+/* Product logos in card titles, at the octicons' 1.2em. */
+.sd-card-title img.ls-product-mark {
+  height: 1.2em;
+  margin-right: 0.15em;
+  vertical-align: -0.2em;
+  width: auto;
+}
+
+.sd-btn {
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  padding: 0.55rem 1.1rem !important;
+}
+
+.sd-btn-primary {
+  background: var(--color-brand-content) !important;
+  border-color: var(--color-brand-content) !important;
+}
+
+.sd-btn-primary:hover,
+.sd-btn-primary:focus {
+  background: color-mix(in srgb, var(--color-brand-content) 86%, #000) !important;
+  border-color: color-mix(in srgb, var(--color-brand-content) 86%, #000) !important;
+  color: #fff !important;
+}
+
+/* sphinx-design fills outline buttons on hover and turns the text white, which
+   vanishes on the pale tint. Keep the teal text and border instead. */
+.sd-btn-outline-primary,
+.sd-btn-outline-primary:hover,
+.sd-btn-outline-primary:focus {
+  border-color: var(--color-brand-content) !important;
+  color: var(--color-brand-content) !important;
+}
+
+.sd-btn-outline-primary:hover,
+.sd-btn-outline-primary:focus {
+  background: var(--ls-accent-tint) !important;
+}
+
+/* ==========================================================================
+   Start page
+   ========================================================================== */
+
+/* The section title names the page for the browser tab and search; the hero
+   shows its own, larger title. */
+section.ls-landing > h1 {
+  display: none;
+}
+
+.ls-section-title {
+  margin-top: 2.6rem !important;
+}
+
+/* Hero: a pale teal panel with navy text in light mode, the navy panel in dark
+   mode. The terminal stays dark in both, like the code panels. Furo marks the
+   scheme on body[data-theme]; "auto" follows the OS. */
+.ls-navy {
+  --ls-hero-bg: radial-gradient(1200px 400px at 85% -10%, rgba(15, 127, 123, 0.16), transparent 60%),
+    linear-gradient(160deg, #f4fbfa 0%, #e3f4f2 100%);
+  --ls-hero-border: #d3e4ec;
+  --ls-hero-title: #092643;
+  --ls-hero-ink: #4c616b;
+  --ls-hero-accent: #0f7f7b;
+  --ls-hero-btn-bg: #0f7f7b;
+  --ls-hero-btn-ink: #ffffff;
+  --ls-hero-ghost-border: #b5d0dc;
+  --ls-hero-ghost-ink: #092643;
+  background: var(--ls-hero-bg);
+  border: 1px solid var(--ls-hero-border);
+  border-radius: 16px;
+  /* Furo floats the page icons at the top right; the hero starts below them. */
+  clear: both;
+  color: var(--ls-hero-ink);
+  margin: 0.75rem 0 2.2rem;
+  padding: 2.6rem 2.4rem 2.2rem;
+}
+
+body[data-theme="dark"] .ls-navy {
+  --ls-hero-bg: radial-gradient(1200px 400px at 85% -10%, rgba(55, 216, 164, 0.2), transparent 60%),
+    linear-gradient(160deg, #092643 0%, #0d3253 100%);
+  --ls-hero-border: #17395a;
+  --ls-hero-title: #ffffff;
+  --ls-hero-ink: #a9c3cd;
+  --ls-hero-accent: #2cc2bd;
+  --ls-hero-btn-bg: #2cc2bd;
+  --ls-hero-btn-ink: #092643;
+  --ls-hero-ghost-border: #2c5577;
+  --ls-hero-ghost-ink: #e6f1f5;
+}
+
+@media (prefers-color-scheme: dark) {
+  body:not([data-theme="light"]) .ls-navy {
+    --ls-hero-bg: radial-gradient(1200px 400px at 85% -10%, rgba(55, 216, 164, 0.2), transparent 60%),
+      linear-gradient(160deg, #092643 0%, #0d3253 100%);
+    --ls-hero-border: #17395a;
+    --ls-hero-title: #ffffff;
+    --ls-hero-ink: #a9c3cd;
+    --ls-hero-accent: #2cc2bd;
+    --ls-hero-btn-bg: #2cc2bd;
+    --ls-hero-btn-ink: #092643;
+    --ls-hero-ghost-border: #2c5577;
+    --ls-hero-ghost-ink: #e6f1f5;
+  }
+}
+
+.ls-hero-logo {
+  height: 34px;
+}
+
+.ls-navy .ls-hero-title {
+  color: var(--ls-hero-title);
+  font-family: var(--ls-font-display);
+  font-size: 2.6rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin: 1rem 0 0.6rem;
+  max-width: 34rem;
+}
+
+.ls-navy .ls-lead {
+  color: var(--ls-hero-ink);
+  font-size: 1.15rem;
+  line-height: 1.6;
+  margin: 0 0 1.4rem;
+  max-width: 40rem;
+}
+
+.ls-navy-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 0 0 1.8rem;
+}
+
+.ls-navy a.ls-btn {
+  border-radius: 8px;
+  display: inline-block;
+  font-weight: 600;
+  padding: 0.55rem 1.1rem;
+  text-decoration: none;
+}
+
+.ls-navy a.ls-btn-primary {
+  background: var(--ls-hero-btn-bg);
+  color: var(--ls-hero-btn-ink);
+}
+
+.ls-navy a.ls-btn-ghost {
+  background: transparent;
+  border: 1px solid var(--ls-hero-ghost-border);
+  color: var(--ls-hero-ghost-ink);
+}
+
+.ls-navy a.ls-btn:hover {
+  filter: brightness(1.05);
+}
+
+.ls-navy a.ls-btn-ghost:hover {
+  border-color: var(--ls-hero-accent);
+}
+
+/* A terminal window with the install and first-run commands. */
+.ls-terminal {
+  background: #061b30;
+  border: 1px solid #17395a;
+  border-radius: 12px;
+  box-shadow: 0 18px 36px -22px rgba(9, 38, 67, 0.55);
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.ls-terminal-bar {
+  border-bottom: 1px solid #17395a;
+  display: flex;
+  gap: 6px;
+  padding: 10px 12px;
+}
+
+.ls-terminal-bar span {
+  border-radius: 50%;
+  height: 10px;
+  width: 10px;
+}
+
+.ls-terminal-bar span:nth-child(1) { background: #ff5f57; }
+.ls-terminal-bar span:nth-child(2) { background: #febc2e; }
+.ls-terminal-bar span:nth-child(3) { background: #28c840; }
+
+.ls-terminal pre {
+  background: transparent;
+  color: var(--ls-code-ink);
+  font-family: var(--ls-font-mono);
+  font-size: 0.85rem;
+  line-height: 1.7;
+  margin: 0;
+  overflow-x: auto;
+  padding: 1rem 1.1rem;
+}
+
+.ls-terminal .p { color: #2cc2bd; }
+.ls-terminal .c { color: var(--ls-code-label); }
+
+/* What's new: a large card for the headline release, smaller ones below. */
+.ls-pill {
+  background: var(--ls-accent-tint);
+  border-radius: 999px;
+  color: var(--color-brand-content);
+  display: inline-block;
+  font-family: var(--ls-font-mono);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  margin: 0 0 0.6rem;
+  padding: 0.2rem 0.6rem;
+  text-transform: uppercase;
+}
+
+.ls-feature {
+  align-items: center;
+  background: var(--color-background-secondary);
+  border: 1px solid var(--color-background-border);
+  border-radius: 14px;
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  margin: 0 0 1.25rem;
+  padding: 1.6rem;
+}
+
+.ls-feature-media img {
+  border-radius: 10px;
+  display: block;
+  width: 100%;
+}
+
+.ls-feature-title {
+  color: var(--color-foreground-primary);
+  font-family: var(--ls-font-display);
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  margin: 0 0 0.6rem;
+}
+
+.ls-feature-body p {
+  margin: 0 0 0.7rem;
+}
+
+.ls-feature-note {
+  color: var(--color-foreground-muted);
+  font-size: 0.88rem;
+}
+
+.ls-feature-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.ls-feature-actions p {
+  margin: 0;
+}
+
+@media (max-width: 60em) {
+  .ls-feature {
+    grid-template-columns: 1fr;
+  }
+
+  .ls-feature-media {
+    max-width: 22rem;
+  }
+}
+
+.ls-news .ls-news-title {
+  color: var(--color-foreground-primary);
+  font-family: var(--ls-font-display);
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 0 0 0.35rem;
+}
+
+.ls-news .sd-card-body p.ls-pill {
+  margin-bottom: 0.6rem;
+}
+
+/* All methods: one wrapping row of chips. The family containers flatten into it
+   so method-filter.js can hide a whole family at once. */
+.ls-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.ls-chips .ls-fam-item,
+.ls-chips .ls-fam-item p {
+  display: contents;
+}
+
+.ls-chips a.reference {
+  background: var(--color-background-secondary);
+  border: 1px solid var(--color-background-border);
+  border-radius: 999px;
+  color: var(--color-foreground-primary);
+  display: inline-block;
+  font-size: 0.86rem;
+  font-weight: 500;
+  padding: 0.3rem 0.75rem;
+  text-decoration: none;
+}
+
+.ls-chips a.reference:hover {
+  background: var(--ls-accent-tint);
+  border-color: var(--color-brand-content);
+  color: var(--color-brand-content);
+}
+
+/* ==========================================================================
    Models page: family filter and method cards
    ========================================================================== */
 
