@@ -1,5 +1,5 @@
 /* ==========================================================================
-   LightlySSL docs — shared visual language with the LightlyStudio docs.
+   LightlySSL docs — the LightlyStudio docs layout in the LightlySSL colors.
 
    Furo exposes most of the palette as CSS custom properties, which are set in
    conf.py. This file covers what those variables cannot reach: the display
@@ -12,8 +12,8 @@
   --ls-font-mono: "IBM Plex Mono", ui-monospace, monospace;
 
   /* The code panel is the brand navy in both schemes, so it does not flip. */
-  --ls-code-surface: #07222c;
-  --ls-code-line: #123240;
+  --ls-code-surface: #092643;
+  --ls-code-line: #17395a;
   --ls-code-ink: #cfe3eb;
   --ls-code-label: #7f949e;
 }
@@ -97,7 +97,7 @@ article {
   font-size: 0.88rem;
 }
 
-/* Current page: a tinted pill in the brand blue, as in the Studio docs. */
+/* Current page: a tinted pill in the brand teal, as in the Studio docs. */
 .sidebar-tree .current-page > .reference {
   background: var(--ls-accent-tint);
   color: var(--color-brand-content);
@@ -133,9 +133,15 @@ article {
   overflow: hidden;
 }
 
-/* Banner links pick up the code-panel teal so they read on the navy. */
+/* Banner links use the logo turquoise so they read on the navy. */
 .announcement a {
-  color: #3ad9c6;
+  color: #2cc2bd;
+}
+
+/* The logo's green-to-blue gradient as a strip under the banner. */
+.announcement {
+  border-bottom: 3px solid;
+  border-image: linear-gradient(90deg, #37d8a4, #2cc2bd, #2baeca) 1;
 }
 
 /* ==========================================================================
@@ -157,19 +163,20 @@ div.highlight pre {
   padding: 1rem 1.1rem;
 }
 
-/* Syntax colours built from the brand blues rather than a generic rainbow. */
+/* Syntax colours built from the logo greens and blues rather than a generic
+   rainbow. */
 .highlight .k,
 .highlight .kn,
 .highlight .kd,
 .highlight .ow {
-  color: #3ad9c6;
+  color: #2cc2bd;
 }
 
 .highlight .s,
 .highlight .s1,
 .highlight .s2,
 .highlight .sd {
-  color: #a8d8a0;
+  color: #37d8a4;
 }
 
 .highlight .c,

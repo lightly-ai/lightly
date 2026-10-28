@@ -82,28 +82,31 @@ exclude_patterns = []
 #
 html_theme = "furo"
 
-# Colors come from the LightlyStudio docs palette so the three doc sites read
-# as one product family. Furo takes them as CSS custom properties, so the
-# tokens live here and _static/custom.css only handles what they cannot reach.
+# Layout follows the LightlyStudio docs so the doc sites read as one product
+# family, but the colors are LightlySSL's own, taken from the logo: navy #092643,
+# turquoise #2cc2bd and the green-to-blue gradient of the mark. Turquoise is too
+# light for text on white, so light-mode links use a darker teal that passes WCAG
+# AA. Furo takes the colors as CSS custom properties, so the tokens live here and
+# _static/custom.css only handles what they cannot reach.
 _BRAND = {
-    "color-brand-primary": "#07222c",
-    "color-brand-content": "#0e8fce",
-    "color-brand-visited": "#0e8fce",
-    # Notes and see-also boxes use the brand blue instead of Furo's material blue.
-    "color-admonition-title--note": "#0e8fce",
-    "color-admonition-title--seealso": "#0e8fce",
+    "color-brand-primary": "#092643",
+    "color-brand-content": "#0f7f7b",
+    "color-brand-visited": "#0f7f7b",
+    # Notes and see-also boxes use the brand teal instead of Furo's material blue.
+    "color-admonition-title--note": "#0f7f7b",
+    "color-admonition-title--seealso": "#0f7f7b",
     # The banner is the brand navy in both schemes.
-    "color-announcement-background": "#07222c",
-    "color-announcement-text": "#cfe3eb",
+    "color-announcement-background": "#092643",
+    "color-announcement-text": "#d4e2ec",
 }
 _BRAND_DARK = {
     "color-brand-primary": "#f7f8fb",
-    "color-brand-content": "#1aa3e4",
-    "color-brand-visited": "#1aa3e4",
-    "color-admonition-title--note": "#1aa3e4",
-    "color-admonition-title--seealso": "#1aa3e4",
-    "color-announcement-background": "#0b3140",
-    "color-announcement-text": "#cfe3eb",
+    "color-brand-content": "#2cc2bd",
+    "color-brand-visited": "#2cc2bd",
+    "color-admonition-title--note": "#2cc2bd",
+    "color-admonition-title--seealso": "#2cc2bd",
+    "color-announcement-background": "#0d3253",
+    "color-announcement-text": "#d4e2ec",
 }
 
 html_theme_options = {
@@ -130,7 +133,7 @@ html_theme_options = {
         **_BRAND,
         "font-stack": "'IBM Plex Sans', system-ui, sans-serif",
         "font-stack--monospace": "'IBM Plex Mono', ui-monospace, monospace",
-        "color-foreground-primary": "#07222c",
+        "color-foreground-primary": "#092643",
         "color-foreground-secondary": "#4c616b",
         "color-foreground-muted": "#5e727c",
         "color-background-primary": "#ffffff",
@@ -143,22 +146,22 @@ html_theme_options = {
         "color-sidebar-search-background": "#ffffff",
         "color-sidebar-caption-text": "#5e727c",
         # Tint behind the current page in the sidebar.
-        "ls-accent-tint": "#e6f3fb",
+        "ls-accent-tint": "#e3f6f4",
     },
     "dark_css_variables": {
         **_BRAND_DARK,
         "color-foreground-primary": "#f7f8fb",
         "color-foreground-secondary": "#93a7b0",
         "color-foreground-muted": "#7f949e",
-        "color-background-primary": "#051a22",
-        "color-background-secondary": "#07222c",
-        "color-background-border": "#123240",
-        "color-api-background": "#07222c",
-        "color-sidebar-background": "#07222c",
-        "color-sidebar-background-border": "#123240",
-        "color-sidebar-search-background": "#051a22",
+        "color-background-primary": "#061b30",
+        "color-background-secondary": "#092643",
+        "color-background-border": "#17395a",
+        "color-api-background": "#092643",
+        "color-sidebar-background": "#092643",
+        "color-sidebar-background-border": "#17395a",
+        "color-sidebar-search-background": "#061b30",
         "color-sidebar-caption-text": "#7f949e",
-        "ls-accent-tint": "#0b3140",
+        "ls-accent-tint": "#0d3253",
     },
 }
 
