@@ -337,6 +337,112 @@ div.sphx-glr-download code.download {
 }
 
 /* ==========================================================================
+   Models page: family filter and method cards
+   ========================================================================== */
+
+/* A row of tabs; the active one is a tinted pill like the current sidebar page.
+   _static/method-filter.js appends the count to each tab. */
+.ls-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 1.5rem 0 1rem;
+}
+
+.ls-filter-btn {
+  align-items: center;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: var(--color-foreground-secondary);
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 500;
+  gap: 0.4rem;
+  padding: 0.3rem 0.7rem;
+}
+
+.ls-filter-btn:hover {
+  color: var(--color-brand-content);
+}
+
+.ls-filter-btn.is-active {
+  background: var(--ls-accent-tint);
+  border-color: color-mix(in srgb, var(--color-brand-content) 30%, transparent);
+  color: var(--color-brand-content);
+  font-weight: 600;
+}
+
+.ls-filter-count {
+  color: var(--color-foreground-muted);
+  font-family: var(--ls-font-mono);
+  font-size: 0.72rem;
+}
+
+.ls-filter-btn.is-active .ls-filter-count {
+  color: inherit;
+}
+
+.ls-filter-target .is-hidden {
+  display: none !important;
+}
+
+/* Cards framed like the pager and code panels; the border turns teal on hover. */
+.ls-method-card.sd-card {
+  background: var(--color-background-primary);
+  border-color: var(--color-background-border);
+  border-radius: 10px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ls-method-card.sd-card:hover {
+  border-color: var(--color-brand-content);
+  box-shadow: 0 6px 20px -8px color-mix(in srgb, var(--color-brand-primary) 25%, transparent);
+}
+
+.ls-method-card .sd-card-title {
+  font-family: var(--ls-font-display);
+  font-size: 1.02rem;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.ls-method-card .sd-card-body {
+  color: var(--color-foreground-secondary);
+  font-size: 0.92rem;
+}
+
+.ls-method-card .sd-card-body p:last-child {
+  margin-bottom: 0;
+}
+
+.ls-method-meta {
+  color: var(--color-foreground-muted);
+  font-family: var(--ls-font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  margin: 0 0 0.5rem;
+  text-transform: uppercase;
+}
+
+.ls-method-tags {
+  display: flex;
+  gap: 0.35rem;
+  margin-top: 0.7rem !important;
+}
+
+.ls-method-tags span {
+  background: var(--ls-accent-tint);
+  border-radius: 999px;
+  color: var(--color-brand-content);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.1rem 0.5rem;
+}
+
+/* ==========================================================================
    Previous / next pager
    ========================================================================== */
 
