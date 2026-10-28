@@ -285,6 +285,58 @@ table.docutils th {
 }
 
 /* ==========================================================================
+   Sphinx-Gallery download links
+   ========================================================================== */
+
+/* Sphinx-Gallery draws each download as a bold monospace link on a yellow
+   gradient, stacked and centred. Here they sit in one row as outlined buttons,
+   framed like the pager cards. */
+.sphx-glr-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 1.5rem 0;
+}
+
+div.sphx-glr-download {
+  margin: 0;
+}
+
+div.sphx-glr-download p {
+  margin: 0;
+}
+
+div.sphx-glr-download a {
+  background: var(--color-background-secondary);
+  border: 1px solid var(--color-background-border);
+  border-radius: 8px;
+  color: var(--color-foreground-primary);
+  font-weight: 500;
+  padding: 0.45rem 0.85rem;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+div.sphx-glr-download a:hover {
+  background: var(--ls-accent-tint);
+  border-color: var(--color-brand-content);
+  box-shadow: none;
+  color: var(--color-brand-content);
+}
+
+div.sphx-glr-download a::before {
+  content: "↓ ";
+  color: var(--color-brand-content);
+}
+
+div.sphx-glr-download code.download {
+  color: inherit;
+  font-family: var(--ls-font-display);
+  font-size: 0.85rem;
+  font-weight: inherit;
+  padding: 0;
+}
+
+/* ==========================================================================
    Previous / next pager
    ========================================================================== */
 
