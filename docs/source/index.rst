@@ -1,87 +1,255 @@
-.. lightly documentation master file, created by
-   sphinx-quickstart on Tue Oct  6 10:38:42 2020.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+:hide-toc:
 
+.. Start page. The section title names the page for the browser tab and search;
+   the hero shows its own, larger title.
 
-.. image:: ../logos/lightly_SSL_logo_crop.png
-   :width: 600
-   :align: center
-   :alt: LightlySSL Self-Supervised Learning
+.. rst-class:: ls-landing
 
+LightlySSL
+==========
 
-Documentation
-===================================
+.. raw:: html
 
-.. seealso:: 
-   
-   These pages document the Lightly self-supervised learning research library. If you
-   are instead looking to leverage SSL and distillation pretrain with only a few lines of code
-   head over to `LightlyTrain <https://docs.lightly.ai/train/stable/index.html>`_ instead. And if you are looking for the Lightly\ **One** Worker Solution with
-   advanced `active learning algorithms <https://docs.lightly.ai/docs/customize-a-selection>`_ and
-   `selection strategies <https://docs.lightly.ai/docs/selection-examples-and-use-cases>`_ to select the best samples
-   within millions of unlabeled images or video frames stored in your cloud storage or locally,
-   please follow our Lightly\ **One** Worker `documentation <https://docs.lightly.ai/>`_.
+   <div class="ls-navy">
+     <img class="ls-hero-logo only-light" src="_static/lightly_SSL_logo_crop.png" alt="LightlySSL">
+     <img class="ls-hero-logo only-dark" src="_static/lightly_SSL_logo_crop_white_text.png" alt="LightlySSL">
+     <p class="ls-hero-title">Learn from images and video without labels</p>
+     <p class="ls-lead">Pretrain vision backbones with 28 self-supervised methods, or train a latent world model that plans from raw frames. All in plain PyTorch.</p>
+     <div class="ls-navy-actions">
+       <a class="ls-btn ls-btn-primary" href="getting_started/install.html">Get started</a>
+       <a class="ls-btn ls-btn-ghost" href="examples/models.html">Browse methods</a>
+       <a class="ls-btn ls-btn-ghost" href="https://github.com/lightly-ai/lightly">GitHub</a>
+     </div>
+     <div class="ls-terminal">
+       <div class="ls-terminal-bar"><span></span><span></span><span></span></div>
+   <pre><span class="p">$</span> pip install lightly
+   <span class="c"># the example scripts live in the repository</span>
+   <span class="p">$</span> git clone https://github.com/lightly-ai/lightly.git
+   <span class="c"># pretrain a ResNet-18 with SimCLR on CIFAR-10</span>
+   <span class="p">$</span> python lightly/examples/pytorch/simclr.py
+   <span class="c"># or with Lightning on several GPUs</span>
+   <span class="p">$</span> python lightly/examples/pytorch_lightning_distributed/simclr.py</pre>
+     </div>
+   </div>
 
+.. rst-class:: ls-section-title
 
-Lightly\ **SSL** is a computer vision framework for self-supervised learning and
-latent world models.
-
-.. rubric:: World Models
-
-A world model learns how a scene responds to actions. :ref:`lewm` learns it from
-raw frames and actions, then plans by imagining the outcome of each move in its
-own embedding space.
-
-.. figure:: ../assets/lewm_planning.gif
-   :width: 480
-   :align: center
-   :alt: Four agents planned by LeWM pass through a door to reach their goals
-
-   Each agent (orange) gets only a picture of its goal (white box). LeWM finds a
-   way through the door. It learned from random play: no rewards, no labels, no
-   map of the room.
-
-Start with :ref:`lightly-lewm-tutorial-9`.
-
-With Lightly\ **SSL** you can train deep learning models using self-supervision. 
-This means, that you don’t require any labels to train a model. 
-Lightly\ **SSL** has been built to help you understand and work with large unlabeled 
-datasets. It is built on top of PyTorch and therefore fully compatible with 
-other frameworks such as Fast.ai.
-
-For a commercial version with more features, including Docker support and pretraining
-models for embedding, classification, detection, and segmentation tasks with
-a single command, please contact sales@lightly.ai.
-
-
-Lightly AI
+What's new
 ----------
 
-.. |lightly_worker_with_bold_one| raw:: html
+.. container:: ls-feature
 
-   <a href="https://docs.lightly.ai" target="_blank">Lightly<strong>One</strong> Worker Solution Documentation</a>
+   .. container:: ls-feature-media
 
+      .. image:: ../assets/lewm_planning.gif
+         :alt: Four agents planned by LeWM pass through a door to reach their goals
 
-.. |lightly_app_with_bold_one| raw:: html
+   .. container:: ls-feature-body
 
-   <a href="https://app.lightly.ai" target="_blank">Lightly<strong>One</strong> Platform</a>
+      .. rst-class:: ls-pill
 
+      New in 1.6
 
-.. |lightly_train_with_bold_train| raw:: html
+      .. rst-class:: ls-feature-title
 
-   <a href="https://docs.lightly.ai/train/stable/index.html" target="_blank">Lightly<strong>Train</strong> Documentation</a>
+      Latent world models with LeWM
 
+      A world model learns how a scene responds to actions. LeWM learns it from raw
+      frames and actions, then plans by imagining the outcome of each move in its own
+      embedding space.
 
-- `Homepage <https://www.lightly.ai>`_
-- |lightly_train_with_bold_train|
-- |lightly_worker_with_bold_one|
-- |lightly_app_with_bold_one|
-- `Github <https://github.com/lightly-ai/lightly>`_
-- `Discord <https://discord.gg/xvNJW94>`_ (We have weekly paper sessions!)
+      .. rst-class:: ls-feature-note
+
+      Each agent (orange) gets only a picture of its goal (white box). It learned from
+      random play: no rewards, no labels, no map of the room.
+
+      .. container:: ls-feature-actions
+
+         .. button-ref:: lightly-lewm-tutorial-9
+            :ref-type: ref
+            :color: primary
+
+            Train a world model
+
+         .. button-ref:: lewm
+            :ref-type: ref
+            :color: primary
+            :outline:
+
+            How LeWM works
+
+.. grid:: 1 1 3 3
+   :gutter: 3
+   :class-container: ls-news
+
+   .. grid-item-card::
+      :link: capi
+      :link-type: ref
+
+      .. rst-class:: ls-pill
+
+      New in 1.6
+
+      .. rst-class:: ls-news-title
+
+      CAPI
+
+      Masked image modeling that predicts the cluster assignments of masked
+      patches instead of their pixels.
+
+   .. grid-item-card::
+      :link: pixio
+      :link-type: ref
+
+      .. rst-class:: ls-pill
+
+      New in 1.5.26
+
+      .. rst-class:: ls-news-title
+
+      Pixio, FroSSL and DetConS
+
+      Three more methods: a masked autoencoder variant, Frobenius norm
+      minimization, and object-level contrastive learning.
+
+   .. grid-item-card::
+      :link: lejepa
+      :link-type: ref
+
+      .. rst-class:: ls-pill
+
+      New in 1.5.25
+
+      .. rst-class:: ls-news-title
+
+      LeJEPA
+
+      Invariance plus SIGReg: no negative samples, momentum encoders or
+      stop-gradients.
+
+.. rst-class:: ls-section-title
+
+Start here
+----------
+
+.. grid:: 1 2 2 4
+   :gutter: 3
+
+   .. grid-item-card:: :octicon:`rocket;1.2em` Get started
+      :link: rst-installing
+      :link-type: ref
+
+      Install LightlySSL and learn the main concepts.
+
+   .. grid-item-card:: :octicon:`mortar-board;1.2em` Tutorials
+      :link: input-structure-label
+      :link-type: ref
+
+      Step-by-step notebooks, from data loading to fine-tuning.
+
+   .. grid-item-card:: :octicon:`beaker;1.2em` Methods
+      :link: models
+      :link-type: ref
+
+      Reference implementations in PyTorch and Lightning.
+
+   .. grid-item-card:: :octicon:`code;1.2em` Python API
+      :link: /lightly
+      :link-type: doc
+
+      Losses, heads, transforms and data utilities.
+
+.. rst-class:: ls-section-title
+
+All methods
+-----------
+
+.. Each family container carries ls-family-<key>; _static/method-filter.js hides
+   the other families and fills in the count on each button.
+
+.. raw:: html
+
+   <div class="ls-filter" role="group" aria-label="Filter methods by family">
+     <button type="button" class="ls-filter-btn is-active" data-family="all">All</button>
+     <button type="button" class="ls-filter-btn" data-family="contrastive">Contrastive</button>
+     <button type="button" class="ls-filter-btn" data-family="distillation">Self-distillation</button>
+     <button type="button" class="ls-filter-btn" data-family="masked">Masked image modeling</button>
+     <button type="button" class="ls-filter-btn" data-family="redundancy">Redundancy reduction</button>
+     <button type="button" class="ls-filter-btn" data-family="clustering">Clustering and dense</button>
+     <button type="button" class="ls-filter-btn" data-family="world">World models</button>
+   </div>
+
+.. container:: ls-chips ls-filter-target
+
+   .. container:: ls-fam-item ls-family-contrastive
+
+      :ref:`SimCLR <simclr>` :ref:`MoCo <moco>` :ref:`NNCLR <nnclr>`
+      :ref:`DCL & DCLW <dcl>` :ref:`TiCo <tico>`
+
+   .. container:: ls-fam-item ls-family-distillation
+
+      :ref:`BYOL <byol>` :ref:`SimSiam <simsiam>` :ref:`FastSiam <fastsiam>`
+      :ref:`DINO <dino>` :ref:`DINOv2 <dinov2>` :ref:`MSN <msn>` :ref:`PMSN <pmsn>`
+
+   .. container:: ls-fam-item ls-family-masked
+
+      :ref:`MAE <mae>` :ref:`SimMIM <simmim>` :ref:`iBOT <ibot>`
+      :ref:`AIM <aim>` :ref:`CAPI <capi>` :ref:`Pixio <pixio>`
+
+   .. container:: ls-fam-item ls-family-redundancy
+
+      :ref:`Barlow Twins <barlowtwins>` :ref:`VICReg <vicreg>`
+      :ref:`VICRegL <vicregl>` :ref:`MMCR <mmcr>` :ref:`FroSSL <frossl>`
+      :ref:`LeJEPA <lejepa>`
+
+   .. container:: ls-fam-item ls-family-clustering
+
+      :ref:`SwaV <swav>` :ref:`SMoG <smog>` :ref:`DenseCL <densecl>`
+      :ref:`DetConS <detcon>`
+
+   .. container:: ls-fam-item ls-family-world
+
+      :ref:`LeWM <lewm>`
+
+.. rst-class:: ls-section-title
+
+More from Lightly
+-----------------
+
+.. |train-mark| image:: ../logos/lightly_train_mark.svg
+   :class: ls-product-mark
+   :alt:
+
+.. |studio-mark| image:: ../logos/lightly_studio_mark.svg
+   :class: ls-product-mark
+   :alt:
+
+.. grid:: 1 2 2 4
+   :gutter: 3
+
+   .. grid-item-card:: |train-mark| Lightly\ **Train**
+      :link: https://docs.lightly.ai/train/stable/index.html
+
+      Pretrain and fine-tune vision foundation models with a few lines of code.
+
+   .. grid-item-card:: |studio-mark| Lightly\ **Studio**
+      :link: https://docs.lightly.ai/studio/
+
+      Label, curate and inspect your datasets.
+
+   .. grid-item-card:: :octicon:`comment-discussion;1.2em` Discord
+      :link: https://discord.gg/xvNJW94
+
+      Join the community and our weekly paper sessions.
+
+   .. grid-item-card:: :octicon:`mark-github;1.2em` GitHub
+      :link: https://github.com/lightly-ai/lightly
+
+      Star the repo, file issues and contribute.
 
 .. toctree::
    :maxdepth: 1
+   :hidden:
    :caption: Getting Started
 
    getting_started/main_concepts.rst
@@ -91,6 +259,7 @@ Lightly AI
 
 .. toctree::
    :maxdepth: 1
+   :hidden:
    :caption: World Models
 
    examples/lewm.rst
@@ -98,6 +267,7 @@ Lightly AI
 
 .. toctree::
    :maxdepth: 1
+   :hidden:
    :caption: Advanced
 
    getting_started/advanced.rst
@@ -106,6 +276,7 @@ Lightly AI
 
 .. toctree::
    :maxdepth: 1
+   :hidden:
    :caption: Tutorials
 
    tutorials/structure_your_input.rst
@@ -119,12 +290,14 @@ Lightly AI
 
 .. toctree::
    :maxdepth: 1
+   :hidden:
    :caption: Examples
 
    examples/models.rst
 
 .. toctree::
    :maxdepth: 1
+   :hidden:
    :caption: Python API
 
    lightly
@@ -140,14 +313,7 @@ Lightly AI
 
 .. toctree::
    :maxdepth: 1
+   :hidden:
    :caption: On-Premise
 
    docker_archive/overview.rst
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

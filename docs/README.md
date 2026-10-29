@@ -1,9 +1,10 @@
 # Documentation Guide
 All the commands in here are assumed to be run from within the `docs` directory.
 ## Prerequisites
-Install the development dependencies. They include everything needed to build the docs:
+Install the package with everything needed to build the docs. The docs tools need
+Python 3.9 or newer, so this target uses Python 3.12:
 ```bash
-(cd .. && make install-dev)
+(cd .. && make install-docs)
 ```
 
 Maintainers will additionally require an installation including `detectron2` for the release, however it is not necessary for contributors. This isn't handled in requirements because the version you'll need depends on your GPU/hardware. For installing `detectron2`, follow the [instructions](https://detectron2.readthedocs.io/en/latest/tutorials/install.html).

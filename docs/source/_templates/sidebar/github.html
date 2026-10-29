@@ -1,0 +1,13 @@
+{#- Repository card under the search box, like the source link of Material for
+    MkDocs. _static/repo-stats.js fills in the star and fork counts; without
+    them the card is still a link to the repository. -#}
+<a class="ls-repo" href="https://github.com/{{ github_repo }}" data-repo="{{ github_repo }}">
+  {{ octicons["mark-github"] }}
+  <span class="ls-repo-body">
+    <span class="ls-repo-name">{{ github_repo }}</span>
+    <span class="ls-repo-facts" hidden>
+      <span class="ls-repo-fact" title="Stars">{{ octicons["star"] }}<span data-repo-stars></span></span>
+      <span class="ls-repo-fact" title="Forks">{{ octicons["repo-forked"] }}<span data-repo-forks></span></span>
+    </span>
+  </span>
+</a>

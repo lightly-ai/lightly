@@ -101,17 +101,15 @@ dev = [
 
 # Sphinx and its extensions, only needed to build the documentation in docs/.
 # Lower bounds are required for the same reason as in the `dev` group above.
+# Resolved for Python 3.9+ only, see tool.uv.dependency-groups below.
 docs = [
-  "sphinx>=5.3.0",
-  # Pinned: 0.16 is both the highest version the docs build with and the version the
-  # lockfile selects, so the lower bound has nowhere else to go.
-  "docutils==0.16",
+  "sphinx>=7.4.7",
+  "furo>=2025.12.19",
   "sphinx-copybutton>=0.5.2",
   "sphinx-design>=0.5.0",
   "sphinx-gallery>=0.19.0",
   "sphinx-tabs>=3.4.7",
   "sphinx-reredirects>=0.1.4",
-  "sphinx_rtd_theme>=2.0.0",
 ]
 
 # Tooling to build and publish the package to PyPI.
@@ -168,6 +166,12 @@ constraint-dependencies = ["setuptools>=56,<59.6; python_full_version < '3.9'"]
 # the project's own resolution, not to the isolated PEP 517 build environments. The
 # Python marker keeps the newer targets, which build against Python 3.12, unaffected.
 build-constraint-dependencies = ["setuptools<74; python_full_version < '3.9'"]
+
+# Sphinx 7.4, the floor furo needs, dropped Python 3.8. The docs are built with
+# MAXIMAL_PYTHON_VERSION (see the Makefile), so the group skips 3.8 instead of
+# holding every docs tool at its last 3.8 release.
+[tool.uv.dependency-groups]
+docs = { requires-python = ">=3.9" }
 
 [project.urls]
 "Homepage" = "https://www.lightly.ai"
