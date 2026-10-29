@@ -155,10 +155,6 @@ default-groups = ["dev"]
 # a modern setuptools, unaffected.
 constraint-dependencies = ["setuptools>=56,<59.6; python_full_version < '3.9'"]
 
-# furo 2025.12.19 is newer than the global exclude-newer date in the Makefile. Furo
-# only ships the docs theme, so it gets its own cutoff instead of moving the global one.
-exclude-newer-package = { furo = "2025-12-20T00:00:00Z" }
-
 # av 8.0.3, which `--resolution=lowest-direct` selects for the minimal test setup, is
 # sdist-only and ships no pyproject.toml, so uv runs its setup.py under the default
 # legacy setuptools backend just to read the package metadata. Line 6 of that setup.py
