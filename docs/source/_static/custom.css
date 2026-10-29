@@ -8,7 +8,6 @@
 
 :root {
   --ls-font-display: "IBM Plex Sans", system-ui, sans-serif;
-  --ls-font-brand: "Open Sans", system-ui, sans-serif;
   --ls-font-mono: "IBM Plex Mono", ui-monospace, monospace;
 
   /* The code panel is the brand navy in both schemes, so it does not flip. */
@@ -87,11 +86,6 @@ article {
    Sidebar
    ========================================================================== */
 
-.sidebar-brand {
-  font-family: var(--ls-font-brand);
-  font-weight: 700;
-}
-
 .sidebar-tree .reference {
   border-radius: 8px;
   font-size: 0.88rem;
@@ -164,43 +158,45 @@ div.highlight pre {
 }
 
 /* Syntax colours built from the logo greens and blues rather than a generic
-   rainbow. */
-.highlight .k,
-.highlight .kn,
-.highlight .kd,
-.highlight .ow {
+   rainbow. The code panel is navy in both schemes, so these apply in both.
+   body[data-theme] matches every scheme and gives the rules the weight of
+   Furo's dark-mode Pygments rules, which load earlier and lose on order. */
+body[data-theme] .highlight .k,
+body[data-theme] .highlight .kn,
+body[data-theme] .highlight .kd,
+body[data-theme] .highlight .ow {
   color: #2cc2bd;
 }
 
-.highlight .s,
-.highlight .s1,
-.highlight .s2,
-.highlight .sd {
+body[data-theme] .highlight .s,
+body[data-theme] .highlight .s1,
+body[data-theme] .highlight .s2,
+body[data-theme] .highlight .sd {
   color: #37d8a4;
 }
 
-.highlight .c,
-.highlight .c1,
-.highlight .cm {
+body[data-theme] .highlight .c,
+body[data-theme] .highlight .c1,
+body[data-theme] .highlight .cm {
   color: var(--ls-code-label);
   font-style: normal;
 }
 
-.highlight .nf,
-.highlight .nc,
-.highlight .nd {
+body[data-theme] .highlight .nf,
+body[data-theme] .highlight .nc,
+body[data-theme] .highlight .nd {
   color: #7fd1f2;
 }
 
-.highlight .mi,
-.highlight .mf,
-.highlight .n,
-.highlight .p,
-.highlight .o {
+body[data-theme] .highlight .mi,
+body[data-theme] .highlight .mf,
+body[data-theme] .highlight .n,
+body[data-theme] .highlight .p,
+body[data-theme] .highlight .o {
   color: var(--ls-code-ink);
 }
 
-.highlight .nb {
+body[data-theme] .highlight .nb {
   color: #9ad9ea;
 }
 
@@ -353,7 +349,7 @@ div.sphx-glr-download code.download {
 
 .sd-card:hover {
   border-color: var(--color-brand-content);
-  box-shadow: 0 6px 20px -8px color-mix(in srgb, var(--color-brand-primary) 25%, transparent) !important;
+  box-shadow: 0 6px 20px -8px rgba(9, 38, 67, 0.25) !important;
 }
 
 .sd-card-title {
@@ -437,21 +433,10 @@ section.ls-landing > h1 {
 }
 
 /* Hero: a pale teal panel with navy text in light mode, the navy panel in dark
-   mode. The terminal stays dark in both, like the code panels. Furo marks the
-   scheme on body[data-theme]; "auto" follows the OS, so the dark values are
-   listed twice. The accent follows the brand teal in both schemes; the other
-   tokens differ from Furo's in dark mode, so they are set per scheme. */
+   mode. The --ls-hero-* colors are set per scheme in conf.py, which Furo applies
+   for both an explicit dark theme and "auto" on a dark OS. The terminal stays
+   dark in both, like the code panels. */
 .ls-navy {
-  --ls-hero-bg: radial-gradient(1200px 400px at 85% -10%, rgba(15, 127, 123, 0.16), transparent 60%),
-    linear-gradient(160deg, #f4fbfa 0%, #e3f4f2 100%);
-  --ls-hero-border: #d3e4ec;
-  --ls-hero-title: var(--color-foreground-primary);
-  --ls-hero-ink: var(--color-foreground-secondary);
-  --ls-hero-accent: var(--color-brand-content);
-  --ls-hero-btn-bg: var(--color-brand-content);
-  --ls-hero-btn-ink: #ffffff;
-  --ls-hero-ghost-border: #b5d0dc;
-  --ls-hero-ghost-ink: var(--color-foreground-primary);
   background: var(--ls-hero-bg);
   border: 1px solid var(--ls-hero-border);
   border-radius: 16px;
@@ -460,30 +445,6 @@ section.ls-landing > h1 {
   color: var(--ls-hero-ink);
   margin: 0.75rem 0 2.2rem;
   padding: 2.6rem 2.4rem 2.2rem;
-}
-
-body[data-theme="dark"] .ls-navy {
-  --ls-hero-bg: radial-gradient(1200px 400px at 85% -10%, rgba(55, 216, 164, 0.2), transparent 60%),
-    linear-gradient(160deg, #092643 0%, #0d3253 100%);
-  --ls-hero-border: #17395a;
-  --ls-hero-title: #ffffff;
-  --ls-hero-ink: #a9c3cd;
-  --ls-hero-btn-ink: #092643;
-  --ls-hero-ghost-border: #2c5577;
-  --ls-hero-ghost-ink: #e6f1f5;
-}
-
-@media (prefers-color-scheme: dark) {
-  body:not([data-theme="light"]) .ls-navy {
-    --ls-hero-bg: radial-gradient(1200px 400px at 85% -10%, rgba(55, 216, 164, 0.2), transparent 60%),
-      linear-gradient(160deg, #092643 0%, #0d3253 100%);
-    --ls-hero-border: #17395a;
-    --ls-hero-title: #ffffff;
-    --ls-hero-ink: #a9c3cd;
-    --ls-hero-btn-ink: #092643;
-    --ls-hero-ghost-border: #2c5577;
-    --ls-hero-ghost-ink: #e6f1f5;
-  }
 }
 
 .ls-hero-logo {
@@ -525,8 +486,8 @@ body[data-theme="dark"] .ls-navy {
 }
 
 .ls-navy a.ls-btn-primary {
-  background: var(--ls-hero-btn-bg);
-  color: var(--ls-hero-btn-ink);
+  background: var(--color-brand-content);
+  color: var(--ls-btn-ink);
 }
 
 .ls-navy a.ls-btn-ghost {
@@ -540,7 +501,7 @@ body[data-theme="dark"] .ls-navy {
 }
 
 .ls-navy a.ls-btn-ghost:hover {
-  border-color: var(--ls-hero-accent);
+  border-color: var(--color-brand-content);
 }
 
 /* A terminal window with the install and first-run commands. */

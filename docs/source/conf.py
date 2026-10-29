@@ -149,6 +149,16 @@ html_theme_options = {
         "ls-accent-tint": "#e3f6f4",
         # Text on solid teal buttons: white on the dark teal, navy on the bright one.
         "ls-btn-ink": "#ffffff",
+        # Start page hero: a pale teal panel in light mode, the navy panel in dark.
+        "ls-hero-bg": (
+            "radial-gradient(1200px 400px at 85% -10%, rgba(15, 127, 123, 0.16),"
+            " transparent 60%), linear-gradient(160deg, #f4fbfa 0%, #e3f4f2 100%)"
+        ),
+        "ls-hero-border": "#d3e4ec",
+        "ls-hero-title": "#092643",
+        "ls-hero-ink": "#4c616b",
+        "ls-hero-ghost-border": "#b5d0dc",
+        "ls-hero-ghost-ink": "#092643",
     },
     "dark_css_variables": {
         **_BRAND_DARK,
@@ -165,6 +175,15 @@ html_theme_options = {
         "color-sidebar-caption-text": "#7f949e",
         "ls-accent-tint": "#0d3253",
         "ls-btn-ink": "#092643",
+        "ls-hero-bg": (
+            "radial-gradient(1200px 400px at 85% -10%, rgba(55, 216, 164, 0.2),"
+            " transparent 60%), linear-gradient(160deg, #092643 0%, #0d3253 100%)"
+        ),
+        "ls-hero-border": "#17395a",
+        "ls-hero-title": "#ffffff",
+        "ls-hero-ink": "#a9c3cd",
+        "ls-hero-ghost-border": "#2c5577",
+        "ls-hero-ghost-ink": "#e6f1f5",
     },
 }
 
@@ -175,7 +194,7 @@ pygments_style = "native"
 pygments_dark_style = "native"
 
 html_css_files = [
-    "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=Open+Sans:wght@600;700&display=swap",
+    "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap",
     "custom.css",
 ]
 # Method family filter on the start page and the Models page; does nothing on
