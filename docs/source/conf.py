@@ -175,7 +175,8 @@ html_css_files = [
     "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=Open+Sans:wght@600;700&display=swap",
     "custom.css",
 ]
-# Family filter on the Models page; does nothing on pages without filter buttons.
+# Method family filter on the start page and the Models page; does nothing on
+# pages without filter buttons.
 html_js_files = ["method-filter.js"]
 
 # Add any paths that contain custom static files (such as style sheets) here,

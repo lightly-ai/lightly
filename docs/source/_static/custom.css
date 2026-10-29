@@ -324,8 +324,8 @@ div.sphx-glr-download a:hover {
 }
 
 div.sphx-glr-download a::before {
-  content: "↓ ";
   color: var(--color-brand-content);
+  content: "↓ ";
 }
 
 div.sphx-glr-download code.download {
@@ -340,15 +340,19 @@ div.sphx-glr-download code.download {
    Cards and buttons from sphinx-design
    ========================================================================== */
 
+/* sphinx-design marks its shadow, title weight and button colours !important,
+   so only the overrides of those carry it here. The rest win on load order. */
+
+/* Cards framed like the pager; the border turns teal on hover. */
 .sd-card {
   background: var(--color-background-primary);
-  border-color: var(--color-background-border) !important;
-  border-radius: 10px !important;
+  border-color: var(--color-background-border);
+  border-radius: 10px;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .sd-card:hover {
-  border-color: var(--color-brand-content) !important;
+  border-color: var(--color-brand-content);
   box-shadow: 0 6px 20px -8px color-mix(in srgb, var(--color-brand-primary) 25%, transparent) !important;
 }
 
@@ -375,9 +379,9 @@ div.sphx-glr-download code.download {
 }
 
 .sd-btn {
-  border-radius: 8px !important;
-  font-weight: 600 !important;
-  padding: 0.55rem 1.1rem !important;
+  border-radius: 8px;
+  font-weight: 600;
+  padding: 0.55rem 1.1rem;
 }
 
 .sd-btn-primary {
@@ -417,23 +421,25 @@ section.ls-landing > h1 {
 }
 
 .ls-section-title {
-  margin-top: 2.6rem !important;
+  margin-top: 2.6rem;
 }
 
 /* Hero: a pale teal panel with navy text in light mode, the navy panel in dark
    mode. The terminal stays dark in both, like the code panels. Furo marks the
-   scheme on body[data-theme]; "auto" follows the OS. */
+   scheme on body[data-theme]; "auto" follows the OS, so the dark values are
+   listed twice. The accent follows the brand teal in both schemes; the other
+   tokens differ from Furo's in dark mode, so they are set per scheme. */
 .ls-navy {
   --ls-hero-bg: radial-gradient(1200px 400px at 85% -10%, rgba(15, 127, 123, 0.16), transparent 60%),
     linear-gradient(160deg, #f4fbfa 0%, #e3f4f2 100%);
   --ls-hero-border: #d3e4ec;
-  --ls-hero-title: #092643;
-  --ls-hero-ink: #4c616b;
-  --ls-hero-accent: #0f7f7b;
-  --ls-hero-btn-bg: #0f7f7b;
+  --ls-hero-title: var(--color-foreground-primary);
+  --ls-hero-ink: var(--color-foreground-secondary);
+  --ls-hero-accent: var(--color-brand-content);
+  --ls-hero-btn-bg: var(--color-brand-content);
   --ls-hero-btn-ink: #ffffff;
   --ls-hero-ghost-border: #b5d0dc;
-  --ls-hero-ghost-ink: #092643;
+  --ls-hero-ghost-ink: var(--color-foreground-primary);
   background: var(--ls-hero-bg);
   border: 1px solid var(--ls-hero-border);
   border-radius: 16px;
@@ -450,8 +456,6 @@ body[data-theme="dark"] .ls-navy {
   --ls-hero-border: #17395a;
   --ls-hero-title: #ffffff;
   --ls-hero-ink: #a9c3cd;
-  --ls-hero-accent: #2cc2bd;
-  --ls-hero-btn-bg: #2cc2bd;
   --ls-hero-btn-ink: #092643;
   --ls-hero-ghost-border: #2c5577;
   --ls-hero-ghost-ink: #e6f1f5;
@@ -464,8 +468,6 @@ body[data-theme="dark"] .ls-navy {
     --ls-hero-border: #17395a;
     --ls-hero-title: #ffffff;
     --ls-hero-ink: #a9c3cd;
-    --ls-hero-accent: #2cc2bd;
-    --ls-hero-btn-bg: #2cc2bd;
     --ls-hero-btn-ink: #092643;
     --ls-hero-ghost-border: #2c5577;
     --ls-hero-ghost-ink: #e6f1f5;
@@ -532,7 +534,7 @@ body[data-theme="dark"] .ls-navy {
 /* A terminal window with the install and first-run commands. */
 .ls-terminal {
   background: #061b30;
-  border: 1px solid #17395a;
+  border: 1px solid var(--ls-code-line);
   border-radius: 12px;
   box-shadow: 0 18px 36px -22px rgba(9, 38, 67, 0.55);
   max-width: 100%;
@@ -540,7 +542,7 @@ body[data-theme="dark"] .ls-navy {
 }
 
 .ls-terminal-bar {
-  border-bottom: 1px solid #17395a;
+  border-bottom: 1px solid var(--ls-code-line);
   display: flex;
   gap: 6px;
   padding: 10px 12px;
@@ -650,10 +652,6 @@ body[data-theme="dark"] .ls-navy {
   margin: 0 0 0.35rem;
 }
 
-.ls-news .sd-card-body p.ls-pill {
-  margin-bottom: 0.6rem;
-}
-
 /* All methods: one wrapping row of chips. The family containers flatten into it
    so method-filter.js can hide a whole family at once. */
 .ls-chips {
@@ -686,11 +684,12 @@ body[data-theme="dark"] .ls-navy {
 }
 
 /* ==========================================================================
-   Models page: family filter and method cards
+   Family filter and method cards
    ========================================================================== */
 
-/* A row of tabs; the active one is a tinted pill like the current sidebar page.
-   _static/method-filter.js appends the count to each tab. */
+/* A row of tabs on the start page and the Models page; the active one is a
+   tinted pill like the current sidebar page. _static/method-filter.js appends
+   the count to each tab. */
 .ls-filter {
   display: flex;
   flex-wrap: wrap;
@@ -717,6 +716,13 @@ body[data-theme="dark"] .ls-navy {
   color: var(--color-brand-content);
 }
 
+/* method-filter.js disables the button of a family without methods. */
+.ls-filter-btn:disabled {
+  color: var(--color-foreground-muted);
+  cursor: default;
+  opacity: 0.5;
+}
+
 .ls-filter-btn.is-active {
   background: var(--ls-accent-tint);
   border-color: color-mix(in srgb, var(--color-brand-content) 30%, transparent);
@@ -734,35 +740,19 @@ body[data-theme="dark"] .ls-navy {
   color: inherit;
 }
 
+/* On the Models page each item is a sphinx-design column, which sets
+   display: flex !important. */
 .ls-filter-target .is-hidden {
   display: none !important;
 }
 
-/* Cards framed like the pager and code panels; the border turns teal on hover. */
-.ls-method-card.sd-card {
-  background: var(--color-background-primary);
-  border-color: var(--color-background-border);
-  border-radius: 10px;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-.ls-method-card.sd-card:hover {
-  border-color: var(--color-brand-content);
-  box-shadow: 0 6px 20px -8px color-mix(in srgb, var(--color-brand-primary) 25%, transparent);
-}
-
+/* The frame, title and body text come from the shared card rules above. */
 .ls-method-card .sd-card-title {
-  font-family: var(--ls-font-display);
-  font-size: 1.02rem;
-  font-weight: 600;
   margin-bottom: 0.35rem;
 }
 
-.ls-method-card .sd-card-body {
-  color: var(--color-foreground-secondary);
-  font-size: 0.92rem;
-}
-
+/* The tags paragraph is raw HTML, so sphinx-design's last-child reset for card
+   text does not reach it. */
 .ls-method-card .sd-card-body p:last-child {
   margin-bottom: 0;
 }
@@ -776,6 +766,7 @@ body[data-theme="dark"] .ls-navy {
   text-transform: uppercase;
 }
 
+/* !important beats sphinx-design's .sd-sphinx-override p { margin-top: 0 }. */
 .ls-method-tags {
   display: flex;
   gap: 0.35rem;
