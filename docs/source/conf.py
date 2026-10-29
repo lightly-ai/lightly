@@ -147,6 +147,8 @@ html_theme_options = {
         "color-sidebar-caption-text": "#5e727c",
         # Tint behind the current page in the sidebar.
         "ls-accent-tint": "#e3f6f4",
+        # Text on solid teal buttons: white on the dark teal, navy on the bright one.
+        "ls-btn-ink": "#ffffff",
     },
     "dark_css_variables": {
         **_BRAND_DARK,
@@ -162,6 +164,7 @@ html_theme_options = {
         "color-sidebar-search-background": "#061b30",
         "color-sidebar-caption-text": "#7f949e",
         "ls-accent-tint": "#0d3253",
+        "ls-btn-ink": "#092643",
     },
 }
 

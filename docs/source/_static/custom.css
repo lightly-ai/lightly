@@ -384,16 +384,19 @@ div.sphx-glr-download code.download {
   padding: 0.55rem 1.1rem;
 }
 
+/* --ls-btn-ink (conf.py) keeps the label readable in both schemes: white text on
+   the bright dark-mode teal would be 2.2:1. */
 .sd-btn-primary {
   background: var(--color-brand-content) !important;
   border-color: var(--color-brand-content) !important;
+  color: var(--ls-btn-ink) !important;
 }
 
 .sd-btn-primary:hover,
 .sd-btn-primary:focus {
   background: color-mix(in srgb, var(--color-brand-content) 86%, #000) !important;
   border-color: color-mix(in srgb, var(--color-brand-content) 86%, #000) !important;
-  color: #fff !important;
+  color: var(--ls-btn-ink) !important;
 }
 
 /* sphinx-design fills outline buttons on hover and turns the text white, which
@@ -414,10 +417,19 @@ div.sphx-glr-download code.download {
    Start page
    ========================================================================== */
 
-/* The section title names the page for the browser tab and search; the hero
-   shows its own, larger title. */
+/* The section title names the page for the browser tab, search and screen
+   readers; the hero shows its own, larger title. So the h1 is hidden visually
+   but stays in the accessibility tree. */
 section.ls-landing > h1 {
-  display: none;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
 }
 
 .ls-section-title {
