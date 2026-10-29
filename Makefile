@@ -22,7 +22,7 @@ MAXIMAL_PYTHON_VERSION := 3.12
 # Dependencies released after this date are ignored. This keeps CI stable when new
 # versions of dependencies are released. Must be a full timestamp: a bare date is
 # interpreted in the local timezone, which would make local and CI runs disagree.
-EXCLUDE_NEWER_DATE := "2025-08-07T22:00:00Z"
+EXCLUDE_NEWER_DATE := "2025-12-20T00:00:00Z"
 
 # Install the package in non-editable mode in CI.
 ifdef CI
