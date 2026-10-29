@@ -93,7 +93,10 @@ Touch points, mirroring an existing method (e.g. BYOL) as the template:
 
 1. `lightly/models/<name>.py`, `lightly/loss/<name>_loss.py`, `lightly/transforms/<name>_transform.py` as needed
 2. Export the new symbol from the relevant subpackage `__init__.py`
-3. Add `docs/source/examples/<name>.rst` and wire it into its parent toctree
+3. Add `docs/source/examples/<name>.rst`, list it in the hidden toctree in
+   `docs/source/examples/models.rst`, and add a card for it there plus a chip under
+   "All methods" in `docs/source/index.rst`, each with its `ls-family-<key>` class.
+   Update the method count in the `index.rst` hero.
 4. Add example scripts under all three `examples/` variants, then run `make
    generate-example-notebooks` and commit the regenerated notebooks (they're
    tracked in git)
