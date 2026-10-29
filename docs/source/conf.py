@@ -14,6 +14,8 @@ import datetime
 import os
 import sys
 
+from sphinx_design import icons
+
 sys.path.insert(0, os.path.abspath("../.."))
 
 import lightly
@@ -198,8 +200,31 @@ html_css_files = [
     "custom.css",
 ]
 # Method family filter on the start page and the Models page; does nothing on
-# pages without filter buttons.
-html_js_files = ["method-filter.js"]
+# pages without filter buttons. repo-stats.js fills in the GitHub star and fork
+# counts of the sidebar repository card.
+html_js_files = ["method-filter.js", "repo-stats.js"]
+
+# Furo's default sidebar with a repository card under the search box, see
+# _templates/sidebar/github.html. The icons are the Octicons sphinx-design ships.
+html_sidebars = {
+    "**": [
+        "sidebar/brand.html",
+        "sidebar/search.html",
+        "sidebar/github.html",
+        "sidebar/scroll-start.html",
+        "sidebar/navigation.html",
+        "sidebar/ethical-ads.html",
+        "sidebar/scroll-end.html",
+        "sidebar/variant-selector.html",
+    ]
+}
+html_context = {
+    "github_repo": "lightly-ai/lightly",
+    "octicons": {
+        name: icons.get_octicon(name, height="1em")
+        for name in ("mark-github", "star", "repo-forked")
+    },
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
