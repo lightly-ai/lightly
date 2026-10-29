@@ -1,5 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 42 47.172" role="img" aria-label="LightlyTrain">
-<path fill="#A72264" d="M0 5.64209H5.01493V42.157H41.6866V47.1719H0V5.64209Z" clip-rule="evenodd" fill-rule="evenodd"/>
-<path fill="#A72264" d="M10.9701 0H15.985V31.0299H30.7164V36.0448H10.9701V0Z" clip-rule="evenodd" fill-rule="evenodd"/>
-<path fill="#A72264" d="M42 36.0449H36.9851V10.3434H22.2537V5.3285H42V36.0449Z" clip-rule="evenodd" fill-rule="evenodd"/>
+<svg width="800" height="800" viewBox="0 0 800 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="800" height="800" rx="88" fill="url(#lightly_train_bg)"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M200.008 229.098H247.768V576.85H597.012V624.61H200.008V229.098Z" fill="white"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M304.467 175.39H352.227V470.905H492.522V518.665H304.467V175.39Z" fill="white"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M599.992 518.655H552.232V273.885H411.937V226.125H599.992V518.655Z" fill="white"/>
+<defs>
+<linearGradient id="lightly_train_bg" x1="47.3892" y1="0" x2="47.3892" y2="800" gradientUnits="userSpaceOnUse">
+<stop stop-color="#E07FB1"/>
+<stop offset="0.961538" stop-color="#A72264"/>
+</linearGradient>
+</defs>
 </svg>
