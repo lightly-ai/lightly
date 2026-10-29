@@ -95,7 +95,8 @@ Touch points, mirroring an existing method (e.g. BYOL) as the template:
 2. Export the new symbol from the relevant subpackage `__init__.py`
 3. Add `docs/source/examples/<name>.rst`, list it in the hidden toctree in
    `docs/source/examples/models.rst`, and add a card for it there plus a chip under
-   "All methods" in `docs/source/index.rst`, each with its `ls-family-<key>` class.
+   "All methods" in `docs/source/index.rst`, inside the matching `ls-family-<key>`
+   container.
    Update the method count in the `index.rst` hero.
 4. Add example scripts under all three `examples/` variants, then run `make
    generate-example-notebooks` and commit the regenerated notebooks (they're
