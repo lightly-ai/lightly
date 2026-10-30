@@ -1,0 +1,47 @@
+name: Lint PR Title
+
+# The PR title becomes the squash-merge commit subject on master, so it is the
+# string that has to follow Conventional Commits. This check validates it.
+#
+# Runs on pull_request_target so it can comment on pull requests from forks, where
+# a plain pull_request token is read-only. It deliberately never checks out the PR
+# branch, so the elevated token is not an injection surface.
+on:
+  pull_request_target:
+    types: [opened, edited, synchronize, reopened]
+  merge_group:
+
+permissions:
+  pull-requests: write
+
+jobs:
+  validate:
+    name: Validate PR title
+    runs-on: ubuntu-22.04
+    steps:
+    - name: Check title against the Conventional Commits spec
+      if: github.event_name == 'pull_request_target'
+      uses: amannn/action-semantic-pull-request@v5
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        # Keep this list in sync with CONTRIBUTING.md and the [tool.commitizen]
+        # configuration in pyproject.toml. Removing a type here starts rejecting
+        # PRs that use it.
+        types: |
+          feat
+          fix
+          docs
+          test
+          ci
+          build
+          perf
+          refactor
+          chore
+          revert
+    # merge_group events carry no PR title to lint. This step keeps the required
+    # check green in the merge queue instead of stalling it. It shares the job name
+    # with the step above so branch protection sees one check across both events.
+    - name: No title to lint in the merge queue
+      if: github.event_name == 'merge_group'
+      run: echo "Skipping: merge_group events carry no pull request title."
