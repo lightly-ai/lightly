@@ -1,12 +1,49 @@
+from __future__ import annotations
+
 import math
 
 import pytest
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from pytest_mock import MockerFixture
 from torch import Tensor
+from torch import distributed as torch_dist
 
 from lightly.loss.koleo_loss import KoLeoLoss
+from tests.ddp_helpers import NUM_PROCESSES, USE_PYTEST_POOL
+
+# Sizes used by the distributed tests. The local batch size is not a multiple of the
+# group size, so the global batch, which concatenates the local batches in rank order,
+# has a group that spans the features of two ranks.
+DDP_LOCAL_BATCH_SIZE = 6
+DDP_GROUP_SIZE = 4
+
+
+def _local_batch(batch: Tensor, rank: int) -> Tensor:
+    """Returns the chunk of the global batch that belongs to the given rank."""
+    start = rank * DDP_LOCAL_BATCH_SIZE
+    return batch[start : start + DDP_LOCAL_BATCH_SIZE]
+
+
+# The pool workers read their rank from the process group instead of receiving it with
+# the task, because the pool hands every task to whichever worker is free.
+def _forward_worker(batch: Tensor) -> Tensor:
+    # Pool worker: distributed forward on one rank. See #1982.
+    loss: Tensor = KoLeoLoss(group_size=DDP_GROUP_SIZE, gather_distributed=True)(
+        _local_batch(batch, rank=torch_dist.get_rank())
+    )
+    return loss.detach()
+
+
+def _gradient_worker(batch: Tensor) -> tuple[int, Tensor]:
+    # Pool worker: distributed backward on one rank, returns the rank and the gradient
+    # of its local batch.
+    rank = torch_dist.get_rank()
+    x = _local_batch(batch, rank=rank).clone().requires_grad_(True)
+    KoLeoLoss(group_size=DDP_GROUP_SIZE, gather_distributed=True)(x).backward()
+    assert x.grad is not None
+    return rank, x.grad
 
 
 class TestKoLeoLoss:
@@ -41,3 +78,195 @@ class TestKoLeoLoss:
         x = x.to(device)
         loss = KoLeoLoss().to(device)
         assert loss(x).item() == pytest.approx(expected_loss, rel=1e-4)
+
+    def test_forward__group_size_none_is_full_batch(self) -> None:
+        torch.manual_seed(0)
+        x = torch.randn(8, 4)
+        assert KoLeoLoss(group_size=8)(x).item() == pytest.approx(KoLeoLoss()(x).item())
+
+    def test_forward__group_size(self) -> None:
+        """Groups are consecutive chunks of the batch and are averaged over."""
+        torch.manual_seed(0)
+        x = torch.randn(8, 4)
+
+        loss = KoLeoLoss(group_size=4)(x)
+
+        loss_fn = KoLeoLoss()
+        expected = 0.5 * (loss_fn(x[:4]) + loss_fn(x[4:]))
+        assert loss.item() == pytest.approx(expected.item(), rel=1e-5)
+
+    def test_forward__group_size_finds_neighbors_within_group(self) -> None:
+        """A neighbor in another group is ignored.
+
+        The batch holds two copies of the same feature in different groups. Without
+        grouping the nearest neighbor is the identical feature at distance zero, which
+        gives a much larger loss than the within-group neighbor.
+        """
+        x = torch.tensor([[1.0, 0.0], [0.0, 1.0], [1.0, 0.0], [0.0, 1.0]])
+        assert KoLeoLoss(group_size=2)(x).item() == pytest.approx(
+            -math.log(2**0.5), rel=1e-4
+        )
+        assert KoLeoLoss()(x).item() > 10.0
+
+    @pytest.mark.parametrize("topk", [1, 2, 3])
+    def test_forward__topk(self, topk: int) -> None:
+        """The k nearest neighbors of every feature are penalized."""
+        torch.manual_seed(0)
+        x = F.normalize(torch.randn(6, 4), dim=-1)
+
+        loss = KoLeoLoss(topk=topk)(x)
+
+        cos_sim = x @ x.t()
+        cos_sim.fill_diagonal_(-2)
+        nn_idx = cos_sim.topk(k=topk, dim=-1).indices
+        distances = torch.stack(
+            [(x - x[idx]).norm(dim=-1) for idx in nn_idx.unbind(dim=-1)]
+        )
+        expected = -(distances + 1e-8).log().mean()
+        assert loss.item() == pytest.approx(expected.item(), rel=1e-4)
+
+    def test_forward__empty_batch(self) -> None:
+        with pytest.raises(ValueError, match="non-empty batch"):
+            KoLeoLoss()(torch.randn(0, 4))
+
+    def test_forward__batch_size_not_divisible_by_group_size(self) -> None:
+        with pytest.raises(ValueError, match="must be divisible by group size"):
+            KoLeoLoss(group_size=3)(torch.randn(8, 4))
+
+    @pytest.mark.parametrize("topk, group_size", [(4, 4), (5, 4), (2, 1)])
+    def test_forward__topk_too_large_for_group(
+        self, topk: int, group_size: int
+    ) -> None:
+        with pytest.raises(ValueError, match="must not be larger than"):
+            KoLeoLoss(topk=topk, group_size=group_size)(torch.randn(8, 4))
+
+    @pytest.mark.parametrize("topk, group_size", [(0, None), (1, 0)])
+    def test__init__invalid_parameters(self, topk: int, group_size: int) -> None:
+        with pytest.raises(ValueError, match="must be positive"):
+            KoLeoLoss(topk=topk, group_size=group_size)
+
+    def test__init__gather_distributed_dist_not_available(
+        self, mocker: MockerFixture
+    ) -> None:
+        mock_is_available = mocker.patch.object(
+            torch_dist, "is_available", return_value=False
+        )
+        with pytest.raises(ValueError, match="torch.distributed is not available"):
+            KoLeoLoss(gather_distributed=True)
+        mock_is_available.assert_called_once()
+
+    def test_gather_distributed_world_size_one_does_not_gather(
+        self, mocker: MockerFixture
+    ) -> None:
+        mock_gather = mocker.patch("lightly.loss.koleo_loss.lightly_dist.gather")
+
+        torch.manual_seed(0)
+        loss = KoLeoLoss(gather_distributed=True)(torch.randn(4, 8))
+
+        assert loss.isfinite()
+        mock_gather.assert_not_called()
+
+    def test_gather_distributed_matches_non_distributed(
+        self, mocker: MockerFixture
+    ) -> None:
+        """Gathered forward equals non-distributed forward on the global batch.
+
+        Simulates ``world_size=2`` with different data on both ranks, so the global
+        batch is the concatenation of the two local batches.
+        """
+        torch.manual_seed(0)
+        # Local batches of 6 with groups of 4, so one group spans both ranks.
+        rank_0, rank_1 = torch.randn(6, 8), torch.randn(6, 8)
+
+        # Non-distributed truth: loss on the concatenated global batch.
+        expected = KoLeoLoss(group_size=4)(torch.cat([rank_0, rank_1]))
+
+        mocker.patch("lightly.loss.koleo_loss.lightly_dist.world_size", return_value=2)
+        # gather is called with the already normalized features of the local rank.
+        mocker.patch(
+            "lightly.loss.koleo_loss.lightly_dist.gather",
+            side_effect=lambda tensor: (
+                tensor,
+                F.normalize(rank_1, p=2, dim=-1, eps=1e-8),
+            ),
+        )
+        loss = KoLeoLoss(group_size=4, gather_distributed=True)(rank_0)
+
+        assert loss.item() == pytest.approx(expected.item(), rel=1e-5)
+
+    def test_gather_distributed_gradient_matches_non_distributed(
+        self, mocker: MockerFixture
+    ) -> None:
+        """The gradient w.r.t. the local features matches the non-distributed one.
+
+        A gathered forward that is correct can still produce a wrong backward, see
+        #1977. GatherLayer itself is mocked here, so this covers that grouping and
+        neighbor indexing keep the gradients attached to the right features.
+        """
+        torch.manual_seed(0)
+        # Local batches of 6 with groups of 4, so one group spans both ranks.
+        rank_0 = torch.randn(6, 8)
+        rank_1 = torch.randn(6, 8)
+
+        # Non-distributed truth: gradient of the loss on the concatenated global batch.
+        global_batch = torch.cat([rank_0, rank_1]).requires_grad_()
+        KoLeoLoss(group_size=4)(global_batch).backward()
+        assert global_batch.grad is not None
+        expected_grad = global_batch.grad[: len(rank_0)]
+
+        mocker.patch("lightly.loss.koleo_loss.lightly_dist.world_size", return_value=2)
+        mocker.patch(
+            "lightly.loss.koleo_loss.lightly_dist.gather",
+            side_effect=lambda tensor: (
+                tensor,
+                F.normalize(rank_1, p=2, dim=-1, eps=1e-8),
+            ),
+        )
+        local_batch = rank_0.clone().requires_grad_()
+        KoLeoLoss(group_size=4, gather_distributed=True)(local_batch).backward()
+
+        assert local_batch.grad is not None
+        assert torch.allclose(local_batch.grad, expected_grad, atol=1e-6)
+
+    @pytest.mark.DDP
+    @pytest.mark.skipif(not USE_PYTEST_POOL, reason="DDP pool is not available")
+    def test__gather_distributed_forward_matches_non_distributed(self) -> None:
+        # Every rank gathers the same global batch, so every rank must see the loss
+        # of the non-distributed run on the concatenated batch.
+        torch.manual_seed(0)
+        batch = torch.randn(NUM_PROCESSES * DDP_LOCAL_BATCH_SIZE, 8)
+
+        losses = pytest.pool.starmap(  # type: ignore[attr-defined]
+            _forward_worker, [(batch,)] * NUM_PROCESSES
+        )
+        loss_truth = KoLeoLoss(group_size=DDP_GROUP_SIZE)(batch)
+
+        assert all(torch.allclose(loss, loss_truth, atol=1e-5) for loss in losses)
+
+    @pytest.mark.DDP
+    @pytest.mark.skipif(not USE_PYTEST_POOL, reason="DDP pool is not available")
+    def test__gather_distributed_gradient_matches_non_distributed(self) -> None:
+        # Complements the mocked world_size=2 test above, which bypasses GatherLayer
+        # and therefore does not cover its backward.
+        #
+        # Every rank computes the loss of the whole global batch, so GatherLayer's
+        # backward all_reduces NUM_PROCESSES identical gradients before slicing out
+        # the local one. The local gradient is therefore NUM_PROCESSES times the
+        # non-distributed one, which DDP cancels when it averages parameter
+        # gradients across ranks.
+        torch.manual_seed(0)
+        batch = torch.randn(NUM_PROCESSES * DDP_LOCAL_BATCH_SIZE, 8)
+
+        grads = dict(
+            pytest.pool.starmap(  # type: ignore[attr-defined]
+                _gradient_worker, [(batch,)] * NUM_PROCESSES
+            )
+        )
+        batch_ref = batch.clone().requires_grad_(True)
+        KoLeoLoss(group_size=DDP_GROUP_SIZE)(batch_ref).backward()
+        assert batch_ref.grad is not None
+
+        assert sorted(grads) == list(range(NUM_PROCESSES))
+        for rank, grad in grads.items():
+            expected = NUM_PROCESSES * _local_batch(batch_ref.grad, rank=rank)
+            assert torch.allclose(grad, expected, atol=1e-5)
