@@ -27,8 +27,9 @@ def latent_distance(
 ) -> Tensor:
     """Distance between predicted and target frame embeddings.
 
-    The target is detached, so gradients flow only through the predictor and
-    through the encoder path that produced ``predicted``.
+    Gradients flow through both ``predicted`` and ``target``, as in LeWM.
+    LeWM relies on SIGReg to prevent collapse. Without a similar term, pass
+    ``target.detach()`` so that gradients flow only through ``predicted``.
 
     Args:
         predicted: Predicted embeddings of shape ``(B, T, D)``.
@@ -55,7 +56,6 @@ def latent_distance(
             "predicted and target must have the same shape, got "
             f"{tuple(predicted.shape)} and {tuple(target.shape)}."
         )
-    target = target.detach()
     if normalize:
         normalized_shape = (predicted.size(-1),)
         predicted = nn.functional.layer_norm(predicted, normalized_shape)
