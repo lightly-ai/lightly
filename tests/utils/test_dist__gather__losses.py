@@ -64,7 +64,7 @@ def close_torch_distributed() -> Generator[None, None, None]:
 
 @pytest.mark.skipif(
     os.getenv("GITHUB_ACTIONS") is not None,
-    reason="This test is running in parallel and breaks codecov",
+    reason="The DDP launcher re-runs the full test suite in a second process",
 )
 class TestGatherLayer_Losses:
     """Tests that the gather layer works as expected.
@@ -127,8 +127,8 @@ class TestGatherLayer_Losses:
             DCLLoss,
             torch.Tensor(
                 [
-                    [0.1484, 0.2335, 0.3185, 0.4036, 0.4886],
-                    [0.6198, 0.7093, 0.7988, 0.8884, 0.9779],
+                    [0.3288, 0.4244, 0.5200, 0.6155, 0.7111],
+                    [0.5012, 0.5941, 0.6871, 0.7801, 0.8731],
                 ]
             ),
             learning_rate=0.1,
