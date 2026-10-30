@@ -5,6 +5,46 @@ from lightly.loss.emp_ssl_loss import EMPSSLLoss
 
 
 class TestEMPSSLLoss:
+    @pytest.mark.parametrize("inv_coef", [0.0, 200.0])
+    def test_forward_matches_reference(self, inv_coef: float) -> None:
+        """Match the per-view objective and gradients from the EMP-SSL reference."""
+        torch.manual_seed(0)
+        z = torch.randn(3, 5, 4, dtype=torch.float64, requires_grad=True)
+        _, batch_size, dim = z.shape
+        eps = 0.2
+        loss = EMPSSLLoss(tcr_eps=eps, inv_coef=inv_coef)(list(z.unbind()))
+
+        # Retain the upstream L2 normalization before evaluating coding rate.
+        normalized = torch.nn.functional.normalize(z, dim=-1)
+        # The reference minimizes negative coding rate, averaged over views.
+        coding_rates = [
+            torch.linalg.slogdet(
+                torch.eye(dim, dtype=z.dtype) + dim / (batch_size * eps) * view.T @ view
+            )[1]
+            / 2
+            for view in normalized
+        ]
+        similarity = torch.stack(
+            [
+                torch.nn.functional.cosine_similarity(view, normalized.mean(0)).mean()
+                for view in normalized
+            ]
+        ).mean()
+        expected = -torch.stack(coding_rates).mean() - inv_coef * similarity
+
+        torch.testing.assert_close(loss, expected)
+        (gradient,) = torch.autograd.grad(loss, z, retain_graph=True)
+        (expected_gradient,) = torch.autograd.grad(expected, z)
+        torch.testing.assert_close(gradient, expected_gradient)
+
+    def test_prefers_diverse_embeddings(self) -> None:
+        """With identical views, spreading unit embeddings must lower the loss."""
+        loss_fn = EMPSSLLoss()
+        diverse = torch.eye(4)
+        collapsed = diverse[:1].expand(4, -1)
+
+        assert loss_fn([diverse, diverse]) < loss_fn([collapsed, collapsed])
+
     def test_forward__scale_invariant(self) -> None:
         """Scaling the embeddings must not change the loss."""
         torch.manual_seed(0)

@@ -9,7 +9,7 @@ from torch.nn import Module
 
 
 def tcr_loss(z: Tensor, eps: float) -> Tensor:
-    """Computes the Total Coding Rate (TCR) loss.
+    """Computes the negative Total Coding Rate (TCR) loss.
 
     Args:
         z:
@@ -18,7 +18,7 @@ def tcr_loss(z: Tensor, eps: float) -> Tensor:
             Epsilon value for numerical stability.
 
     Returns:
-        TCR loss.
+        Negative TCR, averaged over views.
     """
     _, batch_size, dim = z.shape
     diag = torch.eye(dim, device=z.device).unsqueeze(0)
@@ -28,7 +28,7 @@ def tcr_loss(z: Tensor, eps: float) -> Tensor:
     # Calculate the log determinant
     logdet = torch.logdet(diag + dim / (batch_size * eps) * einsum)
 
-    return 0.5 * logdet.mean()
+    return -0.5 * logdet.mean()
 
 
 def invariance_loss(z: Tensor) -> Tensor:
