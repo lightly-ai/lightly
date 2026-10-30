@@ -28,6 +28,8 @@ def latent_distance(
     """Distance between predicted and target frame embeddings.
 
     Gradients flow through both ``predicted`` and ``target``, as in LeWM.
+    LeWM relies on SIGReg to prevent collapse. Without a similar term, pass
+    ``target.detach()`` so that gradients flow only through ``predicted``.
 
     Args:
         predicted: Predicted embeddings of shape ``(B, T, D)``.

@@ -75,9 +75,7 @@ class TestLeWMLoss:
         criterion = LeWMLoss(sigreg_num_vectors=32)
         emb = torch.randn(8, 4, 16, requires_grad=True)
         predicted = torch.randn(8, 3, 16, requires_grad=True)
-        criterion(
-            predicted=predicted, target=emb[:, 1:].detach(), embeddings=emb
-        ).backward()
+        criterion(predicted=predicted, target=emb[:, 1:], embeddings=emb).backward()
         assert emb.grad is not None
         assert predicted.grad is not None
 
