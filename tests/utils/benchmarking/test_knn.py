@@ -7,6 +7,21 @@ import torch.nn.functional as F
 from lightly.utils.benchmarking import knn
 
 
+def _supports_float16_topk_on_cpu() -> bool:
+    # Older torch versions, such as 1.10, have no float16 topk kernel on CPU.
+    try:
+        torch.zeros(1, dtype=torch.float16).topk(k=1)
+    except RuntimeError:
+        return False
+    return True
+
+
+requires_float16_topk = pytest.mark.skipif(
+    not _supports_float16_topk_on_cpu(),
+    reason="torch has no float16 topk kernel on CPU",
+)
+
+
 def test_knn() -> None:
     feature_bank = torch.tensor(
         [
@@ -75,7 +90,7 @@ def test_knn__knn_k() -> None:
 @pytest.mark.parametrize(
     ("dtype", "knn_t"),
     [
-        (torch.float16, 0.07),
+        pytest.param(torch.float16, 0.07, marks=requires_float16_topk),
         (torch.bfloat16, 0.01),
         (torch.float32, 0.01),
         (torch.float64, 0.001),
@@ -117,6 +132,7 @@ def test_knn__stable_weights_are_centered_per_query() -> None:
     assert pred_labels.tolist() == [[1, 0], [1, 0]]
 
 
+@requires_float16_topk
 def test_knn__half_precision_weights_preserve_class_ranking() -> None:
     feature = torch.tensor([[1.0, 0.0]], dtype=torch.float16)
     feature_bank = torch.tensor(
