@@ -6,6 +6,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch import Tensor
 
+from lightly.models.modules import center
+
 
 @torch.no_grad()
 def sinkhorn(
@@ -16,7 +18,9 @@ def sinkhorn(
 ) -> Tensor:
     """Distributed sinkhorn algorithm.
 
-    As outlined in [0] and implemented in [1].
+    As outlined in [0] and implemented in [1]. Thin wrapper around
+    lightly.models.modules.center.sinkhorn_knopp, which holds the shared
+    implementation.
 
     - [0]: SwaV, 2020, https://arxiv.org/abs/2006.09882
     - [1]: https://github.com/facebookresearch/swav/
@@ -35,31 +39,13 @@ def sinkhorn(
     Returns:
         Soft codes Q assigning each feature to a prototype.
     """
-    world_size = 1
-    if gather_distributed and dist.is_initialized():
-        world_size = dist.get_world_size()
-
-    # Get the exponential matrix and make it sum to 1
-    Q = torch.exp(out / epsilon).t()
-    sum_Q = torch.sum(Q)
-    if world_size > 1:
-        dist.all_reduce(sum_Q)
-    Q /= sum_Q
-
-    B = Q.shape[1] * world_size
-
-    for _ in range(iterations):
-        # Normalize rows
-        sum_of_rows = torch.sum(Q, dim=1, keepdim=True)
-        if world_size > 1:
-            dist.all_reduce(sum_of_rows)
-        Q /= sum_of_rows
-        # Normalize columns
-        Q /= torch.sum(Q, dim=0, keepdim=True)
-        Q /= B
-
-    Q *= B
-    return Q.t()
+    codes = center.sinkhorn_knopp(
+        x=out,
+        temperature=epsilon,
+        num_iterations=iterations,
+        gather_distributed=gather_distributed,
+    )
+    return codes.to(out.dtype)
 
 
 class SwaVLoss(nn.Module):
