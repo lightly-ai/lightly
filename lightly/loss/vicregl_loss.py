@@ -138,6 +138,8 @@ class VICRegLLoss(Module):
             ValueError: If the lengths of global_view_features and global_view_grids are not the same.
             ValueError: If the lengths of local_view_features and local_view_grids are not the same.
             ValueError: If only one of local_view_features or local_view_grids is set.
+            ValueError: If a global or local feature map and its grid do not have
+                matching batch, height, and width dimensions.
         """
         if len(global_view_features) != len(global_view_grids):
             raise ValueError(
@@ -156,6 +158,18 @@ class VICRegLLoss(Module):
                 f"None but found {type(local_view_features)} and {type(local_view_grids)}."
             )
 
+        self._validate_view_feature_and_grid_shapes(
+            view_features=global_view_features,
+            view_grids=global_view_grids,
+            view_type="global",
+        )
+        if local_view_features is not None and local_view_grids is not None:
+            self._validate_view_feature_and_grid_shapes(
+                view_features=local_view_features,
+                view_grids=local_view_grids,
+                view_type="local",
+            )
+
         # Calculate loss from global features
         global_loss = self._global_loss(
             global_view_features=global_view_features,
@@ -172,6 +186,24 @@ class VICRegLLoss(Module):
 
         loss = self.alpha * global_loss + (1 - self.alpha) * local_loss
         return loss
+
+    @staticmethod
+    def _validate_view_feature_and_grid_shapes(
+        view_features: Sequence[Tuple[Tensor, Tensor]],
+        view_grids: Sequence[Tensor],
+        view_type: str,
+    ) -> None:
+        """Validates that every global or local feature map matches its grid."""
+        for index, ((_, local_features), grid) in enumerate(
+            zip(view_features, view_grids)
+        ):
+            if local_features.shape[:3] != grid.shape[:3]:
+                raise ValueError(
+                    f"{view_type}_view_features[{index}][1] and "
+                    f"{view_type}_view_grids[{index}] must have matching batch, "
+                    f"height, and width but found local feature shape "
+                    f"{tuple(local_features.shape)} and grid shape {tuple(grid.shape)}."
+                )
 
     def _global_loss(
         self,
