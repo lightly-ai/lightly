@@ -287,6 +287,7 @@ More from Lightly
    tutorials/package/tutorial_pretrain_detectron2.rst
    tutorials/package/tutorial_checkpoint_finetuning.rst
    tutorials/package/tutorial_timm_backbone.rst
+   tutorials/package/tutorial_custom_dino_augmentations.rst
 
 .. toctree::
    :maxdepth: 1
