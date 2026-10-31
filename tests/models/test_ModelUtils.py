@@ -1157,6 +1157,72 @@ def test_random_inverse_block_mask__mask_ratio_extremes(
         )
 
 
+def test_random_cyclic_block_mask__fixed_count() -> None:
+    torch.manual_seed(0)
+    mask = utils.random_cyclic_block_mask(size=(4, 14, 14), mask_ratio=0.5)
+    assert mask.shape == (4, 14, 14)
+    assert mask.dtype == torch.bool
+    # int(196 * 0.5) = 98 masked per image.
+    assert torch.equal(mask.sum(dim=(1, 2)), torch.full((4,), 98))
+
+
+@pytest.mark.parametrize("roll", [True, False])
+def test_random_cyclic_block_mask__count_preserved_under_roll(roll: bool) -> None:
+    torch.manual_seed(0)
+    mask = utils.random_cyclic_block_mask(size=(3, 8, 8), mask_ratio=0.25, roll=roll)
+    assert torch.equal(mask.sum(dim=(1, 2)), torch.full((3,), int(64 * 0.25)))
+
+
+def test_random_cyclic_block_mask__roll_shifts_block() -> None:
+    # With the same seed the same block is generated first; roll then shifts it.
+    for seed in range(10):
+        torch.manual_seed(seed)
+        no_roll = utils.random_cyclic_block_mask(
+            size=(1, 8, 8), mask_ratio=0.25, roll=False
+        )
+        torch.manual_seed(seed)
+        rolled = utils.random_cyclic_block_mask(
+            size=(1, 8, 8), mask_ratio=0.25, roll=True
+        )
+        assert no_roll.sum() == rolled.sum()
+        if not torch.equal(no_roll, rolled):
+            break
+    else:
+        pytest.fail("roll never changed the mask across seeds")
+
+
+@pytest.mark.parametrize("mask_ratio, expected_all", [(0.0, False), (1.0, True)])
+def test_random_cyclic_block_mask__mask_ratio_extremes(
+    mask_ratio: float, expected_all: bool
+) -> None:
+    mask = utils.random_cyclic_block_mask(size=(2, 4, 4), mask_ratio=mask_ratio)
+    assert bool(mask.all()) is expected_all
+    assert bool(mask.any()) is expected_all
+
+
+@pytest.mark.parametrize("device", ["cpu", "cuda"])
+def test_random_cyclic_block_mask__device(device: str) -> None:
+    if device == "cuda" and not torch.cuda.is_available():
+        pytest.skip("CUDA not available")
+    mask = utils.random_cyclic_block_mask(size=(2, 8, 8), mask_ratio=0.5, device=device)
+    assert mask.device.type == device
+
+
+def test_random_cyclic_block_mask__invalid_ratio() -> None:
+    with pytest.raises(ValueError):
+        utils.random_cyclic_block_mask(size=(2, 8, 8), mask_ratio=1.5)
+
+
+def test_random_cyclic_block_mask__invalid_aspect() -> None:
+    with pytest.raises(ValueError):
+        utils.random_cyclic_block_mask(size=(2, 8, 8), min_aspect=0.0)
+    with pytest.raises(ValueError):
+        utils.random_cyclic_block_mask(size=(2, 8, 8), min_aspect=2.0, max_aspect=1.0)
+    with pytest.raises(ValueError):
+        # An explicit zero max_aspect must be rejected, not treated as unset.
+        utils.random_cyclic_block_mask(size=(2, 8, 8), max_aspect=0.0)
+
+
 @pytest.mark.parametrize(
     "mask_ratio, expected_keep_shape, expected_mask_shape",
     [

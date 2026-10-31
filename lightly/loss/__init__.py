@@ -10,6 +10,7 @@ from lightly.loss.detcon_loss import DetConBLoss, DetConSLoss
 from lightly.loss.dino_loss import DINOLoss
 from lightly.loss.directclr_loss import DirectCLRLoss
 from lightly.loss.emp_ssl_loss import EMPSSLLoss
+from lightly.loss.franca_loss import FrancaDINOLoss, FrancaIBOTPatchLoss
 from lightly.loss.frossl_loss import FroSSLLoss
 from lightly.loss.ibot_loss import IBOTPatchLoss, IBOTPlusPlusPatchLoss
 from lightly.loss.koleo_loss import KoLeoLoss
