@@ -35,6 +35,12 @@ class NTXentLoss(nn.Module):
             If True then negatives from all GPUs are gathered before the
             loss calculation. If a memory bank is used and gather_distributed is True,
             then tensors from all gpus are gathered before the memory bank is updated.
+        normalize_eps:
+            Small value used as the lower bound of the norm when normalizing the
+            embeddings to unit length. The default of 1e-12 is not representable in
+            half precision (it rounds to 0), so an embedding with a norm of zero
+            turns into NaN. Increase it, for example to 1e-6, when training with
+            float16.
 
     Raises:
         ValueError: If abs(temperature) < 1e-8 to prevent divide by zero.
@@ -60,6 +66,7 @@ class NTXentLoss(nn.Module):
         temperature: float = 0.5,
         memory_bank_size: Union[int, Sequence[int]] = 0,
         gather_distributed: bool = False,
+        normalize_eps: float = 1e-12,
     ):
         """Initializes the NTXentLoss module with the specified parameters.
 
@@ -70,6 +77,9 @@ class NTXentLoss(nn.Module):
                  Size of the memory bank.
             gather_distributed:
                  If True, negatives from all GPUs are gathered before the loss calculation.
+            normalize_eps:
+                 Lower bound of the norm used to normalize the embeddings to unit
+                 length. Passed as `eps` to `torch.nn.functional.normalize`.
 
         Raises:
             ValueError: If temperature is less than 1e-8 to prevent divide by zero.
@@ -82,6 +92,7 @@ class NTXentLoss(nn.Module):
         self.temperature = temperature
         self.gather_distributed = gather_distributed
         self.cross_entropy = nn.CrossEntropyLoss(reduction="mean")
+        self.normalize_eps = normalize_eps
         self.eps = 1e-8
 
         if abs(self.temperature) < self.eps:
@@ -117,8 +128,8 @@ class NTXentLoss(nn.Module):
         batch_size, _ = out0.shape
 
         # Normalize the output to length 1
-        out0 = nn.functional.normalize(out0, dim=1)
-        out1 = nn.functional.normalize(out1, dim=1)
+        out0 = nn.functional.normalize(out0, dim=1, eps=self.normalize_eps)
+        out1 = nn.functional.normalize(out1, dim=1, eps=self.normalize_eps)
 
         # ask memory bank for negative samples and extend it with out1 if
         # out1 requires a gradient, otherwise keep the same vectors in the
