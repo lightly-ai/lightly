@@ -44,6 +44,7 @@ class NTXentLoss(nn.Module):
 
     Raises:
         ValueError: If abs(temperature) < 1e-8 to prevent divide by zero.
+        ValueError: If normalize_eps <= 0 to prevent divide by zero.
 
     Examples:
         >>> # initialize loss function without memory bank
@@ -83,6 +84,7 @@ class NTXentLoss(nn.Module):
 
         Raises:
             ValueError: If temperature is less than 1e-8 to prevent divide by zero.
+            ValueError: If normalize_eps <= 0 to prevent divide by zero.
             ValueError: If gather_distributed is True but torch.distributed is not available.
         """
         super().__init__()
@@ -98,6 +100,10 @@ class NTXentLoss(nn.Module):
         if abs(self.temperature) < self.eps:
             raise ValueError(
                 "Illegal temperature: abs({}) < 1e-8".format(self.temperature)
+            )
+        if self.normalize_eps <= 0:
+            raise ValueError(
+                "Illegal normalize_eps: {} <= 0".format(self.normalize_eps)
             )
         if gather_distributed and not torch_dist.is_available():
             raise ValueError(

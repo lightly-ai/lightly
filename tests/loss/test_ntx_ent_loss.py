@@ -127,6 +127,11 @@ class TestNTXentLoss:
             batch_2 = torch.randn((bsz, 32))
             l = loss(batch_1, batch_2)
 
+    @pytest.mark.parametrize("normalize_eps", [0.0, -1e-12])
+    def test_normalize_eps__non_positive(self, normalize_eps: float) -> None:
+        with pytest.raises(ValueError, match="Illegal normalize_eps"):
+            NTXentLoss(normalize_eps=normalize_eps)
+
     def test_normalize_eps(self) -> None:
         # The norm of the embeddings is far below normalize_eps, so they are divided
         # by normalize_eps instead of being normalized to unit length. All
