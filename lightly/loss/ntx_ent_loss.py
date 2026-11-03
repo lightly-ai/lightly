@@ -3,6 +3,7 @@
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
+import math
 from typing import Sequence, Union
 
 import torch
@@ -44,7 +45,7 @@ class NTXentLoss(nn.Module):
 
     Raises:
         ValueError: If abs(temperature) < 1e-8 to prevent divide by zero.
-        ValueError: If normalize_eps <= 0 to prevent divide by zero.
+        ValueError: If normalize_eps is not finite and greater than 0.
 
     Examples:
         >>> # initialize loss function without memory bank
@@ -84,7 +85,7 @@ class NTXentLoss(nn.Module):
 
         Raises:
             ValueError: If temperature is less than 1e-8 to prevent divide by zero.
-            ValueError: If normalize_eps <= 0 to prevent divide by zero.
+            ValueError: If normalize_eps is not finite and greater than 0.
             ValueError: If gather_distributed is True but torch.distributed is not available.
         """
         super().__init__()
@@ -101,9 +102,11 @@ class NTXentLoss(nn.Module):
             raise ValueError(
                 "Illegal temperature: abs({}) < 1e-8".format(self.temperature)
             )
-        if self.normalize_eps <= 0:
+        if not math.isfinite(self.normalize_eps) or self.normalize_eps <= 0:
             raise ValueError(
-                "Illegal normalize_eps: {} <= 0".format(self.normalize_eps)
+                "Illegal normalize_eps: {} is not finite and greater than 0".format(
+                    self.normalize_eps
+                )
             )
         if gather_distributed and not torch_dist.is_available():
             raise ValueError(

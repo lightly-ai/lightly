@@ -127,8 +127,10 @@ class TestNTXentLoss:
             batch_2 = torch.randn((bsz, 32))
             l = loss(batch_1, batch_2)
 
-    @pytest.mark.parametrize("normalize_eps", [0.0, -1e-12])
-    def test_normalize_eps__non_positive(self, normalize_eps: float) -> None:
+    @pytest.mark.parametrize(
+        "normalize_eps", [0.0, -1e-12, float("nan"), float("inf"), float("-inf")]
+    )
+    def test_normalize_eps__invalid(self, normalize_eps: float) -> None:
         with pytest.raises(ValueError, match="Illegal normalize_eps"):
             NTXentLoss(normalize_eps=normalize_eps)
 
