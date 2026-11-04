@@ -35,11 +35,11 @@ class _DummyModule(LightningModule):
     def __init__(self) -> None:
         super().__init__()
 
-    def training_step(self, batch: tuple[Tensor, ...], batch_idx: int) -> None:
+    def training_step(self, batch: list[Tensor], batch_idx: int) -> None:
         self.log("train_epoch", self.trainer.current_epoch)
         self.log_dict({"train_epoch_dict": self.trainer.current_epoch})
 
-    def validation_step(self, batch: tuple[Tensor, ...], batch_idx: int) -> None:
+    def validation_step(self, batch: list[Tensor], batch_idx: int) -> None:
         self.log("val_epoch", self.trainer.current_epoch * 2)
         self.log_dict({"val_epoch_dict": self.trainer.current_epoch * 2})
 
