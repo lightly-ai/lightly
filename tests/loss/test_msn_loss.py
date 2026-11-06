@@ -39,10 +39,6 @@ class TestMSNLoss:
         with pytest.raises(ValueError):
             MSNLoss(sinkhorn_iterations=-1)
 
-    def test__init__me_max_weight(self) -> None:
-        criterion = MSNLoss(regularization_weight=0.0, me_max_weight=0.5)
-        assert criterion.regularization_weight == 0.5
-
     def test_prototype_probabilitiy(self) -> None:
         torch.manual_seed(0)
         queries = F.normalize(torch.rand((8, 10)), dim=1)

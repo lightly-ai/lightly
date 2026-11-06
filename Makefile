@@ -22,7 +22,7 @@ MAXIMAL_PYTHON_VERSION := 3.12
 # Dependencies released after this date are ignored. This keeps CI stable when new
 # versions of dependencies are released. Must be a full timestamp: a bare date is
 # interpreted in the local timezone, which would make local and CI runs disagree.
-EXCLUDE_NEWER_DATE := "2025-08-07T22:00:00Z"
+EXCLUDE_NEWER_DATE := "2025-12-20T00:00:00Z"
 
 # Install the package in non-editable mode in CI.
 ifdef CI
@@ -47,6 +47,7 @@ UV_RUN ?= uv run --frozen
 help:
 	@echo "Common targets:"
 	@echo "  install-dev              install the package for local development"
+	@echo "  install-docs             install everything needed to build the docs"
 	@echo "  format                   auto-fix imports and formatting with ruff"
 	@echo "  static-checks            lock-check + format-check + type-check"
 	@echo "  test                     run the full test suite"
@@ -129,11 +130,11 @@ all-checks: static-checks test
 lock:
 	uv lock --exclude-newer $(EXCLUDE_NEWER_DATE)
 
-# Install the package for local development, including the dependencies needed to
-# build the docs.
+# Install the package for local development. The docs group needs Python 3.9+ and
+# would make this fail on Python 3.8, so the docs tools come from install-docs.
 .PHONY: install-dev
 install-dev:
-	uv sync --locked --exclude-newer $(EXCLUDE_NEWER_DATE) --all-extras --group docs
+	uv sync --locked --exclude-newer $(EXCLUDE_NEWER_DATE) --all-extras
 	uv run --frozen pre-commit install
 
 # Install system dependencies required to build PyAV from source.

@@ -1,11 +1,12 @@
 import math
-from typing import List, Optional, Tuple, cast
+from typing import Iterable, List, Optional, Tuple, cast
 
 import torch
 import torch.nn as nn
 from timm.layers.pos_embed import resample_abs_pos_embed
+from timm.models import _manipulate
 from timm.models.vision_transformer import VisionTransformer
-from torch import Tensor
+from torch import Tensor, jit
 from torch.nn import LayerNorm, Linear, Module, Parameter
 
 from lightly.models import utils
@@ -63,6 +64,11 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
         )
 
         self.antialias = antialias
+        self.grad_checkpointing = False
+
+    def set_grad_checkpointing(self, enable: bool = True) -> None:
+        """Enables or disables gradient checkpointing."""
+        self.grad_checkpointing = enable
 
     @property
     def sequence_length(self) -> int:
@@ -106,7 +112,10 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
 
         intermediates: List[Tensor] = []
         for blk in self.vit.blocks:
-            tokens = blk(tokens)
+            if self.grad_checkpointing and not jit.is_scripting():
+                tokens = _checkpoint_seq((blk,), tokens)
+            else:
+                tokens = blk(tokens)
             intermediates.append(self.vit.norm(tokens) if norm else tokens)
 
         # normalize
@@ -128,7 +137,10 @@ class MaskedVisionTransformerTIMM(MaskedVisionTransformer):
         # normalization layer
         tokens = self.vit.norm_pre(tokens)
         # apply Transformer blocks
-        tokens = self.vit.blocks(tokens)
+        if self.grad_checkpointing and not jit.is_scripting():
+            tokens = _checkpoint_seq(self.vit.blocks, tokens)
+        else:
+            tokens = self.vit.blocks(tokens)
         # normalize
         tokens = self.vit.norm(tokens)
         return tokens
@@ -215,3 +227,13 @@ def init_weights(module: Module) -> None:
     elif isinstance(module, LayerNorm):
         nn.init.constant_(module.bias, 0)
         nn.init.constant_(module.weight, 1.0)
+
+
+def _checkpoint_seq(blocks: Iterable[Module], tokens: Tensor) -> Tensor:
+    if not tokens.requires_grad:
+        # Reentrant checkpointing (the default for timm < 1.0.16) only tracks
+        # gradients if an input requires grad. Without this, the blocks get no
+        # gradients when everything before them is frozen.
+        tokens = tokens.detach().requires_grad_()
+    out: Tensor = _manipulate.checkpoint_seq(blocks, tokens)
+    return out

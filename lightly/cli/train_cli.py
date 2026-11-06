@@ -26,11 +26,12 @@ from lightly.cli._helpers import (
     load_from_state_dict,
     load_state_dict_from_url,
 )
-from lightly.data import ImageCollateFunction, LightlyDataset
+from lightly.data import LightlyDataset, MultiViewCollate
 from lightly.embedding import SelfSupervisedEmbedding
 from lightly.loss import NTXentLoss
 from lightly.models import ResNetGenerator
 from lightly.models.batchnorm import get_norm_layer
+from lightly.transforms import SimCLRTransform
 from lightly.utils.hipify import bcolors
 
 
@@ -108,13 +109,12 @@ def _train_cli(cfg, is_cli_call=True):
     criterion = NTXentLoss(**cfg["criterion"])
     optimizer = torch.optim.SGD(model.parameters(), **cfg["optimizer"])
 
-    dataset = LightlyDataset(input_dir)
+    dataset = LightlyDataset(input_dir, transform=SimCLRTransform(**cfg["collate"]))
 
     cfg["loader"]["batch_size"] = min(cfg["loader"]["batch_size"], len(dataset))
 
-    collate_fn = ImageCollateFunction(**cfg["collate"])
     dataloader = torch.utils.data.DataLoader(
-        dataset, **cfg["loader"], collate_fn=collate_fn
+        dataset, **cfg["loader"], collate_fn=MultiViewCollate()
     )
 
     encoder = SelfSupervisedEmbedding(model, criterion, optimizer, dataloader)
@@ -177,7 +177,7 @@ def train_cli(cfg):
         >>> lightly-ssl-train input_dir=data/ trainer.max_epochs=10
         >>>
         >>> # print a full summary of the model
-        >>> lightly-ssl-train input_dir=data/ trainer.weights_summary=full
+        >>> lightly-ssl-train input_dir=data/ summary_callback.max_depth=-1
 
     """
     return _train_cli(cfg)

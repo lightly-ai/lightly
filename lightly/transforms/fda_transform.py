@@ -66,7 +66,6 @@ class FDAView1Transform:
         # Gaussian blur
         gaussian_blur: float = 1.0,
         sigmas: Tuple[float, float] = (0.1, 2),
-        kernel_size: Optional[float] = 23,
         # Amplitude rescale
         ampl_rescale_range: Tuple[float, float] = (0.8, 1.75),
         ampl_rescale_prob: float = 0.2,
@@ -103,10 +102,7 @@ class FDAView1Transform:
             random_gray_scale: Probability of conversion to grayscale.
             gaussian_blur: Probability of Gaussian blur.
             sigmas: Tuple of min and max value from which the std of the gaussian
-                kernel is sampled. Is ignored if `kernel_size` is set.
-            kernel_size: Will be deprecated in favor of `sigmas` argument. If set,
-                the old behavior applies and `sigmas` is ignored. Used to calculate
-                sigma of gaussian blur with kernel_size * input_size.
+                kernel is sampled.
             ampl_rescale_range: Range of the amplitude rescaling factor for
                 frequency domain augmentation.
             ampl_rescale_prob: Probability of applying amplitude rescaling.
@@ -170,7 +166,7 @@ class FDAView1Transform:
             random_rotation_transform(rr_prob=rr_prob, rr_degrees=rr_degrees),
             T.RandomApply([color_jitter], p=cj_prob),
             T.RandomGrayscale(p=random_gray_scale),
-            GaussianBlur(kernel_size=kernel_size, sigmas=sigmas, prob=gaussian_blur),
+            GaussianBlur(sigmas=sigmas, prob=gaussian_blur),
             RandomSolarization(prob=solarization_prob),
             T.ToTensor(),
         ]
@@ -239,7 +235,6 @@ class FDAView2Transform:
         # Gaussian blur
         gaussian_blur: float = 0.1,
         sigmas: Tuple[float, float] = (0.1, 2),
-        kernel_size: Optional[float] = 23,
         # Amplitude rescale
         ampl_rescale_range: Tuple[float, float] = (0.8, 1.75),
         ampl_rescale_prob: float = 0.2,
@@ -276,10 +271,7 @@ class FDAView2Transform:
             random_gray_scale: Probability of conversion to grayscale.
             gaussian_blur: Probability of Gaussian blur.
             sigmas: Tuple of min and max value from which the std of the gaussian
-                kernel is sampled. Is ignored if `kernel_size` is set.
-            kernel_size: Will be deprecated in favor of `sigmas` argument. If set,
-                the old behavior applies and `sigmas` is ignored. Used to calculate
-                sigma of gaussian blur with kernel_size * input_size.
+                kernel is sampled.
             ampl_rescale_range: Range of the amplitude rescaling factor for
                 frequency domain augmentation.
             ampl_rescale_prob: Probability of applying amplitude rescaling.
@@ -343,7 +335,7 @@ class FDAView2Transform:
             random_rotation_transform(rr_prob=rr_prob, rr_degrees=rr_degrees),
             T.RandomApply([color_jitter], p=cj_prob),
             T.RandomGrayscale(p=random_gray_scale),
-            GaussianBlur(kernel_size=kernel_size, sigmas=sigmas, prob=gaussian_blur),
+            GaussianBlur(sigmas=sigmas, prob=gaussian_blur),
             RandomSolarization(prob=solarization_prob),
             T.ToTensor(),
         ]

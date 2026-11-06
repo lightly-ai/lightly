@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Dict, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import torch
 import torch.nn.functional as F
@@ -103,8 +103,8 @@ class KNNClassifier(LightningModule):
         self.feature_dtype = feature_dtype
         self.normalize = normalize
 
-        self._train_features = []
-        self._train_targets = []
+        self._train_features: List[Tensor] = []
+        self._train_targets: List[Tensor] = []
         self._train_features_tensor: Optional[Tensor] = None
         self._train_targets_tensor: Optional[Tensor] = None
 
@@ -116,6 +116,7 @@ class KNNClassifier(LightningModule):
         return features
 
     def forward(self, images: Tensor) -> Tensor:
+        assert self.model is not None
         features = self.model.forward(images).flatten(start_dim=1)
         features = self._prepare_features(features)
         return features
@@ -130,8 +131,10 @@ class KNNClassifier(LightningModule):
             # (world_size, batch_size) after gather. For non-distributed training,
             # features and targets have size (batch_size, dim) and (batch_size,).
             features = self.all_gather(torch.cat(self._train_features, dim=0))
+            assert isinstance(features, Tensor)
             self._train_features = []
             targets = self.all_gather(torch.cat(self._train_targets, dim=0))
+            assert isinstance(targets, Tensor)
             self._train_targets = []
             # Reshape to (dim, world_size * batch_size)
             features = features.flatten(end_dim=-2).t().contiguous()
@@ -148,11 +151,13 @@ class KNNClassifier(LightningModule):
         self._train_targets_tensor = None
 
     @torch.no_grad()
-    def training_step(self, batch, batch_idx) -> None:
+    def training_step(  # type: ignore[override]
+        self, batch: Tuple[Tensor, ...], batch_idx: int
+    ) -> None:
         pass
 
-    def validation_step(
-        self, batch, batch_idx: int, dataloader_idx: int
+    def validation_step(  # type: ignore[override]
+        self, batch: Tuple[Tensor, ...], batch_idx: int, dataloader_idx: int
     ) -> Dict[str, Tensor] | None:
         """Run a step for kNN validation.
 
@@ -202,6 +207,7 @@ class KNNClassifier(LightningModule):
                 )
 
             return log_dict
+        return None
 
     def configure_optimizers(self) -> None:
         # configure_optimizers must be implemented for PyTorch Lightning. Returning None

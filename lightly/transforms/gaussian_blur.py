@@ -1,8 +1,7 @@
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
-from typing import Optional, Tuple, Union, cast
-from warnings import warn
+from typing import Tuple, Union
 
 import numpy as np
 from PIL import ImageFilter
@@ -21,33 +20,19 @@ class GaussianBlur:
     the Gaussian kernel.
 
     Attributes:
-        kernel_size:
-            Will be deprecated in favor of `sigmas` argument. If set, the old behavior applies and `sigmas` is ignored.
-            Used to calculate sigma of gaussian blur with kernel_size * input_size.
         prob:
             Probability with which the blur is applied.
-        scale:
-            Will be deprecated in favor of `sigmas` argument. If set, the old behavior applies and `sigmas` is ignored.
-            Used to scale the `kernel_size` of a factor of `kernel_scale`
         sigmas:
             Tuple of min and max value from which the std of the gaussian kernel is sampled.
-            Is ignored if `kernel_size` is set.
 
     """
 
     def __init__(
         self,
-        kernel_size: Optional[float] = None,
+        *,
         prob: float = 0.5,
-        scale: Optional[float] = None,
         sigmas: Tuple[float, float] = (0.2, 2),
     ):
-        if scale != None or kernel_size != None:
-            warn(
-                "The 'kernel_size' and 'scale' arguments of the GaussianBlur augmentation will be deprecated.  "
-                "Please use the 'sigmas' parameter instead.",
-                DeprecationWarning,
-            )
         self.prob = prob
         self.sigmas = sigmas
 
@@ -64,9 +49,10 @@ class GaussianBlur:
         prob = np.random.random_sample()
 
         # Convert to PIL image if it's a tensor, otherwise use as is
+        sample_pil: Image
         if isinstance(sample, Tensor):
             is_input_tensor = True
-            sample_pil = cast(Image, F.to_pil_image(sample))
+            sample_pil = F.to_pil_image(sample)
         else:
             is_input_tensor = False
             sample_pil = sample

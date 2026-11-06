@@ -14,7 +14,7 @@ authors = [
     {name = "Lightly Team", email = "team@lightly.ai"},
 ]
 license = {file = "LICENSE.txt"}
-description="A deep learning package for self-supervised learning"
+description="A deep learning package for self-supervised learning and world models"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
@@ -101,17 +101,15 @@ dev = [
 
 # Sphinx and its extensions, only needed to build the documentation in docs/.
 # Lower bounds are required for the same reason as in the `dev` group above.
+# Resolved for Python 3.9+ only, see tool.uv.dependency-groups below.
 docs = [
-  "sphinx>=5.3.0",
-  # Pinned: 0.16 is both the highest version the docs build with and the version the
-  # lockfile selects, so the lower bound has nowhere else to go.
-  "docutils==0.16",
+  "sphinx>=7.4.7",
+  "furo>=2025.12.19",
   "sphinx-copybutton>=0.5.2",
   "sphinx-design>=0.5.0",
   "sphinx-gallery>=0.19.0",
   "sphinx-tabs>=3.4.7",
   "sphinx-reredirects>=0.1.4",
-  "sphinx_rtd_theme>=2.0.0",
 ]
 
 # Tooling to build and publish the package to PyPI.
@@ -169,6 +167,12 @@ constraint-dependencies = ["setuptools>=56,<59.6; python_full_version < '3.9'"]
 # Python marker keeps the newer targets, which build against Python 3.12, unaffected.
 build-constraint-dependencies = ["setuptools<74; python_full_version < '3.9'"]
 
+# Sphinx 7.4, the floor furo needs, dropped Python 3.8. The docs are built with
+# MAXIMAL_PYTHON_VERSION (see the Makefile), so the group skips 3.8 instead of
+# holding every docs tool at its last 3.8 release.
+[tool.uv.dependency-groups]
+docs = { requires-python = ">=3.9" }
+
 [project.urls]
 "Homepage" = "https://www.lightly.ai"
 "Web-App" = "https://app.lightly.ai"
@@ -207,20 +211,6 @@ known-first-party = ["lightly"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
-
-[tool.ruff.lint.per-file-ignores]
-# Deprecated paths (mirrors pyproject.toml's mypy excludes for deprecated code).
-"lightly/models/simclr.py" = ["D"]
-"lightly/models/moco.py" = ["D"]
-"lightly/models/barlowtwins.py" = ["D"]
-"lightly/models/nnclr.py" = ["D"]
-"lightly/models/simsiam.py" = ["D"]
-"lightly/models/byol.py" = ["D"]
-"tests/models/test_ModelsSimSiam.py" = ["D"]
-"tests/models/test_ModelsSimCLR.py" = ["D"]
-"tests/models/test_ModelsNNCLR.py" = ["D"]
-"tests/models/test_ModelsMoCo.py" = ["D"]
-"tests/models/test_ModelsBYOL.py" = ["D"]
 
 [tool.ruff.format]
 docstring-code-format = true
@@ -268,17 +258,10 @@ exclude = '''(?x)(
     lightly/cli/config/get_config.py |
     lightly/cli/train_cli.py |
     lightly/cli/_cli_simclr.py |
-    lightly/cli/_helpers.py |
     lightly/data/dataset.py |
-    lightly/data/collate.py |
     lightly/data/_image_loaders.py |
     lightly/data/_video.py |
     lightly/core.py |
-    lightly/utils/cropping/crop_image_by_bounding_boxes.py |
-    lightly/utils/cropping/read_yolo_label_file.py |
-    lightly/utils/debug.py |
-    lightly/utils/benchmarking/benchmark_module.py |
-    lightly/utils/benchmarking/knn_classifier.py |
     lightly/models/modules/masked_autoencoder.py |
     lightly/models/modules/ijepa.py |
     lightly/models/utils.py |
@@ -286,37 +269,16 @@ exclude = '''(?x)(
     tests/cli/test_cli_magic.py |
     tests/cli/test_cli_crop.py |
     tests/cli/test_cli_train.py |
-    tests/cli/test_cli_get_lighty_config.py |
     tests/cli/test_cli_embed.py |
     tests/core/test_Core.py |
-    tests/data/test_multi_view_collate.py |
-    tests/data/test_data_collate.py |
     tests/data/test_LightlySubset.py |
     tests/data/test_LightlyDataset.py |
     tests/embedding/test_callbacks.py |
     tests/embedding/test_embedding.py |
-    tests/utils/test_debug.py |
-    tests/utils/benchmarking/test_benchmark_module.py |
-    tests/utils/benchmarking/test_topk.py |
-    tests/utils/benchmarking/test_knn_classifier.py |
-    tests/utils/benchmarking/test_knn.py |
     tests/utils/benchmarking/test_linear_classifier.py |
     tests/utils/benchmarking/test_metric_callback.py |
     tests/utils/test_dist.py |
-    tests/conftest.py |
-    # Let's not type deprecated models:
-    lightly/models/simclr.py |
-    lightly/models/moco.py |
-    lightly/models/barlowtwins.py |
-    lightly/models/nnclr.py |
-    lightly/models/simsiam.py |
-    lightly/models/byol.py |
-    # Let's not type deprecated models tests:
-    tests/models/test_ModelsSimSiam.py |
-    tests/models/test_ModelsSimCLR.py |
-    tests/models/test_ModelsNNCLR.py |
-    tests/models/test_ModelsMoCo.py |
-    tests/models/test_ModelsBYOL.py )'''
+    tests/conftest.py )'''
 
 # Ignore imports from untyped modules.
 [[tool.mypy.overrides]]
@@ -340,4 +302,4 @@ cell_metadata_filter="-all"
 
 [tool.codespell]
 skip = "*.ipynb"
-ignore-words-list = "nce,inpt,nd,wirth"
+ignore-words-list = "nce,inpt,nd,wirth,fro"

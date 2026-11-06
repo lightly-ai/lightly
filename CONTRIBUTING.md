@@ -89,9 +89,10 @@ Follow these steps to start contributing:
    make install-dev
    ```
 
-   This synchronizes the project environment from the lockfile, including the
-   dependencies needed to build the docs, and installs the pre-commit hooks. You do
-   not need to activate the virtual environment manually.
+   This synchronizes the project environment from the lockfile and installs the
+   pre-commit hooks. You do not need to activate the virtual environment manually.
+   To build the docs, run `make install-docs`: it adds the docs tools, which need
+   Python 3.9 or newer.
 
    The package supports Python 3.8 and newer.
 

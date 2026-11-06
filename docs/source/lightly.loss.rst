@@ -41,6 +41,9 @@ lightly.loss
 .. autoclass:: lightly.loss.lejepa_loss.LeJEPALoss
    :members:
 
+.. autoclass:: lightly.loss.lewm_loss.LeWMLoss
+   :members:
+
 .. autoclass:: lightly.loss.koleo_loss.KoLeoLoss
    :members:
 
@@ -75,9 +78,6 @@ lightly.loss
    :members:
 
 .. autoclass:: lightly.loss.swav_loss.SwaVLoss
-   :members:
-
-.. autoclass:: lightly.loss.sym_neg_cos_sim_loss.SymNegCosineSimilarityLoss
    :members:
 
 .. autoclass:: lightly.loss.tico_loss.TiCoLoss

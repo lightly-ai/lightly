@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Tuple, Union
 
 from PIL.Image import Image
 from torch import Tensor
@@ -53,23 +53,13 @@ class VICRegLTransform(ImageGridTransform):
             Probability of Gaussian blur for the global crop views.
         local_gaussian_blur_prob:
             Probability of Gaussian blur for the local crop views.
-        global_gaussian_blur_kernel_size:
-            Will be deprecated in favor of `global_gaussian_blur_sigmas` argument.
-            If set, the old behavior applies and `global_gaussian_blur_sigmas`
-            is ignored. Used to calculate sigma of gaussian blur with
-            global_gaussian_blur_kernel_size * input_size. Applied to global crop views.
-        local_gaussian_blur_kernel_size:
-            Will be deprecated in favor of `local_gaussian_blur_sigmas` argument.
-            If set, the old behavior applies and `local_gaussian_blur_sigmas`
-            is ignored. Used to calculate sigma of gaussian blur with
-            local_gaussian_blur_kernel_size * input_size. Applied to local crop views.
         global_gaussian_blur_sigmas:
             Tuple of min and max value from which the std of the gaussian kernel
-            is sampled. It is ignored if `global_gaussian_blur_kernel_size` is set.
+            is sampled.
             Applied to global crop views.
         local_gaussian_blur_sigmas:
             Tuple of min and max value from which the std of the gaussian kernel
-            is sampled. It is ignored if `local_gaussian_blur_kernel_size` is set.
+            is sampled.
             Applied to local crop views.
         global_solarize_prob:
             Probability of solarization for the global crop views.
@@ -108,8 +98,6 @@ class VICRegLTransform(ImageGridTransform):
         local_grid_size: int = 3,
         global_gaussian_blur_prob: float = 0.5,
         local_gaussian_blur_prob: float = 0.1,
-        global_gaussian_blur_kernel_size: Optional[float] = None,
-        local_gaussian_blur_kernel_size: Optional[float] = None,
         global_gaussian_blur_sigmas: Tuple[float, float] = (0.1, 2),
         local_gaussian_blur_sigmas: Tuple[float, float] = (0.1, 2),
         global_solarize_prob: float = 0.0,
@@ -136,7 +124,6 @@ class VICRegLTransform(ImageGridTransform):
             ),
             VICRegLViewTransform(
                 gaussian_blur_prob=global_gaussian_blur_prob,
-                gaussian_blur_kernel_size=global_gaussian_blur_kernel_size,
                 gaussian_blur_sigmas=global_gaussian_blur_sigmas,
                 solarize_prob=global_solarize_prob,
                 cj_prob=cj_prob,
@@ -159,7 +146,6 @@ class VICRegLTransform(ImageGridTransform):
             ),
             VICRegLViewTransform(
                 gaussian_blur_prob=local_gaussian_blur_prob,
-                gaussian_blur_kernel_size=local_gaussian_blur_kernel_size,
                 gaussian_blur_sigmas=local_gaussian_blur_sigmas,
                 solarize_prob=local_solarize_prob,
                 cj_prob=cj_prob,
@@ -201,7 +187,6 @@ class VICRegLViewTransform:
     def __init__(
         self,
         gaussian_blur_prob: float = 0.5,
-        gaussian_blur_kernel_size: Optional[float] = None,
         gaussian_blur_sigmas: Tuple[float, float] = (0.1, 2),
         solarize_prob: float = 0.0,
         cj_prob: float = 1.0,
@@ -217,13 +202,8 @@ class VICRegLViewTransform:
 
         Args:
             gaussian_blur_prob: Probability of Gaussian blur.
-            gaussian_blur_kernel_size: Will be deprecated in favor of
-                `gaussian_blur_sigmas` argument. If set, the old behavior applies
-                and `gaussian_blur_sigmas` is ignored. Used to calculate sigma of
-                gaussian blur with gaussian_blur_kernel_size * input_size.
             gaussian_blur_sigmas: Tuple of min and max value from which the std of
-                the gaussian kernel is sampled. Is ignored if
-                `gaussian_blur_kernel_size` is set.
+                the gaussian kernel is sampled.
             solarize_prob: Probability of solarization.
             cj_prob: Probability that color jitter is applied.
             cj_strength: Strength of the color jitter. `cj_bright`, `cj_contrast`,
@@ -248,7 +228,6 @@ class VICRegLViewTransform:
             T.RandomApply([color_jitter], p=cj_prob),
             T.RandomGrayscale(p=random_gray_scale),
             GaussianBlur(
-                kernel_size=gaussian_blur_kernel_size,
                 prob=gaussian_blur_prob,
                 sigmas=gaussian_blur_sigmas,
             ),

@@ -178,6 +178,69 @@ class TestSIGReg:
 
         assert torch.allclose(theta_dist.grad, theta_truth.grad, atol=1e-5)
 
+    @pytest.mark.parametrize(
+        "dtype,batch_size",
+        [
+            # The reduced count 2 * batch_size is not exact in dtype.
+            pytest.param(torch.bfloat16, 257, id="bf16-rounded"),
+            pytest.param(torch.float16, 2049, id="fp16-rounded"),
+            pytest.param(torch.float16, 4097, id="fp16-rounded-large"),
+            pytest.param(torch.float16, 32769, id="fp16-overflow"),
+            # Controls: the reduced count is exact in dtype.
+            pytest.param(torch.bfloat16, 129, id="bf16-exact"),
+            pytest.param(torch.bfloat16, 8, id="bf16-small"),
+            pytest.param(torch.float16, 8, id="fp16-small"),
+            pytest.param(torch.float32, 129, id="fp32"),
+            pytest.param(torch.float64, 129, id="fp64"),
+        ],
+    )
+    def test_forward_gather_distributed_low_precision_sample_count(
+        self, mocker: MockerFixture, dtype: torch.dtype, batch_size: int
+    ) -> None:
+        """The global sample count stays exact for low-precision projections.
+
+        Simulates ``world_size=2`` with identical data on both ranks and
+        compares against the loss on the repeated global batch.
+        """
+        world_size = 2
+        proj_local = torch.ones(batch_size, 2, dtype=dtype)
+        # Identity unit vectors keep both paths exact. Older supported PyTorch
+        # versions lack a bfloat16 eye kernel, so build it in float32.
+        A_fixed = torch.eye(2)
+
+        loss_fn_truth = SIGReg(num_vectors=2, knots=3, gather_distributed=False)
+        mocker.patch.object(
+            loss_fn_truth,
+            "_generate_unit_vectors",
+            new=lambda device, dtype, num_features: A_fixed.to(device, dtype),
+        )
+        loss_truth = loss_fn_truth(proj_local.repeat(world_size, 1))
+
+        mocker.patch(
+            "lightly.loss.lejepa_loss.lightly_dist.world_size",
+            return_value=world_size,
+        )
+        mocker.patch.object(
+            dist,
+            "all_reduce",
+            side_effect=lambda tensor, *args, **kwargs: tensor.data.mul_(world_size),
+        )
+        mocker.patch.object(
+            dist_nn,
+            "all_reduce",
+            side_effect=lambda tensor, *args, **kwargs: tensor * world_size,
+        )
+
+        loss_fn_dist = SIGReg(num_vectors=2, knots=3, gather_distributed=True)
+        mocker.patch.object(
+            loss_fn_dist,
+            "_generate_unit_vectors",
+            new=lambda device, dtype, num_features: A_fixed.to(device, dtype),
+        )
+        loss_dist = loss_fn_dist(proj_local)
+
+        torch.testing.assert_close(loss_dist, loss_truth)
+
     def test_knots_must_be_greater_than_one(self) -> None:
         with pytest.raises(ValueError):
             SIGReg(knots=1)

@@ -12,6 +12,8 @@ if not dependency.timm_vit_available():
     pytest.skip("TIMM vision transformer is not available", allow_module_level=True)
 
 
+from timm.layers import config as timm_config
+from timm.models import _manipulate
 from timm.models.vision_transformer import VisionTransformer
 
 from lightly.models.modules import masked_vision_transformer_timm
@@ -95,3 +97,101 @@ class TestMaskedVisionTransformerTIMM(MaskedVisionTransformerTest):
         model.add_pos_embed(x)
         _, call_kwargs = mock_resample_abs_pos_embed.call_args
         assert call_kwargs["antialias"] == antialias
+
+    @pytest.mark.parametrize("method_name", ["encode", "forward_intermediates"])
+    def test_gradient_checkpointing(
+        self, method_name: str, mocker: MockerFixture
+    ) -> None:
+        model = self.get_masked_vit(
+            patch_size=32,
+            depth=2,
+            num_heads=1,
+            embed_dim=32,
+        )
+        model.eval()
+        images = torch.rand(2, 3, 64, 64)
+
+        plain_images = images.clone().requires_grad_()
+        expected = getattr(model, method_name)(plain_images)
+        expected_output = (
+            expected[0] if method_name == "forward_intermediates" else expected
+        )
+        expected_output.sum().backward()
+        expected_param_grads = [
+            param.grad.clone()
+            for param in model.vit.blocks.parameters()
+            if param.grad is not None
+        ]
+
+        model.zero_grad(set_to_none=True)
+        model.set_grad_checkpointing(enable=True)
+        spy = mocker.spy(_manipulate, "checkpoint_seq")
+
+        checkpointed_images = images.clone().requires_grad_()
+        actual = getattr(model, method_name)(checkpointed_images)
+        if method_name == "forward_intermediates":
+            actual_output, actual_intermediates = actual
+            _, expected_intermediates = expected
+            assert len(actual_intermediates) == len(expected_intermediates)
+            for actual_intermediate, expected_intermediate in zip(
+                actual_intermediates, expected_intermediates
+            ):
+                torch.testing.assert_close(actual_intermediate, expected_intermediate)
+        else:
+            actual_output = actual
+        actual_output.sum().backward()
+
+        expected_call_count = (
+            len(model.vit.blocks) if method_name == "forward_intermediates" else 1
+        )
+        assert spy.call_count == expected_call_count
+        torch.testing.assert_close(actual_output, expected_output)
+        torch.testing.assert_close(checkpointed_images.grad, plain_images.grad)
+        param_grads = [param.grad for param in model.vit.blocks.parameters()]
+        assert len(param_grads) == len(expected_param_grads)
+        for param_grad, expected_grad in zip(param_grads, expected_param_grads):
+            torch.testing.assert_close(param_grad, expected_grad)
+
+    @pytest.mark.parametrize("method_name", ["encode", "forward_intermediates"])
+    def test_gradient_checkpointing__frozen_preprocessing(
+        self, method_name: str, mocker: MockerFixture
+    ) -> None:
+        # timm < 1.0.16 always uses reentrant checkpointing, which drops the
+        # block gradients when the checkpoint input does not require grad.
+        mocker.patch.object(timm_config, "_USE_REENTRANT_CKPT", True, create=True)
+        model = self.get_masked_vit(
+            patch_size=32,
+            depth=2,
+            num_heads=1,
+            embed_dim=32,
+        )
+        model.eval()
+        for name, param in model.named_parameters():
+            if not name.startswith("vit.blocks."):
+                param.requires_grad_(False)
+        model.set_grad_checkpointing(enable=True)
+
+        output = getattr(model, method_name)(torch.rand(2, 3, 64, 64))
+        if method_name == "forward_intermediates":
+            output = output[0]
+        output.sum().backward()
+
+        for param in model.vit.blocks.parameters():
+            assert param.grad is not None
+
+    def test_gradient_checkpointing__no_grad(self) -> None:
+        model = self.get_masked_vit(
+            patch_size=32,
+            depth=2,
+            num_heads=1,
+            embed_dim=32,
+        )
+        model.eval()
+        images = torch.rand(2, 3, 64, 64)
+
+        expected = model.encode(images)
+        model.set_grad_checkpointing(enable=True)
+        with torch.no_grad():
+            actual = model.encode(images)
+
+        torch.testing.assert_close(actual, expected)

@@ -7,16 +7,16 @@ from torch import Tensor
 from lightly.data.multi_view_collate import MultiViewCollate
 
 
-def test_empty_batch():
+def test_empty_batch() -> None:
     multi_view_collate = MultiViewCollate()
-    batch = []
+    batch: List[Tuple[List[Tensor], int, str]] = []
     views, labels, fnames = multi_view_collate(batch)
     assert len(views) == 0
     assert len(labels) == 0
     assert len(fnames) == 0
 
 
-def test_single_item_batch():
+def test_single_item_batch() -> None:
     multi_view_collate = MultiViewCollate()
     img = [torch.randn((3, 224, 224)) for _ in range(5)]
     label = 1
@@ -29,7 +29,7 @@ def test_single_item_batch():
     assert fnames == ["image1.jpg"]
 
 
-def test_multiple_item_batch():
+def test_multiple_item_batch() -> None:
     multi_view_collate = MultiViewCollate()
     img1 = [torch.randn((3, 224, 224)) for _ in range(5)]
     label1 = 1

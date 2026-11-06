@@ -1,6 +1,4 @@
 import math
-import warnings
-from typing import Optional
 
 import torch
 import torch.distributed as dist
@@ -120,11 +118,6 @@ class MSNLoss(nn.Module):
         regularization_weight:
             Weight factor lambda by which the regularization loss is scaled. Set to 0
             to disable regularization.
-        me_max_weight:
-            Deprecated, use `regularization_weight` instead. Takes precedence over
-            `regularization_weight` if not None. Weight factor lambda by which the mean
-            entropy maximization regularization loss is scaled. Set to 0 to disable
-            mean entropy maximization reguliarization.
         gather_distributed:
             If True, then target probabilities are gathered from all GPUs.
 
@@ -149,7 +142,6 @@ class MSNLoss(nn.Module):
         temperature: float = 0.1,
         sinkhorn_iterations: int = 3,
         regularization_weight: float = 1.0,
-        me_max_weight: Optional[float] = None,
         gather_distributed: bool = False,
     ):
         """Initializes the MSNLoss module with the specified parameters.
@@ -161,11 +153,6 @@ class MSNLoss(nn.Module):
                 Number of sinkhorn normalization iterations on the targets.
             regularization_weight:
                 Weight factor lambda by which the regularization loss is scaled. Set to 0 to disable regularization.
-            me_max_weight:
-                Deprecated, use `regularization_weight` instead. Takes precedence over
-                `regularization_weight` if not None. Weight factor lambda by which the mean
-                entropy maximization regularization loss is scaled. Set to 0 to disable mean
-                entropy maximization regularization.
             gather_distributed:
                 If True, then target probabilities are gathered from all GPUs.
 
@@ -191,15 +178,6 @@ class MSNLoss(nn.Module):
         self.temperature = temperature
         self.sinkhorn_iterations = sinkhorn_iterations
         self.regularization_weight = regularization_weight
-        # Set regularization_weight to me_max_weight for backwards compatibility
-        if me_max_weight is not None:
-            warnings.warn(
-                DeprecationWarning(
-                    "me_max_weight is deprecated in favor of regularization_weight and "
-                    "will be removed in the future."
-                )
-            )
-            self.regularization_weight = me_max_weight
         self.gather_distributed = gather_distributed
 
     def forward(

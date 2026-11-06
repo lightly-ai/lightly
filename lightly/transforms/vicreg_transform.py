@@ -55,12 +55,8 @@ class VICRegTransform(MultiViewTransform):
             Probability of solarization.
         gaussian_blur:
             Probability of Gaussian blur.
-        kernel_size:
-            Will be deprecated in favor of `sigmas` argument. If set, the old behavior applies and `sigmas` is ignored.
-            Used to calculate sigma of gaussian blur with kernel_size * input_size.
         sigmas:
             Tuple of min and max value from which the std of the gaussian kernel is sampled.
-            Is ignored if `kernel_size` is set.
         vf_prob:
             Probability that vertical flip is applied.
         hf_prob:
@@ -91,7 +87,6 @@ class VICRegTransform(MultiViewTransform):
         random_gray_scale: float = 0.2,
         solarize_prob: float = 0.1,
         gaussian_blur: float = 0.5,
-        kernel_size: Optional[float] = None,
         sigmas: Tuple[float, float] = (0.1, 2),
         vf_prob: float = 0.0,
         hf_prob: float = 0.5,
@@ -111,7 +106,6 @@ class VICRegTransform(MultiViewTransform):
             random_gray_scale=random_gray_scale,
             solarize_prob=solarize_prob,
             gaussian_blur=gaussian_blur,
-            kernel_size=kernel_size,
             sigmas=sigmas,
             vf_prob=vf_prob,
             hf_prob=hf_prob,
@@ -158,7 +152,6 @@ class VICRegViewTransform:
         random_gray_scale: float = 0.2,
         solarize_prob: float = 0.1,
         gaussian_blur: float = 0.5,
-        kernel_size: Optional[float] = None,
         sigmas: Tuple[float, float] = (0.2, 2),
         vf_prob: float = 0.0,
         hf_prob: float = 0.5,
@@ -181,11 +174,8 @@ class VICRegViewTransform:
             random_gray_scale: Probability of conversion to grayscale.
             solarize_prob: Probability of solarization.
             gaussian_blur: Probability of Gaussian blur.
-            kernel_size: Will be deprecated in favor of `sigmas` argument. If set,
-                the old behavior applies and `sigmas` is ignored. Used to calculate
-                sigma of gaussian blur with kernel_size * input_size.
             sigmas: Tuple of min and max value from which the std of the gaussian
-                kernel is sampled. Is ignored if `kernel_size` is set.
+                kernel is sampled.
             vf_prob: Probability that vertical flip is applied.
             hf_prob: Probability that horizontal flip is applied.
             rr_prob: Probability that random rotation is applied.
@@ -214,7 +204,7 @@ class VICRegViewTransform:
             T.RandomApply([color_jitter], p=cj_prob),
             T.RandomGrayscale(p=random_gray_scale),
             RandomSolarization(prob=solarize_prob),
-            GaussianBlur(kernel_size=kernel_size, sigmas=sigmas, prob=gaussian_blur),
+            GaussianBlur(sigmas=sigmas, prob=gaussian_blur),
             T.ToTensor(),
         ]
         if normalize:

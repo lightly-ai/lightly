@@ -1,22 +1,29 @@
-from typing import List, Union
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Callable, List, Optional
 
 import torch
-import torchvision
 from PIL import Image
 
-from lightly.data.collate import BaseCollateFunction, MultiViewCollateFunction
+from lightly.transforms.multi_view_transform import MultiViewTransform
 from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
+
+if TYPE_CHECKING:
+    from matplotlib.figure import Figure
+
+
+_matplotlib_import_error: Optional[ImportError] = None
 
 try:
     import matplotlib.pyplot as plt
 except ModuleNotFoundError:
-    plt = ModuleNotFoundError(
+    _matplotlib_import_error = ModuleNotFoundError(
         "Matplotlib is not installed on your system. Please install it to use the "
         "plotting functionalities. You can install it with "
         "'pip install lightly[matplotlib]'."
     )
 except ImportError as ex:
-    plt = ex
+    _matplotlib_import_error = ex
 
 
 @torch.no_grad()
@@ -50,7 +57,7 @@ def std_of_l2_normalized(z: torch.Tensor) -> torch.Tensor:
 
 def apply_transform_without_normalize(
     image: Image.Image,
-    transform,
+    transform: Callable[[Image.Image], Image.Image],
 ) -> Image.Image:
     """Applies the transform to the image but skips ToTensor and Normalize.
 
@@ -67,17 +74,30 @@ def apply_transform_without_normalize(
         type(T.ToTensor()),
         T.Normalize,
     )
+    if isinstance(transform, skippable_transforms):
+        # Checked first because our ToTensor shim also wraps a T.Compose, which the
+        # branch below would otherwise unwrap and apply.
+        return image
+
     if isinstance(transform, T.Compose):
         for transform_ in transform.transforms:
             image = apply_transform_without_normalize(image, transform_)
-    elif not isinstance(transform, skippable_transforms):
-        image = transform(image)
+    else:
+        wrapped_transform = getattr(transform, "transform", None)
+        if isinstance(wrapped_transform, T.Compose):
+            # View transforms such as SimCLRViewTransform wrap a T.Compose instead of
+            # subclassing it. torchvision v2's Compose has a bound method named
+            # "transform", so the isinstance check above has to come first.
+            image = apply_transform_without_normalize(image, wrapped_transform)
+        else:
+            image = transform(image)
+
     return image
 
 
 def generate_grid_of_augmented_images(
     input_images: List[Image.Image],
-    collate_function: Union[BaseCollateFunction, MultiViewCollateFunction],
+    transform: MultiViewTransform,
 ) -> List[List[Image.Image]]:
     """Returns a grid of augmented images. Images in a column belong together.
 
@@ -86,44 +106,34 @@ def generate_grid_of_augmented_images(
     Args:
         input_images:
             List of PIL images for which the augmentations should be plotted.
-        collate_function:
-            The collate function of the self-supervised learning algorithm.
-            Must be of type BaseCollateFunction or MultiViewCollateFunction.
+        transform:
+            The transform of the self-supervised learning algorithm. Must be of type
+            MultiViewTransform.
 
     Returns:
         A grid of augmented images. Images in a column belong together.
 
     """
-    grid = []
-    if isinstance(collate_function, BaseCollateFunction):
-        for _ in range(2):
-            grid.append(
-                [
-                    apply_transform_without_normalize(image, collate_function.transform)
-                    for image in input_images
-                ]
-            )
-    elif isinstance(collate_function, MultiViewCollateFunction):
-        for transform in collate_function.transforms:
-            grid.append(
-                [
-                    apply_transform_without_normalize(image, transform)
-                    for image in input_images
-                ]
-            )
-    else:
+    if not isinstance(transform, MultiViewTransform):
         raise ValueError(
-            "Collate function must be one of "
-            "(BaseCollateFunction, MultiViewCollateFunction) "
-            f"but is {type(collate_function)}."
+            f"Transform must be of type MultiViewTransform but is {type(transform)}."
+        )
+
+    grid = []
+    for view_transform in transform.transforms:
+        grid.append(
+            [
+                apply_transform_without_normalize(image, view_transform)
+                for image in input_images
+            ]
         )
     return grid
 
 
 def plot_augmented_images(
     input_images: List[Image.Image],
-    collate_function: Union[BaseCollateFunction, MultiViewCollateFunction],
-):
+    transform: MultiViewTransform,
+) -> Figure:
     """Plots original images and augmented images in a figure.
 
     This function ignores the ToTensor and Normalize transforms for visualization purposes.
@@ -131,15 +141,13 @@ def plot_augmented_images(
     Args:
         input_images:
             List of PIL images for which the augmentations should be plotted.
-        collate_function:
-            The collate function of the self-supervised learning algorithm.
-            Must be of type BaseCollateFunction or MultiViewCollateFunction.
+        transform:
+            The transform of the self-supervised learning algorithm. Must be of type
+            MultiViewTransform.
 
     Returns:
         A figure showing the original images in the left column and the augmented
-        images to their right. If the collate_function is an instance of the
-        BaseCollateFunction, two example augmentations are shown. For
-        MultiViewCollateFunctions all the generated views are shown.
+        images to their right. All views generated by the transform are shown.
 
     """
     _check_matplotlib_available()
@@ -147,12 +155,16 @@ def plot_augmented_images(
     if len(input_images) == 0:
         raise ValueError("There must be at least one input image.")
 
-    grid = generate_grid_of_augmented_images(input_images, collate_function)
+    grid = generate_grid_of_augmented_images(input_images, transform)
     grid.insert(0, input_images)
     nrows = len(input_images)
     ncols = len(grid)
 
-    fig, axs = plt.subplots(nrows, ncols, figsize=(ncols * 1.5, nrows * 1.5))
+    fig, axs = plt.subplots(
+        nrows,
+        ncols,
+        figsize=(ncols * 1.5, nrows * 1.5),
+    )
 
     for i in range(nrows):
         for j in range(ncols):
@@ -164,15 +176,16 @@ def plot_augmented_images(
     ax_top_left = axs[0, 0] if len(input_images) > 1 else axs[0]
     ax_top_left.set(title="Original images")
     ax_top_left.title.set_size(8)
+
     ax_top_next = axs[0, 1] if len(input_images) > 1 else axs[1]
     ax_top_next.set(title="Augmented images")
     ax_top_next.title.set_size(8)
-    fig.tight_layout()
 
+    fig.tight_layout()
     return fig
 
 
 def _check_matplotlib_available() -> None:
     """Checks if matplotlib is available. Raises an error if not."""
-    if isinstance(plt, Exception):
-        raise plt
+    if _matplotlib_import_error is not None:
+        raise _matplotlib_import_error

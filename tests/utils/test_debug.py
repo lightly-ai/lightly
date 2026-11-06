@@ -1,3 +1,4 @@
+import importlib
 import math
 
 import numpy as np
@@ -5,12 +6,17 @@ import pytest
 import torch
 from PIL import Image
 
-from lightly.data import collate
+from lightly.transforms import (
+    BYOLTransform,
+    DINOTransform,
+    SimCLRTransform,
+    SwaVTransform,
+)
+from lightly.transforms.multi_view_transform import MultiViewTransform
 from lightly.utils import debug
 
 try:
-    import matplotlib.pyplot as plt
-
+    importlib.import_module("matplotlib.pyplot")
     MATPLOTLIB_AVAILABLE = True
 except ImportError:
     MATPLOTLIB_AVAILABLE = False
@@ -20,20 +26,20 @@ DIMENSION = 10
 
 
 class TestDebug:
-    def _generate_random_image(self, w: int, h: int, c: int):
+    def _generate_random_image(self, w: int, h: int, c: int) -> Image.Image:
         array = np.random.rand(h, w, c) * 255
         image = Image.fromarray(array.astype("uint8")).convert("RGB")
         return image
 
-    def test_std_of_l2_normalized_collapsed(self):
+    def test_std_of_l2_normalized_collapsed(self) -> None:
         z = torch.ones(BATCH_SIZE, DIMENSION)  # collapsed output
         assert debug.std_of_l2_normalized(z) == 0.0
 
-    def test_std_of_l2_normalized_uniform(self, eps: float = 1e-5):
+    def test_std_of_l2_normalized_uniform(self, eps: float = 1e-5) -> None:
         z = torch.eye(BATCH_SIZE)
         assert abs(debug.std_of_l2_normalized(z) - 1 / math.sqrt(z.shape[1])) <= eps
 
-    def test_std_of_l2_normalized_raises(self):
+    def test_std_of_l2_normalized_raises(self) -> None:
         z = torch.zeros(BATCH_SIZE)
         with pytest.raises(ValueError):
             debug.std_of_l2_normalized(z)
@@ -42,33 +48,54 @@ class TestDebug:
             debug.std_of_l2_normalized(z)
 
     @pytest.mark.skipif(not MATPLOTLIB_AVAILABLE, reason="Matplotlib not installed")
-    def test_plot_augmented_images_image_collate_function(self):
-        # simclr collate function is a subclass of the image collate function
-        collate_function = collate.SimCLRCollateFunction()
+    def test_plot_augmented_images(self) -> None:
+        transform = SimCLRTransform(input_size=32)
 
         for n_images in range(2, 10):
             images = [self._generate_random_image(100, 100, 3) for _ in range(n_images)]
-            fig = debug.plot_augmented_images(images, collate_function)
+            fig = debug.plot_augmented_images(images, transform)
             assert fig is not None
 
     @pytest.mark.skipif(not MATPLOTLIB_AVAILABLE, reason="Matplotlib not installed")
-    def test_plot_augmented_images_multi_view_collate_function(self):
-        # dion collate function is a subclass of the multi view collate function
-        collate_function = collate.DINOCollateFunction()
+    def test_plot_augmented_images_many_views(self) -> None:
+        transform = DINOTransform(global_crop_size=32, local_crop_size=16)
 
         for n_images in range(1, 10):
             images = [self._generate_random_image(100, 100, 3) for _ in range(n_images)]
-            fig = debug.plot_augmented_images(images, collate_function)
+            fig = debug.plot_augmented_images(images, transform)
             assert fig is not None
 
     @pytest.mark.skipif(not MATPLOTLIB_AVAILABLE, reason="Matplotlib not installed")
-    def test_plot_augmented_images_no_images(self):
-        collate_function = collate.SimCLRCollateFunction()
+    def test_plot_augmented_images_no_images(self) -> None:
         with pytest.raises(ValueError):
-            debug.plot_augmented_images([], collate_function)
+            debug.plot_augmented_images([], SimCLRTransform(input_size=32))
 
     @pytest.mark.skipif(not MATPLOTLIB_AVAILABLE, reason="Matplotlib not installed")
-    def test_plot_augmented_images_invalid_collate_function(self):
+    def test_plot_augmented_images_invalid_transform(self) -> None:
         images = [self._generate_random_image(100, 100, 3)]
         with pytest.raises(ValueError):
-            debug.plot_augmented_images(images, None)
+            debug.plot_augmented_images(images, None)  # type: ignore[arg-type]
+
+    @pytest.mark.parametrize(
+        "transform",
+        [
+            SimCLRTransform(input_size=32),
+            DINOTransform(global_crop_size=32, local_crop_size=16),
+            SwaVTransform(crop_sizes=(32, 16)),
+            BYOLTransform(),
+        ],
+    )
+    def test_generate_grid_of_augmented_images__returns_pil_images(
+        self, transform: MultiViewTransform
+    ) -> None:
+        # ToTensor and Normalize must be skipped, otherwise the grid holds tensors
+        # and plotting fails downstream.
+        images = [self._generate_random_image(100, 100, 3) for _ in range(2)]
+
+        grid = debug.generate_grid_of_augmented_images(images, transform)
+
+        assert len(grid) == len(transform.transforms)
+        for row in grid:
+            assert len(row) == len(images)
+            for image in row:
+                assert isinstance(image, Image.Image)

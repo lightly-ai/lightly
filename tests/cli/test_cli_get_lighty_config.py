@@ -6,5 +6,5 @@ def test_get_lightly_config() -> None:
     # Assert some default values
     assert conf.checkpoint == ""
     assert conf.loader.batch_size == 16
-    assert conf.trainer.weights_summary is None
+    assert conf.trainer.enable_model_summary is True
     assert conf.summary_callback.max_depth == 1
