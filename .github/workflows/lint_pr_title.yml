@@ -1,47 +1,49 @@
 name: Lint PR Title
 
-# The PR title becomes the squash-merge commit subject on master, so it is the
-# string that has to follow Conventional Commits. This check validates it.
+# Pull requests are merged with GitHub's "Squash and merge", which uses the pull request
+# title as the commit message on master. Enforcing Conventional Commits on the title
+# therefore enforces them on the history of master. Commits on the branch itself are
+# squashed away and are not checked.
 #
-# Runs on pull_request_target so it can comment on pull requests from forks, where
-# a plain pull_request token is read-only. It deliberately never checks out the PR
-# branch, so the elevated token is not an injection surface.
+# See CONTRIBUTING.md for the convention.
+
 on:
   pull_request_target:
-    types: [opened, edited, synchronize, reopened]
+    types:
+      - opened
+      - reopened
+      - edited
+      - synchronize
+  # Lint PR Title is a required check, so it must also report in the merge queue.
   merge_group:
 
 permissions:
-  pull-requests: write
+  pull-requests: read
 
 jobs:
-  validate:
-    name: Validate PR title
+  lint-pr-title:
+    name: Lint PR Title
+    # Skipped in the merge queue: the title was already linted on the pull request,
+    # and a skipped job counts as a passing required check.
+    if: github.event_name != 'merge_group'
     runs-on: ubuntu-22.04
     steps:
-    - name: Check title against the Conventional Commits spec
-      if: github.event_name == 'pull_request_target'
-      uses: amannn/action-semantic-pull-request@v5
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        # Keep this list in sync with CONTRIBUTING.md and the [tool.commitizen]
-        # configuration in pyproject.toml. Removing a type here starts rejecting
-        # PRs that use it.
-        types: |
-          feat
-          fix
-          docs
-          test
-          ci
-          build
-          perf
-          refactor
-          chore
-          revert
-    # merge_group events carry no PR title to lint. This step keeps the required
-    # check green in the merge queue instead of stalling it. It shares the job name
-    # with the step above so branch protection sees one check across both events.
-    - name: No title to lint in the merge queue
-      if: github.event_name == 'merge_group'
-      run: echo "Skipping: merge_group events carry no pull request title."
+      # Runs on `pull_request_target` so that the check also works for pull requests from
+      # forks. This is safe because the workflow never checks out the pull request code.
+      - uses: amannn/action-semantic-pull-request@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            docs
+            refactor
+            perf
+            test
+            build
+            ci
+            chore
+            revert
+          # Scopes are optional and unrestricted, e.g. `feat(loss): ...`.
+          requireScope: false
