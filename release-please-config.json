@@ -1,0 +1,26 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "include-component-in-tag": false,
+  "pull-request-title-pattern": "chore(release): LightlySSL ${version}",
+  "pull-request-header": ":rocket: **LightlySSL release**",
+  "pull-request-footer": "Merging this pull request tags the release and publishes LightlySSL to PyPI. See [MAINTAINING.md](https://github.com/lightly-ai/lightly/blob/master/MAINTAINING.md#releasing).",
+  "packages": {
+    ".": {
+      "release-type": "python",
+      "package-name": "lightly",
+      "changelog-path": "CHANGELOG.md",
+      "changelog-sections": [
+        { "type": "feat", "section": "Added" },
+        { "type": "fix", "section": "Fixed" },
+        { "type": "perf", "section": "Changed" },
+        { "type": "refactor", "section": "Changed", "hidden": true },
+        { "type": "revert", "section": "Changed" },
+        { "type": "docs", "section": "Changed", "hidden": true },
+        { "type": "test", "section": "Changed", "hidden": true },
+        { "type": "build", "section": "Changed", "hidden": true },
+        { "type": "ci", "section": "Changed", "hidden": true },
+        { "type": "chore", "section": "Changed", "hidden": true }
+      ]
+    }
+  }
+}

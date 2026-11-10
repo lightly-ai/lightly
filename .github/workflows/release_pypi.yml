@@ -1,10 +1,12 @@
 name: Build and release lightly
 
 on:
+  # Started by the GitHub release that release.yml creates when the release pull request
+  # is merged. workflow_dispatch republishes the latest tag after an infrastructure
+  # failure.
+  release:
+    types: [published]
   workflow_dispatch:
-# TODO(Philipp, 03/23): Enable me after proper testing.
-#  release:
-#    types: [published]
 
 jobs:
   build:
@@ -15,12 +17,16 @@ jobs:
       uses: actions/checkout@v6
       with:
         fetch-depth: 0
-    - name: Checkout latest release tag
+    # Build the tag of the release that started this run. On workflow_dispatch there is
+    # no release, so fall back to the latest tag.
+    - name: Checkout release tag
       id: checkout_latest_release_tag
+      env:
+        RELEASE_TAG: ${{ github.event.release.tag_name }}
       run: |
-        LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
-        git checkout $LATEST_TAG
-        echo "tag_name=$LATEST_TAG" >> $GITHUB_OUTPUT;
+        TAG="${RELEASE_TAG:-$(git describe --tags `git rev-list --tags --max-count=1`)}"
+        git checkout "$TAG"
+        echo "tag_name=$TAG" >> $GITHUB_OUTPUT;
     - name: Set Up uv
       uses: astral-sh/setup-uv@v9.0.0
       with:

@@ -1,0 +1,40 @@
+name: Release
+
+# Runs on every push to master. A regular merge only updates the release pull request
+# that release-please keeps open. Merging the release pull request creates the vX.Y.Z
+# tag and the GitHub release, which starts release_pypi.yml. See MAINTAINING.md.
+
+on:
+  push:
+    branches: [master]
+
+permissions: {}
+
+# Never cancel a half-finished release.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release-please:
+    name: Release Please
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    # Holds the Lightly Release Bot credentials. Restricted to master.
+    environment: release
+    steps:
+      # A GitHub App token instead of GITHUB_TOKEN, so that the release pull request runs
+      # CI and the GitHub release starts release_pypi.yml. Events created with
+      # GITHUB_TOKEN trigger no workflows.
+      - name: Create GitHub App Token
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          owner: lightly-ai
+          repositories: lightly
+      - name: Run Release Please
+        uses: googleapis/release-please-action@v4
+        with:
+          token: ${{ steps.app-token.outputs.token }}
