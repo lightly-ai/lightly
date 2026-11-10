@@ -1,0 +1,84 @@
+name: Label PR
+
+# Labels pull requests by kind and area so that the pull request list can be filtered.
+#
+# - `type: <type>` comes from the Conventional Commit type of the title, which
+#   lint_pr_title.yml enforces. `breaking` is added when the title marks a breaking
+#   change with `!`, e.g. `feat(loss)!: ...`.
+# - `area: <area>` comes from the changed files, see .github/labeler.yml.
+#
+# Labels follow the pull request: editing the title or pushing new commits replaces the
+# labels that no longer apply.
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - reopened
+      - edited
+      - synchronize
+
+permissions: {}
+
+# Title edits and pushes can arrive close together. Only the latest run matters.
+concurrency:
+  group: label-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  label-pr:
+    name: Label PR
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      # Runs on `pull_request_target` so that labels can also be written on pull requests
+      # from forks. This is safe because the workflow never checks out the pull request
+      # code. Without a checkout, actions/labeler reads .github/labeler.yml from the base
+      # branch through the API.
+      - name: Label by area
+        uses: actions/labeler@v7
+        with:
+          sync-labels: true
+
+      - name: Label by type
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const title = pr.title;
+
+            // Same types as lint_pr_title.yml. A title that fails the lint gets no type
+            // label, so a typo like `fet:` never creates a `type: fet` label.
+            const match = title.match(
+              /^(feat|fix|docs|refactor|perf|test|build|ci|chore|revert)(\([^)]*\))?(!)?:/,
+            );
+            const type = match ? match[1] : null;
+            const breaking = match !== null && match[3] === "!";
+
+            const wanted = new Set();
+            if (type !== null) wanted.add(`type: ${type}`);
+            if (breaking) wanted.add("breaking");
+
+            const managed = (name) => name.startsWith("type: ") || name === "breaking";
+            const current = pr.labels.map((label) => label.name).filter(managed);
+
+            for (const name of current) {
+              if (!wanted.has(name)) {
+                await github.rest.issues.removeLabel({
+                  ...context.repo,
+                  issue_number: pr.number,
+                  name,
+                });
+              }
+            }
+            const missing = [...wanted].filter((name) => !current.includes(name));
+            if (missing.length > 0) {
+              await github.rest.issues.addLabels({
+                ...context.repo,
+                issue_number: pr.number,
+                labels: missing,
+              });
+            }
