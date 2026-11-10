@@ -1,0 +1,109 @@
+name: Label PR
+
+# Labels pull requests by kind and area so that the pull request list can be filtered.
+#
+# - `type: <type>` comes from the Conventional Commit type of the title, which
+#   lint_pr_title.yml enforces. `breaking` is added when the title marks a breaking
+#   change with `!`, e.g. `feat(loss)!: ...`.
+# - `area: <area>` comes from the changed files, see .github/labeler.yml.
+#
+# Labels follow the pull request: editing the title or pushing new commits replaces the
+# labels that no longer apply.
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - reopened
+      - edited
+      - synchronize
+
+permissions: {}
+
+# Title edits and pushes can arrive close together. Only the latest run matters.
+concurrency:
+  group: label-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  label-pr:
+    name: Label PR
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      # Runs on `pull_request_target` so that labels can also be written on pull requests
+      # from forks. This is safe because the workflow never checks out the pull request
+      # code. Without a checkout, actions/labeler reads .github/labeler.yml from the base
+      # branch through the API.
+      #
+      # Example: a pull request that changes `lightly/loss/ntx_ent_loss.py` and
+      # `tests/models/test_ProjectionHeads.py` gets `area: loss` and `area: models`.
+      # A later push that reverts the loss change removes `area: loss`.
+      - name: Label by area
+        uses: actions/labeler@v7
+        with:
+          sync-labels: true
+
+      - name: Label by type
+        uses: actions/github-script@v9
+        with:
+          script: |
+            // Read the title and labels from the API, not the event payload. Runs can
+            // finish out of order, so the payload may predate a title edit or labels
+            // set by an earlier run.
+            // Example: the title is edited from `fix: ...` to `docs: ...` while the run
+            // for `fix: ...` is still adding `type: fix`. The API returns `docs: ...`
+            // and the `type: fix` label, so this run swaps them.
+            const { data: pr } = await github.rest.pulls.get({
+              ...context.repo,
+              pull_number: context.payload.pull_request.number,
+            });
+            const title = pr.title;
+
+            // Same types as lint_pr_title.yml, and a description after `: ` is
+            // required. A title that fails the lint gets no type label.
+            // Examples:
+            //   `fix: stop detaching the target`  -> type "fix",  breaking false
+            //   `feat(loss)!: rename temperature` -> type "feat", breaking true
+            //   `fet: typo`, `fix:no-space`       -> no match, no type label
+            const match = title.match(
+              /^(feat|fix|docs|refactor|perf|test|build|ci|chore|revert)(\([^)]*\))?(!)?: \S/,
+            );
+            const type = match ? match[1] : null;
+            const breaking = match !== null && match[3] === "!";
+
+            // The labels this title asks for.
+            // Example: `feat(loss)!: ...` -> {"type: feat", "breaking"}.
+            const wanted = new Set();
+            if (type !== null) wanted.add(`type: ${type}`);
+            if (breaking) wanted.add("breaking");
+
+            // Only `type: *` and `breaking` belong to this step. Area labels and labels
+            // added by hand are left alone.
+            // Example: labels ["type: fix", "area: loss", "help wanted"] -> ["type: fix"].
+            const managed = (name) => name.startsWith("type: ") || name === "breaking";
+            const current = pr.labels.map((label) => label.name).filter(managed);
+
+            // Remove what the title no longer asks for, then add what is missing.
+            // Example: current ["type: fix", "breaking"], wanted {"type: docs"}
+            //   -> remove "type: fix" and "breaking", add "type: docs".
+            for (const name of current) {
+              if (!wanted.has(name)) {
+                await github.rest.issues.removeLabel({
+                  ...context.repo,
+                  issue_number: pr.number,
+                  name,
+                });
+              }
+            }
+            const missing = [...wanted].filter((name) => !current.includes(name));
+            if (missing.length > 0) {
+              await github.rest.issues.addLabels({
+                ...context.repo,
+                issue_number: pr.number,
+                labels: missing,
+              });
+            }
