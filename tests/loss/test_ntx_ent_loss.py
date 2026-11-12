@@ -127,6 +127,44 @@ class TestNTXentLoss:
             batch_2 = torch.randn((bsz, 32))
             l = loss(batch_1, batch_2)
 
+    @pytest.mark.parametrize(
+        "normalize_eps", [0.0, -1e-12, float("nan"), float("inf"), float("-inf")]
+    )
+    def test_normalize_eps__invalid(self, normalize_eps: float) -> None:
+        with pytest.raises(ValueError, match="Illegal normalize_eps"):
+            NTXentLoss(normalize_eps=normalize_eps)
+
+    def test_normalize_eps(self) -> None:
+        # The norm of the embeddings is far below normalize_eps, so they are divided
+        # by normalize_eps instead of being normalized to unit length. All
+        # similarities are then close to zero and the loss is close to log(2N - 1).
+        n_samples = 8
+        out0 = 1e-3 * torch.randn(n_samples, 16)
+        out1 = out0.clone()
+        uniform_loss = np.log(2 * n_samples - 1)
+
+        loss_default = NTXentLoss()(out0, out1)
+        loss_large_eps = NTXentLoss(normalize_eps=1.0)(out0, out1)
+
+        assert float(loss_default) < uniform_loss - 0.5
+        assert float(loss_large_eps) == pytest.approx(uniform_loss, abs=1e-3)
+
+    def test_normalize_eps__float16_zero_embedding(self) -> None:
+        # 1e-12 rounds to 0 in float16, so with the default normalize_eps an all-zero
+        # embedding is divided by zero and the loss is NaN.
+        ones = torch.ones(2, 2, dtype=torch.float16)
+        try:
+            ones @ ones
+        except RuntimeError:
+            pytest.skip("float16 matmul is not supported on CPU by this torch version.")
+        out0 = torch.randn(8, 16).half()
+        out1 = torch.randn(8, 16).half()
+        out0[0] = 0
+
+        loss = NTXentLoss(normalize_eps=1e-6)(out0, out1)
+
+        assert torch.isfinite(loss)
+
     @pytest.mark.skipif(not torch.cuda.is_available(), reason="No cuda")
     def test_forward_pass_memory_bank_cuda(self) -> None:
         loss = NTXentLoss(memory_bank_size=(64, 32))

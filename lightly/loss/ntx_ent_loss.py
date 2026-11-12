@@ -3,6 +3,7 @@
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
+import math
 from typing import Sequence, Union
 
 import torch
@@ -35,9 +36,16 @@ class NTXentLoss(nn.Module):
             If True then negatives from all GPUs are gathered before the
             loss calculation. If a memory bank is used and gather_distributed is True,
             then tensors from all gpus are gathered before the memory bank is updated.
+        normalize_eps:
+            Small value used as the lower bound of the norm when normalizing the
+            embeddings to unit length. The default of 1e-12 is not representable in
+            half precision (it rounds to 0), so an embedding with a norm of zero
+            turns into NaN. Increase it, for example to 1e-6, when training with
+            float16.
 
     Raises:
         ValueError: If abs(temperature) < 1e-8 to prevent divide by zero.
+        ValueError: If normalize_eps is not finite and greater than 0.
 
     Examples:
         >>> # initialize loss function without memory bank
@@ -60,6 +68,7 @@ class NTXentLoss(nn.Module):
         temperature: float = 0.5,
         memory_bank_size: Union[int, Sequence[int]] = 0,
         gather_distributed: bool = False,
+        normalize_eps: float = 1e-12,
     ):
         """Initializes the NTXentLoss module with the specified parameters.
 
@@ -70,9 +79,13 @@ class NTXentLoss(nn.Module):
                  Size of the memory bank.
             gather_distributed:
                  If True, negatives from all GPUs are gathered before the loss calculation.
+            normalize_eps:
+                 Lower bound of the norm used to normalize the embeddings to unit
+                 length. Passed as `eps` to `torch.nn.functional.normalize`.
 
         Raises:
             ValueError: If temperature is less than 1e-8 to prevent divide by zero.
+            ValueError: If normalize_eps is not finite and greater than 0.
             ValueError: If gather_distributed is True but torch.distributed is not available.
         """
         super().__init__()
@@ -82,11 +95,18 @@ class NTXentLoss(nn.Module):
         self.temperature = temperature
         self.gather_distributed = gather_distributed
         self.cross_entropy = nn.CrossEntropyLoss(reduction="mean")
+        self.normalize_eps = normalize_eps
         self.eps = 1e-8
 
         if abs(self.temperature) < self.eps:
             raise ValueError(
                 "Illegal temperature: abs({}) < 1e-8".format(self.temperature)
+            )
+        if not math.isfinite(self.normalize_eps) or self.normalize_eps <= 0:
+            raise ValueError(
+                "Illegal normalize_eps: {} is not finite and greater than 0".format(
+                    self.normalize_eps
+                )
             )
         if gather_distributed and not torch_dist.is_available():
             raise ValueError(
@@ -117,8 +137,8 @@ class NTXentLoss(nn.Module):
         batch_size, _ = out0.shape
 
         # Normalize the output to length 1
-        out0 = nn.functional.normalize(out0, dim=1)
-        out1 = nn.functional.normalize(out1, dim=1)
+        out0 = nn.functional.normalize(out0, dim=1, eps=self.normalize_eps)
+        out1 = nn.functional.normalize(out1, dim=1, eps=self.normalize_eps)
 
         # ask memory bank for negative samples and extend it with out1 if
         # out1 requires a gradient, otherwise keep the same vectors in the
