@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Any, Callable, Union
 
 import torch
 import torch.distributed as dist
@@ -75,6 +75,16 @@ class TiCoLoss(torch.nn.Module):
         self.rho = rho
         self.C: Union[Tensor, None] = None
         self.gather_distributed = gather_distributed
+
+    def _apply(
+        self, fn: Callable[[Tensor], Tensor], *args: Any, **kwargs: Any
+    ) -> "TiCoLoss":
+        super()._apply(fn, *args, **kwargs)
+        # Keep the rank-local covariance out of DDP buffer broadcasts while
+        # still following module device and dtype conversions.
+        if self.C is not None:
+            self.C = fn(self.C)
+        return self
 
     def forward(
         self,
