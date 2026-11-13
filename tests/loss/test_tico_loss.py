@@ -62,3 +62,67 @@ class TestTiCoLoss:
         x1 = torch.randn((2, 16))
         with pytest.raises(AssertionError):
             loss(x0, x1, update_covariance_matrix=False)
+
+    @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+    @pytest.mark.parametrize("update_covariance_matrix", [False, True])
+    def test_covariance_follows_dtype_conversion(
+        self, dtype: torch.dtype, update_covariance_matrix: bool
+    ) -> None:
+        torch.manual_seed(0)
+        initial_dtype = torch.float64 if dtype == torch.float32 else torch.float32
+        criterion = TiCoLoss()
+        x0 = torch.randn((8, 16), dtype=initial_dtype)
+        x1 = torch.randn((8, 16), dtype=initial_dtype)
+        criterion(x0, x1)
+        assert criterion.C is not None
+        expected_covariance = criterion.C.to(dtype=dtype)
+
+        criterion.to(dtype=dtype)
+        assert criterion.C.dtype == dtype
+        torch.testing.assert_close(criterion.C, expected_covariance)
+        result = criterion(
+            x0.to(dtype=dtype),
+            x1.to(dtype=dtype),
+            update_covariance_matrix=update_covariance_matrix,
+        )
+        reference = TiCoLoss()
+        reference.C = expected_covariance.clone()
+        expected = reference(
+            x0.to(dtype=dtype),
+            x1.to(dtype=dtype),
+            update_covariance_matrix=update_covariance_matrix,
+        )
+        torch.testing.assert_close(result, expected)
+        torch.testing.assert_close(criterion.C, reference.C)
+        assert torch.isfinite(result)
+        assert result.dtype == dtype
+        assert criterion.C.dtype == dtype
+        assert not criterion.C.requires_grad
+        # Keep the rank-local EMA out of DDP broadcasts and old checkpoints.
+        assert "C" not in dict(criterion.named_buffers())
+        assert criterion.state_dict() == {}
+        criterion.load_state_dict({})
+
+    def test_dtype_conversion_before_initialization(self) -> None:
+        criterion = TiCoLoss().double()
+        assert "C" not in dict(criterion.named_buffers())
+        x0 = torch.randn((8, 16), dtype=torch.float64)
+        x1 = torch.randn((8, 16), dtype=torch.float64)
+        assert torch.isfinite(criterion(x0, x1))
+        assert criterion.C is not None
+        assert criterion.C.dtype == torch.float64
+
+    @pytest.mark.skipif(not torch.cuda.is_available(), reason="No cuda")
+    def test_covariance_follows_device_conversion(self) -> None:
+        criterion = TiCoLoss()
+        x0 = torch.randn((8, 16))
+        x1 = torch.randn((8, 16))
+        criterion(x0, x1)
+        assert criterion.C is not None
+        expected_covariance = criterion.C.cuda()
+
+        criterion.cuda()
+        torch.testing.assert_close(criterion.C, expected_covariance)
+        result = criterion(x0.cuda(), x1.cuda())
+        assert result.is_cuda
+        assert torch.isfinite(result)
