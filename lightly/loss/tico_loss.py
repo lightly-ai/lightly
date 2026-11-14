@@ -17,16 +17,15 @@ class TiCoLoss(torch.nn.Module):
     - [1] https://github.com/sayannag/TiCo-pytorch
 
     Attributes:
-        Args:
-            beta:
-                Coefficient for the EMA update of the covariance
-                Defaults to 0.9 [0].
-            rho:
-                Weight for the covariance term of the loss
-                Defaults to 8.0 [0].
-            gather_distributed:
-                If True, the cross-correlation matrices from all GPUs are
-                gathered and summed before the loss calculation.
+        beta:
+            Coefficient for the EMA update of the covariance.
+            Defaults to 0.9 [0].
+        rho:
+            Weight for the covariance term of the loss.
+            Defaults to 8.0 [0].
+        gather_distributed:
+            If True, the cross-correlation matrices from all GPUs are
+            gathered and summed before the loss calculation.
 
     Examples:
         >>> # initialize loss function
