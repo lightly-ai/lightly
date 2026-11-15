@@ -1,3 +1,4 @@
+import re
 import typing
 from typing import List
 
@@ -117,6 +118,52 @@ class TestVICRegLLoss:
                 global_view_features=[],
                 global_view_grids=[],
                 local_view_features=None,
+                local_view_grids=local_view_grids,
+            )
+
+    @pytest.mark.parametrize("view_type", ["global", "local"])
+    @pytest.mark.parametrize("mismatched_dimension", [0, 1, 2])
+    def test_forward__error_view_features_and_grids_not_same_shape(
+        self, view_type: str, mismatched_dimension: int
+    ) -> None:
+        criterion = VICRegLLoss()
+        global_view_features = [
+            (torch.randn((2, 32)), torch.randn((2, 7, 7, 8))) for _ in range(2)
+        ]
+        global_view_grids = [torch.randn((2, 7, 7, 2)) for _ in range(2)]
+        local_view_features = [
+            (torch.randn((2, 32)), torch.randn((2, 4, 4, 8))) for _ in range(2)
+        ]
+        local_view_grids = [torch.randn((2, 4, 4, 2)) for _ in range(2)]
+
+        if view_type == "global":
+            feature_shape = (2, 7, 7, 8)
+            grid_dimensions = [2, 7, 7, 2]
+            grid_dimensions[mismatched_dimension] += 1
+            grid_shape = tuple(grid_dimensions)
+            global_view_grids[0] = torch.randn(grid_shape)
+            expected_message = (
+                "global_view_features[0][1] and global_view_grids[0] must have "
+                "matching batch, height, and width but found local feature shape "
+                f"{feature_shape} and grid shape {grid_shape}."
+            )
+        else:
+            feature_shape = (2, 4, 4, 8)
+            grid_dimensions = [2, 4, 4, 2]
+            grid_dimensions[mismatched_dimension] += 1
+            grid_shape = tuple(grid_dimensions)
+            local_view_grids[0] = torch.randn(grid_shape)
+            expected_message = (
+                "local_view_features[0][1] and local_view_grids[0] must have "
+                "matching batch, height, and width but found local feature shape "
+                f"{feature_shape} and grid shape {grid_shape}."
+            )
+
+        with pytest.raises(ValueError, match=re.escape(expected_message)):
+            criterion.forward(
+                global_view_features=global_view_features,
+                global_view_grids=global_view_grids,
+                local_view_features=local_view_features,
                 local_view_grids=local_view_grids,
             )
 
