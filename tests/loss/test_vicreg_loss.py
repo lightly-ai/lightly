@@ -11,6 +11,18 @@ from lightly.loss import VICRegLoss
 
 
 class TestVICRegLoss:
+    @pytest.mark.parametrize("shape", [(5, 11), (4, 3, 11)])
+    def test_blocked_covariance(self, shape: tuple) -> None:
+        x = torch.randn(shape, dtype=torch.double, requires_grad=True)
+        y = torch.randn_like(x, requires_grad=True)
+        expected = VICRegLoss()(x, y)
+        actual = VICRegLoss(covariance_block_size=4)(x, y)
+        torch.testing.assert_close(actual, expected)
+        for a, e in zip(
+            torch.autograd.grad(actual, (x, y)), torch.autograd.grad(expected, (x, y))
+        ):
+            torch.testing.assert_close(a, e)
+
     def test__gather_distributed(self, mocker: MockerFixture) -> None:
         mock_is_available = mocker.patch.object(dist, "is_available", return_value=True)
         VICRegLoss(gather_distributed=True)

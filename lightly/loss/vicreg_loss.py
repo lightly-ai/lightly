@@ -1,7 +1,10 @@
+from typing import Optional
+
 import torch
 import torch.distributed as dist
 import torch.nn.functional as F
 from torch import Tensor
+from torch.utils.checkpoint import checkpoint
 
 from lightly.utils.dist import gather
 
@@ -26,6 +29,9 @@ class VICRegLoss(torch.nn.Module):
             summed before the loss calculation.
         eps:
             Epsilon for numerical stability.
+        covariance_block_size:
+            Compute and recompute covariance rows in blocks during forward and
+            backward to bound temporary memory for wide projection heads.
 
     Examples:
         >>> # initialize loss function
@@ -49,6 +55,7 @@ class VICRegLoss(torch.nn.Module):
         nu_param: float = 1.0,
         gather_distributed: bool = False,
         eps: float = 0.0001,
+        covariance_block_size: Optional[int] = None,
     ):
         """Initializes the VICRegLoss module with the specified parameters.
 
@@ -68,6 +75,7 @@ class VICRegLoss(torch.nn.Module):
         self.nu_param = nu_param
         self.gather_distributed = gather_distributed
         self.eps = eps
+        self.covariance_block_size = covariance_block_size
 
     def forward(self, z_a: torch.Tensor, z_b: torch.Tensor) -> torch.Tensor:
         """Returns VICReg loss.
@@ -106,7 +114,9 @@ class VICRegLoss(torch.nn.Module):
         var_loss = 0.5 * (
             variance_loss(x=z_a, eps=self.eps) + variance_loss(x=z_b, eps=self.eps)
         )
-        cov_loss = covariance_loss(x=z_a) + covariance_loss(x=z_b)
+        cov_loss = covariance_loss(z_a, self.covariance_block_size) + covariance_loss(
+            z_b, self.covariance_block_size
+        )
 
         # Total VICReg loss
         loss = (
@@ -149,7 +159,13 @@ def variance_loss(x: Tensor, eps: float = 0.0001) -> Tensor:
     return loss
 
 
-def covariance_loss(x: Tensor) -> Tensor:
+def _covariance_block(x: Tensor, start: int, stop: int) -> Tensor:
+    cov = torch.einsum("b...c,b...d->...cd", x[..., start:stop], x) / (x.size(0) - 1)
+    cov.diagonal(offset=start, dim1=-2, dim2=-1).zero_()
+    return cov.square().sum(dim=(-2, -1))
+
+
+def covariance_loss(x: Tensor, block_size: Optional[int] = None) -> Tensor:
     """Returns VICReg covariance loss.
 
     Generalized version of the covariance loss with support for tensors with more than
@@ -158,6 +174,7 @@ def covariance_loss(x: Tensor) -> Tensor:
 
     Args:
         x: Tensor with shape (batch_size, ..., dim).
+        block_size: Optional maximum number of covariance rows computed at once.
 
     Returns:
           The computed VICReg covariance loss.
@@ -165,6 +182,22 @@ def covariance_loss(x: Tensor) -> Tensor:
     x = x - x.mean(dim=0)
     batch_size = x.size(0)
     dim = x.size(-1)
+    if block_size is not None:
+        if block_size < 1:
+            raise ValueError("covariance block size must be positive")
+        if block_size < dim:
+            total = x.new_zeros(x.shape[1:-1])
+            for start in range(0, dim, block_size):
+                total = total + checkpoint(
+                    _covariance_block,
+                    x,
+                    start,
+                    start + block_size,
+                    use_reentrant=False,
+                    preserve_rng_state=False,
+                )
+            return (total / dim).mean()
+
     # nondiag_mask has shape (dim, dim) with 1s on all non-diagonal entries.
     nondiag_mask = ~torch.eye(dim, device=x.device, dtype=torch.bool)
 
