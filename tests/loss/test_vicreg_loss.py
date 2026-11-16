@@ -23,6 +23,12 @@ class TestVICRegLoss:
         ):
             torch.testing.assert_close(a, e)
 
+    def test_blocked_covariance_gradgrad(self) -> None:
+        from lightly.loss.vicreg_loss import covariance_loss
+
+        x = torch.randn(4, 5, dtype=torch.double, requires_grad=True)
+        assert torch.autograd.gradgradcheck(lambda v: covariance_loss(v, 2), (x,))
+
     def test__gather_distributed(self, mocker: MockerFixture) -> None:
         mock_is_available = mocker.patch.object(dist, "is_available", return_value=True)
         VICRegLoss(gather_distributed=True)

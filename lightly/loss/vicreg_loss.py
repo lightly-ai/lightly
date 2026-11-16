@@ -1,10 +1,9 @@
-from typing import Optional
+from typing import Any, Optional, Tuple
 
 import torch
 import torch.distributed as dist
 import torch.nn.functional as F
 from torch import Tensor
-from torch.utils.checkpoint import checkpoint
 
 from lightly.utils.dist import gather
 
@@ -159,10 +158,36 @@ def variance_loss(x: Tensor, eps: float = 0.0001) -> Tensor:
     return loss
 
 
-def _covariance_block(x: Tensor, start: int, stop: int) -> Tensor:
+def _covariance_rows(x: Tensor, start: int, stop: int) -> Tensor:
     cov = torch.einsum("b...c,b...d->...cd", x[..., start:stop], x) / (x.size(0) - 1)
     cov.diagonal(offset=start, dim1=-2, dim2=-1).zero_()
-    return cov.square().sum(dim=(-2, -1))
+    return cov
+
+
+class _BlockedCovariance(torch.autograd.Function):
+    @staticmethod
+    def forward(ctx: Any, x: Tensor, block_size: int) -> Tensor:
+        ctx.save_for_backward(x)
+        ctx.block_size = block_size
+        total = x.new_zeros(x.shape[1:-1])
+        for start in range(0, x.size(-1), block_size):
+            rows = _covariance_rows(x, start, start + block_size)
+            total = total + rows.square().sum(dim=(-2, -1))
+        ctx.cov_dtype = rows.dtype
+        return total
+
+    @staticmethod
+    def backward(ctx: Any, grad_output: Tensor) -> Tuple[Tensor, None]:
+        (x,) = ctx.saved_tensors
+        x = x.to(ctx.cov_dtype)
+        # For centered X and covariance C, the gradient of the squared
+        # off-diagonal norm is 4 X offdiag(C) / (N - 1).
+        scale = grad_output.unsqueeze(-1) * (4 / (x.size(0) - 1))
+        parts = []
+        for start in range(0, x.size(-1), ctx.block_size):
+            rows = _covariance_rows(x, start, start + ctx.block_size)
+            parts.append(torch.einsum("b...d,...cd->b...c", x, rows) * scale)
+        return torch.cat(parts, dim=-1), None
 
 
 def covariance_loss(x: Tensor, block_size: Optional[int] = None) -> Tensor:
@@ -186,17 +211,7 @@ def covariance_loss(x: Tensor, block_size: Optional[int] = None) -> Tensor:
         if block_size < 1:
             raise ValueError("covariance block size must be positive")
         if block_size < dim:
-            total = x.new_zeros(x.shape[1:-1])
-            for start in range(0, dim, block_size):
-                total = total + checkpoint(
-                    _covariance_block,
-                    x,
-                    start,
-                    start + block_size,
-                    use_reentrant=False,
-                    preserve_rng_state=False,
-                )
-            return (total / dim).mean()
+            return (_BlockedCovariance.apply(x, block_size) / dim).mean()
 
     # nondiag_mask has shape (dim, dim) with 1s on all non-diagonal entries.
     nondiag_mask = ~torch.eye(dim, device=x.device, dtype=torch.bool)
