@@ -182,11 +182,13 @@ class _BlockedCovariance(torch.autograd.Function):
         x = x.to(ctx.cov_dtype)
         # For centered X and covariance C, the gradient of the squared
         # off-diagonal norm is 4 X offdiag(C) / (N - 1).
-        scale = grad_output.unsqueeze(-1) * (4 / (x.size(0) - 1))
+        scale = grad_output[..., None, None] * (2 / (x.size(0) - 1))
         parts = []
         for start in range(0, x.size(-1), ctx.block_size):
             rows = _covariance_rows(x, start, start + ctx.block_size)
-            parts.append(torch.einsum("b...d,...cd->b...c", x, rows) * scale)
+            # Apply the upstream loss scale before the low-precision product.
+            scaled_rows = (rows * scale).to(x.dtype)
+            parts.append(2 * torch.einsum("b...d,...cd->b...c", x, scaled_rows))
         return torch.cat(parts, dim=-1), None
 
 

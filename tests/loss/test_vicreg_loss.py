@@ -29,6 +29,20 @@ class TestVICRegLoss:
         x = torch.randn(4, 5, dtype=torch.double, requires_grad=True)
         assert torch.autograd.gradgradcheck(lambda v: covariance_loss(v, 2), (x,))
 
+    @pytest.mark.skipif(not torch.cuda.is_available(), reason="requires CUDA autocast")
+    def test_blocked_covariance_loss_scaling(self) -> None:
+        from lightly.loss.vicreg_loss import covariance_loss
+
+        generator = torch.Generator(device="cuda").manual_seed(136)
+        x = torch.randn(16, 19, device="cuda", generator=generator) * 1e-3
+        x.requires_grad_()
+        with torch.autocast("cuda", dtype=torch.float16):
+            dense = covariance_loss(x) * 4096
+            blocked = covariance_loss(x, 5) * 4096
+        (expected,) = torch.autograd.grad(dense, x)
+        (actual,) = torch.autograd.grad(blocked, x)
+        torch.testing.assert_close(actual, expected, rtol=0.025, atol=2e-7)
+
     def test__gather_distributed(self, mocker: MockerFixture) -> None:
         mock_is_available = mocker.patch.object(dist, "is_available", return_value=True)
         VICRegLoss(gather_distributed=True)
