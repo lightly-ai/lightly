@@ -178,8 +178,8 @@ class _BlockedCovariance(torch.autograd.Function):
 
     @staticmethod
     def backward(ctx: Any, grad_output: Tensor) -> Tuple[Tensor, None]:
-        (x,) = ctx.saved_tensors
-        x = x.to(ctx.cov_dtype)
+        (centered,) = ctx.saved_tensors
+        x = centered.to(ctx.cov_dtype)
         # For centered X and covariance C, the gradient of the squared
         # off-diagonal norm is 4 X offdiag(C) / (N - 1).
         scale = grad_output[..., None, None] * (2 / (x.size(0) - 1))
@@ -188,7 +188,8 @@ class _BlockedCovariance(torch.autograd.Function):
             rows = _covariance_rows(x, start, start + ctx.block_size)
             # Apply the upstream loss scale before the low-precision product.
             scaled_rows = (rows * scale).to(x.dtype)
-            parts.append(2 * torch.einsum("b...d,...cd->b...c", x, scaled_rows))
+            product = torch.einsum("b...d,...cd->b...c", x, scaled_rows)
+            parts.append(2 * product.to(centered.dtype))
         return torch.cat(parts, dim=-1), None
 
 
