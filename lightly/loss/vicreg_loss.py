@@ -214,7 +214,8 @@ def covariance_loss(x: Tensor, block_size: Optional[int] = None) -> Tensor:
         if block_size < 1:
             raise ValueError("covariance block size must be positive")
         if block_size < dim:
-            return (_BlockedCovariance.apply(x, block_size) / dim).mean()
+            squared_norm: Tensor = _BlockedCovariance.apply(x, block_size)
+            return (squared_norm / dim).mean()
 
     # nondiag_mask has shape (dim, dim) with 1s on all non-diagonal entries.
     nondiag_mask = ~torch.eye(dim, device=x.device, dtype=torch.bool)

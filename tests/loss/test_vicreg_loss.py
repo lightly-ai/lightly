@@ -1,4 +1,5 @@
 import unittest
+from typing import Tuple
 
 import pytest
 import torch
@@ -12,7 +13,7 @@ from lightly.loss import VICRegLoss
 
 class TestVICRegLoss:
     @pytest.mark.parametrize("shape", [(5, 11), (4, 3, 11)])
-    def test_blocked_covariance(self, shape: tuple) -> None:
+    def test_blocked_covariance(self, shape: Tuple[int, ...]) -> None:
         x = torch.randn(shape, dtype=torch.double, requires_grad=True)
         y = torch.randn_like(x, requires_grad=True)
         expected = VICRegLoss()(x, y)
