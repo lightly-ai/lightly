@@ -3,7 +3,22 @@ import torch
 from pytest_mock import MockerFixture
 from torch import distributed as dist
 
-from lightly.loss import SwaVLoss
+from lightly.loss import SwaVLoss, swav_loss
+
+
+class TestSinkhorn:
+    def test__preserves_dtype(self) -> None:
+        # The shared implementation calculates in float32, the codes must be returned
+        # in the dtype of the input.
+        out = torch.rand(4, 8, dtype=torch.float16)
+        assert swav_loss.sinkhorn(out).dtype == torch.float16
+
+    @pytest.mark.parametrize("iterations", range(1, 4))
+    def test__soft_codes(self, iterations: int) -> None:
+        out = torch.rand(4, 8)
+        codes = swav_loss.sinkhorn(out, iterations=iterations)
+        assert codes.shape == out.shape
+        assert torch.allclose(codes.sum(dim=1), torch.ones(4))
 
 
 class TestSwaVLoss:

@@ -187,6 +187,19 @@ class TestIBOTPlusPlusPatchLoss:
                 mask=torch.zeros(3, 2, dtype=torch.bool),
             )
 
+    def test_forward__sinkhorn_knopp(self) -> None:
+        """The Sinkhorn-Knopp centering of the parent class is inherited."""
+        torch.manual_seed(0)
+        criterion = IBOTPlusPlusPatchLoss(output_dim=8, center_mode="sinkhorn_knopp")
+        teacher_out = F.normalize(torch.randn(4, 16, 8), dim=-1)
+        student_out = torch.randn(4, 16, 8)
+
+        loss = criterion(teacher_out=teacher_out, student_out=student_out)
+
+        assert loss.isfinite()
+        # No center is tracked with Sinkhorn-Knopp centering.
+        assert torch.all(criterion.center.value == 0)
+
     @pytest.mark.skipif(not torch.cuda.is_available(), reason="No cuda")
     def test_cuda_forward(self) -> None:
         torch.manual_seed(0)
