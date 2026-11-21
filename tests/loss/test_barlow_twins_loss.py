@@ -160,7 +160,19 @@ class TestBarlowTwinsLoss:
         torch.bfloat16,
     ],
 )
-@pytest.mark.parametrize("autocast", [False, True])
+@pytest.mark.parametrize(
+    "autocast",
+    [
+        pytest.param(
+            False,
+            marks=pytest.mark.skipif(
+                Version(torch.__version__.split("+")[0]) < Version("1.11"),
+                reason="Native CPU low-precision BatchNorm is unavailable in PyTorch 1.10",
+            ),
+        ),
+        True,
+    ],
+)
 def test_barlow_twins_low_precision_reductions(
     dtype: torch.dtype, autocast: bool
 ) -> None:
