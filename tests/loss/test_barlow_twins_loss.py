@@ -166,8 +166,8 @@ class TestBarlowTwinsLoss:
         pytest.param(
             False,
             marks=pytest.mark.skipif(
-                Version(torch.__version__.split("+")[0]) < Version("1.11"),
-                reason="Native CPU low-precision BatchNorm is unavailable in PyTorch 1.10",
+                Version(torch.__version__.split("+")[0]) < Version("1.12"),
+                reason="Native CPU bfloat16 BatchNorm requires PyTorch 1.12 or newer",
             ),
         ),
         True,
