@@ -23,6 +23,7 @@ from lightly.models.modules.heads import (
     NNCLRPredictionHead,
     NNCLRProjectionHead,
     SimCLRProjectionHead,
+    SimDINOProjectionHead,
     SimSiamPredictionHead,
     SimSiamProjectionHead,
     SMoGPredictionHead,

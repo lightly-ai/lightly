@@ -729,6 +729,73 @@ class DINOProjectionHead(ProjectionHead):
                 nn.init.constant_(module.bias, 0)
 
 
+class SimDINOProjectionHead(ProjectionHead):
+    """Projection head used in SimDINO.
+
+    The DINO projection head without the weight-normalized prototype layer: a
+    3-layer MLP followed by l2 normalization. SimDINO computes its loss directly on
+    the normalized bottleneck features. [0]
+
+    - [0]: SimDINO, 2025, https://arxiv.org/abs/2502.10385
+
+    Attributes:
+        input_dim:
+            The input dimension of the head.
+        hidden_dim:
+            The hidden dimension.
+        output_dim:
+            The output dimension of the head (the bottleneck dimension in DINO).
+        batch_norm:
+            Whether to use batch norm or not. Should be set to False when using
+            a vision transformer backbone.
+    """
+
+    def __init__(
+        self,
+        input_dim: int = 2048,
+        hidden_dim: int = 2048,
+        output_dim: int = 256,
+        batch_norm: bool = False,
+    ):
+        """Initializes the SimDINOProjectionHead with the specified dimensions."""
+        super().__init__(
+            [
+                (
+                    input_dim,
+                    hidden_dim,
+                    nn.BatchNorm1d(hidden_dim) if batch_norm else None,
+                    nn.GELU(),
+                ),
+                (
+                    hidden_dim,
+                    hidden_dim,
+                    nn.BatchNorm1d(hidden_dim) if batch_norm else None,
+                    nn.GELU(),
+                ),
+                (hidden_dim, output_dim, None, None),
+            ]
+        )
+        self.apply(self._init_weights)
+
+    def forward(self, x: Tensor) -> Tensor:
+        """Computes one forward pass through the head."""
+        x = self.layers(x)
+        return nn.functional.normalize(x, dim=-1, p=2)
+
+    def _init_weights(self, module: nn.Module) -> None:
+        """Initializes layers with a truncated normal distribution."""
+        if isinstance(module, nn.Linear):
+            utils._no_grad_trunc_normal(
+                module.weight,
+                mean=0,
+                std=0.02,
+                a=-2,
+                b=2,
+            )
+            if module.bias is not None:
+                nn.init.constant_(module.bias, 0)
+
+
 class DINOv2ProjectionHead(ProjectionHead):
     def __init__(
         self,
