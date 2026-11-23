@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import torch
 from pytorch_lightning import LightningModule, Trainer
+from torch import Tensor
 from torch.utils.data import DataLoader
 from torchvision.datasets import FakeData
 
@@ -32,11 +35,11 @@ class _DummyModule(LightningModule):
     def __init__(self) -> None:
         super().__init__()
 
-    def training_step(self, batch, batch_idx) -> None:
+    def training_step(self, batch: list[Tensor], batch_idx: int) -> None:
         self.log("train_epoch", self.trainer.current_epoch)
         self.log_dict({"train_epoch_dict": self.trainer.current_epoch})
 
-    def validation_step(self, batch, batch_idx) -> None:
+    def validation_step(self, batch: list[Tensor], batch_idx: int) -> None:
         self.log("val_epoch", self.trainer.current_epoch * 2)
         self.log_dict({"val_epoch_dict": self.trainer.current_epoch * 2})
 
