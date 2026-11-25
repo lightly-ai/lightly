@@ -59,7 +59,7 @@ class SplitBatchNorm(nn.BatchNorm2d):
         momentum = 0.0 if self.momentum is None else self.momentum
         if self.training or not self.track_running_stats:
             result = nn.functional.batch_norm(
-                input=input.view(-1, C * self.num_splits, H, W),
+                input=input.reshape(-1, C * self.num_splits, H, W),
                 running_mean=self.running_mean,
                 running_var=self.running_var,
                 weight=self.weight.repeat(self.num_splits),
