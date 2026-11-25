@@ -1,6 +1,7 @@
 import pytest
 import torch
 import torch.nn as nn
+from packaging.version import Version
 from pytest_mock import MockerFixture
 from torch import Tensor
 from torch import distributed as dist
@@ -144,3 +145,74 @@ class TestBarlowTwinsLoss:
         assert z_a_ref.grad is not None
 
         assert all(torch.allclose(grad, z_a_ref.grad, atol=1e-5) for grad in grads)
+
+
+@pytest.mark.parametrize(
+    "dtype",
+    [
+        pytest.param(
+            torch.float16,
+            marks=pytest.mark.skipif(
+                Version(torch.__version__.split("+")[0]) < Version("2.3"),
+                reason="CPU float16 autocast kernels require PyTorch 2.3 or newer",
+            ),
+        ),
+        torch.bfloat16,
+    ],
+)
+@pytest.mark.parametrize(
+    "autocast",
+    [
+        pytest.param(
+            False,
+            marks=pytest.mark.skipif(
+                Version(torch.__version__.split("+")[0]) < Version("1.12"),
+                reason="Native CPU bfloat16 BatchNorm requires PyTorch 1.12 or newer",
+            ),
+        ),
+        True,
+    ],
+)
+def test_barlow_twins_low_precision_reductions(
+    dtype: torch.dtype, autocast: bool
+) -> None:
+    torch.manual_seed(17)
+    # The unweighted redundancy sum exceeds float16's finite range, even
+    # though the weighted loss and its gradients are representable.
+    z_a = torch.randn(16, 1024).to(dtype).float()
+    z_b = torch.randn(16, 1024).to(dtype).float()
+    reference_a = z_a.clone().requires_grad_()
+    reference_b = z_b.clone().requires_grad_()
+    reference = BarlowTwinsLoss()(reference_a, reference_b)
+    reference.backward()
+    actual_a = z_a.to(torch.float32 if autocast else dtype).requires_grad_()
+    actual_b = z_b.to(torch.float32 if autocast else dtype).requires_grad_()
+    with torch.autocast("cpu", dtype=dtype, enabled=autocast):
+        actual = BarlowTwinsLoss()(actual_a, actual_b)
+    actual.backward()
+    assert actual.dtype == torch.float32
+    assert torch.isfinite(actual)
+    assert actual_a.grad is not None and actual_b.grad is not None
+    assert reference_a.grad is not None and reference_b.grad is not None
+    torch.testing.assert_close(actual, reference, rtol=0.005, atol=0.1)
+    for actual_grad, reference_grad in (
+        (actual_a.grad, reference_a.grad),
+        (actual_b.grad, reference_b.grad),
+    ):
+        assert torch.isfinite(actual_grad).all()
+        assert (
+            actual_grad.float() - reference_grad
+        ).norm() < 0.01 * reference_grad.norm()
+        torch.testing.assert_close(
+            actual_grad.float(), reference_grad, rtol=0.04, atol=0.004
+        )
+
+
+def test_barlow_twins_preserves_double_precision() -> None:
+    torch.manual_seed(18)
+    z_a = torch.randn(8, 16, dtype=torch.float64, requires_grad=True)
+    z_b = torch.randn(8, 16, dtype=torch.float64, requires_grad=True)
+    actual = BarlowTwinsLoss()(z_a, z_b)
+    expected = BarlowTwinsLossReference(projector_dim=16).double()(z_a, z_b)
+    assert actual.dtype == torch.float64
+    torch.testing.assert_close(actual, expected)

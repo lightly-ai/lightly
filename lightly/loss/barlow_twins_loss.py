@@ -62,7 +62,8 @@ class BarlowTwinsLoss(torch.nn.Module):
             z_b: Output projections of the second set of transformed images.
 
         Returns:
-            Computed Barlow Twins Loss.
+            Computed Barlow Twins Loss. Reductions use float32 when the
+            cross-correlation matrix has float16 or bfloat16 dtype.
         """
         # Normalize repr. along the batch dimension
         z_a_norm, z_b_norm = _normalize(z_a), _normalize(z_b)
@@ -82,8 +83,13 @@ class BarlowTwinsLoss(torch.nn.Module):
                 # single-GPU behaviour. ref #1977
                 c = dist_nn.all_reduce(c / world_size)
 
-        invariance_loss = torch.diagonal(c).add_(-1).pow_(2).sum()
-        redundancy_reduction_loss = _off_diagonal(c).pow_(2).sum()
+        # The unweighted redundancy sum can overflow float16 even when the
+        # final weighted loss is finite (for example, wide projection heads).
+        reduction_dtype = (
+            torch.float32 if c.dtype in (torch.float16, torch.bfloat16) else c.dtype
+        )
+        invariance_loss = torch.diagonal(c).add_(-1).pow_(2).sum(dtype=reduction_dtype)
+        redundancy_reduction_loss = _off_diagonal(c).pow_(2).sum(dtype=reduction_dtype)
         loss: Tensor = invariance_loss + self.lambda_param * redundancy_reduction_loss
 
         return loss
