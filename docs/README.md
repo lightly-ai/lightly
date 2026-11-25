@@ -30,8 +30,11 @@ make html
 
 ## Deploy the Docs
 
-Only Lightly core team members will have access to deploy new docs. 
+The docs are built and published by an internal release workflow run by the Lightly
+team. That workflow runs `make install-docs`, then installs the packages that some
+tutorials need but that aren't in the docs requirements: `detectron2` and
+`albumentationsx`.
 
-1. Open a terminal and go to the `docs/` folder. 
-1. If not done yet, authenticate your account using `gcloud auth login`
-1. Deploy to app engine using `gcloud app deploy app.yaml`
+If you add a tutorial that imports a package outside `make install-docs`, list it here
+and tell a maintainer, so the release workflow installs it too. Otherwise the next
+docs release fails at `make html`.
