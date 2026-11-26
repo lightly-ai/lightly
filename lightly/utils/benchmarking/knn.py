@@ -64,8 +64,13 @@ def knn_predict(
     sim_labels = torch.gather(
         feature_labels.expand(feature.size(0), -1), dim=-1, index=sim_indices
     )
-    # we do a reweighting of the similarities
-    sim_weight = (sim_weight / knn_t).exp()
+    # we do a reweighting of the similarities. Subtracting the per-query max keeps
+    # exp from overflowing at low temperatures, and half-precision inputs are
+    # upcast because float16 overflows above exp(11) and bfloat16 loses precision.
+    if sim_weight.dtype in (torch.float16, torch.bfloat16):
+        sim_weight = sim_weight.float()
+    sim_weight = sim_weight / knn_t
+    sim_weight = (sim_weight - sim_weight.max(dim=-1, keepdim=True).values).exp()
     # counts for each class
     one_hot_label = torch.zeros(
         feature.size(0) * knn_k, num_classes, device=sim_labels.device

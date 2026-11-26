@@ -1,12 +1,22 @@
 import inspect
 from functools import partial
-from typing import Optional
+from typing import Callable, Iterable, Optional
 
 import torch
 import torch.nn.functional as F
 from timm.models import _manipulate
 from timm.models.vision_transformer import Attention, Block, VisionTransformer
 from torch import Tensor, jit
+
+
+def _checkpoint_seq(blocks: Iterable[Callable[..., Tensor]], tokens: Tensor) -> Tensor:
+    if not tokens.requires_grad:
+        # Reentrant checkpointing (the default for timm < 1.0.16) only tracks
+        # gradients if an input requires grad. Without this, the blocks get no
+        # gradients when everything before them is frozen.
+        tokens = tokens.detach().requires_grad_()
+    out: Tensor = _manipulate.checkpoint_seq(blocks, tokens)
+    return out
 
 
 # Type ignore because superclass has Any types.
@@ -222,7 +232,7 @@ class MaskedCausalVisionTransformer(VisionTransformer):  # type: ignore[misc]
             blocks = [
                 partial(block, mask=mask, is_causal=is_causal) for block in self.blocks
             ]
-            x = _manipulate.checkpoint_seq(blocks, x)
+            x = _checkpoint_seq(blocks, x)
         else:
             for block in self.blocks:
                 x = block(x, mask=mask, is_causal=is_causal)

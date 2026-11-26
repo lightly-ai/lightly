@@ -1,0 +1,62 @@
+# Area labels for pull requests, applied by label_pr.yml with actions/labeler.
+#
+# A pull request gets every label whose globs match at least one changed file. Labels
+# are kept in sync: a label is removed once no changed file matches it anymore. Tests
+# count toward the area they mirror.
+
+"area: loss":
+  - changed-files:
+      - any-glob-to-any-file:
+          - lightly/loss/**
+          - tests/loss/**
+
+"area: models":
+  - changed-files:
+      - any-glob-to-any-file:
+          - lightly/models/**
+          - tests/models/**
+
+"area: transforms":
+  - changed-files:
+      - any-glob-to-any-file:
+          - lightly/transforms/**
+          - tests/transforms/**
+
+"area: data":
+  - changed-files:
+      - any-glob-to-any-file:
+          - lightly/data/**
+          - tests/data/**
+
+"area: utils":
+  - changed-files:
+      - any-glob-to-any-file:
+          - lightly/utils/**
+          - tests/utils/**
+
+"area: docs":
+  - changed-files:
+      - any-glob-to-any-file:
+          - docs/**
+
+"area: examples":
+  - changed-files:
+      - any-glob-to-any-file:
+          - examples/**
+
+"area: benchmarks":
+  - changed-files:
+      - any-glob-to-any-file:
+          - benchmarks/**
+
+"area: ci":
+  - changed-files:
+      - any-glob-to-any-file:
+          - .github/**
+          - Makefile
+
+"area: deps":
+  - changed-files:
+      - any-glob-to-any-file:
+          - pyproject.toml
+          - uv.lock

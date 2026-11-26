@@ -93,7 +93,11 @@ Touch points, mirroring an existing method (e.g. BYOL) as the template:
 
 1. `lightly/models/<name>.py`, `lightly/loss/<name>_loss.py`, `lightly/transforms/<name>_transform.py` as needed
 2. Export the new symbol from the relevant subpackage `__init__.py`
-3. Add `docs/source/examples/<name>.rst` and wire it into its parent toctree
+3. Add `docs/source/examples/<name>.rst`, list it in the hidden toctree in
+   `docs/source/examples/models.rst`, and add a card for it there plus a chip under
+   "All methods" in `docs/source/index.rst`, inside the matching `ls-family-<key>`
+   container.
+   Update the method count in the `index.rst` hero.
 4. Add example scripts under all three `examples/` variants, then run `make
    generate-example-notebooks` and commit the regenerated notebooks (they're
    tracked in git)
@@ -119,6 +123,7 @@ Touch points, mirroring an existing method (e.g. BYOL) as the template:
 ## PR workflow
 
 - Branch off `upstream/master`; never commit directly to `master`.
+- PR titles and commit subjects follow [Conventional Commits](https://www.conventionalcommits.org): `type(scope): summary`, where `type` is one of `feat fix docs test ci build perf refactor chore revert`. The title is squash-merged onto `master` and validated by the `Lint PR Title` check, so it must match. `feat` → minor bump, `fix` → patch, `!` or a `BREAKING CHANGE:` footer → major.
 - Before committing: `make format`, then `make all-checks` (or at least `static-checks` + targeted tests for faster iterations).
 - If you touched `examples/`, regenerate notebooks (`make generate-example-notebooks`) and commit them.
 - If you touched `docs/source`, verify the docs still build (see `docs/README.md`).

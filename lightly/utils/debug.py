@@ -1,22 +1,29 @@
-from typing import List
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Callable, List, Optional
 
 import torch
-import torchvision
 from PIL import Image
 
 from lightly.transforms.multi_view_transform import MultiViewTransform
 from lightly.transforms.torchvision_v2_compatibility import torchvision_transforms as T
 
+if TYPE_CHECKING:
+    from matplotlib.figure import Figure
+
+
+_matplotlib_import_error: Optional[ImportError] = None
+
 try:
     import matplotlib.pyplot as plt
 except ModuleNotFoundError:
-    plt = ModuleNotFoundError(
+    _matplotlib_import_error = ModuleNotFoundError(
         "Matplotlib is not installed on your system. Please install it to use the "
         "plotting functionalities. You can install it with "
         "'pip install lightly[matplotlib]'."
     )
 except ImportError as ex:
-    plt = ex
+    _matplotlib_import_error = ex
 
 
 @torch.no_grad()
@@ -50,7 +57,7 @@ def std_of_l2_normalized(z: torch.Tensor) -> torch.Tensor:
 
 def apply_transform_without_normalize(
     image: Image.Image,
-    transform,
+    transform: Callable[[Image.Image], Image.Image],
 ) -> Image.Image:
     """Applies the transform to the image but skips ToTensor and Normalize.
 
@@ -71,16 +78,20 @@ def apply_transform_without_normalize(
         # Checked first because our ToTensor shim also wraps a T.Compose, which the
         # branch below would otherwise unwrap and apply.
         return image
+
     if isinstance(transform, T.Compose):
         for transform_ in transform.transforms:
             image = apply_transform_without_normalize(image, transform_)
-    elif isinstance(getattr(transform, "transform", None), T.Compose):
-        # View transforms such as SimCLRViewTransform wrap a T.Compose instead of
-        # subclassing it. torchvision v2's Compose has a bound method named
-        # "transform", so the isinstance check above has to come first.
-        image = apply_transform_without_normalize(image, transform.transform)
     else:
-        image = transform(image)
+        wrapped_transform = getattr(transform, "transform", None)
+        if isinstance(wrapped_transform, T.Compose):
+            # View transforms such as SimCLRViewTransform wrap a T.Compose instead of
+            # subclassing it. torchvision v2's Compose has a bound method named
+            # "transform", so the isinstance check above has to come first.
+            image = apply_transform_without_normalize(image, wrapped_transform)
+        else:
+            image = transform(image)
+
     return image
 
 
@@ -107,6 +118,7 @@ def generate_grid_of_augmented_images(
         raise ValueError(
             f"Transform must be of type MultiViewTransform but is {type(transform)}."
         )
+
     grid = []
     for view_transform in transform.transforms:
         grid.append(
@@ -121,7 +133,7 @@ def generate_grid_of_augmented_images(
 def plot_augmented_images(
     input_images: List[Image.Image],
     transform: MultiViewTransform,
-):
+) -> Figure:
     """Plots original images and augmented images in a figure.
 
     This function ignores the ToTensor and Normalize transforms for visualization purposes.
@@ -148,7 +160,11 @@ def plot_augmented_images(
     nrows = len(input_images)
     ncols = len(grid)
 
-    fig, axs = plt.subplots(nrows, ncols, figsize=(ncols * 1.5, nrows * 1.5))
+    fig, axs = plt.subplots(
+        nrows,
+        ncols,
+        figsize=(ncols * 1.5, nrows * 1.5),
+    )
 
     for i in range(nrows):
         for j in range(ncols):
@@ -160,15 +176,16 @@ def plot_augmented_images(
     ax_top_left = axs[0, 0] if len(input_images) > 1 else axs[0]
     ax_top_left.set(title="Original images")
     ax_top_left.title.set_size(8)
+
     ax_top_next = axs[0, 1] if len(input_images) > 1 else axs[1]
     ax_top_next.set(title="Augmented images")
     ax_top_next.title.set_size(8)
-    fig.tight_layout()
 
+    fig.tight_layout()
     return fig
 
 
 def _check_matplotlib_available() -> None:
     """Checks if matplotlib is available. Raises an error if not."""
-    if isinstance(plt, Exception):
-        raise plt
+    if _matplotlib_import_error is not None:
+        raise _matplotlib_import_error

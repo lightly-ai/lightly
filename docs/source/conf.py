@@ -10,21 +10,20 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
+import datetime
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath("../.."))
+from sphinx_design import icons
 
-import sphinx_rtd_theme
+sys.path.insert(0, os.path.abspath("../.."))
 
 import lightly
 
 # -- Project information -----------------------------------------------------
 
 project = "LightlySSL"
-copyright_year = "2020-<script>document.write((new Date()).getFullYear())</script>"
-copyright = "Lightly AG"
-website_url = "https://www.lightly.ai/"
+copyright = f"2020-{datetime.date.today().year}, Lightly AG"
 author = "Lightly Team"
 
 # The full version, including alpha/beta/rc tags
@@ -39,7 +38,6 @@ master_doc = "index"
 # ones.
 extensions = [
     "sphinx.ext.napoleon",
-    "sphinx_rtd_theme",
     "sphinx.ext.autosummary",
     "sphinx_gallery.gen_gallery",
     "sphinx_tabs.tabs",
@@ -84,24 +82,154 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "sphinx_rtd_theme"
+html_theme = "furo"
+
+# Layout follows the LightlyStudio docs so the doc sites read as one product
+# family, but the colors are LightlySSL's own, taken from the logo: navy #092643,
+# turquoise #2cc2bd and the green-to-blue gradient of the mark. Turquoise is too
+# light for text on white, so light-mode links use a darker teal that passes WCAG
+# AA. Furo takes the colors as CSS custom properties, so the tokens live here and
+# _static/custom.css only handles what they cannot reach.
+_BRAND = {
+    "color-brand-primary": "#092643",
+    "color-brand-content": "#0f7f7b",
+    "color-brand-visited": "#0f7f7b",
+    # Notes and see-also boxes use the brand teal instead of Furo's material blue.
+    "color-admonition-title--note": "#0f7f7b",
+    "color-admonition-title--seealso": "#0f7f7b",
+    # The banner is the brand navy in both schemes.
+    "color-announcement-background": "#092643",
+    "color-announcement-text": "#d4e2ec",
+}
+_BRAND_DARK = {
+    "color-brand-primary": "#f7f8fb",
+    "color-brand-content": "#2cc2bd",
+    "color-brand-visited": "#2cc2bd",
+    "color-admonition-title--note": "#2cc2bd",
+    "color-admonition-title--seealso": "#2cc2bd",
+    "color-announcement-background": "#0d3253",
+    "color-announcement-text": "#d4e2ec",
+}
+
+_GITHUB_REPO = "lightly-ai/lightly"
+# GitHub, star and fork icons for the footer and the sidebar repository card,
+# from the Octicons sphinx-design ships.
+_OCTICONS = {
+    name: icons.get_octicon(name, height="1em")
+    for name in ("mark-github", "star", "repo-forked")
+}
 
 html_theme_options = {
-    "collapse_navigation": False,  # set to false to prevent menu item collapse
-    "logo_only": True,
+    "sidebar_hide_name": True,
+    "announcement": (
+        "Interested in training your own vision foundation model? Check out "
+        '<a href="https://docs.lightly.ai/train/stable/index.html"><b>LightlyTrain</b></a>!'
+    ),
+    "footer_icons": [
+        {
+            "name": "GitHub",
+            "url": f"https://github.com/{_GITHUB_REPO}",
+            "html": _OCTICONS["mark-github"],
+            "class": "",
+        },
+    ],
+    "navigation_with_keys": True,
+    # Furo swaps these with the colour scheme; a single html_logo would be
+    # invisible against one of the two sidebar backgrounds.
+    "light_logo": "lightly_SSL_logo_crop.png",
+    "dark_logo": "lightly_SSL_logo_crop_white_text.png",
+    "light_css_variables": {
+        **_BRAND,
+        "font-stack": "'IBM Plex Sans', system-ui, sans-serif",
+        "font-stack--monospace": "'IBM Plex Mono', ui-monospace, monospace",
+        "color-foreground-primary": "#092643",
+        "color-foreground-secondary": "#4c616b",
+        "color-foreground-muted": "#5e727c",
+        "color-background-primary": "#ffffff",
+        "color-background-secondary": "#fafafc",
+        "color-background-border": "#e6e6ec",
+        "color-api-background": "#fafafc",
+        # A gray sidebar sets the navigation apart from the white page.
+        "color-sidebar-background": "#f4f6f8",
+        "color-sidebar-background-border": "#e3e8ec",
+        "color-sidebar-search-background": "#ffffff",
+        "color-sidebar-caption-text": "#5e727c",
+        # Tint behind the current page in the sidebar.
+        "ls-accent-tint": "#e3f6f4",
+        # Text on solid teal buttons: white on the dark teal, navy on the bright one.
+        "ls-btn-ink": "#ffffff",
+        # Start page hero: a pale teal panel in light mode, the navy panel in dark.
+        "ls-hero-bg": (
+            "radial-gradient(1200px 400px at 85% -10%, rgba(15, 127, 123, 0.16),"
+            " transparent 60%), linear-gradient(160deg, #f4fbfa 0%, #e3f4f2 100%)"
+        ),
+        "ls-hero-border": "#d3e4ec",
+        "ls-hero-title": "#092643",
+        "ls-hero-ink": "#4c616b",
+        "ls-hero-ghost-border": "#b5d0dc",
+        "ls-hero-ghost-ink": "#092643",
+    },
+    "dark_css_variables": {
+        **_BRAND_DARK,
+        "color-foreground-primary": "#f7f8fb",
+        "color-foreground-secondary": "#93a7b0",
+        "color-foreground-muted": "#7f949e",
+        "color-background-primary": "#061b30",
+        "color-background-secondary": "#092643",
+        "color-background-border": "#17395a",
+        "color-api-background": "#092643",
+        "color-sidebar-background": "#092643",
+        "color-sidebar-background-border": "#17395a",
+        "color-sidebar-search-background": "#061b30",
+        "color-sidebar-caption-text": "#7f949e",
+        "ls-accent-tint": "#0d3253",
+        "ls-btn-ink": "#092643",
+        "ls-hero-bg": (
+            "radial-gradient(1200px 400px at 85% -10%, rgba(55, 216, 164, 0.2),"
+            " transparent 60%), linear-gradient(160deg, #092643 0%, #0d3253 100%)"
+        ),
+        "ls-hero-border": "#17395a",
+        "ls-hero-title": "#ffffff",
+        "ls-hero-ink": "#a9c3cd",
+        "ls-hero-ghost-border": "#2c5577",
+        "ls-hero-ghost-ink": "#e6f1f5",
+    },
 }
+
+# The code panel stays navy in both schemes (see _static/custom.css), so light mode
+# needs dark-background token colors too. A light style renders names like `torch`
+# near-black on navy.
+pygments_style = "native"
+pygments_dark_style = "native"
+
+html_css_files = [
+    "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap",
+    "custom.css",
+]
+# Method family filter on the start page and the Models page; does nothing on
+# pages without filter buttons. repo-stats.js fills in the GitHub star and fork
+# counts of the sidebar repository card.
+html_js_files = ["method-filter.js", "repo-stats.js"]
+
+# Furo's default sidebar with a repository card under the search box, see
+# _templates/sidebar/github.html.
+html_sidebars = {
+    "**": [
+        "sidebar/brand.html",
+        "sidebar/search.html",
+        "sidebar/github.html",
+        "sidebar/scroll-start.html",
+        "sidebar/navigation.html",
+        "sidebar/ethical-ads.html",
+        "sidebar/scroll-end.html",
+        "sidebar/variant-selector.html",
+    ]
+}
+html_context = {"github_repo": _GITHUB_REPO, "octicons": _OCTICONS}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ["_static"]
+html_static_path = ["_static", "../logos"]
 
 html_favicon = "favicon.png"
-
-html_logo = "../logos/lightly_SSL_logo_crop_white_text.png"
-
-# Exposes variables so that they can be used by django
-html_context = {
-    "copyright_year": copyright_year,
-    "website_url": website_url,
-}

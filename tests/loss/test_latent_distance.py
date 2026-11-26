@@ -26,14 +26,14 @@ class TestLatentDistance:
         assert loss.item() == pytest.approx(4.0)
 
     @pytest.mark.parametrize("distance", ["l1", "l2"])
-    def test_forward__target_is_detached(self, distance: str) -> None:
+    def test_forward__gradients_reach_target(self, distance: str) -> None:
         predicted = torch.randn(4, 3, 16, requires_grad=True)
         target = torch.randn(4, 3, 16, requires_grad=True)
         latent_distance(
             predicted=predicted, target=target, distance=distance
         ).backward()
         assert predicted.grad is not None
-        assert target.grad is None
+        assert target.grad is not None
 
     @pytest.mark.parametrize("distance", ["l1", "l2"])
     def test_forward__normalize_removes_scale_and_shift(self, distance: str) -> None:
