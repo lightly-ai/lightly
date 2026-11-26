@@ -1055,6 +1055,99 @@ def random_block_mask_image(
     return mask
 
 
+def random_cyclic_block_mask(
+    size: Tuple[int, int, int],
+    mask_ratio: float = 0.5,
+    min_aspect: float = 0.5,
+    max_aspect: Optional[float] = None,
+    roll: bool = True,
+    device: Optional[Union[torch.device, str]] = None,
+) -> Tensor:
+    """Creates cyclic block masks as used in Franca. [0]
+
+    For each image a single contiguous, aspect-ratio-varying block of
+    ``int(height * width * mask_ratio)`` patches is masked and then optionally rolled
+    across the grid, so the masked region wraps around the borders (a cyclic, torus
+    shift). Unlike the DINOv2 block masking in :func:`random_block_mask`, which
+    accumulates several blocks per image, this masks a single rolled block, matching
+    Franca's ``BlockMasking`` used for the iBOT branch. [1]
+
+    - [0]: Franca, 2025, https://arxiv.org/abs/2507.14137
+    - [1]: https://github.com/valeoai/Franca
+
+    Args:
+        size:
+            Size of the image batch, (batch_size, height, width) in patches.
+        mask_ratio:
+            Proportion of patches to mask per image.
+        min_aspect:
+            Minimum aspect ratio of the masked block.
+        max_aspect:
+            Maximum aspect ratio of the masked block. Defaults to 1 / min_aspect.
+        roll:
+            If True, the masked block is randomly rolled across the grid (cyclic shift).
+        device:
+            Device on which to create the mask.
+
+    Returns:
+        A boolean tensor with shape (batch_size, height, width) where each entry is
+        True if the patch should be masked and False otherwise. Every image masks
+        int(height * width * mask_ratio) patches.
+
+    Raises:
+        ValueError: If mask_ratio is not in [0, 1], if min_aspect is not positive, or
+            if max_aspect is smaller than min_aspect.
+    """
+    if not 0.0 <= mask_ratio <= 1.0:
+        raise ValueError(f"mask_ratio must be in [0, 1], got {mask_ratio}.")
+    if min_aspect <= 0.0:
+        raise ValueError(f"min_aspect must be positive, got {min_aspect}.")
+    batch_size, height, width = size
+    num_patches = height * width
+    num_masked = int(num_patches * mask_ratio)
+    if max_aspect is None:
+        max_aspect = 1.0 / min_aspect
+    if max_aspect < min_aspect:
+        raise ValueError(
+            f"max_aspect ({max_aspect}) must not be smaller than min_aspect ({min_aspect})."
+        )
+    log_aspect_ratio = (math.log(min_aspect), math.log(max_aspect))
+
+    # Masks are built per sample on the cpu and moved to the device once at the end.
+    masks = []
+    for _ in range(batch_size):
+        grid = torch.zeros(height, width, dtype=torch.bool)
+        if num_masked >= num_patches:
+            grid.fill_(True)
+        elif num_masked > 0:
+            # Sample the aspect ratio of the masked block, clamped so it fits.
+            min_lar = max(log_aspect_ratio[0], math.log(num_masked / width**2))
+            max_lar = min(
+                log_aspect_ratio[1], math.log(height**2 / (num_masked + 1e-5))
+            )
+            if min_lar > max_lar:
+                min_lar = max_lar
+            aspect = math.exp(float(torch.empty(1).uniform_(min_lar, max_lar).item()))
+            block_h = min(height, math.ceil(math.sqrt(num_masked * aspect)))
+            block_w = min(width, math.ceil(math.sqrt(num_masked / aspect)))
+            top = int(torch.randint(0, height - block_h + 1, (1,)).item())
+            left = int(torch.randint(0, width - block_w + 1, (1,)).item())
+            block = torch.zeros(height, width, dtype=torch.bool)
+            block[top : top + block_h, left : left + block_w] = True
+            # Truncate to exactly num_masked patches, keeping row-major order.
+            block_ids = block.flatten().nonzero().flatten()[:num_masked]
+            flat = torch.zeros(num_patches, dtype=torch.bool)
+            flat[block_ids] = True
+            grid = flat.reshape(height, width)
+            if roll:
+                shift_h = int(torch.randint(0, height, (1,)).item())
+                shift_w = int(torch.randint(0, width, (1,)).item())
+                grid = torch.roll(grid, shifts=(shift_h, shift_w), dims=(0, 1))
+        masks.append(grid)
+
+    return torch.stack(masks).to(device)
+
+
 def nearest_neighbors(
     input_maps: torch.Tensor,
     candidate_maps: torch.Tensor,
