@@ -3,9 +3,9 @@
 Tutorial 7: Finetuning Lightly Checkpoints
 ===========================================
 
-LightlySSL provides pre-trained models on various datasets such as ImageNet1k,
-ImageNet100, Imagenette, and CIFAR-10. All these models' weights along with their
-hyperparameter configurations are available here :ref:`lightly-benchmarks`.
+LightlySSL provides pre-trained ImageNet1k models. These models' weights along
+with their hyperparameter configurations are available here
+:ref:`lightly-benchmarks`.
 
 In this tutorial, we will learn how to use these pre-trained model checkpoints
 to fine-tune an image classification model for the Food-101 dataset using
