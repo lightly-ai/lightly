@@ -1,6 +1,7 @@
+import numpy as np
 import pytest
 import torch
-from PIL import Image
+from PIL import Image, ImageFilter
 
 from lightly.transforms.gaussian_blur import GaussianBlur
 
@@ -9,16 +10,61 @@ class TestGaussianBlur:
     @pytest.mark.parametrize("w", [1, 10, 100])
     @pytest.mark.parametrize("h", [1, 10, 100])
     def test_on_pil_image(self, w: int, h: int) -> None:
-        gaussian_blur = GaussianBlur()
+        gaussian_blur = GaussianBlur(prob=1.0)
         sample = Image.new("RGB", (w, h))
-        gaussian_blur(sample)
+        out = gaussian_blur(sample)
+        assert isinstance(out, Image.Image)
+        assert out.size == (w, h)
 
     @pytest.mark.parametrize("w", [1, 10, 100])
     @pytest.mark.parametrize("h", [1, 10, 100])
     def test_on_tensor(self, w: int, h: int) -> None:
-        gaussian_blur = GaussianBlur()
+        gaussian_blur = GaussianBlur(prob=1.0)
         sample_tensor = torch.randn(3, h, w)
-        gaussian_blur(sample_tensor)
+        out = gaussian_blur(sample_tensor)
+        assert isinstance(out, torch.Tensor)
+        assert out.shape == sample_tensor.shape
+        assert out.dtype == sample_tensor.dtype
+
+    @pytest.mark.parametrize("w", [1, 10, 100])
+    @pytest.mark.parametrize("h", [1, 10, 100])
+    def test_on_uint8_tensor(self, w: int, h: int) -> None:
+        gaussian_blur = GaussianBlur(prob=1.0)
+        sample_tensor = torch.randint(0, 256, (3, h, w), dtype=torch.uint8)
+        out = gaussian_blur(sample_tensor)
+        assert isinstance(out, torch.Tensor)
+        assert out.shape == sample_tensor.shape
+        assert out.dtype == torch.uint8
+
+    def test_prob_zero_returns_original_without_conversion(self) -> None:
+        gaussian_blur = GaussianBlur(prob=0.0)
+        sample_tensor = torch.randn(3, 16, 16)
+        out = gaussian_blur(sample_tensor)
+        assert out is sample_tensor
+
+    def test_sigma_zero_returns_original(self) -> None:
+        gaussian_blur = GaussianBlur(prob=1.0, sigmas=(0.0, 0.0))
+        sample_tensor = torch.randn(3, 16, 16)
+        out = gaussian_blur(sample_tensor)
+        assert out is sample_tensor
+
+    def test_matches_pil_sigma_semantics(self) -> None:
+        """Regression test for #1052: torchvision blur must match PIL GaussianBlur(radius=sigma)."""
+        generator = torch.Generator().manual_seed(0)
+        arr = torch.randint(
+            0, 256, (64, 64, 3), dtype=torch.uint8, generator=generator
+        ).numpy()
+        pil_img = Image.fromarray(arr)
+
+        for sigma in (0.5, 1.0, 2.0):
+            pil_blurred = np.asarray(
+                pil_img.filter(ImageFilter.GaussianBlur(radius=sigma)), dtype=np.float32
+            )
+            tv_blurred_img = GaussianBlur(prob=1.0, sigmas=(sigma, sigma))(pil_img)
+            assert isinstance(tv_blurred_img, Image.Image)
+            tv_blurred = np.asarray(tv_blurred_img, dtype=np.float32)
+            mean_abs_diff = float(np.abs(pil_blurred - tv_blurred).mean())
+            assert mean_abs_diff < 3.0
 
     def test_init__keyword_only(self) -> None:
         with pytest.raises(TypeError):

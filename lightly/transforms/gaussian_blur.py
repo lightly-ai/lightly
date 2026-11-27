@@ -1,10 +1,10 @@
 # Copyright (c) 2020. Lightly AG and its affiliates.
 # All Rights Reserved
 
+import math
 from typing import Tuple, Union
 
 import numpy as np
-from PIL import ImageFilter
 from PIL.Image import Image
 from torch import Tensor
 
@@ -14,10 +14,10 @@ from lightly.transforms.torchvision_v2_compatibility import functional as F
 class GaussianBlur:
     """Implementation of random Gaussian blur.
 
-    Utilizes the built-in ImageFilter method from PIL to apply a Gaussian
-    blur to the input image with a certain probability. The blur is further
-    randomized by sampling uniformly the values of the standard deviation of
-    the Gaussian kernel.
+    Utilizes torchvision's functional `gaussian_blur` to apply a Gaussian blur
+    to the input image or tensor with a certain probability. The blur is further
+    randomized by sampling uniformly the standard deviation (sigma) of the
+    Gaussian kernel.
 
     Attributes:
         prob:
@@ -41,29 +41,36 @@ class GaussianBlur:
 
         Args:
             sample:
-                PIL image to which blur will be applied.
+                PIL image or tensor to which blur will be applied.
 
         Returns:
             Blurred image or original image.
         """
         prob = np.random.random_sample()
+        if prob >= self.prob:
+            return sample
 
-        # Convert to PIL image if it's a tensor, otherwise use as is
-        sample_pil: Image
+        # Choose randomized std for Gaussian filtering (preserving #1052 sigma semantics).
+        sigma = float(np.random.uniform(self.sigmas[0], self.sigmas[1]))
+        if sigma <= 0.0:
+            return sample
+
+        # Use an odd kernel covering +/- 3*sigma, clamped per axis so torchvision's
+        # reflect padding (kernel_size // 2) remains strictly smaller than the image
+        # dimension even for tiny inputs (e.g. 1x1).
         if isinstance(sample, Tensor):
-            is_input_tensor = True
-            sample_pil = F.to_pil_image(sample)
+            height, width = sample.shape[-2], sample.shape[-1]
         else:
-            is_input_tensor = False
-            sample_pil = sample
+            width, height = sample.size
 
-        if prob < self.prob:
-            # choose randomized std for Gaussian filtering
-            sigma = np.random.uniform(self.sigmas[0], self.sigmas[1])
-            # PIL GaussianBlur https://github.com/python-pillow/Pillow/blob/76478c6865c78af10bf48868345db2af92f86166/src/PIL/ImageFilter.py#L154 label the
-            # sigma parameter of the gaussian filter as radius. Before, the radius of the patch was passed as the argument.
-            # The issue was addressed here https://github.com/lightly-ai/lightly/issues/1051 and solved by AurelienGauffre.
-            sample_pil = sample_pil.filter(ImageFilter.GaussianBlur(radius=sigma))
+        base_kernel = max(1, 2 * math.ceil(3.0 * sigma) + 1)
+        kernel_w = min(base_kernel, 2 * width - 1)
+        kernel_h = min(base_kernel, 2 * height - 1)
 
-        # Convert back to tensor if input was a tensor
-        return F.to_tensor(sample_pil) if is_input_tensor else sample_pil
+        # torchvision functional.gaussian_blur expects kernel_size as [kernel_x, kernel_y].
+        blurred: Union[Tensor, Image] = F.gaussian_blur(
+            sample,
+            kernel_size=[kernel_w, kernel_h],
+            sigma=[sigma, sigma],
+        )
+        return blurred
