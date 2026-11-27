@@ -14,7 +14,7 @@ LightlySSL
      <img class="ls-hero-logo only-light" src="_static/lightly_SSL_logo_crop.png" alt="LightlySSL">
      <img class="ls-hero-logo only-dark" src="_static/lightly_SSL_logo_crop_white_text.png" alt="LightlySSL">
      <p class="ls-hero-title">Learn from images and video without labels</p>
-     <p class="ls-lead">Pretrain vision backbones with 28 self-supervised methods, or train a latent world model that plans from raw frames. All in plain PyTorch.</p>
+     <p class="ls-lead">Pretrain vision backbones with 29 self-supervised methods, or train a latent world model that plans from raw frames. All in plain PyTorch.</p>
      <div class="ls-navy-actions">
        <a class="ls-btn ls-btn-primary" href="getting_started/install.html">Get started</a>
        <a class="ls-btn ls-btn-ghost" href="examples/models.html">Browse methods</a>
@@ -189,7 +189,8 @@ All methods
    .. container:: ls-fam-item ls-family-distillation
 
       :ref:`BYOL <byol>` :ref:`SimSiam <simsiam>` :ref:`FastSiam <fastsiam>`
-      :ref:`DINO <dino>` :ref:`DINOv2 <dinov2>` :ref:`MSN <msn>` :ref:`PMSN <pmsn>`
+      :ref:`DINO <dino>` :ref:`DINOv2 <dinov2>` :ref:`SimDINO <simdino>` :ref:`MSN <msn>`
+      :ref:`PMSN <pmsn>`
 
    .. container:: ls-fam-item ls-family-masked
 

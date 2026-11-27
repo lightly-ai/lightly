@@ -79,6 +79,7 @@ from lightly.loss import (
     FroSSLLoss,
     NegativeCosineSimilarity,
     NTXentLoss,
+    SimDINOLoss,
     SwaVLoss,
 )
 from lightly.models import ResNetGenerator, modules, utils
@@ -248,6 +249,7 @@ def create_dataset_train_ssl(model):
         MocoModel: simclr_transform,
         NNCLRModel: simclr_transform,
         SimCLRModel: simclr_transform,
+        SimDINOModel: dino_transform,
         SimSiamModel: simsiam_transform,
         SwaVModel: swav_transform,
         SMoGModel: smog_transform,
@@ -753,6 +755,68 @@ class DINOModel(BenchmarkModule):
         return [optim], [scheduler]
 
 
+class SimDINOModel(BenchmarkModule):
+    def __init__(self, dataloader_kNN, num_classes):
+        super().__init__(dataloader_kNN, num_classes)
+        # create a ResNet backbone and remove the classification head
+        resnet = ResNetGenerator("resnet-18")
+        self.backbone = nn.Sequential(
+            *list(resnet.children())[:-1], nn.AdaptiveAvgPool2d(1)
+        )
+        self.head = self._build_projection_head()
+        self.teacher_backbone = copy.deepcopy(self.backbone)
+        self.teacher_head = self._build_projection_head()
+
+        utils.deactivate_requires_grad(self.teacher_backbone)
+        utils.deactivate_requires_grad(self.teacher_head)
+
+        self.criterion = SimDINOLoss(gather_distributed=gather_distributed)
+
+    def _build_projection_head(self):
+        head = heads.SimDINOProjectionHead(512, 2048, 256, batch_norm=True)
+        # use only 2 layers for cifar10, as for DINO
+        head.layers = heads.ProjectionHead(
+            [
+                (512, 2048, nn.BatchNorm1d(2048), nn.GELU()),
+                (2048, 256, None, None),
+            ]
+        ).layers
+        return head
+
+    def forward(self, x):
+        y = self.backbone(x).flatten(start_dim=1)
+        z = self.head(y)
+        return z
+
+    def forward_teacher(self, x):
+        y = self.teacher_backbone(x).flatten(start_dim=1)
+        z = self.teacher_head(y)
+        return z
+
+    def training_step(self, batch, batch_idx):
+        utils.update_momentum(self.backbone, self.teacher_backbone, m=0.99)
+        utils.update_momentum(self.head, self.teacher_head, m=0.99)
+        views, _, _ = batch
+        views = [view.to(self.device) for view in views]
+        global_views = views[:2]
+        teacher_out = [self.forward_teacher(view) for view in global_views]
+        student_out = [self.forward(view) for view in views]
+        loss = self.criterion(teacher_out, student_out)
+        self.log("train_loss_ssl", loss)
+        return loss
+
+    def configure_optimizers(self):
+        param = list(self.backbone.parameters()) + list(self.head.parameters())
+        optim = torch.optim.SGD(
+            param,
+            lr=6e-2 * lr_factor,
+            momentum=0.9,
+            weight_decay=5e-4,
+        )
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, max_epochs)
+        return [optim], [scheduler]
+
+
 class DCL(BenchmarkModule):
     def __init__(self, dataloader_kNN, num_classes):
         super().__init__(dataloader_kNN, num_classes)
@@ -932,6 +996,7 @@ models = [
     MocoModel,
     NNCLRModel,
     SimCLRModel,
+    SimDINOModel,
     SimSiamModel,
     SwaVModel,
     SMoGModel,

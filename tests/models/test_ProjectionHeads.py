@@ -18,6 +18,7 @@ from lightly.models.modules.heads import (
     NNCLRPredictionHead,
     NNCLRProjectionHead,
     SimCLRProjectionHead,
+    SimDINOProjectionHead,
     SimSiamPredictionHead,
     SimSiamProjectionHead,
     SwaVProjectionHead,
@@ -52,6 +53,7 @@ class TestProjectionHeads:
             NNCLRProjectionHead,
             NNCLRPredictionHead,
             SimCLRProjectionHead,
+            SimDINOProjectionHead,
             SimSiamProjectionHead,
             SimSiamPredictionHead,
             SwaVProjectionHead,
@@ -209,6 +211,28 @@ class TestProjectionHeads:
                                 assert not are_same
                             else:
                                 assert are_same
+
+    @pytest.mark.parametrize("batch_norm", [False, True])
+    def test_simdino_projection_head(self, batch_norm: bool) -> None:
+        """The SimDINO head is the DINO head up to the l2-normalized bottleneck."""
+        torch.manual_seed(0)
+        dino_head = DINOProjectionHead(
+            input_dim=8,
+            hidden_dim=16,
+            bottleneck_dim=4,
+            output_dim=32,
+            batch_norm=batch_norm,
+        ).eval()
+        head = SimDINOProjectionHead(
+            input_dim=8, hidden_dim=16, output_dim=4, batch_norm=batch_norm
+        ).eval()
+        head.layers.load_state_dict(dino_head.layers.state_dict())
+        x = torch.rand(3, 8)
+        with torch.no_grad():
+            y = head(x)
+            expected = torch.nn.functional.normalize(dino_head.layers(x), dim=-1)
+        torch.testing.assert_close(y, expected)
+        torch.testing.assert_close(y.norm(dim=-1), torch.ones(3))
 
     @pytest.mark.parametrize("device", ["cpu", "cuda"])
     def test_dinov2_projection_head(self, device: str) -> None:

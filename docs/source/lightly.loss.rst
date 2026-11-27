@@ -77,6 +77,9 @@ lightly.loss
 .. autoclass:: lightly.loss.regularizer.dse.DSERegularizer
    :members:
 
+.. autoclass:: lightly.loss.simdino_loss.SimDINOLoss
+   :members:
+
 .. autoclass:: lightly.loss.swav_loss.SwaVLoss
    :members:
 

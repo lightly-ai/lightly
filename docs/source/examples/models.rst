@@ -223,6 +223,22 @@ transforms, so you can start from a method and swap the parts.
 
          <p class="ls-method-tags"><span>ViT</span></p>
 
+   .. grid-item-card:: SimDINO
+      :link: simdino
+      :link-type: ref
+      :class-item: ls-fam-item ls-family-distillation
+      :class-card: ls-method-card
+
+      .. rst-class:: ls-method-meta
+
+      Self-distillation · 2025
+
+      DINO without prototypes, centering or temperatures: a coding rate term prevents collapse.
+
+      .. raw:: html
+
+         <p class="ls-method-tags"><span>ResNet</span></p>
+
    .. grid-item-card:: MAE
       :link: mae
       :link-type: ref
@@ -519,6 +535,7 @@ transforms, so you can start from a method and swap the parts.
    pixio.rst
    pmsn.rst
    simclr.rst
+   simdino.rst
    simmim.rst
    simsiam.rst
    smog.rst
