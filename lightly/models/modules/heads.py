@@ -780,7 +780,8 @@ class SimDINOProjectionHead(ProjectionHead):
     def forward(self, x: Tensor) -> Tensor:
         """Computes one forward pass through the head."""
         x = self.layers(x)
-        return nn.functional.normalize(x, dim=-1, p=2)
+        eps = 1e-6 if x.dtype == torch.float16 else 1e-12
+        return nn.functional.normalize(x, dim=-1, p=2, eps=eps)
 
     def _init_weights(self, module: nn.Module) -> None:
         """Initializes layers with a truncated normal distribution."""
