@@ -8,7 +8,12 @@ import numpy as np
 from PIL.Image import Image
 from torch import Tensor
 
-from lightly.transforms.torchvision_v2_compatibility import functional as F
+from lightly.transforms.torchvision_v2_compatibility import (
+    _TRANSFORMS_V2,
+)
+from lightly.transforms.torchvision_v2_compatibility import (
+    functional as F,
+)
 
 
 class GaussianBlur:
@@ -68,7 +73,31 @@ class GaussianBlur:
         kernel_h = min(base_kernel, 2 * height - 1)
 
         # torchvision functional.gaussian_blur expects kernel_size as [kernel_x, kernel_y].
-        blurred: Union[Tensor, Image] = F.gaussian_blur(
+        if isinstance(sample, Tensor):
+            # Legacy torchvision v1 gaussian_blur indexes img.shape[-3], so normalize
+            # 2D grayscale tensors (H, W) to (1, H, W) to match previous to_pil/to_tensor shape.
+            tensor_input = sample.unsqueeze(0) if sample.ndim == 2 else sample
+            blurred_tensor: Tensor = F.gaussian_blur(
+                tensor_input,
+                kernel_size=[kernel_w, kernel_h],
+                sigma=[sigma, sigma],
+            )
+            return blurred_tensor
+
+        if not _TRANSFORMS_V2:
+            # Older torchvision v1 (e.g. 0.11) reconstructs blurred PIL images without
+            # passing mode=sample.mode, turning CMYK into RGBA. Blur as tensor and
+            # preserve sample.mode explicitly.
+            pil_tensor = F.pil_to_tensor(sample)
+            blurred_pil_tensor = F.gaussian_blur(
+                pil_tensor,
+                kernel_size=[kernel_w, kernel_h],
+                sigma=[sigma, sigma],
+            )
+            blurred_pil: Image = F.to_pil_image(blurred_pil_tensor, mode=sample.mode)
+            return blurred_pil
+
+        blurred: Image = F.gaussian_blur(
             sample,
             kernel_size=[kernel_w, kernel_h],
             sigma=[sigma, sigma],

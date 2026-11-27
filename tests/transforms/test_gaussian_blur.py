@@ -66,6 +66,41 @@ class TestGaussianBlur:
             mean_abs_diff = float(np.abs(pil_blurred - tv_blurred).mean())
             assert mean_abs_diff < 3.0
 
+    def test_on_2d_grayscale_tensor(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        from torchvision.transforms import functional as F_v1
+
+        import lightly.transforms.gaussian_blur as gaussian_blur_module
+
+        sample = torch.rand(16, 16)
+        out_default = GaussianBlur(prob=1.0, sigmas=(1.0, 1.0))(sample)
+        assert isinstance(out_default, torch.Tensor)
+        assert out_default.shape == (1, 16, 16)
+
+        # Also verify against legacy torchvision v1 functional backend.
+        monkeypatch.setattr(gaussian_blur_module, "F", F_v1)
+        monkeypatch.setattr(gaussian_blur_module, "_TRANSFORMS_V2", False)
+        out_v1 = GaussianBlur(prob=1.0, sigmas=(1.0, 1.0))(sample)
+        assert isinstance(out_v1, torch.Tensor)
+        assert out_v1.shape == (1, 16, 16)
+
+    def test_preserves_cmyk_pil_mode_on_legacy_backend(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        from torchvision.transforms import functional as F_v1
+
+        import lightly.transforms.gaussian_blur as gaussian_blur_module
+
+        sample = Image.new("CMYK", (16, 16), (10, 20, 30, 40))
+        out_default = GaussianBlur(prob=1.0, sigmas=(1.0, 1.0))(sample)
+        assert isinstance(out_default, Image.Image)
+        assert out_default.mode == "CMYK"
+
+        monkeypatch.setattr(gaussian_blur_module, "F", F_v1)
+        monkeypatch.setattr(gaussian_blur_module, "_TRANSFORMS_V2", False)
+        out_v1 = GaussianBlur(prob=1.0, sigmas=(1.0, 1.0))(sample)
+        assert isinstance(out_v1, Image.Image)
+        assert out_v1.mode == "CMYK"
+
     def test_init__keyword_only(self) -> None:
         with pytest.raises(TypeError):
             GaussianBlur(0.5)  # type: ignore[misc]
