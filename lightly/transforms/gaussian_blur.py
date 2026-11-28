@@ -5,6 +5,8 @@ import math
 from typing import Tuple, Union
 
 import numpy as np
+import torch
+from PIL import Image as PILImage
 from PIL.Image import Image
 from torch import Tensor
 
@@ -77,24 +79,38 @@ class GaussianBlur:
             # Legacy torchvision v1 gaussian_blur indexes img.shape[-3], so normalize
             # 2D grayscale tensors (H, W) to (1, H, W) to match previous to_pil/to_tensor shape.
             tensor_input = sample.unsqueeze(0) if sample.ndim == 2 else sample
+            # Older PyTorch/torchvision releases (e.g. torch 1.10 / torchvision 0.11)
+            # do not support Half reflection padding on CPU; promote to float32 and restore.
+            needs_fp32 = (
+                tensor_input.dtype == torch.float16
+                and tensor_input.device.type == "cpu"
+            )
+            if needs_fp32:
+                tensor_input = tensor_input.to(dtype=torch.float32)
             blurred_tensor: Tensor = F.gaussian_blur(
                 tensor_input,
                 kernel_size=[kernel_w, kernel_h],
                 sigma=[sigma, sigma],
             )
+            if needs_fp32:
+                blurred_tensor = blurred_tensor.to(dtype=sample.dtype)
             return blurred_tensor
 
-        if not _TRANSFORMS_V2:
-            # Older torchvision v1 (e.g. 0.11) reconstructs blurred PIL images without
-            # passing mode=sample.mode, turning CMYK into RGBA. Blur as tensor and
-            # preserve sample.mode explicitly.
+        if not _TRANSFORMS_V2 or sample.mode in ("RGBa", "La"):
+            # Older torchvision v1 (e.g. 0.11) drops mode when reconstructing PIL images
+            # (turning CMYK into RGBA), and to_pil_image rejects premultiplied-alpha
+            # modes (RGBa, La) across torchvision versions. Reconstruct via Pillow directly.
             pil_tensor = F.pil_to_tensor(sample)
             blurred_pil_tensor = F.gaussian_blur(
                 pil_tensor,
                 kernel_size=[kernel_w, kernel_h],
                 sigma=[sigma, sigma],
             )
-            blurred_pil: Image = F.to_pil_image(blurred_pil_tensor, mode=sample.mode)
+            if blurred_pil_tensor.shape[0] == 1:
+                arr = blurred_pil_tensor.squeeze(0).numpy()
+            else:
+                arr = blurred_pil_tensor.permute(1, 2, 0).contiguous().numpy()
+            blurred_pil: Image = PILImage.fromarray(arr, mode=sample.mode)
             return blurred_pil
 
         blurred: Image = F.gaussian_blur(

@@ -101,6 +101,36 @@ class TestGaussianBlur:
         assert isinstance(out_v1, Image.Image)
         assert out_v1.mode == "CMYK"
 
+    @pytest.mark.parametrize("mode", ["RGBa", "La"])
+    def test_preserves_premultiplied_alpha_pil_modes(
+        self, mode: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        from torchvision.transforms import functional as F_v1
+
+        import lightly.transforms.gaussian_blur as gaussian_blur_module
+
+        fill = (10, 20, 30, 255) if mode == "RGBa" else (128, 255)
+        sample = Image.new(mode, (16, 16), fill)
+        out_default = GaussianBlur(prob=1.0, sigmas=(1.0, 1.0))(sample)
+        assert isinstance(out_default, Image.Image)
+        assert out_default.mode == mode
+        assert out_default.size == (16, 16)
+
+        monkeypatch.setattr(gaussian_blur_module, "F", F_v1)
+        monkeypatch.setattr(gaussian_blur_module, "_TRANSFORMS_V2", False)
+        out_v1 = GaussianBlur(prob=1.0, sigmas=(1.0, 1.0))(sample)
+        assert isinstance(out_v1, Image.Image)
+        assert out_v1.mode == mode
+        assert out_v1.size == (16, 16)
+
+    def test_on_cpu_float16_tensor(self) -> None:
+        sample = torch.rand(3, 16, 16, dtype=torch.float16)
+        out = GaussianBlur(prob=1.0, sigmas=(1.0, 1.0))(sample)
+        assert isinstance(out, torch.Tensor)
+        assert out.shape == sample.shape
+        assert out.dtype == torch.float16
+        assert torch.isfinite(out).all()
+
     def test_init__keyword_only(self) -> None:
         with pytest.raises(TypeError):
             GaussianBlur(0.5)  # type: ignore[misc]
